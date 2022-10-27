@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_field %}
+
+{% block content %}
+    <div class="container">
+        <form method="post">
+            {%  csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {% crispy_addon form.username prepend='<i class="bi bi-person"></i>' %}
+                </div>
+                <div class="form-group col-md-6">
+                    {% crispy_addon form.email prepend="@" %}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.first_name|as_crispy_field }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.last_name|as_crispy_field }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {% crispy_addon form.password1 prepend='<i class="bi bi-lock"></i>' %}
+                </div>
+                <div class="form-group col-md-6">
+                    {% crispy_addon form.password2 prepend='<i class="bi bi-lock-fill"></i>' %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+        </form>
+    </div>
+{% endblock %}

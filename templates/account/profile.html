@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load mathfilters %}
+
+{% block content %}
+    <div class="container-md">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex flex-column align-items-center text-center mb-5">
+                            <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
+                        </div>
+
+                        <form method="post" action="{% url 'update_user' %}">
+                            {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <h6 class="mb-0">
+                                            Логин
+                                        </h6>
+                                    </div>
+                                    <div class="col-sm-8 text-secondary" id="usernameDiv">
+                                        {{ user.username }}
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <h6 class="mb-0">
+                                            Имя
+                                        </h6>
+                                    </div>
+                                    <div class="col-sm-8 text-secondary" id="nameDiv">
+                                        {{ user.first_name }} {{ user.last_name }}
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <h6 class="mb-0">
+                                            Email
+                                        </h6>
+                                    </div>
+                                    <div class="col-sm-8 text-secondary" id="emailDiv">
+                                        {{ user.email }}
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col" id="editDiv">
+                                        <button type="button" class="btn btn-info btn-block" id="editButton">
+                                            Редактировать
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-block" id="cancelButton" style="display: none;">
+                                            Отменить
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col" id="changePasswordDiv">
+                                        <a class="btn btn-secondary btn-block" href="#" id="changePasswordButton">
+                                            Изменить пароль
+                                        </a>
+                                        <button type="submit" class="btn btn-success btn-block" id="confirmButton" style="display: none;">
+                                            Сохранить
+                                        </button>
+                                    </div>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card-columns">
+                    <div class="card">
+                        <div class="card-header">
+                            Федеральные округа
+                            <span class="float-right">
+                                <i class="bi bi-question-circle question_tooltip"
+                                    title="Отображается информация о количестве посещённых регионов в каждом из федеральных округов"></i>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            {% for area in areas %}
+                                <small>
+                                    {{ area.title }}
+                                    <span class="float-right">
+                                        {{ area.visited_regions }} из {{ area.total_regions  }}
+                                    </span>
+                                </small>
+                                <div class="progress mb-3" style="height: 10px">
+                                    <div class="progress-bar-striped bg-secondary progressArea" role="progressbar" style="width: {% widthratio area.visited_regions area.total_regions 100 %}%"
+                                         aria-valuenow="{% widthratio area.visited_regions area.total_regions 100 %}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            {% empty %}
+                                Вы ещё не посетили ни одного федерального округа.
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            Регионы
+                            <span class="float-right">
+                                <i class="bi bi-question-circle question_tooltip"
+                                    title="Отображается количество посещённых городов и общее количество городов в каждом из регионов"></i>
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            <small>
+                                {% for region in regions.visited %}
+                                    {% widthratio region.visited_cities region.total_cities 100 as ratio %}
+                                        <a href="{% url 'cities-by_region' region.pk %}">
+                                            {{ region }}
+                                        </a>
+                                        <span class="float-right">
+                                            {{ region.visited_cities }} из {{ region.total_cities }}
+                                        </span>
+                                    <div class="progress mb-3" style="height: 10px">
+                                        <div class="progress-bar-striped bg-success" role="progressbar"
+                                             style="width: {{ ratio }}%" aria-valuenow="{{ ratio }}"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                {% empty %}
+                                    Вы ещё не посетили ни одного региона.
+                                {% endfor %}
+                            </small>
+                        </div>
+
+                        <div class="card-footer">
+                            <small>
+                                <div class="row">
+                                    <div class="col">
+                                        Всего: {{ regions.num_visited }}
+                                    </div>
+                                    <div class="col text-right">
+                                        <a href="{% url 'region-all' %}">Посмотреть все</a>
+                                    </div>
+                                </div>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            Города
+                            <span class="float-right">
+                                <i class="bi bi-question-circle question_tooltip"
+                                    title="Отображается 5 последних посещённых городов"></i>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <small>
+                                <ul class="list-group list-group-flush">
+                                    {% for city in cities.last_visited %}
+                                        <li class="list-group-item">
+                                            <a href="{% url 'city-visited_city' city.pk %}">{{ city }}</a>
+                                            <span class="float-right">{{ city.date_of_visit }}</span>
+                                        </li>
+                                    {% empty %}
+                                        Вы ещё не посетили ни одного города.
+                                    {% endfor %}
+                                </ul>
+                            </small>
+                        </div>
+
+                        <div class="card-footer">
+                            <small>
+                                <div class="row">
+                                    <div class="col">
+                                        Всего: {{ cities.num_visited }}
+                                    </div>
+                                    <div class="col text-right">
+                                        <a href="{% url 'city-all' %}">Посмотреть все</a>
+                                    </div>
+                                </div>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    $('.question_tooltip').tooltip();
+
+    let editButton = document.getElementById('editButton');
+    let cancelButton = document.getElementById('cancelButton');
+    let changePasswordButton = document.getElementById('changePasswordButton');
+    let confirmButton = document.getElementById('confirmButton');
+
+    let usernameDiv = document.getElementById('usernameDiv');
+    let nameDiv = document.getElementById('nameDiv');
+    let emailDiv = document.getElementById('emailDiv');
+    let editDiv = document.getElementById('editDiv');
+    let changePasswordDiv = document.getElementById('changePasswordDiv');
+
+    // Нажатие на кнопку "Редактриовать" - появляется форма
+    editButton.onclick = function() {
+        usernameDiv.innerHTML = '<input type="text" class="form-control form-control-sm" name="username" placeholder="Логин" value="{{ user.username }}">';
+        nameDiv.innerHTML = '<div class="form-row">' +
+            '<div class="col"><input type="text" class="form-control form-control-sm" col-6 name="first_name" placeholder="Имя" value="{{ user.first_name }}"></div>' +
+            '<div class="col"><input type="text" class="form-control form-control-sm" name="last_name" placeholder="Фамилия" value="{{ user.last_name }}"></div>';
+        emailDiv.innerHTML = '<input type="text" class="form-control form-control-sm" name="email" placeholder="Email" value="{{ user.email }}">';
+
+        editButton.style.display = 'none';
+        changePasswordButton.style.display = 'none';
+        cancelButton.style.display = 'block';
+        confirmButton.style.display = 'block';
+    };
+
+    // Нажатие на кнопку "Отменить" - форма убирается, остаётся простой текст
+    cancelButton.onclick = function() {
+        usernameDiv.innerHTML = '{{ user.username }}';
+        nameDiv.innerHTML = '{{ user.first_name }} {{ user.last_name }}';
+        emailDiv.innerHTML = '{{ user.email }}';
+
+        editButton.style.display = 'block';
+        changePasswordButton.style.display = 'block';
+        cancelButton.style.display = 'none';
+        confirmButton.style.display = 'none';
+    }
+    </script>
+{% endblock %}

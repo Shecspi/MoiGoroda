@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+    <h1>Успешная регистрация</h1>
+
+    <p>
+        Поздравляем! Вы успешно зарегистрировались на нашем сайте.
+    </p>
+
+    <p>
+        <a href="{% url 'login' %}">Войти</a>
+    </p>
+{% endblock %}

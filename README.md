@@ -1,5 +1,10 @@
 # How to install
 
+1. Скачать репозиторий `git clone https://github.com/Shecspi/MoiGoroda.git`
+2. В папке `MoiGoroga/` переименовать файл `.env.example` в `.env` и указать в нём актуальные настройки
+3. Перезапустить сервер `touch ~/moi-goroda.rf/tmp/restart.txt`
+
+
 ## PostgreSQL
 1. Установить PostgreSQL `sudo apt install postgresql`
 2. Установить пакеты Python `pip install psycopg2-binary`
@@ -14,7 +19,7 @@
 8. Выйти `\q`
 
 ## Глобальные настройки
-1. Переименовать файл `.env.example` в `.env` и указать в нём актуальные настройки
+1. 
 
 ## Django
 1. `./manage.py migrate`;

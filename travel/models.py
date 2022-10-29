@@ -150,7 +150,8 @@ class VisitedCity(models.Model):
         default='')
     rating = models.SmallIntegerField(
         verbose_name='Рейтинг',
-        blank=False)  # ToDo Добавить проверку от 1 до 5
+        blank=False,
+        default=0)
 
     class Meta:
         verbose_name = 'Посещённый город'

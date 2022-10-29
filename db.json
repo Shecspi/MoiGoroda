@@ -2464,5 +2464,148 @@
     "coordinate_longitude": 35.226464,
     "wiki": "https://ru.wikipedia.org/wiki/Юхнов"
   }
+},
+{
+  "model": "travel.city",
+  "pk": 121,
+  "fields": {
+    "title": "Гаврилов-Ям",
+    "region": 17,
+    "population": 16341,
+    "date_of_foundation": 1545,
+    "coordinate_width": 57.303956,
+    "coordinate_longitude": 39.853847,
+    "wiki": "https://ru.wikipedia.org/wiki/Гаврилов-Ям"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 122,
+  "fields": {
+    "title": "Данилов",
+    "region": 17,
+    "population": 14416,
+    "date_of_foundation": 1457,
+    "coordinate_width": 58.188193,
+    "coordinate_longitude": 40.174995,
+    "wiki": "https://ru.wikipedia.org/wiki/Данилов_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 123,
+  "fields": {
+    "title": "Любим",
+    "region": 17,
+    "population": 5021,
+    "date_of_foundation": 1538,
+    "coordinate_width": 58.362004,
+    "coordinate_longitude": 40.686882,
+    "wiki": "https://ru.wikipedia.org/wiki/Любим"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 124,
+  "fields": {
+    "title": "Мышкин",
+    "region": 17,
+    "population": 5473,
+    "date_of_foundation": 1605,
+    "coordinate_width": 57.78663,
+    "coordinate_longitude": 38.454883,
+    "wiki": "https://ru.wikipedia.org/wiki/Мышкин"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 125,
+  "fields": {
+    "title": "Переславль-Залесский",
+    "region": 17,
+    "population": 37391,
+    "date_of_foundation": 1152,
+    "coordinate_width": 56.739194,
+    "coordinate_longitude": 38.854382,
+    "wiki": "https://ru.wikipedia.org/wiki/Переславль-Залесский"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 126,
+  "fields": {
+    "title": "Пошехонье",
+    "region": 17,
+    "population": 5639,
+    "date_of_foundation": 1680,
+    "coordinate_width": 58.503857,
+    "coordinate_longitude": 39.120481,
+    "wiki": "https://ru.wikipedia.org/wiki/Пошехонье_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 127,
+  "fields": {
+    "title": "Ростов",
+    "region": 17,
+    "population": 30406,
+    "date_of_foundation": 30406,
+    "coordinate_width": 57.18587,
+    "coordinate_longitude": 39.414526,
+    "wiki": "https://ru.wikipedia.org/wiki/Ростов"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 128,
+  "fields": {
+    "title": "Рыбинск",
+    "region": 17,
+    "population": 182383,
+    "date_of_foundation": 1071,
+    "coordinate_width": 58.04864,
+    "coordinate_longitude": 38.855711,
+    "wiki": "https://ru.wikipedia.org/wiki/Рыбинск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 129,
+  "fields": {
+    "title": "Тутаев",
+    "region": 17,
+    "population": 39749,
+    "date_of_foundation": 1419,
+    "coordinate_width": 57.8688,
+    "coordinate_longitude": 39.530714,
+    "wiki": "https://ru.wikipedia.org/wiki/Тутаев"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 130,
+  "fields": {
+    "title": "Углич",
+    "region": 17,
+    "population": 31452,
+    "date_of_foundation": 937,
+    "coordinate_width": 57.526597,
+    "coordinate_longitude": 38.319372,
+    "wiki": "https://ru.wikipedia.org/wiki/Углич"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 131,
+  "fields": {
+    "title": "Ярославль",
+    "region": 17,
+    "population": 577279,
+    "date_of_foundation": 1010,
+    "coordinate_width": 57.626559,
+    "coordinate_longitude": 39.893813,
+    "wiki": "https://ru.wikipedia.org/wiki/Ярославль"
+  }
 }
 ]

@@ -20,7 +20,6 @@ from django.core.exceptions import ImproperlyConfigured
 env = environ.Env()
 environ.Env.read_env()
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = env('DEBUG') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -95,7 +94,6 @@ DATABASES = {
     }
 }
 
-
 if 'test' in sys.argv:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -146,4 +144,10 @@ INTERNAL_IPS = [
 
 LOGIN_URL = '/account/signin'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS') == 'True'
+EMAIL_USE_SSL = env('EMAIL_USE_SSL') == 'True'

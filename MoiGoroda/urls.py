@@ -3,6 +3,8 @@ from django.contrib import admin
 
 from django.conf import settings
 
+import travel
+
 urlpatterns = [
     path('', include('main_page.urls'), name='main_page'),
     path('admin/', admin.site.urls),

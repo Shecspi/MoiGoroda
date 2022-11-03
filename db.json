@@ -1,911 +1,5 @@
 [
 {
-  "model": "travel.area",
-  "pk": 1,
-  "fields": {
-    "title": "Центральный"
-  }
-},
-{
-  "model": "travel.area",
-  "pk": 2,
-  "fields": {
-    "title": "Северо-Западный"
-  }
-},
-{
-  "model": "travel.area",
-  "pk": 3,
-  "fields": {
-    "title": "Южный"
-  }
-},
-{
-  "model": "travel.area",
-  "pk": 4,
-  "fields": {
-    "title": "Северо-Кавказский"
-  }
-},
-{
-  "model": "travel.area",
-  "pk": 5,
-  "fields": {
-    "title": "Дальневосточный"
-  }
-},
-{
-  "model": "travel.area",
-  "pk": 6,
-  "fields": {
-    "title": "Сибирский"
-  }
-},
-{
-  "model": "travel.area",
-  "pk": 7,
-  "fields": {
-    "title": "Уральский"
-  }
-},
-{
-  "model": "travel.area",
-  "pk": 8,
-  "fields": {
-    "title": "Приволжский"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 1,
-  "fields": {
-    "area": 1,
-    "title": "Белгородская",
-    "type": "O",
-    "iso3166": "RU-BEL"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 2,
-  "fields": {
-    "area": 1,
-    "title": "Брянская",
-    "type": "O",
-    "iso3166": "RU-BRY"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 3,
-  "fields": {
-    "area": 1,
-    "title": "Владимирская",
-    "type": "O",
-    "iso3166": "RU-VLA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 4,
-  "fields": {
-    "area": 1,
-    "title": "Воронежская",
-    "type": "O",
-    "iso3166": "RU-VOR"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 5,
-  "fields": {
-    "area": 1,
-    "title": "Ивановская",
-    "type": "O",
-    "iso3166": "RU-IVA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 6,
-  "fields": {
-    "area": 1,
-    "title": "Калужская",
-    "type": "O",
-    "iso3166": "RU-KLU"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 7,
-  "fields": {
-    "area": 1,
-    "title": "Костромская",
-    "type": "O",
-    "iso3166": "RU-KOS"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 8,
-  "fields": {
-    "area": 1,
-    "title": "Курская",
-    "type": "O",
-    "iso3166": "RU-KRS"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 9,
-  "fields": {
-    "area": 1,
-    "title": "Липецкая",
-    "type": "O",
-    "iso3166": "RU-LIP"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 10,
-  "fields": {
-    "area": 1,
-    "title": "Московская",
-    "type": "O",
-    "iso3166": "RU-MOS"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 11,
-  "fields": {
-    "area": 1,
-    "title": "Орловская",
-    "type": "O",
-    "iso3166": "RU-ORL"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 12,
-  "fields": {
-    "area": 1,
-    "title": "Рязанская",
-    "type": "O",
-    "iso3166": "RU-RYA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 13,
-  "fields": {
-    "area": 1,
-    "title": "Смоленская",
-    "type": "O",
-    "iso3166": "RU-SMO"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 14,
-  "fields": {
-    "area": 1,
-    "title": "Тамбовская",
-    "type": "O",
-    "iso3166": "RU-TAM"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 15,
-  "fields": {
-    "area": 1,
-    "title": "Тверская",
-    "type": "O",
-    "iso3166": "RU-TVE"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 16,
-  "fields": {
-    "area": 1,
-    "title": "Тульская",
-    "type": "O",
-    "iso3166": "RU-TUL"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 17,
-  "fields": {
-    "area": 1,
-    "title": "Ярославская",
-    "type": "O",
-    "iso3166": "RU-YAR"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 18,
-  "fields": {
-    "area": 1,
-    "title": "Москва",
-    "type": "G",
-    "iso3166": "RU-MOW"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 19,
-  "fields": {
-    "area": 2,
-    "title": "Карелия",
-    "type": "R",
-    "iso3166": "RU-KR"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 20,
-  "fields": {
-    "area": 2,
-    "title": "Коми",
-    "type": "R",
-    "iso3166": "RU-KO"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 21,
-  "fields": {
-    "area": 2,
-    "title": "Архангельская",
-    "type": "O",
-    "iso3166": "RU-ARK"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 22,
-  "fields": {
-    "area": 2,
-    "title": "Вологодская",
-    "type": "O",
-    "iso3166": "RU-VLG"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 23,
-  "fields": {
-    "area": 2,
-    "title": "Калининградская",
-    "type": "O",
-    "iso3166": "RU-KGD"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 24,
-  "fields": {
-    "area": 2,
-    "title": "Ленинградская",
-    "type": "O",
-    "iso3166": "RU-LEN"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 25,
-  "fields": {
-    "area": 2,
-    "title": "Мурманская",
-    "type": "O",
-    "iso3166": "RU-MUR"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 26,
-  "fields": {
-    "area": 2,
-    "title": "Новгородская",
-    "type": "O",
-    "iso3166": "RU-NGR"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 27,
-  "fields": {
-    "area": 2,
-    "title": "Псковская",
-    "type": "O",
-    "iso3166": "RU-PSK"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 28,
-  "fields": {
-    "area": 2,
-    "title": "Санкт-Петербург",
-    "type": "G",
-    "iso3166": "RU-SPE"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 29,
-  "fields": {
-    "area": 2,
-    "title": "Ненецкий",
-    "type": "AOk",
-    "iso3166": "RU-NEN"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 30,
-  "fields": {
-    "area": 3,
-    "title": "Адыгея",
-    "type": "R",
-    "iso3166": "RU-AD"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 31,
-  "fields": {
-    "area": 3,
-    "title": "Калмыкия",
-    "type": "R",
-    "iso3166": "RU-KL"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 32,
-  "fields": {
-    "area": 3,
-    "title": "Крым",
-    "type": "R",
-    "iso3166": "RU-KRY"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 33,
-  "fields": {
-    "area": 3,
-    "title": "Краснодарский",
-    "type": "K",
-    "iso3166": "RU-KDA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 34,
-  "fields": {
-    "area": 3,
-    "title": "Астраханская",
-    "type": "O",
-    "iso3166": "RU-AST"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 35,
-  "fields": {
-    "area": 3,
-    "title": "Волгоградская",
-    "type": "O",
-    "iso3166": "RU-VGG"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 36,
-  "fields": {
-    "area": 3,
-    "title": "Ростовская",
-    "type": "O",
-    "iso3166": "RU-ROS"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 37,
-  "fields": {
-    "area": 3,
-    "title": "Севастополь",
-    "type": "G",
-    "iso3166": "RU-SEV"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 38,
-  "fields": {
-    "area": 4,
-    "title": "Дагестан",
-    "type": "R",
-    "iso3166": "RU-DA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 39,
-  "fields": {
-    "area": 4,
-    "title": "Ингушетия",
-    "type": "R",
-    "iso3166": "RU-IN"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 40,
-  "fields": {
-    "area": 4,
-    "title": "Кабардино-Балкарская",
-    "type": "R",
-    "iso3166": "RU-KB"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 41,
-  "fields": {
-    "area": 4,
-    "title": "Карачаево-Черкесская",
-    "type": "R",
-    "iso3166": "RU-KC"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 42,
-  "fields": {
-    "area": 4,
-    "title": "Северная Осетия - Алания",
-    "type": "R",
-    "iso3166": "RU-SE"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 43,
-  "fields": {
-    "area": 4,
-    "title": "Чеченская",
-    "type": "R",
-    "iso3166": "RU-CE"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 44,
-  "fields": {
-    "area": 4,
-    "title": "Ставропольский",
-    "type": "K",
-    "iso3166": "RU-STA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 45,
-  "fields": {
-    "area": 5,
-    "title": "Бурятия",
-    "type": "R",
-    "iso3166": "RU-BU"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 46,
-  "fields": {
-    "area": 5,
-    "title": "Саха (Якутия)",
-    "type": "R",
-    "iso3166": "RU-SA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 47,
-  "fields": {
-    "area": 5,
-    "title": "Забайкальский",
-    "type": "K",
-    "iso3166": "RU-ZAB"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 48,
-  "fields": {
-    "area": 5,
-    "title": "Камчатский",
-    "type": "K",
-    "iso3166": "RU-KAM"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 49,
-  "fields": {
-    "area": 5,
-    "title": "Приморский",
-    "type": "K",
-    "iso3166": "RU-PRI"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 50,
-  "fields": {
-    "area": 5,
-    "title": "Хабаровский",
-    "type": "K",
-    "iso3166": "RU-KHA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 51,
-  "fields": {
-    "area": 5,
-    "title": "Амурская",
-    "type": "O",
-    "iso3166": "RU-AMU"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 52,
-  "fields": {
-    "area": 5,
-    "title": "Магаданская",
-    "type": "O",
-    "iso3166": "RU-MAG"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 53,
-  "fields": {
-    "area": 5,
-    "title": "Сахалинская",
-    "type": "O",
-    "iso3166": "RU-SAK"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 54,
-  "fields": {
-    "area": 5,
-    "title": "Еврейская",
-    "type": "AOb",
-    "iso3166": "RU-YEV"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 55,
-  "fields": {
-    "area": 5,
-    "title": "Чукотский",
-    "type": "AOk",
-    "iso3166": "RU-CHU"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 56,
-  "fields": {
-    "area": 6,
-    "title": "Томская",
-    "type": "O",
-    "iso3166": "RU-TOM"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 57,
-  "fields": {
-    "area": 6,
-    "title": "Омская",
-    "type": "O",
-    "iso3166": "RU-OMS"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 58,
-  "fields": {
-    "area": 6,
-    "title": "Новосибирская",
-    "type": "O",
-    "iso3166": "RU-NVS"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 59,
-  "fields": {
-    "area": 6,
-    "title": "Кемеровская",
-    "type": "O",
-    "iso3166": "RU-KEM"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 60,
-  "fields": {
-    "area": 6,
-    "title": "Иркутская",
-    "type": "O",
-    "iso3166": "RU-IRK"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 61,
-  "fields": {
-    "area": 6,
-    "title": "Красноярский",
-    "type": "K",
-    "iso3166": "RU-KYA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 62,
-  "fields": {
-    "area": 6,
-    "title": "Алтайский",
-    "type": "K",
-    "iso3166": "RU-ALT"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 63,
-  "fields": {
-    "area": 6,
-    "title": "Хакасия",
-    "type": "R",
-    "iso3166": "RU-KK"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 64,
-  "fields": {
-    "area": 6,
-    "title": "Тыва",
-    "type": "R",
-    "iso3166": "RU-TY"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 65,
-  "fields": {
-    "area": 6,
-    "title": "Алтай",
-    "type": "R",
-    "iso3166": "RU-AL"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 66,
-  "fields": {
-    "area": 7,
-    "title": "Ямало-Ненецкий",
-    "type": "AOk",
-    "iso3166": "RU-YAN"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 67,
-  "fields": {
-    "area": 7,
-    "title": "Ханты-Мансийский",
-    "type": "AOk",
-    "iso3166": "RU-KHM"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 68,
-  "fields": {
-    "area": 7,
-    "title": "Челябинская",
-    "type": "O",
-    "iso3166": "RU-CHE"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 69,
-  "fields": {
-    "area": 7,
-    "title": "Тюменская",
-    "type": "O",
-    "iso3166": "RU-TYU"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 70,
-  "fields": {
-    "area": 7,
-    "title": "Свердловская",
-    "type": "O",
-    "iso3166": "RU-SVE"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 71,
-  "fields": {
-    "area": 7,
-    "title": "Курганская",
-    "type": "O",
-    "iso3166": "RU-KGN"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 72,
-  "fields": {
-    "area": 8,
-    "title": "Ульяновская",
-    "type": "O",
-    "iso3166": "RU-ULY"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 73,
-  "fields": {
-    "area": 8,
-    "title": "Саратовская",
-    "type": "O",
-    "iso3166": "RU-SAR"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 74,
-  "fields": {
-    "area": 8,
-    "title": "Самарская",
-    "type": "O",
-    "iso3166": "RU-SAM"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 75,
-  "fields": {
-    "area": 8,
-    "title": "Пензенская",
-    "type": "O",
-    "iso3166": "RU-PNZ"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 76,
-  "fields": {
-    "area": 8,
-    "title": "Оренбургская",
-    "type": "O",
-    "iso3166": "RU-ORE"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 77,
-  "fields": {
-    "area": 8,
-    "title": "Нижегородская",
-    "type": "O",
-    "iso3166": "RU-NIZ"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 78,
-  "fields": {
-    "area": 8,
-    "title": "Кировская",
-    "type": "O",
-    "iso3166": "RU-KIR"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 79,
-  "fields": {
-    "area": 8,
-    "title": "Пермский",
-    "type": "K",
-    "iso3166": "RU-PER"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 80,
-  "fields": {
-    "area": 8,
-    "title": "Чувашия",
-    "type": "R",
-    "iso3166": "RU-CU"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 81,
-  "fields": {
-    "area": 8,
-    "title": "Удмуртия",
-    "type": "R",
-    "iso3166": "RU-UD"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 82,
-  "fields": {
-    "area": 8,
-    "title": "Татарстан",
-    "type": "R",
-    "iso3166": "RU-TA"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 83,
-  "fields": {
-    "area": 8,
-    "title": "Мордовия",
-    "type": "R",
-    "iso3166": "RU-MO"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 84,
-  "fields": {
-    "area": 8,
-    "title": "Марий Эл",
-    "type": "R",
-    "iso3166": "RU-ME"
-  }
-},
-{
-  "model": "travel.region",
-  "pk": 85,
-  "fields": {
-    "area": 8,
-    "title": "Башкортостан",
-    "type": "R",
-    "iso3166": "RU-BA"
-  }
-},
-{
   "model": "travel.city",
   "pk": 1,
   "fields": {
@@ -2606,6 +1700,1627 @@
     "coordinate_width": 57.626559,
     "coordinate_longitude": 39.893813,
     "wiki": "https://ru.wikipedia.org/wiki/Ярославль"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 132,
+  "fields": {
+    "title": "Астрахань",
+    "region": 21,
+    "population": 475629,
+    "date_of_foundation": 1558,
+    "coordinate_width": 63.637521,
+    "coordinate_longitude": 43.33667,
+    "wiki": "https://ru.wikipedia.org/wiki/Астрахань"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 133,
+  "fields": {
+    "title": "Ахтубинск",
+    "region": 34,
+    "population": 35635,
+    "date_of_foundation": 1793,
+    "coordinate_width": 48.284884,
+    "coordinate_longitude": 46.164422,
+    "wiki": "https://ru.wikipedia.org/wiki/Ахтубинск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 134,
+  "fields": {
+    "title": "Знаменск",
+    "region": 21,
+    "population": 24628,
+    "date_of_foundation": 1948,
+    "coordinate_width": 63.637521,
+    "coordinate_longitude": 43.33667,
+    "wiki": "https://ru.wikipedia.org/wiki/Знаменск_(Астраханская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 135,
+  "fields": {
+    "title": "Камызяк",
+    "region": 34,
+    "population": 16154,
+    "date_of_foundation": 1560,
+    "coordinate_width": 46.114432,
+    "coordinate_longitude": 48.067548,
+    "wiki": "https://ru.wikipedia.org/wiki/Камызяк"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 136,
+  "fields": {
+    "title": "Нариманов",
+    "region": 34,
+    "population": 11104,
+    "date_of_foundation": 1963,
+    "coordinate_width": 46.689553,
+    "coordinate_longitude": 47.854405,
+    "wiki": "https://ru.wikipedia.org/wiki/Нариманов_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 137,
+  "fields": {
+    "title": "Харабали",
+    "region": 34,
+    "population": 18514,
+    "date_of_foundation": 1789,
+    "coordinate_width": 47.409315,
+    "coordinate_longitude": 47.252067,
+    "wiki": "https://ru.wikipedia.org/wiki/Харабали"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 138,
+  "fields": {
+    "title": "Адыгейск",
+    "region": 30,
+    "population": 13175,
+    "date_of_foundation": 1969,
+    "coordinate_width": 44.884856,
+    "coordinate_longitude": 39.190567,
+    "wiki": "https://ru.wikipedia.org/wiki/Адыгейск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 139,
+  "fields": {
+    "title": "Майкоп",
+    "region": 30,
+    "population": 143385,
+    "date_of_foundation": 1857,
+    "coordinate_width": 44.606683,
+    "coordinate_longitude": 40.105852,
+    "wiki": "https://ru.wikipedia.org/wiki/Майкоп"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 140,
+  "fields": {
+    "title": "Горно-Алтайск",
+    "region": 65,
+    "population": 65342,
+    "date_of_foundation": 1824,
+    "coordinate_width": 51.957804,
+    "coordinate_longitude": 85.960634,
+    "wiki": "https://ru.wikipedia.org/wiki/Горно-Алтайск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 141,
+  "fields": {
+    "title": "Алейск",
+    "region": 62,
+    "population": 28434,
+    "date_of_foundation": 1913,
+    "coordinate_width": 52.492167,
+    "coordinate_longitude": 82.779457,
+    "wiki": "https://ru.wikipedia.org/wiki/Алейск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 142,
+  "fields": {
+    "title": "Барнаул",
+    "region": 62,
+    "population": 630877,
+    "date_of_foundation": 1730,
+    "coordinate_width": 53.346785,
+    "coordinate_longitude": 83.776856,
+    "wiki": "https://ru.wikipedia.org/wiki/Барнаул"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 143,
+  "fields": {
+    "title": "Белокуриха",
+    "region": 62,
+    "population": 15128,
+    "date_of_foundation": 1803,
+    "coordinate_width": 51.996077,
+    "coordinate_longitude": 84.983968,
+    "wiki": "https://ru.wikipedia.org/wiki/Белокуриха"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 144,
+  "fields": {
+    "title": "Бийск",
+    "region": 62,
+    "population": 198433,
+    "date_of_foundation": 1709,
+    "coordinate_width": 52.541811,
+    "coordinate_longitude": 85.220656,
+    "wiki": "https://ru.wikipedia.org/wiki/Бийск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 145,
+  "fields": {
+    "title": "Горняк",
+    "region": 62,
+    "population": 12115,
+    "date_of_foundation": 1942,
+    "coordinate_width": 50.999759,
+    "coordinate_longitude": 81.460766,
+    "wiki": "https://ru.wikipedia.org/wiki/Горняк_(Алтайский_край)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 146,
+  "fields": {
+    "title": "Заринск",
+    "region": 62,
+    "population": 45405,
+    "date_of_foundation": 1979,
+    "coordinate_width": 53.706337,
+    "coordinate_longitude": 84.931488,
+    "wiki": "https://ru.wikipedia.org/wiki/Заринск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 147,
+  "fields": {
+    "title": "Змеиногорск",
+    "region": 62,
+    "population": 10187,
+    "date_of_foundation": 1736,
+    "coordinate_width": 51.15802,
+    "coordinate_longitude": 82.18727,
+    "wiki": "https://ru.wikipedia.org/wiki/Змеиногорск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 148,
+  "fields": {
+    "title": "Камень-на-Оби",
+    "region": 62,
+    "population": 40294,
+    "date_of_foundation": 1751,
+    "coordinate_width": 53.791492,
+    "coordinate_longitude": 81.354558,
+    "wiki": "https://ru.wikipedia.org/wiki/Камень-на-Оби"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 149,
+  "fields": {
+    "title": "Новоалтайск",
+    "region": 62,
+    "population": 74586,
+    "date_of_foundation": 1736,
+    "coordinate_width": 53.412021,
+    "coordinate_longitude": 83.931079,
+    "wiki": "https://ru.wikipedia.org/wiki/Новоалтайск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 150,
+  "fields": {
+    "title": "Рубцовск",
+    "region": 62,
+    "population": 139565,
+    "date_of_foundation": 1892,
+    "coordinate_width": 51.527623,
+    "coordinate_longitude": 81.217673,
+    "wiki": "https://ru.wikipedia.org/wiki/Рубцовск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 151,
+  "fields": {
+    "title": "Славгород",
+    "region": 62,
+    "population": 28757,
+    "date_of_foundation": 1910,
+    "coordinate_width": 52.997158,
+    "coordinate_longitude": 78.648671,
+    "wiki": "https://ru.wikipedia.org/wiki/Славгород_(Россия)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 152,
+  "fields": {
+    "title": "Яровое",
+    "region": 62,
+    "population": 17939,
+    "date_of_foundation": 1943,
+    "coordinate_width": 52.919743,
+    "coordinate_longitude": 78.580049,
+    "wiki": "https://ru.wikipedia.org/wiki/Яровое"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 153,
+  "fields": {
+    "title": "Белогорск",
+    "region": 51,
+    "population": 61440,
+    "date_of_foundation": 1860,
+    "coordinate_width": 50.921292,
+    "coordinate_longitude": 128.473926,
+    "wiki": "https://ru.wikipedia.org/wiki/Белогорск_(Амурская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 154,
+  "fields": {
+    "title": "Благовещенск",
+    "region": 51,
+    "population": 241437,
+    "date_of_foundation": 1856,
+    "coordinate_width": 50.257456,
+    "coordinate_longitude": 127.534611,
+    "wiki": "https://ru.wikipedia.org/wiki/Благовещенск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 155,
+  "fields": {
+    "title": "Завитинск",
+    "region": 51,
+    "population": 9615,
+    "date_of_foundation": 1906,
+    "coordinate_width": 50.106524,
+    "coordinate_longitude": 129.439318,
+    "wiki": "https://ru.wikipedia.org/wiki/Завитинск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 156,
+  "fields": {
+    "title": "Зея",
+    "region": 51,
+    "population": 19414,
+    "date_of_foundation": 1879,
+    "coordinate_width": 53.734038,
+    "coordinate_longitude": 127.265889,
+    "wiki": "https://ru.wikipedia.org/wiki/Зея_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 157,
+  "fields": {
+    "title": "Райчихинск",
+    "region": 51,
+    "population": 15797,
+    "date_of_foundation": 1932,
+    "coordinate_width": 49.794114,
+    "coordinate_longitude": 129.411255,
+    "wiki": "https://ru.wikipedia.org/wiki/Райчихинск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 158,
+  "fields": {
+    "title": "Свободный",
+    "region": 51,
+    "population": 48517,
+    "date_of_foundation": 1912,
+    "coordinate_width": 51.375889,
+    "coordinate_longitude": 128.134156,
+    "wiki": "https://ru.wikipedia.org/wiki/Свободный_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 159,
+  "fields": {
+    "title": "Сковородино",
+    "region": 51,
+    "population": 7057,
+    "date_of_foundation": 1908,
+    "coordinate_width": 53.987177,
+    "coordinate_longitude": 123.943641,
+    "wiki": "https://ru.wikipedia.org/wiki/Сковородино"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 160,
+  "fields": {
+    "title": "Тында",
+    "region": 51,
+    "population": 28625,
+    "date_of_foundation": 1907,
+    "coordinate_width": 55.149666,
+    "coordinate_longitude": 124.73644,
+    "wiki": "https://ru.wikipedia.org/wiki/Тында"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 161,
+  "fields": {
+    "title": "Циолковский",
+    "region": 51,
+    "population": 7194,
+    "date_of_foundation": 1961,
+    "coordinate_width": 51.762324,
+    "coordinate_longitude": 128.122514,
+    "wiki": "https://ru.wikipedia.org/wiki/Циолковский_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 162,
+  "fields": {
+    "title": "Шимановск",
+    "region": 51,
+    "population": 16488,
+    "date_of_foundation": 1910,
+    "coordinate_width": 51.999509,
+    "coordinate_longitude": 127.676132,
+    "wiki": "https://ru.wikipedia.org/wiki/Шимановск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 163,
+  "fields": {
+    "title": "Архангельск",
+    "region": 21,
+    "population": 301199,
+    "date_of_foundation": 1584,
+    "coordinate_width": 64.539911,
+    "coordinate_longitude": 40.515762,
+    "wiki": "https://ru.wikipedia.org/wiki/Архангельск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 164,
+  "fields": {
+    "title": "Вельск",
+    "region": 21,
+    "population": 22217,
+    "date_of_foundation": 1137,
+    "coordinate_width": 61.065915,
+    "coordinate_longitude": 42.10331,
+    "wiki": "https://ru.wikipedia.org/wiki/Вельск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 165,
+  "fields": {
+    "title": "Каргополь",
+    "region": 21,
+    "population": 10025,
+    "date_of_foundation": 1380,
+    "coordinate_width": 61.505339,
+    "coordinate_longitude": 38.948166,
+    "wiki": "https://ru.wikipedia.org/wiki/Каргополь"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 166,
+  "fields": {
+    "title": "Коряжма",
+    "region": 21,
+    "population": 35345,
+    "date_of_foundation": 1535,
+    "coordinate_width": 61.315335,
+    "coordinate_longitude": 47.159864,
+    "wiki": "https://ru.wikipedia.org/wiki/Коряжма"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 167,
+  "fields": {
+    "title": "Котлас",
+    "region": 21,
+    "population": 62284,
+    "date_of_foundation": 1600,
+    "coordinate_width": 61.252975,
+    "coordinate_longitude": 46.633226,
+    "wiki": "https://ru.wikipedia.org/wiki/Котлас"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 168,
+  "fields": {
+    "title": "Мезень",
+    "region": 21,
+    "population": 3161,
+    "date_of_foundation": 1545,
+    "coordinate_width": 65.844166,
+    "coordinate_longitude": 44.243447,
+    "wiki": "https://ru.wikipedia.org/wiki/Мезень_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 169,
+  "fields": {
+    "title": "Мирный",
+    "region": 21,
+    "population": 33321,
+    "date_of_foundation": 1957,
+    "coordinate_width": 62.761555,
+    "coordinate_longitude": 40.326613,
+    "wiki": "https://ru.wikipedia.org/wiki/Мирный_(город,_Архангельская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 170,
+  "fields": {
+    "title": "Новодвинск",
+    "region": 21,
+    "population": 37256,
+    "date_of_foundation": 1936,
+    "coordinate_width": 64.413687,
+    "coordinate_longitude": 40.82083,
+    "wiki": "https://ru.wikipedia.org/wiki/Новодвинск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 171,
+  "fields": {
+    "title": "Няндома",
+    "region": 21,
+    "population": 18857,
+    "date_of_foundation": 1897,
+    "coordinate_width": 61.661418,
+    "coordinate_longitude": 40.197103,
+    "wiki": "https://ru.wikipedia.org/wiki/Няндома"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 172,
+  "fields": {
+    "title": "Онега",
+    "region": 21,
+    "population": 18149,
+    "date_of_foundation": 1556,
+    "coordinate_width": 63.914485,
+    "coordinate_longitude": 38.086655,
+    "wiki": "https://ru.wikipedia.org/wiki/Онега_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 173,
+  "fields": {
+    "title": "Северодвинск",
+    "region": 21,
+    "population": 179742,
+    "date_of_foundation": 1936,
+    "coordinate_width": 64.563386,
+    "coordinate_longitude": 39.823781,
+    "wiki": "https://ru.wikipedia.org/wiki/Северодвинск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 174,
+  "fields": {
+    "title": "Сольвычегодск",
+    "region": 21,
+    "population": 1833,
+    "date_of_foundation": 1492,
+    "coordinate_width": 61.330589,
+    "coordinate_longitude": 46.928089,
+    "wiki": "https://ru.wikipedia.org/wiki/Сольвычегодск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 175,
+  "fields": {
+    "title": "Шенкурск",
+    "region": 21,
+    "population": 4608,
+    "date_of_foundation": 1137,
+    "coordinate_width": 62.105654,
+    "coordinate_longitude": 42.899612,
+    "wiki": "https://ru.wikipedia.org/wiki/Шенкурск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 176,
+  "fields": {
+    "title": "Алексеевка",
+    "region": 1,
+    "population": 36578,
+    "date_of_foundation": 1860,
+    "coordinate_width": 50.630035,
+    "coordinate_longitude": 38.686568,
+    "wiki": "https://ru.wikipedia.org/wiki/Алексеевка_(город,_Белгородская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 177,
+  "fields": {
+    "title": "Белгород",
+    "region": 1,
+    "population": 339978,
+    "date_of_foundation": 1596,
+    "coordinate_width": 50.595414,
+    "coordinate_longitude": 36.587277,
+    "wiki": "https://ru.wikipedia.org/wiki/Белгород"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 178,
+  "fields": {
+    "title": "Бирюч",
+    "region": 1,
+    "population": 7114,
+    "date_of_foundation": 1705,
+    "coordinate_width": 50.649337,
+    "coordinate_longitude": 38.40023,
+    "wiki": "https://ru.wikipedia.org/wiki/Бирюч_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 179,
+  "fields": {
+    "title": "Валуйки",
+    "region": 1,
+    "population": 33032,
+    "date_of_foundation": 33032,
+    "coordinate_width": 50.211332,
+    "coordinate_longitude": 38.100111,
+    "wiki": "https://ru.wikipedia.org/wiki/Валуйки"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 180,
+  "fields": {
+    "title": "Грайворон",
+    "region": 1,
+    "population": 6179,
+    "date_of_foundation": 1678,
+    "coordinate_width": 50.486275,
+    "coordinate_longitude": 35.66583,
+    "wiki": "https://ru.wikipedia.org/wiki/Грайворон"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 181,
+  "fields": {
+    "title": "Губкин",
+    "region": 1,
+    "population": 85225,
+    "date_of_foundation": 1939,
+    "coordinate_width": 51.283644,
+    "coordinate_longitude": 37.534757,
+    "wiki": "https://ru.wikipedia.org/wiki/Губкин_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 182,
+  "fields": {
+    "title": "Короча",
+    "region": 1,
+    "population": 5629,
+    "date_of_foundation": 1637,
+    "coordinate_width": 50.811355,
+    "coordinate_longitude": 37.196119,
+    "wiki": "https://ru.wikipedia.org/wiki/Короча"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 183,
+  "fields": {
+    "title": "Новый Оскол",
+    "region": 1,
+    "population": 18359,
+    "date_of_foundation": 1647,
+    "coordinate_width": 50.764439,
+    "coordinate_longitude": 37.863064,
+    "wiki": "https://ru.wikipedia.org/wiki/Новый_Оскол"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 184,
+  "fields": {
+    "title": "Старый Оскол",
+    "region": 1,
+    "population": 221676,
+    "date_of_foundation": 1593,
+    "coordinate_width": 51.297974,
+    "coordinate_longitude": 37.833231,
+    "wiki": "https://ru.wikipedia.org/wiki/Старый_Оскол"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 185,
+  "fields": {
+    "title": "Строитель",
+    "region": 1,
+    "population": 23780,
+    "date_of_foundation": 1958,
+    "coordinate_width": 50.785172,
+    "coordinate_longitude": 36.486998,
+    "wiki": "https://ru.wikipedia.org/wiki/Строитель_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 186,
+  "fields": {
+    "title": "Шебекино",
+    "region": 1,
+    "population": 39680,
+    "date_of_foundation": 1713,
+    "coordinate_width": 50.404344,
+    "coordinate_longitude": 36.879319,
+    "wiki": "https://ru.wikipedia.org/wiki/Шебекино"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 1,
+  "fields": {
+    "area": 1,
+    "title": "Белгородская",
+    "type": "O",
+    "iso3166": "RU-BEL"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 2,
+  "fields": {
+    "area": 1,
+    "title": "Брянская",
+    "type": "O",
+    "iso3166": "RU-BRY"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 3,
+  "fields": {
+    "area": 1,
+    "title": "Владимирская",
+    "type": "O",
+    "iso3166": "RU-VLA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 4,
+  "fields": {
+    "area": 1,
+    "title": "Воронежская",
+    "type": "O",
+    "iso3166": "RU-VOR"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 5,
+  "fields": {
+    "area": 1,
+    "title": "Ивановская",
+    "type": "O",
+    "iso3166": "RU-IVA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 6,
+  "fields": {
+    "area": 1,
+    "title": "Калужская",
+    "type": "O",
+    "iso3166": "RU-KLU"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 7,
+  "fields": {
+    "area": 1,
+    "title": "Костромская",
+    "type": "O",
+    "iso3166": "RU-KOS"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 8,
+  "fields": {
+    "area": 1,
+    "title": "Курская",
+    "type": "O",
+    "iso3166": "RU-KRS"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 9,
+  "fields": {
+    "area": 1,
+    "title": "Липецкая",
+    "type": "O",
+    "iso3166": "RU-LIP"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 10,
+  "fields": {
+    "area": 1,
+    "title": "Московская",
+    "type": "O",
+    "iso3166": "RU-MOS"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 11,
+  "fields": {
+    "area": 1,
+    "title": "Орловская",
+    "type": "O",
+    "iso3166": "RU-ORL"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 12,
+  "fields": {
+    "area": 1,
+    "title": "Рязанская",
+    "type": "O",
+    "iso3166": "RU-RYA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 13,
+  "fields": {
+    "area": 1,
+    "title": "Смоленская",
+    "type": "O",
+    "iso3166": "RU-SMO"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 14,
+  "fields": {
+    "area": 1,
+    "title": "Тамбовская",
+    "type": "O",
+    "iso3166": "RU-TAM"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 15,
+  "fields": {
+    "area": 1,
+    "title": "Тверская",
+    "type": "O",
+    "iso3166": "RU-TVE"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 16,
+  "fields": {
+    "area": 1,
+    "title": "Тульская",
+    "type": "O",
+    "iso3166": "RU-TUL"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 17,
+  "fields": {
+    "area": 1,
+    "title": "Ярославская",
+    "type": "O",
+    "iso3166": "RU-YAR"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 18,
+  "fields": {
+    "area": 1,
+    "title": "Москва",
+    "type": "G",
+    "iso3166": "RU-MOW"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 19,
+  "fields": {
+    "area": 2,
+    "title": "Карелия",
+    "type": "R",
+    "iso3166": "RU-KR"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 20,
+  "fields": {
+    "area": 2,
+    "title": "Коми",
+    "type": "R",
+    "iso3166": "RU-KO"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 21,
+  "fields": {
+    "area": 2,
+    "title": "Архангельская",
+    "type": "O",
+    "iso3166": "RU-ARK"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 22,
+  "fields": {
+    "area": 2,
+    "title": "Вологодская",
+    "type": "O",
+    "iso3166": "RU-VLG"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 23,
+  "fields": {
+    "area": 2,
+    "title": "Калининградская",
+    "type": "O",
+    "iso3166": "RU-KGD"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 24,
+  "fields": {
+    "area": 2,
+    "title": "Ленинградская",
+    "type": "O",
+    "iso3166": "RU-LEN"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 25,
+  "fields": {
+    "area": 2,
+    "title": "Мурманская",
+    "type": "O",
+    "iso3166": "RU-MUR"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 26,
+  "fields": {
+    "area": 2,
+    "title": "Новгородская",
+    "type": "O",
+    "iso3166": "RU-NGR"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 27,
+  "fields": {
+    "area": 2,
+    "title": "Псковская",
+    "type": "O",
+    "iso3166": "RU-PSK"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 28,
+  "fields": {
+    "area": 2,
+    "title": "Санкт-Петербург",
+    "type": "G",
+    "iso3166": "RU-SPE"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 29,
+  "fields": {
+    "area": 2,
+    "title": "Ненецкий",
+    "type": "AOk",
+    "iso3166": "RU-NEN"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 30,
+  "fields": {
+    "area": 3,
+    "title": "Адыгея",
+    "type": "R",
+    "iso3166": "RU-AD"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 31,
+  "fields": {
+    "area": 3,
+    "title": "Калмыкия",
+    "type": "R",
+    "iso3166": "RU-KL"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 32,
+  "fields": {
+    "area": 3,
+    "title": "Крым",
+    "type": "R",
+    "iso3166": "RU-KRY"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 33,
+  "fields": {
+    "area": 3,
+    "title": "Краснодарский",
+    "type": "K",
+    "iso3166": "RU-KDA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 34,
+  "fields": {
+    "area": 3,
+    "title": "Астраханская",
+    "type": "O",
+    "iso3166": "RU-AST"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 35,
+  "fields": {
+    "area": 3,
+    "title": "Волгоградская",
+    "type": "O",
+    "iso3166": "RU-VGG"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 36,
+  "fields": {
+    "area": 3,
+    "title": "Ростовская",
+    "type": "O",
+    "iso3166": "RU-ROS"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 37,
+  "fields": {
+    "area": 3,
+    "title": "Севастополь",
+    "type": "G",
+    "iso3166": "RU-SEV"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 38,
+  "fields": {
+    "area": 4,
+    "title": "Дагестан",
+    "type": "R",
+    "iso3166": "RU-DA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 39,
+  "fields": {
+    "area": 4,
+    "title": "Ингушетия",
+    "type": "R",
+    "iso3166": "RU-IN"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 40,
+  "fields": {
+    "area": 4,
+    "title": "Кабардино-Балкарская",
+    "type": "R",
+    "iso3166": "RU-KB"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 41,
+  "fields": {
+    "area": 4,
+    "title": "Карачаево-Черкесская",
+    "type": "R",
+    "iso3166": "RU-KC"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 42,
+  "fields": {
+    "area": 4,
+    "title": "Северная Осетия - Алания",
+    "type": "R",
+    "iso3166": "RU-SE"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 43,
+  "fields": {
+    "area": 4,
+    "title": "Чеченская",
+    "type": "R",
+    "iso3166": "RU-CE"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 44,
+  "fields": {
+    "area": 4,
+    "title": "Ставропольский",
+    "type": "K",
+    "iso3166": "RU-STA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 45,
+  "fields": {
+    "area": 5,
+    "title": "Бурятия",
+    "type": "R",
+    "iso3166": "RU-BU"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 46,
+  "fields": {
+    "area": 5,
+    "title": "Саха (Якутия)",
+    "type": "R",
+    "iso3166": "RU-SA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 47,
+  "fields": {
+    "area": 5,
+    "title": "Забайкальский",
+    "type": "K",
+    "iso3166": "RU-ZAB"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 48,
+  "fields": {
+    "area": 5,
+    "title": "Камчатский",
+    "type": "K",
+    "iso3166": "RU-KAM"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 49,
+  "fields": {
+    "area": 5,
+    "title": "Приморский",
+    "type": "K",
+    "iso3166": "RU-PRI"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 50,
+  "fields": {
+    "area": 5,
+    "title": "Хабаровский",
+    "type": "K",
+    "iso3166": "RU-KHA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 51,
+  "fields": {
+    "area": 5,
+    "title": "Амурская",
+    "type": "O",
+    "iso3166": "RU-AMU"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 52,
+  "fields": {
+    "area": 5,
+    "title": "Магаданская",
+    "type": "O",
+    "iso3166": "RU-MAG"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 53,
+  "fields": {
+    "area": 5,
+    "title": "Сахалинская",
+    "type": "O",
+    "iso3166": "RU-SAK"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 54,
+  "fields": {
+    "area": 5,
+    "title": "Еврейская",
+    "type": "AOb",
+    "iso3166": "RU-YEV"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 55,
+  "fields": {
+    "area": 5,
+    "title": "Чукотский",
+    "type": "AOk",
+    "iso3166": "RU-CHU"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 56,
+  "fields": {
+    "area": 6,
+    "title": "Томская",
+    "type": "O",
+    "iso3166": "RU-TOM"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 57,
+  "fields": {
+    "area": 6,
+    "title": "Омская",
+    "type": "O",
+    "iso3166": "RU-OMS"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 58,
+  "fields": {
+    "area": 6,
+    "title": "Новосибирская",
+    "type": "O",
+    "iso3166": "RU-NVS"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 59,
+  "fields": {
+    "area": 6,
+    "title": "Кемеровская",
+    "type": "O",
+    "iso3166": "RU-KEM"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 60,
+  "fields": {
+    "area": 6,
+    "title": "Иркутская",
+    "type": "O",
+    "iso3166": "RU-IRK"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 61,
+  "fields": {
+    "area": 6,
+    "title": "Красноярский",
+    "type": "K",
+    "iso3166": "RU-KYA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 62,
+  "fields": {
+    "area": 6,
+    "title": "Алтайский",
+    "type": "K",
+    "iso3166": "RU-ALT"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 63,
+  "fields": {
+    "area": 6,
+    "title": "Хакасия",
+    "type": "R",
+    "iso3166": "RU-KK"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 64,
+  "fields": {
+    "area": 6,
+    "title": "Тыва",
+    "type": "R",
+    "iso3166": "RU-TY"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 65,
+  "fields": {
+    "area": 6,
+    "title": "Алтай",
+    "type": "R",
+    "iso3166": "RU-AL"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 66,
+  "fields": {
+    "area": 7,
+    "title": "Ямало-Ненецкий",
+    "type": "AOk",
+    "iso3166": "RU-YAN"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 67,
+  "fields": {
+    "area": 7,
+    "title": "Ханты-Мансийский",
+    "type": "AOk",
+    "iso3166": "RU-KHM"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 68,
+  "fields": {
+    "area": 7,
+    "title": "Челябинская",
+    "type": "O",
+    "iso3166": "RU-CHE"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 69,
+  "fields": {
+    "area": 7,
+    "title": "Тюменская",
+    "type": "O",
+    "iso3166": "RU-TYU"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 70,
+  "fields": {
+    "area": 7,
+    "title": "Свердловская",
+    "type": "O",
+    "iso3166": "RU-SVE"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 71,
+  "fields": {
+    "area": 7,
+    "title": "Курганская",
+    "type": "O",
+    "iso3166": "RU-KGN"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 72,
+  "fields": {
+    "area": 8,
+    "title": "Ульяновская",
+    "type": "O",
+    "iso3166": "RU-ULY"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 73,
+  "fields": {
+    "area": 8,
+    "title": "Саратовская",
+    "type": "O",
+    "iso3166": "RU-SAR"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 74,
+  "fields": {
+    "area": 8,
+    "title": "Самарская",
+    "type": "O",
+    "iso3166": "RU-SAM"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 75,
+  "fields": {
+    "area": 8,
+    "title": "Пензенская",
+    "type": "O",
+    "iso3166": "RU-PNZ"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 76,
+  "fields": {
+    "area": 8,
+    "title": "Оренбургская",
+    "type": "O",
+    "iso3166": "RU-ORE"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 77,
+  "fields": {
+    "area": 8,
+    "title": "Нижегородская",
+    "type": "O",
+    "iso3166": "RU-NIZ"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 78,
+  "fields": {
+    "area": 8,
+    "title": "Кировская",
+    "type": "O",
+    "iso3166": "RU-KIR"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 79,
+  "fields": {
+    "area": 8,
+    "title": "Пермский",
+    "type": "K",
+    "iso3166": "RU-PER"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 80,
+  "fields": {
+    "area": 8,
+    "title": "Чувашия",
+    "type": "R",
+    "iso3166": "RU-CU"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 81,
+  "fields": {
+    "area": 8,
+    "title": "Удмуртия",
+    "type": "R",
+    "iso3166": "RU-UD"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 82,
+  "fields": {
+    "area": 8,
+    "title": "Татарстан",
+    "type": "R",
+    "iso3166": "RU-TA"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 83,
+  "fields": {
+    "area": 8,
+    "title": "Мордовия",
+    "type": "R",
+    "iso3166": "RU-MO"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 84,
+  "fields": {
+    "area": 8,
+    "title": "Марий Эл",
+    "type": "R",
+    "iso3166": "RU-ME"
+  }
+},
+{
+  "model": "travel.region",
+  "pk": 85,
+  "fields": {
+    "area": 8,
+    "title": "Башкортостан",
+    "type": "R",
+    "iso3166": "RU-BA"
+  }
+},
+{
+  "model": "travel.area",
+  "pk": 1,
+  "fields": {
+    "title": "Центральный"
+  }
+},
+{
+  "model": "travel.area",
+  "pk": 2,
+  "fields": {
+    "title": "Северо-Западный"
+  }
+},
+{
+  "model": "travel.area",
+  "pk": 3,
+  "fields": {
+    "title": "Южный"
+  }
+},
+{
+  "model": "travel.area",
+  "pk": 4,
+  "fields": {
+    "title": "Северо-Кавказский"
+  }
+},
+{
+  "model": "travel.area",
+  "pk": 5,
+  "fields": {
+    "title": "Дальневосточный"
+  }
+},
+{
+  "model": "travel.area",
+  "pk": 6,
+  "fields": {
+    "title": "Сибирский"
+  }
+},
+{
+  "model": "travel.area",
+  "pk": 7,
+  "fields": {
+    "title": "Уральский"
+  }
+},
+{
+  "model": "travel.area",
+  "pk": 8,
+  "fields": {
+    "title": "Приволжский"
   }
 }
 ]

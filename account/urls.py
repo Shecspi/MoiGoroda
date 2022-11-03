@@ -12,16 +12,31 @@ urlpatterns = [
 
     path('profile/', views.Profile_Detail.as_view(), name='profile'),
 
+    # -----  Сброс пароля  ----- #
     path('password/reset',
-         auth_views.PasswordResetView.as_view(template_name="account/password/email_form.html"),
+         auth_views.PasswordResetView.as_view(template_name="account/password/reset/form.html"),
          name='reset_password'),
-    path('password/email_sent',
-         auth_views.PasswordResetDoneView.as_view(template_name="account/password/email_sent.html"),
+    path('password/reset/email_sent',
+         auth_views.PasswordResetDoneView.as_view(template_name="account/password/reset/email_sent.html"),
          name='password_reset_done'),
-    path('reset/<uidb64>/<token>',
-         auth_views.PasswordResetConfirmView.as_view(template_name="account/password/password_form.html"),
+    path('password/reset/<uidb64>/  <token>',
+         auth_views.PasswordResetConfirmView.as_view(template_name="account/password/reset/new_password.html"),
          name='password_reset_confirm'),
-    path('password/changed',
-         auth_views.PasswordResetCompleteView.as_view(template_name="account/password/password_changed.html"),
-         name='password_reset_complete')
+    path('password/reset/done',
+         auth_views.PasswordResetCompleteView.as_view(template_name="account/password/reset/done.html"),
+         name='password_reset_complete'),
+
+    # -----  Изменение пароля  ----- #
+    path('password/change/',
+         auth_views.PasswordChangeView.as_view(
+             template_name='account/password/change/form.html'
+         ),
+         name='password_change_form'
+         ),
+    path('password/change/done/',
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='account/password/change/done.html'
+         ),
+         name='password_change_done'
+         )
 ]

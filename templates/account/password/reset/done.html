@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="card-header text-center">
+                        Восстановление пароля
+                    </h5>
+
+                    <div class="card-body">
+                        <div class="card-text">
+                            <div>
+                                Пароль изменён. Теперь Вы можете войти на сайт с помощью нового пароль.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <a href="{% url 'signin' %}" class="btn btn-primary btn-block">Войти</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

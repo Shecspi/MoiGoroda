@@ -8,7 +8,7 @@ from travel.models import Area, City, Region, VisitedCity
 class Test_VisiitedCity_List(TestCase):
     # ToDo Проверить фильтры и сортировку
     url = reverse_lazy('city-all')
-    url_region = reverse_lazy('cities-by_region', kwargs={'pk': '999'})
+    url_region = reverse_lazy('region-selected', kwargs={'pk': '999'})
     login_url = reverse_lazy('signin')
     user_data = {'username': 'user', 'password': 'password'}
 
@@ -52,8 +52,8 @@ class Test_VisiitedCity_List(TestCase):
         """
         Неавторизованный пользователь должен быть перенаправлен на страницу авторизации.
         """
-        url_exist = reverse_lazy('cities-by_region', kwargs={'pk': '1'})
-        url_not_exist = reverse_lazy('cities-by_region', kwargs={'pk': '999'})
+        url_exist = reverse_lazy('region-selected', kwargs={'pk': '1'})
+        url_not_exist = reverse_lazy('region-selected', kwargs={'pk': '999'})
         response_exist = self.client.get(url_exist, follow=True)
         response_not_exist = self.client.get(url_not_exist, follow=True)
 
@@ -73,7 +73,7 @@ class Test_VisiitedCity_List(TestCase):
         Авторизованный пользователь может зайти на страницу региона, даже если у него нет посещённых городов в нём.
         """
         self.client.login(username=self.user_data['username'], password=self.user_data['password'])
-        response = self.client.get(reverse_lazy('cities-by_region', kwargs={'pk': '1'}), follow=True)
+        response = self.client.get(reverse_lazy('region-selected', kwargs={'pk': '1'}), follow=True)
         self.client.logout()
 
         self.assertEqual(response.status_code, 200)
@@ -84,7 +84,7 @@ class Test_VisiitedCity_List(TestCase):
         При обращении авторизованного пользователя к несуществующему региону должна отдавать страница 404
         """
         self.client.login(username=self.user_data['username'], password=self.user_data['password'])
-        response = self.client.get(reverse_lazy('cities-by_region', kwargs={'pk': '999'}), follow=True)
+        response = self.client.get(reverse_lazy('region-selected', kwargs={'pk': '999'}), follow=True)
         self.client.logout()
 
         self.assertEqual(response.status_code, 404)

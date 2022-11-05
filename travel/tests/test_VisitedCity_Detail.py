@@ -6,8 +6,8 @@ from travel.models import Area, Region, City, VisitedCity
 
 
 class Test_VisitedCity_Detail(TestCase):
-    url_1 = reverse_lazy('city-visited_city', kwargs={'pk': '1'})
-    url_2 = reverse_lazy('city-visited_city', kwargs={'pk': '2'})
+    url_1 = reverse_lazy('city-selected', kwargs={'pk': '1'})
+    url_2 = reverse_lazy('city-selected', kwargs={'pk': '2'})
     url_city_all = reverse_lazy('city-all')
     url_login = reverse_lazy('signin')
 

@@ -70,9 +70,11 @@ class VisitedCity_Create_Form(ModelForm):
 
         # Для того, чтобы во время редактирования не проверялось существование аналогичной записи,
         # удаляем её из результатов запроса.
-        db_city = VisitedCity.objects.filter(user_id=self.request.user,
-                                             region=self.cleaned_data['region'],
-                                             city=city).exclude(id=self.instance.id)
+        db_city = VisitedCity.objects.filter(
+            user_id=self.request.user,
+            region=self.cleaned_data['region'],
+            city=city
+        ).exclude(id=self.instance.id)
         if db_city.exists():
             raise ValidationError(f'Город "{city}" уже был отмечен Вами как посещённый.')
 

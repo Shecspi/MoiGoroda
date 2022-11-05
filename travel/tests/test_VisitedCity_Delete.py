@@ -27,7 +27,7 @@ class Test_VisitedCity_Delete(TestCase):
         """
         Неавторизованные пользователи должны быть перенаправлены на страницу авторизации.
         """
-        url = reverse_lazy('cities-delete', kwargs={'pk': '1'})
+        url = reverse_lazy('city-delete', kwargs={'pk': '1'})
         response = self.client.get(url, follow=True)
 
         self.assertRedirects(response,
@@ -42,7 +42,7 @@ class Test_VisitedCity_Delete(TestCase):
         """
         self.client.login(username=self.user_data['username1'], password=self.user_data['password1'])
         response = self.client.post(
-            reverse_lazy('cities-delete', kwargs={'pk': self.visited_city_1.id}),
+            reverse_lazy('city-delete', kwargs={'pk': self.visited_city_1.id}),
             follow=True
         )
         self.client.logout()
@@ -57,12 +57,12 @@ class Test_VisitedCity_Delete(TestCase):
         self.client.login(username=self.user_data['username1'], password=self.user_data['password1'])
         # Запись другого пользователя
         response_1 = self.client.post(
-            reverse_lazy('cities-delete', kwargs={'pk': self.visited_city_2.id}),
+            reverse_lazy('city-delete', kwargs={'pk': self.visited_city_2.id}),
             follow=True
         )
         # Несуществующая запись
         response_2 = self.client.post(
-            reverse_lazy('cities-delete', kwargs={'pk': '999'}),
+            reverse_lazy('city-delete', kwargs={'pk': '999'}),
             follow=True
         )
         self.client.logout()

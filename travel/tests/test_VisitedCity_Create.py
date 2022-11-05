@@ -8,7 +8,7 @@ from travel.models import Area, Region, City, VisitedCity
 
 class Test_VisitedCity_Create(TestCase):
     # ToDO Не хватает тестирования работы формы
-    url_create = reverse_lazy('cities-create')
+    url_create = reverse_lazy('city-create')
     url_list = reverse_lazy('city-all')
     url_login = reverse_lazy('signin')
     user_data = {'username1': 'user1', 'password1': 'password', 'username2': 'user2', 'password2': 'password'}
@@ -30,7 +30,7 @@ class Test_VisitedCity_Create(TestCase):
         """
         Неавторизованные пользователи должны быть перенаправлены на страницу авторизации.
         """
-        url_update = reverse_lazy('cities-update', kwargs={'pk': '1'})
+        url_update = reverse_lazy('city-update', kwargs={'pk': '1'})
         response_create = self.client.get(self.url_create, follow=True)
         response_update = self.client.get(url_update, follow=True)
 
@@ -50,7 +50,7 @@ class Test_VisitedCity_Create(TestCase):
         """
         self.client.login(username=self.user_data['username1'], password=self.user_data['password1'])
         response_create = self.client.get(self.url_create)
-        response_update = self.client.get(reverse_lazy('cities-update', kwargs={'pk': '1'}))
+        response_update = self.client.get(reverse_lazy('city-update', kwargs={'pk': '1'}))
         self.client.logout()
 
         self.assertEqual(response_create.status_code, 200)
@@ -63,8 +63,8 @@ class Test_VisitedCity_Create(TestCase):
         Редактировать можно только свои и сцществующие записи.
         """
         self.client.login(username=self.user_data['username1'], password=self.user_data['password1'])
-        response_update_1 = self.client.get(reverse_lazy('cities-update', kwargs={'pk': '2'}), follow=True)
-        response_update_2 = self.client.get(reverse_lazy('cities-update', kwargs={'pk': '999'}), follow=True)
+        response_update_1 = self.client.get(reverse_lazy('city-update', kwargs={'pk': '2'}), follow=True)
+        response_update_2 = self.client.get(reverse_lazy('city-update', kwargs={'pk': '999'}), follow=True)
         self.client.logout()
 
         self.assertRedirects(response_update_1,

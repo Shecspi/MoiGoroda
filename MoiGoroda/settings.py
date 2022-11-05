@@ -123,7 +123,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
@@ -151,3 +151,44 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = env('EMAIL_USE_TLS') == 'True'
 EMAIL_USE_SSL = env('EMAIL_USE_SSL') == 'True'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'app': {
+            'format': '{levelname} -- {asctime} -- {module} -- {funcName} -- {message}',
+            'style': '{',
+        },
+        'django': {
+            'format': '{levelname} -- {asctime} -- {module} -- {message}',
+            'style': '{',
+        }
+    },
+    'handlers': {
+        'app': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/app.log',
+            'formatter': 'app',
+        },
+        'django': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/django.log',
+            'formatter': 'django',
+        },
+    },
+    'loggers': {
+        'app': {
+            'handlers': ['app'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'django': {
+            'handlers': ['django'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}

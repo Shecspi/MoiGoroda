@@ -24,7 +24,7 @@
 
                 <div class="card mb-3">
                     <div class="card-body">
-                        <a href="{% url 'cities-create' %}" class="btn btn-outline-primary btn-block">
+                        <a href="{% url 'city-create' %}" class="btn btn-outline-primary btn-block">
                             Добавить город
                         </a>
                     </div>
@@ -52,7 +52,7 @@
                                             <!-- Регион -->
                                             <td>
                                                 <span class="text-truncate">
-                                                    <a href="{% url 'cities-by_region' item.id %}">
+                                                    <a href="{% url 'region-selected' item.id %}">
                                                         {{ item }}
                                                     </a>
                                                 </span>

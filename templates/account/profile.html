@@ -112,7 +112,7 @@
                             <small>
                                 {% for region in regions.visited %}
                                     {% widthratio region.visited_cities region.total_cities 100 as ratio %}
-                                        <a href="{% url 'cities-by_region' region.pk %}">
+                                        <a href="{% url 'region-selected' region.pk %}">
                                             {{ region }}
                                         </a>
                                         <span class="float-right">
@@ -156,7 +156,7 @@
                                 <ul class="list-group list-group-flush">
                                     {% for city in cities.last_visited %}
                                         <li class="list-group-item">
-                                            <a href="{% url 'city-visited_city' city.pk %}">{{ city }}</a>
+                                            <a href="{% url 'city-selected' city.pk %}">{{ city }}</a>
                                             <span class="float-right">{{ city.date_of_visit }}</span>
                                         </li>
                                     {% empty %}

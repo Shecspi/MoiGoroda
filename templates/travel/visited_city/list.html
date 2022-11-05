@@ -49,7 +49,7 @@
 
                 <div class="card mb-3">
                     <div class="card-body">
-                        <a href="{% url 'cities-create' %}" class="btn btn-outline-primary btn-block">
+                        <a href="{% url 'city-create' %}" class="btn btn-outline-primary btn-block">
                             Добавить город
                         </a>
                     </div>
@@ -62,21 +62,21 @@
                         <!-- Панель кнопок фильтров -->
                         <div class="row mb-3">
                             <div class="col-xl-3 my-1 col-lg-6 col-md-6 text-center">
-                                <a href="{% if type == 'by_region' %}{% url 'cities-by_region' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'magnet' %}filter=magnet&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
+                                <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'magnet' %}filter=magnet&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
                                    class="btn btn-block {% if filter == 'magnet' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
                                     <i class="bi bi-x"></i>&nbsp;&nbsp;&nbsp;Без магнита
                                 </a>
                             </div>
 
                             <div class="col-xl-3 my-1 col-lg-6 col-md-6 my-1 text-center">
-                                <a href="{% if type == 'by_region' %}{% url 'cities-by_region' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'current_year' %}filter=current_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
+                                <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'current_year' %}filter=current_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
                                    class="btn btn-block {% if filter == 'current_year' %}btn-success{% else %}btn-outline-success{% endif %}">
                                     <i class="bi bi-calendar3"></i>&nbsp;&nbsp;&nbsp;В этом году
                                 </a>
                             </div>
 
                             <div class="col-xl-3 my-1 col-lg-6 col-md-6 my-1 text-center">
-                                <a href="{% if type == 'by_region' %}{% url 'cities-by_region' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'last_year' %}filter=last_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
+                                <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'last_year' %}filter=last_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
                                    class="btn btn-block {% if filter == 'last_year' %}btn-primary{% else %}btn-outline-primary{% endif %}">
                                     <i class="bi bi-calendar2-week"></i>&nbsp;&nbsp;&nbsp;В прошлом году
                                 </a>
@@ -89,16 +89,16 @@
                                     </a>
 
                                     <div class="dropdown-menu" aria-labelledby="sortingButton">
-                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'cities-by_region' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_down{% if filter %}&filter={{ filter }}{% endif %}">
+                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_down{% if filter %}&filter={{ filter }}{% endif %}">
                                             <i class="bi bi-sort-alpha-down"></i>&nbsp;&nbsp;&nbsp;По названию (а <i class="bi bi-arrow-right-short"></i> я)
                                         </a>
-                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'cities-by_region' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_up{% if filter %}&filter={{ filter }}{% endif %}">
+                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_up{% if filter %}&filter={{ filter }}{% endif %}">
                                             <i class="bi bi-sort-alpha-down-alt"></i>&nbsp;&nbsp;&nbsp;По названию (я <i class="bi bi-arrow-right-short"></i> а)
                                         </a>
-                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'cities-by_region' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_down{% if filter %}&filter={{ filter }}{% endif %}">
+                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_down{% if filter %}&filter={{ filter }}{% endif %}">
                                             <i class="bi bi-sort-numeric-down"></i>&nbsp;&nbsp;&nbsp;По дате посещения (1 <i class="bi bi-arrow-right-short"></i> 9)
                                         </a>
-                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'cities-by_region' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_up{% if filter %}&filter={{ filter }}{% endif %}">
+                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_up{% if filter %}&filter={{ filter }}{% endif %}">
                                             <i class="bi bi-sort-numeric-down-alt"></i>&nbsp;&nbsp;&nbsp;По дате посещения (9 <i class="bi bi-arrow-right-short"></i> 1)
                                         </a>
                                     </div>
@@ -128,7 +128,7 @@
                                                     <!-- Город -->
                                                     <td>
                                                         <span class="text-truncate">
-                                                            <a href="{% url 'city-visited_city' item.id %}">
+                                                            <a href="{% url 'city-selected' item.id %}">
                                                                 {{ item.city }}
                                                             </a>
                                                         </span>
@@ -138,7 +138,7 @@
                                                     {% if type == 'all' %}
                                                     <td>
                                                         <span class="text-truncate">
-                                                            <a href="{% url 'cities-by_region' item.region.id %}">
+                                                            <a href="{% url 'region-selected' item.region.id %}">
                                                                 {{ item.region }}
                                                             </a>
                                                         </span>
@@ -193,7 +193,7 @@
                                                                 onclick="openDeleteModal('{{ item.id }}', '{{ item.city }}')">
                                                             <i class="bi bi-trash d-flex justify-content-center" style="color: white"></i>
                                                         </button>
-                                                        <a href="{% url 'cities-update' item.id %}" class="btn btn-sm btn-warning">
+                                                        <a href="{% url 'city-update' item.id %}" class="btn btn-sm btn-warning">
                                                             <i class="bi bi-pencil d-flex justify-content-center" style="color: black"></i>
                                                         </a>
                                                     </td>
@@ -273,7 +273,7 @@
             let cityTitle = document.getElementById('cityTitleOnModal');
             cityTitle.innerHTML = city_title;
 
-            let cityUrl = "{% url 'cities-delete' pk=1 %}".replace(/1/, city_id.toString());
+            let cityUrl = "{% url 'city-delete' pk=1 %}".replace(/1/, city_id.toString());
 
             let actionForm = document.getElementById('deleteCityForm');
             actionForm.action = cityUrl;

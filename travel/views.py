@@ -1,18 +1,20 @@
+import logging
 from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.db.models import QuerySet, Count, Q, Sum, Avg
-from django.http import HttpResponseForbidden, Http404, HttpResponseNotFound
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db.models import QuerySet, Count, Q
+from django.http import Http404
+from django.shortcuts import render
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 
+from MoiGoroda.error_handlers import ExceptionHandler
 from travel.forms import VisitedCity_Create_Form
 from travel.models import VisitedCity, City, Region
 
 
-class VisitedCity_Create(LoginRequiredMixin, CreateView):
+class VisitedCity_Create(ExceptionHandler, LoginRequiredMixin, CreateView):
     """
     Отображает форму для добавления посещённого города и производит обработку этой формы.
 
@@ -40,23 +42,29 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
 
         context['action'] = 'create'
-        context['prev_url'] = self.request.META.get('HTTP_REFERER')
+
+        # Определяем предыдущую страницу для отображения в хлебных крошах
+        if reverse('region-all') in self.request.META.get('HTTP_REFERER'):
+            prev_page = ['region-all', 'Список регионов России']
+        else:
+            prev_page = ['city-all', 'Список посещённых городов']
+
         context['breadcrumb'] = [
             {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': 'city-all', 'title': 'Список посещённых городов', 'active': False},
+            {'url': prev_page[0], 'title': prev_page[1], 'active': False},
             {'url': '', 'title': 'Добавление посещённого города', 'active': True}
         ]
 
         return context
 
 
-class VisitedCity_Delete(LoginRequiredMixin, DeleteView):
+class VisitedCity_Delete(ExceptionHandler, LoginRequiredMixin, DeleteView):
     """
     Удаляет посещённый город, не отображая дополнительную страницу (подтверждение происходит в модальном окне).
 
      > Доступ только для авторизованных пользователей (LoginRequiredMixin).
      > Доступ только к тем городам, которые пользователь уже посетил (обрабатывается в методе dispatch).
-       При попытке удалить непосещённый город - редирект на страницу со списком посещённых городов.
+       При попытке удалить непосещённый город - возвращаем ошибку 403.
     """
     model = VisitedCity
     success_url = reverse_lazy('city-all')
@@ -65,18 +73,18 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            return HttpResponseForbidden()
+            raise self.raise403(request)
 
         return super().post(request, *args, **kwargs)
 
 
-class VisitedCity_Update(LoginRequiredMixin, UpdateView):
+class VisitedCity_Update(ExceptionHandler, LoginRequiredMixin, UpdateView):
     """
     Отображает страницу с формой для редактирования посещённого города, а также обрабатывает эту форму.
 
      > Доступ только для авторизованных пользователей (LoginRequiredMixin).
      > Доступ только к тем городам, которые пользователь уже посетил (обрабатывается в методе dispatch).
-       При попытке получить доступ к непосещённому городу - редирект на страницу со списком посещённых городов.
+       При попытке получить доступ к непосещённому городу - возвращаем ошибку 403.
     """
     model = VisitedCity
     form_class = VisitedCity_Create_Form
@@ -87,7 +95,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            return HttpResponseNotFound()
+            self.raise404(request)
 
         return super().get(request, *args, **kwargs)
 
@@ -111,7 +119,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         return context
 
 
-class VisitedCity_Detail(LoginRequiredMixin, DetailView):
+class VisitedCity_Detail(ExceptionHandler, LoginRequiredMixin, DetailView):
     """
     Отображает страницу с информацией о посещённом городе.
 
@@ -126,7 +134,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            return HttpResponseNotFound()
+            raise self.raise404(request)
 
         return super().get(request, *args, **kwargs)
 
@@ -143,7 +151,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
         return context
 
 
-class VisitedCity_List(LoginRequiredMixin, ListView):
+class VisitedCity_List(ExceptionHandler, LoginRequiredMixin, ListView):
     """
     Отображает список посещённых городов пользователя, а конкретно:
         * все посещённые города, если в URL-запросе не указан параметр 'pk'
@@ -179,7 +187,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
             try:
                 Region.objects.get(id=self.region_id)
             except ObjectDoesNotExist:
-                return HttpResponseNotFound()
+                self.raise404(self.request)
 
         return super().get(*args, **kwargs)
 
@@ -285,7 +293,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         return context
 
 
-class Region_List(LoginRequiredMixin, ListView):
+class Region_List(ExceptionHandler, LoginRequiredMixin, ListView):
     """
     Отображает список всех регионов с указанием количества посещённых городов в каждом.
 

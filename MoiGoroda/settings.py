@@ -154,10 +154,10 @@ EMAIL_USE_SSL = env('EMAIL_USE_SSL') == 'True'
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'app': {
-            'format': '{levelname} -- {asctime} -- {module} -- {funcName} -- {message}',
+            'format': '[{asctime}] {levelname} -- line {lineno} -- {module}.{classname}.{funcName}() -- {message}',
             'style': '{',
         },
         'django': {
@@ -183,7 +183,7 @@ LOGGING = {
         'app': {
             'handlers': ['app'],
             'level': 'WARNING',
-            'propagate': True,
+            'propagate': False,
         },
         'django': {
             'handlers': ['django'],

@@ -3,18 +3,25 @@ from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet, Count, Q
 from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 
-from MoiGoroda.error_handlers import ExceptionHandler
 from travel.forms import VisitedCity_Create_Form
 from travel.models import VisitedCity, City, Region
 
+logger = logging.getLogger('app')
 
-class VisitedCity_Create(ExceptionHandler, LoginRequiredMixin, CreateView):
+
+def prepare_log_string(status: int, message: str, request: WSGIRequest) -> str:
+    """Возвращает строку, подготовленную для записи в log-файл"""
+    return f'{status}: {message} URL: "{request.path}". Method: "{request.method}". User: "{request.user}"'
+
+
+class VisitedCity_Create(LoginRequiredMixin, CreateView):
     """
     Отображает форму для добавления посещённого города и производит обработку этой формы.
 
@@ -58,7 +65,7 @@ class VisitedCity_Create(ExceptionHandler, LoginRequiredMixin, CreateView):
         return context
 
 
-class VisitedCity_Delete(ExceptionHandler, LoginRequiredMixin, DeleteView):
+class VisitedCity_Delete(LoginRequiredMixin, DeleteView):
     """
     Удаляет посещённый город, не отображая дополнительную страницу (подтверждение происходит в модальном окне).
 
@@ -73,12 +80,24 @@ class VisitedCity_Delete(ExceptionHandler, LoginRequiredMixin, DeleteView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            raise self.raise403(request)
+            logger.warning(
+                prepare_log_string(404, 'Attempt to delete a non-existent record.', request),
+                extra={'classname': self.__class__.__name__}
+            )
+            raise PermissionDenied()
 
         return super().post(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        """Метод GET запрещён для данного класса."""
+        logger.warning(
+            prepare_log_string(403, 'Attempt to access the GET method..', request),
+            extra={'classname': self.__class__.__name__}
+        )
+        raise PermissionDenied()
 
-class VisitedCity_Update(ExceptionHandler, LoginRequiredMixin, UpdateView):
+
+class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     """
     Отображает страницу с формой для редактирования посещённого города, а также обрабатывает эту форму.
 
@@ -95,7 +114,11 @@ class VisitedCity_Update(ExceptionHandler, LoginRequiredMixin, UpdateView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            self.raise404(request)
+            logger.warning(
+                prepare_log_string(404, 'Attempt to update a non-existent visited city.', request),
+                extra={'classname': self.__class__.__name__}
+            )
+            raise Http404
 
         return super().get(request, *args, **kwargs)
 
@@ -119,7 +142,7 @@ class VisitedCity_Update(ExceptionHandler, LoginRequiredMixin, UpdateView):
         return context
 
 
-class VisitedCity_Detail(ExceptionHandler, LoginRequiredMixin, DetailView):
+class VisitedCity_Detail(LoginRequiredMixin, DetailView):
     """
     Отображает страницу с информацией о посещённом городе.
 
@@ -134,7 +157,11 @@ class VisitedCity_Detail(ExceptionHandler, LoginRequiredMixin, DetailView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            raise self.raise404(request)
+            logger.warning(
+                prepare_log_string(404, 'Attempt to access a non-existent visited city.', request),
+                extra={'classname': self.__class__.__name__}
+            )
+            raise Http404
 
         return super().get(request, *args, **kwargs)
 
@@ -151,7 +178,7 @@ class VisitedCity_Detail(ExceptionHandler, LoginRequiredMixin, DetailView):
         return context
 
 
-class VisitedCity_List(ExceptionHandler, LoginRequiredMixin, ListView):
+class VisitedCity_List(LoginRequiredMixin, ListView):
     """
     Отображает список посещённых городов пользователя, а конкретно:
         * все посещённые города, если в URL-запросе не указан параметр 'pk'
@@ -187,7 +214,11 @@ class VisitedCity_List(ExceptionHandler, LoginRequiredMixin, ListView):
             try:
                 Region.objects.get(id=self.region_id)
             except ObjectDoesNotExist:
-                self.raise404(self.request)
+                logger.warning(
+                    prepare_log_string(404, 'Attempt to update a non-existent region.', self.request),
+                    extra={'classname': self.__class__.__name__}
+                )
+                raise Http404
 
         return super().get(*args, **kwargs)
 
@@ -293,7 +324,7 @@ class VisitedCity_List(ExceptionHandler, LoginRequiredMixin, ListView):
         return context
 
 
-class Region_List(ExceptionHandler, LoginRequiredMixin, ListView):
+class Region_List(LoginRequiredMixin, ListView):
     """
     Отображает список всех регионов с указанием количества посещённых городов в каждом.
 
@@ -312,9 +343,9 @@ class Region_List(ExceptionHandler, LoginRequiredMixin, ListView):
         return Region.objects \
             .select_related('area') \
             .annotate(
-                num_total=Count('city', distinct=True),
-                num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
-            ) \
+            num_total=Count('city', distinct=True),
+            num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
+        ) \
             .order_by('-num_visited', 'title')
 
     def get_context_data(self, *, object_list=None, **kwargs):

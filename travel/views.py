@@ -343,10 +343,9 @@ class Region_List(LoginRequiredMixin, ListView):
         return Region.objects \
             .select_related('area') \
             .annotate(
-            num_total=Count('city', distinct=True),
-            num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
-        ) \
-            .order_by('-num_visited', 'title')
+                num_total=Count('city', distinct=True),
+                num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
+            ).order_by('-num_visited', 'title')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)

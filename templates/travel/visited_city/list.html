@@ -288,9 +288,10 @@
             let coords_of_visited_cities = {{ coords_of_visited_cities|safe }};
 
             // Отображаем карту на странице
+            console.log(coords_of_visited_cities);
             var myMap = new ymaps.Map("map", {
                 // ToDo Сейчас карта цетрируется по первому городу в списке. Но лучше это делать по региональному центру
-                center: {% if type == 'all' %}[58.01, 56.22]{% else %}[coords_of_visited_cities[0][0], coords_of_visited_cities[0][1]]{% endif %},
+                center: {% if type == 'all' or not coords_of_visited_cities %}[58.01, 56.22]{% else %}[coords_of_visited_cities[0][0], coords_of_visited_cities[0][1]]{% endif %},
                 zoom: {% if type == 'all' %}5{% else %}7{% endif %}
             }, {
                 searchControlProvider: 'yandex#search'

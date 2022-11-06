@@ -2418,6 +2418,292 @@
   }
 },
 {
+  "model": "travel.city",
+  "pk": 187,
+  "fields": {
+    "title": "Брянск",
+    "region": 2,
+    "population": 379152,
+    "date_of_foundation": 985,
+    "coordinate_width": 53.2434,
+    "coordinate_longitude": 34.363991,
+    "wiki": "https://ru.wikipedia.org/wiki/Брянск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 188,
+  "fields": {
+    "title": "Дятьково",
+    "region": 2,
+    "population": 25255,
+    "date_of_foundation": 1626,
+    "coordinate_width": 53.597311,
+    "coordinate_longitude": 34.339656,
+    "wiki": "https://ru.wikipedia.org/wiki/Дятьково"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 189,
+  "fields": {
+    "title": "Жуковка",
+    "region": 2,
+    "population": 17628,
+    "date_of_foundation": 1867,
+    "coordinate_width": 53.533067,
+    "coordinate_longitude": 33.732547,
+    "wiki": "https://ru.wikipedia.org/wiki/Жуковка_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 190,
+  "fields": {
+    "title": "Злынка",
+    "region": 2,
+    "population": 5270,
+    "date_of_foundation": 1700,
+    "coordinate_width": 52.427389,
+    "coordinate_longitude": 31.737084,
+    "wiki": "https://ru.wikipedia.org/wiki/Злынка"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 191,
+  "fields": {
+    "title": "Карачев",
+    "region": 2,
+    "population": 17449,
+    "date_of_foundation": 1146,
+    "coordinate_width": 53.121594,
+    "coordinate_longitude": 34.982805,
+    "wiki": "https://ru.wikipedia.org/wiki/Карачев"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 192,
+  "fields": {
+    "title": "Клинцы",
+    "region": 2,
+    "population": 63059,
+    "date_of_foundation": 1707,
+    "coordinate_width": 52.753143,
+    "coordinate_longitude": 32.233852,
+    "wiki": "https://ru.wikipedia.org/wiki/Клинцы"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 193,
+  "fields": {
+    "title": "Мглин",
+    "region": 2,
+    "population": 6919,
+    "date_of_foundation": 1154,
+    "coordinate_width": 53.061074,
+    "coordinate_longitude": 32.847815,
+    "wiki": "https://ru.wikipedia.org/wiki/Мглин"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 194,
+  "fields": {
+    "title": "Новозыбков",
+    "region": 2,
+    "population": 38680,
+    "date_of_foundation": 1701,
+    "coordinate_width": 52.536723,
+    "coordinate_longitude": 31.933231,
+    "wiki": "https://ru.wikipedia.org/wiki/Новозыбков"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 195,
+  "fields": {
+    "title": "Почеп",
+    "region": 2,
+    "population": 14991,
+    "date_of_foundation": 1447,
+    "coordinate_width": 52.929135,
+    "coordinate_longitude": 33.454267,
+    "wiki": "https://ru.wikipedia.org/wiki/Почеп"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 196,
+  "fields": {
+    "title": "Севск",
+    "region": 2,
+    "population": 6732,
+    "date_of_foundation": 1146,
+    "coordinate_width": 52.156089,
+    "coordinate_longitude": 34.4951,
+    "wiki": "https://ru.wikipedia.org/wiki/Севск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 197,
+  "fields": {
+    "title": "Сельцо",
+    "region": 2,
+    "population": 15906,
+    "date_of_foundation": 1870,
+    "coordinate_width": 53.373966,
+    "coordinate_longitude": 34.105923,
+    "wiki": "https://ru.wikipedia.org/wiki/Сельцо_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 198,
+  "fields": {
+    "title": "Стародуб",
+    "region": 2,
+    "population": 17687,
+    "date_of_foundation": 1080,
+    "coordinate_width": 52.585277,
+    "coordinate_longitude": 32.760355,
+    "wiki": "https://ru.wikipedia.org/wiki/Стародуб"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 199,
+  "fields": {
+    "title": "Сураж",
+    "region": 2,
+    "population": 11176,
+    "date_of_foundation": 1650,
+    "coordinate_width": 53.013891,
+    "coordinate_longitude": 32.393043,
+    "wiki": "https://ru.wikipedia.org/wiki/Сураж"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 200,
+  "fields": {
+    "title": "Трубчевск",
+    "region": 2,
+    "population": 13515,
+    "date_of_foundation": 975,
+    "coordinate_width": 52.579083,
+    "coordinate_longitude": 33.766082,
+    "wiki": "https://ru.wikipedia.org/wiki/Трубчевск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 201,
+  "fields": {
+    "title": "Унеча",
+    "region": 2,
+    "population": 22565,
+    "date_of_foundation": 1887,
+    "coordinate_width": 52.845115,
+    "coordinate_longitude": 32.670676,
+    "wiki": "https://ru.wikipedia.org/wiki/Унеча"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 202,
+  "fields": {
+    "title": "Фокино",
+    "region": 2,
+    "population": 12538,
+    "date_of_foundation": 1899,
+    "coordinate_width": 53.455436,
+    "coordinate_longitude": 34.415923,
+    "wiki": "https://ru.wikipedia.org/wiki/Фокино_(Брянская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 203,
+  "fields": {
+    "title": "Бабушкин",
+    "region": 45,
+    "population": 4368,
+    "date_of_foundation": 1760,
+    "coordinate_width": 51.715839,
+    "coordinate_longitude": 105.864363,
+    "wiki": "https://ru.wikipedia.org/wiki/Бабушкин_(Бурятия)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 204,
+  "fields": {
+    "title": "Гусиноозёрск",
+    "region": 45,
+    "population": 24451,
+    "date_of_foundation": 1939,
+    "coordinate_width": 51.285526,
+    "coordinate_longitude": 106.529323,
+    "wiki": "https://ru.wikipedia.org/wiki/Гусиноозёрск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 205,
+  "fields": {
+    "title": "Закаменск",
+    "region": 45,
+    "population": 11365,
+    "date_of_foundation": 1934,
+    "coordinate_width": 50.372602,
+    "coordinate_longitude": 103.286764,
+    "wiki": "https://ru.wikipedia.org/wiki/Закаменск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 206,
+  "fields": {
+    "title": "Кяхта",
+    "region": 45,
+    "population": 17877,
+    "date_of_foundation": 1727,
+    "coordinate_width": 50.35522,
+    "coordinate_longitude": 106.449903,
+    "wiki": "https://ru.wikipedia.org/wiki/Кяхта"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 207,
+  "fields": {
+    "title": "Северобайкальск",
+    "region": 45,
+    "population": 24233,
+    "date_of_foundation": 1974,
+    "coordinate_width": 55.636001,
+    "coordinate_longitude": 109.335597,
+    "wiki": "https://ru.wikipedia.org/wiki/Северобайкальск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 208,
+  "fields": {
+    "title": "Улан-Удэ",
+    "region": 45,
+    "population": 437565,
+    "date_of_foundation": 1666,
+    "coordinate_width": 51.834809,
+    "coordinate_longitude": 107.584547,
+    "wiki": "https://ru.wikipedia.org/wiki/Улан-Удэ"
+  }
+},
+{
   "model": "travel.region",
   "pk": 1,
   "fields": {

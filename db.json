@@ -2704,6 +2704,747 @@
   }
 },
 {
+  "model": "travel.city",
+  "pk": 209,
+  "fields": {
+    "title": "Александров",
+    "region": 3,
+    "population": 57073,
+    "date_of_foundation": 1434,
+    "coordinate_width": 56.397774,
+    "coordinate_longitude": 38.727621,
+    "wiki": "https://ru.wikipedia.org/wiki/Александров_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 210,
+  "fields": {
+    "title": "Владимир",
+    "region": 3,
+    "population": 349951,
+    "date_of_foundation": 990,
+    "coordinate_width": 56.129057,
+    "coordinate_longitude": 40.406635,
+    "wiki": "https://ru.wikipedia.org/wiki/Владимир_(город,_Россия)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 211,
+  "fields": {
+    "title": "Вязники",
+    "region": 3,
+    "population": 33769,
+    "date_of_foundation": 1608,
+    "coordinate_width": 56.247026,
+    "coordinate_longitude": 42.158862,
+    "wiki": "https://ru.wikipedia.org/wiki/Вязники"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 212,
+  "fields": {
+    "title": "https://ru.wikipedia.org/wiki/Гороховец",
+    "region": 3,
+    "population": 12617,
+    "date_of_foundation": 1158,
+    "coordinate_width": 56.2017,
+    "coordinate_longitude": 42.691203,
+    "wiki": "https://ru.wikipedia.org/wiki/Гороховец"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 213,
+  "fields": {
+    "title": "Гусь-Хрустальный",
+    "region": 3,
+    "population": 51998,
+    "date_of_foundation": 1756,
+    "coordinate_width": 55.614556,
+    "coordinate_longitude": 40.671045,
+    "wiki": "https://ru.wikipedia.org/wiki/Гусь-Хрустальный"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 214,
+  "fields": {
+    "title": "Камешково",
+    "region": 3,
+    "population": 11840,
+    "date_of_foundation": 1892,
+    "coordinate_width": 56.348921,
+    "coordinate_longitude": 40.995597,
+    "wiki": "https://ru.wikipedia.org/wiki/Камешково"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 215,
+  "fields": {
+    "title": "Карабаново",
+    "region": 3,
+    "population": 15023,
+    "date_of_foundation": 1630,
+    "coordinate_width": 56.308116,
+    "coordinate_longitude": 38.696853,
+    "wiki": "https://ru.wikipedia.org/wiki/Карабаново"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 216,
+  "fields": {
+    "title": "Киржач",
+    "region": 3,
+    "population": 26381,
+    "date_of_foundation": 1332,
+    "coordinate_width": 56.161945,
+    "coordinate_longitude": 38.871585,
+    "wiki": "https://ru.wikipedia.org/wiki/Киржач"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 217,
+  "fields": {
+    "title": "Ковров",
+    "region": 3,
+    "population": 134074,
+    "date_of_foundation": 1157,
+    "coordinate_width": 56.362506,
+    "coordinate_longitude": 41.310933,
+    "wiki": "https://ru.wikipedia.org/wiki/Ковров"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 218,
+  "fields": {
+    "title": "Кольчугино",
+    "region": 3,
+    "population": 41369,
+    "date_of_foundation": 1871,
+    "coordinate_width": 56.293647,
+    "coordinate_longitude": 39.376501,
+    "wiki": "https://ru.wikipedia.org/wiki/Кольчугино"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 219,
+  "fields": {
+    "title": "Костерёво",
+    "region": 3,
+    "population": 7997,
+    "date_of_foundation": 1890,
+    "coordinate_width": 55.934296,
+    "coordinate_longitude": 39.63385,
+    "wiki": "https://ru.wikipedia.org/wiki/Костерёво"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 220,
+  "fields": {
+    "title": "Курлово",
+    "region": 3,
+    "population": 5639,
+    "date_of_foundation": 1811,
+    "coordinate_width": 55.454973,
+    "coordinate_longitude": 40.611208,
+    "wiki": "https://ru.wikipedia.org/wiki/Курлово"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 221,
+  "fields": {
+    "title": "Лакинск",
+    "region": 3,
+    "population": 13947,
+    "date_of_foundation": 1500,
+    "coordinate_width": 56.01711,
+    "coordinate_longitude": 39.949446,
+    "wiki": "https://ru.wikipedia.org/wiki/Лакинск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 222,
+  "fields": {
+    "title": "Меленки",
+    "region": 3,
+    "population": 13269,
+    "date_of_foundation": 1709,
+    "coordinate_width": 55.33872,
+    "coordinate_longitude": 41.634039,
+    "wiki": "https://ru.wikipedia.org/wiki/Меленки"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 223,
+  "fields": {
+    "title": "Муром",
+    "region": 3,
+    "population": 105572,
+    "date_of_foundation": 862,
+    "coordinate_width": 55.579174,
+    "coordinate_longitude": 42.052411,
+    "wiki": "https://ru.wikipedia.org/wiki/Муром"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 224,
+  "fields": {
+    "title": "Петушки",
+    "region": 3,
+    "population": 12166,
+    "date_of_foundation": 1861,
+    "coordinate_width": 55.931104,
+    "coordinate_longitude": 39.459352,
+    "wiki": "https://ru.wikipedia.org/wiki/Петушки_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 225,
+  "fields": {
+    "title": "Покров",
+    "region": 3,
+    "population": 16542,
+    "date_of_foundation": 1506,
+    "coordinate_width": 55.918081,
+    "coordinate_longitude": 39.175745,
+    "wiki": "https://ru.wikipedia.org/wiki/Покров_(город,_Россия)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 226,
+  "fields": {
+    "title": "Радужный",
+    "region": 3,
+    "population": 18470,
+    "date_of_foundation": 1971,
+    "coordinate_width": 55.995659,
+    "coordinate_longitude": 40.332605,
+    "wiki": "https://ru.wikipedia.org/wiki/Радужный_(Владимирская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 227,
+  "fields": {
+    "title": "Собинка",
+    "region": 3,
+    "population": 16973,
+    "date_of_foundation": 1858,
+    "coordinate_width": 55.993379,
+    "coordinate_longitude": 40.017736,
+    "wiki": "https://ru.wikipedia.org/wiki/Собинка"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 228,
+  "fields": {
+    "title": "Струнино",
+    "region": 3,
+    "population": 12754,
+    "date_of_foundation": 1492,
+    "coordinate_width": 56.372263,
+    "coordinate_longitude": 38.581402,
+    "wiki": "https://ru.wikipedia.org/wiki/Струнино"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 229,
+  "fields": {
+    "title": "Судогда",
+    "region": 3,
+    "population": 10017,
+    "date_of_foundation": 1552,
+    "coordinate_width": 55.949884,
+    "coordinate_longitude": 40.856295,
+    "wiki": "https://ru.wikipedia.org/wiki/Судогда"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 230,
+  "fields": {
+    "title": "Суздаль",
+    "region": 3,
+    "population": 9597,
+    "date_of_foundation": 999,
+    "coordinate_width": 56.419333,
+    "coordinate_longitude": 40.448757,
+    "wiki": "https://ru.wikipedia.org/wiki/Суздаль"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 231,
+  "fields": {
+    "title": "Юрьев-Польский",
+    "region": 3,
+    "population": 17616,
+    "date_of_foundation": 1152,
+    "coordinate_width": 56.49925,
+    "coordinate_longitude": 39.680823,
+    "wiki": "https://ru.wikipedia.org/wiki/Юрьев-Польский"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 232,
+  "fields": {
+    "title": "Волгоград",
+    "region": 35,
+    "population": 1028036,
+    "date_of_foundation": 1589,
+    "coordinate_width": 48.707067,
+    "coordinate_longitude": 44.516975,
+    "wiki": "https://ru.wikipedia.org/wiki/Волгоград"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 233,
+  "fields": {
+    "title": "Волжский",
+    "region": 35,
+    "population": 321427,
+    "date_of_foundation": 1951,
+    "coordinate_width": 48.786127,
+    "coordinate_longitude": 44.751229,
+    "wiki": "https://ru.wikipedia.org/wiki/Волжский"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 234,
+  "fields": {
+    "title": "Дубовка",
+    "region": 35,
+    "population": 13442,
+    "date_of_foundation": 1734,
+    "coordinate_width": 49.055375,
+    "coordinate_longitude": 44.826957,
+    "wiki": "https://ru.wikipedia.org/wiki/Дубовка"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 235,
+  "fields": {
+    "title": "Жирновск",
+    "region": 35,
+    "population": 15259,
+    "date_of_foundation": 1750,
+    "coordinate_width": 50.978718,
+    "coordinate_longitude": 44.778843,
+    "wiki": "https://ru.wikipedia.org/wiki/Жирновск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 236,
+  "fields": {
+    "title": "Калач-на-Дону",
+    "region": 35,
+    "population": 23503,
+    "date_of_foundation": 1708,
+    "coordinate_width": 48.682007,
+    "coordinate_longitude": 43.538216,
+    "wiki": "https://ru.wikipedia.org/wiki/Калач-на-Дону"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 237,
+  "fields": {
+    "title": "Камышин",
+    "region": 35,
+    "population": 106879,
+    "date_of_foundation": 1668,
+    "coordinate_width": 50.085287,
+    "coordinate_longitude": 45.402166,
+    "wiki": "https://ru.wikipedia.org/wiki/Камышин"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 238,
+  "fields": {
+    "title": "Котельниково",
+    "region": 35,
+    "population": 20317,
+    "date_of_foundation": 1897,
+    "coordinate_width": 47.630046,
+    "coordinate_longitude": 43.146065,
+    "wiki": "https://ru.wikipedia.org/wiki/Котельниково"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 239,
+  "fields": {
+    "title": "Котово",
+    "region": 35,
+    "population": 21120,
+    "date_of_foundation": 1710,
+    "coordinate_width": 50.322064,
+    "coordinate_longitude": 44.801328,
+    "wiki": "https://ru.wikipedia.org/wiki/Котово"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 240,
+  "fields": {
+    "title": "Краснослободск",
+    "region": 35,
+    "population": 16838,
+    "date_of_foundation": 1870,
+    "coordinate_width": 48.706788,
+    "coordinate_longitude": 44.563149,
+    "wiki": "https://ru.wikipedia.org/wiki/Краснослободск_(Волгоградская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 241,
+  "fields": {
+    "title": "Ленинск",
+    "region": 35,
+    "population": 14366,
+    "date_of_foundation": 1802,
+    "coordinate_width": 48.693682,
+    "coordinate_longitude": 45.199228,
+    "wiki": "https://ru.wikipedia.org/wiki/Ленинск_(Волгоградская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 242,
+  "fields": {
+    "title": "Михайловка",
+    "region": 35,
+    "population": 56981,
+    "date_of_foundation": 1762,
+    "coordinate_width": 50.07938,
+    "coordinate_longitude": 43.23445,
+    "wiki": "https://ru.wikipedia.org/wiki/Михайловка_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 243,
+  "fields": {
+    "title": "Николаевск",
+    "region": 35,
+    "population": 13310,
+    "date_of_foundation": 1747,
+    "coordinate_width": 50.025878,
+    "coordinate_longitude": 45.45911,
+    "wiki": "https://ru.wikipedia.org/wiki/Николаевск_(Волгоградская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 244,
+  "fields": {
+    "title": "Новоаннинский",
+    "region": 35,
+    "population": 15791,
+    "date_of_foundation": 1872,
+    "coordinate_width": 50.529606,
+    "coordinate_longitude": 42.667083,
+    "wiki": "https://ru.wikipedia.org/wiki/Новоаннинский"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 245,
+  "fields": {
+    "title": "Палласовка",
+    "region": 35,
+    "population": 14248,
+    "date_of_foundation": 1907,
+    "coordinate_width": 50.050172,
+    "coordinate_longitude": 46.880407,
+    "wiki": "https://ru.wikipedia.org/wiki/Палласовка"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 246,
+  "fields": {
+    "title": "Петров Вал",
+    "region": 35,
+    "population": 12285,
+    "date_of_foundation": 1942,
+    "coordinate_width": 50.139571,
+    "coordinate_longitude": 45.214203,
+    "wiki": "https://ru.wikipedia.org/wiki/Петров_Вал"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 247,
+  "fields": {
+    "title": "Серафимович",
+    "region": 35,
+    "population": 8578,
+    "date_of_foundation": 1589,
+    "coordinate_width": 49.584141,
+    "coordinate_longitude": 42.734017,
+    "wiki": "https://ru.wikipedia.org/wiki/Серафимович_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 248,
+  "fields": {
+    "title": "Суровикино",
+    "region": 35,
+    "population": 18154,
+    "date_of_foundation": 1744,
+    "coordinate_width": 48.60538,
+    "coordinate_longitude": 42.844249,
+    "wiki": "https://ru.wikipedia.org/wiki/Суровикино"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 249,
+  "fields": {
+    "title": "Урюпинск",
+    "region": 35,
+    "population": 36186,
+    "date_of_foundation": 1618,
+    "coordinate_width": 50.79451,
+    "coordinate_longitude": 41.995593,
+    "wiki": "https://ru.wikipedia.org/wiki/Урюпинск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 250,
+  "fields": {
+    "title": "Фролово",
+    "region": 35,
+    "population": 35913,
+    "date_of_foundation": 1859,
+    "coordinate_width": 49.765605,
+    "coordinate_longitude": 43.649185,
+    "wiki": "https://ru.wikipedia.org/wiki/Фролово"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 251,
+  "fields": {
+    "title": "Бабаево",
+    "region": 22,
+    "population": 11416,
+    "date_of_foundation": 1902,
+    "coordinate_width": 59.389227,
+    "coordinate_longitude": 35.937768,
+    "wiki": "https://ru.wikipedia.org/wiki/Бабаево"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 252,
+  "fields": {
+    "title": "Белозерск",
+    "region": 22,
+    "population": 8464,
+    "date_of_foundation": 862,
+    "coordinate_width": 60.032074,
+    "coordinate_longitude": 37.792456,
+    "wiki": "https://ru.wikipedia.org/wiki/Белозерск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 253,
+  "fields": {
+    "title": "Великий Устюг",
+    "region": 22,
+    "population": 31078,
+    "date_of_foundation": 1147,
+    "coordinate_width": 60.761156,
+    "coordinate_longitude": 46.297849,
+    "wiki": "https://ru.wikipedia.org/wiki/Великий_Устюг"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 254,
+  "fields": {
+    "title": "Вологда",
+    "region": 22,
+    "population": 313944,
+    "date_of_foundation": 1147,
+    "coordinate_width": 59.220501,
+    "coordinate_longitude": 39.891523,
+    "wiki": "https://ru.wikipedia.org/wiki/Вологда"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 255,
+  "fields": {
+    "title": "Вытегра",
+    "region": 22,
+    "population": 10116,
+    "date_of_foundation": 1496,
+    "coordinate_width": 61.006359,
+    "coordinate_longitude": 36.449511,
+    "wiki": "https://ru.wikipedia.org/wiki/Вытегра"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 256,
+  "fields": {
+    "title": "Грязовец",
+    "region": 22,
+    "population": 14797,
+    "date_of_foundation": 1538,
+    "coordinate_width": 58.875793,
+    "coordinate_longitude": 40.248432,
+    "wiki": "https://ru.wikipedia.org/wiki/Грязовец"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 257,
+  "fields": {
+    "title": "Кадников",
+    "region": 22,
+    "population": 4440,
+    "date_of_foundation": 1492,
+    "coordinate_width": 59.501748,
+    "coordinate_longitude": 40.341112,
+    "wiki": "https://ru.wikipedia.org/wiki/Кадников"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 258,
+  "fields": {
+    "title": "Кириллов",
+    "region": 22,
+    "population": 7371,
+    "date_of_foundation": 1397,
+    "coordinate_width": 59.859059,
+    "coordinate_longitude": 38.374942,
+    "wiki": "https://ru.wikipedia.org/wiki/Кириллов_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 259,
+  "fields": {
+    "title": "Красавино",
+    "region": 22,
+    "population": 5827,
+    "date_of_foundation": 0,
+    "coordinate_width": 60.961377,
+    "coordinate_longitude": 46.481474,
+    "wiki": "https://ru.wikipedia.org/wiki/Красавино"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 260,
+  "fields": {
+    "title": "Никольск",
+    "region": 22,
+    "population": 7960,
+    "date_of_foundation": 1450,
+    "coordinate_width": 59.530416,
+    "coordinate_longitude": 45.45849,
+    "wiki": "https://ru.wikipedia.org/wiki/Никольск_(Вологодская_область)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 261,
+  "fields": {
+    "title": "Сокол",
+    "region": 22,
+    "population": 36067,
+    "date_of_foundation": 1615,
+    "coordinate_width": 59.460972,
+    "coordinate_longitude": 40.099986,
+    "wiki": "https://ru.wikipedia.org/wiki/Сокол_(город)"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 262,
+  "fields": {
+    "title": "Тотьма",
+    "region": 22,
+    "population": 9652,
+    "date_of_foundation": 1137,
+    "coordinate_width": 59.973487,
+    "coordinate_longitude": 42.758873,
+    "wiki": "https://ru.wikipedia.org/wiki/Тотьма"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 263,
+  "fields": {
+    "title": "Устюжна",
+    "region": 22,
+    "population": 8284,
+    "date_of_foundation": 1252,
+    "coordinate_width": 58.842699,
+    "coordinate_longitude": 36.42867,
+    "wiki": "https://ru.wikipedia.org/wiki/Устюжна"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 264,
+  "fields": {
+    "title": "Харовск",
+    "region": 22,
+    "population": 8650,
+    "date_of_foundation": 1903,
+    "coordinate_width": 59.950745,
+    "coordinate_longitude": 40.206319,
+    "wiki": "https://ru.wikipedia.org/wiki/Харовск"
+  }
+},
+{
+  "model": "travel.city",
+  "pk": 265,
+  "fields": {
+    "title": "Череповец",
+    "region": 22,
+    "population": 312091,
+    "date_of_foundation": 1362,
+    "coordinate_width": 59.122612,
+    "coordinate_longitude": 37.90347,
+    "wiki": "https://ru.wikipedia.org/wiki/Череповец"
+  }
+},
+{
   "model": "travel.region",
   "pk": 1,
   "fields": {

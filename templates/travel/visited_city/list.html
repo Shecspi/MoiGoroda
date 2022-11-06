@@ -285,14 +285,64 @@
             /**
              * Отображает карту и генерирует на ней отметки с городами.
              */
-            let coords_of_visited_cities = {{ coords_of_visited_cities|safe }};
+            // Массив с посещёнными городами (региона или всей страны).
+            // ['coordinate_width', 'coordinate_longitude', 'name']
+            let visited_cities = {{ coords_of_visited_cities|safe }};
+
+            // Массив со всеми городами региона.
+            // ['coordinate_width', 'coordinate_longitude', 'name']
+            // Существует только для отображения городов конкретного региона.
+            {% if coords_of_not_visited_cities %}
+                let not_visited_cities = {{ coords_of_not_visited_cities|safe }};
+            {% endif %}
+
+            // Высчитываем центральную точку карты.
+            // Ей является средняя координата всех городов, отображённых на карте.
+            let array_x = Array();
+            let array_y = Array();
+
+            // Средние координаты вычисляем либо только для посещенных городов,
+            // либо для всех городов конкретного региона.
+            let cities; // Временная переменная, используемая для вычисления средних координат.
+            if (typeof(not_visited_cities) !== 'undefined') {
+                cities = not_visited_cities;
+            } else {
+                cities = visited_cities;
+            }
+            let count = cities.length;
+
+            // Добавляем все координаты в один массив и находим большее и меньшее значения из них,
+            // а затем вычисляем среднее, это и будет являться центром карты.
+            for (let i = 0; i < count; i++) {
+                array_y.push(parseFloat(cities[i][0]));
+                array_x.push(parseFloat(cities[i][1]));
+            }
+            let max_x = Math.max(...array_x);
+            let min_x = Math.min(...array_x);
+            let max_y = Math.max(...array_y);
+            let min_y = Math.min(...array_y);
+            let average_x = (max_x + min_x) / 2;
+            let average_y = (max_y + min_y) / 2;
+
+            // Меняем масштаб карты в зависимости от расположения городов
+            let zoom;
+            let diff = max_y - min_y;
+            if (diff <= 1) {
+                zoom = 9;
+            } else if (diff > 1 && diff <= 2) {
+                zoom = 8;
+            } else if (diff > 2 && diff <= 5) {
+                zoom = 7;
+            } else if (diff > 5 && diff <= 6) {
+                zoom = 6;
+            } else {
+                zoom = 5;
+            }
 
             // Отображаем карту на странице
-            console.log(coords_of_visited_cities);
             var myMap = new ymaps.Map("map", {
-                // ToDo Сейчас карта цетрируется по первому городу в списке. Но лучше это делать по региональному центру
-                center: {% if type == 'all' or not coords_of_visited_cities %}[58.01, 56.22]{% else %}[coords_of_visited_cities[0][0], coords_of_visited_cities[0][1]]{% endif %},
-                zoom: {% if type == 'all' %}5{% else %}7{% endif %}
+                center: [average_y, average_x],
+                zoom: zoom
             }, {
                 searchControlProvider: 'yandex#search'
             });
@@ -314,10 +364,10 @@
             {% endif %}
 
             // Отображаем на карте посещённые города
-            for (let i = 0; i < (coords_of_visited_cities.length); i++) {
-                let coordinateWidth = coords_of_visited_cities[i][0];
-                let coordinateLongitude = coords_of_visited_cities[i][1];
-                let city = coords_of_visited_cities[i][2]
+            for (let i = 0; i < (visited_cities.length); i++) {
+                let coordinateWidth = visited_cities[i][0];
+                let coordinateLongitude = visited_cities[i][1];
+                let city = visited_cities[i][2]
                 myMap.geoObjects.add(
                     new ymaps.Placemark(
                         [coordinateWidth, coordinateLongitude], {

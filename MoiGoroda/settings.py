@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'main_page',
     'account.apps.AuthConfig',
     'travel',
+    'collection',
     'mathfilters'
 ]
 
@@ -192,3 +193,6 @@ LOGGING = {
         },
     },
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

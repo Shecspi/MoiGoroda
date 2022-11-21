@@ -145,3 +145,5 @@ INTERNAL_IPS = [
 ]
 
 LOGIN_URL = '/account/signin'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

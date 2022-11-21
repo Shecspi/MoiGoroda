@@ -68,16 +68,6 @@ class SignIn(LoginView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['breadcrumb'] = [
-            {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': '', 'title': 'Вход', 'active': True}
-        ]
-
-        return context
-
 
 def signup_success(request):
     return render(request, 'account/signup_success.html')

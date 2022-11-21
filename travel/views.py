@@ -207,7 +207,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
                     queryset = queryset.filter(date_of_visit__year=datetime.now().year)
                     self.filter = 'current_year'
                 case 'last_year':
-                    queryset = queryset.filter(date_of_visit__year=datetime.now().year-1)
+                    queryset = queryset.filter(date_of_visit__year=datetime.now().year - 1)
                     self.filter = 'last_year'
                 case _:
                     self.filter = None
@@ -297,14 +297,17 @@ class Region_List(LoginRequiredMixin, ListView):
     all_regions = []
 
     def get_queryset(self):
-        self.all_regions = Region.objects.all().annotate(
+        self.all_regions = Region.objects.select_related('area').annotate(
             num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
         )
 
-        return Region.objects.all().annotate(
-            num_total=Count('city', distinct=True),
-            num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
-        ).order_by('-num_visited', 'title')
+        return Region.objects \
+            .select_related('area') \
+            .annotate(
+                num_total=Count('city', distinct=True),
+                num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
+            ) \
+            .order_by('-num_visited', 'title')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)

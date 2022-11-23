@@ -331,8 +331,8 @@ class Region_List(LoginRequiredMixin, ListView):
      > Доступ только для авторизованных пользователей (LoginRequiredMixin).
     """
     model = Region
-    paginate_by = 15
-    template_name = 'travel/region/list.html'
+    paginate_by = 16
+    template_name = 'new_design/travel/region/list.html'
     all_regions = []
 
     def get_queryset(self):

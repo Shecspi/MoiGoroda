@@ -3,38 +3,14 @@
 
 {% block content %}
     <div class="container-fluid">
-        <div class="row mt-3">
+        <h1 class="display-5 text-center my-2">
+            Регионы России
+        </h1>
 
+        <div class="row mt-3">
             <!-- Левый столбик -->
             <div class="col-xl-2 col-lg-3 col-md-4">
-
-                <!-- Вкладки -->
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="nav flex-column nav-pills" id="v-pills-tab"
-                             role="tablist" aria-orientation="vertical">
-                            <button class="nav-link active" id="list-tab" data-toggle="pill"
-                                    data-bs-toggle="pill" data-bs-target="#list-content"
-                                    type="button" role="tab" aria-controls="list-content" aria-selected="true">
-                                Список
-                            </button>
-                            <button class="nav-link" id="map-tab" data-toggle="pill"
-                                    data-bs-toggle="pill" data-bs-target="#map-content"
-                                    type="button" role="tab" aria-controls="map-content" aria-selected="true">
-                                Карта
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- ^^^ Вкладки -->
-
-                <div class="card mb-3">
-                    <div class="card-body d-grid gap-2">
-                        <a href="{% url 'city-create' %}" class="btn btn-outline-primary btn-block">
-                            Добавить город
-                        </a>
-                    </div>
-                </div>
+                {% include 'new_design/left_menu_of_list_page.html' %}
             </div>
             <!-- ^^^ Леввый столбик -->
 
@@ -44,7 +20,7 @@
                     <div class="tab-pane fade show active" id="list-content"
                          role="tabpanel" aria-labelledby="list-tab" tabindex="0">
 
-                        <!-- Карточки с городами -->
+                        <!-- Карточки с регионами -->
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mb-3 g-3">
                             {% for item in object_list %}
                                 <div class="col">
@@ -84,47 +60,7 @@
                         <!-- ^^^ Карточки с городами -->
 
                         <!-- Пагинация -->
-                        {% if page_obj.has_other_pages %}
-                            <div class="text-center">
-                                <div class="btn-group mb-3" role="group">
-                                    {% if page_obj.has_previous %}
-                                        <a href="?page=1" class="btn btn-outline-danger">
-                                            <i class="fa-solid fa-angles-left"></i>
-                                        </a>
-                                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-danger">
-                                            <i class="fa-solid fa-angle-left"></i>
-                                        </a>
-                                    {% else %}
-                                        <button class="btn btn-outline-secondary" disabled>
-                                            <i class="fa-solid fa-angles-left"></i>
-                                        </button>
-                                        <button class="btn btn-outline-secondary" disabled>
-                                            <i class="fa-solid fa-angle-left"></i>
-                                        </button>
-                                    {% endif %}
-
-                                    <button class="btn btn-outline-dark" disabled>
-                                        Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
-                                    </button>
-
-                                    {% if page_obj.has_next %}
-                                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-success">
-                                            <i class="fa-solid fa-angle-right"></i>
-                                        </a>
-                                        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-success">
-                                            <i class="fa-solid fa-angles-right"></i>
-                                        </a>
-                                    {% else %}
-                                        <button class="btn btn-outline-secondary" disabled>
-                                            <i class="fa-solid fa-angle-right"></i>
-                                        </button>
-                                        <button class="btn btn-outline-secondary" disabled>
-                                            <i class="fa-solid fa-angles-right"></i>
-                                        </button>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endif %}
+                        {% include 'new_design/pagination.html' %}
                         <!-- ^^^ Пагинация -->
                     </div>
 

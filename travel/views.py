@@ -187,8 +187,8 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
      > Доступ только для авторизованных пользователей (LoginRequiredMixin).
     """
     model = VisitedCity
-    paginate_by = 15
-    template_name = 'travel/visited_city/list.html'
+    paginate_by = 16
+    template_name = 'new_design/travel/visited_city/list.html'
 
     # Список, хранящий координаты и название посещённого города.
     # В шаблоне используется для генерации отметок на карте.
@@ -309,6 +309,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
             context['type'] = 'by_region'
             context['region_id'] = self.region_id
             context['coords_of_not_visited_cities'] = self.coords_of_not_visited_cities
+            context['region_name'] = self.region_name
             context['breadcrumb'] = [
                 {'url': 'main_page', 'title': 'Главная', 'active': False},
                 {'url': 'city-all', 'title': 'Список посещённых городов', 'active': False},

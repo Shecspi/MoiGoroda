@@ -1,270 +1,135 @@
 {% extends 'base.html' %}
-{% load crispy_forms_filters %}
+{% load mathfilters %}
 
 {% block content %}
-    <!-- Модальное окно про удаление элемента -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">
-                        Удаление
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Вы уверены, что хотите удалить город <b><span id="cityTitleOnModal"></span></b> из списка посещённых?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                    <form id="deleteCityForm" method="post" action="">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Удалить</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="container-fluid">
-        <div class="row">
+        <h1 class="display-5 text-center my-2">
+            {% if type == 'all' %}
+                Посещённые города
+            {% else %}
+                {{ region_name }}
+            {% endif %}
+        </h1>
+
+        <div class="row mt-3">
+            <!-- Левый столбик -->
             <div class="col-xl-2 col-lg-3 col-md-4">
-                <!-- Вкладки -->
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                            <a class="nav-link active" id="tab-list" data-toggle="pill" href="#content-list"
-                               role="tab" aria-controls="content-list" aria-selected="true">
-                                Список
-                            </a>
-                            <a class="nav-link" id="tab-map" data-toggle="pill" href="#content-map" role="tab"
-                               aria-controls="content-map" aria-selected="false">
-                                Карта
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <a href="{% url 'city-create' %}" class="btn btn-outline-primary btn-block">
-                            Добавить город
-                        </a>
-                    </div>
-                </div>
+                {% include 'parts/left_menu_of_city_page.html' %}
             </div>
+            <!-- ^^^ Леввый столбик -->
 
+            <!-- Основной столбик -->
             <div class="col-xl-10 col-lg-9 col-md-8">
                 <div class="tab-content" id="v-pills-tabContent">
-                    <div class="tab-pane fade show active" id="content-list" role="tabpanel" aria-labelledby="tab-list">
-                        <!-- Панель кнопок фильтров -->
-                        <div class="row mb-3">
-                            <div class="col-xl-3 my-1 col-lg-6 col-md-6 text-center">
-                                <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'magnet' %}filter=magnet&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
-                                   class="btn btn-block {% if filter == 'magnet' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
-                                    <i class="bi bi-x"></i>&nbsp;&nbsp;&nbsp;Без магнита
-                                </a>
-                            </div>
+                    <div class="tab-pane fade show active" id="list-content"
+                         role="tabpanel" aria-labelledby="list-tab" tabindex="0">
 
-                            <div class="col-xl-3 my-1 col-lg-6 col-md-6 my-1 text-center">
-                                <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'current_year' %}filter=current_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
-                                   class="btn btn-block {% if filter == 'current_year' %}btn-success{% else %}btn-outline-success{% endif %}">
-                                    <i class="bi bi-calendar3"></i>&nbsp;&nbsp;&nbsp;В этом году
-                                </a>
-                            </div>
+                        <!-- Карточки с городами -->
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mb-3 g-3">
+                            {% for item in object_list %}
+                                <div class="col">
+                                    <div class="card h-100 text-center">
+                                        <h5 class="card-header">
+                                            <!-- Город -->
+                                            <a href="{% url 'city-selected' item.id %}"
+                                               class="text-underline-dashed text-reset">
+                                                {{ item.city }}
+                                            </a>
+                                            <!-- ^^^ Город -->
+                                        </h5>
 
-                            <div class="col-xl-3 my-1 col-lg-6 col-md-6 my-1 text-center">
-                                <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'last_year' %}filter=last_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
-                                   class="btn btn-block {% if filter == 'last_year' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                                    <i class="bi bi-calendar2-week"></i>&nbsp;&nbsp;&nbsp;В прошлом году
-                                </a>
-                            </div>
+                                        <div class="card-body">
+                                            <!-- Регион -->
+                                            <small class="card-subtitle text-muted">
+                                                <a href="{% url 'region-selected' item.region.id %}"
+                                                   class="text-underline-dashed text-reset">
+                                                    {{ item.region }}
+                                                </a>
+                                            </small>
+                                            <!-- ^^^ Регион -->
 
-                            <div class="col-xl-3 my-1 col-lg-6 col-md-6 my-1 text-center">
-                                <div class="dropdown">
-                                    <a class="btn btn-outline-danger dropdown-toggle btn-block" href="#" role="button" id="sortingButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="bi bi-filter"></i>&nbsp;&nbsp;&nbsp;Сортировка
-                                    </a>
+                                            <br>
 
-                                    <div class="dropdown-menu" aria-labelledby="sortingButton">
-                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                            <i class="bi bi-sort-alpha-down"></i>&nbsp;&nbsp;&nbsp;По названию (а <i class="bi bi-arrow-right-short"></i> я)
-                                        </a>
-                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                            <i class="bi bi-sort-alpha-down-alt"></i>&nbsp;&nbsp;&nbsp;По названию (я <i class="bi bi-arrow-right-short"></i> а)
-                                        </a>
-                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                            <i class="bi bi-sort-numeric-down"></i>&nbsp;&nbsp;&nbsp;По дате посещения (1 <i class="bi bi-arrow-right-short"></i> 9)
-                                        </a>
-                                        <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                            <i class="bi bi-sort-numeric-down-alt"></i>&nbsp;&nbsp;&nbsp;По дате посещения (9 <i class="bi bi-arrow-right-short"></i> 1)
-                                        </a>
+                                            <!-- Федеральный округ -->
+                                            <small class="card-subtitle text-muted">
+                                                {{ item.region.area }} фед. округ
+                                            </small>
+                                            <!-- ^^^ Федеральный округ -->
+
+                                            <br>
+
+                                            <!-- Дата посещения -->
+                                            <div class="justify-content-start flex-grow-1">
+                                                <small class="card-subtitle text-muted">
+                                                    {% if item.date_of_visit %}
+                                                        {{ item.date_of_visit }}
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                            <!-- ^^^ Дата посещения -->
+                                        </div>
+
+                                        <div class="card-footer d-flex justify-content-between" style="background: none; border-top: none;">
+                                            <!-- Рейтинг -->
+                                            <div>
+                                                {% for i in '12345'|make_list %}
+                                                    {% if forloop.counter <= item.rating %}
+                                                        <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                                    {% else %}
+                                                        <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <!-- ^^^ Рейтинг -->
+
+                                            <!-- Наличие магнита -->
+                                            <div>
+                                                {% if item.has_magnet %}
+                                                    <span class="badge bg-success">
+                                                        Магнит есть
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">
+                                                        Магнита нет
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                            <!-- ^^^ Наличие магнита -->
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            {% endfor %}
                         </div>
-
-                        <!-- Таблица с перечнем посещённых городов -->
-                        <div class="row mb-3">
-                            <div class="col">
-                                <div class="table-responsive-lg">
-                                    <table class="table table-hover table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Город</th>
-                                                {% if type == 'all' %}<th>Регион</th>{% endif %}
-                                                <th class="d-none d-lg-table-cell">Фед. округ</th>
-                                                <th class="text-center">Дата посещения</th>
-                                                <th class="text-center d-none d-xl-table-cell">Наличие магнита</th>
-                                                <th class="text-center d-none d-xl-table-cell">Рейтинг</th>
-                                                <th class="text-center">Операции</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for item in object_list %}
-                                                <tr>
-                                                    <!-- Город -->
-                                                    <td>
-                                                        <span class="text-truncate">
-                                                            <a href="{% url 'city-selected' item.id %}">
-                                                                {{ item.city }}
-                                                            </a>
-                                                        </span>
-                                                    </td>
-
-                                                    <!-- Регион -->
-                                                    {% if type == 'all' %}
-                                                    <td>
-                                                        <span class="text-truncate">
-                                                            <a href="{% url 'region-selected' item.region.id %}">
-                                                                {{ item.region }}
-                                                            </a>
-                                                        </span>
-                                                    </td>
-                                                    {% endif %}
-
-                                                    <!-- Федеральный округ -->
-                                                    <td class="d-none d-lg-table-cell">
-                                                        <span class="text-truncate">
-                                                            {{ item.region.area }}
-                                                        </span>
-                                                    </td>
-
-                                                    <!-- Дата посещения -->
-                                                    <td class="text-center">
-                                                        <span class="text-truncate">
-                                                            {% if item.date_of_visit %}
-                                                                {{ item.date_of_visit }}
-                                                            {% else %}
-                                                                -
-                                                            {% endif %}
-                                                        </span>
-                                                    </td>
-
-                                                    <!-- Наличие магнита -->
-                                                    <td class="text-center d-none d-xl-table-cell">
-                                                        <span class="text-truncate">
-                                                            {% if item.has_magnet %}
-                                                                <i class="bi bi-check-circle" style="color: green;"></i>
-                                                            {% else %}
-                                                                <i class="bi bi-x" style="color: red;"></i>
-                                                            {% endif %}
-                                                        </span>
-                                                    </td>
-
-                                                    <!-- Рейтинг -->
-                                                    <td class="text-center d-none d-xl-table-cell">
-                                                        {% for i in '12345'|make_list %}
-                                                            {% if forloop.counter <= item.rating %}
-                                                                <i class="bi bi-star-fill" style="color: #ffc43c;"></i>
-                                                            {% else %}
-                                                                <i class="bi bi-star" style="color: #9d9d9d;"></i>
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </td>
-
-                                                    <!-- Операции -->
-                                                    <td class="text-center">
-                                                        <button
-                                                                class="btn btn-sm btn-danger"
-                                                                type="button"
-                                                                onclick="openDeleteModal('{{ item.id }}', '{{ item.city }}')">
-                                                            <i class="bi bi-trash d-flex justify-content-center" style="color: white"></i>
-                                                        </button>
-                                                        <a href="{% url 'city-update' item.id %}" class="btn btn-sm btn-warning">
-                                                            <i class="bi bi-pencil d-flex justify-content-center" style="color: black"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            {%  empty %}
-                                                <tr>
-                                                    <td colspan="6" class="text-center">
-                                                        Ещё не посещено ни одного города
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- ^^^ Карточки с городами -->
 
                         <!-- Пагинация -->
-                        {% if page_obj.has_other_pages %}
-                            <div class="row justify-content-center mb-3">
-                                <div class="btn-group" role="group">
-                                    {% if page_obj.has_previous %}
-                                        <a href="?page=1" class="btn btn-outline-danger">
-                                            <i class="bi bi-arrow-left-circle"></i> Первая
-                                        </a>
-                                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-danger">
-                                            <i class="bi bi-arrow-left-short"></i> Предыдущая
-                                        </a>
-                                    {% endif %}
-
-                                    <button class="btn btn-outline-dark" disabled>
-                                        Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
-                                    </button>
-
-                                    {% if page_obj.has_next %}
-                                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-success">
-                                            Следуюшая <i class="bi bi-arrow-right-short"></i>
-                                        </a>
-                                        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-success">
-                                            Последняя <i class="bi bi-arrow-right-circle"></i>
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endif %}
+                        {% include 'parts/pagination.html' %}
+                        <!-- ^^^ Пагинация -->
                     </div>
 
-                    <!-- Карта с отмеченными городами -->
-                    <div class="tab-pane fade show" id="content-map" role="tabpanel" aria-labelledby="tab-map">
+                    <!-- Карта -->
+                    <div class="tab-pane fade show" id="map-content"
+                         role="tabpanel" aria-labelledby="map-tab" tabindex="0">
                         <div class="row">
                             <div class="col">
                                 <div class="row">
                                     <div class="col">
-                                        <div id="map" style="height: 600px"></div>...
+                                        <div id="map" style="height: 600px"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- ^^^ Карта -->
                 </div>
             </div>
+            <!-- ^^^ Основной столбик -->
         </div>
     </div>
 
-
     <script>
-        $(function() {
-           let hash = window.location.hash;
-           $('div.nav-pills a[href="' + hash + '"]').tab('show');
-        });
-
         function openDeleteModal(city_id, city_title) {
             /**
              * Открывает модальное окно с подтверждением удаления посещённого города,

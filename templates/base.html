@@ -1,134 +1,25 @@
-{% load crispy_forms_filters %}
 {% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ SITE_NAME }}</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'style.css' %}">
 
     <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
     <script src="https://api-maps.yandex.ru/2.1/?apikey={{ API_YANDEX_MAP }}&lang=ru_RU" type="text/javascript"></script>
+    <script src="https://kit.fontawesome.com/1d9659a07a.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <header class="header">
-        <div class="container-fluid">
-            <div class="row mb-3">
-                <div class="col">
-                    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
-                        <a class="navbar-brand" href="{% url 'main_page' %}">
-                            {{ SITE_NAME }}
-                        </a>
-                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
+    {% include 'parts/navbar.html' %}
 
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-                            <ul class="navbar-nav mr-auto">
-                                {% if user.is_authenticated %}
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'city-all' %}">
-                                            Посещённые города
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'region-all' %}">
-                                            Регионы
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            </ul>
-
-
-                            <ul class="navbar-nav">
-                                {% if user.is_authenticated and user.is_staff %}
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'admin:index' %}">
-                                            Админ-панель
-                                        </a>
-                                    </li>
-                                {% endif %}
-                                {% if user.is_authenticated %}
-                                    <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="bi bi-person"></i> {{ user }}
-                                        </a>
-
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                                            <a class="dropdown-item" href="{% url 'profile' %}">
-                                                <i class="bi bi-person-bounding-box"></i>&nbsp;&nbsp;&nbsp;Профиль
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="{% url 'logout' %}">
-                                                <i class="bi bi-box-arrow-left"></i>&nbsp;&nbsp;&nbsp;Выйти
-                                            </a>
-                                        </div>
-                                    </li>
-                                {% else %}
-                                    <ul class="navbar-nav">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="{% url 'signin' %}">Войти</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="{% url 'signup' %}">Зарегистрироваться</a>
-                                        </li>
-                                    </ul>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="main" style="padding-bottom: 50px">
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col">
-                    <!-- Хлебные крошки -->
-                    {% if breadcrumb %}
-                        <div class="row">
-                            <div class="col">
-                                <nav aria-label="breadcrumb">
-                                    <ol class="breadcrumb">
-                                        {% for item in breadcrumb %}
-                                            {% if item.active %}
-                                                <li class="breadcrumb-item active" aria-current="page">
-                                                    {{ item.title }}
-                                                </li>
-                                            {% else %}
-                                                <li class="breadcrumb-item">
-                                                    <a href="{% url item.url %}">{{ item.title }}</a>
-                                                </li>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </ol>
-                                </nav>
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    <!-- Основной контент страницы -->
-                    {% block content %}
-                    {% endblock %}
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="py-3 bg-light">
-        <div class="container">
-            <div class="text-center">Copyright &copy; Shecspi, 2022</div>
-        </div>
-    </footer>
+    {% block content %}
+    {% endblock %}
 </body>
 </html>

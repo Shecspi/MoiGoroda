@@ -188,7 +188,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
     """
     model = VisitedCity
     paginate_by = 16
-    template_name = 'new_design/travel/visited_city/list.html'
+    template_name = 'travel/visited_city/list.html'
 
     # Список, хранящий координаты и название посещённого города.
     # В шаблоне используется для генерации отметок на карте.
@@ -333,7 +333,7 @@ class Region_List(LoginRequiredMixin, ListView):
     """
     model = Region
     paginate_by = 16
-    template_name = 'new_design/travel/region/list.html'
+    template_name = 'travel/region/list.html'
     all_regions = []
 
     def get_queryset(self):

@@ -2,7 +2,11 @@
 {% load mathfilters %}
 
 {% block content %}
-    <div class="container-md">
+    <div class="container">
+        <h1 class="display-5 text-center my-2">
+            Профиль
+        </h1>
+
         <div class="row">
             <div class="col-lg-4">
                 <div class="card mb-3">
@@ -47,7 +51,7 @@
                                 </div>
                                 <hr>
                                 <div class="row">
-                                    <div class="col" id="editDiv">
+                                    <div class="col d-grid" id="editDiv">
                                         <button type="button" class="btn btn-info btn-block" id="editButton">
                                             Редактировать
                                         </button>
@@ -57,7 +61,7 @@
                                     </div>
                                 </div>
                                 <div class="row mt-3">
-                                    <div class="col" id="changePasswordDiv">
+                                    <div class="col mb-1 d-grid" id="changePasswordDiv">
                                         <a class="btn btn-secondary btn-block" href="{% url 'password_change_form' %}" id="changePasswordButton">
                                             Изменить пароль
                                         </a>
@@ -72,111 +76,138 @@
             </div>
 
             <div class="col-lg-8">
-                <div class="card-columns">
-                    <div class="card">
-                        <div class="card-header">
-                            Федеральные округа
-                            <span class="float-right">
-                                <i class="bi bi-question-circle question_tooltip"
-                                    title="Отображается информация о количестве посещённых регионов в каждом из федеральных округов"></i>
-                            </span>
-                        </div>
-                        <div class="card-body">
-                            {% for area in areas %}
-                                <small>
-                                    {{ area.title }}
-                                    <span class="float-right">
-                                        {{ area.visited_regions }} из {{ area.total_regions  }}
-                                    </span>
-                                </small>
-                                <div class="progress mb-3" style="height: 10px">
-                                    <div class="progress-bar-striped bg-secondary progressArea" role="progressbar" style="width: {% widthratio area.visited_regions area.total_regions 100 %}%"
-                                         aria-valuenow="{% widthratio area.visited_regions area.total_regions 100 %}" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            {% empty %}
-                                Вы ещё не посетили ни одного федерального округа.
-                            {% endfor %}
-                        </div>
-                    </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                Федеральные округа
+                                <span class="float-right">
+                                    <i class="bi bi-question-circle question_tooltip"
+                                        title="Отображается информация о количестве посещённых регионов в каждом из федеральных округов"></i>
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                {% for area in areas %}
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <small>
+                                                {{ area.title }}
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <small>
+                                                {{ area.visited_regions }} из {{ area.total_regions  }}
+                                            </small>
+                                        </div>
+                                    </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            Регионы
-                            <span class="float-right">
-                                <i class="bi bi-question-circle question_tooltip"
-                                    title="Отображается количество посещённых городов и общее количество городов в каждом из регионов"></i>
-                            </span>
-                        </div>
-
-                        <div class="card-body">
-                            <small>
-                                {% for region in regions.visited %}
-                                    {% widthratio region.visited_cities region.total_cities 100 as ratio %}
-                                        <a href="{% url 'region-selected' region.pk %}">
-                                            {{ region }}
-                                        </a>
-                                        <span class="float-right">
-                                            {{ region.visited_cities }} из {{ region.total_cities }}
-                                        </span>
                                     <div class="progress mb-3" style="height: 10px">
-                                        <div class="progress-bar-striped bg-success" role="progressbar"
-                                             style="width: {{ ratio }}%" aria-valuenow="{{ ratio }}"
-                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar-striped bg-secondary progressArea" role="progressbar" style="width: {% widthratio area.visited_regions area.total_regions 100 %}%"
+                                             aria-valuenow="{% widthratio area.visited_regions area.total_regions 100 %}" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 {% empty %}
-                                    Вы ещё не посетили ни одного региона.
+                                    Вы ещё не посетили ни одного федерального округа.
                                 {% endfor %}
-                            </small>
+                            </div>
                         </div>
 
-                        <div class="card-footer">
-                            <small>
-                                <div class="row">
-                                    <div class="col">
-                                        Всего: {{ regions.num_visited }}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                Города
+                                <span class="float-right">
+                                    <i class="bi bi-question-circle question_tooltip"
+                                        title="Отображается 5 последних посещённых городов"></i>
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <small>
+                                    <ul class="list-group list-group-flush">
+                                        {% for city in cities.last_visited %}
+                                            <li class="list-group-item">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <a href="{% url 'city-selected' city.pk %}">
+                                                            {{ city }}
+                                                        </a>
+                                                    </div>
+                                                    <div>
+                                                        <span>{{ city.date_of_visit }}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% empty %}
+                                            Вы ещё не посетили ни одного города.
+                                        {% endfor %}
+                                    </ul>
+                                </small>
+                            </div>
+
+                            <div class="card-footer">
+                                <small>
+                                    <div class="row">
+                                        <div class="col">
+                                            Всего: {{ cities.num_visited }}
+                                        </div>
+                                        <div class="col text-right">
+                                            <a href="{% url 'city-all' %}">Посмотреть все</a>
+                                        </div>
                                     </div>
-                                    <div class="col text-right">
-                                        <a href="{% url 'region-all' %}">Посмотреть все</a>
-                                    </div>
-                                </div>
-                            </small>
+                                </small>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            Города
-                            <span class="float-right">
-                                <i class="bi bi-question-circle question_tooltip"
-                                    title="Отображается 5 последних посещённых городов"></i>
-                            </span>
-                        </div>
-                        <div class="card-body">
-                            <small>
-                                <ul class="list-group list-group-flush">
-                                    {% for city in cities.last_visited %}
-                                        <li class="list-group-item">
-                                            <a href="{% url 'city-selected' city.pk %}">{{ city }}</a>
-                                            <span class="float-right">{{ city.date_of_visit }}</span>
-                                        </li>
-                                    {% empty %}
-                                        Вы ещё не посетили ни одного города.
-                                    {% endfor %}
-                                </ul>
-                            </small>
-                        </div>
+                    <div class="col">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                Регионы
+                                <span class="float-right">
+                                    <i class="bi bi-question-circle question_tooltip"
+                                        title="Отображается количество посещённых городов и общее количество городов в каждом из регионов"></i>
+                                </span>
+                            </div>
 
-                        <div class="card-footer">
-                            <small>
-                                <div class="row">
-                                    <div class="col">
-                                        Всего: {{ cities.num_visited }}
+                            <div class="card-body">
+                                <small>
+                                    {% for region in regions.visited %}
+                                        {% widthratio region.visited_cities region.total_cities 100 as ratio %}
+
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <a href="{% url 'region-selected' region.pk %}"></a>
+                                                    {{ region }}
+                                                </a>
+                                            </div>
+                                            <div>
+                                                <span class="float-right">
+                                                    {{ region.visited_cities }} из {{ region.total_cities }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="progress mb-3" style="height: 10px">
+                                            <div class="progress-bar-striped bg-success" role="progressbar"
+                                                 style="width: {{ ratio }}%" aria-valuenow="{{ ratio }}"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    {% empty %}
+                                        Вы ещё не посетили ни одного региона.
+                                    {% endfor %}
+                                </small>
+                            </div>
+
+                            <div class="card-footer">
+                                <small>
+                                    <div class="row">
+                                        <div class="col">
+                                            Всего: {{ regions.num_visited }}
+                                        </div>
+                                        <div class="col text-right">
+                                            <a href="{% url 'region-all' %}">Посмотреть все</a>
+                                        </div>
                                     </div>
-                                    <div class="col text-right">
-                                        <a href="{% url 'city-all' %}">Посмотреть все</a>
-                                    </div>
-                                </div>
-                            </small>
+                                </small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -185,8 +216,6 @@
     </div>
 
     <script>
-    $('.question_tooltip').tooltip();
-
     let editButton = document.getElementById('editButton');
     let cancelButton = document.getElementById('cancelButton');
     let changePasswordButton = document.getElementById('changePasswordButton');

@@ -5,32 +5,35 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="card">
-                    <h5 class="card-header text-center">
-                        Восстановление пароля
-                    </h5>
+                <h1 class="display-5 text-center my-2">
+                    Восстановление пароля
+                </h1>
 
+                <div class="card p-3">
                     <div class="card-body">
                         <form method="post">
                             {% csrf_token %}
 
-                            <label for="emailForm">
+                            <label for="emailForm" class="form-label">
                                 Электронная почта<span class="asteriskField">*</span>
                             </label>
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend" id="emailForm">
-                                    <span class="input-group-text" id="basic-addon1">
-                                        @
-                                    </span>
-                                </div>
-                                <input type="email" name="email" class="form-control" placeholder="username@domain.com">
+
+                            <div class="input-group mb-3" id="emailForm">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <i class="fa-solid fa-at"></i>
+                                </span>
+                                <input type="email" name="email" class="form-control"
+                                       placeholder="username@domain.com" id="emailForm">
                             </div>
-                            <small id="emailForm" class="form-text text-muted">
+
+                            <small id="emailForm" class="form-text">
                                 Введите адрес электронной почты, указанный при регистрации.
                                 На него будет отправлена дальнейшая инструкция.
                             </small>
 
-                            <input type="submit" class="btn btn-primary btn-block mt-5" value="Продолжить">
+                            <div class="float-end">
+                                <input type="submit" class="btn btn-primary btn-block mt-5" value="Продолжить">
+                            </div>
                         </form>
                     </div>
                 </div>

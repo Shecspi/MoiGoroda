@@ -1,11 +1,12 @@
 from crispy_forms.bootstrap import PrependedText
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout
+from crispy_forms.layout import Layout, Field
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
+from django.utils.safestring import mark_safe
 
 
 class SignUpForm(UserCreationForm):
@@ -37,6 +38,21 @@ class SignUpForm(UserCreationForm):
         widget=forms.PasswordInput(),
         required=True)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            PrependedText('username', mark_safe('<i class="fa-regular fa-user"></i>')),
+            PrependedText('email', mark_safe('<i class="fa-solid fa-at"></i>')),
+            Field('first_name'),
+            Field('last_name'),
+            PrependedText('password1', mark_safe('<i class="fa-solid fa-key"></i>')),
+            PrependedText('password2', mark_safe('<i class="fa-solid fa-key"></i>')),
+        )
+
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
@@ -61,8 +77,8 @@ class SignInForm(AuthenticationForm):
         self.helper.form_tag = False
 
         self.helper.layout = Layout(
-            PrependedText('username', '<i class="bi bi-person"></i>'),
-            PrependedText('password', '<i class="bi bi-lock"></i>')
+            PrependedText('username', mark_safe('<i class="fa-regular fa-user"></i>')),
+            PrependedText('password', mark_safe('<i class="fa-solid fa-key"></i>'))
         )
 
 

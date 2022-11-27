@@ -10,8 +10,11 @@
     }
 }
 
-body {
-    min-height: 100vh;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
+.text-underline-dashed {
+    text-decoration: none;
+    border-bottom: 1px dashed black;
+}
+
+.color-black {
+    color: black;
 }

@@ -1,0 +1,29 @@
+<!-- Вкладки -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="nav flex-column nav-pills" id="v-pills-tab"
+             role="tablist" aria-orientation="vertical">
+            <button class="nav-link active" id="list-tab" data-toggle="pill"
+                    data-bs-toggle="pill" data-bs-target="#list-content"
+                    type="button" role="tab" aria-controls="list-content" aria-selected="true">
+                <i class="fa-solid fa-list"></i>&nbsp;&nbsp;&nbsp;Список
+            </button>
+            <button class="nav-link" id="map-tab" data-toggle="pill"
+                    data-bs-toggle="pill" data-bs-target="#map-content"
+                    type="button" role="tab" aria-controls="map-content" aria-selected="true">
+                <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Карта
+            </button>
+        </div>
+    </div>
+</div>
+<!-- ^^^ Вкладки -->
+
+<!-- Кнопка добавления города -->
+<div class="card mb-3">
+    <div class="card-body d-grid gap-2">
+        <a href="{% url 'city-create' %}" class="btn btn-outline-primary">
+            <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
+        </a>
+    </div>
+</div>
+<!-- ^^^ Кнопка добавления города -->

@@ -143,16 +143,16 @@
                             </div>
 
                             <div class="card-footer">
-                                <small>
-                                    <div class="row">
-                                        <div class="col">
-                                            Всего: {{ cities.num_visited }}
-                                        </div>
-                                        <div class="col text-right">
-                                            <a href="{% url 'city-all' %}">Посмотреть все</a>
-                                        </div>
-                                    </div>
-                                </small>
+                                <div class="float-start">
+                                    <small>
+                                        Всего: {{ cities.num_visited }}
+                                    </small>
+                                </div>
+                                <div class="float-end">
+                                    <small>
+                                        <a href="{% url 'city-all' %}">Посмотреть все</a>
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -197,16 +197,16 @@
                             </div>
 
                             <div class="card-footer">
-                                <small>
-                                    <div class="row">
-                                        <div class="col">
-                                            Всего: {{ regions.num_visited }}
-                                        </div>
-                                        <div class="col text-right">
-                                            <a href="{% url 'region-all' %}">Посмотреть все</a>
-                                        </div>
-                                    </div>
-                                </small>
+                                <div class="float-start">
+                                    <small>
+                                        Всего: {{ regions.num_visited }}
+                                    </small>
+                                </div>
+                                <div class="float-end">
+                                    <small>
+                                        <a href="{% url 'region-all' %}">Посмотреть все</a>
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>

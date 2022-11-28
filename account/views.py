@@ -103,10 +103,10 @@ class Profile_Detail(LoginRequiredMixin, DetailView):
         cities_this_year = cities.filter(date_of_visit__year=datetime.datetime.now().year).count()
         num_cities = cities.count()
 
-        regions = Region.objects.all().order_by('title').annotate(
+        regions = Region.objects.all().annotate(
             total_cities=Count('city', distinct=True),
             visited_cities=Count('city', filter=Q(city__visitedcity__user__id=user), distinct=True)
-        ).exclude(visitedcity__city=None).exclude(~Q(visitedcity__user=user))
+        ).exclude(visitedcity__city=None).exclude(~Q(visitedcity__user=user)).order_by('-visited_cities')[:10]
 
         areas = Area.objects.all().order_by('title').annotate(
             total_regions=Count('region', distinct=True),
@@ -119,7 +119,11 @@ class Profile_Detail(LoginRequiredMixin, DetailView):
         }
         context['regions'] = {
             'visited': regions,
-            'num_visited': regions.count()
+            'num_visited': Region.objects.all().exclude(
+                visitedcity__city=None
+            ).exclude(
+                ~Q(visitedcity__user=user)
+            ).count()
         }
         context['areas'] = areas
 

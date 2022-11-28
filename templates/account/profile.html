@@ -126,7 +126,8 @@
                                             <li class="list-group-item">
                                                 <div class="d-flex justify-content-between">
                                                     <div>
-                                                        <a href="{% url 'city-selected' city.pk %}">
+                                                        <a href="{% url 'city-selected' city.pk %}"
+                                                           class="text-underline-dashed">
                                                             {{ city }}
                                                         </a>
                                                     </div>
@@ -150,7 +151,9 @@
                                 </div>
                                 <div class="float-end">
                                     <small>
-                                        <a href="{% url 'city-all' %}">Посмотреть все</a>
+                                        <a href="{% url 'city-all' %}" class="text-underline-dashed">
+                                            Посмотреть все
+                                        </a>
                                     </small>
                                 </div>
                             </div>
@@ -174,7 +177,7 @@
 
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <a href="{% url 'region-selected' region.pk %}"></a>
+                                                <a href="{% url 'region-selected' region.pk %}" class="text-underline-dashed">
                                                     {{ region }}
                                                 </a>
                                             </div>
@@ -204,7 +207,9 @@
                                 </div>
                                 <div class="float-end">
                                     <small>
-                                        <a href="{% url 'region-all' %}">Посмотреть все</a>
+                                        <a href="{% url 'region-all' %}" class="text-underline-dashed">
+                                            Посмотреть все
+                                        </a>
                                     </small>
                                 </div>
                             </div>

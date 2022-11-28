@@ -16,10 +16,12 @@
     <script src="https://api-maps.yandex.ru/2.1/?apikey={{ API_YANDEX_MAP }}&lang=ru_RU" type="text/javascript"></script>
     <script src="https://kit.fontawesome.com/1d9659a07a.js" crossorigin="anonymous"></script>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     {% include 'parts/navbar.html' %}
 
     {% block content %}
     {% endblock %}
+
+    {% include 'parts/footer.html' %}
 </body>
 </html>

@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'main_page',
     'account.apps.AuthConfig',
     'travel',
-    'collection',
     'mathfilters'
 ]
 

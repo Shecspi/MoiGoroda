@@ -29,14 +29,24 @@
                             {% for item in object_list %}
                                 <div class="col">
                                     <div class="card h-100 text-center">
-                                        <h5 class="card-header">
+                                        <div class="card-header">
                                             <!-- Город -->
-                                            <a href="{% url 'city-selected' item.id %}"
-                                               class="text-underline-dashed text-reset">
-                                                {{ item.city }}
-                                            </a>
+                                            <div class="h5">
+                                                <a href="{% url 'city-selected' item.id %}"
+                                                   class="text-underline-dashed text-reset">
+                                                    {{ item.city }}
+                                                </a>
+                                            </div>
+
+                                            <small class="text-muted">
+                                                {% if item.date_of_visit %}
+                                                    {{ item.date_of_visit }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </small>
                                             <!-- ^^^ Город -->
-                                        </h5>
+                                        </div>
 
                                         <div class="card-body">
                                             <!-- Регион -->
@@ -50,53 +60,57 @@
 
                                             <br>
 
-                                            <!-- Федеральный округ -->
+                                            <!-- Население -->
                                             <small class="card-subtitle text-muted">
-                                                {{ item.region.area }} фед. округ
+                                                {% if item.city.population %}
+                                                    Население <strong>{{ item.city.population }}</strong> чел.
+                                                {% else %}
+                                                    Население города не известно
+                                                {% endif %}
                                             </small>
-                                            <!-- ^^^ Федеральный округ -->
+                                            <!-- ^^^ Население -->
 
                                             <br>
 
-                                            <!-- Дата посещения -->
-                                            <div class="justify-content-start flex-grow-1">
-                                                <small class="card-subtitle text-muted">
-                                                    {% if item.date_of_visit %}
-                                                        {{ item.date_of_visit }}
-                                                    {% else %}
-                                                        -
-                                                    {% endif %}
-                                                </small>
-                                            </div>
-                                            <!-- ^^^ Дата посещения -->
+                                            <!-- Год основания -->
+                                            <small class="card-subtitle text-muted">
+                                                {% if item.city.date_of_foundation %}
+                                                    Основан в <strong>{{ item.city.date_of_foundation }}</strong> году
+                                                {% else %}
+                                                    Год основания не известен
+                                                {% endif %}
+                                            </small>
+                                            <!-- ^^^ Год основания -->
                                         </div>
 
-                                        <div class="card-footer d-flex justify-content-between" style="background: none; border-top: none;">
-                                            <!-- Рейтинг -->
-                                            <div>
-                                                {% for i in '12345'|make_list %}
-                                                    {% if forloop.counter <= item.rating %}
-                                                        <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                                    {% else %}
-                                                        <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                            <!-- ^^^ Рейтинг -->
+                                        <div class="card-footer" style="background: none; border-top: none;">
+                                            <div class="d-flex justify-content-between">
+                                                <!-- Рейтинг -->
+                                                <div>
+                                                    {% for i in '12345'|make_list %}
+                                                        {% if forloop.counter <= item.rating %}
+                                                            <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                                        {% else %}
+                                                            <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <!-- ^^^ Рейтинг -->
 
-                                            <!-- Наличие магнита -->
-                                            <div>
-                                                {% if item.has_magnet %}
-                                                    <span class="badge bg-success">
-                                                        Магнит есть
-                                                    </span>
-                                                {% else %}
-                                                    <span class="badge bg-danger">
-                                                        Магнита нет
-                                                    </span>
-                                                {% endif %}
+                                                <!-- Наличие магнита -->
+                                                <div>
+                                                    {% if item.has_magnet %}
+                                                        <span class="badge bg-success">
+                                                            Магнит есть
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">
+                                                            Магнита нет
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                <!-- ^^^ Наличие магнита -->
                                             </div>
-                                            <!-- ^^^ Наличие магнита -->
                                         </div>
                                     </div>
                                 </div>

@@ -1,0 +1,8 @@
+{% for item in object_list %}
+    {{ item.title }}<br>
+    {{ item.content }}<br>
+    {{ item.date_of_creation }}<br>
+    {{ item.date_of_change }}<br>
+    <a href="{% url 'news-detail' item.id %}">Подробнее</a>
+    <hr>
+{% endfor %}

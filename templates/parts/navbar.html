@@ -25,6 +25,17 @@
             </ul>
 
             <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="{% url 'news-list' %}">
+                        {% if has_news %}
+                            <span class="text-danger">
+                                <i class="fa-regular fa-envelope"></i>&nbsp;Новости проекта
+                            </span>
+                        {% else %}
+                            <i class="fa-regular fa-envelope-open"></i>&nbsp;Новости проекта
+                        {% endif %}
+                    </a>
+                </li>
                 {% if user.is_authenticated and user.is_staff %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'admin:index' %}">

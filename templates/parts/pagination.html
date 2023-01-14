@@ -2,10 +2,11 @@
     <div class="text-center">
         <div class="btn-group mb-3" role="group">
             {% if page_obj.has_previous %}
-                <a href="?page=1" class="btn btn-outline-danger">
+                <a href="?page=1{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="btn btn-outline-danger">
                     <i class="fa-solid fa-angles-left"></i>
                 </a>
-                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-danger">
+                <a href="?page={{ page_obj.previous_page_number }}{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                   class="btn btn-outline-danger">
                     <i class="fa-solid fa-angle-left"></i>
                 </a>
             {% else %}
@@ -22,10 +23,12 @@
             </button>
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-success">
+                <a href="?page={{ page_obj.next_page_number }}{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                   class="btn btn-outline-success">
                     <i class="fa-solid fa-angle-right"></i>
                 </a>
-                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-success">
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                   class="btn btn-outline-success">
                     <i class="fa-solid fa-angles-right"></i>
                 </a>
             {% else %}

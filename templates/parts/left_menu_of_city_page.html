@@ -62,26 +62,38 @@
 
                     <ul class="dropdown-menu" aria-labelledby="sortingButton">
                         <li>
+                            <h6 class="dropdown-header">
+                                По названия
+                            </h6>
+                        </li>
+                        <li>
                             <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-a-z"></i>&nbsp;&nbsp;&nbsp;По названию
+                                <i class="fa-solid fa-arrow-down-a-z"></i>&nbsp;&nbsp;&nbsp;По возрастанию
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-z-a"></i>&nbsp;&nbsp;&nbsp;По названию (я <i class="fa-solid fa-arrow-right"></i> а)
+                                <i class="fa-solid fa-arrow-down-z-a"></i>&nbsp;&nbsp;&nbsp;По убыванию
                             </a>
                         </li>
+
                         <li>
                             <hr class="dropdown-divider">
                         </li>
+                    
+                        <li>
+                            <h6 class="dropdown-header">
+                                По дате посещения
+                            </h6>
+                        </li>
                         <li>
                             <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;&nbsp;По дате посещения (1 <i class="fa-solid fa-arrow-right"></i> 9)
+                                <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;&nbsp;По возрастанию
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;&nbsp;По дате посещения (9 <i class="fa-solid fa-arrow-right"></i> 1)
+                                <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;&nbsp;По убыванию
                             </a>
                         </li>
                     </ul>

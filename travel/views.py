@@ -132,7 +132,6 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
 
         context['action'] = 'update'
-
         context['breadcrumb'] = [
             {'url': 'main_page', 'title': 'Главная', 'active': False},
             {'url': 'city-all', 'title': 'Список посещённых городов', 'active': False},
@@ -155,7 +154,10 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
 
     def get(self, request, *args, **kwargs):
         try:
-            VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
+            VisitedCity.objects.get(
+                user=self.request.user.pk,
+                id=self.kwargs['pk']
+            )
         except ObjectDoesNotExist:
             logger.warning(
                 prepare_log_string(404, 'Attempt to access a non-existent visited city.', request),
@@ -205,6 +207,9 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
     filter = None
     sort = None
 
+    valid_filters = ['magnet', 'current_year', 'last_year']
+    valid_sorts = ['name_down', 'name_up', 'date_down', 'date_up']
+
     def get(self, *args, **kwargs):
         if self.kwargs:
             self.region_id = self.kwargs['pk']
@@ -236,39 +241,13 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
             .only('id', 'city__id', 'city__title', 'city__coordinate_width', 'city__coordinate_longitude',
                   'region__id', 'region__title', 'region__type', 'date_of_visit', 'has_magnet', 'rating')
 
-        # Обработка фильтров и сортировок из URL.
         if self.request.GET.get('filter'):
-            match self.request.GET.get('filter'):
-                case 'magnet':
-                    queryset = queryset.filter(has_magnet=False)
-                    self.filter = 'magnet'
-                case 'current_year':
-                    queryset = queryset.filter(date_of_visit__year=datetime.now().year)
-                    self.filter = 'current_year'
-                case 'last_year':
-                    queryset = queryset.filter(date_of_visit__year=datetime.now().year - 1)
-                    self.filter = 'last_year'
-                case _:
-                    self.filter = None
+            self.filter = self._check_validity_of_filter_value(self.request.GET.get('filter'))
+            queryset = self._apply_filter_to_queryset(queryset)
 
         if self.request.GET.get('sort'):
-            match self.request.GET.get('sort'):
-                case 'name_down':
-                    queryset = queryset.order_by('city__title')
-                    self.sort = 'name_down'
-                case 'name_up':
-                    queryset = queryset.order_by('-city__title')
-                    self.sort = 'name_up'
-                case 'date_down':
-                    queryset = queryset.order_by('date_of_visit')
-                    self.sort = 'date_down'
-                case 'date_up':
-                    queryset = queryset.order_by('-date_of_visit')
-                    self.sort = 'date_up'
-                case _:
-                    queryset = queryset.order_by('-date_of_visit', 'city__title')
-        else:
-            queryset = queryset.order_by('-date_of_visit', 'city__title')
+            self.sort = self._check_validity_of_sort_value(self.request.GET.get('sort'))
+        queryset = self._apply_sort_to_queryset(queryset)  # Сортировка нужна в любом случае, поэтому она не в блоке if
 
         # Если в URL указан ID региона, то отображаем только посещённые города в этом регионе.
         if self.region_id:
@@ -323,6 +302,44 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
             ]
 
         return context
+
+    def _check_validity_of_filter_value(self, filter_value: str) -> str | None:
+        if filter_value in self.valid_filters:
+            return filter_value
+        else:
+            return None
+
+    def _check_validity_of_sort_value(self, sort_value: str) -> str | None:
+        if sort_value in self.valid_sorts:
+            return sort_value
+        else:
+            return None
+
+    def _apply_filter_to_queryset(self, queryset: QuerySet) -> QuerySet:
+        match self.filter:
+            case 'magnet':
+                queryset = queryset.filter(has_magnet=False)
+            case 'current_year':
+                queryset = queryset.filter(date_of_visit__year=datetime.now().year)
+            case 'last_year':
+                queryset = queryset.filter(date_of_visit__year=datetime.now().year - 1)
+
+        return queryset
+
+    def _apply_sort_to_queryset(self, queryset: QuerySet) -> QuerySet:
+        match self.sort:
+            case 'name_down':
+                queryset = queryset.order_by('city__title')
+            case 'name_up':
+                queryset = queryset.order_by('-city__title')
+            case 'date_down':
+                queryset = queryset.order_by('date_of_visit')
+            case 'date_up':
+                queryset = queryset.order_by('-date_of_visit')
+            case _:
+                queryset = queryset.order_by('-date_of_visit', 'city__title')
+
+        return queryset
 
 
 class Region_List(LoginRequiredMixin, ListView):
@@ -380,3 +397,4 @@ def get_cities_based_on_region(request):
     cities = City.objects.filter(region_id=region_id).order_by('title')
 
     return render(request, 'travel/visited_city/create_dropdown_list.html', {'cities': cities})
+

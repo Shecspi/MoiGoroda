@@ -252,14 +252,8 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         # Если в URL указан ID региона, то отображаем только посещённые города в этом регионе.
         if self.region_id:
             queryset = queryset.filter(region_id=self.region_id)
-
-            # Имя региона
             self.region_name = Region.objects.get(id=self.region_id)
-
-            # Список с координатами посещённых городов
             self.coords_of_visited_cities = _create_list_of_coordinates(queryset)
-
-            # Список с координатами непосещённых городов
             self.coords_of_not_visited_cities = []
             queryset_all_cities = City.objects \
                 .filter(region_id=self.region_id) \
@@ -377,7 +371,7 @@ class Region_List(LoginRequiredMixin, ListView):
         return context
 
 
-def _create_list_of_coordinates(cities: list) -> list:
+def _create_list_of_coordinates(cities: QuerySet) -> list:
     """
     Генерирует список с координатами городов формата ['width', longtude', 'city__title'], [...], ...
     """

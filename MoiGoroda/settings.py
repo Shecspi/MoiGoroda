@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'main_page',
     'account.apps.AuthConfig',
     'travel',
+    'news',
     'mathfilters'
 ]
 

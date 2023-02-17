@@ -1,6 +1,10 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.views.generic import ListView
 
-# Create your views here.
-def news(request):
-    return HttpResponse('hello')
+from news.models import News
+
+
+class News_List(ListView):
+    model = News
+    paginate_by = 5
+    ordering = '-created'
+    template_name = 'news/list.html'

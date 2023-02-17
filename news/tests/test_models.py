@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.test import TestCase
-from django.urls import reverse_lazy
 
 from news.models import News
 

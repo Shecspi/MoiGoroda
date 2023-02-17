@@ -2,6 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Списки с городами
-    path('', views.news, name='news'),
+    path('', views.News_List.as_view(), name='news-list'),
 ]

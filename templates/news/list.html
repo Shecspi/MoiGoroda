@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="display-5 text-center my-2">
+            Новости проекта
+        </h1>
+
+        <div class="row">
+            <div class="col">
+                {% for item in object_list %}
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {{ item.title }}
+                            </h5>
+                            <div class="card-text">
+                                {{ item.content }}
+                            </div>
+                        </div>
+
+                        <div class="card-footer" style="background: none; border-top: none;">
+                            <div class="d-flex justify-content-between">
+                                <div class="fw-lighter text-muted">
+                                    <strong>Создано:</strong> {{ item.created }}
+                                </div>
+
+                                <div class="fw-lighter text-muted">
+                                    <strong>Изменено:</strong> {{ item.last_modified }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="card">
+                        <div class="card-body">
+                            На данный момент нет ни одной новости.
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                {% include 'parts/pagination.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

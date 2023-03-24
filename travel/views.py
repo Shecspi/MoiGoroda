@@ -351,13 +351,17 @@ class Region_List(LoginRequiredMixin, ListView):
         self.all_regions = Region.objects.select_related('area').annotate(
             num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
         )
+        queryset = (Region.objects
+                    .select_related('area')
+                    .annotate(
+                        num_total=Count('city', distinct=True),
+                        num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk),
+                        distinct=True)
+                    ).order_by('-num_visited', 'title'))
+        if self.request.GET.get('filter'):
+            queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
 
-        return Region.objects \
-            .select_related('area') \
-            .annotate(
-                num_total=Count('city', distinct=True),
-                num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
-            ).order_by('-num_visited', 'title')
+        return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)

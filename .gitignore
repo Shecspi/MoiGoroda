@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # C extensions
 *.so
@@ -164,3 +165,4 @@ cython_debug/
 /db.sqlite3
 !/logs/app.log
 !/logs/django.log
+/news/tests/__pycache__/

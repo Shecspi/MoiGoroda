@@ -4,7 +4,7 @@ from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import QuerySet, Count, Q
+from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
@@ -334,45 +334,6 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
                 queryset = queryset.order_by('-date_of_visit', 'city__title')
 
         return queryset
-
-
-class Region_List(LoginRequiredMixin, ListView):
-    """
-    Отображает список всех регионов с указанием количества посещённых городов в каждом.
-
-     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
-    """
-    model = Region
-    paginate_by = 16
-    template_name = 'travel/region/list.html'
-    all_regions = []
-
-    def get_queryset(self):
-        self.all_regions = Region.objects.select_related('area').annotate(
-            num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
-        )
-        queryset = (Region.objects
-                    .select_related('area')
-                    .annotate(
-                        num_total=Count('city', distinct=True),
-                        num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk),
-                        distinct=True)
-                    ).order_by('-num_visited', 'title'))
-        if self.request.GET.get('filter'):
-            queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
-
-        return queryset
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['all_regions'] = self.all_regions
-        context['breadcrumb'] = [
-            {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': '', 'title': 'Список регионов России', 'active': True}
-        ]
-
-        return context
 
 
 def _create_list_of_coordinates(cities: QuerySet) -> list:

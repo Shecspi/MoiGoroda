@@ -8,8 +8,10 @@ urlpatterns = [
     path('', include('main_page.urls'), name='main_page'),
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
-    path('travel/', include('travel.urls')),
-    path('news/', include('news.urls'))
+    path('news/', include('news.urls')),
+
+    path('city/', include('travel.urls')),
+    path('region/', include('region.urls')),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

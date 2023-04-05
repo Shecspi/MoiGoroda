@@ -12,6 +12,7 @@ from django.views.generic import ListView, CreateView, DeleteView, UpdateView, D
 
 from travel.forms import VisitedCity_Create_Form
 from travel.models import VisitedCity, City, Region
+from utils.VisitedCityMixin import VisitedCityMixin
 
 logger = logging.getLogger('app')
 
@@ -180,7 +181,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
         return context
 
 
-class VisitedCity_List(LoginRequiredMixin, ListView):
+class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     """
     Отображает список посещённых городов пользователя, а конкретно:
         * все посещённые города, если в URL-запросе не указан параметр 'pk'
@@ -297,44 +298,6 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
 
         return context
 
-    def _check_validity_of_filter_value(self, filter_value: str) -> str | None:
-        if filter_value in self.valid_filters:
-            return filter_value
-        else:
-            return None
-
-    def _check_validity_of_sort_value(self, sort_value: str) -> str | None:
-        if sort_value in self.valid_sorts:
-            return sort_value
-        else:
-            return None
-
-    def _apply_filter_to_queryset(self, queryset: QuerySet) -> QuerySet:
-        match self.filter:
-            case 'magnet':
-                queryset = queryset.filter(has_magnet=False)
-            case 'current_year':
-                queryset = queryset.filter(date_of_visit__year=datetime.now().year)
-            case 'last_year':
-                queryset = queryset.filter(date_of_visit__year=datetime.now().year - 1)
-
-        return queryset
-
-    def _apply_sort_to_queryset(self, queryset: QuerySet) -> QuerySet:
-        match self.sort:
-            case 'name_down':
-                queryset = queryset.order_by('city__title')
-            case 'name_up':
-                queryset = queryset.order_by('-city__title')
-            case 'date_down':
-                queryset = queryset.order_by('date_of_visit')
-            case 'date_up':
-                queryset = queryset.order_by('-date_of_visit')
-            case _:
-                queryset = queryset.order_by('-date_of_visit', 'city__title')
-
-        return queryset
-
 
 def _create_list_of_coordinates(cities: QuerySet) -> list:
     """
@@ -356,4 +319,3 @@ def get_cities_based_on_region(request):
     cities = City.objects.filter(region_id=region_id).order_by('title')
 
     return render(request, 'travel/visited_city/create_dropdown_list.html', {'cities': cities})
-

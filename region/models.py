@@ -3,7 +3,12 @@ from django.db.models import CASCADE
 
 
 class Area(models.Model):
-    title = models.CharField(max_length=100, verbose_name='Название', blank=False)
+    title = models.CharField(
+        max_length=100,
+        verbose_name='Название',
+        blank=False,
+        unique=True
+    )
 
     class Meta:
         verbose_name = 'Федеральный округ'
@@ -49,13 +54,15 @@ class Region(models.Model):
         max_length=10,
         verbose_name='Код ISO3166',
         blank=True,
-        default=''
+        default='',
+        unique=True
     )
 
     class Meta:
         ordering = ['title']
         verbose_name = 'Регион'
         verbose_name_plural = 'Регионы'
+        unique_together = ('title', 'type')
 
     def __str__(self):
         # Для городов федерального значения просто выводим название

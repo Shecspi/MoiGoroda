@@ -9,6 +9,7 @@ from django.views.generic import ListView
 from region.models import Region
 from travel.models import VisitedCity, City
 from travel.views import logger, prepare_log_string, _create_list_of_coordinates
+from utils.VisitedCityMixin import VisitedCityMixin
 
 
 class Region_List(LoginRequiredMixin, ListView):
@@ -29,13 +30,13 @@ class Region_List(LoginRequiredMixin, ListView):
         queryset = (Region.objects
                     .select_related('area')
                     .annotate(
-                        num_total=Count('city', distinct=True),
-                        num_visited=Count(
-                            'city',
-                            filter=Q(city__visitedcity__user=self.request.user.pk),
-                            distinct=True
-                        )
-                    ).order_by('-num_visited', 'title'))
+            num_total=Count('city', distinct=True),
+            num_visited=Count(
+                'city',
+                filter=Q(city__visitedcity__user=self.request.user.pk),
+                distinct=True
+            )
+        ).order_by('-num_visited', 'title'))
         if self.request.GET.get('filter'):
             queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
 
@@ -53,7 +54,7 @@ class Region_List(LoginRequiredMixin, ListView):
         return context
 
 
-class VisitedCity_List(LoginRequiredMixin, ListView):
+class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     """
     Отображает список посещённых городов пользователя, а конкретно:
         * все посещённые города, если в URL-запросе не указан параметр 'pk'
@@ -108,11 +109,14 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         Также генерирует список координат посещённых городов.
         Если указан 'pk', то дополнительно генерируется список координат непосещённых городов.
         """
-        queryset = VisitedCity.objects \
-            .filter(user=self.request.user) \
-            .select_related('city', 'region') \
+        queryset = (
+            VisitedCity.objects
+            .filter(user=self.request.user)
+            .select_related('city', 'region')
             .only('id', 'city__id', 'city__title', 'city__coordinate_width', 'city__coordinate_longitude',
                   'region__id', 'region__title', 'region__type', 'date_of_visit', 'has_magnet', 'rating')
+            .filter(region_id=self.region_id)
+        )
 
         if self.request.GET.get('filter'):
             self.filter = self._check_validity_of_filter_value(self.request.GET.get('filter'))
@@ -122,25 +126,19 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
             self.sort = self._check_validity_of_sort_value(self.request.GET.get('sort'))
         queryset = self._apply_sort_to_queryset(queryset)  # Сортировка нужна в любом случае, поэтому она не в блоке if
 
-        # Если в URL указан ID региона, то отображаем только посещённые города в этом регионе.
-        if self.region_id:
-            queryset = queryset.filter(region_id=self.region_id)
-            self.region_name = Region.objects.get(id=self.region_id)
-            self.coords_of_visited_cities = _create_list_of_coordinates(queryset)
-            self.coords_of_not_visited_cities = []
-            queryset_all_cities = City.objects \
-                .filter(region_id=self.region_id) \
-                .only('title', 'coordinate_width', 'coordinate_longitude')
+        self.region_name = Region.objects.get(id=self.region_id)
+        self.coords_of_visited_cities = _create_list_of_coordinates(queryset)
+        self.coords_of_not_visited_cities = []
+        queryset_all_cities = City.objects \
+            .filter(region_id=self.region_id) \
+            .only('title', 'coordinate_width', 'coordinate_longitude')
 
-            for city in queryset_all_cities:
-                tmp = [city.coordinate_width,
-                       city.coordinate_longitude,
-                       city.title]
-                if tmp not in self.coords_of_visited_cities:
-                    self.coords_of_not_visited_cities.append(tmp)
-        else:
-            # Список с координатами посещённых городов
-            self.coords_of_visited_cities = _create_list_of_coordinates(queryset)
+        for city in queryset_all_cities:
+            tmp = [city.coordinate_width,
+                   city.coordinate_longitude,
+                   city.title]
+            if tmp not in self.coords_of_visited_cities:
+                self.coords_of_not_visited_cities.append(tmp)
 
         return queryset
 
@@ -169,42 +167,3 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
             ]
 
         return context
-
-    def _check_validity_of_filter_value(self, filter_value: str) -> str | None:
-        if filter_value in self.valid_filters:
-            return filter_value
-        else:
-            return None
-
-    def _check_validity_of_sort_value(self, sort_value: str) -> str | None:
-        if sort_value in self.valid_sorts:
-            return sort_value
-        else:
-            return None
-
-    def _apply_filter_to_queryset(self, queryset: QuerySet) -> QuerySet:
-        match self.filter:
-            case 'magnet':
-                queryset = queryset.filter(has_magnet=False)
-            case 'current_year':
-                queryset = queryset.filter(date_of_visit__year=datetime.now().year)
-            case 'last_year':
-                queryset = queryset.filter(date_of_visit__year=datetime.now().year - 1)
-
-        return queryset
-
-    def _apply_sort_to_queryset(self, queryset: QuerySet) -> QuerySet:
-        match self.sort:
-            case 'name_down':
-                queryset = queryset.order_by('city__title')
-            case 'name_up':
-                queryset = queryset.order_by('-city__title')
-            case 'date_down':
-                queryset = queryset.order_by('date_of_visit')
-            case 'date_up':
-                queryset = queryset.order_by('-date_of_visit')
-            case _:
-                queryset = queryset.order_by('-date_of_visit', 'city__title')
-
-        return queryset
-

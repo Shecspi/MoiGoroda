@@ -10,7 +10,8 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, UpdateView
 
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
-from travel.models import VisitedCity, Region, Area
+from region.models import Region, Area
+from travel.models import VisitedCity
 
 
 class SignUp(CreateView):

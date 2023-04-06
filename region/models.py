@@ -2,6 +2,16 @@ from django.db import models
 from django.db.models import CASCADE
 
 
+TYPES_OF_REGIONS = [
+    ('R', 'республика'),
+    ('K', 'край'),
+    ('O', 'область'),
+    ('G', 'город федерального значения'),
+    ('AOb', 'автономная область'),
+    ('AOk', 'автономный округ')
+]
+
+
 class Area(models.Model):
     title = models.CharField(
         max_length=100,
@@ -24,15 +34,6 @@ class Region(models.Model):
     Редактируется только из администраторской учётной записи.
 
     """
-    TYPES_OF_REGIONS = [
-        ('R', 'республика'),
-        ('K', 'край'),
-        ('O', 'область'),
-        ('G', 'город федерального значения'),
-        ('AOb', 'автономная область'),
-        ('AOk', 'автономный округ')
-    ]
-
     area = models.ForeignKey(
         Area,
         on_delete=CASCADE,
@@ -68,7 +69,7 @@ class Region(models.Model):
         # Для городов федерального значения просто выводим название
         if self.type == 'G':
             return self.title
-        # Для республик, кроме некоторых, слово "Республика" не используем)
+        # Для республик, кроме некоторых, слово "Республика" не используем
         elif self.type == 'R':
             match self.title:
                 case 'Кабардино-Балкарская' | 'Карачаево-Черкесская' | 'Удмуртская' | 'Чеченская' | 'Чувашская':

@@ -4,16 +4,6 @@ from django.urls import reverse
 
 url = reverse('region-all')
 login_url = reverse('signin')
-# ToDo Добавить проверку количества отображаемых регионов через len(response.context['all_regions'])
-# ToDo Добавить проверку пагинации
-
-
-@pytest.fixture
-def create_user(client, django_user_model):
-    new_user = django_user_model.objects.create_user(
-        username='username', password='password'
-    )
-    return new_user
 
 
 @pytest.mark.django_db
@@ -25,6 +15,11 @@ def test_access_not_auth_user(client):
     assert response.status_code == 302
     assert response['Location'] == login_url[:-1] + f'?next={url}'
 
+    # Проверяем конечную точку перенаправления
+    response = client.get(url, follow=True)
+    assert response.status_code == 200
+    assert 'account/signin.html' in (t.name for t in response.templates)
+
 
 @pytest.mark.django_db
 def test_access_auth_user(create_user, client):
@@ -34,7 +29,7 @@ def test_access_auth_user(create_user, client):
     client.login(username='username', password='password')
     response = client.get(url)
     assert response.status_code == 200
-    assert 'travel/region/list.html' in (t.name for t in response.templates)
+    assert 'region/region__list.html' in (t.name for t in response.templates)
 
 
 def test_content_zero_regions(create_user, client):
@@ -67,6 +62,8 @@ def test_content_1_page(create_user, setup_db, setup_visited_cities_10_cities, c
 def test_content_2_page(create_user, setup_db, setup_visited_cities_10_cities, client):
     client.login(username='username', password='password')
     response = client.get(f'{url}?page=2')
+
+    assert 'Регионы России' in response.content.decode()
 
     # На странице должно отображаться 4 региона с 17 по 20 (даже если они небыли посещены)
     assert 'Регион 3' not in response.content.decode()

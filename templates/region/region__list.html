@@ -93,7 +93,6 @@
         {% for item in all_regions %}
             regionList.set('{{ item.iso3166 }}', '{{ item.num_visited }}');
         {% endfor %}
-        console.log(regionList);
 
         function init() {
             let map = new ymaps.Map('map', {

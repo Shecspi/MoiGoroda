@@ -8,6 +8,14 @@ from travel.models import City, VisitedCity
 
 
 @pytest.fixture
+def create_user(client, django_user_model):
+    new_user = django_user_model.objects.create_user(
+        username='username', password='password'
+    )
+    return new_user
+
+
+@pytest.fixture
 def setup_db():
     area = Area.objects.create(title='Area 1')
     with transaction.atomic():
@@ -33,6 +41,18 @@ def setup_visited_cities_10_cities():
         VisitedCity.objects.create(
             user=User.objects.get(id=1),
             region=Region.objects.get(id=number),
+            city=City.objects.get(id=number),
+            has_magnet=False,
+            rating=5
+        )
+
+
+@pytest.fixture
+def setup_visited_cities_20_cities_in_1_region():
+    for number in range(1, 21):
+        VisitedCity.objects.create(
+            user=User.objects.get(id=1),
+            region=Region.objects.get(id=1),
             city=City.objects.get(id=number),
             has_magnet=False,
             rating=5

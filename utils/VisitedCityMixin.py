@@ -16,6 +16,7 @@ class VisitedCityMixin:
         return queryset
 
     def _apply_sort_to_queryset(self, queryset: QuerySet) -> QuerySet:
+        # ToDo Sort инициализируется в классе уровнем выше. Нужно передавать как аргумент метода.
         match self.sort:
             case 'name_down':
                 queryset = queryset.order_by('city__title')

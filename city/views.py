@@ -1,17 +1,17 @@
 import logging
-from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import QuerySet, Count, Q
+from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 
-from travel.forms import VisitedCity_Create_Form
-from travel.models import VisitedCity, City, Region
+from city.forms import VisitedCity_Create_Form
+from city.models import VisitedCity, City, Region
+from utils.VisitedCityMixin import VisitedCityMixin
 
 logger = logging.getLogger('app')
 
@@ -28,7 +28,7 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
      > Доступ только для авторизованных пользователей (LoginRequiredMixin).
     """
     form_class = VisitedCity_Create_Form
-    template_name = 'travel/visited_city/create.html'
+    template_name = 'city/visited_city/create.html'
     success_url = reverse_lazy('city-all')
 
     def get_form_kwargs(self, *args, **kwargs):
@@ -107,7 +107,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     """
     model = VisitedCity
     form_class = VisitedCity_Create_Form
-    template_name = 'travel/visited_city/create.html'
+    template_name = 'city/visited_city/create.html'
     success_url = reverse_lazy('city-all')
 
     def get(self, request, *args, **kwargs):
@@ -150,7 +150,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
        При попытке получить доступ к непосещённому городу - редирект на страницу со списком посещённых городов.
     """
     model = VisitedCity
-    template_name = 'travel/visited_city/detail.html'
+    template_name = 'city/visited_city/detail.html'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -180,7 +180,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
         return context
 
 
-class VisitedCity_List(LoginRequiredMixin, ListView):
+class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     """
     Отображает список посещённых городов пользователя, а конкретно:
         * все посещённые города, если в URL-запросе не указан параметр 'pk'
@@ -190,7 +190,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
     """
     model = VisitedCity
     paginate_by = 16
-    template_name = 'travel/visited_city/list.html'
+    template_name = 'city/visited_city/list.html'
 
     # Список, хранящий координаты и название посещённого города.
     # В шаблоне используется для генерации отметок на карте.
@@ -297,83 +297,6 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
 
         return context
 
-    def _check_validity_of_filter_value(self, filter_value: str) -> str | None:
-        if filter_value in self.valid_filters:
-            return filter_value
-        else:
-            return None
-
-    def _check_validity_of_sort_value(self, sort_value: str) -> str | None:
-        if sort_value in self.valid_sorts:
-            return sort_value
-        else:
-            return None
-
-    def _apply_filter_to_queryset(self, queryset: QuerySet) -> QuerySet:
-        match self.filter:
-            case 'magnet':
-                queryset = queryset.filter(has_magnet=False)
-            case 'current_year':
-                queryset = queryset.filter(date_of_visit__year=datetime.now().year)
-            case 'last_year':
-                queryset = queryset.filter(date_of_visit__year=datetime.now().year - 1)
-
-        return queryset
-
-    def _apply_sort_to_queryset(self, queryset: QuerySet) -> QuerySet:
-        match self.sort:
-            case 'name_down':
-                queryset = queryset.order_by('city__title')
-            case 'name_up':
-                queryset = queryset.order_by('-city__title')
-            case 'date_down':
-                queryset = queryset.order_by('date_of_visit')
-            case 'date_up':
-                queryset = queryset.order_by('-date_of_visit')
-            case _:
-                queryset = queryset.order_by('-date_of_visit', 'city__title')
-
-        return queryset
-
-
-class Region_List(LoginRequiredMixin, ListView):
-    """
-    Отображает список всех регионов с указанием количества посещённых городов в каждом.
-
-     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
-    """
-    model = Region
-    paginate_by = 16
-    template_name = 'travel/region/list.html'
-    all_regions = []
-
-    def get_queryset(self):
-        self.all_regions = Region.objects.select_related('area').annotate(
-            num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk), distinct=True)
-        )
-        queryset = (Region.objects
-                    .select_related('area')
-                    .annotate(
-                        num_total=Count('city', distinct=True),
-                        num_visited=Count('city', filter=Q(city__visitedcity__user=self.request.user.pk),
-                        distinct=True)
-                    ).order_by('-num_visited', 'title'))
-        if self.request.GET.get('filter'):
-            queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
-
-        return queryset
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['all_regions'] = self.all_regions
-        context['breadcrumb'] = [
-            {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': '', 'title': 'Список регионов России', 'active': True}
-        ]
-
-        return context
-
 
 def _create_list_of_coordinates(cities: QuerySet) -> list:
     """
@@ -394,5 +317,4 @@ def get_cities_based_on_region(request):
     region_id = request.GET.get('region')
     cities = City.objects.filter(region_id=region_id).order_by('title')
 
-    return render(request, 'travel/visited_city/create_dropdown_list.html', {'cities': cities})
-
+    return render(request, 'city/visited_city/create_dropdown_list.html', {'cities': cities})

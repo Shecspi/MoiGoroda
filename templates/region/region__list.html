@@ -55,6 +55,8 @@
                                         </div>
                                     </div>
                                 </div>
+                            {% empty %}
+                                На данный момент Вы не посетили ни одного региона России
                             {% endfor %}
                         </div>
                         <!-- ^^^ Карточки с городами -->
@@ -91,7 +93,6 @@
         {% for item in all_regions %}
             regionList.set('{{ item.iso3166 }}', '{{ item.num_visited }}');
         {% endfor %}
-        console.log(regionList);
 
         function init() {
             let map = new ymaps.Map('map', {

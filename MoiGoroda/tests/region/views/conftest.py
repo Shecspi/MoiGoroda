@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 
 from region.models import Area, Region
-from travel.models import City, VisitedCity
+from city.models import City, VisitedCity
 
 
 @pytest.fixture

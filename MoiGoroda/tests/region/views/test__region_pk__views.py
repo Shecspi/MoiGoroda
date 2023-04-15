@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from travel.models import VisitedCity
+from city.models import VisitedCity
 
 url = reverse('region-selected', kwargs={'pk': 1})
 login_url = reverse('signin')

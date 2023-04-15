@@ -10,7 +10,7 @@ urlpatterns = [
     path('account/', include('account.urls')),
     path('news/', include('news.urls')),
 
-    path('city/', include('travel.urls')),
+    path('city/', include('city.urls')),
     path('region/', include('region.urls')),
 ]
 

@@ -5,8 +5,8 @@ from django.http import Http404
 from django.views.generic import ListView
 
 from region.models import Region
-from travel.models import VisitedCity, City
-from travel.views import logger, prepare_log_string, _create_list_of_coordinates
+from city.models import VisitedCity, City
+from city.views import logger, prepare_log_string, _create_list_of_coordinates
 from utils.VisitedCityMixin import VisitedCityMixin
 
 

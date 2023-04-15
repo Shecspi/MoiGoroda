@@ -5,7 +5,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 
-from travel.models import VisitedCity, City
+from city.models import VisitedCity, City
 
 
 class VisitedCity_Create_Form(ModelForm):

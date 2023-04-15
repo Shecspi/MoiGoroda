@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'main_page',
     'account.apps.AuthConfig',
-    'travel',
+    'city',
     'news',
     'region',
     'mathfilters'

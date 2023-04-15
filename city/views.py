@@ -9,8 +9,8 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 
-from travel.forms import VisitedCity_Create_Form
-from travel.models import VisitedCity, City, Region
+from city.forms import VisitedCity_Create_Form
+from city.models import VisitedCity, City, Region
 from utils.VisitedCityMixin import VisitedCityMixin
 
 logger = logging.getLogger('app')
@@ -28,7 +28,7 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
      > Доступ только для авторизованных пользователей (LoginRequiredMixin).
     """
     form_class = VisitedCity_Create_Form
-    template_name = 'travel/visited_city/create.html'
+    template_name = 'city/visited_city/create.html'
     success_url = reverse_lazy('city-all')
 
     def get_form_kwargs(self, *args, **kwargs):
@@ -107,7 +107,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     """
     model = VisitedCity
     form_class = VisitedCity_Create_Form
-    template_name = 'travel/visited_city/create.html'
+    template_name = 'city/visited_city/create.html'
     success_url = reverse_lazy('city-all')
 
     def get(self, request, *args, **kwargs):
@@ -150,7 +150,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
        При попытке получить доступ к непосещённому городу - редирект на страницу со списком посещённых городов.
     """
     model = VisitedCity
-    template_name = 'travel/visited_city/detail.html'
+    template_name = 'city/visited_city/detail.html'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -190,7 +190,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     """
     model = VisitedCity
     paginate_by = 16
-    template_name = 'travel/visited_city/list.html'
+    template_name = 'city/visited_city/list.html'
 
     # Список, хранящий координаты и название посещённого города.
     # В шаблоне используется для генерации отметок на карте.
@@ -317,4 +317,4 @@ def get_cities_based_on_region(request):
     region_id = request.GET.get('region')
     cities = City.objects.filter(region_id=region_id).order_by('title')
 
-    return render(request, 'travel/visited_city/create_dropdown_list.html', {'cities': cities})
+    return render(request, 'city/visited_city/create_dropdown_list.html', {'cities': cities})

@@ -11,7 +11,7 @@ from django.views.generic import CreateView, DetailView, UpdateView
 
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
-from travel.models import VisitedCity
+from city.models import VisitedCity
 
 
 class SignUp(CreateView):

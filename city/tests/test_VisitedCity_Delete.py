@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse_lazy
 
-from travel.models import Area, Region, City, VisitedCity
+from city.models import Area, Region, City, VisitedCity
 
 
 class Test_VisitedCity_Delete(TestCase):

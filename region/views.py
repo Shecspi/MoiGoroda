@@ -148,8 +148,7 @@ class CitiesByRegion_List(VisitedCityMixin, LoginRequiredMixin, ListView):
             'coordinate_width', 'coordinate_longitude',
             'is_visited', 'visited_id', 'date_of_visit', 'has_magnet', 'rating'
         ).order_by('-is_visited', '-date_of_visit')
-        # for city in queryset:
-        #     print(f'{city["visitedcity__id"]} | {city["title"]:15} | {city["visitedcity__date_of_visit"]}')
+        self.all_cities = queryset
 
         # if self.request.GET.get('filter'):
         #     self.filter = self._check_validity_of_filter_value(self.request.GET.get('filter'))
@@ -182,7 +181,7 @@ class CitiesByRegion_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['coords_of_visited_cities'] = self.coords_of_visited_cities
+        context['all_cities'] = self.all_cities
         context['filter'] = self.filter
         context['sort'] = self.sort
 

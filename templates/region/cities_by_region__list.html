@@ -43,10 +43,20 @@
                                             </div>
 
                                             <small class="text-muted">
-                                                {% if item.date_of_visit %}
-                                                    {{ item.date_of_visit }}
+                                                {% if item.is_visited %}
+                                                    {% if item.date_of_visit %}
+                                                        <span class="badge bg-success">
+                                                            {{ item.date_of_visit }}
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-success">
+                                                            Дата посещения не указана
+                                                        </span>
+                                                    {% endif %}
                                                 {% else %}
-                                                    -
+                                                    <span class="badge bg-secondary">
+                                                        Город ещё не посещён
+                                                    </span>
                                                 {% endif %}
                                             </small>
                                             <!-- ^^^ Город -->
@@ -172,9 +182,18 @@
             /**
              * Отображает карту и генерирует на ней отметки с городами.
              */
-            // Массив с посещёнными городами (региона или всей страны).
-            // ['coordinate_width', 'coordinate_longitude', 'name']
-            let visited_cities = {{ coords_of_visited_cities|safe }};
+            // Массив с городами региона
+            // ['latitude', 'longitude', 'city name', 'is_visited']
+            let visited_cities = new Array()
+            {% for city in all_cities %}
+                var is_visited = '{{ city.is_visited }}' === 'True';
+                visited_cities.push([
+                    '{{ city.coordinate_width }}'.replace(/,/, '.'),
+                    '{{ city.coordinate_longitude }}'.replace(/,/, '.'),
+                    '{{ city.title }}',
+                    is_visited
+                ])
+            {% endfor %}
 
             // Массив со всеми городами региона.
             // ['coordinate_width', 'coordinate_longitude', 'name']
@@ -234,32 +253,22 @@
                 searchControlProvider: 'yandex#search'
             });
 
-            // Отображаем на карте непосещённые города, если в этом есть необходимость
-            {% if coords_of_not_visited_cities %}
-                let coordsOfNotVisitedCities = {{ coords_of_not_visited_cities|safe }}
-                for (let i = 0; i < (coordsOfNotVisitedCities.length); i++) {
-                    let coordinateWidth = coordsOfNotVisitedCities[i][0];
-                    let coordinateLongitude = coordsOfNotVisitedCities[i][1];
-                    let city = coordsOfNotVisitedCities[i][2]
-                    myMap.geoObjects.add(
-                        new ymaps.Placemark(
-                            [coordinateWidth, coordinateLongitude], {
-                            balloonContent: city }, {
-                                preset: 'islands#dotIcon', iconColor: '#a45555'
-                        }));
-                }
-            {% endif %}
-
             // Отображаем на карте посещённые города
             for (let i = 0; i < (visited_cities.length); i++) {
                 let coordinateWidth = visited_cities[i][0];
                 let coordinateLongitude = visited_cities[i][1];
                 let city = visited_cities[i][2]
+                let color;
+                if (visited_cities[i][3] === true) {
+                    color = '#009d31'
+                } else {
+                    color = '#a45555'
+                }
                 myMap.geoObjects.add(
                     new ymaps.Placemark(
                         [coordinateWidth, coordinateLongitude], {
                         balloonContent: city }, {
-                        preset: 'islands#dotIcon', iconColor: '#009d31'
+                        preset: 'islands#dotIcon', iconColor: color
                     }));
             }
         }

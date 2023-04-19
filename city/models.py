@@ -66,6 +66,7 @@ class VisitedCity(models.Model):
     city = models.ForeignKey(
         City,
         on_delete=CASCADE,
+        related_name='visitedcity',
         verbose_name='Город',
         blank=False)
     date_of_visit = models.DateField(

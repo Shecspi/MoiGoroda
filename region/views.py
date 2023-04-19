@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Count, Q, QuerySet, Case, When, Value, BooleanField, Exists, OuterRef, F, Subquery, \
+    DateTimeField, DateField, IntegerField
 from django.http import Http404
 from django.views.generic import ListView
 
@@ -111,41 +112,70 @@ class CitiesByRegion_List(VisitedCityMixin, LoginRequiredMixin, ListView):
 
         Также генерирует списки координат посещённых и непосещённых городов.
         """
-        queryset = (
-            VisitedCity.objects
-            .filter(user=self.request.user)
-            .select_related('city', 'region')
-            .only('id', 'date_of_visit', 'has_magnet', 'rating',
-                  'city__id', 'city__title', 'city__coordinate_width', 'city__coordinate_longitude',
-                  'region__id', 'region__title', 'region__type')
-            .filter(region_id=self.region_id)
-        )
+        # queryset = (
+        #     VisitedCity.objects
+        #     .filter(user=self.request.user)
+        #     .select_related('city', 'region')
+        #     .only('id', 'date_of_visit', 'has_magnet', 'rating',
+        #           'city__id', 'city__title', 'city__coordinate_width', 'city__coordinate_longitude',
+        #           'region__id', 'region__title', 'region__type')
+        #     .filter(region_id=self.region_id)
+        # )
 
-        if self.request.GET.get('filter'):
-            self.filter = self._check_validity_of_filter_value(self.request.GET.get('filter'))
-            queryset = self._apply_filter_to_queryset(queryset)
+        queryset = City.objects.filter(region=self.region_id).annotate(
+            is_visited=Exists(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+            ),
+            visited_id=Subquery(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('id'),
+                output_field=IntegerField()
+            ),
+            date_of_visit=Subquery(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('date_of_visit'),
+                output_field=DateField()
+            ),
+            has_magnet=Subquery(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('has_magnet'),
+                output_field=BooleanField()
+            ),
+            rating=Subquery(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('rating'),
+                output_field=IntegerField()
+            )
+        ).values(
+            'id', 'title', 'region', 'region__id', 'region__title', 'region__type',
+            'population', 'date_of_foundation',
+            'coordinate_width', 'coordinate_longitude',
+            'is_visited', 'visited_id', 'date_of_visit', 'has_magnet', 'rating'
+        ).order_by('-is_visited', '-date_of_visit')
+        # for city in queryset:
+        #     print(f'{city["visitedcity__id"]} | {city["title"]:15} | {city["visitedcity__date_of_visit"]}')
 
-        if self.request.GET.get('sort'):
-            self.sort = self._check_validity_of_sort_value(self.request.GET.get('sort'))
-        # Сортировка нужна в любом случае, поэтому она не в блоке if
-        queryset = self._apply_sort_to_queryset(queryset)
+        # if self.request.GET.get('filter'):
+        #     self.filter = self._check_validity_of_filter_value(self.request.GET.get('filter'))
+        #     queryset = self._apply_filter_to_queryset(queryset)
+        #
+        # if self.request.GET.get('sort'):
+        #     self.sort = self._check_validity_of_sort_value(self.request.GET.get('sort'))
+        # # Сортировка нужна в любом случае, поэтому она не в блоке if
+        # queryset = self._apply_sort_to_queryset(queryset)
 
         self.region_name = Region.objects.get(id=self.region_id)
 
-        # ToDo Мне не нравятся эти два списка, так так это лишняя работа.
-        # Вся необходимая информация есть уже в queryset
-        self.coords_of_visited_cities = _create_list_of_coordinates(queryset)
-        self.coords_of_not_visited_cities = []
-        queryset_all_cities = City.objects \
-            .filter(region_id=self.region_id) \
-            .only('title', 'coordinate_width', 'coordinate_longitude')
-
-        for city in queryset_all_cities:
-            tmp = [city.coordinate_width,
-                   city.coordinate_longitude,
-                   city.title]
-            if tmp not in self.coords_of_visited_cities:
-                self.coords_of_not_visited_cities.append(tmp)
+        # # ToDo Мне не нравятся эти два списка, так так это лишняя работа.
+        # # Вся необходимая информация есть уже в queryset
+        # self.coords_of_visited_cities = _create_list_of_coordinates(queryset)
+        # self.coords_of_not_visited_cities = []
+        # queryset_all_cities = City.objects \
+        #     .filter(region_id=self.region_id) \
+        #     .only('title', 'coordinate_width', 'coordinate_longitude')
+        #
+        # for city in queryset_all_cities:
+        #     tmp = [city.coordinate_width,
+        #            city.coordinate_longitude,
+        #            city.title]
+        #     if tmp not in self.coords_of_visited_cities:
+        #         self.coords_of_not_visited_cities.append(tmp)
 
         return queryset
 

@@ -32,10 +32,14 @@
                                         <div class="card-header">
                                             <!-- Город -->
                                             <div class="h5">
-                                                <a href="{% url 'city-selected' item.id %}"
-                                                   class="text-underline-dashed text-reset">
-                                                    {{ item.city }}
-                                                </a>
+                                                {% if item.visited_id %}
+                                                    <a href="{% url 'city-selected' item.visited_id %}"
+                                                       class="text-underline-dashed text-reset">
+                                                        {{ item.title }}
+                                                    </a>
+                                                {% else %}
+                                                    {{ item.title }}
+                                                {% endif %}
                                             </div>
 
                                             <small class="text-muted">
@@ -51,10 +55,14 @@
                                         <div class="card-body">
                                             <!-- Регион -->
                                             <small class="card-subtitle text-muted">
-                                                <a href="{% url 'region-selected' item.region.id %}"
-                                                   class="text-underline-dashed text-reset">
-                                                    {{ item.region }}
-                                                </a>
+                                                {% if item.region__id %}
+                                                    <a href="{% url 'region-selected' item.region__id %}"
+                                                       class="text-underline-dashed text-reset">
+                                                        {{ item.region__title }}
+                                                    </a>
+                                                {% else %}
+                                                    {{ item.region__id }}
+                                                {% endif %}
                                             </small>
                                             <!-- ^^^ Регион -->
 
@@ -62,8 +70,8 @@
 
                                             <!-- Население -->
                                             <small class="card-subtitle text-muted">
-                                                {% if item.city.population %}
-                                                    Население <strong>{{ item.city.population }}</strong> чел.
+                                                {% if item.population %}
+                                                    Население <strong>{{ item.population }}</strong> чел.
                                                 {% else %}
                                                     Население города не известно
                                                 {% endif %}
@@ -74,8 +82,8 @@
 
                                             <!-- Год основания -->
                                             <small class="card-subtitle text-muted">
-                                                {% if item.city.date_of_foundation %}
-                                                    Основан в <strong>{{ item.city.date_of_foundation }}</strong> году
+                                                {% if item.date_of_foundation %}
+                                                    Основан в <strong>{{ item.date_of_foundation }}</strong> году
                                                 {% else %}
                                                     Год основания не известен
                                                 {% endif %}

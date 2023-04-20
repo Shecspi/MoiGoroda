@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load mathfilters %}
+{% load humanize %}
 
 {% block content %}
     <div class="container-fluid">
@@ -51,25 +52,10 @@
                                         </div>
 
                                         <div class="card-body">
-                                            <!-- Регион -->
-                                            <small class="card-subtitle text-muted">
-                                                {% if region_id %}
-                                                    <a href="{% url 'region-selected' region_id %}"
-                                                       class="text-underline-dashed text-reset">
-                                                        {{ region_name }}
-                                                    </a>
-                                                {% else %}
-                                                    {{ region_name }}
-                                                {% endif %}
-                                            </small>
-                                            <!-- ^^^ Регион -->
-
-                                            <br>
-
                                             <!-- Население -->
                                             <small class="card-subtitle text-muted">
                                                 {% if city.population %}
-                                                    Население <strong>{{ city.population }}</strong> чел.
+                                                    Население <strong>{{ city.population|intcomma }}</strong> чел.
                                                 {% else %}
                                                     Население города не известно
                                                 {% endif %}
@@ -94,13 +80,15 @@
                                                 <div class="d-flex justify-content-between">
                                                     <!-- Рейтинг -->
                                                     <div>
-                                                        {% for i in '12345'|make_list %}
-                                                            {% if forloop.counter <= city.rating %}
-                                                                <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                                            {% else %}
-                                                                <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
-                                                            {% endif %}
-                                                        {% endfor %}
+                                                        <small>
+                                                            {% for i in '12345'|make_list %}
+                                                                {% if forloop.counter <= city.rating %}
+                                                                    <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                                                {% else %}
+                                                                    <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </small>
                                                     </div>
                                                     <!-- ^^^ Рейтинг -->
 

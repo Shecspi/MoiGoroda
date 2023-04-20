@@ -1,14 +1,16 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Q, QuerySet, Case, When, Value, BooleanField, Exists, OuterRef, F, Subquery, \
-    DateTimeField, DateField, IntegerField
 from django.http import Http404
 from django.views.generic import ListView
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q, Count, Exists, OuterRef, Subquery
+from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
 from city.models import VisitedCity, City
-from city.views import logger, prepare_log_string, _create_list_of_coordinates
+from city.views import logger, prepare_log_string
 from utils.VisitedCityMixin import VisitedCityMixin
+from utils.sort_funcs import sort_validation, apply_sort
+from utils.filter_funcs import filter_validation, apply_filter
 
 
 class Region_List(LoginRequiredMixin, ListView):
@@ -60,43 +62,47 @@ class Region_List(LoginRequiredMixin, ListView):
 
 class CitiesByRegion_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     """
-    Отображает список посещённых городов пользователя в указанном регионе.
+    Отображает список все городов в указанном регионе, как посещённых, так и нет.
 
-     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
+    Фильтрация городов передаётся через GET-параметр `filter` и может принимать одно из следующих значений:
+        * `magnet` - наличие магнита
+        * `current_year` - посещённые в текущем году
+        * `last_yesr` - посещённые в прошлом году
+
+    Фильтрация городов передаётся через GET-параметр `sort` и может принимать одно из следующих значений:
+        * `name_down` - по возрастанию имени
+        * `name_up` - по убыванию имени
+        * `date_down` - по возрастанию даты посещений
+        * `date_up` - по убыванию даты посещения
+
+    На эту страницу имеют доступ только авторизованные пользователи (LoginRequiredMixin).
     """
     model = VisitedCity
     paginate_by = 16
     template_name = 'region/cities_by_region__list.html'
 
-    # Список, хранящий координаты и название посещённого города.
-    # В шаблоне используется для генерации отметок на карте.
-    coords_of_visited_cities = []
-
-    # Список, хранящий все города указанного в URL региона, за исключением посещённых пользователем.
-    coords_of_not_visited_cities = []
-
-    # ID и название региона, для которого необходимо показать посещённые города.
-    # В случае отсутствия этого параметра - отобразится список всех посещённых городов.
+    all_cities = None
     region_id = None
     region_name = None
 
     filter = None
     sort = None
 
-    valid_filters = ['magnet', 'current_year', 'last_year']
-    valid_sorts = ['name_down', 'name_up', 'date_down', 'date_up']
+    valid_filters = ('magnet', 'current_year', 'last_year')
+    valid_sorts = ('name_down', 'name_up', 'date_down', 'date_up')
 
     def get(self, *args, **kwargs):
         """
         Проверяет, существует ли указанный в URL регион в базе данных.
         В случае, если региона нет - возвращает ошибку 404.
         """
+        # Проверка этого параметра не нужна, так как это реализовано на уровне Django
         self.region_id = self.kwargs['pk']
 
         # При обращении к несуществующему региону выдаём 404
         # При этом в указанном регионе может не быть посещённых городов, это ок
         try:
-            Region.objects.get(id=self.region_id)
+            self.region_name = Region.objects.get(id=self.region_id)
         except ObjectDoesNotExist:
             logger.warning(
                 prepare_log_string(404, 'Attempt to update a non-existent region.', self.request),
@@ -108,20 +114,20 @@ class CitiesByRegion_List(VisitedCityMixin, LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet[dict]:
         """
-        Получает из базы данных все посещённые города пользователя в указанном регионе.
-
-        Также генерирует списки координат посещённых и непосещённых городов.
+        Получает из базы данных все города в указанном регионе, как посещённые, так и нет.
+        Возвращает Queryset, состоящий из полей:
+            * `id` - ID города
+            * `title` - название города
+            * `population` - население города
+            * `date_of_foundation` - дата основания города
+            * `coordinate_width` - широта
+            * `coordinate_longitude` - долгота
+            * `is_visited` - True,если город посещён
+            * `visited_id` - ID посещённого города
+            * `date_of_visit` - дата посещения
+            * `has_magnet` - True, если имеется магнит
+            * `rating` - рейтинг от 1 до 5
         """
-        # queryset = (
-        #     VisitedCity.objects
-        #     .filter(user=self.request.user)
-        #     .select_related('city', 'region')
-        #     .only('id', 'date_of_visit', 'has_magnet', 'rating',
-        #           'city__id', 'city__title', 'city__coordinate_width', 'city__coordinate_longitude',
-        #           'region__id', 'region__title', 'region__type')
-        #     .filter(region_id=self.region_id)
-        # )
-
         queryset = City.objects.filter(region=self.region_id).annotate(
             is_visited=Exists(
                 VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
@@ -143,38 +149,29 @@ class CitiesByRegion_List(VisitedCityMixin, LoginRequiredMixin, ListView):
                 output_field=IntegerField()
             )
         ).values(
-            'id', 'title', 'region', 'region__id', 'region__title', 'region__type',
-            'population', 'date_of_foundation',
+            'id', 'title', 'population', 'date_of_foundation',
             'coordinate_width', 'coordinate_longitude',
             'is_visited', 'visited_id', 'date_of_visit', 'has_magnet', 'rating'
-        ).order_by('-is_visited', '-date_of_visit')
+        )
+
+        # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
+        # устанавливает лимит на выборку, равный `paginate_by`.
+        # Из-за этого на карте отображается только `paginate_by` городов.
+        # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
-        # if self.request.GET.get('filter'):
-        #     self.filter = self._check_validity_of_filter_value(self.request.GET.get('filter'))
-        #     queryset = self._apply_filter_to_queryset(queryset)
-        #
-        # if self.request.GET.get('sort'):
-        #     self.sort = self._check_validity_of_sort_value(self.request.GET.get('sort'))
-        # # Сортировка нужна в любом случае, поэтому она не в блоке if
-        # queryset = self._apply_sort_to_queryset(queryset)
+        if self.request.GET.get('filter'):
+            filter_value = self.request.GET.get('filter')
+            self.filter = filter_validation(filter_value, self.valid_filters)
+            if self.filter:
+                queryset = apply_filter(queryset, filter_value)
 
-        self.region_name = Region.objects.get(id=self.region_id)
-
-        # # ToDo Мне не нравятся эти два списка, так так это лишняя работа.
-        # # Вся необходимая информация есть уже в queryset
-        # self.coords_of_visited_cities = _create_list_of_coordinates(queryset)
-        # self.coords_of_not_visited_cities = []
-        # queryset_all_cities = City.objects \
-        #     .filter(region_id=self.region_id) \
-        #     .only('title', 'coordinate_width', 'coordinate_longitude')
-        #
-        # for city in queryset_all_cities:
-        #     tmp = [city.coordinate_width,
-        #            city.coordinate_longitude,
-        #            city.title]
-        #     if tmp not in self.coords_of_visited_cities:
-        #         self.coords_of_not_visited_cities.append(tmp)
+        sort_value = ''
+        if self.request.GET.get('sort'):
+            sort_value = self.request.GET.get('sort')
+            self.sort = sort_validation(sort_value, self.valid_sorts)
+        # Сортировка нужна в любом случае, поэтому она не в блоке if
+        queryset = apply_sort(queryset, sort_value)
 
         return queryset
 
@@ -184,13 +181,8 @@ class CitiesByRegion_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['all_cities'] = self.all_cities
         context['filter'] = self.filter
         context['sort'] = self.sort
-
-        if self.region_id:
-            context['type'] = 'by_region'
-            context['region_id'] = self.region_id
-            context['coords_of_not_visited_cities'] = self.coords_of_not_visited_cities
-            context['region_name'] = self.region_name
-        else:
-            context['type'] = 'all'
+        context['type'] = 'by_region'
+        context['region_id'] = self.region_id
+        context['region_name'] = self.region_name
 
         return context

@@ -4,11 +4,7 @@
 {% block content %}
     <div class="container-fluid">
         <h1 class="display-5 text-center my-2">
-            {% if type == 'all' %}
-                Посещённые города
-            {% else %}
-                {{ region_name }}
-            {% endif %}
+            {{ region_name }}
         </h1>
 
         <div class="row mt-3">
@@ -65,13 +61,13 @@
                                         <div class="card-body">
                                             <!-- Регион -->
                                             <small class="card-subtitle text-muted">
-                                                {% if item.region__id %}
-                                                    <a href="{% url 'region-selected' item.region__id %}"
+                                                {% if region_id %}
+                                                    <a href="{% url 'region-selected' region_id %}"
                                                        class="text-underline-dashed text-reset">
-                                                        {{ item.region__title }}
+                                                        {{ region_name }}
                                                     </a>
                                                 {% else %}
-                                                    {{ item.region__id }}
+                                                    {{ region_name }}
                                                 {% endif %}
                                             </small>
                                             <!-- ^^^ Регион -->

@@ -2,7 +2,7 @@ from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, Count, Exists, OuterRef, Subquery
+from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
@@ -59,7 +59,7 @@ class Region_List(LoginRequiredMixin, ListView):
         return context
 
 
-class CitiesByRegion_List(LoginRequiredMixin, ListView):
+class CitiesByRegion_List(ListView):
     """
     Отображает список все городов в указанном регионе, как посещённых, так и нет.
 
@@ -73,8 +73,6 @@ class CitiesByRegion_List(LoginRequiredMixin, ListView):
         * `name_up` - по убыванию имени
         * `date_down` - по возрастанию даты посещений
         * `date_up` - по убыванию даты посещения
-
-    На эту страницу имеют доступ только авторизованные пользователи (LoginRequiredMixin).
     """
     model = VisitedCity
     paginate_by = 16
@@ -127,31 +125,44 @@ class CitiesByRegion_List(LoginRequiredMixin, ListView):
             * `has_magnet` - True, если имеется магнит
             * `rating` - рейтинг от 1 до 5
         """
-        queryset = City.objects.filter(region=self.region_id).annotate(
-            is_visited=Exists(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-            ),
-            visited_id=Subquery(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('id'),
-                output_field=IntegerField()
-            ),
-            date_of_visit=Subquery(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('date_of_visit'),
-                output_field=DateField()
-            ),
-            has_magnet=Subquery(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('has_magnet'),
-                output_field=BooleanField()
-            ),
-            rating=Subquery(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('rating'),
-                output_field=IntegerField()
+        if self.request.user.is_authenticated:
+            queryset = City.objects.filter(region=self.region_id).annotate(
+                is_visited=Exists(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+                ),
+                visited_id=Subquery(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('id'),
+                    output_field=IntegerField()
+                ),
+                date_of_visit=Subquery(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('date_of_visit'),
+                    output_field=DateField()
+                ),
+                has_magnet=Subquery(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('has_magnet'),
+                    output_field=BooleanField()
+                ),
+                rating=Subquery(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('rating'),
+                    output_field=IntegerField()
+                )
+            ).values(
+                'id', 'title', 'population', 'date_of_foundation',
+                'coordinate_width', 'coordinate_longitude',
+                'is_visited', 'visited_id', 'date_of_visit', 'has_magnet', 'rating'
             )
-        ).values(
-            'id', 'title', 'population', 'date_of_foundation',
-            'coordinate_width', 'coordinate_longitude',
-            'is_visited', 'visited_id', 'date_of_visit', 'has_magnet', 'rating'
-        )
+        else:
+            # Если пользователь не авторизован, то поля `is_visited` и `date_of_visit` всё-равно нужны.
+            # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
+            # `date_of_visit` для сортировки. В данном случае сортировка по этому полю не принесёт никакого эффекта,
+            # но в коде это заложено, поэтому поле нужно.
+            queryset = City.objects.filter(region=self.region_id).annotate(
+                is_visited=Value(False),
+                date_of_visit=Value(0)
+            ).values(
+                'id', 'title', 'population', 'date_of_foundation',
+                'coordinate_width', 'coordinate_longitude', 'is_visited'
+            )
 
         # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
         # устанавливает лимит на выборку, равный `paginate_by`.

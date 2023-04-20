@@ -4,7 +4,7 @@ from django.db.models import QuerySet
 
 
 class VisitedCityMixin:
-    def _apply_filter_to_queryset(self, queryset: QuerySet) -> QuerySet:
+    def apply_filter_to_queryset(self, queryset: QuerySet) -> QuerySet:
         match self.filter:
             case 'magnet':
                 queryset = queryset.filter(has_magnet=False)
@@ -31,7 +31,7 @@ class VisitedCityMixin:
 
         return queryset
 
-    def _check_validity_of_filter_value(self, filter_value: str) -> str | None:
+    def check_validity_of_filter_value(self, filter_value: str) -> str | None:
         if filter_value in self.valid_filters:
             return filter_value
         else:

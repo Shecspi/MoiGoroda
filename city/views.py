@@ -242,8 +242,8 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
                   'region__id', 'region__title', 'region__type', 'date_of_visit', 'has_magnet', 'rating')
 
         if self.request.GET.get('filter'):
-            self.filter = self._check_validity_of_filter_value(self.request.GET.get('filter'))
-            queryset = self._apply_filter_to_queryset(queryset)
+            self.filter = self.check_validity_of_filter_value(self.request.GET.get('filter'))
+            queryset = self.apply_filter_to_queryset(queryset)
 
         if self.request.GET.get('sort'):
             self.sort = self._check_validity_of_sort_value(self.request.GET.get('sort'))

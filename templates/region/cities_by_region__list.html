@@ -22,37 +22,29 @@
 
                         <!-- Карточки с городами -->
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mb-3 g-3">
-                            {% for item in object_list %}
+                            {% for city in object_list %}
                                 <div class="col">
-                                    <div class="card h-100 text-center">
-                                        <div class="card-header">
+                                    <div class="card {% if city.is_visited %}border-success {% endif %}h-100 text-center">
+                                        <div class="card-header{% if city.is_visited %} text-success{% endif %}">
                                             <!-- Город -->
-                                            <div class="h5">
-                                                {% if item.visited_id %}
-                                                    <a href="{% url 'city-selected' item.visited_id %}"
+                                            <div class="h4">
+                                                {% if city.visited_id %}
+                                                    <a href="{% url 'city-selected' city.visited_id %}"
                                                        class="text-underline-dashed text-reset">
-                                                        {{ item.title }}
+                                                        {{ city.title }}
                                                     </a>
                                                 {% else %}
-                                                    {{ item.title }}
+                                                    {{ city.title }}
                                                 {% endif %}
                                             </div>
 
-                                            <small class="text-muted">
-                                                {% if item.is_visited %}
-                                                    {% if item.date_of_visit %}
-                                                        <span class="badge bg-success">
-                                                            {{ item.date_of_visit }}
-                                                        </span>
+                                            <small>
+                                                {% if city.is_visited %}
+                                                    {% if city.date_of_visit %}
+                                                        {{ city.date_of_visit }}
                                                     {% else %}
-                                                        <span class="badge bg-success">
-                                                            Дата посещения не указана
-                                                        </span>
+                                                        Дата посещения не указана
                                                     {% endif %}
-                                                {% else %}
-                                                    <span class="badge bg-secondary">
-                                                        Город ещё не посещён
-                                                    </span>
                                                 {% endif %}
                                             </small>
                                             <!-- ^^^ Город -->
@@ -76,8 +68,8 @@
 
                                             <!-- Население -->
                                             <small class="card-subtitle text-muted">
-                                                {% if item.population %}
-                                                    Население <strong>{{ item.population }}</strong> чел.
+                                                {% if city.population %}
+                                                    Население <strong>{{ city.population }}</strong> чел.
                                                 {% else %}
                                                     Население города не известно
                                                 {% endif %}
@@ -88,8 +80,8 @@
 
                                             <!-- Год основания -->
                                             <small class="card-subtitle text-muted">
-                                                {% if item.date_of_foundation %}
-                                                    Основан в <strong>{{ item.date_of_foundation }}</strong> году
+                                                {% if city.date_of_foundation %}
+                                                    Основан в <strong>{{ city.date_of_foundation }}</strong> году
                                                 {% else %}
                                                     Год основания не известен
                                                 {% endif %}
@@ -97,35 +89,41 @@
                                             <!-- ^^^ Год основания -->
                                         </div>
 
-                                        <div class="card-footer" style="background: none; border-top: none;">
-                                            <div class="d-flex justify-content-between">
-                                                <!-- Рейтинг -->
-                                                <div>
-                                                    {% for i in '12345'|make_list %}
-                                                        {% if forloop.counter <= item.rating %}
-                                                            <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                                        {% else %}
-                                                            <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </div>
-                                                <!-- ^^^ Рейтинг -->
+                                        {% if city.is_visited %}
+                                            <div class="card-footer" style="background: none; border-top: none;">
+                                                <div class="d-flex justify-content-between">
+                                                    <!-- Рейтинг -->
+                                                    <div>
+                                                        {% for i in '12345'|make_list %}
+                                                            {% if forloop.counter <= city.rating %}
+                                                                <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                                            {% else %}
+                                                                <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    <!-- ^^^ Рейтинг -->
 
-                                                <!-- Наличие магнита -->
-                                                <div>
-                                                    {% if item.has_magnet %}
-                                                        <span class="badge bg-success">
-                                                            Магнит есть
-                                                        </span>
-                                                    {% else %}
-                                                        <span class="badge bg-danger">
-                                                            Магнита нет
-                                                        </span>
-                                                    {% endif %}
+                                                    <!-- Наличие магнита -->
+                                                    <div>
+                                                        {% if city.has_magnet %}
+                                                            <small>
+                                                                <span class="text-success">
+                                                                    Магнит <i class="fa-regular fa-square-check"></i>
+                                                                </span>
+                                                            </small>
+                                                        {% else %}
+                                                            <small>
+                                                                <span class="text-danger">
+                                                                    Магнит <i class="fa-regular fa-square-minus"></i>
+                                                                </span>
+                                                            </small>
+                                                        {% endif %}
+                                                    </div>
+                                                    <!-- ^^^ Наличие магнита -->
                                                 </div>
-                                                <!-- ^^^ Наличие магнита -->
                                             </div>
-                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             {% endfor %}

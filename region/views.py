@@ -12,15 +12,13 @@ from utils.sort_funcs import sort_validation, apply_sort
 from utils.filter_funcs import filter_validation, apply_filter
 
 
-class Region_List(LoginRequiredMixin, ListView):
+class Region_List(ListView):
     """
     Отображает список всех регионов с указанием количества посещённых городов в каждом.
     Список разбивается на страницы, но на карте отображаются все регионы,
     вне зависимости от текущей страницы.
     Имеется возможность поиска региона по названию,
     в таком случае на карте будут отображены только найденные регионы.
-
-     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
     """
     model = Region
     paginate_by = 16
@@ -33,13 +31,18 @@ class Region_List(LoginRequiredMixin, ListView):
          * num_total - общее количество городов в регионе
          * num_visited - количество посещённых пользователем городов в регионе
         """
-        queryset = (Region.objects
-                    .select_related('area')
-                    .annotate(num_total=Count('city', distinct=True),
-                              num_visited=Count('city',
-                                                filter=Q(city__visitedcity__user=self.request.user.pk),
-                                                distinct=True))
-                    .order_by('-num_visited', 'title'))
+        if self.request.user.is_authenticated:
+            queryset = (Region.objects
+                        .select_related('area')
+                        .annotate(num_total=Count('city', distinct=True),
+                                  num_visited=Count('city',
+                                                    filter=Q(city__visitedcity__user=self.request.user.pk),
+                                                    distinct=True))
+                        .order_by('-num_visited', 'title'))
+        else:
+            queryset = Region.objects.select_related('area').annotate(
+                num_total=Count('city', distinct=True)
+            ).order_by('title')
         if self.request.GET.get('filter'):
             queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
 

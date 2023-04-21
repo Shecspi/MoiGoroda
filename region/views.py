@@ -1,7 +1,21 @@
+"""
+Реализует классы для отображения списка регионов и городов конкретного региона.
+
+* RegionList - Отображает список всех регионов с указанием количества городов в регионе.
+* CitiesByRegionList - Отображает список всех городов в указанном регионе,
+как посещённых, так и нет.
+
+----------------------------------------------
+
+Copyright 2023 Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
@@ -12,7 +26,7 @@ from utils.sort_funcs import sort_validation, apply_sort
 from utils.filter_funcs import filter_validation, apply_filter
 
 
-class Region_List(ListView):
+class RegionList(ListView):
     """
     Отображает список всех регионов с указанием количества городов в регионе.
     Для авторизованных пользователей также указывается количество посещённых городов с прогресс-баром.
@@ -66,7 +80,7 @@ class Region_List(ListView):
         return context
 
 
-class CitiesByRegion_List(ListView):
+class CitiesByRegionList(ListView):
     """
     Отображает список всех городов в указанном регионе, как посещённых, так и нет.
 
@@ -107,12 +121,12 @@ class CitiesByRegion_List(ListView):
         # При этом в указанном регионе может не быть посещённых городов, это ок
         try:
             self.region_name = Region.objects.get(id=self.region_id)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as exc:
             logger.warning(
                 prepare_log_string(404, 'Attempt to update a non-existent region.', self.request),
                 extra={'classname': self.__class__.__name__}
             )
-            raise Http404
+            raise Http404 from exc
 
         return super().get(*args, **kwargs)
 

@@ -1,8 +1,22 @@
+"""
+Реализует классы для отображения списка регионов и городов конкретного региона.
+
+* RegionList - Отображает список всех регионов с указанием количества городов в регионе.
+* CitiesByRegionList - Отображает список всех городов в указанном регионе,
+как посещённых, так и нет.
+
+----------------------------------------------
+
+Copyright 2023 Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, Count, Exists, OuterRef, Subquery
+from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
@@ -12,15 +26,15 @@ from utils.sort_funcs import sort_validation, apply_sort
 from utils.filter_funcs import filter_validation, apply_filter
 
 
-class Region_List(LoginRequiredMixin, ListView):
+class RegionList(ListView):
     """
-    Отображает список всех регионов с указанием количества посещённых городов в каждом.
-    Список разбивается на страницы, но на карте отображаются все регионы,
-    вне зависимости от текущей страницы.
+    Отображает список всех регионов с указанием количества городов в регионе.
+    Для авторизованных пользователей также указывается количество посещённых городов с прогресс-баром.
+
+    Список разбивается на страницы, но на карте отображаются все регионы, вне зависимости от текущей страницы.
+
     Имеется возможность поиска региона по названию,
     в таком случае на карте будут отображены только найденные регионы.
-
-     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
     """
     model = Region
     paginate_by = 16
@@ -30,16 +44,23 @@ class Region_List(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """
         Достаёт из базы данных все регионы, добавляя дополнительные поля:
-         * num_total - общее количество городов в регионе
-         * num_visited - количество посещённых пользователем городов в регионе
+            * num_total - общее количество городов в регионе
+            * num_visited - количество посещённых пользователем городов в регионе
         """
-        queryset = (Region.objects
-                    .select_related('area')
-                    .annotate(num_total=Count('city', distinct=True),
-                              num_visited=Count('city',
-                                                filter=Q(city__visitedcity__user=self.request.user.pk),
-                                                distinct=True))
-                    .order_by('-num_visited', 'title'))
+        if self.request.user.is_authenticated:
+            queryset = Region.objects.select_related('area').annotate(
+                num_total=Count('city', distinct=True),
+                num_visited=Count(
+                    'city',
+                    filter=Q(city__visitedcity__user=self.request.user.pk),
+                    distinct=True
+                )
+            ).order_by('-num_visited', 'title')
+        else:
+            queryset = Region.objects.select_related('area').annotate(
+                num_total=Count('city', distinct=True)
+            ).order_by('title')
+
         if self.request.GET.get('filter'):
             queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
 
@@ -59,9 +80,9 @@ class Region_List(LoginRequiredMixin, ListView):
         return context
 
 
-class CitiesByRegion_List(LoginRequiredMixin, ListView):
+class CitiesByRegionList(ListView):
     """
-    Отображает список все городов в указанном регионе, как посещённых, так и нет.
+    Отображает список всех городов в указанном регионе, как посещённых, так и нет.
 
     Фильтрация городов передаётся через GET-параметр `filter` и может принимать одно из следующих значений:
         * `magnet` - наличие магнита
@@ -73,8 +94,6 @@ class CitiesByRegion_List(LoginRequiredMixin, ListView):
         * `name_up` - по убыванию имени
         * `date_down` - по возрастанию даты посещений
         * `date_up` - по убыванию даты посещения
-
-    На эту страницу имеют доступ только авторизованные пользователи (LoginRequiredMixin).
     """
     model = VisitedCity
     paginate_by = 16
@@ -102,12 +121,12 @@ class CitiesByRegion_List(LoginRequiredMixin, ListView):
         # При этом в указанном регионе может не быть посещённых городов, это ок
         try:
             self.region_name = Region.objects.get(id=self.region_id)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as exc:
             logger.warning(
                 prepare_log_string(404, 'Attempt to update a non-existent region.', self.request),
                 extra={'classname': self.__class__.__name__}
             )
-            raise Http404
+            raise Http404 from exc
 
         return super().get(*args, **kwargs)
 
@@ -122,36 +141,51 @@ class CitiesByRegion_List(LoginRequiredMixin, ListView):
             * `coordinate_width` - широта
             * `coordinate_longitude` - долгота
             * `is_visited` - True,если город посещён
-            * `visited_id` - ID посещённого города
             * `date_of_visit` - дата посещения
+
+            Для авторизованных пользователей доступны дополнительные поля:
+            * `visited_id` - ID посещённого города
             * `has_magnet` - True, если имеется магнит
             * `rating` - рейтинг от 1 до 5
         """
-        queryset = City.objects.filter(region=self.region_id).annotate(
-            is_visited=Exists(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-            ),
-            visited_id=Subquery(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('id'),
-                output_field=IntegerField()
-            ),
-            date_of_visit=Subquery(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('date_of_visit'),
-                output_field=DateField()
-            ),
-            has_magnet=Subquery(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('has_magnet'),
-                output_field=BooleanField()
-            ),
-            rating=Subquery(
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('rating'),
-                output_field=IntegerField()
+        if self.request.user.is_authenticated:
+            queryset = City.objects.filter(region=self.region_id).annotate(
+                is_visited=Exists(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+                ),
+                visited_id=Subquery(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('id'),
+                    output_field=IntegerField()
+                ),
+                date_of_visit=Subquery(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('date_of_visit'),
+                    output_field=DateField()
+                ),
+                has_magnet=Subquery(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('has_magnet'),
+                    output_field=BooleanField()
+                ),
+                rating=Subquery(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('rating'),
+                    output_field=IntegerField()
+                )
+            ).values(
+                'id', 'title', 'population', 'date_of_foundation',
+                'coordinate_width', 'coordinate_longitude',
+                'is_visited', 'visited_id', 'date_of_visit', 'has_magnet', 'rating'
             )
-        ).values(
-            'id', 'title', 'population', 'date_of_foundation',
-            'coordinate_width', 'coordinate_longitude',
-            'is_visited', 'visited_id', 'date_of_visit', 'has_magnet', 'rating'
-        )
+        else:
+            # Если пользователь не авторизован, то поля `is_visited` и `date_of_visit` всё-равно нужны.
+            # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
+            # `date_of_visit` для сортировки. В данном случае сортировка по этому полю не принесёт никакого эффекта,
+            # но в коде это заложено, поэтому поле нужно.
+            queryset = City.objects.filter(region=self.region_id).annotate(
+                is_visited=Value(False),
+                date_of_visit=Value(0)
+            ).values(
+                'id', 'title', 'population', 'date_of_foundation',
+                'coordinate_width', 'coordinate_longitude', 'is_visited'
+            )
 
         # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
         # устанавливает лимит на выборку, равный `paginate_by`.

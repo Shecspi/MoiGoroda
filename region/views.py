@@ -14,9 +14,11 @@ from utils.filter_funcs import filter_validation, apply_filter
 
 class Region_List(ListView):
     """
-    Отображает список всех регионов с указанием количества посещённых городов в каждом.
-    Список разбивается на страницы, но на карте отображаются все регионы,
-    вне зависимости от текущей страницы.
+    Отображает список всех регионов с указанием количества городов в регионе.
+    Для авторизованных пользователей также указывается количество посещённых городов с прогресс-баром.
+
+    Список разбивается на страницы, но на карте отображаются все регионы, вне зависимости от текущей страницы.
+
     Имеется возможность поиска региона по названию,
     в таком случае на карте будут отображены только найденные регионы.
     """
@@ -28,21 +30,23 @@ class Region_List(ListView):
     def get_queryset(self):
         """
         Достаёт из базы данных все регионы, добавляя дополнительные поля:
-         * num_total - общее количество городов в регионе
-         * num_visited - количество посещённых пользователем городов в регионе
+            * num_total - общее количество городов в регионе
+            * num_visited - количество посещённых пользователем городов в регионе
         """
         if self.request.user.is_authenticated:
-            queryset = (Region.objects
-                        .select_related('area')
-                        .annotate(num_total=Count('city', distinct=True),
-                                  num_visited=Count('city',
-                                                    filter=Q(city__visitedcity__user=self.request.user.pk),
-                                                    distinct=True))
-                        .order_by('-num_visited', 'title'))
+            queryset = Region.objects.select_related('area').annotate(
+                num_total=Count('city', distinct=True),
+                num_visited=Count(
+                    'city',
+                    filter=Q(city__visitedcity__user=self.request.user.pk),
+                    distinct=True
+                )
+            ).order_by('-num_visited', 'title')
         else:
             queryset = Region.objects.select_related('area').annotate(
                 num_total=Count('city', distinct=True)
             ).order_by('title')
+
         if self.request.GET.get('filter'):
             queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
 
@@ -64,7 +68,7 @@ class Region_List(ListView):
 
 class CitiesByRegion_List(ListView):
     """
-    Отображает список все городов в указанном регионе, как посещённых, так и нет.
+    Отображает список всех городов в указанном регионе, как посещённых, так и нет.
 
     Фильтрация городов передаётся через GET-параметр `filter` и может принимать одно из следующих значений:
         * `magnet` - наличие магнита
@@ -123,8 +127,10 @@ class CitiesByRegion_List(ListView):
             * `coordinate_width` - широта
             * `coordinate_longitude` - долгота
             * `is_visited` - True,если город посещён
-            * `visited_id` - ID посещённого города
             * `date_of_visit` - дата посещения
+
+            Для авторизованных пользователей доступны дополнительные поля:
+            * `visited_id` - ID посещённого города
             * `has_magnet` - True, если имеется магнит
             * `rating` - рейтинг от 1 до 5
         """

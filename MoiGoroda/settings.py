@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     'city',
     'news',
     'region',
-    'mathfilters'
+    'mathfilters',
+    'mdeditor',
+    'markdownify'
 ]
 
 MIDDLEWARE = [
@@ -200,3 +202,17 @@ LOGGING = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# MDEditor
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Markdownify
+MARKDOWNIFY = {
+   "default": {
+       'WHITELIST_TAGS': [
+           'a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i',
+           'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+           'li', 'ol', 'p', 'strong', 'ul'],
+       'WHITELIST_ATTRS': ['href', 'src', 'alt']
+   }
+}

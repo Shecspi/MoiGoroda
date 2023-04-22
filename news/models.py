@@ -1,4 +1,5 @@
 from django.db import models
+from mdeditor.fields import MDTextField
 
 
 class News(models.Model):
@@ -19,6 +20,7 @@ class News(models.Model):
         auto_now=True,
         verbose_name='Изменено'
     )
+    content = MDTextField()
 
     class Meta:
         verbose_name = 'Новость'

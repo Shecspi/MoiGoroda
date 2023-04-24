@@ -205,6 +205,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # MDEditor
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+MDEDITOR_CONFIGS = {
+    'default': {
+        'language': 'en'
+    }
+}
 
 # Markdownify
 MARKDOWNIFY = {

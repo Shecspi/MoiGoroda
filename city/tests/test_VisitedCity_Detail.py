@@ -68,4 +68,4 @@ class Test_VisitedCity_Detail(TestCase):
                              self.url_city_all,
                              status_code=302,
                              target_status_code=200)
-        self.assertTemplateUsed(response, 'travel/visited_city/list.html')
+        self.assertTemplateUsed(response, 'travel/visited_city/news__list.html')

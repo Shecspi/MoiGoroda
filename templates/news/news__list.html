@@ -12,9 +12,6 @@
                 {% for item in object_list %}
                     <div class="card mt-3">
                         <div class="card-body">
-                            <h5 class="card-title">
-                                {{ item.title }}
-                            </h5>
                             <div class="card-text">
                                 {{ item.content|markdownify }}
                             </div>

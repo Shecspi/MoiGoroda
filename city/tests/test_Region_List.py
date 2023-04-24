@@ -42,7 +42,7 @@ class Test_Region_List(TestCase):
         self.client.logout()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'travel/region/list.html')
+        self.assertTemplateUsed(response, 'travel/region/news__list.html')
 
     def test_filter(self):
         """

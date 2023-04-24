@@ -75,8 +75,8 @@ class Test_VisitedCity_Create(TestCase):
                              self.url_list,
                              status_code=302,
                              target_status_code=200)
-        self.assertTemplateUsed(response_update_1, 'travel/visited_city/list.html')
-        self.assertTemplateUsed(response_update_2, 'travel/visited_city/list.html')
+        self.assertTemplateUsed(response_update_1, 'travel/visited_city/news__list.html')
+        self.assertTemplateUsed(response_update_2, 'travel/visited_city/news__list.html')
 
     def test_form_has_fields(self):
         """

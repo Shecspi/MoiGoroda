@@ -12,7 +12,6 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
-
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist

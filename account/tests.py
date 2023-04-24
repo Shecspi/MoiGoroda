@@ -38,7 +38,7 @@ class SignUp_Test(TestCase):
         response = client.get(self.signup_url, follow=True)
 
         self.assertRedirects(response, self.city_all_url, status_code=302, target_status_code=200)
-        self.assertTemplateUsed(response, 'travel/visited_city/list.html')
+        self.assertTemplateUsed(response, 'travel/visited_city/news__list.html')
 
         client.logout()
 

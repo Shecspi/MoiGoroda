@@ -1,15 +1,32 @@
+"""
+Описывает модели приложения News.
+
+* News - Модель, хранящая в себе всю информацию о новостиях.
+
+----------------------------------------------
+
+Copyright 2023 Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
 from django.db import models
 from mdeditor.fields import MDTextField
 
 
 class News(models.Model):
+    """
+    Хранит в себе всю информацию о новостях.
+    """
     title = models.CharField(
         max_length=256,
         verbose_name='Заголовок',
-        blank=False
+        blank=False,
+        help_text='Указанный заголовок новости будет отображатьсят только в админ-панели.<br>'
+                  'Пользователи его не увидят. Для них необходимо указывать заголовок новости в поле ниже.'
     )
     content = models.TextField(
-        verbose_name='Описание',
+        verbose_name='Новость',
         blank=False
     )
     created = models.DateTimeField(
@@ -23,6 +40,7 @@ class News(models.Model):
     content = MDTextField()
 
     class Meta:
+        ordering = ['-created']
         verbose_name = 'Новость'
         verbose_name_plural = 'Новости'
 

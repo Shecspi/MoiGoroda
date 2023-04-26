@@ -215,9 +215,10 @@ MDEDITOR_CONFIGS = {
 MARKDOWNIFY = {
    "default": {
        'WHITELIST_TAGS': [
-           'a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i',
-           'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-           'li', 'ol', 'p', 'strong', 'ul'],
+           # Протестированные теги
+           'a', 'blockquote', 'code', 'img', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong',
+           # Непротестированные теги
+           'li', 'ol', 'p', 'ul'],
        'WHITELIST_ATTRS': ['href', 'src', 'alt']
    }
 }

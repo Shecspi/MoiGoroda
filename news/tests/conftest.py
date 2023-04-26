@@ -8,7 +8,10 @@ from news.models import News
 def setup_db():
     newss = (
         ('Новость 1', 'Текст новости 1'),
-        ('Новость 2', 'Текст новости 2'),
+        ('Новость 2', '#H1\r##H2\r###H3\r####H4\r#####H5\r######H6\r'
+                      '**bold1**\r__bold2__\r*italic1*\r_italic2_\r'
+                      '[Link](https://link)\r![Изображение](https://link)\r'
+                      '```somecode1```\r`somecode2`\r> Quoting'),
     )
     with transaction.atomic():
         for news in newss:

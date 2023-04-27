@@ -82,3 +82,20 @@ def test__news__html_tags_blockquote(setup_db, client):
     response = client.get(url)
     parse = re.compile(r'(?s)<blockquote>(.*?)</blockquote>')
     assert re.search(parse, response.content.decode())
+
+
+@pytest.mark.django_db
+def test__news__html_tags_list(setup_db, client):
+    response = client.get(url)
+    parse1 = re.compile(r'(?s)<ul>(.*?)</ul>')
+    parse2 = re.compile(r'(?s)<li>(.*?)</li>')
+    assert re.search(parse1, response.content.decode())
+    assert re.search(parse2, response.content.decode())
+
+
+@pytest.mark.django_db
+def test__news__without_title(setup_db, client):
+    response = client.get(url)
+    print(response.content.decode())
+    assert 'Заголовок новости 1' not in response.content.decode()
+    assert 'Заголовок новости 2' not in response.content.decode()

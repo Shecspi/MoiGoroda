@@ -12,15 +12,17 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
+from django.core.mail import send_mail
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
+from MoiGoroda.settings import BASE_DIR
 from region.models import Region
 from city.models import VisitedCity, City
-from city.views import logger, prepare_log_string
+# from city.views import logger, prepare_log_string
 from utils.sort_funcs import sort_validation, apply_sort
 from utils.filter_funcs import filter_validation, apply_filter
 
@@ -121,10 +123,10 @@ class CitiesByRegionList(ListView):
         try:
             self.region_name = Region.objects.get(id=self.region_id)
         except ObjectDoesNotExist as exc:
-            logger.warning(
-                prepare_log_string(404, 'Attempt to update a non-existent region.', self.request),
-                extra={'classname': self.__class__.__name__}
-            )
+            # logger.warning(
+            #     prepare_log_string(404, 'Attempt to update a non-existent region.', self.request),
+            #     extra={'classname': self.__class__.__name__}
+            # )
             raise Http404 from exc
 
         return super().get(*args, **kwargs)
@@ -147,6 +149,9 @@ class CitiesByRegionList(ListView):
             * `has_magnet` - True, если имеется магнит
             * `rating` - рейтинг от 1 до 5
         """
+        import logging
+        logger = logging.getLogger('moi-goroda')
+        logger.info('Только файл')
         if self.request.user.is_authenticated:
             queryset = City.objects.filter(region=self.region_id).annotate(
                 is_visited=Exists(

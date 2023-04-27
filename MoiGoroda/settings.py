@@ -151,7 +151,6 @@ INTERNAL_IPS = [
 
 LOGIN_URL = '/account/signin'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
@@ -159,45 +158,61 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = env('EMAIL_USE_TLS') == 'True'
 EMAIL_USE_SSL = env('EMAIL_USE_SSL') == 'True'
 
+SERVER_EMAIL = 'logger@moi-goroda.ru'
+DEFAULT_FROM_EMAIL = 'logger@moi-goroda.ru'
+ADMINS = [('Egor Vavilov', 'shecspi@yandex.ru'), ]
+
+LOG_FIlE_PATH = os.path.join(BASE_DIR, 'logs/log.log')
+if not os.path.exists(os.path.dirname(LOG_FIlE_PATH)):
+    os.mkdir(os.path.dirname(LOG_FIlE_PATH))
+if not os.path.exists(LOG_FIlE_PATH):
+    open(LOG_FIlE_PATH, 'a').close()
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'app': {
-            'format': '[{asctime}] {levelname} -- line {lineno} -- {module}.{classname}.{funcName}() -- {message}',
-            'style': '{',
-        },
-        'django': {
-            'format': '{levelname} -- {asctime} -- {module} -- {message}',
-            'style': '{',
+    'filters': {
+        # Отправка писем только при DEBUG = False
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+
+    'formatters': {
+        'file': {
+            'format': '%(asctime)-25s %(name)-20s %(levelname)-8s %(message)s'
+        }
+    },
+
     'handlers': {
-        'app': {
-            'level': 'WARNING',
+        # Запись сообщения в файл
+        'file': {
+            'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'logs/app.log',
-            'formatter': 'app',
+            'formatter': 'file',
+            'filename': os.path.join(BASE_DIR, 'logs/log.log')
         },
-        'django': {
-            'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': 'logs/django.log',
-            'formatter': 'django',
-        },
+        # Отправка письма на почту
+        'email': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+
+        }
     },
+
     'loggers': {
-        'app': {
-            'handlers': ['app'],
-            'level': 'WARNING',
-            'propagate': False,
+        'moi-goroda': {
+            'handlers': ['file', 'email'],
+            'level': 'INFO',
+            'propogate': True
         },
         'django': {
-            'handlers': ['django'],
             'level': 'WARNING',
-            'propagate': True,
-        },
-    },
+            'handlers': ['file', 'email']
+        }
+    }
 }
 
 MEDIA_URL = '/media/'
@@ -213,12 +228,12 @@ MDEDITOR_CONFIGS = {
 
 # Markdownify
 MARKDOWNIFY = {
-   "default": {
-       'WHITELIST_TAGS': [
-           # Протестированные теги
-           'a', 'blockquote', 'code', 'img', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong',
-           # Непротестированные теги
-           'li', 'ol', 'p', 'ul'],
-       'WHITELIST_ATTRS': ['href', 'src', 'alt']
-   }
+    "default": {
+        'WHITELIST_TAGS': [
+            # Протестированные теги
+            'a', 'blockquote', 'code', 'img', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong',
+            # Непротестированные теги
+            'li', 'ol', 'p', 'ul'],
+        'WHITELIST_ATTRS': ['href', 'src', 'alt']
+    }
 }

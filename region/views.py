@@ -195,23 +195,23 @@ class CitiesByRegionList(ListView):
         # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
-        if self.request.GET.get('filter'):
-            filter_value = self.request.GET.get('filter')
-            self.filter = filter_validation(filter_value, self.valid_filters)
-            if self.filter:
-                logger.info(f'Using a filter for cities: {self.request.get_full_path()}')
-                queryset = apply_filter(queryset, filter_value)
-            else:
-                logger.warning(f'Attempt to access a non-existent filter: {self.request.get_full_path()}')
-
         sort_value = ''
-        if self.request.GET.get('sort'):
-            sort_value = self.request.GET.get('sort')
-            self.sort = sort_validation(sort_value, self.valid_sorts)
-            if self.sort:
-                logger.info(f'Using a sort for cities: {self.request.get_full_path()}')
-            else:
-                logger.warning(f'Attempt to access a non-existent sort: {self.request.get_full_path()}')
+        if self.request.user.is_authenticated:
+            if self.request.GET.get('filter'):
+                filter_value = self.request.GET.get('filter')
+                self.filter = filter_validation(filter_value, self.valid_filters)
+                if self.filter:
+                    logger.info(f'Using a filter for cities: {self.request.get_full_path()}')
+                    queryset = apply_filter(queryset, filter_value)
+                else:
+                    logger.warning(f'Attempt to access a non-existent filter: {self.request.get_full_path()}')
+            if self.request.GET.get('sort'):
+                sort_value = self.request.GET.get('sort')
+                self.sort = sort_validation(sort_value, self.valid_sorts)
+                if self.sort:
+                    logger.info(f'Using a sort for cities: {self.request.get_full_path()}')
+                else:
+                    logger.warning(f'Attempt to access a non-existent sort: {self.request.get_full_path()}')
         # Сортировка нужна в любом случае, поэтому она не в блоке if
         queryset = apply_sort(queryset, sort_value)
 

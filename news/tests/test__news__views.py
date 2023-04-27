@@ -96,6 +96,5 @@ def test__news__html_tags_list(setup_db, client):
 @pytest.mark.django_db
 def test__news__without_title(setup_db, client):
     response = client.get(url)
-    print(response.content.decode())
     assert 'Заголовок новости 1' not in response.content.decode()
     assert 'Заголовок новости 2' not in response.content.decode()

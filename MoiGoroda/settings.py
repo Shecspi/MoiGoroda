@@ -158,9 +158,9 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = env('EMAIL_USE_TLS') == 'True'
 EMAIL_USE_SSL = env('EMAIL_USE_SSL') == 'True'
 
-SERVER_EMAIL = 'logger@moi-goroda.ru'
-DEFAULT_FROM_EMAIL = 'logger@moi-goroda.ru'
-ADMINS = [('Egor Vavilov', 'shecspi@yandex.ru'), ]
+SERVER_EMAIL = env('SERVER_EMAIL')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+ADMINS = [(env('ADMIN_NAME'), env('ADMIN_EMAIL')), ]
 
 LOG_FIlE_PATH = os.path.join(BASE_DIR, 'logs/log.log')
 if not os.path.exists(os.path.dirname(LOG_FIlE_PATH)):
@@ -180,7 +180,7 @@ LOGGING = {
 
     'formatters': {
         'file': {
-            'format': '%(asctime)-25s %(name)-20s %(levelname)-8s %(message)s'
+            'format': '%(levelname)-8s %(asctime)-25s %(filename)-20s %(funcName)-25s %(lineno)-7d %(message)s'
         }
     },
 
@@ -190,7 +190,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'formatter': 'file',
-            'filename': os.path.join(BASE_DIR, 'logs/log.log')
+            'filename': LOG_FIlE_PATH
         },
         # Отправка письма на почту
         'email': {

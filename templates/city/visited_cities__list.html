@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 {% load mathfilters %}
+{% load humanize %}
 
 {% block content %}
     <div class="container-fluid">
         <h1 class="display-5 text-center my-2">
-            Посещённые города
+            Все посещённые города
         </h1>
 
         <div class="row mt-3">
@@ -27,7 +28,7 @@
                                     <div class="card h-100 text-center">
                                         <div class="card-header">
                                             <!-- Город -->
-                                            <div class="h5">
+                                            <div class="h4">
                                                 <a href="{% url 'city-selected' city.id %}"
                                                    class="text-underline-dashed text-reset">
                                                     {{ city.city }}
@@ -59,7 +60,7 @@
                                             <!-- Население -->
                                             <small class="card-subtitle text-muted">
                                                 {% if city.city.population %}
-                                                    Население <strong>{{ city.city.population }}</strong> чел.
+                                                    Население <strong>{{ city.city.population|intcomma }}</strong> чел.
                                                 {% else %}
                                                     Население города неизвестно
                                                 {% endif %}
@@ -83,26 +84,32 @@
                                             <div class="d-flex justify-content-between">
                                                 <!-- Рейтинг -->
                                                 <div>
-                                                    {% for i in '12345'|make_list %}
-                                                        {% if forloop.counter <= city.rating %}
-                                                            <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                                        {% else %}
-                                                            <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
-                                                        {% endif %}
-                                                    {% endfor %}
+                                                    <small>
+                                                        {% for i in '12345'|make_list %}
+                                                            {% if forloop.counter <= city.rating %}
+                                                                <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                                            {% else %}
+                                                                <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </small>
                                                 </div>
                                                 <!-- ^^^ Рейтинг -->
 
                                                 <!-- Наличие магнита -->
                                                 <div>
                                                     {% if city.has_magnet %}
-                                                        <span class="badge bg-success">
-                                                            Магнит есть
-                                                        </span>
+                                                        <small>
+                                                            <span class="text-success">
+                                                                Магнит <i class="fa-regular fa-square-check"></i>
+                                                            </span>
+                                                        </small>
                                                     {% else %}
-                                                        <span class="badge bg-danger">
-                                                            Магнита нет
-                                                        </span>
+                                                        <small>
+                                                            <span class="text-danger">
+                                                                Магнит <i class="fa-regular fa-square-minus"></i>
+                                                            </span>
+                                                        </small>
                                                     {% endif %}
                                                 </div>
                                                 <!-- ^^^ Наличие магнита -->

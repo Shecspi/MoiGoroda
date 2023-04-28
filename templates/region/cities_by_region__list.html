@@ -166,7 +166,7 @@
              */
             // Массив с городами региона
             // ['latitude', 'longitude', 'city name', 'is_visited']
-            let all_cities = new Array()
+            let all_cities = []
             {% for city in all_cities %}
                 var is_visited = '{{ city.is_visited }}' === 'True';
                 all_cities.push([

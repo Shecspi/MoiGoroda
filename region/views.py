@@ -80,6 +80,7 @@ class RegionList(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+
         context['all_regions'] = self.all_regions
 
         return context
@@ -221,11 +222,11 @@ class CitiesByRegionList(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['all_cities'] = self.all_cities
-        context['filter'] = self.filter
         context['sort'] = self.sort
         context['type'] = 'by_region'
+        context['filter'] = self.filter
         context['region_id'] = self.region_id
+        context['all_cities'] = self.all_cities
         context['region_name'] = self.region_name
 
         return context

@@ -1,12 +1,11 @@
 import logging
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import render
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
+from django.db.models import QuerySet
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 
 from city.forms import VisitedCity_Create_Form

@@ -199,12 +199,25 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
 
+        },
+        # Отправка письма на почту
+        'email_signup': {
+            'level': 'INFO',
+            # 'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+
         }
     },
 
     'loggers': {
         'moi-goroda': {
             'handlers': ['file', 'email'],
+            'level': 'INFO',
+            'propogate': True
+        },
+        'account.views': {
+            'handlers': ['file', 'email_signup'],
             'level': 'INFO',
             'propogate': True
         },

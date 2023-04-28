@@ -46,7 +46,7 @@ class Test_VisiitedCity_List(TestCase):
         self.client.logout()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'travel/visited_city/list.html')
+        self.assertTemplateUsed(response, 'travel/visited_city/news__list.html')
 
     def test_access_region_not_auth_user(self):
         """
@@ -77,7 +77,7 @@ class Test_VisiitedCity_List(TestCase):
         self.client.logout()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'travel/visited_city/list.html')
+        self.assertTemplateUsed(response, 'travel/visited_city/news__list.html')
 
     def test_access_region_auth_user_is_not_correct(self):
         """

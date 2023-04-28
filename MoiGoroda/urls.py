@@ -12,6 +12,8 @@ urlpatterns = [
 
     path('city/', include('city.urls')),
     path('region/', include('region.urls')),
+
+    path('mdeditor/', include('mdeditor.urls'))
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

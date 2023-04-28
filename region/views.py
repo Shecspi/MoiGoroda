@@ -224,8 +224,6 @@ class CitiesByRegionList(ListView):
         context['all_cities'] = self.all_cities
         context['filter'] = self.filter
         context['sort'] = self.sort
-        context['type'] = 'by_region'
-        context['region_id'] = self.region_id
         context['region_name'] = self.region_name
 
         return context

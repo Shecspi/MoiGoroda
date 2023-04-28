@@ -12,6 +12,8 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
+import logging
+
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
@@ -20,9 +22,11 @@ from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
 from city.models import VisitedCity, City
-from city.views import logger, prepare_log_string
 from utils.sort_funcs import sort_validation, apply_sort
 from utils.filter_funcs import filter_validation, apply_filter
+
+
+logger = logging.getLogger('moi-goroda')
 
 
 class RegionList(ListView):
@@ -56,11 +60,13 @@ class RegionList(ListView):
                 )
             ).order_by('-num_visited', 'title')
         else:
+            logger.info(f'Viewing the page by not authorized user: {self.request.get_full_path()}')
             queryset = Region.objects.select_related('area').annotate(
                 num_total=Count('city', distinct=True)
             ).order_by('title')
 
         if self.request.GET.get('filter'):
+            logger.info(f'Using a filter to search for a region: {self.request.get_full_path()}')
             queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
 
         # Эта дополнительная переменная используется для отображения регионов на карте.
@@ -121,10 +127,7 @@ class CitiesByRegionList(ListView):
         try:
             self.region_name = Region.objects.get(id=self.region_id)
         except ObjectDoesNotExist as exc:
-            logger.warning(
-                prepare_log_string(404, 'Attempt to update a non-existent region.', self.request),
-                extra={'classname': self.__class__.__name__}
-            )
+            logger.warning(f'Attempt to access a non-existent region: {self.request.get_full_path()}')
             raise Http404 from exc
 
         return super().get(*args, **kwargs)
@@ -178,6 +181,7 @@ class CitiesByRegionList(ListView):
             # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
             # `date_of_visit` для сортировки. В данном случае сортировка по этому полю не принесёт никакого эффекта,
             # но в коде это заложено, поэтому поле нужно.
+            logger.info(f'Viewing the page by not authorized user: {self.request.get_full_path()}')
             queryset = City.objects.filter(region=self.region_id).annotate(
                 is_visited=Value(False),
                 date_of_visit=Value(0)
@@ -192,16 +196,23 @@ class CitiesByRegionList(ListView):
         # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
-        if self.request.GET.get('filter'):
-            filter_value = self.request.GET.get('filter')
-            self.filter = filter_validation(filter_value, self.valid_filters)
-            if self.filter:
-                queryset = apply_filter(queryset, filter_value)
-
         sort_value = ''
-        if self.request.GET.get('sort'):
-            sort_value = self.request.GET.get('sort')
-            self.sort = sort_validation(sort_value, self.valid_sorts)
+        if self.request.user.is_authenticated:
+            if self.request.GET.get('filter'):
+                filter_value = self.request.GET.get('filter')
+                self.filter = filter_validation(filter_value, self.valid_filters)
+                if self.filter:
+                    logger.info(f'Using a filter for cities: {self.request.get_full_path()}')
+                    queryset = apply_filter(queryset, filter_value)
+                else:
+                    logger.warning(f'Attempt to access a non-existent filter: {self.request.get_full_path()}')
+            if self.request.GET.get('sort'):
+                sort_value = self.request.GET.get('sort')
+                self.sort = sort_validation(sort_value, self.valid_sorts)
+                if self.sort:
+                    logger.info(f'Using a sort for cities: {self.request.get_full_path()}')
+                else:
+                    logger.warning(f'Attempt to access a non-existent sort: {self.request.get_full_path()}')
         # Сортировка нужна в любом случае, поэтому она не в блоке if
         queryset = apply_sort(queryset, sort_value)
 

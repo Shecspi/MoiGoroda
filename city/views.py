@@ -1,24 +1,19 @@
 import logging
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import render
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
+from django.db.models import QuerySet
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City, Region
 from utils.VisitedCityMixin import VisitedCityMixin
 
-logger = logging.getLogger('app')
 
-
-def prepare_log_string(status: int, message: str, request: WSGIRequest) -> str:
-    """Возвращает строку, подготовленную для записи в log-файл"""
-    return f'{status}: {message} URL: "{request.path}". Method: "{request.method}". User: "{request.user}"'
+logger = logging.getLogger('moi-goroda')
 
 
 class VisitedCity_Create(LoginRequiredMixin, CreateView):
@@ -47,20 +42,7 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context['action'] = 'create'
-
-        # Определяем предыдущую страницу для отображения в хлебных крошах
-        if reverse('region-all') in self.request.META.get('HTTP_REFERER'):
-            prev_page = ['region-all', 'Список регионов России']
-        else:
-            prev_page = ['city-all', 'Список посещённых городов']
-
-        context['breadcrumb'] = [
-            {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': prev_page[0], 'title': prev_page[1], 'active': False},
-            {'url': '', 'title': 'Добавление посещённого города', 'active': True}
-        ]
 
         return context
 
@@ -80,20 +62,16 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            logger.warning(
-                prepare_log_string(404, 'Attempt to delete a non-existent record.', request),
-                extra={'classname': self.__class__.__name__}
-            )
+            logger.warning(f'Attempt to delete a non-existent visited city: {self.request.get_full_path()}')
             raise PermissionDenied()
+        else:
+            logger.info(f'Deleting a visited city: {self.request.get_full_path()}')
 
         return super().post(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         """Метод GET запрещён для данного класса."""
-        logger.warning(
-            prepare_log_string(403, 'Attempt to access the GET method..', request),
-            extra={'classname': self.__class__.__name__}
-        )
+        logger.warning(f'Attempt to access the GET method: {self.request.get_full_path()}')
         raise PermissionDenied()
 
 
@@ -114,10 +92,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            logger.warning(
-                prepare_log_string(404, 'Attempt to update a non-existent visited city.', request),
-                extra={'classname': self.__class__.__name__}
-            )
+            logger.warning(f'Attempt to update a non-existent visited city: {self.request.get_full_path()}')
             raise Http404
 
         return super().get(request, *args, **kwargs)
@@ -128,15 +103,13 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
 
         return form_kwargs
 
+    def form_valid(self, form):
+        logger.info(f'Updating a visited city: {self.request.get_full_path()}')
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context['action'] = 'update'
-        context['breadcrumb'] = [
-            {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': 'city-all', 'title': 'Список посещённых городов', 'active': False},
-            {'url': '', 'title': 'Изменение посещённого города', 'active': True}
-        ]
 
         return context
 
@@ -159,25 +132,12 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
                 id=self.kwargs['pk']
             )
         except ObjectDoesNotExist:
-            logger.warning(
-                prepare_log_string(404, 'Attempt to access a non-existent visited city.', request),
-                extra={'classname': self.__class__.__name__}
-            )
+            logger.warning(f'Attempt to access a non-existent visited city: {self.request.get_full_path()}')
             raise Http404
+        else:
+            logger.info(f'Viewing a visited city: {self.request.get_full_path()}')
 
         return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['action'] = 'create'
-        context['breadcrumb'] = [
-            {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': 'city-all', 'title': 'Список посещённых городов', 'active': False},
-            {'url': '', 'title': 'Информация о городе', 'active': True}
-        ]
-
-        return context
 
 
 class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
@@ -219,10 +179,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
             try:
                 Region.objects.get(id=self.region_id)
             except ObjectDoesNotExist:
-                logger.warning(
-                    prepare_log_string(404, 'Attempt to update a non-existent region.', self.request),
-                    extra={'classname': self.__class__.__name__}
-                )
+                logger.warning(f'Attempt to access a non-existent region: {self.request.get_full_path()}')
                 raise Http404
 
         return super().get(*args, **kwargs)
@@ -283,11 +240,6 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
             context['region_id'] = self.region_id
             context['coords_of_not_visited_cities'] = self.coords_of_not_visited_cities
             context['region_name'] = self.region_name
-            context['breadcrumb'] = [
-                {'url': 'main_page', 'title': 'Главная', 'active': False},
-                {'url': 'city-all', 'title': 'Список посещённых городов', 'active': False},
-                {'url': '', 'title': self.region_name, 'active': True},
-            ]
         else:
             context['type'] = 'all'
             context['breadcrumb'] = [

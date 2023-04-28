@@ -12,6 +12,8 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
+import logging
+
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
@@ -24,7 +26,6 @@ from utils.sort_funcs import sort_validation, apply_sort
 from utils.filter_funcs import filter_validation, apply_filter
 
 
-import logging
 logger = logging.getLogger('moi-goroda')
 
 

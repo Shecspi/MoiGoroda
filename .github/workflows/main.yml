@@ -14,4 +14,4 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: ssh localhost -p 222 &&& ${{ secrets.SSH_PASSWORD }} && which python3
+          script: ls -l && ssh localhost -p 222 &&& ${{ secrets.SSH_PASSWORD }} && which python3

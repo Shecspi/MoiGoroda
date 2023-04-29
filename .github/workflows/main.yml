@@ -15,5 +15,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            ls -l
-            pwd
+            ssh localhost -p 222
+            ${{ secrets.SSH_PASSWORD }}
+            which python3

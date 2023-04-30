@@ -68,7 +68,7 @@ class VisitedCity_Create_Form(ModelForm):
         """
         city = self.cleaned_data['city']
 
-        # Для того, чтобы во время редактирования не проверялось существование аналогичной записи,
+        # Для того чтобы во время редактирования не проверялось существование аналогичной записи,
         # удаляем её из результатов запроса.
         db_city = VisitedCity.objects.filter(
             user_id=self.request.user,

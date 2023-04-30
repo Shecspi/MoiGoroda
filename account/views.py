@@ -1,3 +1,4 @@
+import logging
 import datetime
 
 from django.contrib.auth import login
@@ -12,6 +13,10 @@ from django.views.generic import CreateView, DetailView, UpdateView
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
 from city.models import VisitedCity
+
+
+logger_email = logging.getLogger(__name__)
+logger_basic = logging.getLogger('moi-goroda')
 
 
 class SignUp(CreateView):
@@ -39,19 +44,11 @@ class SignUp(CreateView):
             email=self.request.POST['email']
         )
         user.save()
+        logger_email.info(f"Registration of a new user: {self.request.POST['username']} ({self.request.POST['email']}). "
+                    f"Total numbers of users: {User.objects.count()}")
         login(self.request, user)
 
         return redirect('city-all')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['breadcrumb'] = [
-            {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': '', 'title': 'Регистрация', 'active': True}
-        ]
-
-        return context
 
 
 class SignIn(LoginView):
@@ -97,6 +94,7 @@ class Profile_Detail(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         user = self.request.user.pk
+        logger_basic.info(f'Viewing a profile: {self.request.user.username} ({self.request.user.email})')
 
         # Все посещённые города
         cities = VisitedCity.objects.filter(user=user)
@@ -128,11 +126,6 @@ class Profile_Detail(LoginRequiredMixin, DetailView):
         }
         context['areas'] = areas
 
-        context['breadcrumb'] = [
-            {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': '', 'title': 'Профиль', 'active': True}
-        ]
-
         return context
 
 
@@ -149,11 +142,6 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            {'url': 'main_page', 'title': 'Главная', 'active': False},
-            {'url': '', 'title': 'Профиль', 'active': True}
-        ]
-
-        return context
+    def form_valid(self, form):
+        logger_basic.info(f"Updating user's information: {self.request.user.username} ({self.request.user.email})")
+        return super().form_valid(form)

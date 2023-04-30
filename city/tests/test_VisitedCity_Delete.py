@@ -48,7 +48,7 @@ class Test_VisitedCity_Delete(TestCase):
         self.client.logout()
 
         self.assertRedirects(response, self.url_success, status_code=302)
-        self.assertTemplateUsed('travel/visited_city/list.html')
+        self.assertTemplateUsed('travel/visited_city/news__list.html')
 
     def test_delete_is_not_correct(self):
         """

@@ -18,88 +18,90 @@
 </div>
 <!-- ^^^ Вкладки -->
 
-<!-- Кнопка добавления города -->
-<div class="card mb-3">
-    <div class="card-body d-grid gap-2">
-        <a href="{% url 'city-create' %}" class="btn btn-outline-primary">
-            <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
-        </a>
+{% if user.is_authenticated %}
+    <!-- Кнопка добавления города -->
+    <div class="card mb-3">
+        <div class="card-body d-grid gap-2">
+            <a href="{% url 'city-create' %}" class="btn btn-outline-primary">
+                <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
+            </a>
+        </div>
     </div>
-</div>
-<!-- ^^^ Кнопка добавления города -->
+    <!-- ^^^ Кнопка добавления города -->
 
-<!-- Фильтры и сортировка -->
-<div class="card mb-3">
-    <div class="card-body text-center">
-        <a data-bs-toggle="collapse" href="#collapseFilters" role="button"
-           aria-expanded="false" aria-controls="collapseFilters" class="text-decoration-none">
-            <i class="fa-solid fa-filter"></i>&nbsp;&nbsp;&nbsp;Фильтры и сортировка
-        </a>
-        <div class="collapse" id="collapseFilters">
-            <div class="d-grid gap-2 mt-2">
-                <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'magnet' %}filter=magnet&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
-                   class="btn {% if filter == 'magnet' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
-                    <i class="fa-solid fa-magnet"></i>&nbsp;&nbsp;&nbsp;Без магнита
-                </a>
-
-                <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'current_year' %}filter=current_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
-                   class="btn {% if filter == 'current_year' %}btn-success{% else %}btn-outline-success{% endif %}">
-                    <i class="fa-solid fa-calendar-days"></i>&nbsp;&nbsp;&nbsp;В этом году
-                </a>
-
-                <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'last_year' %}filter=last_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
-                   class="btn {% if filter == 'last_year' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                    <i class="bi bi-calendar2-week"></i>&nbsp;&nbsp;&nbsp;В прошлом году
-                </a>
-
-                <hr>
-
-                <div class="dropdown d-grid gap-2">
-                    <a class="btn btn-outline-danger dropdown-toggle" href="#" role="button"
-                       id="sortingButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa-solid fa-sort"></i>&nbsp;&nbsp;&nbsp;Сортировка
+    <!-- Фильтры и сортировка -->
+    <div class="card mb-3">
+        <div class="card-body text-center">
+            <a data-bs-toggle="collapse" href="#collapseFilters" role="button"
+               aria-expanded="false" aria-controls="collapseFilters" class="text-decoration-none">
+                <i class="fa-solid fa-filter"></i>&nbsp;&nbsp;&nbsp;Фильтры и сортировка
+            </a>
+            <div class="collapse" id="collapseFilters">
+                <div class="d-grid gap-2 mt-2">
+                    <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'magnet' %}filter=magnet&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
+                       class="btn {% if filter == 'magnet' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+                        <i class="fa-solid fa-magnet"></i>&nbsp;&nbsp;&nbsp;Без магнита
                     </a>
 
-                    <ul class="dropdown-menu" aria-labelledby="sortingButton">
-                        <li>
-                            <h6 class="dropdown-header">
-                                По названия
-                            </h6>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-a-z"></i>&nbsp;&nbsp;&nbsp;По возрастанию
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-z-a"></i>&nbsp;&nbsp;&nbsp;По убыванию
-                            </a>
-                        </li>
+                    <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'current_year' %}filter=current_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
+                       class="btn {% if filter == 'current_year' %}btn-success{% else %}btn-outline-success{% endif %}">
+                        <i class="fa-solid fa-calendar-days"></i>&nbsp;&nbsp;&nbsp;В этом году
+                    </a>
 
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                    <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{% if filter != 'last_year' %}filter=last_year&{% endif %}{% if sort %}sort={{ sort }}{% endif %}"
+                       class="btn {% if filter == 'last_year' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        <i class="bi bi-calendar2-week"></i>&nbsp;&nbsp;&nbsp;В прошлом году
+                    </a>
 
-                        <li>
-                            <h6 class="dropdown-header">
-                                По дате посещения
-                            </h6>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;&nbsp;По возрастанию
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;&nbsp;По убыванию
-                            </a>
-                        </li>
-                    </ul>
+                    <hr>
+
+                    <div class="dropdown d-grid gap-2">
+                        <a class="btn btn-outline-danger dropdown-toggle" href="#" role="button"
+                           id="sortingButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-sort"></i>&nbsp;&nbsp;&nbsp;Сортировка
+                        </a>
+
+                        <ul class="dropdown-menu" aria-labelledby="sortingButton">
+                            <li>
+                                <h6 class="dropdown-header">
+                                    По названия
+                                </h6>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_down{% if filter %}&filter={{ filter }}{% endif %}">
+                                    <i class="fa-solid fa-arrow-down-a-z"></i>&nbsp;&nbsp;&nbsp;По возрастанию
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_up{% if filter %}&filter={{ filter }}{% endif %}">
+                                    <i class="fa-solid fa-arrow-down-z-a"></i>&nbsp;&nbsp;&nbsp;По убыванию
+                                </a>
+                            </li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <h6 class="dropdown-header">
+                                    По дате посещения
+                                </h6>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_down{% if filter %}&filter={{ filter }}{% endif %}">
+                                    <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;&nbsp;По возрастанию
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_up{% if filter %}&filter={{ filter }}{% endif %}">
+                                    <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;&nbsp;По убыванию
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+{% endif %}
 <!-- ^^^ Фильтры -->

@@ -15,4 +15,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            hostname
+            cd ${{ secrets.LOCAL_PATH }}
+            pwd
+            git pull
+            git checkout actions

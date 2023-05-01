@@ -16,4 +16,3 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             pwd
-            ls -la

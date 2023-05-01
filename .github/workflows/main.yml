@@ -16,6 +16,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.LOCAL_PATH }}
-            pwd
             git pull
             git checkout actions
+            sudo service nginx reload

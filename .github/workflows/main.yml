@@ -23,8 +23,8 @@ jobs:
             source ${{ secrets.VENV_PATH }}
             python3 manage.py makemigrations
             python3 manage.py migrate
-            python3 manage.py collectstatic
+            ./scripts/collectstatic.sh
             deactivate
             chmod +x ./restart.sh
             export SUDO_PASSWORD=${{ secrets.SUDO_PASSWORD }}
-            ./restart.sh
+            ./scripts/restart.sh

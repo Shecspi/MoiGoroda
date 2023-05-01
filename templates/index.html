@@ -1,16 +1,96 @@
-user@host:~/project.ru/project/deployment/collected_static:git:(master*)
-$ ls -la
-    total 1080
-    drwxrwxr-x 5 www www   4096 May  1 11:59 .
-    drwxrwxr-x 3 www www   4096 May  1 11:59 ..
-    drwxrwxr-x 6 www www   4096 May  1 11:59 admin
-    -rw-r--r-- 1 www www  22579 May  1 11:59 card-image.png
-    -rw-r--r-- 1 www www   6928 May  1 11:59 city.png
-    drwxrwxr-x 4 www www   4096 May  1 11:59 debug_toolbar
-    -rw-r--r-- 1 www www   4286 May  1 11:59 favicon.ico
-    -rw-r--r-- 1 www www  34742 May  1 11:59 feature1.png
-    -rw-r--r-- 1 www www 171521 May  1 11:59 feature2.png
-    -rw-r--r-- 1 www www 129887 May  1 11:59 feature3.png
-    -rw-r--r-- 1 www www 690389 May  1 11:59 jumbotron-background.jpg
-    drwxrwxr-x 7 www www   4096 May  1 11:59 mdeditor
-    -rw-r--r-- 1 www www    324 May  1 11:59 style.css
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="jumbotron px-1 py-5 mb-3">
+        <div class="text-center py-5">
+            <h1 class="display-3 fw-bold mb-3">
+                <span class="page-title px-3 py-2">{{ SITE_NAME }}</span>
+            </h1>
+            <div class="fs-4">
+                <span class="page-title px-3 py-1">
+                    Сервис контроля городов, которые Вы посетили.
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row text-center row-cols-1 row-cols-lg-3">
+            <div class="col mb-3">
+                <div class="card h-100 border-dark">
+                    <h4 class="card-header">
+                        Список городов
+                    </h4>
+
+                    <img class="card-imp-top" src="{% static 'feature1.png' %}" alt="">
+                    <hr>
+
+                    <div class="card-body">
+                        <p class="card-text">
+                            Указывайте города, которые Вы посетили и получайте необходимую информацию в виде списка.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col mb-3">
+                <div class="card h-100 border-dark">
+                    <h4 class="card-header">
+                        Города на карте
+                    </h4>
+                    <img class="card-imp-top" src="{% static 'feature2.png' %}" alt="">
+                    <hr>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Просматривайте все посещённые города на карте, а также, города, в которых ещё не были.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col mb-3">
+                <div class="card h-100 border-dark">
+                    <h4 class="card-header">
+                        Регионы на карте
+                    </h4>
+                    <img class="card-imp-top" src="{% static 'feature3.png' %}" alt="">
+                    <hr>
+                    <div class="card-body">
+                        <p class="card-text ">
+                            Изучайте на карте те регионы России, в которых Вы посетили хотя бы один город.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not user.is_authenticated %}
+        <section class="container-fluid text-center py-4 mt-4" id="contact">
+            <h2 class="display-4 pb-4 my-4">
+                Исследуйте Россию вместе с нами
+            </h2>
+            <p class="lead pb-3">
+                Регистрируйтесь и начинайте коллекционировать города. Вот увидите, это безумно интересно.
+            </p>
+            <a href="{% url 'signin' %}" class="btn btn-primary btn-lg mb-4" role="button">
+                Войти
+            </a>
+            <a href="{% url 'signup' %}" class="btn btn-primary btn-lg mb-4" role="button">
+                Зарегистрироваться
+            </a>
+        </section>
+    {% endif %}
+
+    <style>
+    .jumbotron {
+        background: url("{% static 'jumbotron-background.jpg' %}") 100% 33%;
+    }
+    .page-title {
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 5px;
+        color: black;
+    }
+    </style>
+{% endblock %}

@@ -1,4 +1,4 @@
-name: Deploy to the server
+name: Deploy onto the server
 on:
     push:
       branches: [ "actions" ]
@@ -16,6 +16,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.LOCAL_PATH }}
-            git pull
+            git stash
+            git pull origin actions
             git checkout actions
-            sudo service nginx reload
+            git stash apply
+            source ${{ secrets.VENV_PATH }}
+            python3 manage.py makemigrations
+            python3 manage.py migrate
+            python3 manage.py collectstatic
+            deactivate
+            chmod +x ./restart.sh
+            export SUDO_PASSWORD=${{ secrets.SUDO_PASSWORD }}
+            ./restart.sh

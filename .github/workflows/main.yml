@@ -17,7 +17,7 @@ jobs:
           script: |
             cd ${{ secrets.LOCAL_PATH }}
             git stash
-            git pull origin actions
+            git pull origin master
             git checkout master
             git stash apply
             source ${{ secrets.VENV_PATH }}

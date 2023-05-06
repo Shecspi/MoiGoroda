@@ -163,6 +163,4 @@ cython_debug/
 /venv/
 **/__pycache__/
 /db.sqlite3
-!/logs/app.log
-!/logs/django.log
 /news/tests/__pycache__/

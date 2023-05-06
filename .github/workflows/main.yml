@@ -1,4 +1,4 @@
-name: Deploy onto the server
+name: Deploy to the server
 on:
     push:
       branches: [ "actions" ]

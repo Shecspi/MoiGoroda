@@ -1,4 +1,4 @@
-name: Deploy on server
+name: Deploy to the server
 on:
     push:
       branches: [ "master" ]
@@ -8,13 +8,24 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v1
-      - name: Deploy to server
+      - name: Deploy to the server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            ssh localhost -p 222
-            ${{ secrets.SSH_PASSWORD }}
-            which python3
+            cd ${{ secrets.LOCAL_PATH }}
+            git stash
+            git pull origin actions
+            git checkout master
+            git stash apply
+            source ${{ secrets.VENV_PATH }}
+            python3 manage.py makemigrations
+            python3 manage.py migrate
+            chmod +x ./scripts/collectstatic.sh
+            ./scripts/collectstatic.sh
+            deactivate
+            chmod +x ./scripts/restart.sh
+            export SUDO_PASSWORD=${{ secrets.SUDO_PASSWORD }}
+            ./scripts/restart.sh

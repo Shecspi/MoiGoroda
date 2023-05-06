@@ -1,6 +1,6 @@
 import logging
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.db.models import QuerySet
@@ -232,6 +232,8 @@ def get_cities_based_on_region(request):
     в формате HTML-страницы, содержащей валидные теги <option> для их использования в <select>.
     """
     region_id = request.GET.get('region')
-    cities = City.objects.filter(region_id=region_id).order_by('title')
-
+    try:
+        cities = City.objects.filter(region_id=region_id).order_by('title')
+    except ValueError:
+        cities = None
     return render(request, 'city/visited_city/create_dropdown_list.html', {'cities': cities})

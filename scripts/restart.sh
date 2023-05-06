@@ -1,4 +1,5 @@
 #!/usr/bin/expect
+# Скрипт перезапускает Gunicorn
 set timeout -1
 spawn sudo systemctl daemon-reload
 expect "password"

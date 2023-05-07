@@ -19,13 +19,15 @@
 <!-- ^^^ Вкладки -->
 
 <!-- Кнопка добавления города -->
-<div class="card mb-3">
-    <div class="card-body d-grid gap-2">
-        <a href="{% url 'city-create' %}" class="btn btn-outline-primary">
-            <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
-        </a>
+{% if user.is_authenticated %}
+    <div class="card mb-3">
+        <div class="card-body d-grid gap-2">
+            <a href="{% url 'city-create' %}" class="btn btn-outline-primary">
+                <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
+            </a>
+        </div>
     </div>
-</div>
+{% endif %}
 <!-- ^^^ Кнопка добавления города -->
 
 <!-- Форма поиска -->

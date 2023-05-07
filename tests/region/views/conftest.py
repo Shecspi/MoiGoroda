@@ -17,19 +17,20 @@ def create_user(client, django_user_model):
 
 @pytest.fixture
 def setup_db():
+    symbols = 'АБВГДЕЁЖЗИЙКЛМНОПРСТ'
     area = Area.objects.create(title='Area 1')
     with transaction.atomic():
-        for number in range(1, 21):
+        for symbol in symbols:
             Region.objects.create(
                 area=area,
-                title=f'Регион {number}',
+                title=f'Регион {symbol}',
                 type='O',
-                iso3166=f'RU-{number}'
+                iso3166=f'RU-{symbol}'
             )
-        for number in range(1, 21):
+        for symbol in symbols:
             City.objects.create(
-                title=f'Город {number}',
-                region=Region.objects.get(id=number),
+                title=f'Город {symbol}',
+                region=Region.objects.get(id=(symbols.index(symbol) + 1)),
                 coordinate_width=55.55,
                 coordinate_longitude=66.66
             )

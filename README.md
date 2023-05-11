@@ -7,7 +7,7 @@
 ![Django 4.1](https://img.shields.io/badge/Django-4.1-brightgreen?style=for-the-badge&logo=django)
 [![Apache License 2.0](https://img.shields.io/badge/License-Apache%20License%202.0-orange?style=for-the-badge&logo=apache)](https://github.com/Shecspi/MoiGoroda/blob/master/LICENSE)
 
-# :floppy_disk: Установка
+## :floppy_disk: Установка
 1. Скачать репозиторий  
   ```bash
   git clone https://github.com/Shecspi/MoiGoroda.git
@@ -35,3 +35,10 @@ python3 manage.py collectstatic
 python3 manage.py loaddata db.json
 ```
 11. Перезапустить сервер
+
+## :bomb: Тестирование
+Для тестирование используются модули `pytest` и `pytest-django`. Эти зависимости прописаны в `requirements.txt`.  
+Чтобы запустить тесты выполните команду в корневой директории проекта
+```bash
+pytest
+```

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse_lazy
-from city.models import Region, Area
+from region.models import Area, Region
 
 
 class Test_Region_List(TestCase):

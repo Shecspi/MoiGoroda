@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse_lazy
 
-from city.models import Area, City, Region, VisitedCity
+from city.models import City, VisitedCity
+from region.models import Area, Region
 
 
 class Test_VisiitedCity_List(TestCase):

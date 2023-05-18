@@ -25,6 +25,7 @@ def setup_db():
     """
     area = Area.objects.create(title='Area 1')
     with transaction.atomic():
+        # Создаём 20 регионов
         for symbol in symbols:
             Region.objects.create(
                 area=area,
@@ -32,10 +33,19 @@ def setup_db():
                 type='O',
                 iso3166=f'RU-{symbol}'
             )
+        # Создаём 20 городов в регионе с `id` = 1
         for symbol in symbols:
             City.objects.create(
                 title=f'Город {symbol}',
                 region=Region.objects.get(id=1),
+                coordinate_width=55.55,
+                coordinate_longitude=66.66
+            )
+        # Создаём 20 городов в регионе с `id` = 2
+        for symbol in symbols:
+            City.objects.create(
+                title=f'Город {symbol}{symbol}',
+                region=Region.objects.get(id=2),
                 coordinate_width=55.55,
                 coordinate_longitude=66.66
             )

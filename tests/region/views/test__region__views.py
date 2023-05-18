@@ -7,6 +7,7 @@ from django.urls import reverse
 url = reverse('region-all')
 create_url = reverse('city-create')
 login_url = reverse('signin')
+symbols = 'АБВГДЕЖЗИЙКЛМНОПРСТУ'
 
 
 @pytest.mark.django_db
@@ -162,101 +163,92 @@ def test_html_has_search_not_auth_user(create_user, client):
 
 
 @pytest.mark.django_db
-def test_content_zero_regions(setup_db, create_user, client):
+def test_content_zero_visited_regions(setup_1_city_in_1_region, create_user, client):
     """
     Тестирование ситуации, когда у авторизованного пользователя нет посещённых регионов.
     В таком случае должны отображаться карточки с регионами, на которых:
         * имеется заголовок страницы
         * имеется 16 карточек с регионами
-        * на каждой из 16 карточек указывается о 0 посещённых городов и общем их количестве в регионе (0 из 1)
+        * на каждой из 16 карточек есть информация о 0 посещённых городов и общем их количестве в регионе (0 из 1)
         * на каждой из 16 карточек есть информация о названии региона
         * на каждой из 16 карточек есть информация о федеральном округе
         * на всех карточках нет прогресс-бара посещённых городов
         * имеется пагинация из 2 страниц
 
-    `setup_db` создаёт 20 регионов и 20 городов в них.
+    `setup_1_city_in_1_region` создаёт 20 регионов и 20 городов (по 1 в каждом).
     """
     client.login(username='username', password='password')
     response = client.get(url)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+
     assert 'Регионы России' in response.content.decode()
-    assert response.content.decode().count('0 из 1') == 16
-    assert response.content.decode().count('Area 1') == 16
-    for i in 'АБВГДЕЁЖЗИЙКЛМНО':
-        assert f'Регион {i} область' in response.content.decode()
-    assert '<div class="progress-bar' not in response.content.decode()
+    assert len(source.find_all('div', {'class': 'card-region'})) == 16
+    for block in source.find_all('div', {'class': 'card-region'}):
+        assert 'Area 1' in block.text
+        assert '0 из 1' in block.text
+        assert block.find('div', {'class': 'pregoress-bar'}) is None
     assert 'Страница 1 из 2' in response.content.decode()
 
 
 @pytest.mark.django_db
-def test_content_1_page(create_user, setup_db, setup_visited_cities_10_cities, client):
+def test_content_1st_page(create_user, setup_1_city_in_1_region,
+                          setup_18_visited_cities_in_18_regions, client):
     """
     Тестирование ситуации, когда у авторизованного пользователя
-    посещено регионовом меньше, чем отображается на странице.
-    В таком случае должны отображаться карточки с регионами:
+    посещено городов больше, чем отображается на странице.
+    В таком случае на первой странице должны отображаться карточки с регионами:
         * имеется заголовок страницы
-        * отображаются все регионы согласно пагинации, даже не посещённые
-        * на каждой из 16 карточек есть информация о названии региона
-        * на каждой из 16 карточек есть информация о федеральном округе
-        * имеется 10 карточек с посещёнными регионами
-        * на каждой из 10 карточек указывается об 1 посещённом городе из 1
-        * на каждой из 10 карточек имеется прогресс-бар
-        * имеется 6 карточек с непосещёнными регионами
-        * на каждой из 6 карточек указывается об 0 посещённом городов из 1
+        * имеется 16 карточек регионов с посещёнными городами, на каждой из которых имеется
+          название региона, федеральный округ, прогресс бар, количество посещённых городов (1 из 1).
         * имеется пагинация из 2 страниц
 
-    `setup_db` создаёт 20 регионов и 20 городов в них.
+    `setup_1_city_in_1_region` создаёт 20 регионов и 20 городов (по 1 в каждом).
+    `setup_18_visited_cities_in_18_regions` создаёт 18 посещённых городов в 18 регионах (по 1 в каждом).
     """
     client.login(username='username', password='password')
     response = client.get(url)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert 'Регионы России' in response.content.decode()
-
-    # На странице должно отображаться 16 регионов (даже если они небыли посещены)
-    for i in 'АБВГДЕЁЖЗИЙКЛМНО':
-        assert f'Регион {i} область' in response.content.decode()
-    assert 'Регион П' not in response.content.decode()
-    assert response.content.decode().count('Area 1') == 16
-
-    assert response.content.decode().count('1 из 1') == 10
-    assert response.content.decode().count('<div class="progress-bar') == 10
-    assert response.content.decode().count('0 из 1') == 6
-
-    assert 'Страница 1 из 2' in response.content.decode()
+    all_regions = source.find_all('div', {'class': 'card-region'})
+    assert len(all_regions) == 16
+    for index in range(0, 16):
+        assert f'Регион {symbols[index]}' in all_regions[index].text
+        assert 'Area 1' in all_regions[index].text
+    assert response.content.decode().count('1 из 1') == 16
+    assert len(source.find_all('div', {'class': 'progress-bar'})) == 16
 
 
 @pytest.mark.django_db
-def test_content_2_page(create_user, setup_db, setup_visited_cities_10_cities, client):
+def test_content_2nd_page(create_user, setup_1_city_in_1_region,
+                          setup_18_visited_cities_in_18_regions, client):
     """
     Тестирование ситуации, когда у авторизованного пользователя
-    посещено регионовом меньше, чем отображается на странице.
-    В данном случае - открыта вторая страница. На ней вообще нет посещённых городов.
-    В таком случае должны отображаться карточки с регионами:
+    посещено городов больше, чем отображается на странице.
+    В таком случае на второй странице должны отображаться карточки с регионами:
         * имеется заголовок страницы
-        * отображаются все регионы согласно пагинации, даже не посещённые
-        * на каждой из 4 карточек есть информация о названии региона
-        * на каждой из 4 карточек есть информация о федеральном округе
-        * карточек с посещёнными регионами нет
-        * имеется 4 карточки с непосещёнными регионами
-        * на каждой из 4 карточек указывается об 0 посещённом городов из 1
-        * на каждой из 4 карточек указывается об 0 посещённом городов из 1
+        * отображается 4 карточки с регионами
+        * на каждой карточке есть информация о названии региона
+        * на каждой карточке есть информация о федеральном округе
+        * имеется 2 карточки регионов с посещёнными городами, на каждой из которых имеется
+          название региона, федеральный округ, прогресс бар, количество посещённых городов (1 из 1).
+        * имеется 2 карточки регионов с непосещёнными городами и на каждой из которых имеется
+          название региона, федеральный округ и количество посещённых городов (0 из 1).
         * имеется пагинация из 2 страниц
 
-    `setup_db` создаёт 20 регионов и 20 городов в них.
+    `setup_1_city_in_1_region` создаёт 20 регионов и 20 городов (по 1 в каждом).
+    `setup_18_visited_cities_in_18_regions` создаёт 18 посещённых городов в 18 регионах (по 1 в каждом).
     """
     client.login(username='username', password='password')
-    response = client.get(f'{url}?page=2')
+    response = client.get(url + "?page=2")
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert 'Регионы России' in response.content.decode()
-
-    # На странице должно отображаться 4 региона с 17 по 20 (даже если они небыли посещены)
-    for i in 'ПРСТ':
-        assert f'Регион {i} область' in response.content.decode()
-    assert 'Регион А' not in response.content.decode()
-    assert 'Регион О' not in response.content.decode()
-    assert response.content.decode().count('Area 1') == 4
-
-    assert response.content.decode().count('1 из 1') == 0
-    assert response.content.decode().count('0 из 1') == 4
-    assert response.content.decode().count('<div class="progress-bar') == 0
-
-    assert 'Страница 2 из 2' in response.content.decode()
+    all_regions = source.find_all('div', {'class': 'card-region'})
+    assert len(all_regions) == 4
+    for index in range(0, 4):
+        assert f'Регион {symbols[index + 16]}' in all_regions[index].text
+        assert 'Area 1' in all_regions[index].text
+    assert response.content.decode().count('1 из 1') == 2
+    assert response.content.decode().count('0 из 1') == 2
+    assert len(source.find_all('div', {'class': 'progress-bar'})) == 2

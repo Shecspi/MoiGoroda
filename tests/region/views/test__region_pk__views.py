@@ -2,16 +2,13 @@ import pytest
 from bs4 import BeautifulSoup
 from django.urls import reverse
 
-from city.models import VisitedCity
-
 url_pk1 = reverse('region-selected', kwargs={'pk': 1})
-url_pk2 = reverse('region-selected', kwargs={'pk': 2})
 create_url = reverse('city-create')
 symbols = 'АБВГДЕЖЗИЙКЛМНОПРСТУ'
 
 
 @pytest.mark.django_db
-def test_access_not_auth_user(setup_db, client):
+def test_access_not_auth_user(setup_1_city_in_1_region, client):
     """
     Тестирование того, что у неавторизованного пользователя есть доступ на страницу и отображается корректный шаблон.
     """
@@ -22,7 +19,7 @@ def test_access_not_auth_user(setup_db, client):
 
 
 @pytest.mark.django_db
-def test_access_auth_user(create_user, setup_db, client):
+def test_access_auth_user(create_user, setup_1_city_in_1_region, client):
     """
     У авторизованного пользователя должна открываться запрошенная страница.
     """
@@ -33,7 +30,7 @@ def test_access_auth_user(create_user, setup_db, client):
 
 
 @pytest.mark.django_db
-def test_html_has_tabs_auth_user(create_user, setup_db, client):
+def test_html_has_tabs_auth_user(create_user, setup_1_city_in_1_region, client):
     """
     Тестирование того, что у авторизованного пользователя отображается меню с вкладками "Список" и "Карта".
         * вкладка "Список" должна быть активна по-умолчанию
@@ -62,7 +59,7 @@ def test_html_has_tabs_auth_user(create_user, setup_db, client):
 
 
 @pytest.mark.django_db
-def test_html_has_tabs_not_auth_user(create_user, setup_db, client):
+def test_html_has_tabs_not_auth_user(create_user, setup_1_city_in_1_region, client):
     """
     Тестирование того, что у неавторизованного пользователя отображается меню с вкладками "Список" и "Карта".
         * вкладка "Список" должна быть активна по-умолчанию
@@ -90,7 +87,7 @@ def test_html_has_tabs_not_auth_user(create_user, setup_db, client):
 
 
 @pytest.mark.django_db
-def test_html_has_button_add_city_auth_user(create_user, setup_db, client):
+def test_html_has_button_add_city_auth_user(create_user, setup_1_city_in_1_region, client):
     """
     Тестирование того, что у авторизованного пользователя отображается кнопка "Добавить город".
     На кнопке должны присутстввовать:
@@ -105,7 +102,7 @@ def test_html_has_button_add_city_auth_user(create_user, setup_db, client):
 
 
 @pytest.mark.django_db
-def test_html_has_button_add_city_not_auth_user(create_user, setup_db, client):
+def test_html_has_button_add_city_not_auth_user(create_user, setup_1_city_in_1_region, client):
     """
     Тестирование того, что у неавторизованного пользователя не отображается кнопка "Добавить город".
     """
@@ -115,7 +112,7 @@ def test_html_has_button_add_city_not_auth_user(create_user, setup_db, client):
 
 
 @pytest.mark.django_db
-def test_content_zero_regions(setup_db, create_user, client):
+def test_content_zero_regions(setup_20_cities_in_1_regions, create_user, client):
     """
     Тестирование ситуации, когда у авторизованного пользователя нет посещённых городов в этом регионе.
     В таком случае должны отображаться карточки с регионами, на которых:
@@ -126,10 +123,10 @@ def test_content_zero_regions(setup_db, create_user, client):
           Дата посещения, рейтинг и наличие магнита отсутствуют.
         * имеется пагинация из 2 страниц
 
-    `setup_db` создаёт 20 регионов и 20 городов в них.
+    `setup_20_cities_in_1_regions` создаёт 1 регион и 20 городов в нём.
     """
     client.login(username='username', password='password')
-    response = client.get(url_pk2)
+    response = client.get(url_pk1)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert len(source.find_all('div', {'class': 'card-notvisited-city'})) == 16
@@ -145,7 +142,8 @@ def test_content_zero_regions(setup_db, create_user, client):
 
 
 @pytest.mark.django_db
-def test_content_1st_page(create_user, setup_db, setup_20_visited_cities_in_1_region, client):
+def test_content_1st_page(create_user, setup_20_cities_in_1_regions,
+                          setup_18_visited_cities_in_1_region, client):
     """
     Тестирование ситуации, когда у авторизованного пользователя
     посещено городов больше, чем отображается на странице.
@@ -155,7 +153,8 @@ def test_content_1st_page(create_user, setup_db, setup_20_visited_cities_in_1_re
           дате посещения, численности населения, дате основания, рейтинг и наличие магнита.
         * имеется пагинация из 2 страниц
 
-    `setup_db` создаёт 20 регионов и 20 городов в них.
+    `setup_20_cities_in_1_regions` создаёт 1 регион и 20 городов в нём.
+    `setup_18_visited_cities_in_1_region` создаёт 18 посещённых городов в 1 регионе (`id = 1).
     """
     client.login(username='username', password='password')
     response = client.get(url_pk1)
@@ -175,7 +174,8 @@ def test_content_1st_page(create_user, setup_db, setup_20_visited_cities_in_1_re
 
 
 @pytest.mark.django_db
-def test_content_2nd_page(create_user, setup_db, setup_20_visited_cities_in_1_region, client):
+def test_content_2nd_page(create_user, setup_20_cities_in_1_regions,
+                          setup_18_visited_cities_in_1_region, client):
     """
     Тестирование ситуации, когда у авторизованного пользователя
     посещено городов больше, чем отображается на странице.
@@ -187,7 +187,8 @@ def test_content_2nd_page(create_user, setup_db, setup_20_visited_cities_in_1_re
           численности населения, дате основания.
         * имеется пагинация из 2 страниц
 
-    `setup_db` создаёт 20 регионов и 20 городов в них.
+    `setup_20_cities_in_1_regions` создаёт 1 регион и 20 городов в нём.
+    `setup_18_visited_cities_in_1_region` создаёт 18 посещённых городов в 1 регионе (`id = 1).
     """
     client.login(username='username', password='password')
     response = client.get(f'{url_pk1}?page=2')

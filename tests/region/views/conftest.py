@@ -19,7 +19,30 @@ def create_user(client, django_user_model):
 
 
 @pytest.fixture
-def setup_db():
+def setup_1_city_in_1_region():
+    """
+    Создаёт 20 записей в таблице 'Region' и 20 в 'City' (все с 1 регионом).
+    """
+    area = Area.objects.create(title='Area 1')
+    with transaction.atomic():
+        # Создаём 20 регионов
+        for symbol in symbols:
+            Region.objects.create(
+                area=area,
+                title=f'Регион {symbol}',
+                type='O',
+                iso3166=f'RU-{symbol}'
+            )
+            City.objects.create(
+                title=f'Город {symbol}',
+                region=Region.objects.last(),
+                coordinate_width=55.55,
+                coordinate_longitude=66.66
+            )
+
+
+@pytest.fixture
+def setup_20_cities_in_1_regions():
     """
     Создаёт 20 записей в таблице 'Region' и 20 в 'City' (все с 1 регионом).
     """
@@ -41,22 +64,14 @@ def setup_db():
                 coordinate_width=55.55,
                 coordinate_longitude=66.66
             )
-        # Создаём 20 городов в регионе с `id` = 2
-        for symbol in symbols:
-            City.objects.create(
-                title=f'Город {symbol}{symbol}',
-                region=Region.objects.get(id=2),
-                coordinate_width=55.55,
-                coordinate_longitude=66.66
-            )
 
 
 @pytest.fixture
-def setup_visited_cities_10_cities():
+def setup_18_visited_cities_in_18_regions():
     """
     Создаёт 10 записей в таблице 'VisitedCity' в регионе с `id` = 1.
     """
-    for number in range(1, 11):
+    for number in range(1, 19):
         VisitedCity.objects.create(
             user=User.objects.get(id=1),
             region=Region.objects.get(id=1),
@@ -67,7 +82,7 @@ def setup_visited_cities_10_cities():
 
 
 @pytest.fixture
-def setup_20_visited_cities_in_1_region():
+def setup_18_visited_cities_in_1_region():
     """
     Создаёт 18 записей в таблице 'VisitedCity' в регионе с `id` = 1.
     """

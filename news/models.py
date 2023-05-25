@@ -25,7 +25,7 @@ class News(models.Model):
         help_text='Указанный заголовок новости будет отображатьсят только в админ-панели.<br>'
                   'Пользователи его не увидят. Для них необходимо указывать заголовок новости в поле ниже.'
     )
-    content = models.TextField(
+    content = MDTextField(
         verbose_name='Новость',
         blank=False
     )
@@ -37,7 +37,6 @@ class News(models.Model):
         auto_now=True,
         verbose_name='Изменено'
     )
-    content = MDTextField()
 
     class Meta:
         ordering = ['-created']

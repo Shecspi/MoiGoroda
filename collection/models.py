@@ -10,7 +10,7 @@ class Collection(models.Model):
         blank=False,
 
     )
-    city = models.ManyToManyField(City)
+    city = models.ManyToManyField(City, related_name='collections_list')
 
     def __str__(self):
         return self.title

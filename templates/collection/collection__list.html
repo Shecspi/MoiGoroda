@@ -5,6 +5,7 @@
     <title>Title</title>
 </head>
 <body>
+Список колекций:<br>
     {% for item in object_list %}
         {{ item }}<br>
         {% for city in item.city.all %}
@@ -12,5 +13,8 @@
         {% endfor %}
         <hr>
     {% endfor %}
+    <br><br><br>
+    Город <strong>{{ alone_city }}</strong> находится в следующих коллекциях:
+    {% for collection in collection_list %}<i>{{ collection }}</i>, {% endfor %}
 </body>
 </html>

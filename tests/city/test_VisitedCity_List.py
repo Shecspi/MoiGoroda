@@ -1,6 +1,8 @@
+from datetime import datetime
+from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 from city.models import City, VisitedCity
 from region.models import Area, Region
@@ -9,8 +11,8 @@ from region.models import Area, Region
 class Test_VisiitedCity_List(TestCase):
     # ToDo Проверить фильтры и сортировку
     url = reverse_lazy('city-all')
-    url_region = reverse_lazy('region-selected', kwargs={'pk': '999'})
     login_url = reverse_lazy('signin')
+    create_url = reverse('city-create')
     user_data = {'username': 'user', 'password': 'password'}
 
     def setUp(self) -> None:
@@ -21,10 +23,10 @@ class Test_VisiitedCity_List(TestCase):
                                      coordinate_width=55.5, coordinate_longitude=44.4, wiki='No link')
         city_2 = City.objects.create(title='City #2', region=region, population=1000000, date_of_foundation=1900,
                                      coordinate_width=55.5, coordinate_longitude=44.4, wiki='No link')
-        VisitedCity.objects.create(user=user, region=region, city=city_1, has_magnet=False,
-                                   date_of_visit='1990-08-29', rating='5')
+        VisitedCity.objects.create(user=user, region=region, city=city_1, has_magnet=True,
+                                   date_of_visit=str(datetime.today().year) + '-08-29', rating='5')
         VisitedCity.objects.create(user=user, region=region, city=city_2, has_magnet=False,
-                                   date_of_visit='1990-08-29', rating='5')
+                                   date_of_visit=str(datetime.today().year - 1) + '-08-29', rating='5')
 
     def test_access_not_auth_user(self):
         """
@@ -44,48 +46,75 @@ class Test_VisiitedCity_List(TestCase):
         """
         self.client.login(username=self.user_data['username'], password=self.user_data['password'])
         response = self.client.get(self.url)
+        source = BeautifulSoup(response.content.decode(), 'html.parser')
         self.client.logout()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'travel/visited_city/news__list.html')
+        self.assertTemplateUsed(response, 'city/visited_cities__list.html')
 
-    def test_access_region_not_auth_user(self):
-        """
-        Неавторизованный пользователь должен быть перенаправлен на страницу авторизации.
-        """
-        url_exist = reverse_lazy('region-selected', kwargs={'pk': '1'})
-        url_not_exist = reverse_lazy('region-selected', kwargs={'pk': '999'})
-        response_exist = self.client.get(url_exist, follow=True)
-        response_not_exist = self.client.get(url_not_exist, follow=True)
+        # На странице имеется 2 карточки с посещёнными городами
+        assert len(source.find_all('div', {'class': 'card-visited_city'})) == 2
 
-        self.assertRedirects(response_exist,
-                             self.login_url + f"?next={url_exist}",
-                             status_code=302,
-                             target_status_code=200)
-        self.assertTemplateUsed(response_exist, 'account/signin.html')
-        self.assertRedirects(response_not_exist,
-                             self.login_url + f"?next={url_not_exist}",
-                             status_code=302,
-                             target_status_code=200)
-        self.assertTemplateUsed(response_not_exist, 'account/signin.html')
+        # На странице должно отображаться меню с вкладками "Список" и "Карта"
+        assert source.find(
+            'div', {'class': 'nav flex-column nav-pills'}
+        ).find(
+            'button', {'class': 'nav-link active'}
+        ).find(
+            'i', {'class': 'fa-solid fa-list'}
+        ) is not None
+        assert 'Список' in source.find(
+            'div', {'class': 'nav flex-column nav-pills'}
+        ).find(
+            'button', {'class': 'nav-link active'}
+        ).text
+        assert source.find(
+            'div', {'class': 'nav flex-column nav-pills'}
+        ).find(
+            'button', {'id': 'map-tab'}
+        ).find(
+            'i', {'class': 'fa-solid fa-map-location-dot'}
+        ) is not None
+        assert 'Карта' in source.find(
+            'div', {'class': 'nav flex-column nav-pills'}
+        ).find(
+            'button', {'id': 'map-tab'}
+        ).text
 
-    def test_access_region_auth_user_is_correct(self):
-        """
-        Авторизованный пользователь может зайти на страницу региона, даже если у него нет посещённых городов в нём.
-        """
+        # На странице имеется кнопка "Добавить город"
+        assert source.find(
+            'a', {'class': 'btn', 'href': self.create_url}
+        ).find(
+            'i', {'class', 'fa-solid fa-city'}
+        ) is not None
+        assert 'Добавить город' in source.find('a', {'class': 'btn', 'href': self.create_url}).text
+
+    def test__filter__without_magnet(self):
         self.client.login(username=self.user_data['username'], password=self.user_data['password'])
-        response = self.client.get(reverse_lazy('region-selected', kwargs={'pk': '1'}), follow=True)
+        response = self.client.get(self.url + '?filter=magnet')
+        source = BeautifulSoup(response.content.decode(), 'html.parser')
         self.client.logout()
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'travel/visited_city/news__list.html')
+        # На странице имеется 1 карточка с посещёнными городами с магнитом
+        assert len(source.find_all('div', {'class': 'card-visited_city'})) == 1
+        assert 'City #2' in source.find('div', {'class': 'card-visited_city'}).text
 
-    def test_access_region_auth_user_is_not_correct(self):
-        """
-        При обращении авторизованного пользователя к несуществующему региону должна отдавать страница 404
-        """
+    def test_filter__this_year(self):
         self.client.login(username=self.user_data['username'], password=self.user_data['password'])
-        response = self.client.get(reverse_lazy('region-selected', kwargs={'pk': '999'}), follow=True)
+        response = self.client.get(self.url + '?filter=current_year')
+        source = BeautifulSoup(response.content.decode(), 'html.parser')
         self.client.logout()
 
-        self.assertEqual(response.status_code, 404)
+        # На странице имеется 1 карточка с посещёнными городом в этом году
+        assert len(source.find_all('div', {'class': 'card-visited_city'})) == 1
+        assert 'City #1' in source.find('div', {'class': 'card-visited_city'}).text
+
+    def test_filter__last_year(self):
+        self.client.login(username=self.user_data['username'], password=self.user_data['password'])
+        response = self.client.get(self.url + '?filter=last_year')
+        source = BeautifulSoup(response.content.decode(), 'html.parser')
+        self.client.logout()
+
+        # На странице имеется 1 карточка с посещёнными городом в прошлом году
+        assert len(source.find_all('div', {'class': 'card-visited_city'})) == 1
+        assert 'City #2' in source.find('div', {'class': 'card-visited_city'}).text

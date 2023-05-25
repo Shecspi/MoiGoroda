@@ -2,7 +2,8 @@ import pytest
 from bs4 import BeautifulSoup
 from django.urls import reverse
 
-url_pk1 = reverse('region-selected', kwargs={'pk': 1})
+url_pk = reverse('region-selected', kwargs={'pk': 1})
+url_pk_incorrect = reverse('region-selected', kwargs={'pk': 999})
 create_url = reverse('city-create')
 symbols = 'АБВГДЕЖЗИЙКЛМНОПРСТУ'
 
@@ -12,7 +13,7 @@ def test_access_not_auth_user(setup_1_city_in_1_region, client):
     """
     Тестирование того, что у неавторизованного пользователя есть доступ на страницу и отображается корректный шаблон.
     """
-    response = client.get(url_pk1)
+    response = client.get(url_pk)
 
     assert response.status_code == 200
     assert 'region/cities_by_region__list.html' in (t.name for t in response.templates)
@@ -24,9 +25,19 @@ def test_access_auth_user(create_user, setup_1_city_in_1_region, client):
     У авторизованного пользователя должна открываться запрошенная страница.
     """
     client.login(username='username', password='password')
-    response = client.get(url_pk1)
+    response = client.get(url_pk)
     assert response.status_code == 200
     assert 'region/cities_by_region__list.html' in (t.name for t in response.templates)
+
+
+@pytest.mark.django_db
+def test__region_doesnt_exists(setup_1_city_in_1_region, client):
+    """
+    При указании в URL несуществующего региона - должен отображаться шаблон с ошибкой 404.
+    """
+    response = client.get(url_pk_incorrect)
+    assert response.status_code == 404
+    assert 'error/404.html' in (t.name for t in response.templates)
 
 
 @pytest.mark.django_db
@@ -38,7 +49,7 @@ def test_html_has_tabs_auth_user(create_user, setup_1_city_in_1_region, client):
         * на обоех вкладках должен быть текст "Список" и "Карта" соответственно.
     """
     client.login(username='username', password='password')
-    response = client.get(url_pk1)
+    response = client.get(url_pk)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     assert (
             source.find('div', {'class': ['nav', 'nav-pills']}).find('button', {'class': 'nav-link active'})
@@ -66,7 +77,7 @@ def test_html_has_tabs_not_auth_user(create_user, setup_1_city_in_1_region, clie
         " на обоех вкладках должны присутствовать иконки
         * на обоех вкладках должен быть текст "Список" и "Карта" соответственно.
     """
-    response = client.get(url_pk1)
+    response = client.get(url_pk)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     assert (
         source.find('div', {'class': ['nav', 'nav-pills']}).find('button', {'class': 'nav-link active'})
@@ -95,7 +106,7 @@ def test_html_has_button_add_city_auth_user(create_user, setup_1_city_in_1_regio
         * надпись "Добавить город"
     """
     client.login(username='username', password='password')
-    response = client.get(url_pk1)
+    response = client.get(url_pk)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     assert source.find('a', {'class': 'btn', 'href': create_url}).find('i', {'class', 'fa-city'}) is not None
     assert 'Добавить город' in source.find('a', {'class': 'btn', 'href': create_url}).text
@@ -106,7 +117,7 @@ def test_html_has_button_add_city_not_auth_user(create_user, setup_1_city_in_1_r
     """
     Тестирование того, что у неавторизованного пользователя не отображается кнопка "Добавить город".
     """
-    response = client.get(url_pk1)
+    response = client.get(url_pk)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     assert source.find('a', {'href': create_url}) is None
 
@@ -126,7 +137,7 @@ def test_content_zero_regions(setup_20_cities_in_1_regions, create_user, client)
     `setup_20_cities_in_1_regions` создаёт 1 регион и 20 городов в нём.
     """
     client.login(username='username', password='password')
-    response = client.get(url_pk1)
+    response = client.get(url_pk)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert len(source.find_all('div', {'class': 'card-notvisited-city'})) == 16
@@ -157,7 +168,7 @@ def test_content_1st_page(create_user, setup_20_cities_in_1_regions,
     `setup_18_visited_cities_in_1_region` создаёт 18 посещённых городов в 1 регионе (`id = 1).
     """
     client.login(username='username', password='password')
-    response = client.get(url_pk1)
+    response = client.get(url_pk)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     # На странице должен быть заголовок с названием региона
@@ -191,7 +202,7 @@ def test_content_2nd_page(create_user, setup_20_cities_in_1_regions,
     `setup_18_visited_cities_in_1_region` создаёт 18 посещённых городов в 1 регионе (`id = 1).
     """
     client.login(username='username', password='password')
-    response = client.get(f'{url_pk1}?page=2')
+    response = client.get(f'{url_pk}?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     # На странице должен быть заголовок с названием региона

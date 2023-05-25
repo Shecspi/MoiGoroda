@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'city',
     'news',
     'region',
+    'collection',
     'mathfilters',
     'mdeditor',
     'markdownify'

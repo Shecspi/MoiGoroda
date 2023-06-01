@@ -37,8 +37,6 @@ class CollectionList(ListView):
         context = super().get_context_data(**kwargs)
 
         # Все коллекции, в которых находится город
-        context['alone_city'] = City.objects.get(id=40)
-        context['collection_list'] = context['alone_city'].collections_list.all()
         context['visited_cities'] = self.visited_cities
 
         return context

@@ -14,9 +14,9 @@ class CollectionList(ListView):
         super().__init__()
 
         # Список ID городов из таблицы City, которые посещены пользователем
-        self.visited_cities = QuerySet[int]
+        self.visited_cities: QuerySet | None = None
 
-    def get_queryset(self) -> QuerySet[dict]:
+    def get_queryset(self) -> QuerySet:
         if self.request.user.is_authenticated:
             queryset = Collection.objects.prefetch_related('city').annotate(
                 qty_of_cities=Count('city', distinct=True),

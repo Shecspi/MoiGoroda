@@ -1,7 +1,7 @@
 from django.db.models import Count, Q
 from django.views.generic import ListView
 
-from city.models import City, VisitedCity
+from city.models import VisitedCity
 from collection.models import Collection
 
 

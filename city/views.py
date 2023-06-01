@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
@@ -124,12 +125,20 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
     model = VisitedCity
     template_name = 'city/visited_city/detail.html'
 
+    def __init__(self):
+        super().__init__()
+
+        # Список коллекций, в которых состоит запрошенный город
+        self.collections_list = None
+
     def get(self, request, *args, **kwargs):
         try:
-            VisitedCity.objects.get(
+            queryset = VisitedCity.objects.get(
                 user=self.request.user.pk,
                 id=self.kwargs['pk']
             )
+
+            self.collections_list = City.objects.get(id=queryset.city.id).collections_list.all()
         except ObjectDoesNotExist:
             logger.warning(f'Attempt to access a non-existent visited city: {self.request.get_full_path()}')
             raise Http404
@@ -137,6 +146,11 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
             logger.info(f'Viewing a visited city: {self.request.get_full_path()}')
 
         return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['collections_list'] = self.collections_list
+        return context
 
 
 class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):

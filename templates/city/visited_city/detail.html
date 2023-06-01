@@ -144,6 +144,29 @@
 
                             <hr>
 
+                            <!-- Коллекции -->
+                            <div class="row">
+                                <div class="col-12 col-md-4 fw-bold">
+                                    Коллекции:
+                                </div>
+                                <div class="col-12 col-md-8">
+                                    {% if collections_list %}
+                                        {% for collection in collections_list %}
+                                            <span class="badge text-bg-success">
+                                                {{ collection }}
+                                            </span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">
+                                            Город не состоит ни в каких коллекциях
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- ^^^ Коллекции -->
+
+                            <hr>
+
                             <!-- Дата посещения -->
                             <div class="row">
                                 <div class="col-12 col-md-4 fw-bold">

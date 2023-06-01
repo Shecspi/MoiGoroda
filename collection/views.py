@@ -14,7 +14,7 @@ class CollectionList(ListView):
         super().__init__()
 
         # Список ID городов из таблицы City, которые посещены пользователем
-        self.visited_cities: _QuerySet[VisitedCity, int] | None = None
+        self.visited_cities = None
 
     def get_queryset(self):
         if self.request.user.is_authenticated:

@@ -119,7 +119,9 @@
                                     {% if object.city.date_of_foundation %}
                                         {{ object.city.date_of_foundation }} г.
                                     {% else %}
-                                        <span class="text-muted">не известно</span>
+                                        <span class="text-muted">
+                                        Год основания не известен
+                                        </span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -136,7 +138,9 @@
                                     {% if object.city.population %}
                                         {{ object.city.population }} чел.
                                     {% else %}
-                                        <span class="text-muted">не известно</span>
+                                        <span class="text-muted">
+                                            Численность населения нен известна
+                                        </span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -173,7 +177,13 @@
                                     Дата посещения:
                                 </div>
                                 <div class="col-12 col-md-8">
-                                    {{ object.date_of_visit }}
+                                    {% if object.date_of_visit %}
+                                        {{ object.date_of_visit }}
+                                    {% else %}
+                                        <span class="text-muted">
+                                            Дата посещения не указана
+                                        </span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <!-- ^^^Дата посещения -->

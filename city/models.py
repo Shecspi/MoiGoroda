@@ -67,7 +67,8 @@ class VisitedCity(models.Model):
         City,
         on_delete=CASCADE,
         verbose_name='Город',
-        blank=False)
+        blank=False,
+        related_name='visitedcity')
     date_of_visit = models.DateField(
         verbose_name='Дата посещения',
         null=True,

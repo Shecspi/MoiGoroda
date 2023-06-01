@@ -42,6 +42,7 @@ class City(models.Model):
         default='')
 
     class Meta:
+        ordering = ['title']
         verbose_name = 'Город'
         verbose_name_plural = 'Города'
 

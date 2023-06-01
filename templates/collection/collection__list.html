@@ -1,23 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-Список колекций:<br>
-    {% for item in object_list %}
-        {{ item }} - {{ item.qty_of_visited_cities }} / {{ item.qty_of_cities }}<br>
-        {% for city in item.city.all %}
-            {{ city.id }} - {{ city }} - {% if city.id in visited_cities %}YES{% endif %}
-            <br>
-        {% endfor %}
-        <hr>
-    {% endfor %}
+{#Список колекций:<br>#}
+{#    {% for item in object_list %}#}
+{#        {{ item }} - {{ item.qty_of_visited_cities }} / {{ item.qty_of_cities }}<br>#}
+{#        {% for city in item.city.all %}#}
+{#            {{ city.id }} - {{ city }} - {% if city.id in visited_cities %}YES{% endif %}#}
+{#            <br>#}
+{#        {% endfor %}#}
+{#        <hr>#}
+{#    {% endfor %}#}
+{##}
+{#    <br><br><br>#}
+{##}
+{#    Город <strong>{{ alone_city }}</strong> находится в следующих коллекциях:#}
+{#    {% for collection in collection_list %}<i>{{ collection }}</i>, {% endfor %}#}
 
-    <br><br><br>
+{% extends 'base.html' %}
+{% load static %}
+{% load mathfilters %}
 
-    Город <strong>{{ alone_city }}</strong> находится в следующих коллекциях:
-    {% for collection in collection_list %}<i>{{ collection }}</i>, {% endfor %}
-</body>
-</html>
+{% block content %}
+    <div class="container-fluid">
+        <h1 class="display-5 text-center my-2">
+            Коллекции городов
+        </h1>
+
+        <div class="row mt-3">
+            <!-- Левый столбик -->
+            <div class="col-xl-2 col-lg-3 col-md-4">
+                {% include 'parts/left_menu_of_region_page.html' %}
+            </div>
+            <!-- ^^^ Левый столбик -->
+
+            <!-- Основной столбик -->
+            <div class="col-xl-10 col-lg-9 col-md-8">
+                <div class="tab-content" id="v-pills-tabContent">
+                    <div class="tab-pane fade show active" id="list-content"
+                         role="tabpanel" aria-labelledby="list-tab" tabindex="0">
+
+                        <!-- Карточки с коллекциями -->
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mb-3 g-3">
+                            {% for collection in object_list %}
+                                <div class="col">
+                                    <div class="card h-100 text-center card-region">
+                                        <!-- Название региона -->
+                                        <h5 class="card-header">
+                                            <a href="{% url 'region-selected' collection.id %}"
+                                               class="text-underline-dashed text-reset">
+                                                {{ collection.title }}
+                                            </a>
+                                        </h5>
+                                        <!-- ^^^ Название региона -->
+
+                                        <!-- Список городов -->
+                                        <div class="card-body">
+                                            {% for city in collection.city.all %}
+                                                {% if city.id in visited_cities %}
+                                                    <span class="badge text-bg-success">
+                                                        {{ city }}
+                                                    </span>&nbsp;&nbsp;
+                                                {% else %}
+                                                    <span class="badge text-bg-warning">
+                                                        {{ city }}
+                                                    </span>&nbsp;&nbsp;
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <!-- ^^^ Список городов -->
+
+                                        <div class="card-footer" style="background: none; border-top: none;">
+                                            <!-- Количество городов -->
+                                            <small class="text-muted">
+                                                {% if user.is_authenticated %}
+                                                    Посещено {{ collection.qty_of_visited_cities }} из {{ collection.qty_of_cities }}
+                                                {% else %}
+                                                    Всего городов: {{ collection.qty_of_cities }}
+                                                {% endif %}
+                                            </small>
+                                            <!-- ^^^ Количество городов -->
+
+                                            <!-- Прогресс бар посещённых городов -->
+                                            {% if user.is_authenticated %}
+                                                <span class="text-truncate">
+                                                    <div class="progress" data-toggle="tooltip" title="Tooltip on top">
+                                                        <div class="progress-bar progress-bar-striped" role="progressbar"
+                                                        style="width: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}%"
+                                                        aria-valuenow="{% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}"
+                                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </span>
+                                            {% endif %}
+                                            <!-- ^^^ Прогресс бар посещённых городов -->
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                На данный момент в сервисе нет ни одного региона.
+                            {% endfor %}
+                        </div>
+                        <!-- ^^^ Карточки с городами -->
+
+                        <!-- Пагинация -->
+                        {% include 'parts/pagination.html' %}
+                        <!-- ^^^ Пагинация -->
+                    </div>
+                </div>
+            </div>
+            <!-- ^^^ Основной столбик -->
+        </div>
+    </div>
+{% endblock %}

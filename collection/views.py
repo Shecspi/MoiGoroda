@@ -9,6 +9,7 @@ from collection.models import Collection
 
 class CollectionList(ListView):
     model = Collection
+    paginate_by = 16
     template_name = 'collection/collection__list.html'
 
     def __init__(self):

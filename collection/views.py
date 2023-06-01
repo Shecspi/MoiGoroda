@@ -1,4 +1,4 @@
-from django.db.models import QuerySet, Count, Q, Subquery
+from django.db.models import Count, Q
 from django.views.generic import ListView
 
 from city.models import City, VisitedCity
@@ -14,9 +14,9 @@ class CollectionList(ListView):
         super().__init__()
 
         # Список ID городов из таблицы City, которые посещены пользователем
-        self.visited_cities: QuerySet | None = None
+        self.visited_cities: _QuerySet[VisitedCity, int] | None = None
 
-    def get_queryset(self) -> QuerySet:
+    def get_queryset(self):
         if self.request.user.is_authenticated:
             queryset = Collection.objects.prefetch_related('city').annotate(
                 qty_of_cities=Count('city', distinct=True),

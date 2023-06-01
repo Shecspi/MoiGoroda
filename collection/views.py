@@ -1,6 +1,4 @@
-from typing import Any
-
-from django.db.models import QuerySet, OuterRef, Exists, Count, Subquery, Q, Sum
+from django.db.models import QuerySet, Count, Q, Subquery
 from django.views.generic import ListView
 
 from city.models import City, VisitedCity
@@ -14,18 +12,24 @@ class CollectionList(ListView):
 
     def __init__(self):
         super().__init__()
-        self.visited_cities = None
+
+        # Список ID городов из таблицы City, которые посещены пользователем
+        self.visited_cities = QuerySet[int]
 
     def get_queryset(self) -> QuerySet[dict]:
-        queryset = Collection.objects.prefetch_related('city').annotate(
-            qty_of_cities=Count('city', distinct=True),
-            qty_of_visited_cities=Count('city__visitedcity', filter=Q(city__visitedcity__user=self.request.user))
-        )
+        if self.request.user.is_authenticated:
+            queryset = Collection.objects.prefetch_related('city').annotate(
+                qty_of_cities=Count('city', distinct=True),
+                qty_of_visited_cities=Count('city__visitedcity', filter=Q(city__visitedcity__user=self.request.user))
+            )
 
-        # Список ID посещённых городов
-        self.visited_cities = VisitedCity.objects.filter(
-            user=self.request.user
-        ).values_list('city_id', flat=True)
+            self.visited_cities = VisitedCity.objects.filter(
+                user=self.request.user
+            ).values_list('city__id', flat=True)
+        else:
+            queryset = Collection.objects.prefetch_related('city').annotate(
+                qty_of_cities=Count('city', distinct=True)
+            )
 
         return queryset
 

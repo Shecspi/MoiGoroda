@@ -1,9 +1,14 @@
+import logging
+
 from django.db.models import Count, Q
 from django.views.generic import ListView
 
 from city.models import VisitedCity
 from collection.models import Collection
 from utils.CollectionListMixin import CollectionListMixin
+
+
+logger = logging.getLogger('moi-goroda')
 
 
 class CollectionList(CollectionListMixin, ListView):
@@ -39,20 +44,26 @@ class CollectionList(CollectionListMixin, ListView):
 
         # Обновление счётчиков коллекций
         self.qty_of_collections = queryset.count()
-        for collection in queryset:
-            if collection.qty_of_visited_cities > 0:
-                self.qty_of_started_colelctions += 1
-            if collection.qty_of_visited_cities == collection.qty_of_cities:
-                self.qty_of_finished_colelctions += 1
+        if self.request.user.is_authenticated:
+            for collection in queryset:
+                if collection.qty_of_visited_cities > 0:
+                    self.qty_of_started_colelctions += 1
+                if collection.qty_of_visited_cities == collection.qty_of_cities:
+                    self.qty_of_finished_colelctions += 1
 
         # Для неавторизованного пользователя фильтры не работают
         if self.request.GET.get('filter') and self.request.user.is_authenticated:
             self.filter = self.check_validity_of_filter_value(self.request.GET.get('filter'))
             queryset = self.apply_filter_to_queryset(queryset, self.filter)
 
-        if self.request.GET.get('sort'):
-            self.sort = self.check_validity_of_sort_value(self.request.GET.get('sort'))
-        queryset = self.apply_sort_to_queryset(queryset, self.sort)
+        # Определяем сортировку
+        sort_default = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
+        self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
+        try:
+            queryset = self.apply_sort_to_queryset(queryset, self.sort)
+        except KeyError:
+            logger.warning(f"Unexpected value of the GET-param 'sort' - {self.sort}")
+            queryset = self.apply_sort_to_queryset(queryset, sort_default)
 
         return queryset
 

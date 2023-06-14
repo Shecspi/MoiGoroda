@@ -2,21 +2,25 @@ from django.db.models import F, QuerySet
 
 
 class CollectionListMixin:
-    valid_filters = ['zero', 'all']
-    valid_sorts = ['name_down', 'name_up', 'progress_down', 'progress_up']
+    @staticmethod
+    def apply_filter_to_queryset(queryset: QuerySet, filter_value: str) -> QuerySet:
+        """
+        Производит фильтрацию 'queryset' на основе значения 'filter'.
 
-    def check_validity_of_filter_value(self, filter_value: str) -> str | None:
-        if filter_value in self.valid_filters:
-            return filter_value
-        else:
-            return None
-
-    def apply_filter_to_queryset(self, queryset: QuerySet, filter_value: str | None) -> QuerySet:
+        @param queryset: QuerySet, к которому необходимо применить фильтр.
+        @param filter_value: Параметр, на основе которого производится фильтрация.
+            Может принимать одно из 2 значение:
+                - 'not_started' - коллекции, в которых нет ни одного опсещённого города;
+                - 'finished' - коллекции, в которых посещены все города.
+        @return: Отфильтрованный QuerySet или KeyError, если передан некорректный параметр `filter_value`.
+        """
         match filter_value:
-            case 'zero':
+            case 'not_started':
                 queryset = queryset.filter(qty_of_visited_cities=0)
-            case 'all':
+            case 'finished':
                 queryset = queryset.filter(qty_of_visited_cities=F('qty_of_cities'))
+            case _:
+                raise KeyError
 
         return queryset
 

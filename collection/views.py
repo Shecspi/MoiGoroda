@@ -53,8 +53,12 @@ class CollectionList(CollectionListMixin, ListView):
 
         # Фильтры работают только для авторизованного пользователя
         if self.request.GET.get('filter') and self.request.user.is_authenticated:
-            self.filter = self.check_validity_of_filter_value(self.request.GET.get('filter'))
-            queryset = self.apply_filter_to_queryset(queryset, self.filter)
+            self.filter = self.request.GET.get('filter')
+            try:
+                queryset = self.apply_filter_to_queryset(queryset, self.filter)
+            except KeyError:
+                logger.warning(f"Unexpected value of the GET-param 'filter' - {self.request.GET.get('filter')}")
+                self.filter = ''
 
         # Определяем сортировку
         sort_default = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
@@ -64,6 +68,7 @@ class CollectionList(CollectionListMixin, ListView):
         except KeyError:
             logger.warning(f"Unexpected value of the GET-param 'sort' - {self.sort}")
             queryset = self.apply_sort_to_queryset(queryset, sort_default)
+            self.sort = ''
 
         return queryset
 

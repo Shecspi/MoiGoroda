@@ -51,7 +51,7 @@ class CollectionList(CollectionListMixin, ListView):
                 if collection.qty_of_visited_cities == collection.qty_of_cities:
                     self.qty_of_finished_colelctions += 1
 
-        # Для неавторизованного пользователя фильтры не работают
+        # Фильтры работают только для авторизованного пользователя
         if self.request.GET.get('filter') and self.request.user.is_authenticated:
             self.filter = self.check_validity_of_filter_value(self.request.GET.get('filter'))
             queryset = self.apply_filter_to_queryset(queryset, self.filter)

@@ -83,13 +83,18 @@ class CollectionList(CollectionListMixin, ListView):
         context['qty_of_finished_colelctions'] = self.qty_of_finished_colelctions
 
         url_params_for_sort = '' if self.sort == 'default_auth' or self.sort == 'default_guest' else self.sort
-        context['url_for_filter_not_started'] = self.get_url_params_for_filter(
+
+        context['url_for_filter_not_started'] = self.get_url_params(
             'not_started' if self.filter != 'not_started' else '',
             url_params_for_sort
         )
-        context['url_for_filter_finished'] = self.get_url_params_for_filter(
+        context['url_for_filter_finished'] = self.get_url_params(
             'finished' if self.filter != 'finished' else '',
             url_params_for_sort
         )
+        context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
+        context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
+        context['url_for_sort_progress_down'] = self.get_url_params(self.filter, 'progress_down')
+        context['url_for_sort_progress_up'] = self.get_url_params(self.filter, 'progress_up')
 
         return context

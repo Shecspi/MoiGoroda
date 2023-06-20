@@ -47,48 +47,31 @@
                 {% endif %}
 
                 <div class="dropdown d-grid gap-2">
-                    <a class="btn btn-outline-danger dropdown-toggle" href="#" role="button"
-                       id="sortingButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa-solid fa-sort"></i>&nbsp;&nbsp;&nbsp;Сортировка
-                    </a>
+                    <div class="btn-group" role="group" aria-label="Сортировка по названию">
+                        <a href="{% url 'collection-list' %}?{{ url_for_sort_name_down }}"
+                           class="btn btn-outline-danger" title="Сортировать по возрастанию названия">
+                            <i class="fa-solid fa-arrow-down-a-z"></i>
+                        </a>
 
-                    <ul class="dropdown-menu" aria-labelledby="sortingButton">
-                        <li>
-                            <h6 class="dropdown-header">
-                                По названия
-                            </h6>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'collection-list' %}?sort=name_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-a-z"></i>&nbsp;&nbsp;&nbsp;По возрастанию
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'collection-list' %}?sort=name_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-z-a"></i>&nbsp;&nbsp;&nbsp;По убыванию
-                            </a>
-                        </li>
+                        <a href="{% url 'collection-list' %}?{{ url_for_sort_name_up }}"
+                           class="btn btn-outline-danger" title="Сортировать по уменьшению названия">
+                            <i class="fa-solid fa-arrow-down-z-a"></i>
+                        </a>
+                    </div>
 
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                    {% if user.is_authenticated %}
+                        <div class="btn-group" role="group" aria-label="Сортировка по прогрессу">
+                            <a href="{% url 'collection-list' %}?{{ url_for_sort_progress_up }}"
+                               class="btn btn-outline-success" title="Сначала показать законченные">
+                                <i class="fa-solid fa-arrow-down-wide-short"></i>
+                            </a>
 
-                        <li>
-                            <h6 class="dropdown-header">
-                                По завершённости
-                            </h6>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'collection-list' %}?sort=progress_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;&nbsp;Сначала не начатые
+                            <a href="{% url 'collection-list' %}?{{ url_for_sort_progress_down }}"
+                               class="btn btn-outline-success" title="Сначала показать не начатые">
+                                <i class="fa-solid fa-arrow-down-short-wide"></i>
                             </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'collection-list' %}?sort=progress_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;&nbsp;Сначала завершённые
-                            </a>
-                        </li>
-                    </ul>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

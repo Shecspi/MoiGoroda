@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block content %}
     <!-- Модальное окно про удаление элемента -->
@@ -119,7 +120,9 @@
                                     {% if object.city.date_of_foundation %}
                                         {{ object.city.date_of_foundation }} г.
                                     {% else %}
-                                        <span class="text-muted">не известно</span>
+                                        <span class="text-muted">
+                                        Год основания не известен
+                                        </span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -134,13 +137,38 @@
                                 </div>
                                 <div class="col-12 col-md-8">
                                     {% if object.city.population %}
-                                        {{ object.city.population }} чел.
+                                        {{ object.city.population|intcomma }} чел.
                                     {% else %}
-                                        <span class="text-muted">не известно</span>
+                                        <span class="text-muted">
+                                            Численность населения не известна
+                                        </span>
                                     {% endif %}
                                 </div>
                             </div>
                             <!-- ^^^Население -->
+
+                            <hr>
+
+                            <!-- Коллекции -->
+                            <div class="row">
+                                <div class="col-12 col-md-4 fw-bold">
+                                    Коллекции:
+                                </div>
+                                <div class="col-12 col-md-8">
+                                    {% if collections_list %}
+                                        {% for collection in collections_list %}
+                                            <span class="badge text-bg-success">
+                                                {{ collection }}
+                                            </span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">
+                                            Город не состоит ни в каких коллекциях
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- ^^^ Коллекции -->
 
                             <hr>
 
@@ -150,7 +178,13 @@
                                     Дата посещения:
                                 </div>
                                 <div class="col-12 col-md-8">
-                                    {{ object.date_of_visit }}
+                                    {% if object.date_of_visit %}
+                                        {{ object.date_of_visit }}
+                                    {% else %}
+                                        <span class="text-muted">
+                                            Дата посещения не указана
+                                        </span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <!-- ^^^Дата посещения -->

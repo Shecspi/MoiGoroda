@@ -1,0 +1,95 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% load mathfilters %}
+
+{% block content %}
+    <div class="container-fluid">
+        <h1 class="display-5 text-center my-2">
+            Коллекции городов
+        </h1>
+
+        <div class="row mt-3">
+            <!-- Левый столбик -->
+            <div class="col-xl-2 col-lg-3 col-md-4">
+                {% include 'parts/left_menu_of_collection_page.html' %}
+            </div>
+            <!-- ^^^ Левый столбик -->
+
+            <!-- Основной столбик -->
+            <div class="col-xl-10 col-lg-9 col-md-8">
+                <!-- Карточки с коллекциями -->
+                {% if object_list %}
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mb-3 g-3">
+                        {% for collection in object_list %}
+                            <div class="col">
+                                <div class="card h-100 text-center card-region">
+                                    <!-- Название региона -->
+                                    <h5 class="card-header">
+                                        {{ collection.title }}
+                                    </h5>
+                                    <!-- ^^^ Название региона -->
+
+                                    <!-- Список городов -->
+                                    <div class="card-body">
+                                        {% for city in collection.city.all %}
+                                            {% if city.id in visited_cities %}
+                                                <span class="badge text-bg-success">
+                                                    {{ city }}
+                                                </span>&nbsp;&nbsp;
+                                            {% else %}
+                                                <span class="badge text-bg-warning">
+                                                    {{ city }}
+                                                </span>&nbsp;&nbsp;
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <!-- ^^^ Список городов -->
+
+                                    <div class="card-footer" style="background: none; border-top: none;">
+                                        <!-- Количество городов -->
+                                        <small class="text-muted">
+                                            {% if user.is_authenticated %}
+                                                Посещено {{ collection.qty_of_visited_cities }} из {{ collection.qty_of_cities }}
+                                            {% else %}
+                                                Всего городов: {{ collection.qty_of_cities }}
+                                            {% endif %}
+                                        </small>
+                                        <!-- ^^^ Количество городов -->
+
+                                        <!-- Прогресс бар посещённых городов -->
+                                        {% if user.is_authenticated %}
+                                            <span class="text-truncate">
+                                                <div class="progress" data-toggle="tooltip" title="Tooltip on top">
+                                                    <div class="progress-bar progress-bar-striped" role="progressbar"
+                                                    style="width: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}%"
+                                                    aria-valuenow="{% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </span>
+                                        {% endif %}
+                                        <!-- ^^^ Прогресс бар посещённых городов -->
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="row mt-3 mb-3 g-3">
+                        <div class="col">
+                            <p>
+                                На данный момент в сервисе нет ни одной коллекции
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+                <!-- ^^^ Карточки с городами -->
+
+                <!-- Пагинация -->
+                {% include 'parts/pagination.html' %}
+                <!-- ^^^ Пагинация -->
+            </div>
+            <!-- ^^^ Основной столбик -->
+        </div>
+    </div>
+{% endblock %}

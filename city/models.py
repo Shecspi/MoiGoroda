@@ -42,6 +42,7 @@ class City(models.Model):
         default='')
 
     class Meta:
+        ordering = ['title']
         verbose_name = 'Город'
         verbose_name_plural = 'Города'
 
@@ -67,7 +68,8 @@ class VisitedCity(models.Model):
         City,
         on_delete=CASCADE,
         verbose_name='Город',
-        blank=False)
+        blank=False,
+        related_name='visitedcity')
     date_of_visit = models.DateField(
         verbose_name='Дата посещения',
         null=True,

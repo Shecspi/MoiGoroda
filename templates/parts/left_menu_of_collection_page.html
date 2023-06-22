@@ -1,0 +1,80 @@
+<div class="card mb-3">
+    <div class="card-body d-grid gap-2">
+        <p class="mb-0" style="text-align:left">
+            Всего коллекций:<span style="float:right;">{{ qty_of_collections }}</span><br>
+            {% if user.is_authenticated %}
+                Вы посетили:<span style="float:right;">{{ qty_of_finished_colelctions }}</span><br>
+                Вы начали посещать:<span style="float:right;">{{ qty_of_started_colelctions }}</span>
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+    <!-- Кнопка добавления города -->
+    <div class="card mb-3">
+        <div class="card-body d-grid gap-2">
+            <a href="{% url 'city-create' %}" class="btn btn-outline-primary">
+                <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
+            </a>
+        </div>
+    </div>
+    <!-- ^^^ Кнопка добавления города -->
+{% endif %}
+
+<!-- Фильтры и сортировка -->
+<div class="card mb-3">
+    <div class="card-body text-center">
+        <a data-bs-toggle="collapse" href="#collapseFilters" role="button"
+           aria-expanded="false" aria-controls="collapseFilters" class="text-decoration-none">
+            <i class="fa-solid fa-filter"></i>&nbsp;&nbsp;&nbsp;{% if user.is_authenticated %}Фильтры и сортировка{% else %}Сортировка{% endif %}
+        </a>
+
+        <div class="collapse" id="collapseFilters">
+            <div class="d-grid gap-2 mt-3">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'collection-list' %}?{{ url_for_filter_not_started }}"
+                       class="btn {% if filter == 'not_started' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+                        <i class="fa-solid fa-bullseye"></i>&nbsp;&nbsp;&nbsp;Не начатые
+                    </a>
+
+                    <a href="{% url 'collection-list' %}?{{ url_for_filter_finished }}"
+                       class="btn {% if filter == 'finished' %}btn-success{% else %}btn-outline-success{% endif %}">
+                        <i class="fa-solid fa-flag-checkered"></i>&nbsp;&nbsp;&nbsp;Законченные
+                    </a>
+
+                    <hr>
+                {% endif %}
+
+                <div class="dropdown d-grid gap-2">
+                    <div class="btn-group" role="group" aria-label="Сортировка по названию">
+                        <a href="{% url 'collection-list' %}?{{ url_for_sort_name_down }}"
+                           class="btn btn-outline-danger" title="Сортировать по возрастанию названия">
+                            <i class="fa-solid fa-arrow-down-a-z"></i>
+                        </a>
+
+                        <a href="{% url 'collection-list' %}?{{ url_for_sort_name_up }}"
+                           class="btn btn-outline-danger" title="Сортировать по уменьшению названия">
+                            <i class="fa-solid fa-arrow-down-z-a"></i>
+                        </a>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        <div class="btn-group" role="group" aria-label="Сортировка по прогрессу">
+                            <a href="{% url 'collection-list' %}?{{ url_for_sort_progress_up }}"
+                               class="btn btn-outline-success" title="Сначала показать законченные">
+                                <i class="fa-solid fa-arrow-down-wide-short"></i>
+                            </a>
+
+                            <a href="{% url 'collection-list' %}?{{ url_for_sort_progress_down }}"
+                               class="btn btn-outline-success" title="Сначала показать не начатые">
+                                <i class="fa-solid fa-arrow-down-short-wide"></i>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ^^^ Фильтры -->

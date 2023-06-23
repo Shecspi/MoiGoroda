@@ -1,3 +1,14 @@
+<!-- Статистика -->
+<div class="alert alert-success" role="alert">
+    <p class="mb-0" style="text-align:left">
+        Всего посещено городов:<span style="float:right;"><strong>{{ qty_of_visited_cities }}</strong></span><br>
+        В этом году:<span style="float:right;"><strong>{{ qty_of_visited_cities_current_year }}</strong></span><br>
+        В прошлом году:<span style="float:right;"><strong>{{ qty_of_visited_cities_last_year }}</strong></span><br>
+        Без магнита:<span style="float:right;"><strong>{{ qty_of_visited_cities_magnet }}</strong></span>
+    </p>
+</div>
+<!-- ^^^ Статистика -->
+
 <!-- Вкладки -->
 <div class="card mb-3">
     <div class="card-body">
@@ -37,7 +48,7 @@
                 <i class="fa-solid fa-filter"></i>&nbsp;&nbsp;&nbsp;Фильтры и сортировка
             </a>
 
-            <div class="collapse show" id="collapseFilters">
+            <div class="collapse" id="collapseFilters">
                 <div class="d-grid gap-2 mt-2">
                     <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{{ url_for_filter_magnet }}"
                        class="btn {% if filter == 'magnet' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">

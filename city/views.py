@@ -237,6 +237,19 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['filter'] = self.filter
         context['sort'] = self.sort
 
+        context['url_for_filter_magnet'] = self.get_url_params(
+            'magnet' if self.filter != 'magnet' else '',
+            self.sort
+        )
+        context['url_for_filter_current_year'] = self.get_url_params(
+            'current_year' if self.filter != 'current_year' else '',
+            self.sort
+        )
+        context['url_for_filter_last_year'] = self.get_url_params(
+            'last_year' if self.filter != 'last_year' else '',
+            self.sort
+        )
+
         return context
 
 

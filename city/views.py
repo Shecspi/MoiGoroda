@@ -249,6 +249,10 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
             'last_year' if self.filter != 'last_year' else '',
             self.sort
         )
+        context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
+        context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
+        context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')
+        context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
 
         return context
 

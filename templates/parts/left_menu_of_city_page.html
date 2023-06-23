@@ -57,48 +57,29 @@
                     <hr>
 
                     <div class="dropdown d-grid gap-2">
-                        <a class="btn btn-outline-danger dropdown-toggle" href="#" role="button"
-                           id="sortingButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-sort"></i>&nbsp;&nbsp;&nbsp;Сортировка
-                        </a>
+                        <div class="btn-group" role="group" aria-label="Сортировка по названию">
+                            <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{{ url_for_sort_name_down }}"
+                               class="btn btn-outline-danger" title="Сортировать по возрастанию названия">
+                                <i class="fa-solid fa-arrow-down-a-z"></i>
+                            </a>
 
-                        <ul class="dropdown-menu" aria-labelledby="sortingButton">
-                            <li>
-                                <h6 class="dropdown-header">
-                                    По названия
-                                </h6>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                    <i class="fa-solid fa-arrow-down-a-z"></i>&nbsp;&nbsp;&nbsp;По возрастанию
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=name_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                    <i class="fa-solid fa-arrow-down-z-a"></i>&nbsp;&nbsp;&nbsp;По убыванию
-                                </a>
-                            </li>
+                            <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{{ url_for_sort_name_up }}"
+                               class="btn btn-outline-danger" title="Сортировать по уменьшению названия">
+                                <i class="fa-solid fa-arrow-down-z-a"></i>
+                            </a>
+                        </div>
 
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                        <div class="btn-group" role="group" aria-label="Сортировка по дате посещения">
+                            <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{{ url_for_sort_date_down }}"
+                               class="btn btn-outline-success" title="Сортировать по возрастанию даты посещения">
+                                <i class="fa-solid fa-arrow-down-1-9"></i>
+                            </a>
 
-                            <li>
-                                <h6 class="dropdown-header">
-                                    По дате посещения
-                                </h6>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_down{% if filter %}&filter={{ filter }}{% endif %}">
-                                    <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;&nbsp;По возрастанию
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?sort=date_up{% if filter %}&filter={{ filter }}{% endif %}">
-                                    <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;&nbsp;По убыванию
-                                </a>
-                            </li>
-                        </ul>
+                            <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{{ url_for_sort_date_up }}"
+                               class="btn btn-outline-success" title="Сортировать по уменьшению даты посещения">
+                                <i class="fa-solid fa-arrow-down-9-1"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

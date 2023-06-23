@@ -13,6 +13,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 import logging
+from datetime import datetime
 
 from django.http import Http404
 from django.views.generic import ListView
@@ -129,6 +130,13 @@ class CitiesByRegionList(ListView):
     valid_filters = ('magnet', 'current_year', 'last_year')
     valid_sorts = ('name_down', 'name_up', 'date_down', 'date_up')
 
+    def __init__(self):
+        super().__init__()
+
+        self.total_qty_of_cities: int = 0
+        self.qty_of_visited_cities: int = 0
+        self.qty_of_visited_cities_current_year: int = 0
+
     def get(self, *args, **kwargs):
         """
         Проверяет, существует ли указанный в URL регион в базе данных.
@@ -191,6 +199,12 @@ class CitiesByRegionList(ListView):
                 'coordinate_width', 'coordinate_longitude',
                 'is_visited', 'visited_id', 'date_of_visit', 'has_magnet', 'rating'
             )
+            self.total_qty_of_cities = queryset.count()
+            self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
+            self.qty_of_visited_cities_current_year = queryset.filter(
+                is_visited=True,
+                date_of_visit__year=datetime.now().year
+            ).count()
         else:
             # Если пользователь не авторизован, то поля `is_visited` и `date_of_visit` всё-равно нужны.
             # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
@@ -242,5 +256,9 @@ class CitiesByRegionList(ListView):
         context['region_id'] = self.region_id
         context['all_cities'] = self.all_cities
         context['region_name'] = self.region_name
+
+        context['total_qty_of_cities'] = self.total_qty_of_cities
+        context['qty_of_visited_cities'] = self.qty_of_visited_cities
+        context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
 
         return context

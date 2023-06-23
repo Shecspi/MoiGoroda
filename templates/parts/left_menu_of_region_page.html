@@ -1,12 +1,18 @@
 <!-- Статистика -->
 <div class="alert alert-success" role="alert">
-    <p class="mb-0" style="text-align:left">
+    <p class="my-0" style="text-align:left">
         Всего регионов:<span style="float:right;"><strong>{{ qty_of_regions }}</strong></span>
-        {% if user.is_authenticated %}
-            <br>Вы были в:<span style="float:right;"><strong>{{ qty_of_visited_regions }}</strong></span><br>
-            Полностью посетили:<span style="float:right;"><strong>{{ qty_of_finished_regions }}</strong></span>
-        {% endif %}
     </p>
+    {% if user.is_authenticated %}
+        <hr>
+        <p class="my-0" style="text-align:left">
+            Посещено:<span style="float:right;"><strong>{{ qty_of_visited_regions }}</strong></span>
+        </p>
+        <p class="my-0" style="text-align:left">
+            Полностью:<span style="float:right;"><strong>{{ qty_of_finished_regions }}</strong></span>
+        </p>
+    {% endif %}
+    <hr>
     <p class="mt-2 mb-0" style="text-align:right">
         <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal" data-bs-target="#detailsModal">
             <small><i class="fa-regular fa-circle-question"></i> Подробнее...</small>
@@ -82,12 +88,14 @@
                 <p>
                     <strong>Всего регионов</strong> - общее количество регионов в Росссии.
                 </p>
-                <p>
-                    <strong>Вы были в</strong> - количество регионов, в которых Вы посетили хотя бы 1 город.
-                </p>
-                <p>
-                    <strong>Полностью посетили</strong> - количество регионов, в которых Вы посетили все города.
-                </p>
+                {% if user.is_authenticated %}
+                    <p>
+                        <strong>Посещено</strong> - количество регионов, в которых Вы посетили хотя бы 1 город.
+                    </p>
+                    <p>
+                        <strong>Полностью</strong> - количество регионов, в которых Вы посетили все города.
+                    </p>
+                {% endif %}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть подсказку</button>

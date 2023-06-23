@@ -2,10 +2,21 @@
 <div class="alert alert-success" role="alert">
     <p class="mb-0" style="text-align:left">
         Всего коллекций:<span style="float:right;"><strong>{{ qty_of_collections }}</strong></span>
-        {% if user.is_authenticated %}
-            <br>Полностью посещено:<span style="float:right;"><strong>{{ qty_of_finished_colelctions }}</strong></span><br>
-            Начато посещение:<span style="float:right;"><strong>{{ qty_of_started_colelctions }}</strong></span>
-        {% endif %}
+    </p>
+    <hr>
+    {% if user.is_authenticated %}
+        <p class="mb-0" style="text-align:left">
+            Начатые:<span style="float:right;"><strong>{{ qty_of_started_colelctions }}</strong></span>
+        </p>
+        <p class="mb-0" style="text-align:left">
+            Посещённые:<span style="float:right;"><strong>{{ qty_of_finished_colelctions }}</strong></span>
+        </p>
+        <hr>
+    {% endif %}
+    <p class="mt-2 mb-0" style="text-align:right">
+        <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal" data-bs-target="#detailsModal">
+            <small><i class="fa-regular fa-circle-question"></i> Подробнее...</small>
+        </a>
     </p>
 </div>
 <!-- ^^^ Статистика -->
@@ -78,3 +89,31 @@
     </div>
 </div>
 <!-- ^^^ Фильтры -->
+
+<!-- Модальнео окно -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Подробнее</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <strong>Всего коллекций</strong> - общее количество коллекций на портале 'Мои города'.
+                </p>
+                {% if user.is_authenticated %}
+                    <p>
+                        <strong>Начатые</strong> - количество коллекций, в которых Вы посетили хотя бы один город.
+                    </p>
+                    <p>
+                        <strong>Посещённые</strong> - количество коллекций, в которых Вы посетили все города.
+                    </p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть подсказку</button>
+            </div>
+        </div>
+    </div>
+</div>

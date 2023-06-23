@@ -186,10 +186,10 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     def __init__(self):
         super().__init__()
 
+        self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.qty_of_visited_cities_current_year: int = 0
         self.qty_of_visited_cities_last_year: int = 0
-        self.qty_of_visited_cities_magnet: int = 0
 
     def get_queryset(self) -> QuerySet[dict]:
         """
@@ -229,10 +229,10 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
+        self.total_qty_of_cities = City.objects.count()
         self.qty_of_visited_cities = queryset.count()
         self.qty_of_visited_cities_current_year = queryset.filter(date_of_visit__year=datetime.now().year).count()
         self.qty_of_visited_cities_last_year = queryset.filter(date_of_visit__year=datetime.now().year - 1).count()
-        self.qty_of_visited_cities_magnet = queryset.filter(has_magnet=False).count()
 
         if self.request.GET.get('filter'):
             self.filter = self.check_validity_of_filter_value(self.request.GET.get('filter'))
@@ -248,10 +248,10 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context['all_cities'] = self.all_cities
+        context['total_qty_of_cities'] = self.total_qty_of_cities
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
         context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
         context['qty_of_visited_cities_last_year'] = self.qty_of_visited_cities_last_year
-        context['qty_of_visited_cities_magnet'] = self.qty_of_visited_cities_magnet
 
         context['filter'] = self.filter
         context['sort'] = self.sort

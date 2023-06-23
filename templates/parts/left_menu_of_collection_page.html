@@ -3,8 +3,8 @@
     <p class="mb-0" style="text-align:left">
         Всего коллекций:<span style="float:right;"><strong>{{ qty_of_collections }}</strong></span>
         {% if user.is_authenticated %}
-            <br>Вы полностью посетили:<span style="float:right;"><strong>{{ qty_of_finished_colelctions }}</strong></span><br>
-            Вы начали посещать:<span style="float:right;"><strong>{{ qty_of_started_colelctions }}</strong></span>
+            <br>Полностью посещено:<span style="float:right;"><strong>{{ qty_of_finished_colelctions }}</strong></span><br>
+            Начато посещение:<span style="float:right;"><strong>{{ qty_of_started_colelctions }}</strong></span>
         {% endif %}
     </p>
 </div>

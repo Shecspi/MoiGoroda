@@ -1,3 +1,20 @@
+<!-- Статистика -->
+<div class="alert alert-success" role="alert">
+    <p class="mb-0" style="text-align:left">
+        Всего регионов:<span style="float:right;"><strong>{{ qty_of_regions }}</strong></span>
+        {% if user.is_authenticated %}
+            <br>Вы были в:<span style="float:right;"><strong>{{ qty_of_visited_regions }}</strong></span><br>
+            Полностью посетили:<span style="float:right;"><strong>{{ qty_of_finished_regions }}</strong></span>
+        {% endif %}
+    </p>
+    <p class="mt-2 mb-0" style="text-align:right">
+        <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal" data-bs-target="#detailsModal">
+            <small><i class="fa-regular fa-circle-question"></i> Подробнее...</small>
+        </a>
+    </p>
+</div>
+<!-- ^^^ Статистика -->
+
 <!-- Вкладки -->
 <div class="card mb-3">
     <div class="card-body">
@@ -52,3 +69,29 @@
     </div>
 </div>
 <!-- ^^^ Форма поиска -->
+
+<!-- Модальнео окно -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Подробнее</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <strong>Всего регионов</strong> - общее количество регионов в Росссии.
+                </p>
+                <p>
+                    <strong>Вы были в</strong> - количество регионов, в которых Вы посетили хотя бы 1 город.
+                </p>
+                <p>
+                    <strong>Полностью посетили</strong> - количество регионов, в которых Вы посетили все города.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть подсказку</button>
+            </div>
+        </div>
+    </div>
+</div>

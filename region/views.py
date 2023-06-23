@@ -17,7 +17,7 @@ import logging
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value
+from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value, F
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
@@ -44,12 +44,21 @@ class RegionList(ListView):
     template_name = 'region/region__list.html'
     all_regions = []
 
+    def __init__(self):
+        super().__init__()
+
+        self.qty_of_regions: int = 0
+        self.qty_of_visited_regions: int = 0
+        self.qty_of_finished_regions: int = 0
+
     def get_queryset(self):
         """
         Достаёт из базы данных все регионы, добавляя дополнительные поля:
             * num_total - общее количество городов в регионе
             * num_visited - количество посещённых пользователем городов в регионе
         """
+        self.qty_of_regions = Region.objects.count()
+
         if self.request.user.is_authenticated:
             queryset = Region.objects.select_related('area').annotate(
                 num_total=Count('city', distinct=True),
@@ -59,6 +68,8 @@ class RegionList(ListView):
                     distinct=True
                 )
             ).order_by('-num_visited', 'title')
+            self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
+            self.qty_of_finished_regions = queryset.filter(num_visited=F('num_total')).count()
         else:
             logger.info(f'Viewing the page by not authorized user: {self.request.get_full_path()}')
             queryset = Region.objects.select_related('area').annotate(
@@ -82,6 +93,9 @@ class RegionList(ListView):
         context = super().get_context_data(**kwargs)
 
         context['all_regions'] = self.all_regions
+        context['qty_of_regions'] = self.qty_of_regions
+        context['qty_of_visited_regions'] = self.qty_of_visited_regions
+        context['qty_of_finished_regions'] = self.qty_of_finished_regions
 
         return context
 

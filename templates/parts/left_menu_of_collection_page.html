@@ -1,14 +1,14 @@
-<div class="card mb-3">
-    <div class="card-body d-grid gap-2">
-        <p class="mb-0" style="text-align:left">
-            Всего коллекций:<span style="float:right;">{{ qty_of_collections }}</span><br>
-            {% if user.is_authenticated %}
-                Вы посетили:<span style="float:right;">{{ qty_of_finished_colelctions }}</span><br>
-                Вы начали посещать:<span style="float:right;">{{ qty_of_started_colelctions }}</span>
-            {% endif %}
-        </p>
-    </div>
+<!-- Статистика -->
+<div class="alert alert-success" role="alert">
+    <p class="mb-0" style="text-align:left">
+        Всего коллекций:<span style="float:right;"><strong>{{ qty_of_collections }}</strong></span>
+        {% if user.is_authenticated %}
+            <br>Вы полностью посетили:<span style="float:right;"><strong>{{ qty_of_finished_colelctions }}</strong></span><br>
+            Вы начали посещать:<span style="float:right;"><strong>{{ qty_of_started_colelctions }}</strong></span>
+        {% endif %}
+    </p>
 </div>
+<!-- ^^^ Статистика -->
 
 {% if user.is_authenticated %}
     <!-- Кнопка добавления города -->

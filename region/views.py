@@ -13,11 +13,12 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 import logging
+from datetime import datetime
 
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value
+from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value, F
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
@@ -44,12 +45,21 @@ class RegionList(ListView):
     template_name = 'region/region__list.html'
     all_regions = []
 
+    def __init__(self):
+        super().__init__()
+
+        self.qty_of_regions: int = 0
+        self.qty_of_visited_regions: int = 0
+        self.qty_of_finished_regions: int = 0
+
     def get_queryset(self):
         """
         Достаёт из базы данных все регионы, добавляя дополнительные поля:
             * num_total - общее количество городов в регионе
             * num_visited - количество посещённых пользователем городов в регионе
         """
+        self.qty_of_regions = Region.objects.count()
+
         if self.request.user.is_authenticated:
             queryset = Region.objects.select_related('area').annotate(
                 num_total=Count('city', distinct=True),
@@ -59,6 +69,8 @@ class RegionList(ListView):
                     distinct=True
                 )
             ).order_by('-num_visited', 'title')
+            self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
+            self.qty_of_finished_regions = queryset.filter(num_visited=F('num_total')).count()
         else:
             logger.info(f'Viewing the page by not authorized user: {self.request.get_full_path()}')
             queryset = Region.objects.select_related('area').annotate(
@@ -82,6 +94,9 @@ class RegionList(ListView):
         context = super().get_context_data(**kwargs)
 
         context['all_regions'] = self.all_regions
+        context['qty_of_regions'] = self.qty_of_regions
+        context['qty_of_visited_regions'] = self.qty_of_visited_regions
+        context['qty_of_finished_regions'] = self.qty_of_finished_regions
 
         return context
 
@@ -114,6 +129,13 @@ class CitiesByRegionList(ListView):
 
     valid_filters = ('magnet', 'current_year', 'last_year')
     valid_sorts = ('name_down', 'name_up', 'date_down', 'date_up')
+
+    def __init__(self):
+        super().__init__()
+
+        self.total_qty_of_cities: int = 0
+        self.qty_of_visited_cities: int = 0
+        self.qty_of_visited_cities_current_year: int = 0
 
     def get(self, *args, **kwargs):
         """
@@ -177,6 +199,12 @@ class CitiesByRegionList(ListView):
                 'coordinate_width', 'coordinate_longitude',
                 'is_visited', 'visited_id', 'date_of_visit', 'has_magnet', 'rating'
             )
+            self.total_qty_of_cities = queryset.count()
+            self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
+            self.qty_of_visited_cities_current_year = queryset.filter(
+                is_visited=True,
+                date_of_visit__year=datetime.now().year
+            ).count()
         else:
             # Если пользователь не авторизован, то поля `is_visited` и `date_of_visit` всё-равно нужны.
             # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
@@ -228,5 +256,9 @@ class CitiesByRegionList(ListView):
         context['region_id'] = self.region_id
         context['all_cities'] = self.all_cities
         context['region_name'] = self.region_name
+
+        context['total_qty_of_cities'] = self.total_qty_of_cities
+        context['qty_of_visited_cities'] = self.qty_of_visited_cities
+        context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
 
         return context

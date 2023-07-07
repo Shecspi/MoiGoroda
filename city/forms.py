@@ -14,7 +14,12 @@ class VisitedCity_Create_Form(ModelForm):
                ('3', '3'),
                ('4', '4'),
                ('5', '5')]
-    rating = forms.ChoiceField(label='Оценка города', choices=CHOICES, widget=forms.RadioSelect)
+    rating = forms.ChoiceField(
+        label='Оценка города',
+        choices=CHOICES,
+        widget=forms.RadioSelect,
+        help_text='Эта оценка ни на что не влияет, она просто отображает Ваши впечатления о городе.'
+    )
 
     class Meta:
         model = VisitedCity

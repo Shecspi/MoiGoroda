@@ -1,5 +1,6 @@
 import logging
 from typing import Any
+from datetime import datetime
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
@@ -182,6 +183,14 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     valid_filters = ['magnet', 'current_year', 'last_year']
     valid_sorts = ['name_down', 'name_up', 'date_down', 'date_up']
 
+    def __init__(self):
+        super().__init__()
+
+        self.total_qty_of_cities: int = 0
+        self.qty_of_visited_cities: int = 0
+        self.qty_of_visited_cities_current_year: int = 0
+        self.qty_of_visited_cities_last_year: int = 0
+
     def get_queryset(self) -> QuerySet[dict]:
         """
         Получает из базы данных все посещённые города пользователя.
@@ -220,6 +229,11 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
+        self.total_qty_of_cities = City.objects.count()
+        self.qty_of_visited_cities = queryset.count()
+        self.qty_of_visited_cities_current_year = queryset.filter(date_of_visit__year=datetime.now().year).count()
+        self.qty_of_visited_cities_last_year = queryset.filter(date_of_visit__year=datetime.now().year - 1).count()
+
         if self.request.GET.get('filter'):
             self.filter = self.check_validity_of_filter_value(self.request.GET.get('filter'))
             queryset = self.apply_filter_to_queryset(queryset)
@@ -234,8 +248,30 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context['all_cities'] = self.all_cities
+        context['total_qty_of_cities'] = self.total_qty_of_cities
+        context['qty_of_visited_cities'] = self.qty_of_visited_cities
+        context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
+        context['qty_of_visited_cities_last_year'] = self.qty_of_visited_cities_last_year
+
         context['filter'] = self.filter
         context['sort'] = self.sort
+
+        context['url_for_filter_magnet'] = self.get_url_params(
+            'magnet' if self.filter != 'magnet' else '',
+            self.sort
+        )
+        context['url_for_filter_current_year'] = self.get_url_params(
+            'current_year' if self.filter != 'current_year' else '',
+            self.sort
+        )
+        context['url_for_filter_last_year'] = self.get_url_params(
+            'last_year' if self.filter != 'last_year' else '',
+            self.sort
+        )
+        context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
+        context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
+        context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')
+        context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
 
         return context
 

@@ -37,7 +37,7 @@ poetry run python3 manage.py loaddata db.json
 11. Перезапустить сервер
 
 ## :bomb: Тестирование
-Для тестирование используются модули `pytest` и `pytest-django`. Эти зависимости прописаны в `requirements.txt`.  
+Для тестирование используются модули `pytest` и `pytest-django`. Эти зависимости прописаны в `pyproject.toml`.  
 Чтобы запустить тесты выполните команду в корневой директории проекта
 ```bash
 poetry run pytest

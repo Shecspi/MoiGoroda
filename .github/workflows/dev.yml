@@ -1,0 +1,29 @@
+name: Deploy to the DEV-server
+on:
+    push:
+      branches: [ "dev" ]
+
+jobs:
+  deploy:
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Deploy to the DEV-server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV__SSH_HOST }}
+          username: ${{ secrets.DEV__SSH_USER }}
+          key: ${{ secrets.DEV__SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.DEV__LOCAL_PATH }}
+            git stash
+            git pull origin dev
+            git checkout dev
+            git stash apply
+            poetry run python3 manage.py makemigrations
+            poetry run python3 manage.py migrate
+            chmod +x ./scripts/collectstatic.sh
+            ./scripts/collectstatic.sh
+            chmod +x ./scripts/restart.sh
+            export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
+            ./scripts/restart.sh

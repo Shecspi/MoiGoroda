@@ -14,17 +14,17 @@
   ```
 2. Установить все зависимости  
   ```python
-  pip install -r requirements.txt
+  poetry install
   ```
-3. В папке `MoiGoroga` переименовать файл `.env.example` в `.env` и указать в нём актуальные настройки
+3. В папке `MoiGoroga` скопировать файл `.env.example` в `.env` и указать в нём актуальные настройки
 4. В файле `MoiGoroda/settings.py` указать домен или IP-адрес сайта в директиве `ALLOW_HOSTS`, а также указать нужную директорию для статичных файлов `STATIC_ROOT`. 
 5. Сделать миграции  
 ```python
-python3 manage.py makemigrations && python3 manage.py migrate
+poetry run python3 manage.py makemigrations && poetry run python3 manage.py migrate
 ```
 6. Создать суперпользователя
 ```python
-python3 manage.py createsuperuser
+poetry run python3 manage.py createsuperuser
 ```
 7. Настроить выдачу статичных файлов. Для этого выполнить команду  
 ```python
@@ -32,13 +32,13 @@ python3 manage.py collectstatic
 ```
 9. Загрузить изначальные настройки базы данных (федеральные округа, регионы, города)  
 ```python
-python3 manage.py loaddata db.json
+poetry run python3 manage.py loaddata db.json
 ```
 11. Перезапустить сервер
 
 ## :bomb: Тестирование
-Для тестирование используются модули `pytest` и `pytest-django`. Эти зависимости прописаны в `requirements.txt`.  
+Для тестирование используются модули `pytest` и `pytest-django`. Эти зависимости прописаны в `pyproject.toml`.  
 Чтобы запустить тесты выполните команду в корневой директории проекта
 ```bash
-pytest
+poetry run pytest
 ```

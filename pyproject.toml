@@ -15,6 +15,7 @@ django-environ = "^0.10.0"
 django-markdownify = "^0.9.3"
 django-mathfilters = "^1.0.0"
 django-mdeditor = "^0.1.20"
+psycopg2 = "^2.9.6"
 
 
 [tool.poetry.group.dev.dependencies]

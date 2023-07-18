@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.db.models import QuerySet
+from django.db.models import QuerySet, F
 
 
 class VisitedCityMixin:
@@ -23,11 +23,11 @@ class VisitedCityMixin:
             case 'name_up':
                 queryset = queryset.order_by('-city__title')
             case 'date_down':
-                queryset = queryset.order_by('date_of_visit')
+                queryset = queryset.order_by(F('date_of_visit').asc(nulls_last=True))
             case 'date_up':
-                queryset = queryset.order_by('-date_of_visit')
+                queryset = queryset.order_by(F('date_of_visit').desc(nulls_last=True))
             case _:
-                queryset = queryset.order_by('-date_of_visit', 'city__title')
+                queryset = queryset.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')
 
         return queryset
 

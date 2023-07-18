@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import QuerySet, F
 
 
 def sort_validation(sort_value: str, valid_sorts: tuple) -> str | bool:
@@ -23,10 +23,10 @@ def apply_sort(queryset: QuerySet, sort_value: str = '') -> QuerySet:
         case 'name_up':
             queryset = queryset.order_by('-title')
         case 'date_down':
-            queryset = queryset.order_by('is_visited', 'date_of_visit')
+            queryset = queryset.order_by('is_visited', F('date_of_visit').asc(nulls_last=True))
         case 'date_up':
-            queryset = queryset.order_by('-is_visited', '-date_of_visit')
+            queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True))
         case _:
-            queryset = queryset.order_by('-is_visited', '-date_of_visit', 'title')
+            queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True), 'title')
 
     return queryset

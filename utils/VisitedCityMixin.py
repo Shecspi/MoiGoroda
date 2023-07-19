@@ -1,4 +1,14 @@
-from datetime import datetime
+"""
+Реализует методы для работы с фильтрами и сортировкой для страницы всех посещённых городов.
+
+----------------------------------------------
+
+Copyright 2023 Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 
 from django.db.models import QuerySet, F
 from utils.SortFilterMixin import SortFilterMixin

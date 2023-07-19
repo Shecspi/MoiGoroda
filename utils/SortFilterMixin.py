@@ -1,3 +1,15 @@
+"""
+Реализует базовые методы, которые могут быть использованы далее в различных дочерних классах.
+
+----------------------------------------------
+
+Copyright 2023 Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
+
 class SortFilterMixin:
     @staticmethod
     def get_url_params(filter_value: str | None, sort_value: str | None) -> str | None:

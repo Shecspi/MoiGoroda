@@ -95,6 +95,7 @@ class VisitedCity(models.Model):
         default=0)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Посещённый город'
         verbose_name_plural = 'Посещённые города'
 

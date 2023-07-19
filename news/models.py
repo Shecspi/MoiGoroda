@@ -31,11 +31,11 @@ class News(models.Model):
     )
     created = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Создано'
+        verbose_name='Дата создания'
     )
     last_modified = models.DateTimeField(
         auto_now=True,
-        verbose_name='Изменено'
+        verbose_name='Дата изменения'
     )
 
     class Meta:

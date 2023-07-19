@@ -18,7 +18,7 @@ class VisitedCity_Create_Form(ModelForm):
         label='Оценка города',
         choices=CHOICES,
         widget=forms.RadioSelect,
-        help_text='Эта оценка ни на что не влияет, она просто отображает Ваши впечатления о городе.'
+        help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.'
     )
 
     class Meta:

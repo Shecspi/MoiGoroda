@@ -32,3 +32,5 @@ class CityAdmin(admin.ModelAdmin):
 @admin.register(VisitedCity)
 class VisitedCityAdmin(admin.ModelAdmin):
     list_display = ('id', 'city', 'region', 'user', 'date_of_visit', 'has_magnet', 'rating')
+    list_filter = ('user',)
+    search_fields = ('user__username', 'city__title', 'region__title')

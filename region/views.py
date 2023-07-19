@@ -23,8 +23,7 @@ from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
 from city.models import VisitedCity, City
-from utils.VisitedCityMixin import VisitedCityMixin
-from utils.sort_funcs import sort_validation, apply_sort
+from utils.VisitedCityByRegionMixin import VisitedCityByRegionMixin
 from utils.filter_funcs import filter_validation, apply_filter
 
 
@@ -102,7 +101,7 @@ class RegionList(ListView):
         return context
 
 
-class CitiesByRegionList(ListView, VisitedCityMixin):
+class CitiesByRegionList(ListView, VisitedCityByRegionMixin):
     """
     Отображает список всех городов в указанном регионе, как посещённых, так и нет.
 

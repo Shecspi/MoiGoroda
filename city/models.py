@@ -90,7 +90,7 @@ class VisitedCity(models.Model):
         default='')
     rating = models.SmallIntegerField(
         verbose_name='Рейтинг',
-        help_text='fdsf',
+        help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.',
         blank=False,
         default=0)
 

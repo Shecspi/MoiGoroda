@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from django.db.models import QuerySet, F
+from utils.SortFilterMixin import SortFilterMixin
 
 
-class VisitedCityMixin:
+class VisitedCityMixin(SortFilterMixin):
     def apply_filter_to_queryset(self, queryset: QuerySet) -> QuerySet:
         match self.filter:
             case 'magnet':
@@ -12,6 +13,40 @@ class VisitedCityMixin:
                 queryset = queryset.filter(date_of_visit__year=datetime.now().year)
             case 'last_year':
                 queryset = queryset.filter(date_of_visit__year=datetime.now().year - 1)
+
+        return queryset
+
+    @staticmethod
+    def apply_sort_to_queryset(queryset: QuerySet, sort_value: str) -> QuerySet:
+        """
+        Производит сортировку QuerySet на основе данных в 'sort_value'.
+
+        @param queryset: QuerySet, который необходимо отсортировать.
+        @param sort_value: Параметр, на основе которого происходит сортировка.
+            Может принимать одно из 6 значений:
+                - 'name_down' - по названию по возрастанию
+                - 'name_up' - по названию по убыванию
+                - 'date_down' - сначала недавно посещённые
+                - 'date_up'. - сначала давно посещённые
+                - 'default_auth' - по-умолчанию для авторизованного пользователя
+                - 'default_guest' - по-умолчанию для неавторизованного пользователя
+        @return: Отсортированный QuerySet или KeyError, если передан некорректный параметр `sort_value`.
+        """
+        match sort_value:
+            case 'name_down':
+                queryset = queryset.order_by('title')
+            case 'name_up':
+                queryset = queryset.order_by('-title')
+            case 'date_down':
+                queryset = queryset.order_by('-is_visited', F('date_of_visit').asc(nulls_first=True))
+            case 'date_up':
+                queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True))
+            case 'default_auth':
+                queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True), 'title')
+            case 'default_guest':
+                queryset = queryset.order_by('title')
+            case _:
+                raise KeyError('Неверный параметр `sort_value`')
 
         return queryset
 
@@ -42,22 +77,5 @@ class VisitedCityMixin:
             return sort_value
         else:
             return None
-
-    @staticmethod
-    def get_url_params(filter_value: str | None, sort_value: str | None) -> str | None:
-        """
-        Возвращает строку, пригодную для использования в URL-адресе после знака '?'
-        с параметрами 'filter' и 'sort'
-        @param filter_value: Значение фльтра, может быть пустой строкой.
-        @param sort_value: Значение сортировки, может быть пустой строкой
-        """
-        url_params = []
-
-        if filter_value:
-            url_params.append(f'filter={filter_value}')
-        if sort_value:
-            url_params.append(f'sort={sort_value}')
-
-        return '&'.join(url_params)
 
 

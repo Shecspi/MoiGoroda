@@ -23,10 +23,10 @@ def apply_sort(queryset: QuerySet, sort_value: str = '') -> QuerySet:
         case 'name_up':
             queryset = queryset.order_by('-title')
         case 'date_down':
-            queryset = queryset.order_by('is_visited', F('date_of_visit').asc(nulls_last=True))
+            queryset = queryset.order_by('is_visited', '-date_of_visit')
         case 'date_up':
-            queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True))
+            queryset = queryset.order_by('is_visited', 'date_of_visit')
         case _:
-            queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True), 'title')
+            queryset = queryset.order_by('-is_visited', '-date_of_visit', 'title')
 
     return queryset

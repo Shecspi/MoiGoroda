@@ -32,9 +32,10 @@ from django.db.models import OuterRef, Exists, Subquery, DateField
         ('default_guest', ['Город 1', 'Город 2', 'Город 3', 'Город 4'])
     ]
 )
-def test__CitiesByRegionMixin_apply_sort_to_queryset(setup_db_for_sorting, sort_value, expected_value):
+def test__method_apply_sort_to_queryset_correct_value(setup_db_for_sorting, sort_value, expected_value):
     """
     Проверяет корректность работы метода сортировки Queryset - CitiesByRegionMixin.apply_sort_to_queryset().
+    Должны отображаться все города региона, как посещённые, так и нет.
     """
     mixin = CitiesByRegionMixin()
     queryset = City.objects.annotate(
@@ -51,6 +52,26 @@ def test__CitiesByRegionMixin_apply_sort_to_queryset(setup_db_for_sorting, sort_
     assert result == expected_value
 
 
+def test__method_apply_sort_to_queryset_incorrect_value(setup_db_for_sorting):
+    """
+    Проверяет корректность работы метода сортировки Queryset - CitiesByRegionMixin.apply_sort_to_queryset().
+    При некорректных данных он должен вернуть исключение KeyError.
+    """
+    mixin = CitiesByRegionMixin()
+    queryset = City.objects.annotate(
+        is_visited=Exists(
+            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db_for_sorting)
+        ),
+        date_of_visit=Subquery(
+            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db_for_sorting).values('date_of_visit'),
+            output_field=DateField()
+        )
+    )
+
+    with pytest.raises(KeyError) as info:
+        mixin.apply_sort_to_queryset(queryset, 'wrong value').values_list('title', flat=True)
+
+
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'sort_value, expected_value', [
@@ -59,7 +80,8 @@ def test__CitiesByRegionMixin_apply_sort_to_queryset(setup_db_for_sorting, sort_
         ('date_down', ['Город 2', 'Город 1', 'Город 3', 'Город 4']),
         ('date_up', ['Город 3', 'Город 1', 'Город 2', 'Город 4']),
         ('default_auth', ['Город 3', 'Город 1', 'Город 2', 'Город 4']),
-        ('', ['Город 3', 'Город 1', 'Город 2', 'Город 4'])
+        ('', ['Город 3', 'Город 1', 'Город 2', 'Город 4']),
+        ('wrong value', ['Город 1', 'Город 2', 'Город 3', 'Город 4'])
     ]
 )
 def test__correct_order_of_sorted_cities_on_page__auth_user(setup_db_for_sorting, client, sort_value, expected_value):
@@ -84,7 +106,8 @@ def test__correct_order_of_sorted_cities_on_page__auth_user(setup_db_for_sorting
         ('date_down', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
         ('date_up', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
         ('default_guest', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
-        ('', ['Город 1', 'Город 2', 'Город 3', 'Город 4'])
+        ('', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
+        ('wrong value', ['Город 1', 'Город 2', 'Город 3', 'Город 4'])
     ]
 )
 def test__correct_order_of_sorted_cities_on_page__guest(setup_db_for_sorting, client, sort_value, expected_value):

@@ -16,12 +16,14 @@ django-markdownify = "^0.9.3"
 django-mathfilters = "^1.0.0"
 django-mdeditor = "^0.1.20"
 psycopg2-binary = "^2.9.6"
+pytest-django = "^4.5.2"
 
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
 pylint = "^2.17.4"
 django-stubs = "^4.2.3"
+beautifulsoup4 = "^4.12.2"
 
 [build-system]
 requires = ["poetry-core"]

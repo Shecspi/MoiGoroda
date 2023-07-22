@@ -2,7 +2,7 @@ import logging
 from typing import Any
 from datetime import datetime
 
-from django.http import Http404, HttpResponse
+from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.db.models import QuerySet
@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 
 from city.forms import VisitedCity_Create_Form
-from city.models import VisitedCity, City, Region
+from city.models import VisitedCity, City
 from utils.VisitedCityMixin import VisitedCityMixin
 
 logger = logging.getLogger('moi-goroda')
@@ -176,7 +176,6 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     template_name = 'city/visited_cities__list.html'
 
     filter = None
-    sort = None
 
     all_cities = None
 
@@ -186,6 +185,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     def __init__(self):
         super().__init__()
 
+        self.sort: str = ''
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.qty_of_visited_cities_current_year: int = 0
@@ -238,9 +238,15 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
             self.filter = self.check_validity_of_filter_value(self.request.GET.get('filter'))
             queryset = self.apply_filter_to_queryset(queryset)
 
-        if self.request.GET.get('sort'):
-            self.sort = self._check_validity_of_sort_value(self.request.GET.get('sort'))
-        queryset = self._apply_sort_to_queryset(queryset)  # Сортировка нужна в любом случае, поэтому она не в блоке if
+        # Сортировка
+        sort_default = 'default'
+        self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
+        try:
+            queryset = self.apply_sort_to_queryset(queryset, self.sort)
+        except KeyError:
+            logger.warning(f"Unexpected value of the GET-param 'sort' - {self.sort}")
+            queryset = self.apply_sort_to_queryset(queryset, sort_default)
+            self.sort = ''
 
         return queryset
 

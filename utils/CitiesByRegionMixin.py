@@ -54,8 +54,6 @@ class CitiesByRegionMixin(SortFilterMixin):
                 queryset = queryset.order_by('-is_visited', F('date_of_visit').asc(nulls_first=True))
             case 'date_up':
                 queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True))
-            case 'default':
-                queryset = queryset.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')
             case 'default_auth':
                 queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True), 'title')
             case 'default_guest':

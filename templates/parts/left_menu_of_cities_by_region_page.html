@@ -53,7 +53,7 @@
     <!-- ^^^ Кнопка добавления города -->
 
     <!-- Фильтры и сортировка -->
-    <div class="card mb-3">
+    <div class="card mb-3" id="filter_and_sorting">
         <div class="card-body text-center">
             <a data-bs-toggle="collapse" href="#collapseFilters" role="button"
                aria-expanded="false" aria-controls="collapseFilters" class="text-decoration-none">
@@ -80,8 +80,8 @@
                     <hr>
 
                     <!-- Сортировка -->
-                    <div class="dropdown d-grid gap-2">
-                        <div class="btn-group" role="group" aria-label="Сортировка по названию">
+                    <div class="dropdown d-grid gap-2" id="sorting">
+                        <div class="btn-group" role="group" aria-label="Сортировка по названию" id="sorting_by_name">
                             <a href="{% url 'region-selected' region_id %}?{{ url_for_sort_name_down }}"
                                class="btn btn-outline-danger" title="Сортировать по возрастанию названия">
                                 <i class="fa-solid fa-arrow-down-a-z"></i>
@@ -93,7 +93,7 @@
                             </a>
                         </div>
 
-                        <div class="btn-group" role="group" aria-label="Сортировка по дате посещения">
+                        <div class="btn-group" role="group" aria-label="Сортировка по дате посещения" id="sorting_by_date_of_visit">
                             <a href="{% url 'region-selected' region_id %}?{{ url_for_sort_date_down }}"
                                class="btn btn-outline-success" title="Сначала показать давно посещённые">
                                 <i class="fa-solid fa-arrow-down-1-9"></i>

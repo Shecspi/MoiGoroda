@@ -52,6 +52,55 @@ def test__CitiesByRegionMixin_apply_sort_to_queryset(setup_db_for_sorting, sort_
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    'sort_value, expected_value', [
+        ('name_down', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
+        ('name_up', ['Город 4', 'Город 3', 'Город 2', 'Город 1']),
+        ('date_down', ['Город 2', 'Город 1', 'Город 3', 'Город 4']),
+        ('date_up', ['Город 3', 'Город 1', 'Город 2', 'Город 4']),
+        ('default_auth', ['Город 3', 'Город 1', 'Город 2', 'Город 4']),
+        ('', ['Город 3', 'Город 1', 'Город 2', 'Город 4'])
+    ]
+)
+def test__correct_order_of_sorted_cities_on_page__auth_user(setup_db_for_sorting, client, sort_value, expected_value):
+    """
+    Проверяет корректность порядка отображения карточек с городами на странице для авторизованного пользователя.
+    """
+    client.login(username='username', password='password')
+    response = client.get(reverse('region-selected', kwargs={'pk': 1}) + '?sort=' + sort_value)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+
+    assert source.find('div', {'id': 'city_card_1'}).find('div', {'class': 'h4'}).get_text(expected_value[0])
+    assert source.find('div', {'id': 'city_card_2'}).find('div', {'class': 'h4'}).get_text(expected_value[1])
+    assert source.find('div', {'id': 'city_card_3'}).find('div', {'class': 'h4'}).get_text(expected_value[2])
+    assert source.find('div', {'id': 'city_card_4'}).find('div', {'class': 'h4'}).get_text(expected_value[3])
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'sort_value, expected_value', [
+        ('name_down', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
+        ('name_up', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
+        ('date_down', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
+        ('date_up', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
+        ('default_guest', ['Город 1', 'Город 2', 'Город 3', 'Город 4']),
+        ('', ['Город 1', 'Город 2', 'Город 3', 'Город 4'])
+    ]
+)
+def test__correct_order_of_sorted_cities_on_page__guest(setup_db_for_sorting, client, sort_value, expected_value):
+    """
+    Проверяет корректность порядка отображения карточек с городами на странице для неавторизованного пользователя.
+    """
+    response = client.get(reverse('region-selected', kwargs={'pk': 1}) + '?sort=' + sort_value)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+
+    assert expected_value[0] in source.find('div', {'id': 'city_card_1'}).find('div', {'class': 'h4'}).get_text()
+    assert expected_value[1] in source.find('div', {'id': 'city_card_2'}).find('div', {'class': 'h4'}).get_text()
+    assert expected_value[2] in source.find('div', {'id': 'city_card_3'}).find('div', {'class': 'h4'}).get_text()
+    assert expected_value[3] in source.find('div', {'id': 'city_card_4'}).find('div', {'class': 'h4'}).get_text()
+
+
+@pytest.mark.django_db
 def test__page_has_no_sort_buttons_for_guest(setup_db_for_sorting, client):
     """
     Проверяет отсутствие на странице кнопок для сортировки для неавторизованного пользователя.

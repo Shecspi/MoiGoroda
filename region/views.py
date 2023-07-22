@@ -23,7 +23,7 @@ from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
 from city.models import VisitedCity, City
-from utils.sort_funcs import sort_validation, apply_sort
+from utils.CitiesByRegionMixin import CitiesByRegionMixin
 from utils.filter_funcs import filter_validation, apply_filter
 
 
@@ -101,7 +101,7 @@ class RegionList(ListView):
         return context
 
 
-class CitiesByRegionList(ListView):
+class CitiesByRegionList(ListView, CitiesByRegionMixin):
     """
     Отображает список всех городов в указанном регионе, как посещённых, так и нет.
 
@@ -133,6 +133,7 @@ class CitiesByRegionList(ListView):
     def __init__(self):
         super().__init__()
 
+        self.sort: str = ''
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.qty_of_visited_cities_current_year: int = 0
@@ -225,7 +226,7 @@ class CitiesByRegionList(ListView):
         # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
-        sort_value = ''
+        # Определяем фильтрацию
         if self.request.user.is_authenticated:
             if self.request.GET.get('filter'):
                 filter_value = self.request.GET.get('filter')
@@ -235,15 +236,18 @@ class CitiesByRegionList(ListView):
                     queryset = apply_filter(queryset, filter_value)
                 else:
                     logger.warning(f'Attempt to access a non-existent filter: {self.request.get_full_path()}')
-            if self.request.GET.get('sort'):
-                sort_value = self.request.GET.get('sort')
-                self.sort = sort_validation(sort_value, self.valid_sorts)
-                if self.sort:
-                    logger.info(f'Using a sort for cities: {self.request.get_full_path()}')
-                else:
-                    logger.warning(f'Attempt to access a non-existent sort: {self.request.get_full_path()}')
-        # Сортировка нужна в любом случае, поэтому она не в блоке if
-        queryset = apply_sort(queryset, sort_value)
+
+        # Для авторизованных пользователей определяем тип сортировки.
+        # Сортировка для неавторизованного пользователя недоступна - она выставляется в значение `default_guest`.
+        sort_default = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
+        if self.request.user.is_authenticated:
+            self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
+            try:
+                queryset = self.apply_sort_to_queryset(queryset, self.sort)
+            except KeyError:
+                logger.warning(f"Unexpected value of the GET-param 'sort' - {self.sort}")
+                queryset = self.apply_sort_to_queryset(queryset, sort_default)
+                self.sort = ''
 
         return queryset
 
@@ -260,5 +264,11 @@ class CitiesByRegionList(ListView):
         context['total_qty_of_cities'] = self.total_qty_of_cities
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
         context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
+
+        url_params_for_sort = '' if self.sort == 'default_auth' or self.sort == 'default_guest' else self.sort
+        context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
+        context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
+        context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')
+        context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
 
         return context

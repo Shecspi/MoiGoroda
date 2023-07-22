@@ -5,7 +5,7 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, UpdateView
@@ -98,7 +98,7 @@ class Profile_Detail(LoginRequiredMixin, DetailView):
 
         # Все посещённые города
         cities = VisitedCity.objects.filter(user=user)
-        cities_last = cities.order_by('-date_of_visit', 'city__title')[:5]
+        cities_last = cities.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')[:5]
         cities_this_year = cities.filter(date_of_visit__year=datetime.datetime.now().year).count()
         num_cities = cities.count()
 

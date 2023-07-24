@@ -16,9 +16,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.LOCAL_PATH }}
-            git stash
             git pull origin master
-            git checkout master
             git stash apply
             poetry run python3 manage.py makemigrations
             poetry run python3 manage.py migrate

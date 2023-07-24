@@ -27,4 +27,3 @@ jobs:
             export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
             ./scripts/restart.sh
             chmod -x ./scripts/restart.sh
-

@@ -15,15 +15,16 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ${{ secrets.LOCAL_PATH }}
+            cd ${{ secrets.DEV__LOCAL_PATH }}
             git pull origin master
             git checkout master
-            poetry run python3 manage.py makemigrations
-            poetry run python3 manage.py migrate
+            ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
+            ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py migrate
+            export POETRY_PATH=${{ secrets.DEV__POETRY_PATH }}
             chmod +x ./scripts/collectstatic.sh
             ./scripts/collectstatic.sh
             chmod -x ./scripts/collectstatic.sh
             chmod +x ./scripts/restart.sh
-            export SUDO_PASSWORD=${{ secrets.SUDO_PASSWORD }}
+            export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
             ./scripts/restart.sh
             chmod -x ./scripts/restart.sh

@@ -22,6 +22,8 @@ jobs:
             poetry run python3 manage.py migrate
             chmod +x ./scripts/collectstatic.sh
             ./scripts/collectstatic.sh
+            chmod -x ./scripts/collectstatic.sh
             chmod +x ./scripts/restart.sh
             export SUDO_PASSWORD=${{ secrets.SUDO_PASSWORD }}
             ./scripts/restart.sh
+            chmod -x ./scripts/restart.sh

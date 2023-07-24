@@ -4,5 +4,7 @@ set timeout -1
 spawn sudo systemctl daemon-reload
 expect "password"
 send "$env(SUDO_PASSWORD)\r"
-sudo systemctl restart gunicorn
+spawn sudo systemctl restart gunicorn
+expect "password"
+send "$env(SUDO_PASSWORD)\r"
 expect eof

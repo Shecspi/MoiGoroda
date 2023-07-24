@@ -15,7 +15,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ${{ secrets.DEV__LOCAL_PATH }}
+            cd ${{ secrets.LOCAL_PATH }}
             git pull origin master
             git checkout master
             ${{ secrets.POETRY_PATH }} run python3 manage.py makemigrations

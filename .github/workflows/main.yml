@@ -18,13 +18,13 @@ jobs:
             cd ${{ secrets.DEV__LOCAL_PATH }}
             git pull origin master
             git checkout master
-            ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
-            ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py migrate
-            export POETRY_PATH=${{ secrets.DEV__POETRY_PATH }}
+            ${{ secrets.POETRY_PATH }} run python3 manage.py makemigrations
+            ${{ secrets.POETRY_PATH }} run python3 manage.py migrate
+            export POETRY_PATH=${{ secrets.POETRY_PATH }}
             chmod +x ./scripts/collectstatic.sh
             ./scripts/collectstatic.sh
             chmod -x ./scripts/collectstatic.sh
             chmod +x ./scripts/restart.sh
-            export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
+            export SUDO_PASSWORD=${{ secrets.SUDO_PASSWORD }}
             ./scripts/restart.sh
             chmod -x ./scripts/restart.sh

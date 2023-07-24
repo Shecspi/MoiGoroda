@@ -18,8 +18,8 @@ jobs:
             cd ${{ secrets.DEV__LOCAL_PATH }}
             git pull origin dev
             git checkout dev
-            poetry run python3 manage.py makemigrations
-            poetry run python3 manage.py migrate
+            /home/www/.local/bin/poetry run python3 manage.py makemigrations
+            /home/www/.local/bin/poetry run python3 manage.py migrate
             chmod +x ./scripts/collectstatic.sh
             ./scripts/collectstatic.sh
             chmod -x ./scripts/collectstatic.sh

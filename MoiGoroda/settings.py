@@ -256,3 +256,5 @@ MARKDOWNIFY = {
         'WHITELIST_ATTRS': ['href', 'src', 'alt']
     }
 }
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'unsafe-none'

@@ -17,7 +17,7 @@ jobs:
           script: |
             cd ${{ secrets.LOCAL_PATH }}
             git pull origin master
-            git stash apply
+            git checkout master
             poetry run python3 manage.py makemigrations
             poetry run python3 manage.py migrate
             chmod +x ./scripts/collectstatic.sh

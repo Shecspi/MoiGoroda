@@ -219,6 +219,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
                 'id', 'title', 'population', 'date_of_foundation',
                 'coordinate_width', 'coordinate_longitude', 'is_visited'
             )
+            self.total_qty_of_cities = queryset.count()
 
         # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
         # устанавливает лимит на выборку, равный `paginate_by`.

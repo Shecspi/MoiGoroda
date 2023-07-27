@@ -1,20 +1,21 @@
 <!-- Статистика -->
-<div class="alert alert-success" role="alert">
-    <p class="my-0" style="text-align:left">
+<div class="alert alert-success" role="alert" id="block-statistic">
+    <p class="my-0" style="text-align:left" id="text-total_cities_in_region">
         Городов в регионе:<span style="float:right;"><strong>{{ total_qty_of_cities }}</strong></span>
     </p>
     <hr>
     {% if user.is_authenticated %}
-        <p class="my-0" style="text-align:left">
+        <p class="my-0" style="text-align:left" id="text-qty_of_visited_cities">
             Посещено:<span style="float:right;"><strong>{{ qty_of_visited_cities }}</strong></span>
         </p>
-        <p class="my-0" style="text-align:left">
+        <p class="my-0" style="text-align:left" id="text-qty_of_visited_cities_this_year">
             В этом году:<span style="float:right;"><strong>{{ qty_of_visited_cities_current_year }}</strong></span>
         </p>
         <hr>
     {% endif %}
-    <p class="mt-2 mb-0" style="text-align:right">
-        <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal" data-bs-target="#detailsModal">
+    <p class="mt-2 mb-0" style="text-align:right" id="text-support">
+        <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal"
+           data-bs-target="#detailsModal" id="link-support">
             <small><i class="fa-regular fa-circle-question"></i> Подробнее...</small>
         </a>
     </p>
@@ -43,9 +44,9 @@
 
 {% if user.is_authenticated %}
     <!-- Кнопка добавления города -->
-    <div class="card mb-3">
+        <div class="card mb-3" id="block-add_city">
         <div class="card-body d-grid gap-2">
-            <a href="{% url 'city-create' %}" class="btn btn-outline-primary">
+            <a href="{% url 'city-create' %}" class="btn btn-outline-primary" id="button-add_city">
                 <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
             </a>
         </div>

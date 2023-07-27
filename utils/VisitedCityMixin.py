@@ -10,11 +10,45 @@ Licensed under the Apache License, Version 2.0
 """
 
 
+from datetime import datetime
+
 from django.db.models import QuerySet, F
 from utils.SortFilterMixin import SortFilterMixin
 
 
-class VisitedCityMixin(SortFilterMixin):
+class VisitedCityMixin:
+    @staticmethod
+    def get_url_params(filter_value: str | None, sort_value: str | None) -> str | None:
+        """
+        Возвращает строку, пригодную для использования в URL-адресе после знака '?' с параметрами 'filter' и 'sort'
+        @param filter_value: Значение фльтра, может быть пустой строкой.
+        @param sort_value: Значение сортировки, может быть пустой строкой
+        """
+        url_params = []
+        valid_filters = ['magnet', 'current_year', 'last_year']
+        valid_sorts = ['name_down', 'name_up', 'date_down', 'date_up']
+
+        if filter_value and filter_value in valid_filters:
+            url_params.append(f'filter={filter_value}')
+        if sort_value and sort_value in valid_sorts:
+            url_params.append(f'sort={sort_value}')
+
+        return '&'.join(url_params)
+
+    @staticmethod
+    def apply_filter_to_queryset(queryset: QuerySet, filter_value: str) -> QuerySet:
+        match filter_value:
+            case 'magnet':
+                queryset = queryset.filter(has_magnet=False)
+            case 'current_year':
+                queryset = queryset.filter(date_of_visit__year=datetime.now().year)
+            case 'last_year':
+                queryset = queryset.filter(date_of_visit__year=datetime.now().year - 1)
+            case _:
+                raise KeyError
+
+        return queryset
+
     @staticmethod
     def apply_sort_to_queryset(queryset: QuerySet, sort_value: str) -> QuerySet:
         """
@@ -42,7 +76,7 @@ class VisitedCityMixin(SortFilterMixin):
             case 'default':
                 queryset = queryset.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')
             case _:
-                raise KeyError('Неверный параметр `sort_value`')
+                raise KeyError(f'Неверный параметр "sort_value" - {sort_value}')
 
         return queryset
 

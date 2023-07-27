@@ -20,7 +20,6 @@ from utils.VisitedCityMixin import VisitedCityMixin
 
 from bs4 import BeautifulSoup
 from django.urls import reverse
-from django.db.models import OuterRef, Exists, Subquery, DateField
 
 
 @pytest.fixture
@@ -79,48 +78,50 @@ def test__method_filter_sort_to_queryset_incorrect_value(setup_db):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'sort_value, expected_value', (
-        ('magnet', ['Город 6', 'Город 5', 'Город 4']),
-        ('current_year', ['Город 2', 'Город 1']),
+    'filter_value, expected_value', (
+        ('magnet', ['Город 4', 'Город 5', 'Город 6']),
+        ('current_year', ['Город 1', 'Город 2']),
         ('last_year', ['Город 3'])
     )
 )
-def test__correct_order_of_sorted_cities_on_page(setup_db, client, sort_value, expected_value):
+def test__correct_order_of_filtered_cities_on_page(setup_db, client, filter_value, expected_value):
     """
     Проверяет корректность порядка отображения карточек с городами на странице для авторизованного пользователя.
     Неавторизованный пользователь не имеет доступа на эту страницу.
     """
     client.login(username='username', password='password')
-    response = client.get(reverse('city-all') + '?sort=' + sort_value)
+    response = client.get(reverse('city-all') + '?filter=' + filter_value)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     for number in range(1, len(expected_value) + 1):
-        assert source.find(
-            'div', {'id': f'city_card_{number}'}
-        ).find(
-            'div', {'class': 'h4'}
-        ).get_text(expected_value[number - 1])
+        card_city = source.find('div', {'id': f'city_card_{number}'})
+        header_of_cadr_city = card_city.find('div', {'class': 'h4'})
+        assert expected_value[number - 1] in header_of_cadr_city.get_text()
 
 
 @pytest.mark.django_db
-def test__page_has_filter_buttons_for_auth_user(setup_db, client):
+@pytest.mark.parametrize(
+    'sort_value', [
+        '',  'name_down', 'name_up', 'date_down', 'date_up'
+    ]
+)
+def test__page_has_filter_buttons_for_auth_user(setup_db, client, sort_value):
     """
     Проверяет существование на странице наличия кнопок для фильтрации для авторизованного пользователя.
     """
-    mixin = VisitedCityMixin()
     client.login(username='username', password='password')
-    response = client.get(reverse('city-all'))
+    response = client.get(reverse('city-all') + (f'?sort={sort_value}' if sort_value else ''))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block_filter_and_sorting = source.find('div', {'id': 'block-filter_and_sorting'})
     block_filtering = source.find('div', {'id': 'block-filtering'})
     button_filtering_by_magnet = block_filtering.find('a', {
-        'href': reverse('city-all') + '?' + mixin.get_url_params('magnet', '')
+        'href': reverse('city-all') + (f'?filter=magnet&sort={sort_value}' if sort_value else '?filter=magnet')
     })
     button_filtering_by_current_year = source.find('a', {
-        'href': reverse('city-all') + '?' + mixin.get_url_params('current_year', '')
+        'href': reverse('city-all') + (f'?filter=current_year&sort={sort_value}' if sort_value else '?filter=current_year')
     })
     button_filtering_by_last_year = source.find('a', {
-        'href': reverse('city-all') + '?' + mixin.get_url_params('last_year', '')
+        'href': reverse('city-all') + (f'?filter=last_year&sort={sort_value}' if sort_value else '?filter=last_year')
     })
 
     assert block_filter_and_sorting
@@ -128,3 +129,4 @@ def test__page_has_filter_buttons_for_auth_user(setup_db, client):
     assert button_filtering_by_magnet
     assert button_filtering_by_current_year
     assert button_filtering_by_last_year
+

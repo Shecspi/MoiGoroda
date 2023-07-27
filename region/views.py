@@ -134,6 +134,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         super().__init__()
 
         self.sort: str = ''
+        self.filter: str = ''
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.qty_of_visited_cities_current_year: int = 0
@@ -229,13 +230,12 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
 
         # Определяем фильтрацию
         if self.request.user.is_authenticated:
-            if self.request.GET.get('filter'):
-                filter_value = self.request.GET.get('filter')
-                self.filter = filter_validation(filter_value, self.valid_filters)
-                if self.filter:
+            self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
+            if self.filter:
+                try:
                     logger.info(f'Using a filter for cities: {self.request.get_full_path()}')
-                    queryset = apply_filter(queryset, filter_value)
-                else:
+                    queryset = self.apply_filter_to_queryset(queryset, self.filter)
+                except KeyError:
                     logger.warning(f'Attempt to access a non-existent filter: {self.request.get_full_path()}')
 
         # Для авторизованных пользователей определяем тип сортировки.
@@ -266,7 +266,18 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
         context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
 
-        url_params_for_sort = '' if self.sort == 'default_auth' or self.sort == 'default_guest' else self.sort
+        context['url_for_filter_magnet'] = self.get_url_params(
+            'magnet' if self.filter != 'magnet' else '',
+            self.sort
+        )
+        context['url_for_filter_current_year'] = self.get_url_params(
+            'current_year' if self.filter != 'current_year' else '',
+            self.sort
+        )
+        context['url_for_filter_last_year'] = self.get_url_params(
+            'last_year' if self.filter != 'last_year' else '',
+            self.sort
+        )
         context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
         context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
         context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')

@@ -63,20 +63,22 @@
 
             <div class="collapse" id="collapseFilters">
                 <div class="d-grid gap-2 mt-2">
-                    <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{{ url_for_filter_magnet }}"
-                       class="btn {% if filter == 'magnet' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
-                        <i class="fa-solid fa-magnet"></i>&nbsp;&nbsp;&nbsp;Без магнита
-                    </a>
+                    <div class="d-grid gap-2" id="block-filtering">
+                        <a href="{% url 'region-selected' region_id %}?{{ url_for_filter_magnet }}"
+                           class="btn {% if filter == 'magnet' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+                            <i class="fa-solid fa-magnet"></i>&nbsp;&nbsp;&nbsp;Без магнита
+                        </a>
 
-                    <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{{ url_for_filter_current_year }}"
-                       class="btn {% if filter == 'current_year' %}btn-success{% else %}btn-outline-success{% endif %}">
-                        <i class="fa-solid fa-calendar-days"></i>&nbsp;&nbsp;&nbsp;В этом году
-                    </a>
+                        <a href="{% url 'region-selected' region_id %}?{{ url_for_filter_current_year }}"
+                           class="btn {% if filter == 'current_year' %}btn-success{% else %}btn-outline-success{% endif %}">
+                            <i class="fa-solid fa-calendar-days"></i>&nbsp;&nbsp;&nbsp;В этом году
+                        </a>
 
-                    <a href="{% if type == 'by_region' %}{% url 'region-selected' region_id %}{% else %}{% url 'city-all' %}{% endif %}?{{ url_for_filter_last_year }}"
-                       class="btn {% if filter == 'last_year' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                        <i class="fa-solid fa-calendar-week"></i>&nbsp;&nbsp;&nbsp;В прошлом году
-                    </a>
+                        <a href="{% url 'region-selected' region_id %}?{{ url_for_filter_last_year }}"
+                           class="btn {% if filter == 'last_year' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            <i class="fa-solid fa-calendar-week"></i>&nbsp;&nbsp;&nbsp;В прошлом году
+                        </a>
+                    </div>
 
                     <hr>
 

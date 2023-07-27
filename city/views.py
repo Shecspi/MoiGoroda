@@ -175,17 +175,13 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     paginate_by = 16
     template_name = 'city/visited_cities__list.html'
 
-    filter = None
-
     all_cities = None
-
-    valid_filters = ['magnet', 'current_year', 'last_year']
-    valid_sorts = ['name_down', 'name_up', 'date_down', 'date_up']
 
     def __init__(self):
         super().__init__()
 
         self.sort: str = ''
+        self.filter: str = ''
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.qty_of_visited_cities_current_year: int = 0
@@ -234,11 +230,15 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.qty_of_visited_cities_current_year = queryset.filter(date_of_visit__year=datetime.now().year).count()
         self.qty_of_visited_cities_last_year = queryset.filter(date_of_visit__year=datetime.now().year - 1).count()
 
-        if self.request.GET.get('filter'):
-            self.filter = self.check_validity_of_filter_value(self.request.GET.get('filter'))
-            queryset = self.apply_filter_to_queryset(queryset)
+        # Обработка фильтрации
+        self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
+        if self.filter:
+            try:
+                queryset = self.apply_filter_to_queryset(queryset, self.filter)
+            except KeyError:
+                logger.warning(f"Unexpected value of the GET-parametr 'filter' - {self.filter}")
 
-        # Сортировка
+        # Обработка сортировки
         sort_default = 'default'
         self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
         try:

@@ -69,42 +69,53 @@ class VisitedCity(models.Model):
         User,
         on_delete=CASCADE,
         verbose_name='Пользователь',
-        blank=False)
+        blank=False,
+        null=False
+    )
     region = models.ForeignKey(
         Region,
         on_delete=CASCADE,
         verbose_name='Регион',
         help_text='Выберите регион, в котором находится посещённый город. '
                   'Список городов выбранного региона подгрузится автоматически в поле "Город".',
-        blank=False)
+        blank=False,
+        null=False
+    )
     city = models.ForeignKey(
         City,
         on_delete=CASCADE,
         verbose_name='Город',
         help_text='Выберите город, который посетили.',
+        related_name='visitedcity',
         blank=False,
-        related_name='visitedcity')
+        null=False
+    )
     date_of_visit = models.DateField(
         verbose_name='Дата посещения',
         help_text='Укажите дату посещения города в формате ДД.ММ.ГГГГ. '
                   'На основе этой даты будет происходить сортировка городов, '
                   'а также это влияет на отображаемую статистику посещённых городов за год.',
+        blank=True,
         null=True,
-        blank=True)
+    )
     has_magnet = models.BooleanField(
         verbose_name='Наличие магнита',
         help_text='Отметьте этот пункт, если у Вас есть магнитик с названием города. '
                   'В списке городов можно будет отфильтровать только те города, которые без магнитов.',
-        blank=False)
+        blank=True,
+        null=True
+    )
     impression = models.TextField(
         verbose_name='Впечатления о городе',
         blank=True,
-        default='')
+        null=True
+    )
     rating = models.SmallIntegerField(
         verbose_name='Рейтинг',
         help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.',
         blank=False,
-        default=0)
+        null=False
+    )
 
     class Meta:
         ordering = ['-id']

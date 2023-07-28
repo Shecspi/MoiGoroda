@@ -1,3 +1,15 @@
+"""
+Тестирует корректность настроек модели City.
+
+----------------------------------------------
+
+Copyright 2023 Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
+
 import pytest
 
 from django.db import models

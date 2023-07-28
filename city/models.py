@@ -15,31 +15,42 @@ class City(models.Model):
     title = models.CharField(
         max_length=100,
         verbose_name='Название',
-        blank=False)
+        blank=False,
+        null=False
+    )
     region = models.ForeignKey(
         Region,
         on_delete=CASCADE,
         verbose_name='Регион',
-        blank=False)
+        blank=False,
+        null=False
+    )
     population = models.PositiveIntegerField(
         verbose_name='Численность населения',
         blank=True,
-        default=0)
+        null=True
+    )
     date_of_foundation = models.PositiveSmallIntegerField(
         verbose_name='Год основания',
         blank=True,
-        default=0)
+        null=True
+    )
     coordinate_width = models.FloatField(
         verbose_name='Широта',
-        blank=False)
+        blank=False,
+        null=False
+    )
     coordinate_longitude = models.FloatField(
         verbose_name='Долгота',
-        blank=False)
+        blank=False,
+        null=False
+    )
     wiki = models.URLField(
         max_length=256,
         verbose_name='Ссылка на Wikipedia',
         blank=True,
-        default='')
+        null=True
+    )
 
     class Meta:
         ordering = ['title']
@@ -75,7 +86,8 @@ class VisitedCity(models.Model):
         related_name='visitedcity')
     date_of_visit = models.DateField(
         verbose_name='Дата посещения',
-        help_text='Укажите дату посещения города. На основе этой даты будет происходить сортировка городов, '
+        help_text='Укажите дату посещения города в формате ДД.ММ.ГГГГ. '
+                  'На основе этой даты будет происходить сортировка городов, '
                   'а также это влияет на отображаемую статистику посещённых городов за год.',
         null=True,
         blank=True)

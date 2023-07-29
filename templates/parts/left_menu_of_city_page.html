@@ -1,21 +1,21 @@
 <!-- Статистика -->
-<div class="alert alert-success" role="alert">
-    <p class="my-0" style="text-align:left">
+<div class="alert alert-success" role="alert" id="block-statistic">
+    <p class="my-0" style="text-align:left" id="p-qty_of_visited_cities">
         Посещено:<span style="float:right;"><strong>{{ qty_of_visited_cities }}</strong></span>
     </p>
-    <p class="my-0" style="text-align:left">
+    <p class="my-0" style="text-align:left" id="p-qty_of_cities">
         Всего городов:<span style="float:right;"><strong>{{ total_qty_of_cities }}</strong></span>
     </p>
     <hr>
-    <p class="my-0" style="text-align:left">
+    <p class="my-0" style="text-align:left" id="p-qty_of_visited_cities_current_year">
         В этом году:<span style="float:right;"><strong>{{ qty_of_visited_cities_current_year }}</strong></span>
     </p>
-    <p class="my-0" style="text-align:left">
+    <p class="my-0" style="text-align:left" id="p-qty_of_visited_cities_last_year">
         В прошлом году:<span style="float:right;"><strong>{{ qty_of_visited_cities_last_year }}</strong></span>
     </p>
     <hr>
-    <p class="mt-2 mb-0" style="text-align:right">
-        <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal" data-bs-target="#detailsModal">
+    <p class="mt-2 mb-0" style="text-align:right" id="p-support">
+        <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal" data-bs-target="#detailsModal" id="link-support">
             <small><i class="fa-regular fa-circle-question"></i> Подробнее...</small>
         </a>
     </p>
@@ -23,7 +23,7 @@
 <!-- ^^^ Статистика -->
 
 <!-- Вкладки -->
-<div class="card mb-3">
+<div class="card mb-3" id="block-tabs">
     <div class="card-body">
         <div class="nav flex-column nav-pills" id="v-pills-tab"
              role="tablist" aria-orientation="vertical">

@@ -14,11 +14,34 @@ Licensed under the Apache License, Version 2.0
 import pytest
 
 from city.models import City, VisitedCity
+from region.models import Area, Region
 from utils.VisitedCityMixin import VisitedCityMixin
 
 from bs4 import BeautifulSoup
 from django.urls import reverse
 from django.db.models import OuterRef, Exists, Subquery, DateField
+
+
+@pytest.fixture
+def setup_db_for_sorting(client, django_user_model):
+    user = django_user_model.objects.create_user(username='username', password='password')
+    area = Area.objects.create(title='Округ 1')
+    region = Region.objects.create(id=1, area=area, title='Регион 1', type='область', iso3166='RU-RU')
+    city_1 = City.objects.create(title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1)
+    city_2 = City.objects.create(title='Город 2', region=region, coordinate_width=1, coordinate_longitude=1)
+    city_3 = City.objects.create(title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1)
+    city_4 = City.objects.create(title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1)
+    visited_city_1 = VisitedCity.objects.create(
+        user=user, region=region, city=city_1, date_of_visit="2022-01-01", has_magnet=False, rating=3
+    )
+    visited_city_2 = VisitedCity.objects.create(
+        user=user, region=region, city=city_2, has_magnet=False, rating=3
+    )
+    visited_city_3 = VisitedCity.objects.create(
+        user=user, region=region, city=city_3, date_of_visit="2023-01-01", has_magnet=False, rating=3
+    )
+
+    return user
 
 
 @pytest.mark.django_db
@@ -90,7 +113,7 @@ def test__page_has_sort_buttons_for_auth_user(setup_db_for_sorting, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    filter_and_sorting_block = source.find('div', {'id': 'filter_and_sorting'}).find('div', {'id': 'sorting'})
+    filter_and_sorting_block = source.find('div', {'id': 'block-filter_and_sorting'}).find('div', {'id': 'sorting'})
     sorting_by_name_block = filter_and_sorting_block.find('div', {'id': 'sorting_by_name'})
     sorting_by_date_of_visit_block = filter_and_sorting_block.find('div', {'id': 'sorting_by_date_of_visit'})
     sorting_by_name_down_link = sorting_by_name_block.find('a', {

@@ -69,7 +69,7 @@ def setup_20_cities_in_1_regions():
 @pytest.fixture
 def setup_18_visited_cities_in_18_regions():
     """
-    Создаёт 10 записей в таблице 'VisitedCity' в регионе с `id` = 1.
+    Создаёт 18 записей в таблице 'VisitedCity' в регионе с `id` = 1.
     """
     for number in range(1, 19):
         VisitedCity.objects.create(

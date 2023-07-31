@@ -17,31 +17,33 @@ def create_user(client, django_user_model):
 @pytest.fixture
 def setup_db():
     areas = [
-        'Южный федеральный округ',
-        'Дальневосточный федеральный округ',
-        'Северо-Кавказский федеральный округ'
+        (1, 'Южный федеральный округ'),
+        (2, 'Дальневосточный федеральный округ'),
+        (3, 'Северо-Кавказский федеральный округ')
     ]
     regions = [
-        [1, 'Адыгея', 'R', 'RU-AD'],
-        [1, 'Краснодарский', 'K', 'RU-KDA'],
-        [1, 'Волгоградская', 'O', 'RU-VGG'],
-        [1, 'Севастополь', 'G', 'RU-SEV'],
-        [2, 'Еврейская', 'AOb', 'RU-YEV'],
-        [2, 'Чукотский', 'AOk', 'RU-CHU'],
-        [3, 'Чеченская республика', 'R', 'RU-CE']
+        [1, 1, 'Адыгея', 'R', 'RU-AD'],
+        [2, 1, 'Краснодарский', 'K', 'RU-KDA'],
+        [3, 1, 'Волгоградская', 'O', 'RU-VGG'],
+        [4, 1, 'Севастополь', 'G', 'RU-SEV'],
+        [5, 2, 'Еврейская', 'AOb', 'RU-YEV'],
+        [6, 2, 'Чукотский', 'AOk', 'RU-CHU'],
+        [7, 3, 'Чеченская республика', 'R', 'RU-CE']
     ]
     with transaction.atomic():
         for area in areas:
             area = Area.objects.create(
-                title=area
+                id=area[0],
+                title=area[1]
             )
             for region in regions:
-                if region[0] == area.id:
+                if region[1] == area.id:
                     Region.objects.create(
+                        id=region[0],
                         area=area,
-                        title=region[1],
-                        type=region[2],
-                        iso3166=region[3]
+                        title=region[2],
+                        type=region[3],
+                        iso3166=region[4]
                     )
 
 

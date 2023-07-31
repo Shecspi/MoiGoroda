@@ -23,21 +23,33 @@ def test__area__qty_of_lines(setup_db):
 
 
 @pytest.mark.django_db
-def test__area__unique_title(setup_db):
+@pytest.mark.parametrize(
+    'area_name', [
+        'Южный федеральный округ',
+        'Дальневосточный федеральный округ',
+        'Северо-Кавказский федеральный округ',
+    ]
+)
+def test__area__unique_title(setup_db, area_name):
     """
     Записи с одинаковым полем title не должны создаваться.
     При попытке это сделать должно выбрасываться исключение django.db.utils.IntegrityError.
     """
     with pytest.raises(django.db.utils.IntegrityError) as exc:
-        Area.objects.create(title='Южный федеральный округ')
+        Area.objects.create(title=area_name)
 
 
 @pytest.mark.django_db
-def test__area__correct_records(setup_db):
+@pytest.mark.parametrize(
+    'area_id, expected_value', [
+        (1, ('Южный федеральный округ', 'Южный федеральный округ')),
+        (2, ('Дальневосточный федеральный округ', 'Дальневосточный федеральный округ')),
+        (3, ('Северо-Кавказский федеральный округ', 'Северо-Кавказский федеральный округ')),
+    ]
+)
+def test__area__correct_records(setup_db, area_id, expected_value):
     """
     Тестирует корректность заполнения полей таблицы.
     """
-    assert Area.objects.get(id=1).title == 'Южный федеральный округ'
-    assert Area.objects.get(id=2).title == 'Дальневосточный федеральный округ'
-    assert Area.objects.get(id=1).__str__() == 'Южный федеральный округ'
-    assert Area.objects.get(id=2).__str__() == 'Дальневосточный федеральный округ'
+    assert Area.objects.get(id=area_id).title == expected_value[0]
+    assert Area.objects.get(id=area_id).__str__() == expected_value[1]

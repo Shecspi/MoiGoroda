@@ -3,7 +3,7 @@
 
 {% block content %}
     <div class="container-fluid">
-        <h1 class="display-5 text-center my-2">
+        <h1 class="display-5 text-center my-2" id="page-header">
             Регионы России
         </h1>
 
@@ -24,7 +24,7 @@
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mb-3 g-3">
                             {% for region in object_list %}
                                 <div class="col">
-                                    <div class="card h-100 text-center card-region">
+                                    <div class="card h-100 text-center region_card"  id="region_card_{{ forloop.counter }}">
                                         <!-- Название региона -->
                                         <h5 class="card-header">
                                             <a href="{% url 'region-selected' region.id %}"

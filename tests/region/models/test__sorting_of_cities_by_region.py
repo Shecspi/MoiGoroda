@@ -37,7 +37,7 @@ def test__CitiesByRegionMixin_apply_sort_to_queryset(setup_db_for_sorting, sort_
     Проверяет корректность работы метода сортировки Queryset - CitiesByRegionMixin.apply_sort_to_queryset().
     """
     mixin = CitiesByRegionMixin()
-    queryset = City.objects.filtelr(region=1).annotate(
+    queryset = City.objects.filter(region=1).annotate(
         is_visited=Exists(
             VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db_for_sorting)
         ),

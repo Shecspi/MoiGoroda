@@ -24,7 +24,7 @@
                         <!-- Карточки с городами -->
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mb-3 g-3">
                             {% for city in object_list %}
-                                <div class="col">
+                                <div class="col" id="city_card_{{ forloop.counter }}">
                                     <div class="card {% if city.is_visited %}border-success {% endif %}h-100 text-center
                                         {% if city.is_visited %} card-visited-city{% else %} card-notvisited-city{% endif %}">
                                         <div class="card-header{% if city.is_visited %} text-success{% endif %}">

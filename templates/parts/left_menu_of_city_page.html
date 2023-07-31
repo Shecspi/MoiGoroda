@@ -1,21 +1,21 @@
 <!-- Статистика -->
-<div class="alert alert-success" role="alert">
-    <p class="my-0" style="text-align:left">
+<div class="alert alert-success" role="alert" id="block-statistic">
+    <p class="my-0" style="text-align:left" id="p-qty_of_visited_cities">
         Посещено:<span style="float:right;"><strong>{{ qty_of_visited_cities }}</strong></span>
     </p>
-    <p class="my-0" style="text-align:left">
+    <p class="my-0" style="text-align:left" id="p-qty_of_cities">
         Всего городов:<span style="float:right;"><strong>{{ total_qty_of_cities }}</strong></span>
     </p>
     <hr>
-    <p class="my-0" style="text-align:left">
+    <p class="my-0" style="text-align:left" id="p-qty_of_visited_cities_current_year">
         В этом году:<span style="float:right;"><strong>{{ qty_of_visited_cities_current_year }}</strong></span>
     </p>
-    <p class="my-0" style="text-align:left">
+    <p class="my-0" style="text-align:left" id="p-qty_of_visited_cities_last_year">
         В прошлом году:<span style="float:right;"><strong>{{ qty_of_visited_cities_last_year }}</strong></span>
     </p>
     <hr>
-    <p class="mt-2 mb-0" style="text-align:right">
-        <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal" data-bs-target="#detailsModal">
+    <p class="mt-2 mb-0" style="text-align:right" id="p-support">
+        <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal" data-bs-target="#detailsModal" id="link-support">
             <small><i class="fa-regular fa-circle-question"></i> Подробнее...</small>
         </a>
     </p>
@@ -23,7 +23,7 @@
 <!-- ^^^ Статистика -->
 
 <!-- Вкладки -->
-<div class="card mb-3">
+<div class="card mb-3" id="block-tabs">
     <div class="card-body">
         <div class="nav flex-column nav-pills" id="v-pills-tab"
              role="tablist" aria-orientation="vertical">
@@ -83,8 +83,8 @@
                     <hr>
 
                     <!-- Сортировка -->
-                    <div class="dropdown d-grid gap-2">
-                        <div class="btn-group" role="group" aria-label="Сортировка по названию">
+                    <div class="dropdown d-grid gap-2" id="sorting">
+                        <div class="btn-group" role="group" aria-label="Сортировка по названию" id="sorting_by_name">
                             <a href="{% url 'city-all' %}?{{ url_for_sort_name_down }}"
                                class="btn btn-outline-danger" title="Сортировать по возрастанию названия">
                                 <i class="fa-solid fa-arrow-down-a-z"></i>
@@ -96,7 +96,7 @@
                             </a>
                         </div>
 
-                        <div class="btn-group" role="group" aria-label="Сортировка по дате посещения">
+                        <div class="btn-group" role="group" aria-label="Сортировка по дате посещения" id="sorting_by_date_of_visit">
                             <a href="{% url 'city-all' %}?{{ url_for_sort_date_down }}"
                                class="btn btn-outline-success" title="Сначала показать давно посещённые">
                                 <i class="fa-solid fa-arrow-down-1-9"></i>

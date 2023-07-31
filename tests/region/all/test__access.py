@@ -1,6 +1,6 @@
 """
 Тестирует доступность страницы для авторизованного и неавторизованного пользователей.
-Страница тестирования '/region/<pk>'.
+Страница тестирования '/region/all'.
 
 ----------------------------------------------
 
@@ -14,34 +14,30 @@ import pytest
 
 from django.urls import reverse
 
-from region.models import Area, Region
-
 
 @pytest.fixture
-def setup_db(client, django_user_model):
+def setup_db__access_region_all(client, django_user_model):
     django_user_model.objects.create_user(username='username', password='password')
-    area = Area.objects.create(title='Area 1')
-    region = Region.objects.create(id=1, area=area, title='Регион 1', type='O', iso3166=f'RU-RU')
 
 
 @pytest.mark.django_db
-def test_access_guest(setup_db, client):
+def test_access_guest(client):
     """
     Тестирование того, что у неавторизованного пользователя есть доступ на страницу и отображается корректный шаблон.
     """
-    response = client.get(reverse('region-selected', kwargs={'pk': 1}))
+    response = client.get(reverse('region-all'))
 
     assert response.status_code == 200
-    assert 'region/cities_by_region__list.html' in (t.name for t in response.templates)
+    assert 'region/region__list.html' in (t.name for t in response.templates)
 
 
 @pytest.mark.django_db
-def test_access_auth_user(setup_db, client):
+def test_access_auth_user(setup_db__access_region_all, client):
     """
     Тестирование того, что у авторизованного пользователя есть доступ на страницу и отображается корректный шаблон.
     """
     client.login(username='username', password='password')
-    response = client.get(reverse('region-selected', kwargs={'pk': 1}))
+    response = client.get(reverse('region-all'))
 
     assert response.status_code == 200
-    assert 'region/cities_by_region__list.html' in (t.name for t in response.templates)
+    assert 'region/region__list.html' in (t.name for t in response.templates)

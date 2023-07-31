@@ -72,7 +72,8 @@ def test__parameters_of_field__city(setup_db):
 def test__parameters_of_field__has_magnet(setup_db):
     assert VisitedCity._meta.get_field('has_magnet').verbose_name == 'Наличие магнита'
     assert VisitedCity._meta.get_field('has_magnet').blank
-    assert VisitedCity._meta.get_field('has_magnet').null
+    assert VisitedCity._meta.get_field('has_magnet').null is False
+    assert VisitedCity._meta.get_field('has_magnet').default is False
     assert isinstance(VisitedCity._meta.get_field('has_magnet'), models.BooleanField)
 
 

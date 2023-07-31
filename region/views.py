@@ -15,10 +15,12 @@ Licensed under the Apache License, Version 2.0
 import logging
 from datetime import datetime
 
+from django.db.models.functions import Cast
+from django.forms.fields import CharField
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value, F
+from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value, F, AutoField, CharField
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region

@@ -103,7 +103,8 @@ class VisitedCity(models.Model):
         help_text='Отметьте этот пункт, если у Вас есть магнитик с названием города. '
                   'В списке городов можно будет отфильтровать только те города, которые без магнитов.',
         blank=True,
-        null=True
+        null=False,
+        default=False
     )
     impression = models.TextField(
         verbose_name='Впечатления о городе',

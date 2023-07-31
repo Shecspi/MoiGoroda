@@ -41,7 +41,7 @@ def test__zero_visited_regions__1st_page__auth_user(setup_db, client):
     page_header = source.find('h1', {'id': 'page-header'})
     list_content = source.find('div', {'id': 'list-content'})
     all_regions = list_content.find_all('div', {'class': 'region_card'})
-    pagination_panel = list_content.find('div', {'id': 'pagination-panel'})
+    pagination_panel = list_content.find('div', {'id': 'block-pagination'})
 
     assert page_header
     assert 'Регионы России' in page_header.get_text()
@@ -53,7 +53,7 @@ def test__zero_visited_regions__1st_page__auth_user(setup_db, client):
         assert '0 из 1' in region.get_text()
         assert region.find('div', {'class': 'progress'}) is None
     assert pagination_panel
-    assert 'Страница 1 из 2' in source.find('div', {'id': 'pagination-panel'}).get_text()
+    assert 'Страница 1 из 2' in source.find('div', {'id': 'block-pagination'}).get_text()
 
 
 @pytest.mark.django_db
@@ -64,7 +64,7 @@ def test__zero_visited_regions__1st_page__guest(setup_db, client):
     page_header = source.find('h1', {'id': 'page-header'})
     list_content = source.find('div', {'id': 'list-content'})
     all_regions = source.find_all('div', {'class': 'region_card'})
-    pagination_panel = source.find('div', {'id': 'pagination-panel'})
+    pagination_panel = source.find('div', {'id': 'block-pagination'})
 
     assert page_header
     assert 'Регионы России' in page_header.get_text()
@@ -76,7 +76,7 @@ def test__zero_visited_regions__1st_page__guest(setup_db, client):
         assert 'Всего городов: 1' in region.get_text()
         assert region.find('div', {'class': 'progress'}) is None
     assert pagination_panel
-    assert 'Страница 1 из 2' in source.find('div', {'id': 'pagination-panel'}).get_text()
+    assert 'Страница 1 из 2' in source.find('div', {'id': 'block-pagination'}).get_text()
 
 
 @pytest.mark.django_db
@@ -88,7 +88,7 @@ def test__zero_visited_regions__2nd_page__auth_user(setup_db, client):
     page_header = source.find('h1', {'id': 'page-header'})
     list_content = source.find('div', {'id': 'list-content'})
     all_regions = source.find_all('div', {'class': 'region_card'})
-    pagination_panel = source.find('div', {'id': 'pagination-panel'})
+    pagination_panel = source.find('div', {'id': 'block-pagination'})
 
     assert page_header
     assert 'Регионы России' in page_header.get_text()
@@ -100,7 +100,7 @@ def test__zero_visited_regions__2nd_page__auth_user(setup_db, client):
         assert '0 из 1' in region.get_text()
         assert region.find('div', {'class': 'pregress-bar'}) is None
     assert pagination_panel
-    assert 'Страница 2 из 2' in source.find('div', {'id': 'pagination-panel'}).get_text()
+    assert 'Страница 2 из 2' in source.find('div', {'id': 'block-pagination'}).get_text()
 
 
 @pytest.mark.django_db
@@ -111,7 +111,7 @@ def test__zero_visited_regions__2nd_page__guest(setup_db, client):
     page_header = source.find('h1', {'id': 'page-header'})
     list_content = source.find('div', {'id': 'list-content'})
     all_regions = source.find_all('div', {'class': 'region_card'})
-    pagination_panel = source.find('div', {'id': 'pagination-panel'})
+    pagination_panel = source.find('div', {'id': 'block-pagination'})
 
     assert page_header
     assert 'Регионы России' in page_header.get_text()
@@ -123,4 +123,4 @@ def test__zero_visited_regions__2nd_page__guest(setup_db, client):
         assert 'Всего городов: 1' in region.get_text()
         assert region.find('div', {'class': 'pregress-bar'}) is None
     assert pagination_panel
-    assert 'Страница 2 из 2' in source.find('div', {'id': 'pagination-panel'}).get_text()
+    assert 'Страница 2 из 2' in source.find('div', {'id': 'block-pagination'}).get_text()

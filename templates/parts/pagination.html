@@ -1,41 +1,42 @@
 {% if page_obj.has_other_pages %}
-    <div class="text-center" id="pagination-panel">
+    <div class="text-center" id="block-pagination">
         <div class="btn-group mb-3" role="group">
             {% if page_obj.has_previous %}
-                <a href="?page=1{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="btn btn-outline-danger">
+                <a href="?page=1{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                   class="btn btn-outline-danger" id="link-to_first_page">
                     <i class="fa-solid fa-angles-left"></i>
                 </a>
                 <a href="?page={{ page_obj.previous_page_number }}{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
-                   class="btn btn-outline-danger">
+                   class="btn btn-outline-danger" id="link-to_prev_page">
                     <i class="fa-solid fa-angle-left"></i>
                 </a>
             {% else %}
-                <button class="btn btn-outline-secondary" disabled>
+                <button class="btn btn-outline-secondary" disabled id="link-to_first_page">
                     <i class="fa-solid fa-angles-left"></i>
                 </button>
-                <button class="btn btn-outline-secondary" disabled>
+                <button class="btn btn-outline-secondary" disabled id="link-to_prev_page">
                     <i class="fa-solid fa-angle-left"></i>
                 </button>
             {% endif %}
 
-            <button class="btn btn-outline-dark" disabled>
+            <button class="btn btn-outline-dark" disabled id="pagination-info">
                 Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
             </button>
 
             {% if page_obj.has_next %}
                 <a href="?page={{ page_obj.next_page_number }}{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
-                   class="btn btn-outline-success">
+                   class="btn btn-outline-success" id="link-to_next_page">
                     <i class="fa-solid fa-angle-right"></i>
                 </a>
                 <a href="?page={{ page_obj.paginator.num_pages }}{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
-                   class="btn btn-outline-success">
+                   class="btn btn-outline-success" id="link-to_last_page">
                     <i class="fa-solid fa-angles-right"></i>
                 </a>
             {% else %}
-                <button class="btn btn-outline-secondary" disabled>
+                <button class="btn btn-outline-secondary" disabled id="link-to_next_page">
                     <i class="fa-solid fa-angle-right"></i>
                 </button>
-                <button class="btn btn-outline-secondary" disabled>
+                <button class="btn btn-outline-secondary" disabled id="link-to_last_page">
                     <i class="fa-solid fa-angles-right"></i>
                 </button>
             {% endif %}

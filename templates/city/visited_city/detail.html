@@ -38,7 +38,7 @@
         <div class="row">
             <!-- Левый столбик -->
             <div class="col-lg-4">
-                <div class="card">
+                <div class="card" id="block-left_card">
                     <div class="card-body">
                         <div class="align-items-center text-center">
                             <img src="/static/city.png" alt="City" width="150">
@@ -49,7 +49,7 @@
                                 {% if object.city.wiki %}
                                     <div class="row mb-3">
                                         <div class="col d-grid gap-2">
-                                            <a href="{{ object.city.wiki }}"
+                                            <a href="{{ object.city.wiki }}" id="link-wiki"
                                                class="btn btn-outline-dark align-middle" target="_blank">
                                                 <i class="fa-brands fa-wikipedia-w"></i>&nbsp;&nbsp;&nbsp;Статья на Wikipedia
                                             </a>
@@ -60,14 +60,13 @@
 
                                 <div class="row">
                                     <div class="col-sm-6 mb-1 d-grid gap-2">
-                                        <a href="{% url 'city-update' object.id %}" class="btn btn-outline-success">
+                                        <a href="{% url 'city-update' object.id %}"
+                                           class="btn btn-outline-success" id="link-update">
                                             <i class="fa-regular fa-pen-to-square"></i>&nbsp;&nbsp;&nbsp;Изменить
                                         </a>
                                     </div>
                                     <div class="col-sm-6 mb-1 d-grid gap-2">
-                                        <button
-                                                class="btn btn-outline-danger"
-                                                type="button"
+                                        <button class="btn btn-outline-danger" type="button" id="link-delete"
                                                 onclick="openDeleteModal('{{ object.id }}', '{{ object }}')">
                                             <i class="fa-solid fa-trash-can"></i>&nbsp;&nbsp;&nbsp;Удалить
                                         </button>
@@ -82,15 +81,15 @@
 
             <!-- Правый столбик -->
             <div class="col-lg-8">
-                <div class="card mb-3">
+                <div class="card mb-3" id="block-main_content">
                     <div class="card-body">
                         <div class="mt-3">
                             <!-- Регион -->
-                            <div class="row">
-                                <div class="col-12 col-md-4 fw-bold">
+                            <div class="row" id="section-region">
+                                <div class="col-12 col-md-4 fw-bold" id="subsection-region_title">
                                     Регион:
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8" id="subsection-region_value">
                                     {{ object.region }}
                                 </div>
                             </div>
@@ -99,11 +98,11 @@
                             <hr>
 
                             <!-- Федеральный округ -->
-                            <div class="row">
-                                <div class="col-12 col-md-4 fw-bold">
+                            <div class="row" id="section-area">
+                                <div class="col-12 col-md-4 fw-bold" id="subsection-area_title">
                                     Федеральный округ:
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8" id="subsection-area_value">
                                     {{ object.region.area }}
                                 </div>
                             </div>
@@ -112,11 +111,11 @@
                             <hr>
 
                             <!-- Год основания -->
-                            <div class="row">
-                                <div class="col-12 col-md-4 fw-bold">
+                            <div class="row" id="section-date_of_foundation">
+                                <div class="col-12 col-md-4 fw-bold" id="subsection-date_of_foundation_title">
                                     Год основания:
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8" id="subsection-date_of_foundation_value">
                                     {% if object.city.date_of_foundation %}
                                         {{ object.city.date_of_foundation }} г.
                                     {% else %}
@@ -131,11 +130,11 @@
                             <hr>
 
                             <!-- Население -->
-                            <div class="row">
-                                <div class="col-12 col-md-4 fw-bold">
+                            <div class="row" id="section-population">
+                                <div class="col-12 col-md-4 fw-bold" id="subsection-population_title">
                                     Население:
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8" id="subsection-population_value">
                                     {% if object.city.population %}
                                         {{ object.city.population|intcomma }} чел.
                                     {% else %}
@@ -150,11 +149,11 @@
                             <hr>
 
                             <!-- Коллекции -->
-                            <div class="row">
-                                <div class="col-12 col-md-4 fw-bold">
+                            <div class="row" id="section-collections">
+                                <div class="col-12 col-md-4 fw-bold" id="subsection-collections_title">
                                     Коллекции:
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8" id="subsection-collections_value">
                                     {% if collections_list %}
                                         {% for collection in collections_list %}
                                             <span class="badge text-bg-success">
@@ -173,11 +172,11 @@
                             <hr>
 
                             <!-- Дата посещения -->
-                            <div class="row">
-                                <div class="col-12 col-md-4 fw-bold">
+                            <div class="row" id="section-date_of_visit">
+                                <div class="col-12 col-md-4 fw-bold" id="subsection-date_of_visit_title">
                                     Дата посещения:
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8" id="subsection-date_of_visit_value">
                                     {% if object.date_of_visit %}
                                         {{ object.date_of_visit }}
                                     {% else %}
@@ -192,11 +191,11 @@
                             <hr>
 
                             <!-- Магнит -->
-                            <div class="row">
-                             <div class="col-12 col-md-4 fw-bold">
+                            <div class="row" id="section-has_magnet">
+                                <div class="col-12 col-md-4 fw-bold" id="subsection-has_magnet_title">
                                     Магнит:
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8" id="subsection-has_magnet_value">
                                     {% if object.has_magnet %}
                                         <span class="badge bg-success">имеется</span>
                                     {% else %}
@@ -209,11 +208,11 @@
                             <hr>
 
                             <!-- Впечатления -->
-                            <div class="row">
-                                <div class="col-12 col-md-4 fw-bold">
+                            <div class="row" id="section-impression">
+                                <div class="col-12 col-md-4 fw-bold" id="subsection-impression_title">
                                     Впечатления:
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8" id="subsection-impression_value">
                                     {{ object.impression }}
                                 </div>
                             </div>
@@ -222,11 +221,11 @@
                             <hr>
 
                             <!-- Оценка -->
-                            <div class="row">
-                                <div class="col-12 col-md-4 fw-bold">
+                            <div class="row" id="section-rating">
+                                <div class="col-12 col-md-4 fw-bold" id="subsection-rating_title">
                                     Ваша оценка:
                                 </div>
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-8" id="subsection-rating_value">
                                     {% for i in '12345'|make_list %}
                                         {% if forloop.counter <= object.rating %}
                                             <i class="fa-solid fa-star" style="color: #ffc43c;"></i>

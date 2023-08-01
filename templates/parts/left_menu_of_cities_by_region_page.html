@@ -23,7 +23,7 @@
 <!-- ^^^ Статистика -->
 
 <!-- Вкладки -->
-<div class="card mb-3">
+<div class="card mb-3" id="block-tabs">
     <div class="card-body">
         <div class="nav flex-column nav-pills" id="v-pills-tab"
              role="tablist" aria-orientation="vertical">
@@ -83,8 +83,9 @@
                     <hr>
 
                     <!-- Сортировка -->
-                    <div class="dropdown d-grid gap-2" id="sorting">
-                        <div class="btn-group" role="group" aria-label="Сортировка по названию" id="sorting_by_name">
+                    <div class="dropdown d-grid gap-2" id="section-sorting">
+                        <div class="btn-group" role="group" aria-label="Сортировка по названию"
+                             id="subsection-sorting-by_name">
                             <a href="{% url 'region-selected' region_id %}?{{ url_for_sort_name_down }}"
                                class="btn btn-outline-danger" title="Сортировать по возрастанию названия">
                                 <i class="fa-solid fa-arrow-down-a-z"></i>
@@ -96,7 +97,8 @@
                             </a>
                         </div>
 
-                        <div class="btn-group" role="group" aria-label="Сортировка по дате посещения" id="sorting_by_date_of_visit">
+                        <div class="btn-group" role="group" aria-label="Сортировка по дате посещения"
+                             id="subsection-sorting-by_date_of_visit">
                             <a href="{% url 'region-selected' region_id %}?{{ url_for_sort_date_down }}"
                                class="btn btn-outline-success" title="Сначала показать давно посещённые">
                                 <i class="fa-solid fa-arrow-down-1-9"></i>

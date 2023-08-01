@@ -41,7 +41,7 @@ def setup_db__content_with_visited_regions__region_all(client, django_user_model
 
 
 @pytest.mark.django_db
-def test__pagination__1st_page(setup_db__content_without_visited_regions__region_all, client):
+def test__pagination__1st_page__auth_user(setup_db__content_without_visited_regions__region_all, client):
     client.login(username='username', password='password')
     response = client.get(reverse('region-all'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -56,7 +56,7 @@ def test__pagination__1st_page(setup_db__content_without_visited_regions__region
 
 
 @pytest.mark.django_db
-def test__pagination__2nd_page(setup_db__content_without_visited_regions__region_all, client):
+def test__pagination__2nd_page__auth_user(setup_db__content_without_visited_regions__region_all, client):
     client.login(username='username', password='password')
     response = client.get(reverse('region-all') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -71,8 +71,50 @@ def test__pagination__2nd_page(setup_db__content_without_visited_regions__region
 
 
 @pytest.mark.django_db
-def test__pagination__3rd_page(setup_db__content_without_visited_regions__region_all, client):
+def test__pagination__3rd_page__auth_user(setup_db__content_without_visited_regions__region_all, client):
     client.login(username='username', password='password')
+    response = client.get(reverse('region-all') + '?page=3')
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+
+    assert pagination
+    assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})
+    assert pagination.find('a', {'id': 'link-to_prev_page', 'class': 'btn-outline-danger'})
+    assert pagination.find('button', {'id': 'link-to_next_page', 'class': 'btn-outline-secondary', 'disabled': True})
+    assert pagination.find('button', {'id': 'link-to_last_page', 'class': 'btn-outline-secondary', 'disabled': True})
+    assert 'Страница 3 из 3' in pagination.find('button', {'id': 'pagination-info'}).get_text()
+
+
+@pytest.mark.django_db
+def test__pagination__1st_page__guest(setup_db__content_without_visited_regions__region_all, client):
+    response = client.get(reverse('region-all'))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+
+    assert pagination
+    assert pagination.find('button', {'id': 'link-to_first_page', 'class': 'btn-outline-secondary', 'disabled': True})
+    assert pagination.find('button', {'id': 'link-to_prev_page', 'class': 'btn-outline-secondary', 'disabled': True})
+    assert pagination.find('a', {'id': 'link-to_next_page', 'class': 'btn-outline-success'})
+    assert pagination.find('a', {'id': 'link-to_last_page', 'class': 'btn-outline-success'})
+    assert 'Страница 1 из 3' in pagination.find('button', {'id': 'pagination-info'}).get_text()
+
+
+@pytest.mark.django_db
+def test__pagination__2nd_page__guest(setup_db__content_without_visited_regions__region_all, client):
+    response = client.get(reverse('region-all') + '?page=2')
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+
+    assert pagination
+    assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})
+    assert pagination.find('a', {'id': 'link-to_prev_page', 'class': 'btn-outline-danger'})
+    assert pagination.find('a', {'id': 'link-to_next_page', 'class': 'btn-outline-success'})
+    assert pagination.find('a', {'id': 'link-to_last_page', 'class': 'btn-outline-success'})
+    assert 'Страница 2 из 3' in pagination.find('button', {'id': 'pagination-info'}).get_text()
+
+
+@pytest.mark.django_db
+def test__pagination__3rd_page__guest(setup_db__content_without_visited_regions__region_all, client):
     response = client.get(reverse('region-all') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})

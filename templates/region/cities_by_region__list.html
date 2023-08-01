@@ -3,8 +3,8 @@
 {% load humanize %}
 
 {% block content %}
-    <div class="container-fluid">
-        <h1 class="display-5 text-center my-2">
+    <div class="container-fluid" id="block-content">
+        <h1 class="display-5 text-center my-2" id="page-header">
             {{ region_name }}
         </h1>
 
@@ -29,7 +29,7 @@
                                         {% if city.is_visited %} card-visited-city{% else %} card-notvisited-city{% endif %}">
                                         <div class="card-header{% if city.is_visited %} text-success{% endif %}">
                                             <!-- Город -->
-                                            <div class="h4">
+                                            <div class="h4" id="section-city_title_{{ forloop.counter }}">
                                                 {% if city.visited_id %}
                                                     <a href="{% url 'city-selected' city.visited_id %}"
                                                        class="text-underline-dashed text-reset">
@@ -40,7 +40,7 @@
                                                 {% endif %}
                                             </div>
 
-                                            <small>
+                                            <small id="section-date_of_visit_{{ forloop.counter }}">
                                                 {% if city.is_visited %}
                                                     {% if city.date_of_visit %}
                                                         {{ city.date_of_visit }}
@@ -54,7 +54,8 @@
 
                                         <div class="card-body">
                                             <!-- Население -->
-                                            <small class="card-subtitle text-muted">
+                                            <small class="card-subtitle text-muted"
+                                                   id="section-population_{{ forloop.counter }}">
                                                 {% if city.population %}
                                                     Население <strong>{{ city.population|intcomma }}</strong> чел.
                                                 {% else %}
@@ -66,7 +67,8 @@
                                             <br>
 
                                             <!-- Год основания -->
-                                            <small class="card-subtitle text-muted">
+                                            <small class="card-subtitle text-muted"
+                                                    id="section-date_of_foundation_{{ forloop.counter }}">
                                                 {% if city.date_of_foundation %}
                                                     Основан в <strong>{{ city.date_of_foundation }}</strong> году
                                                 {% else %}

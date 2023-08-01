@@ -10,7 +10,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-
 import pytest
 from datetime import datetime
 
@@ -26,7 +25,7 @@ from django.urls import reverse
 
 
 @pytest.fixture
-def setup_db(client, django_user_model):
+def setup_db__filtering__reion_pk(client, django_user_model):
     user = django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Округ 1')
     region = Region.objects.create(id=1, area=area, title='Регион 1', type='область', iso3166='RU-RU')
@@ -55,22 +54,20 @@ def setup_db(client, django_user_model):
         ('last_year', ['Город 3'])
     ]
 )
-def test__method_apply_filter_to_queryset_correct_value(setup_db, filter_value, expected_value):
-    """
-    Проверяет корректность работы метода фильтрации Queryset - VisitedCityMixin.apply_filter_to_queryset().
-    Должны отображаться только города, попадающие под условие 'filter_value'.
-    """
+def test__filtering__correct_value(setup_db__filtering__reion_pk, filter_value, expected_value):
     mixin = CitiesByRegionMixin()
     queryset = City.objects.filter(region=1).annotate(
         is_visited=Exists(
-            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db)
+            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db__filtering__reion_pk)
         ),
         date_of_visit=Subquery(
-            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db).values('date_of_visit'),
+            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db__filtering__reion_pk).values(
+                'date_of_visit'),
             output_field=DateField()
         ),
         has_magnet=Subquery(
-            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db).values('has_magnet'),
+            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db__filtering__reion_pk).values(
+                'has_magnet'),
             output_field=BooleanField()
         )
     ).values_list('title')
@@ -79,22 +76,20 @@ def test__method_apply_filter_to_queryset_correct_value(setup_db, filter_value, 
     assert result == expected_value
 
 
-def test__method_apply_filter_to_queryset_incorrect_value(setup_db):
-    """
-    Проверяет корректность работы метода фильтрации Queryset - VisitedCityMixin.apply_filter_to_queryset().
-    При некорректных данных он должен вернуть исключение KeyError.
-    """
+def test__filtering__incorrect_value(setup_db__filtering__reion_pk):
     mixin = VisitedCityMixin()
     queryset = City.objects.filter(region=1).annotate(
         is_visited=Exists(
-            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db)
+            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db__filtering__reion_pk)
         ),
         date_of_visit=Subquery(
-            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db).values('date_of_visit'),
+            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db__filtering__reion_pk).values(
+                'date_of_visit'),
             output_field=DateField()
         ),
         has_magnet=Subquery(
-            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db).values('has_magnet'),
+            VisitedCity.objects.filter(city__id=OuterRef('pk'), user=setup_db__filtering__reion_pk).values(
+                'has_magnet'),
             output_field=BooleanField()
         )
     ).values_list('title')
@@ -103,57 +98,91 @@ def test__method_apply_filter_to_queryset_incorrect_value(setup_db):
         mixin.apply_filter_to_queryset(queryset, 'wrong value').values_list('city__title', flat=True)
 
 
-# @pytest.mark.django_db
-# @pytest.mark.parametrize(
-#     'filter_value, expected_value', (
-#         ('magnet', ['Город 4', 'Город 5', 'Город 6']),
-#         ('current_year', ['Город 1', 'Город 2']),
-#         ('last_year', ['Город 3'])
-#     )
-# )
-# def test__correct_order_of_filtered_cities_on_page(setup_db, client, filter_value, expected_value):
-#     """
-#     Проверяет корректность порядка отображения карточек с городами на странице для авторизованного пользователя.
-#     Неавторизованный пользователь не имеет доступа на эту страницу.
-#     """
-#     client.login(username='username', password='password')
-#     response = client.get(reverse('city-all') + '?filter=' + filter_value)
-#     source = BeautifulSoup(response.content.decode(), 'html.parser')
-#
-#     for number in range(1, len(expected_value) + 1):
-#         card_city = source.find('div', {'id': f'city_card_{number}'})
-#         header_of_cadr_city = card_city.find('div', {'class': 'h4'})
-#         assert expected_value[number - 1] in header_of_cadr_city.get_text()
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'filter_value, expected_value', (
+            ('magnet', ['Город 4', 'Город 5', 'Город 6']),
+            ('current_year', ['Город 1', 'Город 2']),
+            ('last_year', ['Город 3']),
+            ('wrong_value', ['Город 1', 'Город 2', 'Город 3', 'Город 4', 'Город 5', 'Город 6'])
+    )
+)
+def test__correct_order_of_filtered_cities_on_page__auth_user(setup_db__filtering__reion_pk,
+                                                              client, filter_value, expected_value):
+    """
+    Тестируется порядок отображения карточек при фильтрации.
+    Содержимое карточек более подробно тестируется в другом файле.
+    """
+    client.login(username='username', password='password')
+    response = client.get(reverse('region-selected', kwargs={'pk': 1}) + '?filter=' + filter_value)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+
+    for number in range(1, len(expected_value) + 1):
+        card_city = source.find('div', {'id': f'city_card_{number}'})
+        header_of_cadr_city = card_city.find('div', {'class': 'h4'})
+        assert expected_value[number - 1] in header_of_cadr_city.get_text()
 
 
-# @pytest.mark.django_db
-# @pytest.mark.parametrize(
-#     'sort_value', [
-#         '',  'name_down', 'name_up', 'date_down', 'date_up'
-#     ]
-# )
-# def test__page_has_filter_buttons_for_auth_user(setup_db, client, sort_value):
-#     """
-#     Проверяет существование на странице наличия кнопок для фильтрации для авторизованного пользователя.
-#     """
-#     client.login(username='username', password='password')
-#     response = client.get(reverse('city-all') + (f'?sort={sort_value}' if sort_value else ''))
-#     source = BeautifulSoup(response.content.decode(), 'html.parser')
-#     block_filter_and_sorting = source.find('div', {'id': 'block-filter_and_sorting'})
-#     block_filtering = source.find('div', {'id': 'block-filtering'})
-#     button_filtering_by_magnet = block_filtering.find('a', {
-#         'href': reverse('city-all') + (f'?filter=magnet&sort={sort_value}' if sort_value else '?filter=magnet')
-#     })
-#     button_filtering_by_current_year = source.find('a', {
-#         'href': reverse('city-all') + (f'?filter=current_year&sort={sort_value}' if sort_value else '?filter=current_year')
-#     })
-#     button_filtering_by_last_year = source.find('a', {
-#         'href': reverse('city-all') + (f'?filter=last_year&sort={sort_value}' if sort_value else '?filter=last_year')
-#     })
-#
-#     assert block_filter_and_sorting
-#     assert block_filtering
-#     assert button_filtering_by_magnet
-#     assert button_filtering_by_current_year
-#     assert button_filtering_by_last_year
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'filter_value, expected_value', (
+            ('magnet', ['Город 1', 'Город 2', 'Город 3', 'Город 4', 'Город 5', 'Город 6']),
+            ('current_year', ['Город 1', 'Город 2', 'Город 3', 'Город 4', 'Город 5', 'Город 6']),
+            ('last_year', ['Город 1', 'Город 2', 'Город 3', 'Город 4', 'Город 5', 'Город 6'])
+    )
+)
+def test__correct_order_of_filtered_cities_on_page__guest(setup_db__filtering__reion_pk,
+                                                          client, filter_value, expected_value):
+    """
+    Тестируется порядок отображения карточек при фильтрации.
+    Содержимое карточек более подробно тестируется в другом файле.
 
+    Для неавторизованного пользователя фильтрация недоступна,
+    поэтому при любом значении 'filter' результат будет одинаковый.
+    """
+    response = client.get(reverse('region-selected', kwargs={'pk': 1}) + '?filter=' + filter_value)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+
+    for number in range(1, len(expected_value) + 1):
+        card_city = source.find('div', {'id': f'city_card_{number}'})
+        header_of_cadr_city = card_city.find('div', {'class': 'h4'})
+        assert expected_value[number - 1] in header_of_cadr_city.get_text()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'sort_value', [
+        'name_down', 'name_up', 'date_down', 'date_up', ''
+    ]
+)
+def test__filter_buttons__auth_user(setup_db__filtering__reion_pk, client, sort_value):
+    client.login(username='username', password='password')
+    response = client.get(reverse('region-selected', kwargs={'pk': 1}) + (f'?sort={sort_value}' if sort_value else ''))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    block_filter_and_sorting = source.find('div', {'id': 'block-filter_and_sorting'})
+    block_filtering = source.find('div', {'id': 'block-filtering'})
+    print(reverse('region-selected', kwargs={'pk': 1}) + (f'?filter=magnet&sort={sort_value}' if sort_value else '?filter=magnet'))
+    print(block_filtering.find_all('a'))
+    button_filtering_by_magnet = block_filtering.find('a', {
+        'href': reverse('region-selected', kwargs={'pk': 1}) + (f'?filter=magnet&sort={sort_value}' if sort_value else '?filter=magnet&sort=default_auth')
+    })
+    button_filtering_by_current_year = source.find('a', {
+        'href': reverse('region-selected', kwargs={'pk': 1}) + (f'?filter=current_year&sort={sort_value}' if sort_value else '?filter=current_year&sort=default_auth')
+    })
+    button_filtering_by_last_year = source.find('a', {
+        'href': reverse('region-selected', kwargs={'pk': 1}) + (f'?filter=last_year&sort={sort_value}' if sort_value else '?filter=last_year&sort=default_auth')
+    })
+
+    assert block_filter_and_sorting
+    assert block_filtering
+    assert button_filtering_by_magnet
+    assert button_filtering_by_current_year
+    assert button_filtering_by_last_year
+
+
+@pytest.mark.django_db
+def test__filter_buttons__guest(setup_db__filtering__reion_pk, client):
+    response = client.get(reverse('region-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+
+    assert source.find('div', {'id': 'block-filter_and_sorting'}) is None

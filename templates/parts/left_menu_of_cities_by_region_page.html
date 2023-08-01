@@ -1,21 +1,21 @@
 <!-- Статистика -->
 <div class="alert alert-success" role="alert" id="block-statistic">
-    <p class="my-0" style="text-align:left" id="text-total_cities_in_region">
+    <p class="my-0" style="text-align:left" id="section-statistic-total_qty_of_cities">
         Городов в регионе:<span style="float:right;"><strong>{{ total_qty_of_cities }}</strong></span>
     </p>
     <hr>
     {% if user.is_authenticated %}
-        <p class="my-0" style="text-align:left" id="text-qty_of_visited_cities">
+        <p class="my-0" style="text-align:left" id="section-statistic-qty_of_visited_cities">
             Посещено:<span style="float:right;"><strong>{{ qty_of_visited_cities }}</strong></span>
         </p>
-        <p class="my-0" style="text-align:left" id="text-qty_of_visited_cities_this_year">
+        <p class="my-0" style="text-align:left" id="section-statistic-qty_of_finished_regions">
             В этом году:<span style="float:right;"><strong>{{ qty_of_visited_cities_current_year }}</strong></span>
         </p>
         <hr>
     {% endif %}
-    <p class="mt-2 mb-0" style="text-align:right" id="text-support">
+    <p class="mt-2 mb-0" style="text-align:right" id="section-statistic-support">
         <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal"
-           data-bs-target="#detailsModal" id="link-support">
+           data-bs-target="#detailsModal" id="link-statistic-support">
             <small><i class="fa-regular fa-circle-question"></i> Подробнее...</small>
         </a>
     </p>
@@ -54,7 +54,7 @@
     <!-- ^^^ Кнопка добавления города -->
 
     <!-- Фильтры и сортировка -->
-    <div class="card mb-3" id="filter_and_sorting">
+    <div class="card mb-3" id="block-filter_and_sorting">
         <div class="card-body text-center">
             <a data-bs-toggle="collapse" href="#collapseFilters" role="button"
                aria-expanded="false" aria-controls="collapseFilters" class="text-decoration-none">

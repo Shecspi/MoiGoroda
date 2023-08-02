@@ -1,6 +1,6 @@
 """
 Тестирует работу сортировки городов конкретного региона.
-Страница тестирования '/region/1'.
+Страница тестирования '/region/<pk>'.
 
 ----------------------------------------------
 
@@ -43,7 +43,6 @@ def setup_db__region_pk__sorting(client, django_user_model):
         )
 
     return user
-
 
 
 @pytest.mark.django_db

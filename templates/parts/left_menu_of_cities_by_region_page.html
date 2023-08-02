@@ -15,7 +15,7 @@
     {% endif %}
     <p class="mt-2 mb-0" style="text-align:right" id="section-statistic-support">
         <a href="#" class="text-underline-dashed text-reset" data-bs-toggle="modal"
-           data-bs-target="#detailsModal" id="link-statistic-support">
+           data-bs-target="#window-details" id="link-statistic-support">
             <small><i class="fa-regular fa-circle-question"></i> Подробнее...</small>
         </a>
     </p>
@@ -118,27 +118,29 @@
 {% endif %}
 <!-- ^^^ Фильтры -->
 
-<!-- Модальнео окно -->
-<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- Модальное окно -->
+<div class="modal fade" id="window-details" tabindex="-1" aria-labelledby="window-title" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Подробнее</h5>
+                <h5 class="modal-title" id="window-title">Подробнее</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>
+                <p id="section-modal-total_cities">
                     <strong>Всего городов</strong> - общее количество городов в России.
                 </p>
-                <p>
-                    <strong>Посещено</strong> - количество городов, которые Вы посетили.
-                </p>
-                <p>
-                    <strong>В этом году</strong> - количество городов, посещённых Вами в этом году.
-                </p>
-                <p>
-                    <strong>В прошлом году</strong> - количество городов, посещённых Вами в прошлом году.
-                </p>
+                {% if user.is_authenticated %}
+                    <p id="section-modal-visited">
+                        <strong>Посещено</strong> - количество городов, которые Вы посетили.
+                    </p>
+                    <p id="section-modal-current_year">
+                        <strong>В этом году</strong> - количество городов, посещённых Вами в этом году.
+                    </p>
+                    <p id="section-modal-last_year">
+                        <strong>В прошлом году</strong> - количество городов, посещённых Вами в прошлом году.
+                    </p>
+                {% endif %}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть подсказку</button>
@@ -146,3 +148,4 @@
         </div>
     </div>
 </div>
+<!-- ^^ Модальное окно -->

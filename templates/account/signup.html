@@ -1,29 +1,53 @@
-{% extends 'base.html' %}
+{% extends 'base-clear_page.html' %}
+{% load static %}
 {% load crispy_forms_filters %}
 {% load crispy_forms_field %}
 
 {% block content %}
-    <div class="container">
-        <div class="row justify-content-center mb-3">
-            <div class="col-md-6">
-                <h1 class="display-5 text-center my-2">
-                    Регистрация
-                </h1>
+    <div class="container d-flex justify-content-center align-items-center my-auto py-md-3">
+        <!-- Login box -->
+        <div class="row border rounded-5 p-3 bg-white shadow box-area">
+            <!-- Left part -->
+            <div class="col-md-6 py-5 rounded-4 d-flex justify-content-center align-items-center flex-column left-box" style="background: #103cbe;">
+                <div class="mb-5 image-signup-left-box">
+                    <img src="{% static 'logo-signup.png' %}" class="img-fluid" style="width: 250px;" alt="Image">
+                </div>
+                <p class="text-white fs-2 font-bold">Добро пожаловать</p>
+                <p class="text-white text-wrap text-center">
+                    На сайте "Мои города" Вы сможете сохранять ссвои посещённые города и просматривать их в удобном виде на карте.
+                </p>
+            </div>
+            <!-- /Left part -->
 
-                <div class="card p-3">
-                    <div class="card-body">
-                        <form method="post">
-                            {% crispy form %}
-
-                            <div class="float-end">
-                                <button type="submit" class="btn btn-primary btn-block">
-                                    Зарегистрироваться
-                                </button>
+            <!-- Right part -->
+            <div class="col-md-6 right-box d-flex justify-content-center">
+                <div class="row align-items-center">
+                    <form method="post">
+                        <div class="header-text mb-4">
+                            <h2 class="font-bold">Регистрация</h2>
+                            <p>Заполните поля ниже для того, чтобы сохранять свои посещённые города.</p>
+                        </div>
+                        {% crispy form %}
+                        <div class="input-group mb-3">
+                            <button class="btn btn-lg btn-primary w-100 fs-6 mt-3">Зарегистрироваться</button>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <small>
+                                    Уже регистрировались?
+                                </small>
                             </div>
-                        </form>
-                    </div>
+                            <div>
+                                <small>
+                                    <a href="{% url 'signin' %}">Войти</a>
+                                </small>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
+            <!-- /Right part -->
         </div>
+        <!-- /Login box -->
     </div>
 {% endblock %}

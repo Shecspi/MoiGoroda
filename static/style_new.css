@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+body{
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    background: #ececec;
+}
+
+.logo-navbar {
+    font-family: 'Pacifico', cursive;
+    font-size: 40px;
+}
+
+/*------------ Login container ------------*/
+
+.box-area{
+    width: 930px;
+}
+
+/*------------ Right box ------------*/
+
+.right-box{
+    padding: 40px 30px 40px 40px;
+}
+
+/*------------ Custom Placeholder ------------*/
+
+::placeholder{
+    font-size: 16px;
+}
+
+.rounded-4{
+    border-radius: 20px;
+}
+.rounded-5{
+    border-radius: 30px;
+}
+
+.font-bold {
+    font-weight: 400;
+}
+
+
+/*------------ For small screens------------*/
+
+@media only screen and (max-width: 768px){
+    .logo-navbar {
+        font-size: 20px;
+    }
+     .box-area{
+        margin: 0;
+
+     }
+     .left-box{
+        height: 100px;
+        overflow: hidden;
+     }
+     .image-signin-left-box {
+         margin-top: 385px;
+     }
+     .image-signup-left-box {
+         margin-top: 310px;
+     }
+     .right-box{
+        padding: 20px;
+     }
+}

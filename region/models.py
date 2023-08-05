@@ -17,6 +17,7 @@ class Area(models.Model):
         max_length=100,
         verbose_name='Название',
         blank=False,
+        null=False,
         unique=True
     )
 
@@ -29,33 +30,31 @@ class Area(models.Model):
 
 
 class Region(models.Model):
-    """
-    Таблица, хранящая в себе список регионов.
-    Редактируется только из администраторской учётной записи.
-
-    """
     area = models.ForeignKey(
         Area,
         on_delete=CASCADE,
         verbose_name='Федеральный округ',
-        blank=False
+        blank=False,
+        null=False
     )
     title = models.CharField(
         max_length=100,
         verbose_name='Название',
-        blank=False
+        blank=False,
+        null=False
     )
     type = models.CharField(
         max_length=100,
         choices=TYPES_OF_REGIONS,
         verbose_name='Тип субъекта',
-        blank=False
+        blank=False,
+        null=False
     )
     iso3166 = models.CharField(
         max_length=10,
         verbose_name='Код ISO3166',
-        blank=True,
-        default='',
+        blank=False,
+        null=False,
         unique=True
     )
 

@@ -22,12 +22,14 @@ class News(models.Model):
         max_length=256,
         verbose_name='Заголовок',
         blank=False,
+        null=False,
         help_text='Указанный заголовок новости будет отображатьсят только в админ-панели.<br>'
                   'Пользователи его не увидят. Для них необходимо указывать заголовок новости в поле ниже.'
     )
     content = MDTextField(
         verbose_name='Новость',
-        blank=False
+        blank=False,
+        null=False
     )
     created = models.DateTimeField(
         auto_now_add=True,

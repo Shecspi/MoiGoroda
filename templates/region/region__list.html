@@ -2,7 +2,7 @@
 {% load mathfilters %}
 
 {% block content %}
-    <div class="container-fluid">
+    <div class="container-fluid" id="block-content">
         <h1 class="display-5 text-center my-2" id="page-header">
             Регионы России
         </h1>
@@ -23,10 +23,10 @@
                         <!-- Карточки с регионами -->
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mb-3 g-3">
                             {% for region in object_list %}
-                                <div class="col">
-                                    <div class="card h-100 text-center region_card"  id="region_card_{{ forloop.counter }}">
+                                <div class="col" id="region_card_{{ forloop.counter }}">
+                                    <div class="card h-100 text-center">
                                         <!-- Название региона -->
-                                        <h5 class="card-header">
+                                        <h5 class="card-header" id="section-region_title_{{ forloop.counter }}">
                                             <a href="{% url 'region-selected' region.id %}"
                                                class="text-underline-dashed text-reset">
                                                 {{ region }}
@@ -35,14 +35,14 @@
                                         <!-- ^^^ Название региона -->
 
                                         <!-- Федеральный округ -->
-                                        <div class="card-body">
+                                        <div class="card-body" id="section-area_title_{{ forloop.counter }}">
                                             <small class="card-subtitle text-muted">
                                                 {{ region.area }} федеральный округ
                                             </small>
                                         </div>
                                         <!-- ^^^ Федеральный округ -->
 
-                                        <div class="card-footer" style="background: none; border-top: none;">
+                                        <div class="card-footer" style="background: none; border-top: none;" id="section-qty_of_cities_{{ forloop.counter }}">
                                             <!-- Количество городов -->
                                             <small class="text-muted">
                                                 {% if user.is_authenticated %}
@@ -59,7 +59,7 @@
                                                     {% if region.num_visited > 0 %}
                                                         <div class="progress" data-toggle="tooltip" title="Tooltip on top">
                                                             <div class="progress-bar progress-bar-striped" role="progressbar"
-                                                            style="width: {% widthratio region.num_visited region.num_total 100 %}%"
+                                                            style="width: {% widthratio region.num_visited region.num_total 100 %}%" id="progress_bar_{{ forloop.counter }}"
                                                             aria-valuenow="{% widthratio region.num_visited region.num_total 100 %}"
                                                             aria-valuemin="0" aria-valuemax="100"></div>
                                                         </div>

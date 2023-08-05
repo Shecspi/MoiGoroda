@@ -17,6 +17,7 @@ class AreaAdmin(admin.ModelAdmin):
     get_qty_of_regions.short_description = 'Количество регионов'
     get_qty_of_cities.short_description = 'Количество городов'
 
+
 @admin.register(Region)
 class RegionAdmin(admin.ModelAdmin):
     list_display = ('id', 'get_title', 'get_qty_of_cities', 'area', 'iso3166')

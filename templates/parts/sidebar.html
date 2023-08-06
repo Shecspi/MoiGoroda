@@ -1,0 +1,89 @@
+<div class="sidebar shadow d-flex flex-column" id="side_nav">
+    <div class="header-box pt-3 pb-4 d-flex justify-content-center">
+        <h1 class="sidebar-logo py-2 mr-2">
+            Мои&nbsp;&nbsp;<i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;города
+        </h1>
+        <button class="btn close-btn px-1 py-0 d-md-none">
+            <i class="fa-solid fa-bars-staggered"></i>
+        </button>
+    </div>
+
+    <ul class="list-unstyled px-2">
+        {% if user.is_authenticated %}
+            <li>
+                <a href="{% url 'city-all' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-solid fa-tree-city"></i>&nbsp;&nbsp;&nbsp;Посещённые города
+                </a>
+                <ul class="list-unstyled">
+                    <li>
+                        <a href="{% url 'city-all' %}" class="text-decoration-none px-3 py-2 d-block ms-4">
+                            <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Список городов
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'city-all' %}" class="text-decoration-none px-3 py-2 d-block ms-4">
+                            <i class="fa-solid fa-location-dot"></i>&nbsp;&nbsp;&nbsp;Карта городов
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        {% endif %}
+        <hr>
+        <li>
+            <a href="{% url 'region-all' %}" class="text-decoration-none px-3 py-2 d-block">
+                <i class="fa-solid fa-earth-europe"></i>&nbsp;&nbsp;&nbsp;Регионы России
+            </a>
+            <ul class="list-unstyled">
+                <li>
+                    <a href="{% url 'region-all' %}" class="text-decoration-none px-3 py-2 d-block ms-4 active">
+                        <i class="fa-regular fa-rectangle-list"></i>&nbsp;&nbsp;&nbsp;Список регионов
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'region-all' %}" class="text-decoration-none px-3 py-2 d-block ms-4">
+                        <i class="fa-regular fa-map"></i>&nbsp;&nbsp;&nbsp;Карта регионов
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <hr>
+        <li>
+            <a href="{% url 'collection-list' %}" class="text-decoration-none px-3 py-2 d-block">
+                <i class="fa-solid fa-list-check"></i>&nbsp;&nbsp;&nbsp;Коллекции городов
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'news-list' %}" class="text-decoration-none px-3 py-2 d-block">
+                <i class="fa-regular fa-newspaper"></i>&nbsp;&nbsp;&nbsp;Новости
+            </a>
+        </li>
+    </ul>
+
+    {% if user.is_authenticated %}
+        <ul class="list-unstyled px-2 mt-auto">
+            <li>
+                <a href="{% url 'profile' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-regular fa-address-card"></i>&nbsp;&nbsp;&nbsp;Статистика
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'logout' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp;&nbsp;&nbsp;Выйти
+                </a>
+            </li>
+        </ul>
+    {% else %}
+        <ul class="list-unstyled px-2 mt-auto">
+            <li>
+                <a href="{% url 'signin' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;&nbsp;Войти
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'signup' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-solid fa-user-plus"></i>&nbsp;&nbsp;&nbsp;Зарегистрироваться
+                </a>
+            </li>
+        </ul>
+    {% endif %}
+</div>

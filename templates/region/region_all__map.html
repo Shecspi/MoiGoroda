@@ -43,10 +43,14 @@
         {% include 'parts/sidebar.html' %}
 
         <div class="content d-flex flex-column min-vh-100">
-            {% include 'parts/new_navbar_for_small_screens.html' %}
+            {% include 'parts/navbar-small_screens.html' %}
+
+            <h1 class="display-5 text-center mt-3" id="page-header">
+                Регионы России
+            </h1>
 
             <!-- Карточки с регионами -->
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-4 mb-3 g-3">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3">
                 {% for region in object_list %}
                     <div class="col" id="region_card_{{ forloop.counter }}">
                         <div class="card h-100 text-center">
@@ -101,7 +105,7 @@
             </div>
             <!-- ^^^ Карточки с городами -->
 
-        {% include 'parts/footer_clear.html' %}
+        {% include 'parts/footer.html' %}
         </div>
     </div>
 

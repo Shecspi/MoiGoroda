@@ -1,3 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+body{
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    background: #fff;
+}
+
+body.simple {
+    background: #ececec;
+}
+
+.logo-navbar {
+    font-family: 'Pacifico', cursive;
+    font-size: 40px;
+}
+
+/*------------ Login container ------------*/
+
+.box-area{
+    width: 930px;
+}
+
+/*------------ Right box ------------*/
+
+.right-box{
+    padding: 40px 30px 40px 40px;
+}
+
+/*------------ Custom Placeholder ------------*/
+
+::placeholder{
+    font-size: 16px;
+}
+
+.rounded-4{
+    border-radius: 20px;
+}
+.rounded-5{
+    border-radius: 30px;
+}
+
+.font-bold {
+    font-weight: 400;
+}
+
+/*------------ For small screens------------*/
+
+@media only screen and (max-width: 768px){
+    .logo-navbar {
+        font-size: 20px;
+    }
+     .box-area{
+        margin: 0;
+
+     }
+     .left-box{
+        height: 100px;
+        overflow: hidden;
+     }
+     .image-signin-left-box {
+         margin-top: 385px;
+     }
+     .image-signup-left-box {
+         margin-top: 310px;
+     }
+     .right-box{
+        padding: 20px;
+     }
+}
+
+
+
+
+.content {
+    min-height: 100vh;
+    width: 100%;
+}
+
+/*------------ Cards------------*/
 @media (max-width: 991px) {
     .card-columns {
         column-count: 1;
@@ -10,14 +91,46 @@
     }
 }
 
-.text-underline-dashed {
-    text-decoration: none;
+
+/*------------ Sidebar ------------*/
+#side_nav {
+    background: #fff;
+    min-height: 100dvh;
+    min-width: 300px;
+    max-width: 300px;
+    transition: all 0.3s;
+}
+.sidebar-logo {
+    font-family: 'Pacifico', cursive;
+    font-size: 30px;
+}
+.sidebar li.active {
+    background: #eee;
+    border-radius: 8px;
 }
 
-.text-underline-dashed:hover {
-    border-bottom: 1px dashed black;
+.sidebar a {
+    border: solid 1px #fff;
+    border-radius: 10px;
 }
-
-.color-black {
-    color: black;
+.sidebar li a {
+    color: #000;
+}
+.sidebar li a:hover {
+    border-radius: 10px;
+    background: #e9ecef;
+}
+.sidebar li a.active {
+    background: #0d6efd;
+    color: #fff;
+}
+@media(max-width: 767px) {
+    #side_nav {
+        margin-left: -300px;
+        position: fixed;
+        z-index: 1;
+    }
+    #side_nav.active {
+        margin-left: 0;
+    }
 }

@@ -44,7 +44,7 @@ class RegionList(ListView):
     """
     model = Region
     paginate_by = 16
-    template_name = 'region/region__list.html'
+    template_name = 'region/region_all__list.html'
     all_regions = []
 
     def __init__(self):
@@ -52,7 +52,6 @@ class RegionList(ListView):
 
         self.qty_of_regions: int = 0
         self.qty_of_visited_regions: int = 0
-        self.qty_of_finished_regions: int = 0
 
     def get_queryset(self):
         """
@@ -72,7 +71,6 @@ class RegionList(ListView):
                 )
             ).order_by('-num_visited', 'title')
             self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
-            self.qty_of_finished_regions = queryset.filter(num_visited=F('num_total')).count()
         else:
             logger.info(f'Viewing the page by not authorized user: {self.request.get_full_path()}')
             queryset = Region.objects.select_related('area').annotate(
@@ -98,7 +96,6 @@ class RegionList(ListView):
         context['all_regions'] = self.all_regions
         context['qty_of_regions'] = self.qty_of_regions
         context['qty_of_visited_regions'] = self.qty_of_visited_regions
-        context['qty_of_finished_regions'] = self.qty_of_finished_regions
 
         return context
 

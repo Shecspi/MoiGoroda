@@ -1,6 +1,6 @@
 {% if page_obj.has_other_pages %}
-    <div class="text-center" id="block-pagination">
-        <div class="btn-group mb-3" role="group">
+    <div class="text-center my-2" id="block-pagination">
+        <div class="btn-group mb-3 shadow" role="group">
             {% if page_obj.has_previous %}
                 <a href="?page=1{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
                    class="btn btn-outline-danger" id="link-to_first_page">

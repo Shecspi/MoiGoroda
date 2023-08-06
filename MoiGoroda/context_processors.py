@@ -8,7 +8,8 @@ def general_settings(request):
     context = {
         'SITE_NAME': env('SITE_NAME'),
         'API_YANDEX_MAP': env('API_YANDEX_MAP'),
-        'YANDEX_METRIKA': env('YANDEX_METRIKA')
+        'YANDEX_METRIKA': env('YANDEX_METRIKA'),
+        'SUPPORT_EMAIL': env('DEFAULT_FROM_EMAIL')
     }
 
     return context

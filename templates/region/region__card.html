@@ -3,22 +3,21 @@
         <div class="card-body" id="section-area_title_{{ forloop.counter }}">
             <!-- Название региона -->
             <p class="my-0 py-0">
-                <h4>
+                <h4 id="section-region_title_{{ forloop.counter }}">
                     <a href="{% url 'region-selected' region.id %}"
                        class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
                         {{ region }}
                     </a>
                 </h4>
             </p>
-
             <!-- ^^^ Название региона -->
 
             <!-- Федеральный округ -->
-            <p class="my-2">
+            <div class="my-2" id="section-area_title_{{ forloop.counter }}">
                 <small class="card-subtitle text-muted">
                     {{ region.area }} федеральный округ
                 </small>
-            </p>
+            </div>
             <!-- ^^^ Федеральный округ -->
         </div>
 

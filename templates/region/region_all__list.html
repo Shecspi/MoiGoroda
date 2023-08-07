@@ -9,7 +9,7 @@
     <div class="row mx-3 my-3 g-3">
         <div class="col-xl-3">
             <div class="card text-center shadow h-100">
-                <div class="card-body bg-warning-subtle">
+                <div class="card-body bg-warning-subtle" id="block-statistic">
                     {% if user.is_authenticated %}
                         Посещено <span class="fs-4 fw-medium">{{ qty_of_visited_regions }}</span>
                         региона из {{ qty_of_regions }}
@@ -22,11 +22,11 @@
 
         <div class="col-xl-6">
             <div class="card text-center shadow h-100">
-                <div class="card-body bg-primary-subtle">
+                <div class="card-body bg-primary-subtle" id="block-search">
                     <form action="{% url 'region-all-list' %}">
                         <div class="row g-2 justify-content-end">
                             {% if request.GET.filter %}
-                                <div class="col-xl align-self-center">
+                                <div class="col-xl align-self-center" id="search-active">
                                     Поиск по фразе <span class="badge bg-secondary">{{ request.GET.filter }}</span><br>
                                     <small>
                                         <a href="{% url 'region-all-list' %}" class="text-underline-dashed">
@@ -48,20 +48,22 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3">
-            <div class="card text-center shadow h-100">
-                <div class="card-body d-grid bg-success-subtle">
-                    <a href="{% url 'city-create' %}" class="btn btn-outline-success align-self-center">
-                        <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
-                    </a>
+        {% if user.is_authenticated %}
+            <div class="col-xl-3">
+                <div class="card text-center shadow h-100">
+                    <div class="card-body d-grid bg-success-subtle" id="block-add_city">
+                        <a href="{% url 'city-create' %}" class="btn btn-outline-success align-self-center">
+                            <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 
     <!-- Карточки с регионами -->
     {% if object_list %}
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
             {% for region in object_list %}
                 {% include 'region/region__card.html' %}
             {% endfor %}

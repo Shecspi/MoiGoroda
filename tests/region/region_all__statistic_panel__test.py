@@ -30,24 +30,21 @@ def setup_db__statistic_panel(client, django_user_model):
     region_4 = Region.objects.create(area=area, title='Регион 4', type='область', iso3166='RU-RU4')
     city_1 = City.objects.create(title='Город 1', region=region_1, coordinate_width=1, coordinate_longitude=1)
     city_2 = City.objects.create(title='Город 2', region=region_2, coordinate_width=1, coordinate_longitude=1)
-    city_3 = City.objects.create(title='Город 3', region=region_3, coordinate_width=1, coordinate_longitude=1)
-    city_4 = City.objects.create(title='Город 4', region=region_4, coordinate_width=1, coordinate_longitude=1)
-    city_5 = City.objects.create(title='Город 5', region=region_4, coordinate_width=1, coordinate_longitude=1)
     VisitedCity.objects.create(
         user=user, region=region_1, city=city_1, date_of_visit="2022-01-01", has_magnet=False, rating=3
     )
     VisitedCity.objects.create(
-        user=user, region=region_4, city=city_5, date_of_visit="2022-01-01", has_magnet=False, rating=3
+        user=user, region=region_4, city=city_2, date_of_visit="2022-01-01", has_magnet=False, rating=3
     )
 
 
 @pytest.mark.django_db
 def test__statistic_panel__auth_user(setup_db__statistic_panel, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
-    assert source.find('div', {'id': 'statistic_panel'})
+    assert source.find('div', {'id': 'block-statistic'})
 
 
 @pytest.mark.django_db
@@ -55,7 +52,7 @@ def test__statistic_panel__guest(setup_db__statistic_panel, client):
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
-    assert source.find('div', {'id': 'statistic_panel'})
+    assert source.find('div', {'id': 'block-statistic'})
 
 
 @pytest.mark.django_db
@@ -63,92 +60,19 @@ def test__section_total_regions__auth_user(setup_db__statistic_panel, client):
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'statistic_panel'})
-    total_qty_of_regions = block.find('p', {'id': 'total_qty_of_regions'})
+    block = source.find('div', {'id': 'block-statistic'})
 
-    assert total_qty_of_regions
-    assert 'Всего регионов' in total_qty_of_regions.get_text()
-    assert '4' in total_qty_of_regions.find('strong').get_text()
+    assert 'Посещено' in block.get_text()
+    assert '2' in block.find('span').get_text()
+    assert 'региона из 4' in block.get_text()
 
 
 @pytest.mark.django_db
 def test__section_total_regions__guest(setup_db__statistic_panel, client):
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'statistic_panel'})
-    total_qty_of_regions = block.find('p', {'id': 'total_qty_of_regions'})
+    block = source.find('div', {'id': 'block-statistic'})
 
-    assert total_qty_of_regions
-    assert 'Всего регионов' in total_qty_of_regions.get_text()
-    assert '4' in total_qty_of_regions.find('strong').get_text()
-
-
-@pytest.mark.django_db
-def test__section_visited_regions__auth_user(setup_db__statistic_panel, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('region-all-list'))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'statistic_panel'})
-    section = block.find('p', {'id': 'qty_of_visited_regions'})
-
-    assert section
-    assert 'Посещено' in section.get_text()
-    assert '2' in section.find('strong').get_text()
-
-
-@pytest.mark.django_db
-def test__section_visited_regions__guest(setup_db__statistic_panel, client):
-    response = client.get(reverse('region-all'))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'statistic_panel'})
-    assert block.find('p', {'id': 'qty_of_visited_regions'}) is None
-
-
-@pytest.mark.django_db
-def test__section_finished_regions__auth_user(setup_db__statistic_panel, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'statistic_panel'})
-    section = block.find('p', {'id': 'qty_of_finished_regions'})
-
-    assert section
-    assert 'Полностью' in section.get_text()
-    assert '1' in section.find('strong').get_text()
-
-
-@pytest.mark.django_db
-def test__section_finished_regions__guest(setup_db__statistic_panel, client):
-    response = client.get(reverse('region-all'))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'statistic_panel'})
-    assert block.find('p', {'id': 'qty_of_finished_regions'}) is None
-
-
-@pytest.mark.django_db
-def test__section_support__auth_user(setup_db__statistic_panel, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('region-all-list'))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'statistic_panel'})
-    section = block.find('p', {'id': 'support_link'})
-    link = section.find('a', {'id': 'link_for_support_modal'})
-
-    assert section
-    assert link
-    assert link.find('i', {'class': 'fa-regular fa-circle-question'})
-    assert 'Подробнее...' in link.get_text()
-
-
-@pytest.mark.django_db
-def test__section_support__auth_user(setup_db__statistic_panel, client):
-    response = client.get(reverse('region-all-list'))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'statistic_panel'})
-    section = block.find('p', {'id': 'support_link'})
-    link = section.find('a', {'id': 'link_for_support_modal'})
-
-    assert section
-    assert link
-    assert link.find('i', {'class': 'fa-regular fa-circle-question'})
-    assert 'Подробнее...' in link.get_text()
+    assert 'В России' in block.get_text()
+    assert '4' in block.find('span').get_text()
+    assert 'регионов' in block.get_text()

@@ -11,9 +11,9 @@
     <ul class="list-unstyled px-2">
         {% if user.is_authenticated %}
             <li>
-                <a href="{% url 'city-all' %}" class="text-decoration-none px-3 py-2 d-block">
+                <span class="text-muted px-3 py-2 d-block">
                     <i class="fa-solid fa-tree-city"></i>&nbsp;&nbsp;&nbsp;Посещённые города
-                </a>
+                </span>
                 <ul class="list-unstyled">
                     <li>
                         <a href="{% url 'city-all' %}" class="text-decoration-none px-3 py-2 d-block ms-4">
@@ -30,17 +30,17 @@
         {% endif %}
         <hr>
         <li>
-            <a href="{% url 'region-all-list' %}" class="text-decoration-none px-3 py-2 d-block">
+            <span class="text-muted px-3 py-2 d-block">
                 <i class="fa-solid fa-earth-europe"></i>&nbsp;&nbsp;&nbsp;Регионы России
-            </a>
+            </span>
             <ul class="list-unstyled">
                 <li>
-                    <a href="{% url 'region-all-list' %}" class="text-decoration-none px-3 py-2 d-block ms-4 active">
+                    <a href="{% url 'region-all-list' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'region_list' %} active{% endif %}">
                         <i class="fa-regular fa-rectangle-list"></i>&nbsp;&nbsp;&nbsp;Список регионов
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'region-all-map' %}" class="text-decoration-none px-3 py-2 d-block ms-4">
+                    <a href="{% url 'region-all-map' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'region_map' %} active{% endif %}">
                         <i class="fa-regular fa-map"></i>&nbsp;&nbsp;&nbsp;Карта регионов
                     </a>
                 </li>

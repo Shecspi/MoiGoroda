@@ -95,6 +95,7 @@ class RegionList(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['active_page'] = 'region_list' if self.list_or_map == 'list' else 'region_map'
         context['all_regions'] = self.all_regions
         context['qty_of_regions'] = self.qty_of_regions
         context['qty_of_visited_regions'] = self.qty_of_visited_regions

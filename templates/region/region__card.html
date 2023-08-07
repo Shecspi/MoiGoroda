@@ -1,0 +1,52 @@
+<div class="col" id="region_card_{{ forloop.counter }}">
+    <div class="card h-100 text-center shadow">
+        <div class="card-body" id="section-area_title_{{ forloop.counter }}">
+            <!-- Название региона -->
+            <p class="my-0 py-0">
+                <h4>
+                    <a href="{% url 'region-selected' region.id %}"
+                       class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
+                        {{ region }}
+                    </a>
+                </h4>
+            </p>
+
+            <!-- ^^^ Название региона -->
+
+            <!-- Федеральный округ -->
+            <p class="my-2">
+                <small class="card-subtitle text-muted">
+                    {{ region.area }} федеральный округ
+                </small>
+            </p>
+            <!-- ^^^ Федеральный округ -->
+        </div>
+
+        <div class="card-footer my-2" style="background: none; border-top: none;" id="section-qty_of_cities_{{ forloop.counter }}">
+            <!-- Количество городов -->
+            <small class="text-muted">
+                {% if user.is_authenticated %}
+                    {{ region.num_visited }} из {{ region.num_total }}
+                {% else %}
+                    Всего городов: {{ region.num_total }}
+                {% endif %}
+            </small>
+            <!-- ^^^ Количество городов -->
+
+            <!-- Прогресс бар посещённых городов -->
+            {% if user.is_authenticated %}
+                <span class="text-truncate">
+                    {% if region.num_visited > 0 %}
+                        <div class="progress" data-toggle="tooltip" title="Tooltip on top">
+                            <div class="progress-bar progress-bar-striped" role="progressbar"
+                            style="width: {% widthratio region.num_visited region.num_total 100 %}%" id="progress_bar_{{ forloop.counter }}"
+                            aria-valuenow="{% widthratio region.num_visited region.num_total 100 %}"
+                            aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    {% endif %}
+                </span>
+            {% endif %}
+            <!-- ^^^ Прогресс бар посещённых городов -->
+        </div>
+    </div>
+</div>

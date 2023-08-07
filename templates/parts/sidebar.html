@@ -1,6 +1,6 @@
 <div class="sidebar shadow d-flex flex-column" id="side_nav">
     <div class="header-box pt-2 pb-4 d-flex justify-content-center">
-        <button class="btn btn-outline-secondary close-btn px-3 py-0 d-md-none" id="sidebar-close-button">
+        <button class="btn btn-outline-secondary px-3 py-0 d-md-none" id="sidebar-button-close">
             <i class="fa-solid fa-bars-staggered" style="transform: rotate(180deg);;"></i>
         </button>
         <h1 class="sidebar-logo px-2 py-2 mr-2">
@@ -30,17 +30,17 @@
         {% endif %}
         <hr>
         <li>
-            <a href="{% url 'region-all' %}" class="text-decoration-none px-3 py-2 d-block">
+            <a href="{% url 'region-all-list' %}" class="text-decoration-none px-3 py-2 d-block">
                 <i class="fa-solid fa-earth-europe"></i>&nbsp;&nbsp;&nbsp;Регионы России
             </a>
             <ul class="list-unstyled">
                 <li>
-                    <a href="{% url 'region-all' %}" class="text-decoration-none px-3 py-2 d-block ms-4 active">
+                    <a href="{% url 'region-all-list' %}" class="text-decoration-none px-3 py-2 d-block ms-4 active">
                         <i class="fa-regular fa-rectangle-list"></i>&nbsp;&nbsp;&nbsp;Список регионов
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'region-all' %}" class="text-decoration-none px-3 py-2 d-block ms-4">
+                    <a href="{% url 'region-all-map' %}" class="text-decoration-none px-3 py-2 d-block ms-4">
                         <i class="fa-regular fa-map"></i>&nbsp;&nbsp;&nbsp;Карта регионов
                     </a>
                 </li>

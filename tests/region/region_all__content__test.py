@@ -43,7 +43,7 @@ def setup_db__content_with_visited_regions__region_all(client, django_user_model
 @pytest.mark.django_db
 def test__pagination__1st_page__auth_user(setup_db__content_without_visited_regions__region_all, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
 
@@ -58,7 +58,7 @@ def test__pagination__1st_page__auth_user(setup_db__content_without_visited_regi
 @pytest.mark.django_db
 def test__pagination__2nd_page__auth_user(setup_db__content_without_visited_regions__region_all, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all') + '?page=2')
+    response = client.get(reverse('region-all-list') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
 
@@ -73,7 +73,7 @@ def test__pagination__2nd_page__auth_user(setup_db__content_without_visited_regi
 @pytest.mark.django_db
 def test__pagination__3rd_page__auth_user(setup_db__content_without_visited_regions__region_all, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all') + '?page=3')
+    response = client.get(reverse('region-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
 
@@ -87,7 +87,7 @@ def test__pagination__3rd_page__auth_user(setup_db__content_without_visited_regi
 
 @pytest.mark.django_db
 def test__pagination__1st_page__guest(setup_db__content_without_visited_regions__region_all, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
 
@@ -115,7 +115,7 @@ def test__pagination__2nd_page__guest(setup_db__content_without_visited_regions_
 
 @pytest.mark.django_db
 def test__pagination__3rd_page__guest(setup_db__content_without_visited_regions__region_all, client):
-    response = client.get(reverse('region-all') + '?page=3')
+    response = client.get(reverse('region-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
 
@@ -130,7 +130,7 @@ def test__pagination__3rd_page__guest(setup_db__content_without_visited_regions_
 @pytest.mark.django_db
 def test__without_visited_regions__1st_page__auth_user(setup_db__content_without_visited_regions__region_all, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     page_header = source.find('h1', {'id': 'page-header'})
@@ -152,7 +152,7 @@ def test__without_visited_regions__1st_page__auth_user(setup_db__content_without
 @pytest.mark.django_db
 def test__without_visited_regions__2nd_page__auth_user(setup_db__content_without_visited_regions__region_all, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all') + '?page=2')
+    response = client.get(reverse('region-all-list') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     page_header = source.find('h1', {'id': 'page-header'})
@@ -174,7 +174,7 @@ def test__without_visited_regions__2nd_page__auth_user(setup_db__content_without
 @pytest.mark.django_db
 def test__without_visited_regions__3rd_page__auth_user(setup_db__content_without_visited_regions__region_all, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all') + '?page=3')
+    response = client.get(reverse('region-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     page_header = source.find('h1', {'id': 'page-header'})
@@ -195,7 +195,7 @@ def test__without_visited_regions__3rd_page__auth_user(setup_db__content_without
 
 @pytest.mark.django_db
 def test__without_visited_regions__1st_page__guest(setup_db__content_without_visited_regions__region_all, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     page_header = source.find('h1', {'id': 'page-header'})
@@ -216,7 +216,7 @@ def test__without_visited_regions__1st_page__guest(setup_db__content_without_vis
 
 @pytest.mark.django_db
 def test__without_visited_regions__2nd_page__guest(setup_db__content_without_visited_regions__region_all, client):
-    response = client.get(reverse('region-all') + '?page=2')
+    response = client.get(reverse('region-all-list') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     page_header = source.find('h1', {'id': 'page-header'})
@@ -237,7 +237,7 @@ def test__without_visited_regions__2nd_page__guest(setup_db__content_without_vis
 
 @pytest.mark.django_db
 def test__without_visited_regions__3rd_page__guest(setup_db__content_without_visited_regions__region_all, client):
-    response = client.get(reverse('region-all') + '?page=3')
+    response = client.get(reverse('region-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     page_header = source.find('h1', {'id': 'page-header'})
@@ -259,7 +259,7 @@ def test__without_visited_regions__3rd_page__guest(setup_db__content_without_vis
 @pytest.mark.django_db
 def test__with_visited_regions__1st_page__auth_user(setup_db__content_with_visited_regions__region_all, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     page_header = source.find('h1', {'id': 'page-header'})

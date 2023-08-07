@@ -24,7 +24,7 @@ def setup_db__add_city_button(client, django_user_model):
 @pytest.mark.django_db
 def test__block_add_city__auth_user(setup_db__add_city_button, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert source.find('div', {'id': 'block-add_city'})
@@ -32,7 +32,7 @@ def test__block_add_city__auth_user(setup_db__add_city_button, client):
 
 @pytest.mark.django_db
 def test__block_add_city__guest(setup_db__add_city_button, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert source.find('div', {'id': 'block-add_city'}) is None
@@ -41,7 +41,7 @@ def test__block_add_city__guest(setup_db__add_city_button, client):
 @pytest.mark.django_db
 def test__button_add_city__auth_user(setup_db__add_city_button, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     button = source.find('div', {'id': 'block-add_city'}).find('a', {'href': reverse('city-create')})
 

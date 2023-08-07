@@ -24,7 +24,7 @@ def setup_db(client, django_user_model):
 @pytest.mark.django_db
 def test__html_has_modal_window__auth_user(setup_db, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     modal_window = source.find('div', {'id': 'detailsModal'})
     header = modal_window.find('div', {'class': 'modal-header'})
@@ -42,7 +42,7 @@ def test__html_has_modal_window__auth_user(setup_db, client):
 
 @pytest.mark.django_db
 def test__html_has_modal_window__guest(setup_db, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     modal_window = source.find('div', {'id': 'detailsModal'})
     header = modal_window.find('div', {'class': 'modal-header'})

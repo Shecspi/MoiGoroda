@@ -24,10 +24,10 @@ def setup_db__search(client, django_user_model):
 @pytest.mark.django_db
 def test__search_panel__auth_user(setup_db__search, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     panel = source.find('div', {'id': 'panel-search'})
-    form = panel.find('form', {'action': reverse('region-all')})
+    form = panel.find('form', {'action': reverse('region-all-list')})
     button = form.find('button', {'type': 'submit'})
 
     response_search = client.get(reverse('region-all') + '?filter=Регион+1')
@@ -43,13 +43,13 @@ def test__search_panel__auth_user(setup_db__search, client):
 
 @pytest.mark.django_db
 def test__search_panel__guest(client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     panel = source.find('div', {'id': 'panel-search'})
     form = panel.find('form', {'action': reverse('region-all')})
     button = form.find('button', {'type': 'submit'})
 
-    response_search = client.get(reverse('region-all') + '?filter=Регион+1')
+    response_search = client.get(reverse('region-all-list') + '?filter=Регион+1')
 
     assert panel
     assert panel.find('p', {'id': 'search-active'}) is None
@@ -63,12 +63,12 @@ def test__search_panel__guest(client):
 @pytest.mark.django_db
 def test__search_panel__search_active__auth_user(setup_db__search, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all') + '?filter=Регион+1')
+    response = client.get(reverse('region-all-list') + '?filter=Регион+1')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     panel = source.find('div', {'id': 'panel-search'})
     search_active = panel.find('p', {'id': 'search-active'})
-    cancel_search = search_active.find('a', {'href': reverse('region-all')})
-    form = panel.find('form', {'action': reverse('region-all')})
+    cancel_search = search_active.find('a', {'href': reverse('region-all-list')})
+    form = panel.find('form', {'action': reverse('region-all-list')})
     button = form.find('button', {'type': 'submit'})
 
     assert panel
@@ -89,7 +89,7 @@ def test__htnl_has_search_panel__guest(client):
     response = client.get(reverse('region-all'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     panel = source.find('div', {'id': 'panel-search'})
-    form = panel.find('form', {'action': reverse('region-all')})
+    form = panel.find('form', {'action': reverse('region-all-list')})
     button = form.find('button', {'type': 'submit'})
 
     assert panel

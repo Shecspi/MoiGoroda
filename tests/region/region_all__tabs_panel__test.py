@@ -24,7 +24,7 @@ def setup_db__tabs_panel(client, django_user_model):
 @pytest.mark.django_db
 def test__block_tabs__auth_user(setup_db__tabs_panel, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert source.find('div', {'id': 'tabs_panel'})
@@ -32,7 +32,7 @@ def test__block_tabs__auth_user(setup_db__tabs_panel, client):
 
 @pytest.mark.django_db
 def test__block_tabs__guest(setup_db__tabs_panel, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert source.find('div', {'id': 'tabs_panel'})
@@ -52,7 +52,7 @@ def test__button_list__auth_user(setup_db__tabs_panel, client):
 
 @pytest.mark.django_db
 def test__button_list__guest(setup_db__tabs_panel, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     button = source.find('div', {'id': 'tabs_panel'}).find('button', {'class': 'nav-link active', 'id': 'list-tab'})
 
@@ -64,7 +64,7 @@ def test__button_list__guest(setup_db__tabs_panel, client):
 @pytest.mark.django_db
 def test__button_map__auth_user(setup_db__tabs_panel, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     button = source.find('div', {'id': 'tabs_panel'}).find('button', {'class': 'nav-link', 'id': 'map-tab'})
 
@@ -75,7 +75,7 @@ def test__button_map__auth_user(setup_db__tabs_panel, client):
 
 @pytest.mark.django_db
 def test__button_map__guest(setup_db__tabs_panel, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     button = source.find('div', {'id': 'tabs_panel'}).find('button', {'class': 'nav-link', 'id': 'map-tab'})
 

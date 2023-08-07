@@ -25,7 +25,7 @@ def test_access_guest(client):
     """
     Тестирование того, что у неавторизованного пользователя есть доступ на страницу и отображается корректный шаблон.
     """
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
 
     assert response.status_code == 200
     assert 'region/region__list.html' in (t.name for t in response.templates)

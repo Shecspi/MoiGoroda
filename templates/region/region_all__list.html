@@ -8,7 +8,7 @@
 
     <div class="row mx-3 my-3 g-3">
         <div class="col-xl-3">
-            <div class="card text-center shadow">
+            <div class="card text-center shadow h-100">
                 <div class="card-body bg-warning-subtle">
                     {% if user.is_authenticated %}
                         Посещено <span class="fs-4 fw-medium">{{ qty_of_visited_regions }}</span>
@@ -21,24 +21,24 @@
         </div>
 
         <div class="col-xl-6">
-            <div class="card text-center shadow">
+            <div class="card text-center shadow h-100">
                 <div class="card-body bg-primary-subtle">
-                    <form action="{% url 'region-all' %}">
+                    <form action="{% url 'region-all-list' %}">
                         <div class="row g-2 justify-content-end">
                             {% if request.GET.filter %}
-                                <div class="col-xl-5">
-                                    Поиск по фразе <span class="badge bg-secondary">вол</span>
+                                <div class="col-xl align-self-center">
+                                    Поиск по фразе <span class="badge bg-secondary">{{ request.GET.filter }}</span><br>
                                     <small>
-                                        <a href="{% url 'region-all' %}" class="text-underline-dashed">
+                                        <a href="{% url 'region-all-list' %}" class="text-underline-dashed">
                                             Отменить
                                         </a>
                                     </small>
                                 </div>
                             {% endif %}
-                            <div class="col-xl">
+                            <div class="col-xl align-self-center">
                                 <input type="text" name='filter' class="form-control" placeholder="Введите текст для поиска">
                             </div>
-                            <div class="col-xl-3">
+                            <div class="col-xl-3 align-self-center">
                                 <button class="btn btn-outline-primary form-control" type="submit">
                                     <i class="fa-solid fa-magnifying-glass"></i>&nbsp;&nbsp;&nbsp;Найти
                                 </button>
@@ -49,9 +49,9 @@
             </div>
         </div>
         <div class="col-xl-3">
-            <div class="card text-center shadow">
+            <div class="card text-center shadow h-100">
                 <div class="card-body d-grid bg-success-subtle">
-                    <a href="{% url 'city-create' %}" class="btn btn-outline-success">
+                    <a href="{% url 'city-create' %}" class="btn btn-outline-success align-self-center">
                         <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
                     </a>
                 </div>
@@ -122,13 +122,4 @@
     <!-- Пагинация -->
     {% include 'parts/pagination.html' %}
     <!-- ^^^ Пагинация -->
-
-    <script>
-        $('.open-btn').on('click', function() {
-            $('.sidebar').addClass('active');
-        })
-        $('.close-btn').on('click', function() {
-            $('.sidebar').removeClass('active');
-        })
-    </script>
 {% endblock %}

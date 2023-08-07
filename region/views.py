@@ -44,12 +44,14 @@ class RegionList(ListView):
     """
     model = Region
     paginate_by = 16
-    template_name = 'region/region_all__list.html'
+    # template_name = 'region/region_all__list.html'
     all_regions = []
+    list_or_map: str = ''
 
-    def __init__(self):
+    def __init__(self, list_or_map: str):
         super().__init__()
 
+        self.list_or_map = list_or_map
         self.qty_of_regions: int = 0
         self.qty_of_visited_regions: int = 0
 
@@ -98,6 +100,12 @@ class RegionList(ListView):
         context['qty_of_visited_regions'] = self.qty_of_visited_regions
 
         return context
+
+    def get_template_names(self) -> list[str]:
+        if self.list_or_map == 'list':
+            return ['region/region_all__list.html', ]
+        elif self.list_or_map == 'map':
+            return ['region/region_all__map.html',]
 
 
 class CitiesByRegionList(ListView, CitiesByRegionMixin):

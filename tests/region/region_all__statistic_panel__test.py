@@ -52,7 +52,7 @@ def test__statistic_panel__auth_user(setup_db__statistic_panel, client):
 
 @pytest.mark.django_db
 def test__statistic_panel__guest(setup_db__statistic_panel, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert source.find('div', {'id': 'statistic_panel'})
@@ -61,7 +61,7 @@ def test__statistic_panel__guest(setup_db__statistic_panel, client):
 @pytest.mark.django_db
 def test__section_total_regions__auth_user(setup_db__statistic_panel, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'statistic_panel'})
     total_qty_of_regions = block.find('p', {'id': 'total_qty_of_regions'})
@@ -73,7 +73,7 @@ def test__section_total_regions__auth_user(setup_db__statistic_panel, client):
 
 @pytest.mark.django_db
 def test__section_total_regions__guest(setup_db__statistic_panel, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'statistic_panel'})
     total_qty_of_regions = block.find('p', {'id': 'total_qty_of_regions'})
@@ -86,7 +86,7 @@ def test__section_total_regions__guest(setup_db__statistic_panel, client):
 @pytest.mark.django_db
 def test__section_visited_regions__auth_user(setup_db__statistic_panel, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'statistic_panel'})
     section = block.find('p', {'id': 'qty_of_visited_regions'})
@@ -128,7 +128,7 @@ def test__section_finished_regions__guest(setup_db__statistic_panel, client):
 @pytest.mark.django_db
 def test__section_support__auth_user(setup_db__statistic_panel, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'statistic_panel'})
     section = block.find('p', {'id': 'support_link'})
@@ -142,7 +142,7 @@ def test__section_support__auth_user(setup_db__statistic_panel, client):
 
 @pytest.mark.django_db
 def test__section_support__auth_user(setup_db__statistic_panel, client):
-    response = client.get(reverse('region-all'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'statistic_panel'})
     section = block.find('p', {'id': 'support_link'})

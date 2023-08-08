@@ -173,15 +173,16 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     """
     model = VisitedCity
     paginate_by = 16
-    template_name = 'city/visited_cities__list.html'
 
     all_cities = None
+    list_or_map: str = ''
 
-    def __init__(self):
+    def __init__(self, list_or_map: str):
         super().__init__()
 
         self.sort: str = ''
         self.filter: str = ''
+        self.list_or_map = list_or_map
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.qty_of_visited_cities_current_year: int = 0
@@ -219,12 +220,6 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
             'region__id', 'region__title', 'region__type'
         )
 
-        # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
-        # устанавливает лимит на выборку, равный `paginate_by`.
-        # Из-за этого на карте отображается только `paginate_by` городов.
-        # Чтобы отображались все города - используем доп. переменную без лимита.
-        self.all_cities = queryset
-
         self.total_qty_of_cities = City.objects.count()
         self.qty_of_visited_cities = queryset.count()
         self.qty_of_visited_cities_current_year = queryset.filter(date_of_visit__year=datetime.now().year).count()
@@ -248,6 +243,12 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
             queryset = self.apply_sort_to_queryset(queryset, sort_default)
             self.sort = ''
 
+        # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
+        # устанавливает лимит на выборку, равный `paginate_by`.
+        # Из-за этого на карте отображается только `paginate_by` городов.
+        # Чтобы отображались все города - используем доп. переменную без лимита.
+        self.all_cities = queryset
+
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -258,10 +259,14 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
         context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
         context['qty_of_visited_cities_last_year'] = self.qty_of_visited_cities_last_year
+        context['declension_of_total_cities'] = self.declension_of_city(self.total_qty_of_cities)
+        context['declension_of_visited_cities'] = self.declension_of_city(self.qty_of_visited_cities)
+        context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_cities)
 
         context['filter'] = self.filter
         context['sort'] = self.sort
 
+        context['active_page'] = 'city_list' if self.list_or_map == 'list' else 'city_map'
         context['url_for_filter_magnet'] = self.get_url_params(
             'magnet' if self.filter != 'magnet' else '',
             self.sort
@@ -280,6 +285,12 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
 
         return context
+
+    def get_template_names(self) -> list[str]:
+        if self.list_or_map == 'list':
+            return ['city/city_all__list.html', ]
+        elif self.list_or_map == 'map':
+            return ['city/city_all__map.html', ]
 
 
 def get_cities_based_on_region(request):

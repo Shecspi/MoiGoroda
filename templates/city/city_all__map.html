@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <h1 class="display-5 text-center mt-3" id="block-page_header">
+        Карта посещённых городов {{ filter }}
+    </h1>
+
+    <div class="row mx-3 my-3 g-3">
+        <div class="col-xl-3 order-xl-1" id="block-statistic">
+            <div class="card text-center shadow h-100">
+                <div class="card-body d-grid bg-warning-subtle" id="block-statistic">
+                    <div class="align-self-center">
+                        {{ declension_of_visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
+                        {{ declension_of_visited_cities }} из {{ total_qty_of_cities }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+            <div class="col-xl-3 order-xl-4">
+                <div class="card text-center shadow h-100">
+                    <div class="card-body d-grid bg-success-subtle" id="block-add_city">
+                        <a href="{% url 'city-create' %}" class="btn btn-outline-success align-self-center">
+                            <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="col-xl-3 order-xl-2">
+            <div class="card text-center shadow h-100" id="section-filter">
+                <div class="card-body d-grid bg-primary-subtle">
+                     <a href="{% url 'city-all-map' %}?{{ url_for_filter_current_year }}"
+                       class="d-block align-self-center btn {% if filter == 'current_year' %}btn-success{% else %}btn-outline-success{% endif %}">
+                        <i class="fa-solid fa-calendar-days"></i>&nbsp;&nbsp;&nbsp;В этом году
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 order-xl-3">
+                <div class="card text-center shadow h-100" id="section-sorting">
+                    <div class="card-body d-grid bg-secondary-subtle">
+                        <a href="{% url 'city-all-map' %}?{{ url_for_filter_last_year }}"
+                           class="d-block align-self-center btn {% if filter == 'last_year' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            <i class="fa-solid fa-calendar-week"></i>&nbsp;&nbsp;&nbsp;В прошлом году
+                        </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Карта -->
+    <div id="map" class="h-100 mt-3"></div>
+    <!-- ^^^ Карта -->
+
+    <script>
+        function displayCitiesOnMap() {
+            /**
+             * Отображает карту и генерирует на ней отметки с городами.
+             */
+            // Массив с городами региона
+            // ['latitude', 'longitude', 'city name']
+            let visited_cities = []
+            {% for city in all_cities %}
+                visited_cities.push([
+                    '{{ city.city.coordinate_width }}'.replace(/,/, '.'),
+                    '{{ city.city.coordinate_longitude }}'.replace(/,/, '.'),
+                    '{{ city.city.title }}'
+                ])
+            {% endfor %}
+
+            // Высчитываем центральную точку карты.
+            // Ей является средняя координата всех городов, отображённых на карте.
+            let array_x = Array();
+            let array_y = Array();
+
+            // Добавляем все координаты в один массив и находим большее и меньшее значения из них,
+            // а затем вычисляем среднее, это и будет являться центром карты.
+            for (let i = 0; i < visited_cities.length; i++) {
+                array_y.push(parseFloat(visited_cities[i][0]));
+                array_x.push(parseFloat(visited_cities[i][1]));
+            }
+            let max_x = Math.max(...array_x);
+            let min_x = Math.min(...array_x);
+            let max_y = Math.max(...array_y);
+            let min_y = Math.min(...array_y);
+            let average_x = (max_x + min_x) / 2;
+            let average_y = (max_y + min_y) / 2;
+
+            // Меняем масштаб карты в зависимости от расположения городов
+            let zoom;
+            let diff = max_y - min_y;
+            if (diff <= 1) {
+                zoom = 9;
+            } else if (diff > 1 && diff <= 2) {
+                zoom = 8;
+            } else if (diff > 2 && diff <= 5) {
+                zoom = 7;
+            } else if (diff > 5 && diff <= 6) {
+                zoom = 6;
+            } else {
+                zoom = 5;
+            }
+
+            // Отображаем карту на странице
+            var myMap = new ymaps.Map("map", {
+                center: [average_y, average_x],
+                zoom: zoom,
+                controls: ['fullscreenControl', 'zoomControl', 'rulerControl'],
+            }, {
+                searchControlProvider: 'yandex#search'
+            });
+
+            // Отображаем на карте посещённые города
+            for (let i = 0; i < (visited_cities.length); i++) {
+                let coordinateWidth = visited_cities[i][0];
+                let coordinateLongitude = visited_cities[i][1];
+                let city = visited_cities[i][2]
+                myMap.geoObjects.add(
+                    new ymaps.Placemark(
+                        [coordinateWidth, coordinateLongitude], {
+                        balloonContent: city }, {
+                        preset: 'islands#dotIcon', iconColor: '#009d31'
+                    }));
+            }
+        }
+
+        // Дожидаемся загрузки API
+        ymaps.ready(displayCitiesOnMap);
+    </script>
+{% endblock %}

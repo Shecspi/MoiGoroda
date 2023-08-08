@@ -96,12 +96,12 @@ def test__correct_order_of_sorted_cities_on_page(setup_db_for_sorting, client, s
     Неавторизованный пользователь не имеет доступа на эту страницу.
     """
     client.login(username='username', password='password')
-    response = client.get(reverse('city-all') + '?sort=' + sort_value)
+    response = client.get(reverse('city-all-list') + '?sort=' + sort_value)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
-    assert source.find('div', {'id': 'city_card_1'}).find('div', {'class': 'h4'}).get_text(expected_value[0])
-    assert source.find('div', {'id': 'city_card_2'}).find('div', {'class': 'h4'}).get_text(expected_value[1])
-    assert source.find('div', {'id': 'city_card_3'}).find('div', {'class': 'h4'}).get_text(expected_value[2])
+    assert source.find('div', {'id': 'city_card_1'}).find('h4').get_text(expected_value[0])
+    assert source.find('div', {'id': 'city_card_2'}).find('h4').get_text(expected_value[1])
+    assert source.find('div', {'id': 'city_card_3'}).find('h4').get_text(expected_value[2])
 
 
 @pytest.mark.django_db
@@ -111,27 +111,26 @@ def test__page_has_sort_buttons_for_auth_user(setup_db_for_sorting, client):
     Неавторизованный пользователь не имеет доступа на эту страницу.
     """
     client.login(username='username', password='password')
-    response = client.get(reverse('city-all'))
+    response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    filter_and_sorting_block = source.find('div', {'id': 'block-filter_and_sorting'}).find('div', {'id': 'sorting'})
-    sorting_by_name_block = filter_and_sorting_block.find('div', {'id': 'sorting_by_name'})
-    sorting_by_date_of_visit_block = filter_and_sorting_block.find('div', {'id': 'sorting_by_date_of_visit'})
-    sorting_by_name_down_link = sorting_by_name_block.find('a', {
-        'href': reverse('city-all') + '?sort=name_down'
+    section = source.find('div', {'id': 'section-sorting'})
+    buttons = source.find('div', {'id': 'collapse-sorting'})
+    sorting_by_name_down_link = buttons.find('a', {
+        'href': reverse('city-all-list') + '?sort=name_down'
     })
-    sorting_by_name_up_link = sorting_by_name_block.find('a', {
-        'href': reverse('city-all') + '?sort=name_up'
+    sorting_by_name_up_link = buttons.find('a', {
+        'href': reverse('city-all-list') + '?sort=name_up'
     })
-    sorting_by_date_down_link = sorting_by_date_of_visit_block.find('a', {
-        'href': reverse('city-all') + '?sort=date_down'
+    sorting_by_date_down_link = buttons.find('a', {
+        'href': reverse('city-all-list') + '?sort=date_down'
     })
-    sorting_by_date_up_link = sorting_by_date_of_visit_block.find('a', {
-        'href': reverse('city-all') + '?sort=date_up'
+    sorting_by_date_up_link = buttons.find('a', {
+        'href': reverse('city-all-list') + '?sort=date_up'
     })
 
-    assert filter_and_sorting_block
-    assert sorting_by_name_block
-    assert sorting_by_date_of_visit_block
+    assert section
+    assert 'Сортировка' in section.find('a').get_text()
+    assert buttons
     assert sorting_by_name_down_link
     assert sorting_by_name_up_link
     assert sorting_by_date_down_link

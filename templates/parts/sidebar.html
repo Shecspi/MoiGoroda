@@ -16,12 +16,12 @@
                 </span>
                 <ul class="list-unstyled">
                     <li>
-                        <a href="{% url 'city-all' %}" class="text-decoration-none px-3 py-2 d-block ms-4">
+                        <a href="{% url 'city-all-list' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'city_list' %} active{% endif %}">
                             <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Список городов
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'city-all' %}" class="text-decoration-none px-3 py-2 d-block ms-4">
+                        <a href="{% url 'city-all-map' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'city_map' %} active{% endif %}">
                             <i class="fa-solid fa-location-dot"></i>&nbsp;&nbsp;&nbsp;Карта городов
                         </a>
                     </li>

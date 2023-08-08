@@ -44,32 +44,21 @@ def setup_db(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test__statistic_panel_for_auth_user(setup_db, client):
+def test__statistic_panel(setup_db, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('city-all'))
+    response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    statistic_panel = source.find('div', {'id': 'block-statistic'})
-    qty_of_visited_cities = statistic_panel.find('p', {'id': 'p-qty_of_visited_cities'})
-    qty_of_cities = statistic_panel.find('p', {'id': 'p-qty_of_cities'})
-    qty_of_visited_cities_current_year = statistic_panel.find('p', {'id': 'p-qty_of_visited_cities_current_year'})
-    qty_of_visited_cities_last_year = statistic_panel.find('p', {'id': 'p-qty_of_visited_cities_last_year'})
-    support = statistic_panel.find('p', {'id': 'p-support'})
-    link_support = support.find('a', {'id': 'link-support'})
 
-    assert statistic_panel
-    assert qty_of_visited_cities
-    assert 'Посещено:' in qty_of_visited_cities.get_text()
-    assert '3' in qty_of_visited_cities.find('strong').get_text()
-    assert qty_of_cities
-    assert 'Всего городов:' in qty_of_cities.get_text()
-    assert '4' in qty_of_cities.find('strong').get_text()
-    assert qty_of_visited_cities_current_year
-    assert 'В этом году:' in qty_of_visited_cities_current_year.get_text()
-    assert '1' in qty_of_visited_cities_current_year.find('strong').get_text()
-    assert qty_of_visited_cities_current_year
-    assert 'В прошлом году:' in qty_of_visited_cities_last_year.get_text()
-    assert '2' in qty_of_visited_cities_last_year.find('strong').get_text()
-    assert support
-    assert link_support
-    assert link_support.find('i', {'class': 'fa-regular fa-circle-question'})
-    assert support and 'Подробнее...' in support.get_text()
+    assert source.find('div', {'id': 'block-statistic'})
+
+
+@pytest.mark.django_db
+def test__section_visited_citeis(setup_db, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-all-list'))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    block = source.find('div', {'id': 'block-statistic'})
+
+    assert 'Посещено' in block.get_text()
+    assert '3' in block.find('span').get_text()
+    assert 'города из 4' in block.get_text()

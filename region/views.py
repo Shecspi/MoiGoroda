@@ -44,7 +44,6 @@ class RegionList(ListView):
     """
     model = Region
     paginate_by = 16
-    # template_name = 'region/region_all__list.html'
     all_regions = []
     list_or_map: str = ''
 
@@ -106,7 +105,7 @@ class RegionList(ListView):
         if self.list_or_map == 'list':
             return ['region/region_all__list.html', ]
         elif self.list_or_map == 'map':
-            return ['region/region_all__map.html',]
+            return ['region/region_all__map.html', ]
 
 
 class CitiesByRegionList(ListView, CitiesByRegionMixin):

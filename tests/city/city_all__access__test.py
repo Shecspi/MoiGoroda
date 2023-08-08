@@ -25,10 +25,10 @@ def test_access_guest(client):
     """
     Тестирование того, что у неавторизованного пользователя нет доступа на страницу.
     """
-    response = client.get(reverse('city-all'))
+    response = client.get(reverse('city-all-list'))
     assert response.status_code == 302
 
-    response = client.get(reverse('city-all'), follow=True)
+    response = client.get(reverse('city-all-list'), follow=True)
     assert response.status_code == 200
     assert 'account/signin.html' in (t.name for t in response.templates)
 
@@ -39,7 +39,7 @@ def test_access_auth_user(setup_db, client):
     Тестирование того, что у авторизованного пользователя есть доступ на страницу и отображается корректный шаблон.
     """
     client.login(username='username', password='password')
-    response = client.get(reverse('city-all'))
+    response = client.get(reverse('city-all-list'))
 
     assert response.status_code == 200
-    assert 'city/visited_cities__list.html' in (t.name for t in response.templates)
+    assert 'city/city_all__list.html' in (t.name for t in response.templates)

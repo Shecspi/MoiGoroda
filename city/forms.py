@@ -37,7 +37,8 @@ class VisitedCity_Create_Form(ModelForm):
             Row(
                 Column('region', css_class='col-xl-4'),
                 Column('city', css_class='col-xl-4'),
-                Column('date_of_visit', css_class='col-xl-4'), css_class='g-3'
+                Column(Field('date_of_visit', placeholder='ДД.ММ.ГГГГ'), css_class='col-xl-4'),
+                css_class='g-3'
             ),
             Row(
                 Column('has_magnet', css_class='col-xl-6'),

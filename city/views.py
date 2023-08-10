@@ -126,7 +126,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
        При попытке получить доступ к непосещённому городу - редирект на страницу со списком посещённых городов.
     """
     model = VisitedCity
-    template_name = 'city/visited_city/detail.html'
+    template_name = 'city/city_selected.html'
 
     def __init__(self):
         super().__init__()

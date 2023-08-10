@@ -2,16 +2,22 @@
 {% load crispy_forms_filters %}
 
 {% block content %}
-    <div class="container" id="block-header">
-        <h1 class="display-5 text-center my-2">
-            {% if action == 'update' %}
-                Редактирование города
-            {% else %}
-                Добавление нового города
-            {% endif %}
-        </h1>
+    <h1 class="display-5 text-center mt-3" id="block-page_header">
+        {% if action == 'update' %}
+            Редактирование города
+        {% else %}
+            Добавление нового города
+        {% endif %}
+    </h1>
 
-        {% crispy form %}
+    <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto" id="city-selected-content">
+        <div class="col-xxl-10">
+            <div class="card shadow p-3">
+                <div class="card-body">
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>

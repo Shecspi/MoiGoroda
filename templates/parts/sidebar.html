@@ -63,12 +63,20 @@
                 <i class="fa-regular fa-newspaper"></i>&nbsp;&nbsp;&nbsp;Новости
             </a>
         </li>
-    </ul>
 
-    <hr>
+        <hr>
 
-    {% if user.is_authenticated %}
-        <ul class="list-unstyled px-2">
+        {% if user.is_authenticated and user.is_staff %}
+            <li>
+                <a href="{% url 'admin:index' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;&nbsp;Админ-панель
+                </a>
+            </li>
+
+            <hr>
+        {% endif %}
+
+        {% if user.is_authenticated %}
             <li>
                 <a href="{% url 'profile' %}" class="text-decoration-none px-3 py-2 d-block">
                     <i class="fa-regular fa-address-card"></i>&nbsp;&nbsp;&nbsp;Статистика
@@ -79,9 +87,7 @@
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp;&nbsp;&nbsp;Выйти
                 </a>
             </li>
-        </ul>
-    {% else %}
-        <ul class="list-unstyled px-2">
+        {% else %}
             <li>
                 <a href="{% url 'signin' %}" class="text-decoration-none px-3 py-2 d-block">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;&nbsp;Войти
@@ -92,6 +98,6 @@
                     <i class="fa-solid fa-user-plus"></i>&nbsp;&nbsp;&nbsp;Зарегистрироваться
                 </a>
             </li>
-        </ul>
-    {% endif %}
+        {% endif %}
+    </ul>
 </div>

@@ -53,7 +53,7 @@ def test__statistic_panel(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section_visited_citeis(setup_db, client):
+def test__section_visited_cities(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')

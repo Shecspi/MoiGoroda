@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3" id="block-page_header">
-        Карта посещённых городов
+    <h1 class="display-5 text-center mt-3" id="page-header">
+        {{ region_name }}
     </h1>
 
-    {% include 'city/city_all__map__toolbar.html' %}
+    {% include 'region/region_selected__map__toolbar.html' %}
 
     <!-- Карта -->
     <div id="map" class="h-100 mt-3"></div>
@@ -18,13 +18,15 @@
              * Отображает карту и генерирует на ней отметки с городами.
              */
             // Массив с городами региона
-            // ['latitude', 'longitude', 'city name']
-            let visited_cities = []
+            // ['latitude', 'longitude', 'city name', 'is_visited']
+            let all_cities = []
             {% for city in all_cities %}
-                visited_cities.push([
-                    '{{ city.city.coordinate_width }}'.replace(/,/, '.'),
-                    '{{ city.city.coordinate_longitude }}'.replace(/,/, '.'),
-                    '{{ city.city.title }}'
+                var is_visited = '{{ city.is_visited }}' === 'True';
+                all_cities.push([
+                    '{{ city.coordinate_width }}'.replace(/,/, '.'),
+                    '{{ city.coordinate_longitude }}'.replace(/,/, '.'),
+                    '{{ city.title }}',
+                    is_visited
                 ])
             {% endfor %}
 
@@ -35,9 +37,9 @@
 
             // Добавляем все координаты в один массив и находим большее и меньшее значения из них,
             // а затем вычисляем среднее, это и будет являться центром карты.
-            for (let i = 0; i < visited_cities.length; i++) {
-                array_y.push(parseFloat(visited_cities[i][0]));
-                array_x.push(parseFloat(visited_cities[i][1]));
+            for (let i = 0; i < all_cities.length; i++) {
+                array_y.push(parseFloat(all_cities[i][0]));
+                array_x.push(parseFloat(all_cities[i][1]));
             }
             let max_x = Math.max(...array_x);
             let min_x = Math.min(...array_x);
@@ -64,22 +66,24 @@
             // Отображаем карту на странице
             var myMap = new ymaps.Map("map", {
                 center: [average_y, average_x],
-                zoom: zoom,
-                controls: ['fullscreenControl', 'zoomControl', 'rulerControl'],
+                zoom: zoom
             }, {
                 searchControlProvider: 'yandex#search'
             });
 
-            // Отображаем на карте посещённые города
-            for (let i = 0; i < (visited_cities.length); i++) {
-                let coordinateWidth = visited_cities[i][0];
-                let coordinateLongitude = visited_cities[i][1];
-                let city = visited_cities[i][2]
+            // Отображаем на карте все города,
+            // меняя цвет иконки в зависимости от того, посещён город или нет
+            for (let i = 0; i < (all_cities.length); i++) {
+                let coordinateWidth = all_cities[i][0];
+                let coordinateLongitude = all_cities[i][1];
+                let city = all_cities[i][2]
+                let color = (all_cities[i][3] === true) ? '#009d31' :'#a45555'
+
                 myMap.geoObjects.add(
                     new ymaps.Placemark(
                         [coordinateWidth, coordinateLongitude], {
                         balloonContent: city }, {
-                        preset: 'islands#dotIcon', iconColor: '#009d31'
+                        preset: 'islands#dotIcon', iconColor: color
                     }));
             }
         }

@@ -1,0 +1,46 @@
+<div class="row mx-3 my-3 g-3" id="toolbar">
+    <div class="col-xl-3 order-xl-1">
+        <div class="card text-center shadow h-100">
+            <div class="card-body d-grid bg-warning-subtle" id="block-statistic">
+                <div class="align-self-center">
+                    {{ declension_of_visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
+                    {{ declension_of_visited_cities }} из {{ total_qty_of_cities }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Посмотреть список -->
+    <div class="col-xl-3 order-xl-4" id="section-show_map">
+        <div class="card text-center shadow h-100">
+            <div class="card-body d-grid bg-success-subtle">
+                <a href="{% url 'city-all-list' %}" class="btn btn-outline-success align-self-center">
+                    <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Посмотреть список -->
+
+    <div class="col-xl-3 order-xl-2">
+        <div class="card text-center shadow h-100" id="section-current_year">
+            <div class="card-body d-grid bg-primary-subtle">
+                 <a href="{% url 'city-all-map' %}?{{ url_for_filter_current_year }}"
+                   class="d-block align-self-center btn {% if filter == 'current_year' %}btn-success{% else %}btn-outline-success{% endif %}">
+                    <i class="fa-solid fa-calendar-days"></i>&nbsp;&nbsp;&nbsp;В этом году
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 order-xl-3">
+            <div class="card text-center shadow h-100" id="section-last_year">
+                <div class="card-body d-grid bg-secondary-subtle">
+                    <a href="{% url 'city-all-map' %}?{{ url_for_filter_last_year }}"
+                       class="d-block align-self-center btn {% if filter == 'last_year' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        <i class="fa-solid fa-calendar-week"></i>&nbsp;&nbsp;&nbsp;В прошлом году
+                    </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -57,7 +57,7 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):
        При попытке удалить непосещённый город - возвращаем ошибку 403.
     """
     model = VisitedCity
-    success_url = reverse_lazy('city-all')
+    success_url = reverse_lazy('city-all-list')
 
     def post(self, request, *args, **kwargs):
         try:
@@ -87,7 +87,6 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     model = VisitedCity
     form_class = VisitedCity_Create_Form
     template_name = 'city/visited_city/create.html'
-    success_url = reverse_lazy('city-all')
 
     def get(self, request, *args, **kwargs):
         try:
@@ -103,6 +102,9 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         form_kwargs['request'] = self.request
 
         return form_kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('city-selected', kwargs={'pk': self.kwargs['pk']})
 
     def form_valid(self, form):
         logger.info(f'Updating a visited city: {self.request.get_full_path()}')

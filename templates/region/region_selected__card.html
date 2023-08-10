@@ -5,14 +5,27 @@
     <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
         <div class="card-body">
             <!-- Название города -->
-            <h4 id="subsection-city-title_{{ forloop.counter }}">
-                <a href="{% url 'city-selected' city.id %}"
-                   class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
-                    {{ city }}
-                </a>
-            </h4>
+            <div class="d-flex justify-content-between">
+                <div class="align-self-center" data-bs-toggle="tooltip"
+                     data-bs-title="Город {{ city.title }} {% if city.is_visited %}посещён{% else %}ещё не посещён{% endif %}">
+                    {% if city.is_visited %}
+                        <i class="fa-solid fa-check text-success"></i>
+                    {% else %}
+                        <i class="fa-solid fa-xmark text-danger"></i>
+                    {% endif %}
+                </div>
+                <h4 id="subsection-city-title_{{ forloop.counter }}">
+                    <a href="{% url 'city-selected' city.id %}"
+                       class="link_to link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
+                        {{ city.title }}
+                    </a>
+                </h4>
+                <div></div>
+            </div>
             <!-- ^^^ Название города -->
+        </div>
 
+        <div class="card-footer my-2" style="background: none; border-top: none;">
             <!-- Дата посещения -->
             <div id="subsection-city-date_of_visit_{{ forloop.counter }}">
                 <small class="text-muted">
@@ -25,24 +38,11 @@
             </div>
             <!-- ^^^ Дата посещения -->
 
-            <!-- Регион -->
-            <div id="subsection-city-region_{{ forloop.counter }}">
-                <small class="card-subtitle text-muted">
-                    <a href="{% url 'region-selected-list' city.region.id %}"
-                       class="text-underline-dashed text-reset">
-                        {{ city.region }}
-                    </a>
-                </small>
-            </div>
-            <!-- ^^^ Регион -->
-        </div>
-
-        <div class="card-footer my-2" style="background: none; border-top: none;">
             <!-- Население -->
             <div id="subsection-city-population_{{ forloop.counter }}">
                 <small class="card-subtitle text-muted">
-                    {% if city.city.population %}
-                        Население <strong>{{ city.city.population|intcomma }}</strong> чел.
+                    {% if city.population %}
+                        Население <strong>{{ city.population|intcomma }}</strong> чел.
                     {% else %}
                         Население города неизвестно
                     {% endif %}
@@ -53,8 +53,8 @@
             <!-- Год основания -->
             <div id="subsection-city-date_of_foundation_{{ forloop.counter }}">
                 <small class="card-subtitle text-muted">
-                    {% if city.city.date_of_foundation %}
-                        Основан в <strong>{{ city.city.date_of_foundation }}</strong> году
+                    {% if city.date_of_foundation %}
+                        Основан в <strong>{{ city.date_of_foundation }}</strong> году
                     {% else %}
                         Год основания неизвестен
                     {% endif %}
@@ -78,7 +78,8 @@
                 <!-- ^^^ Рейтинг -->
 
                 <!-- Наличие магнита -->
-                <div id="subsection-city-magnet_{{ forloop.counter }}">
+                <div id="subsection-city-magnet_{{ forloop.counter }}" data-bs-toggle="tooltip"
+                     data-bs-title="У Вас {% if city.has_magnet %}есть магнитик{% else %}нет магнитика{% endif %} с городом {{ city.title }}">
                     {% if city.has_magnet %}
                         <small>
                             <span class="text-success">

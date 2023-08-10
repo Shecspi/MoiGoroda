@@ -6,93 +6,20 @@ body{
     font-weight: 300;
     background: #fff;
 }
-
 body.simple {
     background: #ececec;
 }
-
 .logo-navbar {
     font-family: 'Pacifico', cursive;
     font-size: 40px;
 }
-
-/*------------ Login container ------------*/
-
-.box-area{
-    width: 930px;
-}
-
-/*------------ Right box ------------*/
-
-.right-box{
-    padding: 40px 30px 40px 40px;
-}
-
-/*------------ Custom Placeholder ------------*/
-
-::placeholder{
-    font-size: 16px;
-}
-
-.rounded-4{
-    border-radius: 20px;
-}
-.rounded-5{
-    border-radius: 30px;
-}
-
-.font-bold {
-    font-weight: 400;
-}
-
-/*------------ For small screens------------*/
-
-@media only screen and (max-width: 768px){
-    .logo-navbar {
-        font-size: 20px;
-    }
-     .box-area{
-        margin: 0;
-
-     }
-     .left-box{
-        height: 100px;
-        overflow: hidden;
-     }
-     .image-signin-left-box {
-         margin-top: 385px;
-     }
-     .image-signup-left-box {
-         margin-top: 310px;
-     }
-     .right-box{
-        padding: 20px;
-     }
-}
-
-
-
-
 .content {
     min-height: 100vh;
     width: 100%;
 }
 
-/*------------ Cards------------*/
-@media (max-width: 991px) {
-    .card-columns {
-        column-count: 1;
-    }
-}
-
-@media (min-width: 992px) {
-    .card-columns {
-        column-count: 2;
-    }
-}
-
-
 /*------------ Sidebar ------------*/
+
 #side_nav {
     background: #fff;
     min-height: 100dvh;
@@ -132,5 +59,61 @@ body.simple {
     }
     #side_nav.active {
         margin-left: 0;
+    }
+}
+
+/*------------ Sign In and Sign Up pages ------------*/
+
+.box-area{
+    width: 930px;
+}
+.right-box{
+    padding: 40px 30px 40px 40px;
+}
+::placeholder{
+    font-size: 16px;
+}
+.rounded-4{
+    border-radius: 20px;
+}
+.rounded-5{
+    border-radius: 30px;
+}
+.font-bold {
+    font-weight: 400;
+}
+@media only screen and (max-width: 768px){
+    .logo-navbar {
+        font-size: 20px;
+    }
+     .box-area{
+        margin: 0;
+
+     }
+     .left-box{
+        height: 100px;
+        overflow: hidden;
+     }
+     .image-signin-left-box {
+         margin-top: 385px;
+     }
+     .image-signup-left-box {
+         margin-top: 310px;
+     }
+     .right-box{
+        padding: 20px;
+     }
+}
+
+/*------------ Cards------------*/
+
+@media (max-width: 991px) {
+    .card-columns {
+        column-count: 1;
+    }
+}
+@media (min-width: 992px) {
+    .card-columns {
+        column-count: 2;
     }
 }

@@ -11,6 +11,12 @@
     <ul class="list-unstyled px-2">
         {% if user.is_authenticated %}
             <li>
+                <a href="{% url 'city-create' %}" class="text-decoration-none px-3 py-2 d-block{% if active_page == 'add_city' %} active{% endif %}">
+                    <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
+                </a>
+            </li>
+            <hr>
+            <li>
                 <span class="text-muted px-3 py-2 d-block">
                     <i class="fa-solid fa-tree-city"></i>&nbsp;&nbsp;&nbsp;Посещённые города
                 </span>

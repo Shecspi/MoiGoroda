@@ -125,7 +125,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
     """
     model = VisitedCity
     paginate_by = 16
-    template_name = 'region/cities_by_region__list.html'
+    list_or_map: str = ''
 
     all_cities = None
     region_id = None
@@ -137,7 +137,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
     valid_filters = ('magnet', 'current_year', 'last_year')
     valid_sorts = ('name_down', 'name_up', 'date_down', 'date_up')
 
-    def __init__(self):
+    def __init__(self, list_or_map: str):
         super().__init__()
 
         self.sort: str = ''
@@ -145,6 +145,8 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.qty_of_visited_cities_current_year: int = 0
+
+        self.list_or_map = list_or_map
 
     def get(self, *args, **kwargs):
         """
@@ -272,6 +274,8 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         context['total_qty_of_cities'] = self.total_qty_of_cities
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
         context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
+        context['declension_of_visited_cities'] = self.declension_of_city(self.qty_of_visited_cities)
+        context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_cities)
 
         context['url_for_filter_magnet'] = self.get_url_params(
             'magnet' if self.filter != 'magnet' else '',
@@ -291,3 +295,9 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
 
         return context
+
+    def get_template_names(self) -> list[str]:
+        if self.list_or_map == 'list':
+            return ['region/region_selected__list.html', ]
+        elif self.list_or_map == 'map':
+            return ['region/region_selected__map.html', ]

@@ -82,6 +82,8 @@ class CollectionList(CollectionListMixin, ListView):
         context['qty_of_started_colelctions'] = self.qty_of_started_colelctions
         context['qty_of_finished_colelctions'] = self.qty_of_finished_colelctions
 
+        context['active_page'] = 'collection'
+
         url_params_for_sort = '' if self.sort == 'default_auth' or self.sort == 'default_guest' else self.sort
 
         context['url_for_filter_not_started'] = self.get_url_params(

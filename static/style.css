@@ -20,7 +20,7 @@ body.simple {
 
 /*------------ Sidebar ------------*/
 
-#side_nav {
+#sidebar {
     background: #fff;
     min-height: 100dvh;
     min-width: 300px;
@@ -82,7 +82,7 @@ body.simple {
 .font-bold {
     font-weight: 400;
 }
-@media only screen and (max-width: 768px){
+@media only screen and (max-width: 767px){
     .logo-navbar {
         font-size: 20px;
     }
@@ -98,7 +98,10 @@ body.simple {
          margin-top: 385px;
      }
      .image-signup-left-box {
-         margin-top: 310px;
+         margin-top: 290px;
+     }
+     .image-password_reset-left_box {
+        margin-top: 340px;
      }
      .right-box{
         padding: 20px;

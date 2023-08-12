@@ -2,9 +2,9 @@ import logging
 import datetime
 
 from django.contrib.auth import login
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetCompleteView, PasswordResetDoneView
 from django.db.models import Count, Q, F
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -145,3 +145,7 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         logger_basic.info(f"Updating user's information: {self.request.user.username} ({self.request.user.email})")
         return super().form_valid(form)
+
+
+class MyPasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
+    template_name = 'account/profile__password_change_done.html'

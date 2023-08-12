@@ -42,15 +42,14 @@
             </div>
         </div>
     </div>
-    {% if user.is_authenticated %}
-        <div class="col-xl-3">
-            <div class="card text-center shadow h-100">
-                <div class="card-body d-grid bg-success-subtle" id="block-add_city">
-                    <a href="{% url 'region-all-map' %}" class="btn btn-outline-success align-self-center">
-                        <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
-                    </a>
-                </div>
+
+    <div class="col-xl-3">
+        <div class="card text-center shadow h-100">
+            <div class="card-body d-grid bg-success-subtle" id="block-add_city">
+                <a href="{% url 'region-all-map' %}" class="btn btn-outline-success align-self-center">
+                    <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
+                </a>
             </div>
         </div>
-    {% endif %}
+    </div>
 </div>

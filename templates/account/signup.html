@@ -23,25 +23,22 @@
             <div class="col-md-6 right-box d-flex justify-content-center">
                 <div class="row align-items-center">
                     <form method="post">
-                        <div class="header-text mb-4">
+                        <div class="header-text">
                             <h2 class="font-bold">Регистрация</h2>
-                            <p>Заполните поля ниже для того, чтобы сохранять свои посещённые города.</p>
+                            <p class="mt-5">Заполните поля ниже для того, чтобы сохранять свои посещённые города.</p>
                         </div>
+
                         {% crispy form %}
-                        <div class="input-group mb-3">
+
+                        <div class="input-group mt-4">
                             <button class="btn btn-lg btn-primary w-100 fs-6 mt-3">Зарегистрироваться</button>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <small>
-                                    Уже регистрировались?
-                                </small>
-                            </div>
-                            <div>
-                                <small>
-                                    <a href="{% url 'signin' %}">Войти</a>
-                                </small>
-                            </div>
+
+                        <div class="d-flex justify-content-between small mt-4">
+                            Уже регистрировались?
+                            <a href="{% url 'signin' %}" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                                Войти
+                            </a>
                         </div>
                     </form>
                 </div>

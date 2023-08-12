@@ -9,16 +9,20 @@
                 <div class="align-self-center" data-bs-toggle="tooltip"
                      data-bs-title="Город {{ city.title }} {% if city.is_visited %}посещён{% else %}ещё не посещён{% endif %}">
                     {% if city.is_visited %}
-                        <i class="fa-solid fa-check text-success"></i>
+                        <i class="fa-regular fa-square-check text-success fs-4"></i>
                     {% else %}
-                        <i class="fa-solid fa-xmark text-danger"></i>
+                        <i class="fa-regular fa-circle-xmark text-danger fs-4"></i>
                     {% endif %}
                 </div>
                 <h4 id="subsection-city-title_{{ forloop.counter }}">
-                    <a href="{% url 'city-selected' city.id %}"
-                       class="link_to link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
+                    {% if city.is_visited %}
+                        <a href="{% url 'city-selected' city.visited_id %}"
+                           class="link_to link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                            {{ city.title }}
+                        </a>
+                    {% else %}
                         {{ city.title }}
-                    </a>
+                    {% endif %}
                 </h4>
                 <div></div>
             </div>
@@ -62,40 +66,44 @@
             </div>
             <!-- ^^^ Год основания -->
 
-            <div class="d-flex justify-content-between">
-                <!-- Рейтинг -->
-                <div id="subsection-city-rating_{{ forloop.counter }}">
-                    <small>
-                        {% for i in '12345'|make_list %}
-                            {% if forloop.counter <= city.rating %}
-                                <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                            {% else %}
-                                <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
-                            {% endif %}
-                        {% endfor %}
-                    </small>
-                </div>
-                <!-- ^^^ Рейтинг -->
+            {% if city.is_visited %}
+                <div class="d-flex justify-content-between">
+                    <!-- Рейтинг -->
+                    <div id="subsection-city-rating_{{ forloop.counter }}">
+                        <small>
+                            {% for i in '12345'|make_list %}
+                                {% if forloop.counter <= city.rating %}
+                                    <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </small>
+                    </div>
+                    <!-- ^^^ Рейтинг -->
 
-                <!-- Наличие магнита -->
-                <div id="subsection-city-magnet_{{ forloop.counter }}" data-bs-toggle="tooltip"
-                     data-bs-title="У Вас {% if city.has_magnet %}есть магнитик{% else %}нет магнитика{% endif %} с городом {{ city.title }}">
-                    {% if city.has_magnet %}
-                        <small>
-                            <span class="text-success">
-                                Магнит <i class="fa-regular fa-square-check"></i>
-                            </span>
-                        </small>
-                    {% else %}
-                        <small>
-                            <span class="text-danger">
-                                Магнит <i class="fa-regular fa-square-minus"></i>
-                            </span>
-                        </small>
-                    {% endif %}
+                    <!-- Наличие магнита -->
+                    <div id="subsection-city-magnet_{{ forloop.counter }}" data-bs-toggle="tooltip"
+                         data-bs-title="У Вас {% if city.has_magnet %}есть магнитик{% else %}нет магнитика{% endif %} с городом {{ city.title }}">
+                        {% if city.has_magnet %}
+                            <small>
+                                <span class="text-success">
+                                    Магнит <i class="fa-regular fa-square-check"></i>
+                                </span>
+                            </small>
+                        {% else %}
+                            <small>
+                                <span class="text-danger">
+                                    Магнит <i class="fa-regular fa-square-minus"></i>
+                                </span>
+                            </small>
+                        {% endif %}
+                    </div>
+                    <!-- ^^^ Наличие магнита -->
                 </div>
-                <!-- ^^^ Наличие магнита -->
-            </div>
+            {% else %}
+                &nbsp;
+            {% endif %}
         </div>
     </div>
 </div>

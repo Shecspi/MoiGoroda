@@ -4,7 +4,7 @@ from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
 
 from . import views
-from .views import MyPasswordResetDoneView
+from .views import MyPasswordResetDoneView, MyPasswordChangeView
 
 urlpatterns = [
     path('signin/', views.SignIn.as_view(), name='signin'),
@@ -43,14 +43,6 @@ urlpatterns = [
          ),
 
     # -----  Изменение пароля  ----- #
-    path('password/change/',
-         auth_views.PasswordChangeView.as_view(
-             template_name='account/profile__change_password__form.html'
-         ),
-         name='password_change_form'
-         ),
-    path('password/change/done/',
-         MyPasswordResetDoneView.as_view(),
-         name='password_change_done'
-         )
+    path('password/change/', MyPasswordChangeView.as_view(), name='password_change_form'),
+    path('password/change/done/', MyPasswordResetDoneView.as_view(), name='password_change_done')
 ]

@@ -63,7 +63,7 @@ class SignIn(LoginView):
 
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
-            return redirect('city-all')
+            return redirect('city-all-list')
 
         return super().dispatch(request, *args, **kwargs)
 

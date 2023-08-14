@@ -23,6 +23,7 @@ body.simple {
 #sidebar {
     background: #fff;
     min-height: 100dvh;
+    max-height: 100%;
     min-width: 300px;
     max-width: 300px;
     transition: all 0.3s;
@@ -52,12 +53,12 @@ body.simple {
     color: #fff;
 }
 @media(max-width: 767px) {
-    #side_nav {
+    #sidebar {
         margin-left: -300px;
         position: fixed;
         z-index: 1;
     }
-    #side_nav.active {
+    #sidebar.active {
         margin-left: 0;
     }
 }

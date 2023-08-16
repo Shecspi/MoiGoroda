@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.contrib import admin
 
 from django.conf import settings
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('', include('main_page.urls'), name='main_page'),
@@ -17,6 +18,8 @@ urlpatterns = [
     path('mdeditor/', include('mdeditor.urls')),
 
     path("__reload__/", include("django_browser_reload.urls")),
+
+    path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

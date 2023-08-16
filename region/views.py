@@ -99,6 +99,13 @@ class RegionList(ListView):
         context['qty_of_regions'] = self.qty_of_regions
         context['qty_of_visited_regions'] = self.qty_of_visited_regions
 
+        if self.list_or_map == 'list':
+            context['page_title'] = 'Список регионов России'
+            context['page_description'] = 'Список регионов России'
+        else:
+            context['page_title'] = 'Карта регионов России'
+            context['page_description'] = 'Карта с отмеченными регионами России'
+
         return context
 
     def get_template_names(self) -> list[str]:

@@ -40,17 +40,9 @@
     <script src="https://api-maps.yandex.ru/2.1/?apikey={{ API_YANDEX_MAP }}&lang=ru_RU" type="text/javascript"></script>
     <script src="https://kit.fontawesome.com/1d9659a07a.js" crossorigin="anonymous"></script>
 </head>
-<body class="simple">
-    <div class="main-container d-flex">
-        <div class="content d-flex flex-column min-vh-100">
-            {% include 'parts/navbar-only_logo.html' %}
-
-            {% block content %}
-            {% endblock %}
-
-            {% include 'parts/footer.html' %}
-        </div>
-    </div>
+<body>
+    {% block base %}
+    {% endblock %}
 
     {% django_browser_reload_script %}
 </body>

@@ -44,6 +44,8 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['action'] = 'create'
+        context['page_title'] = 'Добавление города'
+        context['page_description'] = 'Добавление нового посещённого города'
 
         return context
 
@@ -113,6 +115,8 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['action'] = 'update'
+        context['page_title'] = 'Изменение города'
+        context['page_description'] = 'Изменение посещённого города'
 
         return context
 
@@ -133,6 +137,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
 
         # Список коллекций, в которых состоит запрошенный город
         self.collections_list = None
+        self.city_title: str = ''
 
     def get(self, request, *args, **kwargs):
         try:
@@ -148,11 +153,15 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
         else:
             logger.info(f'Viewing a visited city: {self.request.get_full_path()}')
 
+        self.city_title = queryset
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context['collections_list'] = self.collections_list
+        context['page_title'] = self.city_title
+        context['page_description'] = f'Информация про посещённый город - {self.city_title}'
+
         return context
 
 
@@ -285,6 +294,13 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
         context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')
         context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
+
+        if self.list_or_map == "list":
+            context['page_title'] = 'Список посещённых городов'
+            context['page_description'] = 'Список всех посещённых городов, отсортированный в порядке посещения'
+        else:
+            context['page_title'] = 'Карта посещённых городов'
+            context['page_description'] = 'Карта с отмеченными посещёнными городами'
 
         return context
 

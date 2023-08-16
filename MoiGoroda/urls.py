@@ -14,7 +14,9 @@ urlpatterns = [
     path('city/', include('city.urls')),
     path('region/', include('region.urls')),
 
-    path('mdeditor/', include('mdeditor.urls'))
+    path('mdeditor/', include('mdeditor.urls')),
+
+    path("__reload__/", include("django_browser_reload.urls")),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

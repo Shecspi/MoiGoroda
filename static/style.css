@@ -121,3 +121,22 @@ body.simple {
         column-count: 2;
     }
 }
+
+/*------------ Index page ------------*/
+div#main-background {
+    width: 100%;
+    height: 100dvh;
+    background-size: cover;
+}
+.feature {
+    min-height: 250px;
+}
+.feature-image {
+    object-fit: cover;
+}
+.feature-divider {
+    margin: 50px;
+}
+.index-logo {
+    font-family: 'Pacifico', cursive;
+}

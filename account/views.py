@@ -39,8 +39,6 @@ class SignUp(CreateView):
         user = User.objects.create_user(
             username=self.request.POST['username'],
             password=self.request.POST['password1'],
-            first_name=self.request.POST['first_name'],
-            last_name=self.request.POST['last_name'],
             email=self.request.POST['email']
         )
         user.save()

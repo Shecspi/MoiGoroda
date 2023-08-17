@@ -96,16 +96,41 @@ body.simple {
         overflow: hidden;
      }
      .image-signin-left-box {
-         margin-top: 385px;
+         margin-top: 335px;
      }
      .image-signup-left-box {
          margin-top: 290px;
      }
      .image-password_reset-left_box {
-        margin-top: 340px;
+        margin-top: 310px;
      }
      .right-box{
         padding: 20px;
+     }
+}
+@media only screen and (max-width: 489px) {
+    .image-password_reset-left_box {
+         margin-top: 330px;
+     }
+}
+@media only screen and (max-width: 450px) {
+    .image-signin-left-box {
+         margin-top: 360px;
+     }
+}
+@media only screen and (max-width: 432px) {
+    .image-signin-left-box {
+         margin-top: 380px;
+     }
+}
+@media only screen and (max-width: 405px) {
+    .image-signup-left-box {
+         margin-top: 310px;
+     }
+}
+@media only screen and (max-width: 341px) {
+    .image-signup-left-box {
+         margin-top: 330px;
      }
 }
 

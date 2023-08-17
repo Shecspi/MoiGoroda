@@ -1,6 +1,6 @@
 """
 Тестирует работу сортировки городов конкретного региона.
-Страница тестирования '/city/all'.
+Страница тестирования '/city/all/list'.
 
 ----------------------------------------------
 
@@ -52,7 +52,7 @@ def setup_db__filtering(client, django_user_model):
         ('last_year', ['Город 3'])
     ]
 )
-def test__method_apply_filter_to_queryset_correct_value(setup_db__filtering, filter_value, expected_value):
+def test__method_apply_filter_to_queryset__correct_value(setup_db__filtering, filter_value, expected_value):
     """
     Проверяет корректность работы метода фильтрации Queryset - VisitedCityMixin.apply_filter_to_queryset().
     Должны отображаться только города, попадающие под условие 'filter_value'.
@@ -64,7 +64,7 @@ def test__method_apply_filter_to_queryset_correct_value(setup_db__filtering, fil
     assert result == expected_value
 
 
-def test__method_filter_sort_to_queryset_incorrect_value(setup_db__filtering):
+def test__method_filter_sort_to_queryset__incorrect_value(setup_db__filtering):
     """
     Проверяет корректность работы метода фильтрации Queryset - VisitedCityMixin.apply_filter_to_queryset().
     При некорректных данных он должен вернуть исключение KeyError.

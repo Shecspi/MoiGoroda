@@ -1,6 +1,6 @@
 """
 Тестирует корректность отображения контента с карточками посещённых городоов.
-Страница тестирования '/city/all'.
+Страница тестирования '/city/all/list'.
 
 ----------------------------------------------
 
@@ -46,6 +46,15 @@ def setup_db__content_for_checking_of_cards__minimum_content(client, django_user
 
 
 @pytest.fixture
+def setup_db__content_for_checking_of_cards__no_content(client, django_user_model):
+    user = django_user_model.objects.create_user(username='username', password='password')
+    area = Area.objects.create(title='Округ 1')
+    region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU1')
+    for num in range(1, 3):
+        city = City.objects.create(title=f'Город {num}', region=region, coordinate_width=1, coordinate_longitude=1)
+
+
+@pytest.fixture
 def setup_db__content_for_checking_of_cards__maximum_content(client, django_user_model):
     user = django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Округ 1')
@@ -65,11 +74,24 @@ def test__content(setup_db__content_for_pagination, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    content = source.find('div', {'id': 'block-content'})
+    content = source.find('div', {'id': 'section-content'})
 
-    assert source.find('h1', {'id': 'block-page_header'})
-    assert source.find('footer', {'id': 'block-footer'})
+    assert source.find('div', {'id': 'sidebar'})
+    assert source.find('div', {'id': 'sidebar'}).find('a', {'href': reverse('city-all-list'), 'class': 'active'})
+    assert source.find('h1', {'id': 'section-page_header'})
+    assert source.find('footer', {'id': 'section-footer'})
     assert content
+
+
+@pytest.mark.django_db
+def test__info_box__no_content(setup_db__content_for_checking_of_cards__no_content, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-all-list'))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+
+    assert ('На данный момент Вы не сохранили ни одного посещённого города.'
+            in content.find('div', {'id': 'section-info_box'}).get_text())
 
 
 @pytest.mark.django_db
@@ -86,7 +108,7 @@ def test__cards__minimum_content(setup_db__content_for_checking_of_cards__minimu
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    content = source.find('div', {'id': 'block-content'})
+    content = source.find('div', {'id': 'section-content'})
     card = content.find('div', {'id': f'section-city_{num}'})
 
     assert card
@@ -114,7 +136,7 @@ def test__cards__maximum_content(setup_db__content_for_checking_of_cards__maximu
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    content = source.find('div', {'id': 'block-content'})
+    content = source.find('div', {'id': 'section-content'})
     card = content.find('div', {'id': f'section-city_{num}'})
 
     assert card
@@ -133,7 +155,7 @@ def test__pagination_first_page(setup_db__content_for_pagination, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'block-pagination'})
 
     assert pagination
     assert pagination.find('button', {'id': 'link-to_first_page', 'class': 'btn-outline-secondary', 'disabled': True})
@@ -148,7 +170,7 @@ def test__pagination_second_page(setup_db__content_for_pagination, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'block-pagination'})
 
     assert pagination
     assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})
@@ -163,7 +185,7 @@ def test__pagination_third_page(setup_db__content_for_pagination, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'block-pagination'})
 
     assert pagination
     assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})

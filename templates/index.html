@@ -3,16 +3,16 @@
 
 {% block base %}
     <div id="main-background" class="d-flex flex-column justify-content-center align-items-center text-white"
-         style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.9)), url('{% static 'image/index-background.jpg' %}')">
+         style="background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('{% static 'image/index-background.jpg' %}')">
         <div class="d-block d-sm-none display-2">
             <i class="fa-solid fa-map-location-dot mx-5"></i>
         </div>
-        <h1 class="display-2 px-3 text-center index-logo">
+        <h1 class="display-2 px-3 text-center index-logo" id="index-logo">
             <span class="me-sm-3 me-1">Мои</span>
             <i class="fa-solid fa-map-location-dot d-none d-sm-inline"></i>
             <span class="ms-sm-3 ms-1">города</span>
         </h1>
-        <div class="row justify-content-center">
+        <div class="row w-100 mt-3 justify-content-center">
             <div class="col">
                 <p class="mt-5 px-3 fs-5 text-center">Сохраняйте и просматривайте на карте свои посещённые города.</p>
                 <p class="mt-5 px-3 fs-5 text-center">Это абсолютно бесплатно и без рекламы.<br>Навсегда.</p>
@@ -26,13 +26,12 @@
                 <a href="{% url 'signup' %}" class="btn btn-primary d-block">Регистрация</a>
             </div>
         </div>
-
     </div>
 
-    <div class="container mt-3">
+    <div class="container mt-3" id="features">
         <hr class="my-5">
 
-        <div class="row feature d-flex justify-content-between g-3">
+        <div class="row feature d-flex justify-content-between g-3" id="feature1">
             <div class="col-lg-6 order-first order-lg-first align-self-center text-center text-lg-start feature-text">
                 <h1>Сохраняйте посещённые города</h1>
                 <p class="mt-5">
@@ -48,7 +47,7 @@
 
         <hr class="my-5">
 
-        <div class="row feature d-flex justify-content-between g-3">
+        <div class="row feature d-flex justify-content-between g-3" id="feature2">
             <div class="col-lg-5 order-last order-lg-first text-center feature-image">
                 <img src="{% static 'image/feature2.png' %}" alt="feature1" class="img-thumbnail">
             </div>
@@ -63,7 +62,7 @@
 
         <hr class="my-5">
 
-        <div class="row feature d-flex justify-content-between g-3">
+        <div class="row feature d-flex justify-content-between g-3" id="feature3">
             <div class="col-lg-6 order-first order-lg-first align-self-center text-center text-lg-start feature-text">
                 <h1>Анализируйте посещённые регионы</h1>
                 <p class="mt-5">

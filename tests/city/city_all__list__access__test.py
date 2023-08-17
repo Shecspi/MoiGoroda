@@ -1,6 +1,6 @@
 """
-Тестирует доступность страницы для авторизованного пользователя.
-Страница тестирования '/city/all'.
+Тестирует доступность страницы для авторизованного и неавторизованного пользователей.
+Страница тестирования '/city/all/list'.
 
 ----------------------------------------------
 
@@ -21,10 +21,7 @@ def setup_db(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test_access_guest(client):
-    """
-    Тестирование того, что у неавторизованного пользователя нет доступа на страницу.
-    """
+def test__access__guest(client):
     response = client.get(reverse('city-all-list'))
     assert response.status_code == 302
 
@@ -34,10 +31,7 @@ def test_access_guest(client):
 
 
 @pytest.mark.django_db
-def test_access_auth_user(setup_db, client):
-    """
-    Тестирование того, что у авторизованного пользователя есть доступ на страницу и отображается корректный шаблон.
-    """
+def test__access__auth_user(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
 

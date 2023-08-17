@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3" id="block-page_header">
+    <h1 class="display-5 text-center mt-3" id="section-page_header">
         Список посещённых городов
     </h1>
 
@@ -17,7 +17,7 @@
     {% else %}
         <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
             <div class="col-xl-8">
-                <div class="alert alert-danger p-5 text-center" role="alert">
+                <div class="alert alert-danger p-5 text-center" role="alert" id="section-info_box">
                     На данный момент Вы не сохранили ни одного посещённого города.<br>
                     Нажмите кнопку "Добавить город" и начните пользоваться сервисом.
                 </div>

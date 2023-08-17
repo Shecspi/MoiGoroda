@@ -1,6 +1,6 @@
 """
 Тестирует работу сортировки городов конкретного региона.
-Страница тестирования '/city/all'.
+Страница тестирования '/city/all/list'.
 
 ----------------------------------------------
 
@@ -19,7 +19,6 @@ from utils.VisitedCityMixin import VisitedCityMixin
 
 from bs4 import BeautifulSoup
 from django.urls import reverse
-from django.db.models import OuterRef, Exists, Subquery, DateField
 
 
 @pytest.fixture
@@ -54,7 +53,7 @@ def setup_db_for_sorting(client, django_user_model):
         ('default', ['Город 3', 'Город 1', 'Город 2']),
     ]
 )
-def test__method_apply_sort_to_queryset_correct_value(setup_db_for_sorting, sort_value, expected_value):
+def test__method_apply_sort_to_queryset__correct_value(setup_db_for_sorting, sort_value, expected_value):
     """
     Проверяет корректность работы метода сортировки Queryset - VisitedCityMixin.apply_sort_to_queryset().
     Должны отображаться только посещённые города.
@@ -66,7 +65,7 @@ def test__method_apply_sort_to_queryset_correct_value(setup_db_for_sorting, sort
     assert result == expected_value
 
 
-def test__method_apply_sort_to_queryset_incorrect_value(setup_db_for_sorting):
+def test__method_apply_sort_to_queryset__incorrect_value(setup_db_for_sorting):
     """
     Проверяет корректность работы метода сортировки Queryset - CitiesByRegionMixin.apply_sort_to_queryset().
     При некорректных данных он должен вернуть исключение KeyError.

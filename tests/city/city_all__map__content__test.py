@@ -37,13 +37,11 @@ def test__content(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    content = source.find('div', {'id': 'block-content'})
 
-    assert source.find('h1', {'id': 'block-page_header'})
-    assert source.find('div', {'id': 'side_nav'})
-    assert source.find('div', {'id': 'block-content'})
-    assert source.find('footer', {'id': 'block-footer'})
-    assert content
+    assert source.find('h1', {'id': 'section-page_header'})
+    assert source.find('div', {'id': 'sidebar'})
+    assert source.find('div', {'id': 'section-content'})
+    assert source.find('footer', {'id': 'section-footer'})
 
 
 @pytest.mark.django_db
@@ -52,4 +50,4 @@ def test__map(setup_db, client):
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
-    assert source.find('div', {'id': 'block-content'}).find('div', {'id': 'map'})
+    assert source.find('div', {'id': 'section-content'}).find('div', {'id': 'map'})

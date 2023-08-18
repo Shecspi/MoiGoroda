@@ -36,4 +36,4 @@ def test__access__auth_user(setup_db, client):
     response = client.get(reverse('city-create'))
 
     assert response.status_code == 200
-    assert 'city/visited_city/create.html' in (t.name for t in response.templates)
+    assert 'city/city_create.html' in (t.name for t in response.templates)

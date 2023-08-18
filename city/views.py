@@ -24,8 +24,8 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
      > Доступ только для авторизованных пользователей (LoginRequiredMixin).
     """
     form_class = VisitedCity_Create_Form
-    template_name = 'city/visited_city/create.html'
-    success_url = reverse_lazy('city-all')
+    template_name = 'city/city_create.html'
+    success_url = reverse_lazy('city-all-list')
 
     def get_form_kwargs(self, *args, **kwargs):
         form_kwargs = super().get_form_kwargs()
@@ -88,7 +88,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     """
     model = VisitedCity
     form_class = VisitedCity_Create_Form
-    template_name = 'city/visited_city/create.html'
+    template_name = 'city/city_create.html'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -321,4 +321,4 @@ def get_cities_based_on_region(request):
         cities = City.objects.filter(region_id=region_id).order_by('title')
     except ValueError:
         cities = None
-    return render(request, 'city/visited_city/create_dropdown_list.html', {'cities': cities})
+    return render(request, 'city/city_create__dropdown_list.html', {'cities': cities})

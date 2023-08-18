@@ -1,6 +1,6 @@
 """
 Тестирует корректность отображения контента на странице детальной информации о посещённом городе.
-Страница тестирования '/city/<pk>>'.
+Страница тестирования '/city/<pk>'.
 
 ----------------------------------------------
 
@@ -47,12 +47,6 @@ def setup_db__detail__data_exists(client, django_user_model):
     )
     # Collection.objects.create(id=1, title='Коллекция 1', city=city)
     # Collection.objects.create(id=1, title='Коллекция 2', city=city)
-
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-
-    return source
 
 
 @pytest.fixture

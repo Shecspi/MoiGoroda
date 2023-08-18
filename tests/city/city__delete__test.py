@@ -91,4 +91,4 @@ def test__access__auth_user_by_post_2(setup_db, client):
     qty_after = VisitedCity.objects.filter(user=user).count()
     assert qty_before - qty_after == 1
     assert response.status_code == 200
-    assert 'city/visited_cities__list.html' in (t.name for t in response.templates)
+    assert 'city/city_all__list.html' in (t.name for t in response.templates)

@@ -69,52 +69,26 @@ def setup_db__detail__data_not_exists(client, django_user_model):
         rating=3
     )
 
+
+@pytest.mark.django_db
+def test__content(setup_db__detail__data_exists, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-selected', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    page_header = content.find('h1', {'id': 'section-page_header'})
 
-    return source
-
-
-@pytest.fixture
-def block_right_column_data_exists(setup_db__detail__data_exists):
-    return setup_db__detail__data_exists.find('div', {'id': 'block-main_content'})
-
-
-@pytest.fixture
-def block_right_column_data_not_exists(setup_db__detail__data_not_exists):
-    return setup_db__detail__data_not_exists.find('div', {'id': 'block-main_content'})
+    assert page_header
+    assert 'Город 1' in page_header.get_text()
 
 
 @pytest.mark.django_db
-def test__left_panel(setup_db__detail__data_exists, client):
+def test__section_region(setup_db__detail__data_exists, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-selected', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'block-left_card'})
-    link_update = block.find('a', {'id': 'link-update', 'href': reverse('city-update', kwargs={'pk': 1})})
-    link_delete = block.find('button', {'id': 'link-delete'})
-
-    assert block
-    assert block.find('img')
-    assert 'Город 1' in block.find('h4').get_text()
-    assert block.find('a', {'id': 'link-wiki', 'href': 'https://wiki.ru/Город_1'})
-    assert link_update
-    assert link_update.find('i', {'class': 'fa-regular fa-pen-to-square'})
-    assert 'Изменить' in link_update.get_text()
-    assert link_delete
-    assert link_delete.find('i', {'class': 'fa-solid fa-trash-can'})
-    assert 'Удалить' in link_delete.get_text()
-
-
-@pytest.mark.django_db
-def test__block_right_column(block_right_column_data_exists):
-    assert block_right_column_data_exists
-
-
-@pytest.mark.django_db
-def test__section_region(block_right_column_data_exists, client):
-    section = block_right_column_data_exists.find('div', {'id': 'section-region'})
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-region'})
 
     assert section
     assert 'Регион:' in section.find('div', {'id': 'subsection-region_title'}).get_text()
@@ -122,8 +96,12 @@ def test__section_region(block_right_column_data_exists, client):
 
 
 @pytest.mark.django_db
-def test__section_area(block_right_column_data_exists, client):
-    section = block_right_column_data_exists.find('div', {'id': 'section-area'})
+def test__section_area(setup_db__detail__data_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-area'})
 
     assert section
     assert 'Федеральный округ:' in section.find('div', {'id': 'subsection-area_title'}).get_text()
@@ -131,8 +109,12 @@ def test__section_area(block_right_column_data_exists, client):
 
 
 @pytest.mark.django_db
-def test__section_date_of_foundation_exists(block_right_column_data_exists, client):
-    section = block_right_column_data_exists.find('div', {'id': 'section-date_of_foundation'})
+def test__section_date_of_foundation_exists(setup_db__detail__data_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-date_of_foundation'})
 
     assert section
     assert 'Год основания:' in section.find('div', {'id': 'subsection-date_of_foundation_title'}).get_text()
@@ -140,8 +122,12 @@ def test__section_date_of_foundation_exists(block_right_column_data_exists, clie
 
 
 @pytest.mark.django_db
-def test__section_date_of_foundation_not_exists(block_right_column_data_not_exists, client):
-    section = block_right_column_data_not_exists.find('div', {'id': 'section-date_of_foundation'})
+def test__section_date_of_foundation_not_exists(setup_db__detail__data_not_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-date_of_foundation'})
 
     assert section
     assert 'Год основания:' in section.find('div', {'id': 'subsection-date_of_foundation_title'}).get_text()
@@ -151,8 +137,12 @@ def test__section_date_of_foundation_not_exists(block_right_column_data_not_exis
 
 
 @pytest.mark.django_db
-def test__section_population_exists(block_right_column_data_exists, client):
-    section = block_right_column_data_exists.find('div', {'id': 'section-population'})
+def test__section_population_exists(setup_db__detail__data_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-population'})
 
     assert section
     assert 'Население:' in section.find('div', {'id': 'subsection-population_title'}).get_text()
@@ -160,8 +150,12 @@ def test__section_population_exists(block_right_column_data_exists, client):
 
 
 @pytest.mark.django_db
-def test__section_population_not_exists(block_right_column_data_not_exists, client):
-    section = block_right_column_data_not_exists.find('div', {'id': 'section-population'})
+def test__section_population_not_exists(setup_db__detail__data_not_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-population'})
 
     assert section
     assert 'Население:' in section.find('div', {'id': 'subsection-population_title'}).get_text()
@@ -170,18 +164,13 @@ def test__section_population_not_exists(block_right_column_data_not_exists, clie
     ).get_text()
 
 
-# @pytest.mark.django_db
-# def test__section_collections_exists(block_right_column_data_exists, client):
-#     section = block_right_column_data_exists.find('div', {'id': 'section-collections'})
-#
-#     assert section
-#     assert 'Коллекции:' in section.find('div', {'id': 'subsection-collections_title'}).get_text()
-#     assert 'Коллекция 1' in section.find('div', {'id': 'subsection-collections_value'}).find_all('span', {'class': 'badge'}).get_text()
-
-
 @pytest.mark.django_db
-def test__section_collectins_not_exists(block_right_column_data_not_exists, client):
-    section = block_right_column_data_not_exists.find('div', {'id': 'section-collections'})
+def test__section_collectins_not_exists(setup_db__detail__data_not_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-collections'})
 
     assert section
     assert 'Коллекции:' in section.find('div', {'id': 'subsection-collections_title'}).get_text()
@@ -191,8 +180,12 @@ def test__section_collectins_not_exists(block_right_column_data_not_exists, clie
 
 
 @pytest.mark.django_db
-def test__section_date_of_visit_exists(block_right_column_data_exists, client):
-    section = block_right_column_data_exists.find('div', {'id': 'section-date_of_visit'})
+def test__section_date_of_visit_exists(setup_db__detail__data_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-date_of_visit'})
 
     assert section
     assert 'Дата посещения:' in section.find('div', {'id': 'subsection-date_of_visit_title'}).get_text()
@@ -200,8 +193,12 @@ def test__section_date_of_visit_exists(block_right_column_data_exists, client):
 
 
 @pytest.mark.django_db
-def test__section_population_not_exists(block_right_column_data_not_exists, client):
-    section = block_right_column_data_not_exists.find('div', {'id': 'section-date_of_visit'})
+def test__section_population_not_exists(setup_db__detail__data_not_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-date_of_visit'})
 
     assert section
     assert 'Дата посещения:' in section.find('div', {'id': 'subsection-date_of_visit_title'}).get_text()
@@ -209,8 +206,12 @@ def test__section_population_not_exists(block_right_column_data_not_exists, clie
 
 
 @pytest.mark.django_db
-def test__section_has_magnet_exists(block_right_column_data_exists, client):
-    section = block_right_column_data_exists.find('div', {'id': 'section-has_magnet'})
+def test__section_has_magnet_exists(setup_db__detail__data_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-has_magnet'})
 
     assert section
     assert 'Магнит:' in section.find('div', {'id': 'subsection-has_magnet_title'}).get_text()
@@ -220,8 +221,12 @@ def test__section_has_magnet_exists(block_right_column_data_exists, client):
 
 
 @pytest.mark.django_db
-def test__section_has_magnet_not_exists(block_right_column_data_not_exists, client):
-    section = block_right_column_data_not_exists.find('div', {'id': 'section-has_magnet'})
+def test__section_has_magnet_not_exists(setup_db__detail__data_not_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-has_magnet'})
 
     assert section
     assert 'Магнит:' in section.find('div', {'id': 'subsection-has_magnet_title'}).get_text()
@@ -231,8 +236,12 @@ def test__section_has_magnet_not_exists(block_right_column_data_not_exists, clie
 
 
 @pytest.mark.django_db
-def test__section_impression(block_right_column_data_exists, client):
-    section = block_right_column_data_exists.find('div', {'id': 'section-impression'})
+def test__section_impression(setup_db__detail__data_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-impression'})
 
     assert section
     assert 'Впечатления:' in section.find('div', {'id': 'subsection-impression_title'}).get_text()
@@ -240,10 +249,35 @@ def test__section_impression(block_right_column_data_exists, client):
 
 
 @pytest.mark.django_db
-def test__section_rating(block_right_column_data_exists, client):
-    section = block_right_column_data_exists.find('div', {'id': 'section-rating'})
+def test__section_rating(setup_db__detail__data_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-rating'})
 
     assert section
     assert 'Ваша оценка:' in section.find('div', {'id': 'subsection-rating_title'}).get_text()
     assert len(section.find('div', {'id': 'subsection-rating_value'}).find_all('i', {'class': 'fa-solid fa-star'})) == 3
     assert len(section.find('div', {'id': 'subsection-rating_value'}).find_all('i', {'class': 'fa-regular fa-star'})) == 2
+
+
+@pytest.mark.django_db
+def test__buttons(setup_db__detail__data_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    link_wiki = content.find('a', {'id': 'link-wiki', 'href': 'https://wiki.ru/Город_1'})
+    link_update = content.find('a', {'id': 'link-update', 'href': reverse('city-update', kwargs={'pk': 1})})
+    link_delete = content.find('button', {'id': 'link-delete'})
+
+    assert link_wiki
+    assert link_wiki.find('i', {'class': 'fa-brands fa-wikipedia-w'})
+    assert 'Wikipedia' in link_wiki.get_text()
+    assert link_update
+    assert link_update.find('i', {'class': 'fa-regular fa-pen-to-square'})
+    assert 'Изменить' in link_update.get_text()
+    assert link_delete
+    assert link_delete.find('i', {'class': 'fa-solid fa-trash-can'})
+    assert 'Удалить' in link_delete.get_text()

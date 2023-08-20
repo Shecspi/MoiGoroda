@@ -1,0 +1,39 @@
+<div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="align-self-center mb-0">
+                Города
+            </h4>
+            <i class="fa-regular fa-circle-question fs-4 text-body-secondary" data-bs-toggle="tooltip"
+                 data-bs-title="Отображается 5 последних посещённых городов"></i>
+        </div>
+
+        {% if cities.last_visited %}
+            <ul class="list-group list-group-flush mt-3">
+                {% for city in cities.last_visited %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between small">
+                            <a href="{% url 'city-selected' city.pk %}"
+                               class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                                {{ city }}
+                            </a>
+                            {{ city.date_of_visit }}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
+                Вы ещё не посетили ни одного города.
+            </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between mt-4 small">
+            Всего: {{ cities.num_visited }}
+            <a href="{% url 'city-all-list' %}"
+               class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                Посмотреть все
+            </a>
+        </div>
+    </div>
+</div>

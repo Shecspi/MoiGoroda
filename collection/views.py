@@ -82,6 +82,8 @@ class CollectionList(CollectionListMixin, ListView):
         context['qty_of_started_colelctions'] = self.qty_of_started_colelctions
         context['qty_of_finished_colelctions'] = self.qty_of_finished_colelctions
 
+        context['active_page'] = 'collection'
+
         url_params_for_sort = '' if self.sort == 'default_auth' or self.sort == 'default_guest' else self.sort
 
         context['url_for_filter_not_started'] = self.get_url_params(
@@ -96,5 +98,8 @@ class CollectionList(CollectionListMixin, ListView):
         context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
         context['url_for_sort_progress_down'] = self.get_url_params(self.filter, 'progress_down')
         context['url_for_sort_progress_up'] = self.get_url_params(self.filter, 'progress_up')
+
+        context['page_title'] = 'Коллекции городов'
+        context['page_description'] = 'Города России, распределённые по различным коллекциям. Путешествуйте по России и закрывайте коллекции.'
 
         return context

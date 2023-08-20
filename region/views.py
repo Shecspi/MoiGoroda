@@ -15,22 +15,25 @@ Licensed under the Apache License, Version 2.0
 import logging
 from datetime import datetime
 
+from django.db.models.functions import Cast
+from django.forms.fields import CharField
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value, F
+from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value, F, AutoField, CharField
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
 from city.models import VisitedCity, City
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
+from utils.RegionListMixin import RegionListMixin
 from utils.filter_funcs import filter_validation, apply_filter
 
 
 logger = logging.getLogger('moi-goroda')
 
 
-class RegionList(ListView):
+class RegionList(RegionListMixin, ListView):
     """
     Отображает список всех регионов с указанием количества городов в регионе.
     Для авторизованных пользователей также указывается количество посещённых городов с прогресс-баром.
@@ -42,15 +45,15 @@ class RegionList(ListView):
     """
     model = Region
     paginate_by = 16
-    template_name = 'region/region__list.html'
     all_regions = []
+    list_or_map: str = ''
 
-    def __init__(self):
+    def __init__(self, list_or_map: str):
         super().__init__()
 
+        self.list_or_map = list_or_map
         self.qty_of_regions: int = 0
         self.qty_of_visited_regions: int = 0
-        self.qty_of_finished_regions: int = 0
 
     def get_queryset(self):
         """
@@ -70,7 +73,6 @@ class RegionList(ListView):
                 )
             ).order_by('-num_visited', 'title')
             self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
-            self.qty_of_finished_regions = queryset.filter(num_visited=F('num_total')).count()
         else:
             logger.info(f'Viewing the page by not authorized user: {self.request.get_full_path()}')
             queryset = Region.objects.select_related('area').annotate(
@@ -93,12 +95,27 @@ class RegionList(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['active_page'] = 'region_list' if self.list_or_map == 'list' else 'region_map'
         context['all_regions'] = self.all_regions
         context['qty_of_regions'] = self.qty_of_regions
         context['qty_of_visited_regions'] = self.qty_of_visited_regions
-        context['qty_of_finished_regions'] = self.qty_of_finished_regions
+        context['declension_of_regions'] = self.declension_of_region(self.qty_of_visited_regions)
+        context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_regions)
+
+        if self.list_or_map == 'list':
+            context['page_title'] = 'Список регионов России'
+            context['page_description'] = 'Список регионов России'
+        else:
+            context['page_title'] = 'Карта регионов России'
+            context['page_description'] = 'Карта с отмеченными регионами России'
 
         return context
+
+    def get_template_names(self) -> list[str]:
+        if self.list_or_map == 'list':
+            return ['region/region_all__list.html', ]
+        elif self.list_or_map == 'map':
+            return ['region/region_all__map.html', ]
 
 
 class CitiesByRegionList(ListView, CitiesByRegionMixin):
@@ -118,7 +135,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
     """
     model = VisitedCity
     paginate_by = 16
-    template_name = 'region/cities_by_region__list.html'
+    list_or_map: str = ''
 
     all_cities = None
     region_id = None
@@ -130,7 +147,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
     valid_filters = ('magnet', 'current_year', 'last_year')
     valid_sorts = ('name_down', 'name_up', 'date_down', 'date_up')
 
-    def __init__(self):
+    def __init__(self, list_or_map: str):
         super().__init__()
 
         self.sort: str = ''
@@ -138,6 +155,8 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.qty_of_visited_cities_current_year: int = 0
+
+        self.list_or_map = list_or_map
 
     def get(self, *args, **kwargs):
         """
@@ -265,6 +284,8 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         context['total_qty_of_cities'] = self.total_qty_of_cities
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
         context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
+        context['declension_of_visited_cities'] = self.declension_of_city(self.qty_of_visited_cities)
+        context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_cities)
 
         context['url_for_filter_magnet'] = self.get_url_params(
             'magnet' if self.filter != 'magnet' else '',
@@ -283,4 +304,17 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')
         context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
 
+        if self.list_or_map == 'list':
+            context['page_title'] = self.region_name
+            context['page_description'] = f"Список городов региона '{self.region_name}'"
+        else:
+            context['page_title'] = self.region_name
+            context['page_description'] = f"Карта с отмеченными городами региона '{self.region_name}'"
+
         return context
+
+    def get_template_names(self) -> list[str]:
+        if self.list_or_map == 'list':
+            return ['region/region_selected__list.html', ]
+        elif self.list_or_map == 'map':
+            return ['region/region_selected__map.html', ]

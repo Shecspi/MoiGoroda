@@ -2,9 +2,10 @@ import logging
 import datetime
 
 from django.contrib.auth import login
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetCompleteView, PasswordResetDoneView, \
+    PasswordChangeView
 from django.db.models import Count, Q, F
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -30,7 +31,7 @@ class SignUp(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
-            return redirect('city-all')
+            return redirect('city-all-list')
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -38,8 +39,6 @@ class SignUp(CreateView):
         user = User.objects.create_user(
             username=self.request.POST['username'],
             password=self.request.POST['password1'],
-            first_name=self.request.POST['first_name'],
-            last_name=self.request.POST['last_name'],
             email=self.request.POST['email']
         )
         user.save()
@@ -48,7 +47,15 @@ class SignUp(CreateView):
             f"Total numbers of users: {User.objects.count()}")
         login(self.request, user)
 
-        return redirect('city-all')
+        return redirect('city-all-list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['page_title'] = 'Регистрация'
+        context['page_description'] = 'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои посещённые города и просматривать их на карте'
+
+        return context
 
 
 class SignIn(LoginView):
@@ -62,9 +69,17 @@ class SignIn(LoginView):
 
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
-            return redirect('city-all')
+            return redirect('city-all-list')
 
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['page_title'] = 'Вход'
+        context['page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
+
+        return context
 
 
 def signup_success(request):
@@ -126,6 +141,10 @@ class Profile_Detail(LoginRequiredMixin, DetailView):
         }
         context['areas'] = areas
 
+        context['active_page'] = 'profile'
+        context['page_title'] = 'Профиль'
+        context['page_description'] = 'Здесь отображается подробная информация о Ваших посещённых городах'
+
         return context
 
 
@@ -145,3 +164,27 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         logger_basic.info(f"Updating user's information: {self.request.user.username} ({self.request.user.email})")
         return super().form_valid(form)
+
+
+class MyPasswordChangeView(PasswordChangeView):
+    template_name = 'account/profile__password_change_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['page_title'] = 'Изменение пароля'
+        context['page_description'] = 'Для того, чтобы изменить свой пароль, введите старый и новый пароли'
+
+        return context
+
+
+class MyPasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
+    template_name = 'account/profile__password_change_done.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['page_title'] = 'Изменение пароля'
+        context['page_description'] = 'Пароль успешно изменён'
+
+        return context

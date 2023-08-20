@@ -1,0 +1,52 @@
+<!-- Панель инструментов -->
+<div class="row mx-3 my-3 g-3" id="toolbar">
+    <!-- Статистика посещёния -->
+    <div class="col-xl-3 order-xl-1" id="section-statistic">
+        <div class="card text-center shadow h-100">
+            <div class="card-body d-grid bg-warning-subtle">
+                <div class="align-self-center">
+                    {{ declension_of_visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
+                    {{ declension_of_visited_cities }} из {{ total_qty_of_cities }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Статистика посещёния -->
+
+    <!-- Посмотреть на карте -->
+    <div class="col-xl-3 order-xl-4" id="section-show_map">
+        <div class="card text-center shadow h-100">
+            <div class="card-body d-grid bg-success-subtle">
+                <a href="{% url 'region-selected-list' region_id %}" class="btn btn-outline-success align-self-center">
+                    <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Посмотреть на карте -->
+
+    <!-- Фильтры -->
+    <div class="col-xl-3 order-xl-2">
+        <div class="card text-center shadow h-100" id="section-filter">
+            <div class="card-body d-grid bg-primary-subtle">
+                <div class="align-self-center">
+                    Города, которые Вы уже посетили, выделены <span class="text-success fw-medium">зелёными</span> отметками
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Фильтры -->
+
+    <!-- Сортировка -->
+    <div class="col-xl-3 order-xl-3">
+        <div class="card text-center shadow h-100" id="section-sorting">
+            <div class="card-body d-grid bg-secondary-subtle">
+                <div class="align-self-center">
+                    Города, в которых Вы ещё не были, выделены <span class="text-danger fw-medium">красными</span> отметками
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Сортировка -->
+</div>
+<!-- ^^^ Панель инструментов -->

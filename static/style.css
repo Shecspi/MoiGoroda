@@ -1,23 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+body{
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    background: #fff;
+}
+body.simple {
+    background: #ececec;
+}
+.logo-navbar {
+    font-family: 'Pacifico', cursive;
+    font-size: 40px;
+}
+.content {
+    min-height: 100vh;
+    width: 100%;
+}
+
+/*------------ Sidebar ------------*/
+
+#sidebar {
+    background: #fff;
+    min-height: 100dvh;
+    max-height: 100%;
+    min-width: 300px;
+    max-width: 300px;
+    transition: all 0.3s;
+}
+.sidebar-logo {
+    font-family: 'Pacifico', cursive;
+    font-size: 30px;
+}
+.sidebar li.active {
+    background: #eee;
+    border-radius: 8px;
+}
+
+.sidebar a {
+    border: solid 1px #fff;
+    border-radius: 10px;
+}
+.sidebar li a {
+    color: #000;
+}
+.sidebar li a:hover {
+    border-radius: 10px;
+    background: #e9ecef;
+}
+.sidebar li a.active {
+    background: #0d6efd;
+    color: #fff;
+}
+@media(max-width: 767px) {
+    #sidebar {
+        margin-left: -300px;
+        position: fixed;
+        z-index: 1;
+    }
+    #sidebar.active {
+        margin-left: 0;
+    }
+}
+
+/*------------ Sign In and Sign Up pages ------------*/
+
+.box-area{
+    width: 930px;
+}
+.right-box{
+    padding: 40px 30px 40px 40px;
+}
+::placeholder{
+    font-size: 16px;
+}
+.rounded-4{
+    border-radius: 20px;
+}
+.rounded-5{
+    border-radius: 30px;
+}
+.font-bold {
+    font-weight: 400;
+}
+@media only screen and (max-width: 767px){
+    .logo-navbar {
+        font-size: 20px;
+    }
+     .box-area{
+        margin: 0;
+
+     }
+     .left-box{
+        height: 100px;
+        overflow: hidden;
+     }
+     .image-signin-left-box {
+         margin-top: 335px;
+     }
+     .image-signup-left-box {
+         margin-top: 290px;
+     }
+     .image-password_reset-left_box {
+        margin-top: 310px;
+     }
+     .right-box{
+        padding: 20px;
+     }
+}
+@media only screen and (max-width: 489px) {
+    .image-password_reset-left_box {
+         margin-top: 330px;
+     }
+}
+@media only screen and (max-width: 450px) {
+    .image-signin-left-box {
+         margin-top: 360px;
+     }
+}
+@media only screen and (max-width: 432px) {
+    .image-signin-left-box {
+         margin-top: 380px;
+     }
+}
+@media only screen and (max-width: 405px) {
+    .image-signup-left-box {
+         margin-top: 310px;
+     }
+}
+@media only screen and (max-width: 341px) {
+    .image-signup-left-box {
+         margin-top: 330px;
+     }
+}
+
+/*------------ Cards------------*/
+
 @media (max-width: 991px) {
     .card-columns {
         column-count: 1;
     }
 }
-
 @media (min-width: 992px) {
     .card-columns {
         column-count: 2;
     }
 }
 
-.text-underline-dashed {
-    text-decoration: none;
+/*------------ Index page ------------*/
+div#main-background {
+    width: 100%;
+    height: 100dvh;
+    background-size: cover;
 }
-
-.text-underline-dashed:hover {
-    border-bottom: 1px dashed black;
+.feature {
+    min-height: 250px;
 }
-
-.color-black {
-    color: black;
+.feature-image {
+    object-fit: cover;
+}
+.feature-divider {
+    margin: 50px;
+}
+.index-logo {
+    font-family: 'Pacifico', cursive;
 }

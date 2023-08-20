@@ -1,0 +1,15 @@
+User-agent: GoogleBot
+Disallow: /admin/
+Allow: *.css
+Allow: *.js
+Allow: *.png
+Allow: *.jpg
+Allow: *.gif
+
+User-agent: Yandex
+Disallow: /admin/
+Allow: *.css
+Allow: *.js
+Allow: *.png
+Allow: *.jpg
+Allow: *.gif

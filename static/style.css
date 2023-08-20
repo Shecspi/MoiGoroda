@@ -18,6 +18,12 @@ body.simple {
     width: 100%;
 }
 
+
+/*------------ Map ------------*/
+#map {
+    min-height: 75dvh;
+}
+
 /*------------ Sidebar ------------*/
 
 #sidebar {

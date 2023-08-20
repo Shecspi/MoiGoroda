@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'collection',
     'mathfilters',
     'mdeditor',
-    'markdownify'
+    'markdownify',
+    'django_browser_reload'
 ]
 
 MIDDLEWARE = [
@@ -148,7 +149,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/city/all/list'
 LOGOUT_REDIRECT_URL = '/'
 
 INTERNAL_IPS = [

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-5 text-center mt-3" id="section-page_header">
+        Список посещённых городов
+    </h1>
+
+    {% include 'city/city_all__list__toolbar.html' %}
+
+    <!-- Карточки с регионами -->
+    {% if object_list %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
+            {% for city in object_list %}
+                {% include 'city/city__card.html' %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
+            <div class="col-xl-8">
+                <div class="alert alert-danger p-5 text-center" role="alert" id="section-info_box">
+                    На данный момент Вы не сохранили ни одного посещённого города.<br>
+                    Нажмите кнопку "Добавить город" и начните пользоваться сервисом.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <!-- ^^^ Карточки с городами -->
+
+    <!-- Пагинация -->
+    {% include 'parts/pagination.html' %}
+    <!-- ^^^ Пагинация -->
+{% endblock %}

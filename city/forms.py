@@ -35,16 +35,17 @@ class VisitedCity_Create_Form(ModelForm):
         self.helper.add_input(Submit('Save', 'Сохранить'))
         self.helper.layout = Layout(
             Row(
-                Column('region'),
-                Column('city'),
-                Column('date_of_visit')),
-            Row(
-                Column('has_magnet'),
-                Column(Field(InlineRadios('rating'), css_id='test')),
-                Column()
+                Column('region', css_class='col-xl-4'),
+                Column('city', css_class='col-xl-4'),
+                Column(Field('date_of_visit', placeholder='ДД.ММ.ГГГГ'), css_class='col-xl-4'),
+                css_class='g-3'
             ),
             Row(
-                Column('impression')
+                Column('has_magnet', css_class='col-xl-6'),
+                Column(InlineRadios('rating'), css_id='col-xl-6'), css_class='mt-3 g-3'
+            ),
+            Row(
+                Column('impression'), css_class='mt-3'
             )
         )
 

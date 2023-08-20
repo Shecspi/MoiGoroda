@@ -155,7 +155,7 @@ def test__pagination_first_page(setup_db__content_for_pagination, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'section-pagination'})
 
     assert pagination
     assert pagination.find('button', {'id': 'link-to_first_page', 'class': 'btn-outline-secondary', 'disabled': True})
@@ -170,7 +170,7 @@ def test__pagination_second_page(setup_db__content_for_pagination, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'section-pagination'})
 
     assert pagination
     assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})
@@ -185,7 +185,7 @@ def test__pagination_third_page(setup_db__content_for_pagination, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'section-pagination'})
 
     assert pagination
     assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})

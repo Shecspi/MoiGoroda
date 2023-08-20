@@ -1,6 +1,6 @@
 """
 Тестирует доступность страницы для авторизованного и неавторизованного пользователей.
-Страница тестирования '/region/all'.
+Страница тестирования '/region/all/map'.
 
 ----------------------------------------------
 
@@ -22,22 +22,16 @@ def setup_db__access_region_all(client, django_user_model):
 
 @pytest.mark.django_db
 def test_access_guest(client):
-    """
-    Тестирование того, что у неавторизованного пользователя есть доступ на страницу и отображается корректный шаблон.
-    """
-    response = client.get(reverse('region-all-list'))
+    response = client.get(reverse('region-all-map'))
 
     assert response.status_code == 200
-    assert 'region/region_all__list.html' in (t.name for t in response.templates)
+    assert 'region/region_all__map.html' in (t.name for t in response.templates)
 
 
 @pytest.mark.django_db
 def test_access_auth_user(setup_db__access_region_all, client):
-    """
-    Тестирование того, что у авторизованного пользователя есть доступ на страницу и отображается корректный шаблон.
-    """
     client.login(username='username', password='password')
-    response = client.get(reverse('region-all-list'))
+    response = client.get(reverse('region-all-map'))
 
     assert response.status_code == 200
-    assert 'region/region_all__list.html' in (t.name for t in response.templates)
+    assert 'region/region_all__map.html' in (t.name for t in response.templates)

@@ -1,6 +1,6 @@
 """
 Тестирует корректность отображения основного контента страницы.
-Страница тестирования '/region/all'.
+Страница тестирования '/region/all/list'.
 
 ----------------------------------------------
 
@@ -45,7 +45,7 @@ def test__pagination__1st_page__auth_user(setup_db__content_without_visited_regi
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'section-pagination'})
 
     assert pagination
     assert pagination.find('button', {'id': 'link-to_first_page', 'class': 'btn-outline-secondary', 'disabled': True})
@@ -60,7 +60,7 @@ def test__pagination__2nd_page__auth_user(setup_db__content_without_visited_regi
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'section-pagination'})
 
     assert pagination
     assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})
@@ -75,7 +75,7 @@ def test__pagination__3rd_page__auth_user(setup_db__content_without_visited_regi
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'section-pagination'})
 
     assert pagination
     assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})
@@ -89,7 +89,7 @@ def test__pagination__3rd_page__auth_user(setup_db__content_without_visited_regi
 def test__pagination__1st_page__guest(setup_db__content_without_visited_regions__region_all, client):
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'section-pagination'})
 
     assert pagination
     assert pagination.find('button', {'id': 'link-to_first_page', 'class': 'btn-outline-secondary', 'disabled': True})
@@ -103,7 +103,7 @@ def test__pagination__1st_page__guest(setup_db__content_without_visited_regions_
 def test__pagination__2nd_page__guest(setup_db__content_without_visited_regions__region_all, client):
     response = client.get(reverse('region-all-list') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'section-pagination'})
 
     assert pagination
     assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})
@@ -117,7 +117,7 @@ def test__pagination__2nd_page__guest(setup_db__content_without_visited_regions_
 def test__pagination__3rd_page__guest(setup_db__content_without_visited_regions__region_all, client):
     response = client.get(reverse('region-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    pagination = source.find('div', {'id': 'block-content'}).find('div', {'id': 'block-pagination'})
+    pagination = source.find('div', {'id': 'section-content'}).find('div', {'id': 'section-pagination'})
 
     assert pagination
     assert pagination.find('a', {'id': 'link-to_first_page', 'class': 'btn-outline-danger'})
@@ -132,15 +132,14 @@ def test__without_visited_regions__1st_page__auth_user(setup_db__content_without
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    page_header = content.find('h1', {'id': 'section-page-header'})
 
-    page_header = source.find('h1', {'id': 'page-header'})
-    list_content = source.find('div', {'id': 'list-content'})
-
+    assert content
     assert page_header
     assert 'Список регионов России' in page_header.get_text()
-    assert list_content
     for num in range(1, 17):
-        card = list_content.find('div', {'id': f'region_card_{num}'})
+        card = content.find('div', {'id': f'region_card_{num}'})
         assert 'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert '0 из 1' in card.find('div', {'id': f'section-qty_of_cities_{num}'}).get_text()
@@ -154,15 +153,14 @@ def test__without_visited_regions__2nd_page__auth_user(setup_db__content_without
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    page_header = content.find('h1', {'id': 'section-page-header'})
 
-    page_header = source.find('h1', {'id': 'page-header'})
-    list_content = source.find('div', {'id': 'list-content'})
-
+    assert content
     assert page_header
     assert 'Список регионов России' in page_header.get_text()
-    assert list_content
     for num in range(1, 17):
-        card = list_content.find('div', {'id': f'region_card_{num}'})
+        card = content.find('div', {'id': f'region_card_{num}'})
         assert 'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert '0 из 1' in card.find('div', {'id': f'section-qty_of_cities_{num}'}).get_text()
@@ -176,15 +174,14 @@ def test__without_visited_regions__3rd_page__auth_user(setup_db__content_without
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    page_header = content.find('h1', {'id': 'section-page-header'})
 
-    page_header = source.find('h1', {'id': 'page-header'})
-    list_content = source.find('div', {'id': 'list-content'})
-
+    assert content
     assert page_header
     assert 'Список регионов России' in page_header.get_text()
-    assert list_content
     for num in range(1, 8):
-        card = list_content.find('div', {'id': f'region_card_{num}'})
+        card = content.find('div', {'id': f'region_card_{num}'})
         assert f'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert '0 из 1' in card.find('div', {'id': f'section-qty_of_cities_{num}'}).get_text()
@@ -197,15 +194,14 @@ def test__without_visited_regions__3rd_page__auth_user(setup_db__content_without
 def test__without_visited_regions__1st_page__guest(setup_db__content_without_visited_regions__region_all, client):
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    page_header = content.find('h1', {'id': 'section-page-header'})
 
-    page_header = source.find('h1', {'id': 'page-header'})
-    list_content = source.find('div', {'id': 'list-content'})
-
+    assert content
     assert page_header
     assert 'Список регионов России' in page_header.get_text()
-    assert list_content
     for num in range(1, 17):
-        card = list_content.find('div', {'id': f'region_card_{num}'})
+        card = content.find('div', {'id': f'region_card_{num}'})
         assert f'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert 'Всего городов: 1' in card.find('div', {'id': f'section-qty_of_cities_{num}'}).get_text()
@@ -218,15 +214,14 @@ def test__without_visited_regions__1st_page__guest(setup_db__content_without_vis
 def test__without_visited_regions__2nd_page__guest(setup_db__content_without_visited_regions__region_all, client):
     response = client.get(reverse('region-all-list') + '?page=2')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    page_header = content.find('h1', {'id': 'section-page-header'})
 
-    page_header = source.find('h1', {'id': 'page-header'})
-    list_content = source.find('div', {'id': 'list-content'})
-
+    assert content
     assert page_header
     assert 'Список регионов России' in page_header.get_text()
-    assert list_content
     for num in range(1, 17):
-        card = list_content.find('div', {'id': f'region_card_{num}'})
+        card = content.find('div', {'id': f'region_card_{num}'})
         assert f'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert 'Всего городов: 1' in card.find('div', {'id': f'section-qty_of_cities_{num}'}).get_text()
@@ -239,15 +234,14 @@ def test__without_visited_regions__2nd_page__guest(setup_db__content_without_vis
 def test__without_visited_regions__3rd_page__guest(setup_db__content_without_visited_regions__region_all, client):
     response = client.get(reverse('region-all-list') + '?page=3')
     source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    page_header = content.find('h1', {'id': 'section-page-header'})
 
-    page_header = source.find('h1', {'id': 'page-header'})
-    list_content = source.find('div', {'id': 'list-content'})
-
+    assert content
     assert page_header
     assert 'Список регионов России' in page_header.get_text()
-    assert list_content
     for num in range(1, 8):
-        card = list_content.find('div', {'id': f'region_card_{num}'})
+        card = content.find('div', {'id': f'region_card_{num}'})
         assert f'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert 'Всего городов: 1' in card.find('div', {'id': f'section-qty_of_cities_{num}'}).get_text()
@@ -261,14 +255,13 @@ def test__with_visited_regions__1st_page__auth_user(setup_db__content_with_visit
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    page_header = content.find('h1', {'id': 'section-page-header'})
 
-    page_header = source.find('h1', {'id': 'page-header'})
-    list_content = source.find('div', {'id': 'list-content'})
-
+    assert content
     assert page_header
     assert 'Список регионов России' in page_header.get_text()
-    assert list_content
-    card = list_content.find('div', {'id': f'region_card_1'})
+    card = content.find('div', {'id': f'region_card_1'})
     assert 'Регион' in card.find('h4', {'id': f'section-region_title_1'}).get_text()
     assert 'Area 1' in card.find('div', {'id': f'section-area_title_1'}).get_text()
     assert '3 из 5' in card.find('div', {'id': f'section-qty_of_cities_1'}).get_text()

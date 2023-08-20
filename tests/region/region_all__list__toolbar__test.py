@@ -1,6 +1,6 @@
 """
-Тестирует корректность отображения панели со статистикой городов.
-Страница тестирования '/city/all/list'.
+Тестирует корректность отображения панели со статистикой регионов.
+Страница тестирования '/region/all/list'.
 
 ----------------------------------------------
 
@@ -25,6 +25,7 @@ def setup_db(client, django_user_model):
     user = django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Округ 1')
     region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU1')
+    region2 = Region.objects.create(area=area, title='Регион 2', type='область', iso3166='RU-RU2')
     city_1 = City.objects.create(title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1)
     city_2 = City.objects.create(title='Город 2', region=region, coordinate_width=1, coordinate_longitude=1)
     city_3 = City.objects.create(title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1)
@@ -41,34 +42,55 @@ def setup_db(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test__toolbar(setup_db, client):
+def test__toolbar__auth_user(setup_db, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('city-all-list'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert source.find('div', {'id': 'toolbar'})
 
 
 @pytest.mark.django_db
-def test__section__visited_cities(setup_db, client):
+def test__toolbar__guest(setup_db, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('city-all-list'))
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'block-statistic'})
 
-    assert block
-    assert 'Посещено' in block.get_text()
-    assert '3' in block.find('span').get_text()
-    assert 'города из 4' in block.get_text()
+    assert source.find('div', {'id': 'toolbar'})
 
 
 @pytest.mark.django_db
-def test__section__show_map(setup_db, client):
+def test__section__visited_cities__auth_user(setup_db, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('city-all-list'))
+    response = client.get(reverse('region-all-list'))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-statistic'})
+
+    assert block
+    assert 'Посещено' in block.get_text()
+    assert '1' in block.find('span').get_text()
+    assert 'региона из 2' in block.get_text()
+
+
+@pytest.mark.django_db
+def test__section__visited_cities__guest(setup_db, client):
+    response = client.get(reverse('region-all-list'))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-statistic'})
+
+    assert block
+    assert 'В России' in block.get_text()
+    assert '2' in block.find('span').get_text()
+    assert 'регион' in block.get_text()
+
+
+@pytest.mark.django_db
+def test__section__show_map__auth_user(setup_db, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-show_map'})
-    button = block.find('a', {'href': reverse('city-all-map')})
+    button = block.find('a', {'href': reverse('region-all-map')})
 
     assert block
     assert button
@@ -77,29 +99,14 @@ def test__section__show_map(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section__filtering(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-all-list'))
+def test__section__show_map__guest(setup_db, client):
+    response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-filter'})
-    button = block.find('a', {'id': 'open_filter_toolbar'})
+    block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-show_map'})
+    button = block.find('a', {'href': reverse('region-all-map')})
 
     assert block
     assert button
-    assert button.find('i', {'class': 'fa-solid fa-filter'})
-    assert 'Фильтры' in button.get_text()
-
-
-@pytest.mark.django_db
-def test__section__sorting(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-all-list'))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-    block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-sorting'})
-    button = block.find('a', {'id': 'open_sorting_toolbar'})
-
-    assert block
-    assert button
-    assert button.find('i', {'class': 'fa-solid fa-sort'})
-    assert 'Сортировка' in button.get_text()
+    assert button.find('i', {'class': 'fa-solid fa-map-location-dot'})
+    assert 'Посмотреть на карте' in button.get_text()
 

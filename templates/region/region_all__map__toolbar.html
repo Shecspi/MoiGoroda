@@ -4,8 +4,8 @@
             <div class="card-body bg-warning-subtle d-grid" id="block-statistic">
                 <div class="align-self-center">
                     {% if user.is_authenticated %}
-                        Посещено <span class="fs-4 fw-medium">{{ qty_of_visited_regions }}</span>
-                        региона из {{ qty_of_regions }}
+                        {{ declension_of_visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_regions }}</span>
+                        {{ declension_of_regions }} из {{ qty_of_regions }}
                     {% else %}
                         В России <span class="fs-4 fw-medium">{{ qty_of_regions }}</span> регионов
                     {% endif %}

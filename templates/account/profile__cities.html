@@ -8,21 +8,25 @@
                  data-bs-title="Отображается 5 последних посещённых городов"></i>
         </div>
 
-        <ul class="list-group list-group-flush mt-3">
-            {% for city in cities.last_visited %}
-                <li class="list-group-item">
-                    <div class="d-flex justify-content-between small">
-                        <a href="{% url 'city-selected' city.pk %}"
-                           class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                            {{ city }}
-                        </a>
-                        {{ city.date_of_visit }}
-                    </div>
-                </li>
-            {% empty %}
+        {% if cities.last_visited %}
+            <ul class="list-group list-group-flush mt-3">
+                {% for city in cities.last_visited %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between small">
+                            <a href="{% url 'city-selected' city.pk %}"
+                               class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                                {{ city }}
+                            </a>
+                            {{ city.date_of_visit }}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
                 Вы ещё не посетили ни одного города.
-            {% endfor %}
-        </ul>
+            </div>
+        {% endif %}
 
         <div class="d-flex justify-content-between mt-4 small">
             Всего: {{ cities.num_visited }}

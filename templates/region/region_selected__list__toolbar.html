@@ -5,8 +5,12 @@
         <div class="card text-center shadow h-100">
             <div class="card-body d-grid bg-warning-subtle">
                 <div class="align-self-center">
-                    {{ declension_of_visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
-                    {{ declension_of_visited_cities }} из {{ total_qty_of_cities }}
+                    {% if user.is_authenticated %}
+                        {{ declension_of_visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
+                        {{ declension_of_visited_cities }} из {{ total_qty_of_cities }}
+                    {% else %}
+                        Городов в регионе: <span class="fs-4 fw-medium">{{ total_qty_of_cities }}</span>
+                    {% endif %}
                 </div>
             </div>
         </div>

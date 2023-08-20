@@ -1,0 +1,64 @@
+<div class="card mb-3 shadow">
+    <div class="card-body">
+        <div class="d-flex flex-column align-items-center text-center mb-5">
+            <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150">
+        </div>
+
+        <form method="post" action="{% url 'update_user' %}">
+            {% csrf_token %}
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h6 class="mb-0">
+                            Логин
+                        </h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary" id="usernameDiv">
+                        {{ user.username }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h6 class="mb-0">
+                            Имя
+                        </h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary" id="nameDiv">
+                        {{ user.first_name }} {{ user.last_name }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h6 class="mb-0">
+                            Email
+                        </h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary" id="emailDiv">
+                        {{ user.email }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col d-grid" id="editDiv">
+                        <button type="button" class="btn btn-info btn-block" id="editButton">
+                            Редактировать
+                        </button>
+                        <button type="button" class="btn btn-danger btn-block" id="cancelButton" style="display: none;">
+                            Отменить
+                        </button>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col mb-1 d-grid" id="changePasswordDiv">
+                        <a class="btn btn-secondary btn-block" href="{% url 'password_change_form' %}" id="changePasswordButton">
+                            Изменить пароль
+                        </a>
+                        <button type="submit" class="btn btn-success btn-block" id="confirmButton" style="display: none;">
+                            Сохранить
+                        </button>
+                    </div>
+                </div>
+        </form>
+    </div>
+</div>

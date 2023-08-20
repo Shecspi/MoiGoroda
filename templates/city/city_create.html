@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+    <h1 class="display-5 text-center mt-3" id="section-page_header">
+        {% if action == 'update' %}
+            Редактирование города
+        {% else %}
+            Добавление нового города
+        {% endif %}
+    </h1>
+
+    <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto" id="city-selected-content">
+        <div class="col-xxl-10">
+            <div class="card shadow p-3">
+                <div class="card-body">
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        {% if action == 'create' %}
+            let selectCity = document.getElementById('id_city');
+            {% if not form.errors %}
+                {# Поле "City" делаем неактивным только при первой загрузке страницы. #}
+                {# Если страница загружается с ошибками, то поле должно быть активно. #}
+                selectCity.setAttribute('disabled', "disabled");
+            {% endif %}
+        {% endif %}
+
+        $('#id_region').change(function() {
+            let url = "{% url 'get_cities_based_on_region' %}";
+            let regionId = $(this).val();
+
+            $.ajax({
+                url: url,
+                data: {
+                    'region': regionId,
+                },
+                success: function(data) {
+                    $('#id_city').html(data);
+                }
+            });
+            selectCity.removeAttribute('disabled');
+        });
+    </script>
+{% endblock %}

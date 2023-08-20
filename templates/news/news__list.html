@@ -2,47 +2,45 @@
 {% load markdownify %}
 
 {% block content %}
-    <div class="container">
-        <h1 class="display-5 text-center my-2">
-            Новости проекта
-        </h1>
+    <!-- Заголовок страницы -->
+    <h1 class="display-5 text-center mt-3" id="block-page_header">
+        Новости проекта 'Мои города'
+    </h1>
+    <!-- ^^^ Заголовок страницы -->
 
-        <div class="row">
-            <div class="col">
-                {% for item in object_list %}
-                    <div class="card mt-3">
-                        <div class="card-body">
-                            <div class="card-text">
-                                {{ item.content|markdownify }}
-                            </div>
+    <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center">
+        <div class="col-xxl-7 col-xl-9">
+            {% for item in object_list %}
+                <div class="card p-3 my-3 shadow">
+                    <div class="card-body">
+                        <div class="card-text">
+                            {{ item.content|markdownify }}
                         </div>
+                    </div>
 
-                        <div class="card-footer" style="background: none; border-top: none;">
-                            <div class="d-flex justify-content-between">
-                                <div class="fw-lighter text-muted">
-                                    <strong>Создано:</strong> {{ item.created }}
-                                </div>
+                    <div class="card-footer" style="background: none; border-top: none;">
+                        <div class="d-flex justify-content-between">
+                            <div class="fw-lighter text-muted">
+                                <span class="fw-medium">Создано:</span> {{ item.created }}
+                            </div>
 
-                                <div class="fw-lighter text-muted">
-                                    <strong>Изменено:</strong> {{ item.last_modified }}
-                                </div>
+                            <div class="fw-lighter text-muted">
+                                <span class="fw-medium">Изменено:</span> {{ item.last_modified }}
                             </div>
                         </div>
                     </div>
-                {% empty %}
-                    <div class="card">
-                        <div class="card-body">
-                            На данный момент нет ни одной новости.
-                        </div>
+                </div>
+            {% empty %}
+                <div class="card">
+                    <div class="card-body">
+                        На данный момент нет ни одной новости.
                     </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col">
-                {% include 'parts/pagination.html' %}
-            </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
+
+    <!-- Пагинация -->
+    {% include 'parts/pagination.html' %}
+    <!-- ^^^ Пагинация -->
 {% endblock %}

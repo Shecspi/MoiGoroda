@@ -1,0 +1,117 @@
+<!-- Сайдбар -->
+<div class="sidebar shadow d-flex flex-column overflow-auto" id="sidebar">
+    <!-- Шапка сайдбара -->
+    <div class="header-box pt-2 pb-4 d-flex justify-content-center">
+        <button class="btn btn-outline-secondary px-3 py-0 d-md-none" id="sidebar-button-close">
+            <i class="fa-solid fa-bars-staggered" style="transform: rotate(180deg);;"></i>
+        </button>
+        <h1 class="sidebar-logo px-2 py-2 mr-2">
+            Мои&nbsp;&nbsp;<i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;города
+        </h1>
+    </div>
+    <!-- ^^^ Шапка сайдбара -->
+
+    <!-- Список пунктов меню -->
+    <ul class="list-unstyled px-2">
+        {% if user.is_authenticated %}
+            <li>
+                <a href="{% url 'city-create' %}" class="text-decoration-none px-3 py-2 d-block{% if active_page == 'add_city' %} active{% endif %}">
+                    <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
+                </a>
+            </li>
+            <hr>
+            <li>
+                <span class="text-muted px-3 py-2 d-block">
+                    <i class="fa-solid fa-tree-city"></i>&nbsp;&nbsp;&nbsp;Посещённые города
+                </span>
+                <ul class="list-unstyled">
+                    <li>
+                        <a href="{% url 'city-all-list' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'city_list' %} active{% endif %}">
+                            <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Список городов
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'city-all-map' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'city_map' %} active{% endif %}">
+                            <i class="fa-solid fa-location-dot"></i>&nbsp;&nbsp;&nbsp;Карта городов
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        <hr>
+        {% endif %}
+        <li>
+            <span class="text-muted px-3 py-2 d-block">
+                <i class="fa-solid fa-earth-europe"></i>&nbsp;&nbsp;&nbsp;Регионы России
+            </span>
+            <ul class="list-unstyled">
+                <li>
+                    <a href="{% url 'region-all-list' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'region_list' %} active{% endif %}">
+                        <i class="fa-regular fa-rectangle-list"></i>&nbsp;&nbsp;&nbsp;Список регионов
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'region-all-map' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'region_map' %} active{% endif %}">
+                        <i class="fa-regular fa-map"></i>&nbsp;&nbsp;&nbsp;Карта регионов
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <hr>
+        <li>
+            <a href="{% url 'collection-list' %}"
+               class="text-decoration-none px-3 py-2 d-block{% if active_page == 'collection' %} active{% endif %}">
+                <i class="fa-solid fa-list-check"></i>&nbsp;&nbsp;&nbsp;Коллекции городов
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'news-list' %}" class="text-decoration-none px-3 py-2 d-block{% if active_page == 'news' %} active{% endif %}">
+                <i class="fa-regular fa-newspaper"></i>&nbsp;&nbsp;&nbsp;Новости
+            </a>
+        </li>
+
+        <hr>
+
+        {% if user.is_authenticated and user.is_staff %}
+            <li>
+                <a href="{% url 'admin:index' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;&nbsp;Админ-панель
+                </a>
+            </li>
+
+            <hr>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <li>
+                <span class="text-muted px-3 py-2 d-block">
+                    <i class="fa-solid fa-user"></i>&nbsp;&nbsp;&nbsp;{{ user.username }}
+                </span>
+                <ul class="list-unstyled">
+                    <li>
+                        <a href="{% url 'profile' %}" class="text-decoration-none px-3 py-2 ms-4 d-block{% if active_page == 'profile' %} active{% endif %}">
+                            <i class="fa-regular fa-address-card"></i>&nbsp;&nbsp;&nbsp;Профиль
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'logout' %}" class="text-decoration-none px-3 py-2 ms-4 d-block">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp;&nbsp;&nbsp;Выйти
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        {% else %}
+            <li>
+                <a href="{% url 'signin' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;&nbsp;Войти
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'signup' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-solid fa-user-plus"></i>&nbsp;&nbsp;&nbsp;Зарегистрироваться
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+    <!-- ^^^ Список пунктов меню -->
+</div>
+<!-- ^^^ Сайдбар -->

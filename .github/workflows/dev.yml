@@ -18,6 +18,7 @@ jobs:
             cd ${{ secrets.DEV__LOCAL_PATH }}
             git pull origin dev
             git checkout dev
+            ${{ secrets.DEV__POETRY_PATH }} install
             ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
             ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py migrate
             export POETRY_PATH=${{ secrets.DEV__POETRY_PATH }}

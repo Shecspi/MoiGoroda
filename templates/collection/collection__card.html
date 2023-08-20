@@ -1,0 +1,51 @@
+<div class="col">
+    <div class="card h-100 text-center shadow" id="section-collection-card_{{ forloop.counter }}">
+        <div class="card-body">
+            <!-- Название коллекции -->
+            <h4 id="subsection-collection-title_{{ forloop.counter }}">
+                {{ collection.title }}
+            </h4>
+            <!-- ^^^ Название коллекции -->
+
+            <!-- Список городов -->
+            <div class="mt-3" id="subsection-collection-card_title_{{ forloop.counter }}">
+                {% for city in collection.city.all %}
+                    {% if city.id in visited_cities %}
+                        <span class="badge bg-success-subtle text-dark fw-normal">
+                            {{ city }}
+                        </span>&nbsp;&nbsp;
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-dark fw-normal">
+                            {{ city }}
+                        </span>&nbsp;&nbsp;
+                    {% endif %}
+                {% endfor %}
+                <!-- ^^^ Список городов -->
+            </div>
+        </div>
+
+        <div class="card-footer" style="background: none; border-top: none;">
+            <!-- Количество городов -->
+            <div>
+                <small class="text-body-secondary">
+                    {% if user.is_authenticated %}
+                        Посещено {{ collection.qty_of_visited_cities }} из {{ collection.qty_of_cities }}
+                    {% else %}
+                        Всего городов: {{ collection.qty_of_cities }}
+                    {% endif %}
+                </small>
+            </div>
+            <!-- ^^^ Количество городов -->
+
+            <!-- Прогресс бар посещённых городов -->
+            {% if user.is_authenticated %}
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped" role="progressbar" style="width: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}%"
+                         aria-valuenow="{% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            {% endif %}
+            <!-- ^^^ Прогресс бар посещённых городов -->
+        </div>
+    </div>
+</div>

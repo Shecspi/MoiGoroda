@@ -10,7 +10,7 @@
 
     <!-- Карточки с регионами -->
     {% if object_list %}
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3">
             {% for region in object_list %}
                 {% include 'region/region_all__card.html' %}
             {% endfor %}

@@ -12,7 +12,6 @@ Licensed under the Apache License, Version 2.0
 from datetime import datetime
 
 from django.db.models import QuerySet, F
-from utils.SortFilterMixin import SortFilterMixin
 
 
 class VisitedCityMixin:

@@ -26,13 +26,14 @@ from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 from region.models import Region
 from city.models import VisitedCity, City
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
+from utils.RegionListMixin import RegionListMixin
 from utils.filter_funcs import filter_validation, apply_filter
 
 
 logger = logging.getLogger('moi-goroda')
 
 
-class RegionList(ListView):
+class RegionList(RegionListMixin, ListView):
     """
     Отображает список всех регионов с указанием количества городов в регионе.
     Для авторизованных пользователей также указывается количество посещённых городов с прогресс-баром.
@@ -98,6 +99,8 @@ class RegionList(ListView):
         context['all_regions'] = self.all_regions
         context['qty_of_regions'] = self.qty_of_regions
         context['qty_of_visited_regions'] = self.qty_of_visited_regions
+        context['declension_of_regions'] = self.declension_of_region(self.qty_of_visited_regions)
+        context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_regions)
 
         if self.list_or_map == 'list':
             context['page_title'] = 'Список регионов России'

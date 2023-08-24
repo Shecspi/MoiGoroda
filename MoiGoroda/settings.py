@@ -175,6 +175,7 @@ if not os.path.exists(os.path.dirname(LOG_FIlE_PATH)):
 if not os.path.exists(LOG_FIlE_PATH):
     open(LOG_FIlE_PATH, 'a').close()
 
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -187,7 +188,8 @@ LOGGING = {
 
     'formatters': {
         'file': {
-            'format': '%(levelname)-8s %(asctime)-25s %(filename)-20s %(funcName)-25s %(lineno)-7d %(message)s'
+            'format': '%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         }
     },
 
@@ -218,7 +220,7 @@ LOGGING = {
     },
 
     'loggers': {
-        'moi-goroda': {
+        'base': {
             'handlers': ['file', 'email'],
             'level': 'INFO',
             'propogate': True

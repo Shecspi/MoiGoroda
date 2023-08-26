@@ -72,10 +72,8 @@ class RegionList(RegionListMixin, LoggingMixin, ListView):
                 num_total=Count('city', distinct=True)
             ).order_by('title')
 
-        self.set_message(self.request, 'Viewing the page')
-
         if self.request.GET.get('filter'):
-            self.set_message(self.request, 'Using a filter to search for a region')
+            self.set_message(self.request, 'Using filtering to search for a region')
             queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
 
         # Эта дополнительная переменная используется для отображения регионов на карте.
@@ -241,15 +239,13 @@ class CitiesByRegionList(ListView, LoggingMixin, CitiesByRegionMixin):
         # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
-        self.set_message(self.request, 'Viewing the page')
-
         # Определяем фильтрацию
         if self.request.user.is_authenticated:
             self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
             if self.filter:
                 try:
                     queryset = self.apply_filter_to_queryset(queryset, self.filter)
-                    self.set_message(self.request, f'Using a filter \'{self.filter}\'')
+                    self.set_message(self.request, f'Using filtering \'{self.filter}\'')
                 except KeyError:
                     self.set_message(self.request, f'Unexpected value of the GET-argument \'filter={self.filter}\'')
 
@@ -261,7 +257,7 @@ class CitiesByRegionList(ListView, LoggingMixin, CitiesByRegionMixin):
             try:
                 queryset = self.apply_sort_to_queryset(queryset, self.sort)
                 if self.sort != 'default_auth' and self.sort != 'default_guest':
-                    self.set_message(self.request, f'Using a sorting \'{self.sort}\'')
+                    self.set_message(self.request, f'Using sorting \'{self.sort}\'')
             except KeyError:
                 self.set_message(self.request, f'Unexpected value of the GET-argument \'sort={self.sort}\'')
                 queryset = self.apply_sort_to_queryset(queryset, sort_default)

@@ -1,1 +1,31 @@
-Ошибка 403
+{% extends 'base-simple.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container d-flex justify-content-center align-items-center my-auto py-md-3">
+        <!-- Login box -->
+        <div class="row box-area">
+            <!-- Left part -->
+            <div class="col-md-6 pt-5 d-flex justify-content-center align-items-center flex-column">
+                <div class="mb-5">
+                    <img src="{% static 'image/error/403.png' %}" class="img-fluid" style="width: 250px;" alt="Error 404">
+                </div>
+            </div>
+            <!-- /Left part -->
+
+            <!-- Right part -->
+            <div class="col-md-6 right-box d-flex justify-content-center align-items-center">
+                <div class="row align-items-center">
+                    <p class="fs-2 font-bold text-center">Отказано в доступе</p>
+                    <p class="text-center mt-5">
+                        К сожалению, у Вас нет доступа к этой странице.<br><br>
+                        Если Вы считаете, что у Вас должен быть доступ - пожалуйста, напишите нам на почту<br>
+                        <a href="mailto:{{ SUPPORT_EMAIL }}" class="text-reset">{{ SUPPORT_EMAIL }}</a>.
+                    </p>
+                </div>
+            </div>
+            <!-- /Right part -->
+        </div>
+        <!-- /Login box -->
+    </div>
+{% endblock %}

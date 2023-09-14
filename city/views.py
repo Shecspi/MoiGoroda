@@ -13,11 +13,12 @@ from django.views.generic import ListView, CreateView, DeleteView, UpdateView, D
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 from utils.VisitedCityMixin import VisitedCityMixin
+from utils.LoggingMixin import LoggingMixin
 
 logger = logging.getLogger('moi-goroda')
 
 
-class VisitedCity_Create(LoginRequiredMixin, CreateView):
+class VisitedCity_Create(LoginRequiredMixin, LoggingMixin, CreateView):
     """
     Отображает форму для добавления посещённого города и производит обработку этой формы.
 
@@ -38,7 +39,7 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
         Добавляет в данные формы ID авторизованного пользователя.
         """
         form.instance.user = self.request.user
-
+        self.set_message(self.request, f'Creating a visited city')
         return super().form_valid(form)
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -51,7 +52,7 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
         return context
 
 
-class VisitedCity_Delete(LoginRequiredMixin, DeleteView):
+class VisitedCity_Delete(LoginRequiredMixin, LoggingMixin, DeleteView):
     """
     Удаляет посещённый город, не отображая дополнительную страницу (подтверждение происходит в модальном окне).
 
@@ -66,20 +67,20 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            logger.warning(f'Attempt to delete a non-existent visited city: {self.request.get_full_path()}')
+            self.set_message(self.request, f'Attempt to delete a non-existent visited city #{self.kwargs["pk"]}')
             raise PermissionDenied()
         else:
-            logger.info(f'Deleting a visited city: {self.request.get_full_path()}')
+            self.set_message(self.request, f'Deleting the visited city #{self.kwargs["pk"]}')
 
         return super().post(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         """Метод GET запрещён для данного класса."""
-        logger.warning(f'Attempt to access the GET method: {self.request.get_full_path()}')
+        self.set_message(self.request, f'Attempt to access the GET method')
         raise PermissionDenied()
 
 
-class VisitedCity_Update(LoginRequiredMixin, UpdateView):
+class VisitedCity_Update(LoginRequiredMixin, LoggingMixin, UpdateView):
     """
     Отображает страницу с формой для редактирования посещённого города, а также обрабатывает эту форму.
 
@@ -95,7 +96,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         try:
             VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            logger.warning(f'Attempt to update a non-existent visited city: {self.request.get_full_path()}')
+            self.set_message(self.request, f'Attempt to update a non-existent visited city #{self.kwargs["pk"]}')
             raise Http404
 
         return super().get(request, *args, **kwargs)
@@ -110,7 +111,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         return reverse_lazy('city-selected', kwargs={'pk': self.kwargs['pk']})
 
     def form_valid(self, form):
-        logger.info(f'Updating a visited city: {self.request.get_full_path()}')
+        self.set_message(self.request, f'Updating the visited city #{self.kwargs["pk"]}')
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -122,7 +123,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         return context
 
 
-class VisitedCity_Detail(LoginRequiredMixin, DetailView):
+class VisitedCity_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
     """
     Отображает страницу с информацией о посещённом городе.
 
@@ -149,10 +150,10 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
 
             self.collections_list = City.objects.get(id=queryset.city.id).collections_list.all()
         except ObjectDoesNotExist:
-            logger.warning(f'Attempt to access a non-existent visited city: {self.request.get_full_path()}')
+            self.set_message(self.request, f'Attempt to access a non-existent visited city #{self.kwargs["pk"]}')
             raise Http404
         else:
-            logger.info(f'Viewing a visited city: {self.request.get_full_path()}')
+            self.set_message(self.request, f'Viewing the visited city #{self.kwargs["pk"]}')
 
         self.city_title = queryset
         return super().get(request, *args, **kwargs)
@@ -166,7 +167,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
         return context
 
 
-class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
+class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, LoggingMixin, ListView):
     """
     Отображает список всех посещённых городов пользователя.
 
@@ -237,11 +238,17 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.qty_of_visited_cities_current_year = queryset.filter(date_of_visit__year=datetime.now().year).count()
         self.qty_of_visited_cities_last_year = queryset.filter(date_of_visit__year=datetime.now().year - 1).count()
 
+        if self.list_or_map == 'list':
+            self.set_message(self.request, 'Viewing the list of visited cities')
+        else:
+            self.set_message(self.request, 'Viewing the map of visited cities')
+
         # Обработка фильтрации
         self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
         if self.filter:
             try:
                 queryset = self.apply_filter_to_queryset(queryset, self.filter)
+                self.set_message(self.request, f'Using filtering \'{self.filter}\'')
             except KeyError:
                 logger.warning(f"Unexpected value of the GET-parametr 'filter' - {self.filter}")
 
@@ -250,6 +257,8 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
         try:
             queryset = self.apply_sort_to_queryset(queryset, self.sort)
+            if self.sort != 'default':
+                self.set_message(self.request, f'Using sorting \'{self.sort}\'')
         except KeyError:
             logger.warning(f"Unexpected value of the GET-param 'sort' - {self.sort}")
             queryset = self.apply_sort_to_queryset(queryset, sort_default)

@@ -1,1 +1,32 @@
-Ошибка 500
+{% extends 'base-simple.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container d-flex justify-content-center align-items-center my-auto py-md-3">
+        <!-- Login box -->
+        <div class="row box-area">
+            <!-- Left part -->
+            <div class="col-md-6 pt-5 d-flex justify-content-center align-items-center flex-column">
+                <div class="mb-5">
+                    <img src="{% static 'image/error/500.png' %}" class="img-fluid" style="width: 250px;" alt="Error 404">
+                </div>
+            </div>
+            <!-- /Left part -->
+
+            <!-- Right part -->
+            <div class="col-md-6 right-box d-flex justify-content-center align-items-center">
+                <div class="row align-items-center">
+                    <p class="fs-2 font-bold text-center">Внутренняя ошибка</p>
+                    <p class="text-center mt-5">
+                        На сервере произошла внутренняя ошибка.<br><br>
+                        Мы уже в курсе этой ошибки и прямо сейчас исправляем её.<br>
+                        Очень скоро мы восстановим функционирование сервиса "Мои города".<br><br>
+                        Приносим свои извинения за временные неудобства.
+                    </p>
+                </div>
+            </div>
+            <!-- /Right part -->
+        </div>
+        <!-- /Login box -->
+    </div>
+{% endblock %}

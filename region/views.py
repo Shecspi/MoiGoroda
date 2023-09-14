@@ -12,11 +12,8 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
-import logging
 from datetime import datetime
 
-from django.db.models.functions import Cast
-from django.forms.fields import CharField
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
@@ -26,14 +23,11 @@ from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 from region.models import Region
 from city.models import VisitedCity, City
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
+from utils.LoggingMixin import LoggingMixin
 from utils.RegionListMixin import RegionListMixin
-from utils.filter_funcs import filter_validation, apply_filter
 
 
-logger = logging.getLogger('moi-goroda')
-
-
-class RegionList(RegionListMixin, ListView):
+class RegionList(RegionListMixin, LoggingMixin, ListView):
     """
     Отображает список всех регионов с указанием количества городов в регионе.
     Для авторизованных пользователей также указывается количество посещённых городов с прогресс-баром.
@@ -74,13 +68,17 @@ class RegionList(RegionListMixin, ListView):
             ).order_by('-num_visited', 'title')
             self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
         else:
-            logger.info(f'Viewing the page by not authorized user: {self.request.get_full_path()}')
             queryset = Region.objects.select_related('area').annotate(
                 num_total=Count('city', distinct=True)
             ).order_by('title')
 
+        if self.list_or_map == 'list':
+            self.set_message(self.request, 'Viewing the region list')
+        else:
+            self.set_message(self.request, 'Viewing the region map')
+
         if self.request.GET.get('filter'):
-            logger.info(f'Using a filter to search for a region: {self.request.get_full_path()}')
+            self.set_message(self.request, 'Using filtering to search for a region')
             queryset = queryset.filter(title__contains=self.request.GET.get('filter').capitalize())
 
         # Эта дополнительная переменная используется для отображения регионов на карте.
@@ -118,7 +116,7 @@ class RegionList(RegionListMixin, ListView):
             return ['region/region_all__map.html', ]
 
 
-class CitiesByRegionList(ListView, CitiesByRegionMixin):
+class CitiesByRegionList(ListView, LoggingMixin, CitiesByRegionMixin):
     """
     Отображает список всех городов в указанном регионе, как посещённых, так и нет.
 
@@ -171,7 +169,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         try:
             self.region_name = Region.objects.get(id=self.region_id)
         except ObjectDoesNotExist as exc:
-            logger.warning(f'Attempt to access a non-existent region: {self.request.get_full_path()}')
+            self.set_message(self.request, 'Attempt to access a non-existent region')
             raise Http404 from exc
 
         return super().get(*args, **kwargs)
@@ -231,7 +229,6 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
             # `date_of_visit` для сортировки. В данном случае сортировка по этому полю не принесёт никакого эффекта,
             # но в коде это заложено, поэтому поле нужно.
-            logger.info(f'Viewing the page by not authorized user: {self.request.get_full_path()}')
             queryset = City.objects.filter(region=self.region_id).annotate(
                 is_visited=Value(False),
                 date_of_visit=Value(0)
@@ -240,6 +237,11 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
                 'coordinate_width', 'coordinate_longitude', 'is_visited'
             )
             self.total_qty_of_cities = queryset.count()
+
+        if self.list_or_map == 'list':
+            self.set_message(self.request, 'Viewing the list of cities in selected region')
+        else:
+            self.set_message(self.request, 'Viewing the map of cities in selected region')
 
         # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
         # устанавливает лимит на выборку, равный `paginate_by`.
@@ -252,10 +254,10 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
             if self.filter:
                 try:
-                    logger.info(f'Using a filter for cities: {self.request.get_full_path()}')
                     queryset = self.apply_filter_to_queryset(queryset, self.filter)
+                    self.set_message(self.request, f'Using filtering \'{self.filter}\'')
                 except KeyError:
-                    logger.warning(f'Attempt to access a non-existent filter: {self.request.get_full_path()}')
+                    self.set_message(self.request, f'Unexpected value of the GET-argument \'filter={self.filter}\'')
 
         # Для авторизованных пользователей определяем тип сортировки.
         # Сортировка для неавторизованного пользователя недоступна - она выставляется в значение `default_guest`.
@@ -264,8 +266,10 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
             try:
                 queryset = self.apply_sort_to_queryset(queryset, self.sort)
+                if self.sort != 'default_auth' and self.sort != 'default_guest':
+                    self.set_message(self.request, f'Using sorting \'{self.sort}\'')
             except KeyError:
-                logger.warning(f"Unexpected value of the GET-param 'sort' - {self.sort}")
+                self.set_message(self.request, f'Unexpected value of the GET-argument \'sort={self.sort}\'')
                 queryset = self.apply_sort_to_queryset(queryset, sort_default)
                 self.sort = ''
 

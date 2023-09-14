@@ -238,6 +238,11 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, LoggingMixin, ListV
         self.qty_of_visited_cities_current_year = queryset.filter(date_of_visit__year=datetime.now().year).count()
         self.qty_of_visited_cities_last_year = queryset.filter(date_of_visit__year=datetime.now().year - 1).count()
 
+        if self.list_or_map == 'list':
+            self.set_message(self.request, 'Viewing the list of visited cities')
+        else:
+            self.set_message(self.request, 'Viewing the map of visited cities')
+
         # Обработка фильтрации
         self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
         if self.filter:

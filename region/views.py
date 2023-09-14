@@ -72,7 +72,10 @@ class RegionList(RegionListMixin, LoggingMixin, ListView):
                 num_total=Count('city', distinct=True)
             ).order_by('title')
 
-        self.set_message(self.request, 'Viewing the region list')
+        if self.list_or_map == 'list':
+            self.set_message(self.request, 'Viewing the region list')
+        else:
+            self.set_message(self.request, 'Viewing the region map')
 
         if self.request.GET.get('filter'):
             self.set_message(self.request, 'Using filtering to search for a region')
@@ -235,7 +238,10 @@ class CitiesByRegionList(ListView, LoggingMixin, CitiesByRegionMixin):
             )
             self.total_qty_of_cities = queryset.count()
 
-        self.set_message(self.request, 'Viewing the list of cities in selected region')
+        if self.list_or_map == 'list':
+            self.set_message(self.request, 'Viewing the list of cities in selected region')
+        else:
+            self.set_message(self.request, 'Viewing the map of cities in selected region')
 
         # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
         # устанавливает лимит на выборку, равный `paginate_by`.

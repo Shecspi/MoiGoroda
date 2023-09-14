@@ -6,12 +6,13 @@ from django.views.generic import ListView
 from city.models import VisitedCity
 from collection.models import Collection
 from utils.CollectionListMixin import CollectionListMixin
+from utils.LoggingMixin import LoggingMixin
 
 
 logger = logging.getLogger('moi-goroda')
 
 
-class CollectionList(CollectionListMixin, ListView):
+class CollectionList(CollectionListMixin, LoggingMixin, ListView):
     model = Collection
     paginate_by = 16
     template_name = 'collection/collection__list.html'
@@ -42,6 +43,8 @@ class CollectionList(CollectionListMixin, ListView):
                 qty_of_cities=Count('city', distinct=True)
             )
 
+        self.set_message(self.request, f'Viewing the collection list')
+
         # Обновление счётчиков коллекций
         self.qty_of_collections = queryset.count()
         if self.request.user.is_authenticated:
@@ -56,6 +59,7 @@ class CollectionList(CollectionListMixin, ListView):
             self.filter = self.request.GET.get('filter')
             try:
                 queryset = self.apply_filter_to_queryset(queryset, self.filter)
+                self.set_message(self.request, f'Using filtering \'{self.filter}\'')
             except KeyError:
                 logger.warning(f"Unexpected value of the GET-param 'filter' - {self.request.GET.get('filter')}")
                 self.filter = ''
@@ -65,6 +69,8 @@ class CollectionList(CollectionListMixin, ListView):
         self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
         try:
             queryset = self.apply_sort_to_queryset(queryset, self.sort)
+            if self.sort != 'default_auth' and self.sort != 'default_guest':
+                self.set_message(self.request, f'Using sorting \'{self.sort}\'')
         except KeyError:
             logger.warning(f"Unexpected value of the GET-param 'sort' - {self.sort}")
             queryset = self.apply_sort_to_queryset(queryset, sort_default)

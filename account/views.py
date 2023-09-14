@@ -14,6 +14,7 @@ from django.views.generic import CreateView, DetailView, UpdateView
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
 from city.models import VisitedCity
+from utils.LoggingMixin import LoggingMixin
 
 logger_email = logging.getLogger(__name__)
 logger_basic = logging.getLogger('moi-goroda')
@@ -86,7 +87,7 @@ def signup_success(request):
     return render(request, 'account/signup_success.html')
 
 
-class Profile_Detail(LoginRequiredMixin, DetailView):
+class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
     """
     Отображает страницу профиля пользователя.
     На этой странице отображается вся статистика пользователя,
@@ -104,6 +105,11 @@ class Profile_Detail(LoginRequiredMixin, DetailView):
         Убирает необходимость указывать ID пользователя в URL, используя сессионный ID.
         """
         return get_object_or_404(User, pk=self.request.user.pk)
+
+    def get(self, *args, **kwargs):
+        self.set_message(self.request, 'Viewing the profile page')
+
+        return super().get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

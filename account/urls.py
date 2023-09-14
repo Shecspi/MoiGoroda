@@ -19,25 +19,41 @@ urlpatterns = [
     # -----  Сброс пароля  ----- #
     path('password/reset',
          auth_views.PasswordResetView.as_view(
-             template_name='account/profile__password_reset__form.html'
+             template_name='account/profile__password_reset__form.html',
+             extra_context={
+                 'page_title': 'Восстановление пароля',
+                 'page_description': 'Восстановленеи пароля'
+             }
          ),
          name='reset_password'
          ),
     path('password/reset/email_sent',
          auth_views.PasswordResetDoneView.as_view(
-             template_name='account/profile__password_reset__email_sent.html'
+             template_name='account/profile__password_reset__email_sent.html',
+             extra_context={
+                 'page_title': 'Восстановление пароля',
+                 'page_description': 'Восстановленеи пароля'
+             }
          ),
          name='password_reset_done'
          ),
     path('password/reset/<uidb64>/<token>',
          auth_views.PasswordResetConfirmView.as_view(
-             template_name='account/profile__password_reset__new_password_form.html'
+             template_name='account/profile__password_reset__new_password_form.html',
+             extra_context={
+                 'page_title': 'Восстановление пароля',
+                 'page_description': 'Восстановленеи пароля'
+             }
          ),
          name='password_reset_confirm'
          ),
     path('password/reset/done',
          auth_views.PasswordResetCompleteView.as_view(
-             template_name='account/profile__password_reset__done.html'
+             template_name='account/profile__password_reset__done.html',
+             extra_context={
+                 'page_title': 'Восстановление пароля',
+                 'page_description': 'Восстановленеи пароля'
+             }
          ),
          name='password_reset_complete'
          ),

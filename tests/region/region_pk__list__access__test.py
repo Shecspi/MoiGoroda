@@ -27,15 +27,15 @@ def setup_db__access_region_pk(client, django_user_model):
 @pytest.mark.django_db
 def test__access__auth_user(setup_db__access_region_pk, client):
     client.login(username='username', password='password')
-    response = client.get(reverse('region-selected', kwargs={'pk': 1}))
+    response = client.get(reverse('region-selected-list', kwargs={'pk': 1}))
 
     assert response.status_code == 200
-    assert 'region/cities_by_region__list.html' in (t.name for t in response.templates)
+    assert 'region/region_selected__list.html' in (t.name for t in response.templates)
 
 
 @pytest.mark.django_db
 def test__access__guest(setup_db__access_region_pk, client):
-    response = client.get(reverse('region-selected', kwargs={'pk': 1}))
+    response = client.get(reverse('region-selected-list', kwargs={'pk': 1}))
 
     assert response.status_code == 200
-    assert 'region/cities_by_region__list.html' in (t.name for t in response.templates)
+    assert 'region/region_selected__list.html' in (t.name for t in response.templates)

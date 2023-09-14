@@ -64,14 +64,41 @@
 
         <div class="row feature d-flex justify-content-between g-3" id="feature3">
             <div class="col-lg-6 order-first order-lg-first align-self-center text-center text-lg-start feature-text">
-                <h1>Анализируйте посещённые регионы</h1>
+                <h1>
+                    Анализируйте посещённые регионы
+                </h1>
                 <p class="mt-5">
-                    После сохранения посещённых городов, Вам автоматически станет доступен режим просмотра посещённых регионов.<br>
+                    После сохранения посещённых городов, Вам автоматически станет доступен режим просмотра
+                    посещённых регионов
+                    <a href="{% url 'region-all-list' %}"
+                       class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">в виде списка</a>
+                    и <a href="{% url 'region-all-map' %}"
+                         class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">на карте</a>.<br>
                     Никаких дополнительных действий с Вашей стороны не нужно, сервис сделает всё сам.
                 </p>
             </div>
             <div class="col-lg-5 order-last order-lg-last text-center feature-image">
                 <img src="{% static 'image/feature3.png' %}" alt="feature1" class="img-thumbnail">
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <div class="row feature d-flex justify-content-between g-3" id="feature2">
+            <div class="col-lg-5 order-last order-lg-first text-center feature-image">
+                <img src="{% static 'image/feature4.png' %}" alt="feature1" class="img-thumbnail">
+            </div>
+            <div class="col-lg-6 order-first order-lg-last align-self-center text-center text-lg-start feature-text">
+                <h1>Коллекционируйте города</h1>
+                <p class="mt-5">
+                    Посещать города интереснее, когда есть какая-то цель.
+                    Для увеличения интереса сервис "Мои города" предлагает несколько
+                    <a href="{% url 'collection-list' %}"
+                       class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                        коллекций городов</a>,
+                    объединённых по какому-либо принципу.<br>
+                    Попробуйте собрать все города из коллекции.
+                </p>
             </div>
         </div>
 

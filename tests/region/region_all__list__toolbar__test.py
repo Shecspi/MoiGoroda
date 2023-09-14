@@ -67,9 +67,9 @@ def test__section__visited_cities__auth_user(setup_db, client):
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-statistic'})
 
     assert block
-    assert 'Посещено' in block.get_text()
+    assert 'Посещён' in block.get_text()
     assert '1' in block.find('span').get_text()
-    assert 'региона из 2' in block.get_text()
+    assert 'регион из 2' in block.get_text()
 
 
 @pytest.mark.django_db

@@ -1,15 +1,13 @@
-User-agent: GoogleBot
+User-agent: *
 Disallow: /admin/
 Allow: *.css
 Allow: *.js
 Allow: *.png
 Allow: *.jpg
 Allow: *.gif
-
-User-agent: Yandex
-Disallow: /admin/
-Allow: *.css
-Allow: *.js
-Allow: *.png
-Allow: *.jpg
-Allow: *.gif
+Clean-param: next /account/signin/
+Clean-param: page /news/
+Clean-param: sort /region/*/list
+Clean-param: filter /region/*/list
+Clean-param: sort /region/*/map
+Clean-param: filter /region/*/map

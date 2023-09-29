@@ -197,9 +197,11 @@ LOGGING = {
         # Запись сообщения в файл
         'file': {
             'level': 'INFO',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'file',
-            'filename': LOG_FIlE_PATH
+            'filename': LOG_FIlE_PATH,
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 5
         },
         # Отправка письма на почту
         'email': {

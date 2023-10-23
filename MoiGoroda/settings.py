@@ -242,13 +242,21 @@ LOGGING = {
             'include_html': True,
 
         },
-        # Вывод в консоль
+        # Вывод в консоль логов приложения
         # только при DEBUG=True
-        'to_console': {
+        'to_console_app': {
             'level': 'INFO',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'detail_app'
+        },
+        # Вывод в консоль логов Django
+        # только при DEBUG=True
+        'to_console_django': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'detail_django'
         },
     },
 
@@ -257,7 +265,7 @@ LOGGING = {
         'base': {
             'level': 'INFO',
             'propogate': True,
-            'handlers': ['to_file_app', 'to_email_general']
+            'handlers': ['to_console_app', 'to_file_app', 'to_email_general']
         },
         # Логгер, который срабатывает при регистрации пользователей
         'account.views': {
@@ -269,7 +277,7 @@ LOGGING = {
         'django': {
             'level': 'INFO',
             'propogate': True,
-            'handlers': ['to_console', 'to_file_django', 'to_email_general']
+            'handlers': ['to_console_django', 'to_file_django', 'to_email_general']
         }
     }
 }

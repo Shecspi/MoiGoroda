@@ -61,7 +61,10 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
                 queryset = self.apply_filter_to_queryset(queryset, self.filter)
                 self.set_message(self.request, f'Using filtering \'{self.filter}\'')
             except KeyError:
-                logger.warning(f"Unexpected value of the GET-param 'filter' - {self.request.GET.get('filter')}")
+                self.set_message(
+                    self.request,
+                    f"Unexpected value of the GET-param 'filter' - {self.request.GET.get('filter')}"
+                )
                 self.filter = ''
 
         # Определяем сортировку
@@ -72,7 +75,10 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
             if self.sort != 'default_auth' and self.sort != 'default_guest':
                 self.set_message(self.request, f'Using sorting \'{self.sort}\'')
         except KeyError:
-            logger.warning(f"Unexpected value of the GET-param 'sort' - {self.sort}")
+            self.set_message(
+                self.request,
+                f"Unexpected value of the GET-param 'sort' - {self.sort}"
+            )
             queryset = self.apply_sort_to_queryset(queryset, sort_default)
             self.sort = ''
 

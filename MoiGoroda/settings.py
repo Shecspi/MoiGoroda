@@ -183,58 +183,93 @@ LOGGING = {
         # Отправка писем только при DEBUG = False
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
-        }
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
     },
 
     'formatters': {
-        'file': {
-            'format': '%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)s',
+        'detail_app': {
+            'format': '%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)-s',
             'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+        'detail_django': {
+            'format': '%(levelname)-8s %(asctime)-22s INTERNAL           DJANGO     %(message)-s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+        'simple': {
+            'format': '%(levelname)-8s %(message)s'
         }
     },
 
     'handlers': {
-        # Запись сообщения в файл
-        'file': {
+        # Запись в файл логов приложения
+        # Только при DEBUG=False
+        'to_file_app': {
             'level': 'INFO',
+            'filters': ['require_debug_false'],
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'file',
+            'formatter': 'detail_app',
             'filename': LOG_FIlE_PATH,
             'maxBytes': 1024 * 1024 * 10,
             'backupCount': 5
         },
-        # Отправка письма на почту
-        'email': {
+        # Запись в файл логов Django
+        # Только при DEBUG=False
+        'to_file_django': {
+            'level': 'WARNING',
+            'filters': ['require_debug_false'],
+            'class': 'logging.FileHandler',
+            'formatter': 'detail_django',
+            'filename': LOG_FIlE_PATH,
+        },
+        # Отправка писем с ошибками на почту
+        # Только при DEBUG=False
+        'to_email_general': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
 
         },
-        # Отправка письма на почту
-        'email_signup': {
+        # Отправка регистрационного письма на почту
+        # Только при DEBUG=False
+        'to_email_signup': {
             'level': 'INFO',
-            # 'filters': ['require_debug_false'],
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
 
-        }
+        },
+        # Вывод в консоль
+        # только при DEBUG=True
+        'to_console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
     },
 
     'loggers': {
+        # Базовый логгер. Используется для логирования действий внутри приложения
         'base': {
-            'handlers': ['file', 'email'],
             'level': 'INFO',
-            'propogate': True
+            'propogate': True,
+            'handlers': ['to_file_app', 'to_email_general']
         },
+        # Логгер, который срабатывает при регистрации пользователей
         'account.views': {
-            'handlers': ['file', 'email_signup'],
             'level': 'INFO',
-            'propogate': True
+            'propogate': True,
+            'handlers': ['to_file_app', 'to_email_signup']
         },
+        # Логгер для перехватывания логирования Django
         'django': {
-            'level': 'WARNING',
-            'handlers': ['file', 'email']
+            'level': 'INFO',
+            'propogate': True,
+            'handlers': ['to_console', 'to_file_django', 'to_email_general']
         }
     }
 }

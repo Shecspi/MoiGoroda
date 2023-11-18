@@ -13,14 +13,24 @@
                 {% for city in cities.last_visited %}
                     <li class="list-group-item">
                         <div class="d-flex justify-content-between small">
-                            <a href="{% url 'city-selected' city.pk %}"
-                               class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                            <a href="{{ city.get_absolute_url }}"
+                               class="link-offset-2 link-underline-dark link-dark
+                                      link-underline-opacity-50-hover link-opacity-50-hover">
                                 {{ city }}
                             </a>
                             {{ city.date_of_visit }}
                         </div>
                     </li>
                 {% endfor %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-end small">
+                        <a href="{% url 'city-all-list' %}"
+                           class="link-offset-2 link-underline-dark link-dark
+                                  link-underline-opacity-50-hover link-opacity-50-hover">
+                            Посмотреть все
+                        </a>
+                    </div>
+                </li>
             </ul>
         {% else %}
             <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
@@ -29,11 +39,42 @@
         {% endif %}
 
         <div class="d-flex justify-content-between mt-4 small">
-            Всего: {{ cities.num_visited }}
-            <a href="{% url 'city-all-list' %}"
-               class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                Посмотреть все
-            </a>
+            <span>
+                Всего посещено: {{ cities.num_visited }}
+            </span>
+            <span>
+                Осталось: {{ cities.num_not_visited }}
+            </span>
+        </div>
+
+        <div class="progress mb-3 mt-1" style="height: 10px">
+            <div class="progress-bar bg-primary" role="progressbar"
+                 style="width: {{ cities.ratio_visited }}%"
+                 aria-valuenow="{{ cities.ratio_visited }}"
+                 aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar bg-primary-subtle" role="progressbar"
+                 style="width: {{ cities.ratio_not_visited }}%"
+                 aria-valuenow="{{ cities.ratio_not_visited }}"
+                 aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4 small">
+            <span>
+                В этом году: {{ cities.visited_this_year }}
+            </span>
+            <span>
+                В прошлом году: {{ cities.visited_prev_year }}
+            </span>
+        </div>
+        <div class="progress mb-3 mt-1" style="height: 10px">
+            <div class="progress-bar bg-danger" role="progressbar"
+                 style="width: {{ cities.ratio_this_year }}%"
+                 aria-valuenow="{{ cities.ratio_this_year }}"
+                 aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar bg-warning" role="progressbar"
+                 style="width: {{ cities.ratio_prev_year }}%"
+                 aria-valuenow="{{ cities.ratio_prev_year }}"
+                 aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
 </div>

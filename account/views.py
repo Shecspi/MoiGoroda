@@ -269,4 +269,7 @@ class MyPasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
 
 
 def calculate_ratio(divisible: int, divisor: int) -> int:
-    return int((divisible / divisor) * 100)
+    try:
+        return int((divisible / divisor) * 100)
+    except ZeroDivisionError:
+        return 0

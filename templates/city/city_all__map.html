@@ -50,29 +50,29 @@
                 let min_x = Math.min(...array_x);
                 let max_y = Math.max(...array_y);
                 let min_y = Math.min(...array_y);
-                let average_x = (max_x + min_x) / 2;
-                let average_y = (max_y + min_y) / 2;
+                average_x = (max_x + min_x) / 2;
+                average_y = (max_y + min_y) / 2;
 
                 // Меняем масштаб карты в зависимости от расположения городов
-                let zoom;
                 let diff = max_y - min_y;
                 if (diff <= 1) {
                     zoom = 9;
                 } else if (diff > 1 && diff <= 2) {
                     zoom = 8;
                 } else if (diff > 2 && diff <= 5) {
-                    zoom = 7;
-                } else if (diff > 5 && diff <= 6) {
                     zoom = 6;
-                } else {
+                } else if (diff > 5 && diff <= 6) {
                     zoom = 5;
+                } else {
+                    zoom = 4;
                 }
+                console.log(zoom);
             }
 
             // Отображаем карту на странице
             var myMap = new ymaps.Map("map", {
                 center: [average_y, average_x],
-                zoom: zoom,
+                zoom: 4,
                 controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
             }, {
                 searchControlProvider: 'yandex#search'

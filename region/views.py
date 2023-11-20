@@ -238,6 +238,9 @@ class CitiesByRegionList(ListView, LoggingMixin, CitiesByRegionMixin):
             )
             self.total_qty_of_cities = queryset.count()
 
+        if self.total_qty_of_cities == 0:
+            self.set_critical_message(self.request, f'There is no cities in the region ID: {self.region_id}')
+
         if self.list_or_map == 'list':
             self.set_message(self.request, 'Viewing the list of cities in selected region')
         else:

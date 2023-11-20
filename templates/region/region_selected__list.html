@@ -23,7 +23,7 @@
     {% else %}
         <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
             <div class="col-xl-8">
-                <div class="alert alert-danger p-5 text-center" role="alert">
+                <div class="alert alert-danger p-5 text-center" role="alert" id="error_message">
                     {% if request.GET.filter %}
                         По заданным параметрам не найдено ни одного посещённого города
                     {% else %}

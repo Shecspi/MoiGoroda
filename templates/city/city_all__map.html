@@ -56,12 +56,12 @@
                 // Меняем масштаб карты в зависимости от расположения городов
                 let diff = max_y - min_y;
                 if (diff <= 1) {
-                    zoom = 9;
-                } else if (diff > 1 && diff <= 2) {
                     zoom = 8;
-                } else if (diff > 2 && diff <= 5) {
-                    zoom = 6;
-                } else if (diff > 5 && diff <= 6) {
+                } else if (diff > 1 && diff <= 2) {
+                    zoom = 7;
+                } else if (diff > 2 && diff <= 4) {
+                    zoom = 6
+                } else if (diff > 4 && diff <= 6) {
                     zoom = 5;
                 } else {
                     zoom = 4;
@@ -72,7 +72,7 @@
             // Отображаем карту на странице
             var myMap = new ymaps.Map("map", {
                 center: [average_y, average_x],
-                zoom: 4,
+                zoom: zoom,
                 controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
             }, {
                 searchControlProvider: 'yandex#search'

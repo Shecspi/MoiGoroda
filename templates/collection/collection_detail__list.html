@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-5 text-center mt-3" id="section-page_header">
+        {{ object.title }}
+    </h1>
+
+    <!-- Карточки с регионами -->
+    {% if object %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3">
+            {% for city in collection.city.all %}
+                {% include 'collection/collection_detail__card.html' %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
+            <div class="col-xl-8">
+                <div class="alert alert-danger p-5 text-center" role="alert" id="section-info_box">
+                    На данный момент в этой коллекции нет ни одного города
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <!-- ^^^ Карточки с городами -->
+
+    <!-- Пагинация -->
+    {% include 'parts/pagination.html' %}
+    <!-- ^^^ Пагинация -->
+{% endblock %}

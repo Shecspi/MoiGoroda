@@ -1,7 +1,8 @@
 import logging
+from typing import Any
 
 from django.db.models import Count, Q
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from city.models import VisitedCity
 from collection.models import Collection
@@ -115,3 +116,19 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
         context['page_description'] = 'Города России, распределённые по различным коллекциям. Путешествуйте по России и закрывайте коллекции.'
 
         return context
+
+
+class CollectionDetail(DetailView):
+    model = Collection
+    template_name = 'collection/collection_detail__list.html'
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context['page_title'] = self.object.title
+        print(self.object.title)
+        context['page_description'] = (f'Города России, представленные в коллекции "{self.object.title}". '
+                                       f'Путешествуйте по России и закрывайте коллекции.')
+
+        return context
+

@@ -13,4 +13,5 @@ from . import views
 
 urlpatterns = [
     path('', views.CollectionList.as_view(), name='collection-list'),
+    path('<int:pk>', views.CollectionDetail.as_view(), name='collection-detail')
 ]

@@ -3,7 +3,11 @@
         <div class="card-body">
             <!-- Название коллекции -->
             <h4 id="subsection-collection-title_{{ forloop.counter }}">
-                {{ collection.title }}
+                <a href="{{ collection.get_absolute_url }}"
+                   class="link-offset-2 link-underline-dark link-dark link-opacity-75
+                          link-underline-opacity-75 link-opacity-100-hover">
+                    {{ collection.title }}
+                </a>
             </h4>
             <!-- ^^^ Название коллекции -->
 

@@ -1,10 +1,11 @@
 import logging
 from typing import Any
 
-from django.db.models import Count, Q
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count, Q, Exists, OuterRef
 from django.views.generic import ListView, DetailView
 
-from city.models import VisitedCity
+from city.models import VisitedCity, City
 from collection.models import Collection
 from utils.CollectionListMixin import CollectionListMixin
 from utils.LoggingMixin import LoggingMixin
@@ -118,17 +119,43 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
         return context
 
 
-class CollectionDetail(DetailView):
+class CollectionDetail_List(ListView):
     model = Collection
     template_name = 'collection/collection_detail__list.html'
+
+    def get(self, *args, **kwargs):
+        self.collection_id = self.kwargs['pk']
+
+        return super().get(*args, **kwargs)
+
+    def get_queryset(self):
+        queryset = Collection.objects.get(pk=self.collection_id)
+
+        self.qty_of_cities = queryset.city.count()
+        self.qty_of_visited_cities = 0
+        for city in queryset.city.all():
+            try:
+                VisitedCity.objects.get(city_id=city.pk, user=self.request.user)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                self.qty_of_visited_cities += 1
+
+        return queryset
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        context['page_title'] = self.object.title
-        print(self.object.title)
-        context['page_description'] = (f'Города России, представленные в коллекции "{self.object.title}". '
-                                       f'Путешествуйте по России и закрывайте коллекции.')
+        context['qty_of_cities'] = self.qty_of_cities
+        context['qty_of_visited_cities'] = self.qty_of_visited_cities
+
+        # context['page_title'] = self.queryset.title
+        # context['page_description'] = (f'Города России, представленные в коллекции "{self.queryset.title}". '
+        #                                f'Путешествуйте по России и закрывайте коллекции.')
 
         return context
+
+
+class CollectionDetail_Map(DetailView):
+    ...
 

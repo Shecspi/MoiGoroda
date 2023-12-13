@@ -8,7 +8,7 @@
             <div class="d-flex justify-content-between">
                 <div class="align-self-center" data-bs-toggle="tooltip"
                      data-bs-title="Город {{ city.title }} {% if city.is_visited %}посещён{% else %}ещё не посещён{% endif %}">
-                    {% if city.is_visited %}
+                    {% if is_visited.city %}
                         <i class="fa-regular fa-square-check text-success fs-4"></i>
                     {% else %}
                         <i class="fa-regular fa-circle-xmark text-danger fs-4"></i>

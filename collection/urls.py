@@ -13,5 +13,6 @@ from . import views
 
 urlpatterns = [
     path('', views.CollectionList.as_view(), name='collection-list'),
-    path('<int:pk>', views.CollectionDetail.as_view(), name='collection-detail')
+    path('<int:pk>/list', views.CollectionDetail_List.as_view(), name='collection-detail-list'),
+    path('<int:pk>/map', views.CollectionDetail_Map.as_view(), name='collection-detail-map')
 ]

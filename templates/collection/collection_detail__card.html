@@ -8,20 +8,20 @@
             <div class="d-flex justify-content-between">
                 <div class="align-self-center" data-bs-toggle="tooltip"
                      data-bs-title="Город {{ city.title }} {% if city.is_visited %}посещён{% else %}ещё не посещён{% endif %}">
-                    {% if is_visited.city %}
+                    {% if city.1 %}
                         <i class="fa-regular fa-square-check text-success fs-4"></i>
                     {% else %}
                         <i class="fa-regular fa-circle-xmark text-danger fs-4"></i>
                     {% endif %}
                 </div>
                 <h4 id="subsection-city-title_{{ forloop.counter }}">
-                    {% if city.is_visited %}
-                        <a href="{% url 'city-selected' city.visited_id %}"
+                    {% if city.1 %}
+                        <a href="{% url 'city-selected' city.0.id %}"
                            class="link_to link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                            {{ city.title }}
+                            {{ city.0.title }}
                         </a>
                     {% else %}
-                        {{ city.title }}
+                        {{ city.0.title }}
                     {% endif %}
                 </h4>
                 <div></div>
@@ -33,8 +33,8 @@
             <!-- Дата посещения -->
             <div id="subsection-city-date_of_visit_{{ forloop.counter }}">
                 <small class="text-muted">
-                    {% if city.date_of_visit %}
-                        {{ city.date_of_visit }}
+                    {% if city.0.date_of_visit %}
+                        {{ city.0.date_of_visit }}
                     {% else %}
                         Дата посещения не указана
                     {% endif %}
@@ -45,8 +45,8 @@
             <!-- Население -->
             <div id="subsection-city-population_{{ forloop.counter }}">
                 <small class="card-subtitle text-muted">
-                    {% if city.population %}
-                        Население <strong>{{ city.population|intcomma }}</strong> чел.
+                    {% if city.0.population %}
+                        Население <strong>{{ city.0.population|intcomma }}</strong> чел.
                     {% else %}
                         Население города неизвестно
                     {% endif %}
@@ -57,8 +57,8 @@
             <!-- Год основания -->
             <div id="subsection-city-date_of_foundation_{{ forloop.counter }}">
                 <small class="card-subtitle text-muted">
-                    {% if city.date_of_foundation %}
-                        Основан в <strong>{{ city.date_of_foundation }}</strong> году
+                    {% if city.0.date_of_foundation %}
+                        Основан в <strong>{{ city.0.date_of_foundation }}</strong> году
                     {% else %}
                         Год основания неизвестен
                     {% endif %}
@@ -66,13 +66,13 @@
             </div>
             <!-- ^^^ Год основания -->
 
-            {% if city.is_visited %}
+            {% if city.1 %}
                 <div class="d-flex justify-content-between">
                     <!-- Рейтинг -->
                     <div id="subsection-city-rating_{{ forloop.counter }}">
                         <small>
                             {% for i in '12345'|make_list %}
-                                {% if forloop.counter <= city.rating %}
+                                {% if forloop.counter <= city.0.rating %}
                                     <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
                                 {% else %}
                                     <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
@@ -84,7 +84,7 @@
 
                     <!-- Наличие магнита -->
                     <div id="subsection-city-magnet_{{ forloop.counter }}" data-bs-toggle="tooltip"
-                         data-bs-title="У Вас {% if city.has_magnet %}есть магнитик{% else %}нет магнитика{% endif %} с городом {{ city.title }}">
+                         data-bs-title="У Вас {% if city.0.has_magnet %}есть магнитик{% else %}нет магнитика{% endif %} с городом {{ city.0.title }}">
                         {% if city.has_magnet %}
                             <small>
                                 <span class="text-success">

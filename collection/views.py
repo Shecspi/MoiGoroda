@@ -119,35 +119,42 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
         return context
 
 
-class CollectionDetail_List(ListView):
+class CollectionDetail_List(DetailView):
     model = Collection
     template_name = 'collection/collection_detail__list.html'
 
+    def __init__(self):
+        super().__init__()
+
+        self.pk = 0
+        self.cities = None
+
     def get(self, *args, **kwargs):
-        self.collection_id = self.kwargs['pk']
+        self.pk = self.kwargs['pk']
 
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        queryset = Collection.objects.get(pk=self.collection_id)
+        queryset = Collection.objects.filter(id=self.pk)
 
-        self.qty_of_cities = queryset.city.count()
-        self.qty_of_visited_cities = 0
-        for city in queryset.city.all():
-            try:
-                VisitedCity.objects.get(city_id=city.pk, user=self.request.user)
-            except ObjectDoesNotExist:
-                pass
-            else:
-                self.qty_of_visited_cities += 1
+        if self.request.user.is_authenticated:
+            # Список всех посещённых городов
+            all_visited_cities = VisitedCity.objects.filter(user=self.request.user).values_list('city__id', flat=True)
+
+            # Список городов выбранной коллекции в формате
+            # [(City: Queryset, is_visited: bool), ...]
+            self.cities = []
+            for city in queryset[0].city.all():
+                self.cities.append((city, city.id in all_visited_cities))
 
         return queryset
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        context['qty_of_cities'] = self.qty_of_cities
-        context['qty_of_visited_cities'] = self.qty_of_visited_cities
+        # context['qty_of_cities'] = self.qty_of_cities
+        # context['qty_of_visited_cities'] = self.qty_of_visited_cities
+        context['cities'] = self.cities
 
         # context['page_title'] = self.queryset.title
         # context['page_description'] = (f'Города России, представленные в коллекции "{self.queryset.title}". '

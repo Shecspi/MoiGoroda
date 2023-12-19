@@ -1,4 +1,4 @@
-# ![Image alt](./static/favicon.ico) Moi Goroda
+# <img src="static/image/favicon.ico" height="28"> Moi Goroda
 Это проект для контроля и визуализации посещённых городов России, написанный на языке Python 3.10 и фреймворке Django 4.1.  
 Работающий пример Вы можете посмотреть на сайте [moi-goroda.ru](https://moi-goroda.ru/).  
 Исходный код распространяется под лицензией [Apache License 2.0](https://github.com/Shecspi/MoiGoroda/blob/master/LICENSE).  

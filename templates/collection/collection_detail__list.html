@@ -7,8 +7,8 @@
 
     {% include 'collection/collection__selected__toolbar.html' %}
 
-    <!-- Карточки с регионами -->
-    {% if object %}
+    <!-- Карточки с городами -->
+    {% if cities %}
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3">
             {% for city in cities %}
                 {% include 'collection/collection_detail__card.html' %}

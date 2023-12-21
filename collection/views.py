@@ -2,7 +2,7 @@ import logging
 from typing import Any
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Q, Exists, OuterRef
+from django.db.models import Count, Q, Exists, OuterRef, Subquery, DateField, IntegerField
 from django.views.generic import ListView, DetailView
 
 from city.models import VisitedCity, City
@@ -126,39 +126,43 @@ class CollectionDetail_List(DetailView):
     def __init__(self):
         super().__init__()
 
-        self.pk = 0
         self.cities = None
+        self.page_title = ''
 
-    def get(self, *args, **kwargs):
-        self.pk = self.kwargs['pk']
+    def get_object(self, queryset=None):
+        self.obj = super().get_object(queryset)
+        cities_id = [city.id for city in self.obj.city.all()]  # ID всех городов коллекции для дальнейшего запроса
 
-        return super().get(*args, **kwargs)
+        self.cities = City.objects.filter(id__in=cities_id).annotate(
+            is_visited=Exists(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+            ),
+            visited_id=Subquery(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('id'),
+                output_field=IntegerField()
+            ),
+            date_of_visit=Subquery(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('date_of_visit'),
+                output_field=DateField()
+            ),
+        ).values(
+            'id', 'title', 'is_visited', 'visited_id', 'date_of_visit', 'population', 'date_of_foundation'
+        )
 
-    def get_queryset(self):
-        queryset = Collection.objects.filter(id=self.pk)
-
-        if self.request.user.is_authenticated:
-            # Список всех посещённых городов
-            all_visited_cities = VisitedCity.objects.filter(user=self.request.user).values_list('city__id', flat=True)
-
-            # Список городов выбранной коллекции в формате
-            # [(City: Queryset, is_visited: bool), ...]
-            self.cities = []
-            for city in queryset[0].city.all():
-                self.cities.append((city, city.id in all_visited_cities))
-
-        return queryset
+        # get_object() должен вернуть экземпляр модели, даже если он потом не будет использоваться.
+        # self.cities (типа dict) вернуть нельзя.
+        return self.obj
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        # context['qty_of_cities'] = self.qty_of_cities
-        # context['qty_of_visited_cities'] = self.qty_of_visited_cities
+        context['qty_of_cities'] = len(self.cities)
+        context['qty_of_visited_cities'] = sum([1 if city['is_visited'] else 0 for city in self.cities])
         context['cities'] = self.cities
 
-        # context['page_title'] = self.queryset.title
-        # context['page_description'] = (f'Города России, представленные в коллекции "{self.queryset.title}". '
-        #                                f'Путешествуйте по России и закрывайте коллекции.')
+        context['page_title'] = self.obj.title
+        context['page_description'] = (f'Города России, представленные в коллекции "{self.obj.title}". '
+                                       f'Путешествуйте по России и закрывайте коллекции.')
 
         return context
 

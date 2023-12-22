@@ -14,7 +14,7 @@ class RegionListMixin:
     @staticmethod
     def declension_of_visited(quantity: int) -> str:
         """
-        Возвращает правильное склонение слова 'Посещено' в зависимости от количества 'quantity'.
+        Возвращает правильное склонение слова 'Посещено' в зависимости от количества 'num'.
         """
         if len(str(quantity)) > 1 and str(quantity)[-2:] == '11':
             return 'Посещено'
@@ -26,7 +26,7 @@ class RegionListMixin:
     @staticmethod
     def declension_of_region(quantity: int) -> str:
         """
-        Возвращает правильное склонение слова 'регион' в зависимости от количества 'quantity'.
+        Возвращает правильное склонение слова 'регион' в зависимости от количества 'num'.
         """
         if quantity == 1:
             return 'регион'

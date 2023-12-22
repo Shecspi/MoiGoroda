@@ -9,7 +9,7 @@ from city.models import VisitedCity, City
 from collection.models import Collection
 from utils.CollectionListMixin import CollectionListMixin
 from utils.LoggingMixin import LoggingMixin
-
+from utils.word_changes import change
 
 logger = logging.getLogger('moi-goroda')
 
@@ -126,6 +126,7 @@ class CollectionDetail_List(DetailView):
     def __init__(self):
         super().__init__()
 
+        self.obj = None
         self.cities = None
         self.page_title = ''
 
@@ -156,9 +157,15 @@ class CollectionDetail_List(DetailView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        context['qty_of_cities'] = len(self.cities)
-        context['qty_of_visited_cities'] = sum([1 if city['is_visited'] else 0 for city in self.cities])
+        qty_of_cities = len(self.cities)
+        qty_of_visited_cities = sum([1 if city['is_visited'] else 0 for city in self.cities])
+
+        context['qty_of_cities'] = qty_of_cities
+        context['qty_of_visited_cities'] = qty_of_visited_cities
         context['cities'] = self.cities
+
+        context['change__city'] = change('город', qty_of_visited_cities)
+        context['change__visited'] = change('посещено', qty_of_visited_cities)
 
         context['page_title'] = self.obj.title
         context['page_description'] = (f'Города России, представленные в коллекции "{self.obj.title}". '

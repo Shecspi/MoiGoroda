@@ -4,7 +4,7 @@ from utils.VisitedCityMixin import VisitedCityMixin
 
 
 @pytest.mark.parametrize(
-    'quantity, word', (
+    'num, word', (
         (1, 'город'),
         (2, 'города'),
         (3, 'города'),
@@ -59,7 +59,7 @@ def test__declension_of_city(quantity, word):
 
 
 @pytest.mark.parametrize(
-    'quantity, word', (
+    'num, word', (
         (1, 'Посещён'),
         (2, 'Посещено'),
         (3, 'Посещено'),

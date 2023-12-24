@@ -3,6 +3,7 @@ from typing import Any
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Q, Exists, OuterRef, Subquery, DateField, IntegerField
+from django.http import Http404
 from django.views.generic import ListView, DetailView
 
 from city.models import VisitedCity, City
@@ -119,7 +120,7 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
         return context
 
 
-class CollectionDetail_List(ListView):
+class CollectionDetail_List(LoggingMixin, ListView):
     model = Collection
     paginate_by = 16
     template_name = 'collection/collection_detail__list.html'
@@ -129,10 +130,18 @@ class CollectionDetail_List(ListView):
 
         self.obj = None
         self.queryset = None
-        self.page_title = ''
+        self.collection_title = ''
 
     def get(self, *args: Any, **kwargs: Any):
         self.pk = self.kwargs['pk']
+
+        # При обращении к несуществующей коллекции выдаём 404
+        # При этом в указанной коллекции может не быть посещённых городов, это ок
+        try:
+            self.collection_title = Collection.objects.get(id=self.pk)
+        except ObjectDoesNotExist as exc:
+            self.set_message(self.request, 'Attempt to access a non-existent region')
+            raise Http404 from exc
 
         return super().get(*args, **kwargs)
 
@@ -170,9 +179,9 @@ class CollectionDetail_List(ListView):
         context['change__city'] = change('город', qty_of_visited_cities)
         context['change__visited'] = change('посещено', qty_of_visited_cities)
 
-        # context['page_title'] = self.obj.title
-        # context['page_description'] = (f'Города России, представленные в коллекции "{self.obj.title}". '
-        #                                f'Путешествуйте по России и закрывайте коллекции.')
+        context['page_title'] = self.collection_title
+        context['page_description'] = (f'Города России, представленные в коллекции "{self.collection_title}". '
+                                       f'Путешествуйте по России и закрывайте коллекции.')
 
         return context
 

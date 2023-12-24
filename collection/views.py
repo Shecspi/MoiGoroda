@@ -120,7 +120,7 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
         return context
 
 
-class CollectionDetail_List(LoggingMixin, ListView):
+class CollectionSelected_List(LoggingMixin, ListView):
     model = Collection
     paginate_by = 16
 
@@ -129,7 +129,10 @@ class CollectionDetail_List(LoggingMixin, ListView):
     def __init__(self, list_or_map: str):
         super().__init__()
 
+        self.qty_of_visited_cities = None
+        self.qty_of_cities = None
         self.pk = None
+        self.filter = ''
         self.cities = None
         self.collection_title = ''
         self.list_or_map = list_or_map
@@ -198,20 +201,35 @@ class CollectionDetail_List(LoggingMixin, ListView):
             'visited_id', 'date_of_visit', 'has_magnet', 'rating'
         )
 
+        self.qty_of_cities = len(self.cities)
+        self.qty_of_visited_cities = sum([1 if city['is_visited'] else 0 for city in self.cities])
+
+        # Определяем фильтрацию
+        if self.request.user.is_authenticated:
+            self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
+            if self.filter:
+                try:
+                    self.cities = apply_filter(self.cities, self.filter)
+                    self.set_message(self.request, f'Using filtering \'{self.filter}\'')
+                except KeyError:
+                    self.set_message(self.request, f'Unexpected value of the GET-argument \'filter={self.filter}\'')
+
         return self.cities
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        qty_of_cities = len(self.cities)
-        qty_of_visited_cities = sum([1 if city['is_visited'] else 0 for city in self.cities])
+        context['filter'] = self.filter
 
-        context['qty_of_cities'] = qty_of_cities
-        context['qty_of_visited_cities'] = qty_of_visited_cities
+        context['qty_of_cities'] = self.qty_of_cities
+        context['qty_of_visited_cities'] = self.qty_of_visited_cities
         context['cities'] = self.cities
 
-        context['change__city'] = change('город', qty_of_visited_cities)
-        context['change__visited'] = change('посещено', qty_of_visited_cities)
+        context['change__city'] = change('город', self.qty_of_visited_cities)
+        context['change__visited'] = change('посещено', self.qty_of_visited_cities)
+
+        context['url_for_filter_visited'] = get_url_params('visited' if self.filter != 'visited' else '')
+        context['url_for_filter_not_visited'] = get_url_params('not_visited' if self.filter != 'not_visited' else '')
 
         context['pk'] = self.pk
         context['page_title'] = self.collection_title
@@ -227,6 +245,37 @@ class CollectionDetail_List(LoggingMixin, ListView):
             return ['collection/collection_selected__map.html', ]
 
 
-class CollectionDetail_Map(DetailView):
-    ...
+def apply_filter(queryset: QuerySet, filter_value: str) -> QuerySet:
+    """
+    Производит фильтрацию 'queryset' на основе значения 'filter'.
 
+    @param queryset: QuerySet, к которому необходимо применить фильтр.
+    @param filter_value: Параметр, на основе которого производится фильтрация.
+        Может принимать одно из 2 значение:
+            - 'not_started' - коллекции, в которых нет ни одного опсещённого города;
+            - 'finished' - коллекции, в которых посещены все города.
+    @return: Отфильтрованный QuerySet или KeyError, если передан некорректный параметр `filter_value`.
+    """
+    match filter_value:
+        case 'visited':
+            queryset = queryset.filter(is_visited=True)
+        case 'not_visited':
+            queryset = queryset.filter(is_visited=False)
+        case _:
+            raise KeyError
+
+    return queryset
+
+
+def get_url_params(filter_value: str | None) -> str | None:
+    """
+    Возвращает строку, пригодную для использования в URL-адресе после знака '?' с параметрами 'filter' и 'sort'
+    @param filter_value: Значение фльтра, может быть пустой строкой.
+    """
+    valid_filters = ['visited', 'not_visited']
+    print(filter_value, valid_filters, filter_value in valid_filters)
+
+    if filter_value and filter_value in valid_filters:
+        return f'filter={filter_value}'
+
+    return ''

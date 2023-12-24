@@ -119,20 +119,25 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
         return context
 
 
-class CollectionDetail_List(DetailView):
+class CollectionDetail_List(ListView):
     model = Collection
+    paginate_by = 16
     template_name = 'collection/collection_detail__list.html'
 
     def __init__(self):
         super().__init__()
 
         self.obj = None
-        self.cities = None
+        self.queryset = None
         self.page_title = ''
 
-    def get_object(self, queryset=None):
-        self.obj = super().get_object(queryset)
-        cities_id = [city.id for city in self.obj.city.all()]  # ID всех городов коллекции для дальнейшего запроса
+    def get(self, *args: Any, **kwargs: Any):
+        self.pk = self.kwargs['pk']
+
+        return super().get(*args, **kwargs)
+
+    def get_queryset(self):
+        cities_id = [city.id for city in Collection.objects.get(id=self.pk).city.all()]  # ID всех городов коллекции для дальнейшего запроса
 
         self.cities = City.objects.filter(id__in=cities_id).annotate(
             is_visited=Exists(
@@ -150,9 +155,7 @@ class CollectionDetail_List(DetailView):
             'id', 'title', 'is_visited', 'visited_id', 'date_of_visit', 'population', 'date_of_foundation'
         )
 
-        # get_object() должен вернуть экземпляр модели, даже если он потом не будет использоваться.
-        # self.cities (типа dict) вернуть нельзя.
-        return self.obj
+        return self.cities
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -167,9 +170,9 @@ class CollectionDetail_List(DetailView):
         context['change__city'] = change('город', qty_of_visited_cities)
         context['change__visited'] = change('посещено', qty_of_visited_cities)
 
-        context['page_title'] = self.obj.title
-        context['page_description'] = (f'Города России, представленные в коллекции "{self.obj.title}". '
-                                       f'Путешествуйте по России и закрывайте коллекции.')
+        # context['page_title'] = self.obj.title
+        # context['page_description'] = (f'Города России, представленные в коллекции "{self.obj.title}". '
+        #                                f'Путешествуйте по России и закрывайте коллекции.')
 
         return context
 

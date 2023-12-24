@@ -195,7 +195,7 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
             .order_by('-ratio_visited', 'title')
         )
 
-        context['cities'] = {
+        context['queryset'] = {
             'num_visited': num_visited_cities,
             'num_not_visited': num_not_visited_cities,
             'num_all': num_all_cities,

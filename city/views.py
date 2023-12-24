@@ -239,9 +239,9 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, LoggingMixin, ListV
         self.qty_of_visited_cities_last_year = queryset.filter(date_of_visit__year=datetime.now().year - 1).count()
 
         if self.list_or_map == 'list':
-            self.set_message(self.request, 'Viewing the list of visited cities')
+            self.set_message(self.request, 'Viewing the list of visited queryset')
         else:
-            self.set_message(self.request, 'Viewing the map of visited cities')
+            self.set_message(self.request, 'Viewing the map of visited queryset')
 
         # Обработка фильтрации
         self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
@@ -331,4 +331,4 @@ def get_cities_based_on_region(request):
         cities = City.objects.filter(region_id=region_id).order_by('title')
     except ValueError:
         cities = None
-    return render(request, 'city/city_create__dropdown_list.html', {'cities': cities})
+    return render(request, 'city/city_create__dropdown_list.html', {'queryset': cities})

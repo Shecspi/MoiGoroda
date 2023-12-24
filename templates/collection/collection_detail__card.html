@@ -66,13 +66,13 @@
             </div>
             <!-- ^^^ Год основания -->
 
-            {% if city.1 %}
+            {% if city.is_visited %}
                 <div class="d-flex justify-content-between">
                     <!-- Рейтинг -->
                     <div id="subsection-city-rating_{{ forloop.counter }}">
                         <small>
                             {% for i in '12345'|make_list %}
-                                {% if forloop.counter <= city.0.rating %}
+                                {% if forloop.counter <= city.rating %}
                                     <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
                                 {% else %}
                                     <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
@@ -84,7 +84,7 @@
 
                     <!-- Наличие магнита -->
                     <div id="subsection-city-magnet_{{ forloop.counter }}" data-bs-toggle="tooltip"
-                         data-bs-title="У Вас {% if city.0.has_magnet %}есть магнитик{% else %}нет магнитика{% endif %} с городом {{ city.0.title }}">
+                         data-bs-title="У Вас {% if city.has_magnet %}есть магнитик{% else %}нет магнитика{% endif %} с городом {{ city.title }}">
                         {% if city.has_magnet %}
                             <small>
                                 <span class="text-success">

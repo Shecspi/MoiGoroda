@@ -5,7 +5,7 @@
         {{ object.title }}
     </h1>
 
-    {% include 'collection/collection__selected__toolbar.html' %}
+    {% include 'collection/collection_selected__list__toolbar.html' %}
 
     <!-- Карточки с городами -->
     {% if object_list %}
@@ -13,6 +13,10 @@
             {% for city in object_list %}
                 {% include 'collection/collection_detail__card.html' %}
             {% endfor %}
+
+            <!-- Включение всплывающих подсказок -->
+            <script>$(document).ready(function(){$('[data-bs-toggle="tooltip"]').tooltip();});</script>
+            <!-- ^^^ Включение всплывающих подсказок -->
         </div>
     {% else %}
         <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">

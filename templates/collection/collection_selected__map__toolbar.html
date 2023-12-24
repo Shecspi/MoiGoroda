@@ -1,0 +1,64 @@
+<!-- Панель инструментов -->
+<div class="row mx-3 my-3 g-3" id="toolbar">
+    <!-- Статистика посещёния -->
+    <div class="col-xl-3 order-xl-1" id="block-statistic">
+        <div class="card text-center shadow h-100">
+            <div class="card-body d-grid bg-warning-subtle" id="block-statistic">
+                <div class="align-self-center">
+                    {{ change__visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
+                    {{ change__city }} из {{ qty_of_cities }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Статистика посещёния -->
+
+    <!-- Посмотреть на карте -->
+    <div class="col-xl-3 order-xl-4" id="section-show_map">
+        <div class="card text-center shadow h-100">
+            <div class="card-body d-grid bg-success-subtle">
+                <a href="{% url 'city-all-map' %}" class="btn btn-outline-success align-self-center">
+                    <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Посмотреть на карте -->
+
+    <!-- Посмотреть посещённые -->
+    <div class="col-xl-3 order-xl-2">
+        <div class="card text-center shadow h-100" id="section-filter">
+            <div class="card-body d-grid bg-primary-subtle">
+                {% if qty_of_visited_cities > 0 %}
+                     <a class="btn btn-outline-primary d-block align-self-center">
+                         <i class="fa-regular fa-square-check"></i>&nbsp;&nbsp;&nbsp;Посмотреть посещённые
+                     </a>
+                {% else %}
+                    <button class="btn btn-outline-primary d-block align-self-center disabled">
+                         <i class="fa-regular fa-square-check"></i>&nbsp;&nbsp;&nbsp;Посмотреть посещённые
+                     </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Посмотреть посещённые -->
+
+    <!-- Посмотреть непосещённые -->
+    <div class="col-xl-3 order-xl-3">
+            <div class="card text-center shadow h-100" id="section-sorting">
+                <div class="card-body d-grid bg-secondary-subtle">
+                    {% if qty_of_visited_cities > 0 %}
+                        <a class="btn btn-outline-secondary d-block align-self-center">
+                         <i class="fa-regular fa-circle-xmark"></i>&nbsp;&nbsp;&nbsp;Посмотреть непосещённые
+                    {% else %}
+                        <a class="btn btn-outline-secondary d-block align-self-center disabled" href="#">
+                            <i class="fa-regular fa-circle-xmark"></i>&nbsp;&nbsp;&nbsp;Посмотреть непосещённые
+                        </a>
+                    {% endif %}
+                 </a>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Посмотреть непосещённые -->
+</div>
+<!-- ^^^ Панель инструментов -->

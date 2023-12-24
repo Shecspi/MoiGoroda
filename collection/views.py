@@ -2,7 +2,7 @@ import logging
 from typing import Any
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Q, Exists, OuterRef, Subquery, DateField, IntegerField
+from django.db.models import Count, Q, Exists, OuterRef, Subquery, DateField, IntegerField, QuerySet, BooleanField
 from django.http import Http404
 from django.views.generic import ListView, DetailView
 
@@ -123,14 +123,16 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
 class CollectionDetail_List(LoggingMixin, ListView):
     model = Collection
     paginate_by = 16
-    template_name = 'collection/collection_detail__list.html'
 
-    def __init__(self):
+    list_or_map: str = 'list'
+
+    def __init__(self, list_or_map: str):
         super().__init__()
 
-        self.obj = None
-        self.queryset = None
+        self.pk = None
+        self.cities = None
         self.collection_title = ''
+        self.list_or_map = list_or_map
 
     def get(self, *args: Any, **kwargs: Any):
         self.pk = self.kwargs['pk']
@@ -146,7 +148,29 @@ class CollectionDetail_List(LoggingMixin, ListView):
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        cities_id = [city.id for city in Collection.objects.get(id=self.pk).city.all()]  # ID всех городов коллекции для дальнейшего запроса
+        """
+        Получает из базы данных все города коллекции, как посещённые так и нет,
+        и возвращает Queryset, состоящий из полей:
+            * `id` - ID города
+            * `title` - название города
+            * `population` - население города
+            * `date_of_foundation` - дата основания города
+            * `coordinate_width` - широта
+            * `coordinate_longitude` - долгота
+            * `is_visited` - True,если город посещён
+
+            Для авторизованных пользователей доступны дополнительные поля:
+            * `visited_id` - ID посещённого города
+            * `date_of_visit` - дата посещения
+            * `has_magnet` - True, если имеется магнит
+            * `rating` - рейтинг от 1 до 5
+        """
+        # В связи с тем, что модель Collections - это связь Many To Many, я не нашёл способа,
+        # как из неё получить список городов и иметь возможность аннотировать этот список дополнительными полями.
+        # Поэтому я вручную выбираю из таблицы City все города, находящиеся в указанной коллекции,
+        # и уже их аннотирую доп. полями.
+        # Но для этого нужен список ID городов, которые есть в коллекции. Для этого и создаётся следующая переменная.
+        cities_id = [city.id for city in Collection.objects.get(id=self.pk).city.all()]
 
         self.cities = City.objects.filter(id__in=cities_id).annotate(
             is_visited=Exists(
@@ -160,8 +184,18 @@ class CollectionDetail_List(LoggingMixin, ListView):
                 VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('date_of_visit'),
                 output_field=DateField()
             ),
+            has_magnet=Subquery(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('has_magnet'),
+                output_field=BooleanField()
+            ),
+            rating=Subquery(
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('rating'),
+                output_field=IntegerField()
+            )
         ).values(
-            'id', 'title', 'is_visited', 'visited_id', 'date_of_visit', 'population', 'date_of_foundation'
+            'id', 'title', 'is_visited', 'population', 'date_of_foundation',
+            'coordinate_width', 'coordinate_longitude',
+            'visited_id', 'date_of_visit', 'has_magnet', 'rating'
         )
 
         return self.cities
@@ -179,11 +213,18 @@ class CollectionDetail_List(LoggingMixin, ListView):
         context['change__city'] = change('город', qty_of_visited_cities)
         context['change__visited'] = change('посещено', qty_of_visited_cities)
 
+        context['pk'] = self.pk
         context['page_title'] = self.collection_title
         context['page_description'] = (f'Города России, представленные в коллекции "{self.collection_title}". '
                                        f'Путешествуйте по России и закрывайте коллекции.')
 
         return context
+
+    def get_template_names(self) -> list[str]:
+        if self.list_or_map == 'list':
+            return ['collection/collection_selected__list.html', ]
+        elif self.list_or_map == 'map':
+            return ['collection/collection_selected__map.html', ]
 
 
 class CollectionDetail_Map(DetailView):

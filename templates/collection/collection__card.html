@@ -13,7 +13,7 @@
 
             <!-- Список городов -->
             <div class="mt-3" id="subsection-collection-card_title_{{ forloop.counter }}">
-                {% for city in collection.city.all %}
+                {% for city in collection.city.all|slice:"0:10" %}
                     {% if city.id in visited_cities %}
                         <span class="badge bg-success-subtle text-dark fw-normal">
                             {{ city }}
@@ -24,6 +24,11 @@
                         </span>&nbsp;&nbsp;
                     {% endif %}
                 {% endfor %}
+                {% if collection.qty_of_cities > 10 %}
+                    <span class="badge bg-secondary-subtle text-dark fw-normal">
+                        и другие...
+                    </span>
+                {% endif %}
                 <!-- ^^^ Список городов -->
             </div>
         </div>

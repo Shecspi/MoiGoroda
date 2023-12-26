@@ -50,17 +50,37 @@
 
             // Меняем масштаб карты в зависимости от расположения городов
             let zoom;
-            let diff = max_y - min_y;
-            if (diff <= 1) {
-                zoom = 9;
-            } else if (diff > 1 && diff <= 2) {
-                zoom = 8;
-            } else if (diff > 2 && diff <= 5) {
-                zoom = 7;
-            } else if (diff > 5 && diff <= 6) {
-                zoom = 6;
+            let diff_y = max_y - min_y;
+            let diff_x = max_x - min_x;
+            let diff = diff_y > diff_x ? diff_y : diff_x;
+            if (diff_y > diff_x) {
+                if (diff <= 1) {
+                    zoom = 9;
+                } else if (diff > 1 && diff <= 2) {
+                    zoom = 8;
+                } else if (diff > 2 && diff <= 5) {
+                    zoom = 7;
+                } else if (diff > 5 && diff <= 6) {
+                    zoom = 6;
+                } else if (diff > 6 && diff <= 25) {
+                    zoom = 5;
+                } else {
+                    zoom = 4;
+                }
             } else {
-                zoom = 5;
+                if (diff <= 1) {
+                    zoom = 9;
+                } else if (diff > 1 && diff <= 4) {
+                    zoom = 8;
+                } else if (diff > 4 && diff <= 7) {
+                    zoom = 7;
+                } else if (diff > 7 && diff <= 13) {
+                    zoom = 6;
+                } else if (diff > 13 && diff <= 30) {
+                    zoom = 5;
+                } else {
+                    zoom = 4;
+                }
             }
 
             // Отображаем карту на странице

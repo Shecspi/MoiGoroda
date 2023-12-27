@@ -6,7 +6,7 @@
         <div class="card-body">
             <!-- Название города -->
             <h4 id="subsection-city-title_{{ forloop.counter }}">
-                <a href="{% url 'city-selected' city.id %}"
+                <a href="{{ city.get_absolute_url }}"
                    class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
                     {{ city }}
                 </a>
@@ -28,7 +28,7 @@
             <!-- Регион -->
             <div id="subsection-city-region_{{ forloop.counter }}">
                 <small class="card-subtitle text-muted">
-                    <a href="{% url 'region-selected-list' city.region.id %}"
+                    <a href="{{ city.region.get_absolute_url }}"
                        class="text-underline-dashed text-reset">
                         {{ city.region }}
                     </a>

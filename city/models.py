@@ -2,6 +2,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE
+from django.urls import reverse
 
 from region.models import Region
 
@@ -125,3 +126,6 @@ class VisitedCity(models.Model):
 
     def __str__(self):
         return self.city.title
+
+    def get_absolute_url(self):
+        return reverse('city-selected', kwargs={'pk': self.pk})

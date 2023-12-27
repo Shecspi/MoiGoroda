@@ -6,14 +6,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetCompleteView, PasswordResetDoneView, \
     PasswordChangeView
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q, F, FloatField
+from django.db.models.functions import Cast
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, UpdateView
 
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
-from city.models import VisitedCity
+from city.models import VisitedCity, City
 from utils.LoggingMixin import LoggingMixin
 
 logger_email = logging.getLogger(__name__)
@@ -54,7 +55,8 @@ class SignUp(CreateView):
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Регистрация'
-        context['page_description'] = 'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои посещённые города и просматривать их на карте'
+        context[
+            'page_description'] = 'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои посещённые города и просматривать их на карте'
 
         return context
 
@@ -78,7 +80,8 @@ class SignIn(LoginView):
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Вход'
-        context['page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
+        context[
+            'page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
 
         return context
 
@@ -117,33 +120,102 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
         user = self.request.user.pk
         logger_basic.info(f'Viewing a profile: {self.request.user.username} ({self.request.user.email})')
 
-        # Все посещённые города
-        cities = VisitedCity.objects.filter(user=user)
-        cities_last = cities.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')[:5]
-        cities_this_year = cities.filter(date_of_visit__year=datetime.datetime.now().year).count()
-        num_cities = cities.count()
+        # Статистика по городам
+        visited_cities = VisitedCity.objects.filter(user=user)
+        last_cities = visited_cities.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')[:5]
 
-        regions = Region.objects.all().annotate(
-            total_cities=Count('city', distinct=True),
-            visited_cities=Count('city', filter=Q(city__visitedcity__user__id=user), distinct=True)
-        ).exclude(visitedcity__city=None).exclude(~Q(visitedcity__user=user)).order_by('-visited_cities')[:10]
+        num_cities_this_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year).count()
+        num_cities_prev_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year - 1).count()
+        num_cities_2_year = num_cities_prev_year + num_cities_this_year
+        ratio_cities_this_year = calculate_ratio(num_cities_this_year, num_cities_2_year)
+        ratio_cities_prev_year = calculate_ratio(num_cities_prev_year, num_cities_2_year)
 
-        areas = Area.objects.all().order_by('title').annotate(
-            total_regions=Count('region', distinct=True),
-            visited_regions=Count('region', filter=Q(region__visitedcity__user__id=user), distinct=True))
+        num_visited_cities = visited_cities.count()
+        num_all_cities = City.objects.count()
+        num_not_visited_cities = num_all_cities - num_visited_cities
+        ratio_visited_cities = calculate_ratio(num_visited_cities, num_all_cities)
+        ratio_not_visited_cities = 100 - ratio_visited_cities
 
-        context['cities'] = {
-            'num_visited': num_cities,
-            'last_visited': cities_last,
-            'visited_this_year': cities_this_year
+        # Статистика по регионам
+        regions = (
+            Region.objects
+            .all()
+            .annotate(
+                # Добавляем в QuerySet общее количество городов в регионе
+                total_cities=Count('city', distinct=True),
+                # Добавляем в QuerySet количество посещённых городов в регионе
+                visited_cities=Count('city', filter=Q(city__visitedcity__user__id=user), distinct=True),
+                # Добавляем в QuerySet процентное отношение посещённых городов
+                # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.
+                # Например, 76 / 54 получается 1.
+                ratio_visited=(
+                                      Cast(
+                                          F('visited_cities'), output_field=FloatField()
+                                      ) / Cast(
+                                  F('total_cities'), output_field=FloatField()
+                              )) * 100)
+            .exclude(visitedcity__city=None)
+            .exclude(~Q(visitedcity__user=user))
+            .order_by('-ratio_visited', '-visited_cities')
+        )
+        num_visited_regions = (
+            Region.objects
+            .all()
+            .exclude(visitedcity__city=None)
+            .exclude(~Q(visitedcity__user=user))
+            .count()
+        )
+        num_not_visited_regions = Region.objects.count() - num_visited_regions
+        # Количество регионов, в которых посещены все города.
+        # Для этого забираем те записи, где 'total_cities' и 'visitied_cities' равны.
+        num_finished_regions = regions.filter(total_cities=F('visited_cities')).count()
+
+        ratio_visited = calculate_ratio(num_visited_regions, num_visited_regions + num_not_visited_regions)
+        ratio_not_visited = 100 - ratio_visited
+        ratio_finished = calculate_ratio(num_finished_regions, num_finished_regions + num_not_visited_regions)
+        ratio_not_finished = 100 - ratio_finished
+
+        areas = (
+            Area.objects
+            .all()
+            .annotate(
+                # Добавляем в QuerySet общее количество регионов в округе
+                total_regions=Count('region', distinct=True),
+                # Добавляем в QuerySet количество посещённых регионов в округе
+                visited_regions=Count('region', filter=Q(region__visitedcity__user__id=user), distinct=True),
+                # Добавляем в QuerySet процентное соотношение посещённых регионов.
+                # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.
+                # Например, 76 / 54 получается 1.
+                ratio_visited=(
+                    Cast(
+                        F('visited_regions'), output_field=FloatField()
+                    ) / Cast(
+                        F('total_regions'), output_field=FloatField()
+                    )) * 100)
+            .order_by('-ratio_visited', 'title')
+        )
+
+        context['queryset'] = {
+            'num_visited': num_visited_cities,
+            'num_not_visited': num_not_visited_cities,
+            'num_all': num_all_cities,
+            'ratio_visited': ratio_visited_cities,
+            'ratio_not_visited': ratio_not_visited_cities,
+            'last_visited': last_cities,
+            'visited_this_year': num_cities_this_year,
+            'visited_prev_year': num_cities_prev_year,
+            'ratio_this_year': ratio_cities_this_year,
+            'ratio_prev_year': ratio_cities_prev_year
         }
         context['regions'] = {
-            'visited': regions,
-            'num_visited': Region.objects.all().exclude(
-                visitedcity__city=None
-            ).exclude(
-                ~Q(visitedcity__user=user)
-            ).count()
+            'visited': regions[:10],
+            'num_visited': num_visited_regions,
+            'num_not_visited': num_not_visited_regions,
+            'num_finished': num_finished_regions,
+            'ratio_visited': ratio_visited,
+            'ratio_not_visited': ratio_not_visited,
+            'ratio_finished': ratio_finished,
+            'ratio_not_finished': ratio_not_finished
         }
         context['areas'] = areas
 
@@ -194,3 +266,10 @@ class MyPasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
         context['page_description'] = 'Пароль успешно изменён'
 
         return context
+
+
+def calculate_ratio(divisible: int, divisor: int) -> int:
+    try:
+        return int((divisible / divisor) * 100)
+    except ZeroDivisionError:
+        return 0

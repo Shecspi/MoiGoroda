@@ -4,7 +4,7 @@
             <!-- Название региона -->
             <p class="my-0 py-0">
                 <h4 id="section-region_title_{{ forloop.counter }}">
-                    <a href="{% url 'region-selected-list' region.id %}"
+                    <a href="{{ region.get_absolute_url }}"
                        class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
                         {{ region }}
                     </a>

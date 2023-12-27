@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <h1 class="display-5 text-center mt-3" id="page-header">
+        {{ page_title }}
+    </h1>
+
+    {% include 'collection/collection_selected__map__toolbar.html' %}
+
+    <!-- Карта -->
+    <div id="map" class="h-100 mt-3"></div>
+    <!-- ^^^ Карта -->
+
+    <script>
+        function displayCitiesOnMap() {
+            /**
+             * Отображает карту и генерирует на ней отметки с городами.
+             */
+            // Массив с городами региона
+            // ['latitude', 'longitude', 'city name', 'is_visited']
+            let cities = []
+            {% for city in cities %}
+                var is_visited = '{{ city.is_visited }}' === 'True';
+                cities.push([
+                    '{{ city.coordinate_width }}'.replace(/,/, '.'),
+                    '{{ city.coordinate_longitude }}'.replace(/,/, '.'),
+                    '{{ city.title }}',
+                    is_visited
+                ])
+            {% endfor %}
+
+            // Высчитываем центральную точку карты.
+            // Ей является средняя координата всех городов, отображённых на карте.
+            let array_x = Array();
+            let array_y = Array();
+
+            // Добавляем все координаты в один массив и находим большее и меньшее значения из них,
+            // а затем вычисляем среднее, это и будет являться центром карты.
+            for (let i = 0; i < cities.length; i++) {
+                array_y.push(parseFloat(cities[i][0]));
+                array_x.push(parseFloat(cities[i][1]));
+            }
+            let max_x = Math.max(...array_x);
+            let min_x = Math.min(...array_x);
+            let max_y = Math.max(...array_y);
+            let min_y = Math.min(...array_y);
+            let average_x = (max_x + min_x) / 2;
+            let average_y = (max_y + min_y) / 2;
+
+            // Меняем масштаб карты в зависимости от расположения городов
+            let zoom;
+            let diff_y = max_y - min_y;
+            let diff_x = max_x - min_x;
+            let diff = diff_y > diff_x ? diff_y : diff_x;
+            if (diff_y > diff_x) {
+                if (diff <= 1) {
+                    zoom = 9;
+                } else if (diff > 1 && diff <= 2) {
+                    zoom = 8;
+                } else if (diff > 2 && diff <= 5) {
+                    zoom = 7;
+                } else if (diff > 5 && diff <= 6) {
+                    zoom = 6;
+                } else if (diff > 6 && diff <= 25) {
+                    zoom = 5;
+                } else {
+                    zoom = 4;
+                }
+            } else {
+                if (diff <= 1) {
+                    zoom = 9;
+                } else if (diff > 1 && diff <= 4) {
+                    zoom = 8;
+                } else if (diff > 4 && diff <= 7) {
+                    zoom = 7;
+                } else if (diff > 7 && diff <= 13) {
+                    zoom = 6;
+                } else if (diff > 13 && diff <= 30) {
+                    zoom = 5;
+                } else {
+                    zoom = 4;
+                }
+            }
+
+            // Отображаем карту на странице
+            var myMap = new ymaps.Map("map", {
+                center: [average_y, average_x],
+                zoom: zoom,
+                controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
+            }, {
+                searchControlProvider: 'yandex#search'
+            });
+
+            // Отображаем на карте все города,
+            // меняя цвет иконки в зависимости от того, посещён город или нет
+            for (let i = 0; i < (cities.length); i++) {
+                let coordinateWidth = cities[i][0];
+                let coordinateLongitude = cities[i][1];
+                let city = cities[i][2]
+                let color = (cities[i][3] === true) ? '#009d31' :'#a45555'
+
+                myMap.geoObjects.add(
+                    new ymaps.Placemark(
+                        [coordinateWidth, coordinateLongitude], {
+                        balloonContent: city }, {
+                        preset: 'islands#dotIcon', iconColor: color
+                    }));
+            }
+        }
+
+        // Дожидаемся загрузки API
+        ymaps.ready(displayCitiesOnMap);
+    </script>
+{% endblock %}

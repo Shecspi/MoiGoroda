@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 import environ
+import sentry_sdk
 from django.core.exceptions import ImproperlyConfigured
 
 env = environ.Env()
@@ -97,7 +98,7 @@ WSGI_APPLICATION = 'MoiGoroda.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': env('DATABASE_ENGINE'),
         'NAME': env('DATABASE_NAME'),
         'USER': env('DATABASE_USER'),
         'PASSWORD': env('DATABASE_PASSWORD'),
@@ -174,7 +175,6 @@ if not os.path.exists(os.path.dirname(LOG_FIlE_PATH)):
     os.mkdir(os.path.dirname(LOG_FIlE_PATH))
 if not os.path.exists(LOG_FIlE_PATH):
     open(LOG_FIlE_PATH, 'a').close()
-
 
 LOGGING = {
     'version': 1,
@@ -277,7 +277,7 @@ LOGGING = {
         'django': {
             'level': 'INFO',
             'propogate': True,
-            'handlers': ['to_console_django', 'to_file_django', 'to_email_general']
+            'handlers': ['to_console_django', 'to_file_django']
         }
     }
 }
@@ -306,3 +306,17 @@ MARKDOWNIFY = {
 }
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'unsafe-none'
+
+################
+# -- Sentry -- #
+################
+sentry_sdk.init(
+    dsn=env('SENTRY_TOKEN'),
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)

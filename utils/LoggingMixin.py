@@ -23,6 +23,25 @@ class LoggingMixin:
             }
         )
 
+    def set_critical_message(
+            self,
+            request: HttpRequest,
+            message: str,
+            logger_name: str = 'base'
+    ):
+        """
+        Формирует сообщение, которое будет записано в логи, на основе текста 'message'.
+        По-умолчанию используется базовый логгер 'base', но в случае необходимости его можно переопределить.
+        """
+        logger = logging.getLogger(logger_name)
+        logger.critical(
+            f'{message}   {request.get_full_path()}',
+            extra={
+                'IP': self.__get_client_ip(request),
+                'user': request.user.username or '<GUEST>'
+            }
+        )
+
     @staticmethod
     def __get_client_ip(request: HttpRequest):
         """

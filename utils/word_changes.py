@@ -12,7 +12,6 @@ def change__city(num: int) -> str:
     """
     Возвращает правильную форму слова 'город' в зависимости от количества 'num'.
     """
-    print(num)
     if num == 1:
         return 'город'
     elif 5 <= num <= 20:

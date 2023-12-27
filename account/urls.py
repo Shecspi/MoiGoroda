@@ -14,7 +14,7 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
 
     path('stats/', views.Stats.as_view(), name='stats'),
-    path('profile/update/', views.UpdateUser.as_view(), name='update_user'),
+    path('profile/', views.Profile.as_view(), name='profile'),
 
     # -----  Сброс пароля  ----- #
     path('password/reset',

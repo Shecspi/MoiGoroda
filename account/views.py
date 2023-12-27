@@ -10,7 +10,8 @@ from django.db.models import Count, Q, F, FloatField
 from django.db.models.functions import Cast
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, UpdateView
+from django.views import View
+from django.views.generic import CreateView, DetailView, UpdateView, TemplateView, FormView
 
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
@@ -90,7 +91,7 @@ def signup_success(request):
     return render(request, 'account/signup_success.html')
 
 
-class Stats(LoginRequiredMixin, LoggingMixin, DetailView):
+class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
     """
     Отображает страницу профиля пользователя.
     На этой странице отображается вся статистика пользователя,
@@ -100,14 +101,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, DetailView):
 
     > Доступ на эту страницу возможен только авторизованным пользователям.
     """
-    model = User
     template_name = 'account/stats.html'
-
-    def get_object(self, queryset=None):
-        """
-        Убирает необходимость указывать ID пользователя в URL, используя сессионный ID.
-        """
-        return get_object_or_404(User, pk=self.request.user.pk)
 
     def get(self, *args, **kwargs):
         self.set_message(self.request, 'Viewing the profile page')
@@ -227,22 +221,32 @@ class Stats(LoginRequiredMixin, LoggingMixin, DetailView):
         return context
 
 
-class UpdateUser(LoginRequiredMixin, UpdateView):
-    """
-    Обновляет данные пользователя.
-
-    > Доступ на эту страницу возможен только авторизованным пользователям.
-    """
-    model = User
+class Profile(LoginRequiredMixin, UpdateView):
     form_class = UpdateProfileForm
     success_url = reverse_lazy('profile')
+    template_name = 'account/profile.html'
 
     def get_object(self, queryset=None):
-        return self.request.user
+        """
+        Убирает необходимость указывать ID пользователя в URL, используя сессионный ID.
+        """
+        return get_object_or_404(User, pk=self.request.user.pk)
 
     def form_valid(self, form):
+        """
+        Переопределение этого метода нужно только для того, чтобы произвести запись в лог.
+        """
         logger_basic.info(f"Updating user's information: {self.request.user.username} ({self.request.user.email})")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['active_page'] = 'profile'
+        context['page_title'] = 'Профиль'
+        context['page_description'] = 'Просмотр и изменения персональной информации'
+
+        return context
 
 
 class MyPasswordChangeView(PasswordChangeView):

@@ -90,7 +90,7 @@ def signup_success(request):
     return render(request, 'account/signup_success.html')
 
 
-class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
+class Stats(LoginRequiredMixin, LoggingMixin, DetailView):
     """
     Отображает страницу профиля пользователя.
     На этой странице отображается вся статистика пользователя,
@@ -101,7 +101,7 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
     > Доступ на эту страницу возможен только авторизованным пользователям.
     """
     model = User
-    template_name = 'account/profile.html'
+    template_name = 'account/stats.html'
 
     def get_object(self, queryset=None):
         """
@@ -122,14 +122,13 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
 
         # Статистика по городам
         visited_cities = VisitedCity.objects.filter(user=user)
-        last_cities = visited_cities.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')[:5]
+        last_cities = visited_cities.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')[:10]
 
         num_cities_this_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year).count()
         num_cities_prev_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year - 1).count()
         num_cities_2_year = num_cities_prev_year + num_cities_this_year
         ratio_cities_this_year = calculate_ratio(num_cities_this_year, num_cities_2_year)
-        print(num_cities_this_year, num_cities_prev_year, num_cities_2_year)
-        ratio_cities_prev_year = calculate_ratio(num_cities_prev_year, num_cities_2_year)
+        ratio_cities_prev_year = 100 - ratio_cities_this_year
 
         num_visited_cities = visited_cities.count()
         num_all_cities = City.objects.count()
@@ -220,9 +219,10 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
         }
         context['areas'] = areas
 
-        context['active_page'] = 'profile'
-        context['page_title'] = 'Профиль'
-        context['page_description'] = 'Здесь отображается подробная информация о Ваших посещённых городах'
+        context['active_page'] = 'stats'
+        context['page_title'] = 'Личная статистика'
+        context['page_description'] = 'Здесь отображается подробная информация о результатах Ваших путешествий' \
+                                      ' - посещённые города, регионы и федеральнаые округа'
 
         return context
 

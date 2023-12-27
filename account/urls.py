@@ -13,7 +13,7 @@ urlpatterns = [
 
     path('logout/', LogoutView.as_view(), name='logout'),
 
-    path('profile/', views.Profile_Detail.as_view(), name='profile'),
+    path('stats/', views.Stats.as_view(), name='stats'),
     path('profile/update/', views.UpdateUser.as_view(), name='update_user'),
 
     # -----  Сброс пароля  ----- #

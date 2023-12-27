@@ -128,6 +128,7 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
         num_cities_prev_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year - 1).count()
         num_cities_2_year = num_cities_prev_year + num_cities_this_year
         ratio_cities_this_year = calculate_ratio(num_cities_this_year, num_cities_2_year)
+        print(num_cities_this_year, num_cities_prev_year, num_cities_2_year)
         ratio_cities_prev_year = calculate_ratio(num_cities_prev_year, num_cities_2_year)
 
         num_visited_cities = visited_cities.count()
@@ -195,7 +196,7 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
             .order_by('-ratio_visited', 'title')
         )
 
-        context['queryset'] = {
+        context['cities'] = {
             'num_visited': num_visited_cities,
             'num_not_visited': num_not_visited_cities,
             'num_all': num_all_cities,

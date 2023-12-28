@@ -19,7 +19,6 @@ from city.models import VisitedCity, City
 from utils.LoggingMixin import LoggingMixin
 
 logger_email = logging.getLogger(__name__)
-logger_basic = logging.getLogger('moi-goroda')
 
 
 class SignUp(CreateView):
@@ -81,8 +80,7 @@ class SignIn(LoginView):
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Вход'
-        context[
-            'page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
+        context['page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
 
         return context
 
@@ -93,9 +91,7 @@ def signup_success(request):
 
 class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
     """
-    Отображает страницу профиля пользователя.
-    На этой странице отображается вся статистика пользователя,
-    а также возможно изменить его данные.
+    Отображает страницу со статистикой пользователя.
 
     ID пользователя берётся из сессии, поэтому просмотр данных другого пользователя недоступен.
 
@@ -104,7 +100,10 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
     template_name = 'account/stats.html'
 
     def get(self, *args, **kwargs):
-        self.set_message(self.request, 'Viewing the profile page')
+        self.set_message(
+            self.request,
+            f"Viewing stats: {self.request.user.username} ({self.request.user.email})"
+        )
 
         return super().get(*args, **kwargs)
 
@@ -112,7 +111,6 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         user = self.request.user.pk
-        logger_basic.info(f'Viewing a profile: {self.request.user.username} ({self.request.user.email})')
 
         # Статистика по городам
         visited_cities = VisitedCity.objects.filter(user=user)
@@ -221,7 +219,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         return context
 
 
-class Profile(LoginRequiredMixin, UpdateView):
+class Profile(LoginRequiredMixin, LoggingMixin, UpdateView):
     form_class = UpdateProfileForm
     success_url = reverse_lazy('profile')
     template_name = 'account/profile.html'
@@ -236,7 +234,10 @@ class Profile(LoginRequiredMixin, UpdateView):
         """
         Переопределение этого метода нужно только для того, чтобы произвести запись в лог.
         """
-        logger_basic.info(f"Updating user's information: {self.request.user.username} ({self.request.user.email})")
+        self.set_message(
+            self.request,
+            f"Updating user's information: {self.request.user.username} ({self.request.user.email})"
+        )
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):

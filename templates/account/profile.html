@@ -1,56 +1,20 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3" id="block-page_header">
-        Профиль
-    </h1>
+    <h1 class="display-5 text-center mt-3"
+        id="change_password-section-page_header">Профиль</h1>
 
-    <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list-content">
-        <div class="col-xl-4 order-last order-xl-first">
-            {% include 'account/profile__left_side.html' %}
-        </div>
-
-        <div class="col-xl-8 order-first order-xl-last">
-            {% include 'account/profile__right_side.html' %}
+    <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto"
+         id="change_password-section-card">
+        <div class="col-xl-6">
+            <div class="card shadow p-3">
+                <div class="card-body">
+                    <form method="post">
+                        {% crispy form %}
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-
-    <script>
-        let editButton = document.getElementById('editButton');
-        let cancelButton = document.getElementById('cancelButton');
-        let changePasswordButton = document.getElementById('changePasswordButton');
-        let confirmButton = document.getElementById('confirmButton');
-
-        let usernameDiv = document.getElementById('usernameDiv');
-        let nameDiv = document.getElementById('nameDiv');
-        let emailDiv = document.getElementById('emailDiv');
-        let editDiv = document.getElementById('editDiv');
-        let changePasswordDiv = document.getElementById('changePasswordDiv');
-
-        // Нажатие на кнопку "Редактриовать" - появляется форма
-        editButton.onclick = function() {
-            usernameDiv.innerHTML = '<input type="text" class="form-control form-control-sm" name="username" placeholder="Логин" value="{{ user.username }}">';
-            nameDiv.innerHTML = '<div class="form-row">' +
-                '<div class="col"><input type="text" class="form-control form-control-sm" col-6 name="first_name" placeholder="Имя" value="{{ user.first_name }}"></div>' +
-                '<div class="col"><input type="text" class="form-control form-control-sm" name="last_name" placeholder="Фамилия" value="{{ user.last_name }}"></div>';
-            emailDiv.innerHTML = '<input type="text" class="form-control form-control-sm" name="email" placeholder="Email" value="{{ user.email }}">';
-
-            editButton.style.display = 'none';
-            changePasswordButton.style.display = 'none';
-            cancelButton.style.display = 'block';
-            confirmButton.style.display = 'block';
-        };
-
-        // Нажатие на кнопку "Отменить" - форма убирается, остаётся простой текст
-        cancelButton.onclick = function() {
-            usernameDiv.innerHTML = '{{ user.username }}';
-            nameDiv.innerHTML = '{{ user.first_name }} {{ user.last_name }}';
-            emailDiv.innerHTML = '{{ user.email }}';
-
-            editButton.style.display = 'block';
-            changePasswordButton.style.display = 'block';
-            cancelButton.style.display = 'none';
-            confirmButton.style.display = 'none';
-        }
-    </script>
 {% endblock %}

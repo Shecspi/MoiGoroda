@@ -10,7 +10,8 @@ from django.db.models import Count, Q, F, FloatField
 from django.db.models.functions import Cast
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, UpdateView
+from django.views import View
+from django.views.generic import CreateView, DetailView, UpdateView, TemplateView, FormView
 
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
@@ -18,7 +19,6 @@ from city.models import VisitedCity, City
 from utils.LoggingMixin import LoggingMixin
 
 logger_email = logging.getLogger(__name__)
-logger_basic = logging.getLogger('moi-goroda')
 
 
 class SignUp(CreateView):
@@ -80,8 +80,7 @@ class SignIn(LoginView):
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Вход'
-        context[
-            'page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
+        context['page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
 
         return context
 
@@ -90,27 +89,21 @@ def signup_success(request):
     return render(request, 'account/signup_success.html')
 
 
-class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
+class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
     """
-    Отображает страницу профиля пользователя.
-    На этой странице отображается вся статистика пользователя,
-    а также возможно изменить его данные.
+    Отображает страницу со статистикой пользователя.
 
     ID пользователя берётся из сессии, поэтому просмотр данных другого пользователя недоступен.
 
     > Доступ на эту страницу возможен только авторизованным пользователям.
     """
-    model = User
-    template_name = 'account/profile.html'
-
-    def get_object(self, queryset=None):
-        """
-        Убирает необходимость указывать ID пользователя в URL, используя сессионный ID.
-        """
-        return get_object_or_404(User, pk=self.request.user.pk)
+    template_name = 'account/stats.html'
 
     def get(self, *args, **kwargs):
-        self.set_message(self.request, 'Viewing the profile page')
+        self.set_message(
+            self.request,
+            f"Viewing stats: {self.request.user.username} ({self.request.user.email})"
+        )
 
         return super().get(*args, **kwargs)
 
@@ -118,17 +111,16 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         user = self.request.user.pk
-        logger_basic.info(f'Viewing a profile: {self.request.user.username} ({self.request.user.email})')
 
         # Статистика по городам
         visited_cities = VisitedCity.objects.filter(user=user)
-        last_cities = visited_cities.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')[:5]
+        last_cities = visited_cities.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')[:10]
 
         num_cities_this_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year).count()
         num_cities_prev_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year - 1).count()
         num_cities_2_year = num_cities_prev_year + num_cities_this_year
         ratio_cities_this_year = calculate_ratio(num_cities_this_year, num_cities_2_year)
-        ratio_cities_prev_year = calculate_ratio(num_cities_prev_year, num_cities_2_year)
+        ratio_cities_prev_year = 100 - ratio_cities_this_year
 
         num_visited_cities = visited_cities.count()
         num_all_cities = City.objects.count()
@@ -195,7 +187,7 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
             .order_by('-ratio_visited', 'title')
         )
 
-        context['queryset'] = {
+        context['cities'] = {
             'num_visited': num_visited_cities,
             'num_not_visited': num_not_visited_cities,
             'num_all': num_all_cities,
@@ -219,29 +211,43 @@ class Profile_Detail(LoginRequiredMixin, LoggingMixin, DetailView):
         }
         context['areas'] = areas
 
-        context['active_page'] = 'profile'
-        context['page_title'] = 'Профиль'
-        context['page_description'] = 'Здесь отображается подробная информация о Ваших посещённых городах'
+        context['active_page'] = 'stats'
+        context['page_title'] = 'Личная статистика'
+        context['page_description'] = 'Здесь отображается подробная информация о результатах Ваших путешествий' \
+                                      ' - посещённые города, регионы и федеральнаые округа'
 
         return context
 
 
-class UpdateUser(LoginRequiredMixin, UpdateView):
-    """
-    Обновляет данные пользователя.
-
-    > Доступ на эту страницу возможен только авторизованным пользователям.
-    """
-    model = User
+class Profile(LoginRequiredMixin, LoggingMixin, UpdateView):
     form_class = UpdateProfileForm
     success_url = reverse_lazy('profile')
+    template_name = 'account/profile.html'
 
     def get_object(self, queryset=None):
-        return self.request.user
+        """
+        Убирает необходимость указывать ID пользователя в URL, используя сессионный ID.
+        """
+        return get_object_or_404(User, pk=self.request.user.pk)
 
     def form_valid(self, form):
-        logger_basic.info(f"Updating user's information: {self.request.user.username} ({self.request.user.email})")
+        """
+        Переопределение этого метода нужно только для того, чтобы произвести запись в лог.
+        """
+        self.set_message(
+            self.request,
+            f"Updating user's information: {self.request.user.username} ({self.request.user.email})"
+        )
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['active_page'] = 'profile'
+        context['page_title'] = 'Профиль'
+        context['page_description'] = 'Просмотр и изменения персональной информации'
+
+        return context
 
 
 class MyPasswordChangeView(PasswordChangeView):

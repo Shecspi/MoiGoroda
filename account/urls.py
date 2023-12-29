@@ -13,8 +13,8 @@ urlpatterns = [
 
     path('logout/', LogoutView.as_view(), name='logout'),
 
-    path('profile/', views.Profile_Detail.as_view(), name='profile'),
-    path('profile/update/', views.UpdateUser.as_view(), name='update_user'),
+    path('stats/', views.Stats.as_view(), name='stats'),
+    path('profile/', views.Profile.as_view(), name='profile'),
 
     # -----  Сброс пароля  ----- #
     path('password/reset',

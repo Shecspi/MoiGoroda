@@ -10,6 +10,7 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
+from django.contrib.auth.models import User
 from django.db import models
 from mdeditor.fields import MDTextField
 
@@ -39,6 +40,7 @@ class News(models.Model):
         auto_now=True,
         verbose_name='Дата изменения'
     )
+    users_read = models.ManyToManyField(User)
 
     class Meta:
         ordering = ['-created']

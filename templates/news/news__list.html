@@ -13,10 +13,19 @@
             {% for item in object_list %}
                 <div class="card p-3 my-3 shadow">
                     <div class="card-body">
-                        <div class="card-text">
-                            {{ item.content|markdownify }}
+                        <div class="card-text d-flex justify-content-between">
+                            <span>{{ item.content|markdownify }}</span>
+                            <span>
+                                {% if item.is_read %}
+                                    <i class="fa-regular fa-envelope-open"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-envelope"></i>
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
+
+                    <hr>
 
                     <div class="card-footer" style="background: none; border-top: none;">
                         <div class="d-flex justify-content-between">

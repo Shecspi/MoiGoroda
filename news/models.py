@@ -40,7 +40,7 @@ class News(models.Model):
         auto_now=True,
         verbose_name='Дата изменения'
     )
-    users_read = models.ManyToManyField(User)
+    users_read = models.ManyToManyField(User, null=True, blank=True)
 
     class Meta:
         ordering = ['-created']

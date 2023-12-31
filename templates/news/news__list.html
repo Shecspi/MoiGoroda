@@ -25,9 +25,13 @@
                             <div class="fw-lighter text-muted">
                                 {% if user.is_authenticated %}
                                     {% if item.is_read %}
-                                        <i class="fa-regular fa-envelope-open"></i>&nbsp;&nbsp;&nbsp;Прочитано
+                                        <span>
+                                            <i class="fa-regular fa-envelope-open"></i>&nbsp;&nbsp;&nbsp;Прочитано
+                                        </span>
                                     {% else %}
-                                        <i class="fa-solid fa-envelope"></i>&nbsp;&nbsp;&nbsp;Новая новость
+                                        <span class="text-danger fw-bolder">
+                                            <i class="fa-solid fa-envelope"></i>&nbsp;&nbsp;&nbsp;Не прочитано
+                                        </span>
                                     {% endif %}
                                 {% endif %}
                             </div>

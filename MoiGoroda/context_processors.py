@@ -8,10 +8,12 @@ environ.Env.read_env()
 
 
 def general_settings(request):
-    # Список ID новостей, которые пользователь уже прочитал
-    users_read_news = News.users_read.through.objects.filter(user_id=request.user).values_list('news_id', flat=True)
-    # True, если есть хотя бы одна новость, ID которой нет в user_read_news
-    has_unread_news = News.objects.filter(~Q(id__in=users_read_news)).exists()
+    has_unread_news = False
+    if request.user.is_authenticated:
+        # Список ID новостей, которые пользователь уже прочитал
+        users_read_news = News.users_read.through.objects.filter(user_id=request.user).values_list('news_id', flat=True)
+        # True, если есть хотя бы одна новость, ID которой нет в user_read_news
+        has_unread_news = News.objects.filter(~Q(id__in=users_read_news)).exists()
 
     context = {
         'SITE_NAME': env('SITE_NAME'),

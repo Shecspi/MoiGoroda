@@ -33,11 +33,12 @@ class NewsList(ListView, LoggingMixin):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.annotate(
-            is_read=Exists(
-                News.users_read.through.objects.filter(user_id=self.request.user, news_id=OuterRef('pk'))
+        if self.request.user.is_authenticated:
+            queryset = queryset.annotate(
+                is_read=Exists(
+                    News.users_read.through.objects.filter(user_id=self.request.user, news_id=OuterRef('pk'))
+                )
             )
-        )
 
         return queryset
 
@@ -49,9 +50,10 @@ class NewsList(ListView, LoggingMixin):
         # удалось получить доступ к записям после пагинации.
         # get_queryset() возвращает все записи без лимитов,
         # а отмечать прочитанными нужно только новости с текущей страницы
-        for news in context['object_list']:
-            if not news.is_read:
-                news.users_read.add(self.request.user)
+        if self.request.user.is_authenticated:
+            for news in context['object_list']:
+                if not news.is_read:
+                    news.users_read.add(self.request.user)
 
         context['active_page'] = 'news'
         context['page_title'] = 'Новости'

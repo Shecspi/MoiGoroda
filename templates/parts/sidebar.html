@@ -65,10 +65,14 @@
         </li>
         <li>
             <a href="{% url 'news-list' %}"
-               class="text-decoration-none px-3 py-2 d-block{% if active_page == 'news' %} active{% endif %} d-flex justify-content-between align-top">
-                <span><i class="fa-regular fa-newspaper"></i>&nbsp;&nbsp;&nbsp;Новости</span>
+               class="text-decoration-none px-3 py-2 d-block{% if active_page == 'news' %} active{% endif %}">
+                <span>
+                    <i class="fa-regular fa-newspaper"></i>&nbsp;&nbsp;&nbsp;Новости
+                </span>
                 {% if has_unread_news %}
-                    <span class="badge rounded-pill text-bg-danger align-middle">NEW</span>
+                    &nbsp;&nbsp;&nbsp;<span class="badge bg-danger">
+                        <i class="fa-solid fa-comment-dots"></i> Новые
+                    </span>
                 {% endif %}
             </a>
         </li>

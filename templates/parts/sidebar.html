@@ -63,12 +63,11 @@
                 <i class="fa-solid fa-list-check"></i>&nbsp;&nbsp;&nbsp;Коллекции городов
             </a>
         </li>
-        <li>
+        <li id="sidebar_news">
             <a href="{% url 'news-list' %}"
+               id="sidebar_news_link"
                class="text-decoration-none px-3 py-2 d-block{% if active_page == 'news' %} active{% endif %}">
-                <span>
-                    <i class="fa-regular fa-newspaper"></i>&nbsp;&nbsp;&nbsp;Новости
-                </span>
+                <i class="fa-regular fa-newspaper"></i>&nbsp;&nbsp;&nbsp;Новости
                 {% if has_unread_news %}
                     &nbsp;&nbsp;&nbsp;<span class="badge bg-danger">
                         <i class="fa-solid fa-comment-dots"></i> Новые

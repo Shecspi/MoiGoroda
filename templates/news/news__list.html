@@ -11,7 +11,7 @@
     <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center">
         <div class="col-xxl-7 col-xl-9">
             {% for item in object_list %}
-                <div class="card p-3 my-3 shadow">
+                <div class="card p-3 my-3 shadow" id="news_{{ item.id }}">
                     <div class="card-body">
                         <div class="card-text">
                             {{ item.content|markdownify }}

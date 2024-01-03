@@ -21,7 +21,8 @@ def general_settings(request):
         'API_YANDEX_MAP': env('API_YANDEX_MAP'),
         'YANDEX_METRIKA': env('YANDEX_METRIKA'),
         'SUPPORT_EMAIL': env('DEFAULT_FROM_EMAIL'),
-        'has_unread_news': has_unread_news
+        'has_unread_news': has_unread_news,
+        'DONATE_LINK': env('DONATE_LINK')
     }
 
     return context

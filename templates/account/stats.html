@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-5 text-center mt-3" id="block-page_header">
+        Личная статистика
+    </h1>
+
+    <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list-content">
+        <div class="col-xl-4 order-last order-xl-first">
+            {% include 'account/stats__cities.html' %}
+        </div>
+
+        <div class="col-xl-4 order-last order-xl-first">
+            {% include 'account/stats__regions.html' %}
+        </div>
+
+        <div class="col-xl-4 order-last order-xl-first">
+            {% include 'account/stats__areas.html' %}
+        </div>
+
+{#        <div class="col-xl-8 order-first order-xl-last">#}
+{#            {% include 'account/profile__right_side.html' %}#}
+{#        </div>#}
+    </div>
+{% endblock %}

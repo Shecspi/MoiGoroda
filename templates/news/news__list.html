@@ -11,21 +11,33 @@
     <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center">
         <div class="col-xxl-7 col-xl-9">
             {% for item in object_list %}
-                <div class="card p-3 my-3 shadow">
+                <div class="card p-3 my-3 shadow" id="news_{{ item.id }}">
                     <div class="card-body">
                         <div class="card-text">
                             {{ item.content|markdownify }}
                         </div>
                     </div>
 
-                    <div class="card-footer" style="background: none; border-top: none;">
+                    <hr>
+
+                    <div class="card-footer small" style="background: none; border-top: none;">
                         <div class="d-flex justify-content-between">
                             <div class="fw-lighter text-muted">
-                                <span class="fw-medium">Создано:</span> {{ item.created }}
+                                {% if user.is_authenticated %}
+                                    {% if item.is_read %}
+                                        <span>
+                                            <i class="fa-regular fa-envelope-open"></i>&nbsp;&nbsp;&nbsp;Прочитано
+                                        </span>
+                                    {% else %}
+                                        <span class="text-danger fw-bolder">
+                                            <i class="fa-solid fa-envelope"></i>&nbsp;&nbsp;&nbsp;Не прочитано
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
                             </div>
 
                             <div class="fw-lighter text-muted">
-                                <span class="fw-medium">Изменено:</span> {{ item.last_modified }}
+                                <span class="fw-medium">Создано:</span> {{ item.created }}
                             </div>
                         </div>
                     </div>

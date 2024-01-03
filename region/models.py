@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import CASCADE
-
+from django.urls import reverse
 
 TYPES_OF_REGIONS = [
     ('R', 'республика'),
@@ -78,3 +78,6 @@ class Region(models.Model):
         # Во всех остальных случаях выводим название + тип субъекта
         else:
             return self.title + ' ' + self.get_type_display().lower()
+
+    def get_absolute_url(self):
+        return reverse('region-selected-list', kwargs={'pk': self.pk})

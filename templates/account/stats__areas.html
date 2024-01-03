@@ -24,8 +24,13 @@
                 </div>
 
                 <div class="progress mb-3" style="height: 10px">
-                    <div class="progress-bar-striped bg-secondary progressArea" role="progressbar" style="width: {% widthratio area.visited_regions area.total_regions 100 %}%"
-                         aria-valuenow="{% widthratio area.visited_regions area.total_regions 100 %}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar bg-secondary progressArea"
+                         role="progressbar"
+                         style="width: {{ area.ratio_visited|floatformat:0 }}%"
+                         aria-valuenow="{{ area.ratio_visited|floatformat:0 }}"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                    ></div>
                 </div>
             {% empty %}
                 Вы ещё не посетили ни одного федерального округа.

@@ -20,7 +20,7 @@ class CitiesByRegionMixin:
     @staticmethod
     def declension_of_city(quantity: int) -> str:
         """
-        Возвращает правильное склонение слова 'город' в зависимости от количества 'quantity'.
+        Возвращает правильное склонение слова 'город' в зависимости от количества 'num'.
         """
         if quantity == 1:
             return 'город'

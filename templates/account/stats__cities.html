@@ -1,0 +1,86 @@
+<div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="align-self-center mb-0">
+                Города
+            </h4>
+            <i class="fa-regular fa-circle-question fs-4 text-body-secondary" data-bs-toggle="tooltip"
+                 data-bs-title="Отображается 5 последних посещённых городов"></i>
+        </div>
+
+        {% if cities.last_visited %}
+            <ul class="list-group list-group-flush mt-3">
+                {% for city in cities.last_visited %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between small">
+                            <a href="{{ city.get_absolute_url }}"
+                               class="link-offset-2 link-underline-dark link-dark
+                                      link-underline-opacity-50-hover link-opacity-50-hover">
+                                {{ city }}
+                            </a>
+                            {{ city.date_of_visit }}
+                        </div>
+                    </li>
+                {% endfor %}
+
+                <li class="list-group-item">
+                    <!-- Прогресс-бар "Количество посещённых городов" -->
+                    <div class="d-flex justify-content-between mt-2 small">
+                        <span>
+                            Всего посещено: {{ cities.num_visited }}
+                        </span>
+                        <span>
+                            Осталось: {{ cities.num_not_visited }}
+                        </span>
+                    </div>
+                    <div class="progress mb-3 mt-1" style="height: 10px">
+                        <div class="progress-bar bg-primary" role="progressbar"
+                             style="width: {{ cities.ratio_visited }}%"
+                             aria-valuenow="{{ cities.ratio_visited }}"
+                             aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-primary-subtle" role="progressbar"
+                             style="width: {{ cities.ratio_not_visited }}%"
+                             aria-valuenow="{{ cities.ratio_not_visited }}"
+                             aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <!-- ^^^ Прогресс-бар "Количество посещённых городов" -->
+
+                    <!-- Прогресс-бар "Количество посещённых городов по годам" -->
+                    <div class="d-flex justify-content-between mt-2 small">
+                        <span>
+                            В этом году: {{ cities.visited_this_year }}
+                        </span>
+                        <span>
+                            В прошлом году: {{ cities.visited_prev_year }}
+                        </span>
+                    </div>
+                    <div class="progress mb-3 mt-1" style="height: 10px">
+                        <div class="progress-bar bg-danger" role="progressbar"
+                             style="width: {{ cities.ratio_this_year }}%"
+                             aria-valuenow="{{ cities.ratio_this_year }}"
+                             aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-danger-subtle" role="progressbar"
+                             style="width: {{ cities.ratio_prev_year }}%"
+                             aria-valuenow="{{ cities.ratio_prev_year }}"
+                             aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <!-- ^^^ Прогресс-бар "Количество посещённых городов по годам" -->
+                </li>
+
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-end small">
+                        <a href="{% url 'city-all-list' %}"
+                           class="link-offset-2 link-underline-dark link-dark
+                                  link-underline-opacity-50-hover link-opacity-50-hover">
+                            Посмотреть все
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
+                Вы ещё не посетили ни одного города.
+            </div>
+        {% endif %}
+    </div>
+</div>

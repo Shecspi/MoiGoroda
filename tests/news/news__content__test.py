@@ -57,7 +57,10 @@ def test__access__auth_user(setup_db__news, client):
 
 @pytest.mark.django_db
 def test__news__unreaded_message__guest(setup_db__news, client):
-    response = client.get(url)
+    """
+    У неавторизованного пользовавтеля в карточке новости не должно быть
+    никакой информации о том, прочитана эта новость или нет.
+    """
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
@@ -70,6 +73,10 @@ def test__news__unreaded_message__guest(setup_db__news, client):
 
 @pytest.mark.django_db
 def test__news__unreaded_message__auth_user(setup_db__news, client):
+    """
+    При первом заходе на страницу новостей авторизованным пользователем
+    непрочитанная новость должна иметь соответствующую пометку.
+    """
     client.login(username='username', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -83,6 +90,10 @@ def test__news__unreaded_message__auth_user(setup_db__news, client):
 
 @pytest.mark.django_db
 def test__news__read_messages__auth_user(setup_db__news, client):
+    """
+    При первом прочтении новости авторизованным пользователем она помечается как прочитанная
+    и при повторном заходе на страницу новость должна быть отмечена как прочитанная.
+    """
     client.login(username='username', password='password')
 
     # После первого открытия страницы новость должна отображаться как непрочитанная
@@ -106,6 +117,10 @@ def test__news__read_messages__auth_user(setup_db__news, client):
 
 @pytest.mark.django_db
 def test__news__unread_messages__sidebar__auth_user(setup_db__news, client):
+    """
+    При заходе на любую страницу сайта авторизованный пользователь должен видеть уведомление
+    о наличии непрочитанных новостей (в случае, если они имеются)
+    """
     client.login(username='username', password='password')
     # Проверять нужно на другой странице (не на новостях),
     # так как непрочитанная новость сразу же помечается прочитанной и бейджик не отображается в сайдбаре
@@ -122,6 +137,9 @@ def test__news__unread_messages__sidebar__auth_user(setup_db__news, client):
 
 @pytest.mark.django_db
 def test__news__read_messages__sidebar__auth_user(setup_db__news, client):
+    """
+    Если непрочитанных новостей нет, то и уведомления на сайдбаре не должно быть.
+    """
     client.login(username='username', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -135,6 +153,9 @@ def test__news__read_messages__sidebar__auth_user(setup_db__news, client):
 
 @pytest.mark.django_db
 def test__news__read_messages__sidebar__guest(setup_db__news, client):
+    """
+    Для неавторизованных пользователей на сайдбаре никаких уведомлений быть не должно.
+    """
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     sidebar_news = source.find('div', {'class': 'sidebar'}).find('ul').find('li', {'id': 'sidebar_news'})

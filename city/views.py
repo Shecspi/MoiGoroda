@@ -331,4 +331,4 @@ def get_cities_based_on_region(request):
         cities = City.objects.filter(region_id=region_id).order_by('title')
     except ValueError:
         cities = None
-    return render(request, 'city/city_create__dropdown_list.html', {'queryset': cities})
+    return render(request, 'city/city_create__dropdown_list.html', {'cities': cities})

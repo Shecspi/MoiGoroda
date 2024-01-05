@@ -1,1 +1,136 @@
-Hello
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-5 text-center mt-3" id="section-page_header">
+        Dashboard
+    </h1>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Всего пользователей
+                    </p>
+                    <h1>
+                        {{ qty_users }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Регистраций за вчера
+                    </p>
+                    <h1>
+                        {{ qty_registrations_yesteday }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Регистраций за 7 дней
+                    </p>
+                    <h1>
+                        {{ qty_registrations_week }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Регистраций за 30 дней
+                    </p>
+                    <h1>
+                        {{ qty_registrations_month }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mx-3 mt-2 mb-3 g-3">
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        График регистраций
+                    </p>
+                    <canvas id="myChart" height="100"></canvas>
+                    <script>
+                        let data = {}
+                        {% for day in registrations_by_day %}
+                            data['{{ day.date }}'] = '{{ day.qty }}'
+                        {% endfor %}
+
+                        const ctx = document.getElementById('myChart').getContext('2d');
+
+                        const myChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: Object.keys(data),
+                                datasets: [
+                                    {
+                                        label: 'Количество регистраций',
+                                        data: Object.values(data),
+                                    },
+                                ],
+                            },
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Всего пользователей
+                    </p>
+                    <h1>
+                        {{ qty_users }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Посещено городов
+                    </p>
+                    <h1>
+                        {{ qty_visited_cities }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        В среднем у 1 пользователя
+                    </p>
+                    <h1>
+                        {{ average_cities }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

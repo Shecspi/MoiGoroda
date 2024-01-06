@@ -87,6 +87,11 @@
 
         {% if user.is_authenticated and user.is_staff %}
             <li>
+                <a href="{% url 'dashboard' %}" class="text-decoration-none px-3 py-2 d-block">
+                    <i class="fa-solid fa-chart-pie"></i>&nbsp;&nbsp;&nbsp;Dashboard
+                </a>
+            </li>
+            <li>
                 <a href="{% url 'admin:index' %}" class="text-decoration-none px-3 py-2 d-block">
                     <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;&nbsp;Админ-панель
                 </a>

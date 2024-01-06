@@ -69,7 +69,7 @@
                     <canvas id="myChart" height="100"></canvas>
                     <script>
                         let data = {}
-                        {% for day in registrations_by_day %}
+                        {% for day in registrations_by_day reversed %}
                             data['{{ day.date }}'] = '{{ day.qty }}'
                         {% endfor %}
 
@@ -83,6 +83,11 @@
                                     {
                                         label: 'Количество регистраций',
                                         data: Object.values(data),
+                                        borderColor: 'rgba(0,31,54,0.2)',
+                                        backgroundColor: 'rgba(51,171,255,0.2)',
+                                        borderWidth: 2,
+                                        borderRadius: 5,
+                                        borderSkipped: false,
                                     },
                                 ],
                             },
@@ -98,10 +103,10 @@
             <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
                 <div class="card-body">
                     <p class="fs-4">
-                        Всего пользователей
+                        Максимум
                     </p>
                     <h1>
-                        {{ qty_users }}
+                        {{ max_visited_cities }}
                     </h1>
                 </div>
             </div>

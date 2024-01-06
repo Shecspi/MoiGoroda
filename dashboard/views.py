@@ -1,6 +1,6 @@
 from datetime import timedelta, date, timezone
 
-from django.db.models import Count, F
+from django.db.models import Count, F, OuterRef, Subquery
 from django.contrib.auth.models import User
 from django.db.models.functions import TruncDay, TruncDate
 from django.views.generic import TemplateView
@@ -51,8 +51,20 @@ class Dashboard(TemplateView):
         context['average_cities'] = int(context['qty_visited_cities'] / context['qty_users'])
 
         # Максимальное количество посещённых городов 1 пользователем
-        # context['max_visited_cities'] = User.objects.annotate(
-        #     qty_visited_cities=VisitedCity.objects.filter(user=F('pk')).count()
-        # ).order_by('-qty_visited_cities')[0]
+        qty_visited_cities_by_user = (
+            User.objects
+            .annotate(qty_visited_cities=Subquery(VisitedCity.objects
+                                                  .filter(user=OuterRef('pk'))
+                                                  .values('user')
+                                                  .annotate(qty=Count('pk'))
+                                                  .values('qty')))
+            .values('username', 'qty_visited_cities')
+            .exclude(qty_visited_cities=None)
+            .order_by('-qty_visited_cities')
+        )
+        context['qty_visited_cities_by_user'] = qty_visited_cities_by_user[:50]
+
+        # Количество пользователей без посещённых городов
+        context['qty_user_without_visited_cities'] = context['qty_users'] - len(qty_visited_cities_by_user)
 
         return context

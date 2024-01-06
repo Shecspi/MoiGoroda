@@ -103,20 +103,7 @@
             <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
                 <div class="card-body">
                     <p class="fs-4">
-                        Максимум
-                    </p>
-                    <h1>
-                        {{ max_visited_cities }}
-                    </h1>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Посещено городов
+                        Общее количество посещенных городов
                     </p>
                     <h1>
                         {{ qty_visited_cities }}
@@ -129,11 +116,76 @@
             <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
                 <div class="card-body">
                     <p class="fs-4">
-                        В среднем у 1 пользователя
+                        Максимум городов у 1 пользователя
+                    </p>
+                    <h1>
+                        {{ qty_visited_cities_by_user.0.qty_visited_cities }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        В среднем городов у 1 пользователя
                     </p>
                     <h1>
                         {{ average_cities }}
                     </h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Количество пользователей без посещённых городов
+                    </p>
+                    <h1>
+                        {{ qty_user_without_visited_cities }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mx-3 mt-2 mb-3 g-3">
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Количество посещённых городов по каждому пользователю
+                    </p>
+                    <canvas id="chart_qty_visited_cities" height="100"></canvas>
+                    <script>
+                        let visited_cities = {}
+                        {% for user in qty_visited_cities_by_user reversed %}
+                            visited_cities['{{ user.username }}'] = '{{ user.qty_visited_cities }}'
+                        {% endfor %}
+
+                        const ctx_visited_cities = document.getElementById('chart_qty_visited_cities').getContext('2d');
+
+                        const chart_visited_cities = new Chart(ctx_visited_cities, {
+                            type: 'bar',
+                            data: {
+                                labels: Object.keys(visited_cities),
+                                datasets: [
+                                    {
+                                        label: 'Количество посещённых городов',
+                                        data: Object.values(visited_cities),
+                                        borderColor: 'rgba(52,0,0,0.2)',
+                                        backgroundColor: 'rgba(255,115,115,0.2)',
+                                        borderWidth: 2,
+                                        borderRadius: 5,
+                                        borderSkipped: false,
+                                    },
+                                ],
+                            },
+                        });
+                    </script>
                 </div>
             </div>
         </div>

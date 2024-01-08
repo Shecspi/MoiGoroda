@@ -39,9 +39,9 @@ class SignUp(CreateView):
 
     def form_valid(self, form):
         user = User.objects.create_user(
-            username=self.request.POST['username'],
-            password=self.request.POST['password1'],
-            email=self.request.POST['email']
+            username=form.cleaned_data.get('username'),
+            password=form.cleaned_data.get('password1'),
+            email=form.cleaned_data.get('email')
         )
         user.save()
         logger_email.info(

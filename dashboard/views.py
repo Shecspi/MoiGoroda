@@ -1,15 +1,23 @@
 from datetime import timedelta, date, timezone
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, F, OuterRef, Subquery
 from django.contrib.auth.models import User
 from django.db.models.functions import TruncDay, TruncDate
+from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
 from city.models import VisitedCity
 
 
-class Dashboard(TemplateView):
+class Dashboard(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return redirect('main_page')
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

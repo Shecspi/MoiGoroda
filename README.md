@@ -4,7 +4,7 @@
 Исходный код распространяется под лицензией [Apache License 2.0](https://github.com/Shecspi/MoiGoroda/blob/master/LICENSE).  
 
 ![Python 3.10](https://img.shields.io/badge/Python-3.10-blue?style=for-the-badge&logo=python)
-![Django 4.1](https://img.shields.io/badge/Django-4.1-brightgreen?style=for-the-badge&logo=django)
+![Django 4.2](https://img.shields.io/badge/Django-4.2-brightgreen?style=for-the-badge&logo=django)
 [![Apache License 2.0](https://img.shields.io/badge/License-Apache%20License%202.0-orange?style=for-the-badge&logo=apache)](https://github.com/Shecspi/MoiGoroda/blob/master/LICENSE)
 
 ## :floppy_disk: Установка

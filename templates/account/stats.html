@@ -5,6 +5,119 @@
         Личная статистика
     </h1>
 
+
+
+
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list-content">
+        <div class="col">
+            <div class="row h-100 row-cols-1 g-3">
+                <div class="col">
+                    <div class="card h-100 text-center shadow">
+                        <div class="card-body">
+                            <p class="fs-4">Я посетил</p>
+                            <h1>{{ cities.num_visited }}</h1>
+                            <p class="fs-4">городов</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100 text-center shadow">
+                        <div class="card-body">
+                            <p class="fs-4">Осталось</p>
+                            <h1>{{ cities.num_not_visited }}</h1>
+                            <p class="fs-4">городов</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">Города России</p>
+                    <canvas class="vert" id="chart__qty_of_cities"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="row row-cols-1 g-3">
+                <div class="col">
+                    <div class="card h-100 text-center shadow">
+                        <div class="card-body">
+                            <p class="fs-4">Я был в</p>
+                            <h1>{{ regions.num_visited }}</h1>
+                            <p class="fs-4">регионе</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100 text-center shadow">
+                        <div class="card-body">
+                            <p class="fs-4">Осталось</p>
+                            <h1>{{ regions.num_not_visited }}</h1>
+                            <p class="fs-4">регионов</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">Регионы России</p>
+                    <canvas id="chart__qty_of_regions" height="50px"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx_cities = document.getElementById('chart__qty_of_cities').getContext('2d');
+        const ctx_regions = document.getElementById('chart__qty_of_regions').getContext('2d');
+
+        const myChart_cities = new Chart(ctx_cities, {
+            type: 'pie',
+            data: {
+                labels: ['Посещённые', 'Не посещённые'],
+                datasets: [
+                    {
+                        data: ['{{ cities.num_visited }}', '{{ cities.num_not_visited }}'],
+                        borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                        backgroundColor: ['rgba(255,86,86,0.6)', 'rgba(255,86,86,0.3)']
+                    },
+                ],
+                options: {
+                    maintainAspectRatio: false,
+                }
+            }
+        });
+
+        const myChart_regions = new Chart(ctx_regions, {
+            type: 'pie',
+            data: {
+                labels: ['Посещённые', 'Не посещённые'],
+                datasets: [
+                    {
+                        data: ['{{ regions.num_visited }}', '{{ regions.num_not_visited }}'],
+                        borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                        backgroundColor: ['rgba(66, 189, 53, 0.6)', 'rgba(66, 189, 53, 0.3)']
+                    },
+                ],
+            }
+        });
+    </script>
+
+
+
+
+
+
+
     <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list-content">
         <div class="col-xl-4 order-last order-xl-first">
             {% include 'account/stats__cities.html' %}

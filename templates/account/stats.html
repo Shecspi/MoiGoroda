@@ -131,6 +131,26 @@
         <!-- ^^^ Четвёртый столбик -->
     </div>
 
+    <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5">
+        <div class="col">
+            <div class="card text-center shadow">
+                <div class="card-body">
+                    <p class="fs-4">Количество посещённых городов по месяцам</p>
+                    <canvas id="chart__cities_by_month"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card text-center shadow">
+                <div class="card-body">
+                    <p class="fs-4">Количество посещённых городов по годам</p>
+                    <canvas id="chart__cities_by_year"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list-content">
         <div class="col-xl-4 order-last order-xl-first">
             {% include 'account/stats__cities.html' %}
@@ -148,7 +168,10 @@
     <script>
         const ctx_cities = document.getElementById('chart__qty_of_cities').getContext('2d');
         const ctx_regions = document.getElementById('chart__qty_of_regions').getContext('2d');
+        const ctx_cities_by_month = document.getElementById('chart__cities_by_month').getContext('2d');
+        const ctx_cities_by_year = document.getElementById('chart__cities_by_year').getContext('2d');
 
+        // График посещённых городов
         const myChart_cities = new Chart(ctx_cities, {
             type: 'pie',
             data: {
@@ -159,13 +182,11 @@
                         borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
                         backgroundColor: ['rgba(255,86,86,0.6)', 'rgba(255,86,86,0.3)']
                     },
-                ],
-                options: {
-                    maintainAspectRatio: false,
-                }
+                ]
             }
         });
 
+        // График посещённых регионов
         const myChart_regions = new Chart(ctx_regions, {
             type: 'pie',
             data: {
@@ -175,6 +196,90 @@
                         data: ['{{ regions.num_visited }}', '{{ regions.num_not_visited }}'],
                         borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
                         backgroundColor: ['rgba(66, 189, 53, 0.6)', 'rgba(66, 189, 53, 0.3)']
+                    },
+                ],
+            }
+        });
+
+        // График посещённых городов по месяцам
+        let data_month = {
+            '01.2024': 0,
+            '12.2023': 5,
+            '11.2023': 7,
+            '10.2023': 1,
+            '09.2023': 2,
+            '08.2023': 3,
+            '07.2023': 7,
+            '06.2023': 4,
+            '05.2023': 5,
+            '04.2023': 9,
+            '03.2023': 0,
+            '02.2023': 0,
+            '01.2023': 0,
+            '12.2022': 5,
+            '11.2022': 4,
+            '10.2022': 1,
+            '09.2022': 4,
+            '08.2022': 3,
+            '07.2022': 4,
+            '06.2022': 6,
+            '05.2022': 7,
+            '04.2022': 8,
+            '03.2022': 9,
+            '02.2022': 2,
+            '01.2022': 10
+        }
+
+        new Chart(ctx_cities_by_month, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data_month),
+                datasets: [
+                    {
+                        label: 'Посещено городов в этом месяце',
+                        data: Object.values(data_month),
+                        borderColor: 'rgba(51,171,255,0.5)',
+                        backgroundColor: 'rgba(51,171,255,0.2)',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderSkipped: false
+                    },
+                ],
+            }
+        });
+
+         // График посещённых городов по годам
+        let data_year = {
+            '2024': 0,
+            '2023': 34,
+            '2022': 49,
+            '2021': 23,
+            '2020': 29,
+            '2019': 23,
+            '2018': 7,
+            '2017': 17,
+            '2016': 18,
+            '2015': 9,
+            '2014': 11,
+            '2013': 12,
+            '2012': 23,
+            '2011': 20,
+            '2010': 4
+        }
+
+        new Chart(ctx_cities_by_year, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data_year),
+                datasets: [
+                    {
+                        label: 'Посещено городов в этом году',
+                        data: Object.values(data_year),
+                        borderColor: 'rgba(193,70,255,0.5)',
+                        backgroundColor: 'rgba(193,70,255,0.2)',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderSkipped: false
                     },
                 ],
             }

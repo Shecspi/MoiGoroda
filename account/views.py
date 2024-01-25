@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetCompleteView, PasswordResetDoneView, \
     PasswordChangeView
 from django.db.models import Count, Q, F, FloatField
-from django.db.models.functions import Cast
+from django.db.models.functions import Cast, TruncMonth, TruncYear
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -127,6 +127,23 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         num_not_visited_cities = num_all_cities - num_visited_cities
         ratio_visited_cities = calculate_ratio(num_visited_cities, num_all_cities)
         ratio_not_visited_cities = 100 - ratio_visited_cities
+        qty_cities_by_year = (
+            visited_cities
+            .annotate(year=TruncYear('date_of_visit'))
+            .values('year')
+            .exclude(year=None)
+            .annotate(qty=Count('id', distinct=True))
+            .values('year', 'qty')
+        )
+        qty_cities_by_month = (
+            visited_cities
+            .annotate(month_year=TruncMonth('date_of_visit'))
+            .values('month_year')
+            .order_by('-month_year')
+            .exclude(month_year=None)
+            .annotate(qty=Count('id', distinct=True))
+            .values('month_year', 'qty')
+        )[:24]
 
         # Статистика по регионам
         regions = (
@@ -197,7 +214,9 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             'visited_this_year': num_cities_this_year,
             'visited_prev_year': num_cities_prev_year,
             'ratio_this_year': ratio_cities_this_year,
-            'ratio_prev_year': ratio_cities_prev_year
+            'ratio_prev_year': ratio_cities_prev_year,
+            'qty_cities_by_year': qty_cities_by_year,
+            'qty_cities_by_month': qty_cities_by_month
         }
         context['regions'] = {
             'visited': regions[:10],

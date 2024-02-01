@@ -9,9 +9,10 @@
         </div>
 
         {% if regions.visited %}
+            {###   Список самых посещённых регионов   ###}
             <ul class="list-group list-group-flush mt-3">
-                <li class="list-group-item">
-                    {% for region in regions.visited %}
+                {% for region in regions.visited %}
+                    <li class="list-group-item border-bottom-0">
                         <div class="d-flex justify-content-between small">
                             <a href="{% url 'region-selected-list' region.pk %}"
                                class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
@@ -22,66 +23,31 @@
                             </span>
                         </div>
 
-                        <div class="progress mb-3 mt-1" style="height: 10px">
+                        <div class="progress mt-1" style="height: 10px">
                             <div class="progress-bar bg-success" role="progressbar"
                                  style="width: {{ region.ratio_visited|floatformat:0 }}%"
                                  aria-valuenow="{{ region.ratio_visited|floatformat:0 }}"
                                  aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                    {% endfor %}
-                </li>
+                    </li>
+                {% endfor %}
+            </ul>
+            {### ^^^ Список самых посещённых регионов ^^^ ###}
 
-                <li class="list-group-item">
-                    <!-- Прогресс-бар "Количество посещённых регионов" -->
-                    <div class="d-flex justify-content-between mt-2 small">
-                        <span>
-                            Всего посещено: {{ regions.num_visited }}
-                        </span>
-                        <span>
-                            Осталось: {{ regions.num_not_visited }}
-                        </span>
-                    </div>
-                    <div class="progress mb-3 mt-1" style="height: 10px">
-                        <div class="progress-bar bg-primary" role="progressbar"
-                                 style="width: {{ regions.ratio_visited }}%"
-                                 aria-valuenow="{{ regions.ratio_visited }}"
-                                 aria-valuemin="0" aria-valuemax="100"></div>
-                        <div class="progress-bar bg-primary-subtle" role="progressbar"
-                             style="width: {{ regions.ratio_not_visited }}%"
-                             aria-valuenow="{{ regions.ratio_not_visited }}"
-                             aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <!-- ^^^ Прогресс-бар "Количество посещённых регионов" -->
-
-                    <!-- Прогресс-бар "Поностью посещённые регионы" -->
-                    <div class="d-flex justify-content-start mt-2 small">
-                        <span>
-                            Полностью посещено: {{ regions.num_finished }}
-                        </span>
-                    </div>
-                    <div class="progress mb-3 mt-1" style="height: 10px">
-                        <div class="progress-bar bg-primary" role="progressbar"
-                                 style="width: {{ regions.ratio_finished }}%"
-                                 aria-valuenow="{{ regions.ratio_finished }}"
-                                 aria-valuemin="0" aria-valuemax="100"></div>
-                        <div class="progress-bar bg-primary-subtle" role="progressbar"
-                             style="width: {{ regions.ratio_not_finished }}%"
-                             aria-valuenow="{{ regions.ratio_not_finished }}"
-                             aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <!-- ^^^ Прогресс-бар "Поностью посещённые регионы" -->
+            {###   Ссылка "Посмотреть все"   ###}
+            <ul class="list-group list-group-flush mt-3">
+                <li class="list-group-item small d-flex justify-content-end">
+                    <a href="{% url 'region-all-list' %}"
+                       class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                        Посмотреть все
+                    </a>
                 </li>
+            </ul>
+            {### ^^^ Ссылка "Посмотреть все" ^^^ ###}
         {% else %}
             <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
                 Вы ещё не посетили ни одного региона
             </div>
         {% endif %}
-
-        <div class="d-flex justify-content-end mt-4 small">
-            <a href="{% url 'region-all-list' %}"
-               class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                Посмотреть все
-            </a>
-        </div>
     </div>
 </div>

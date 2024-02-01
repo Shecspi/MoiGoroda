@@ -9,32 +9,33 @@
         </div>
 
         <div class="mt-5">
-            {% for area in areas %}
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <small>
-                            {{ area.title }}
-                        </small>
-                    </div>
-                    <div>
-                        <small>
-                            {{ area.visited_regions }} из {{ area.total_regions  }}
-                        </small>
-                    </div>
-                </div>
+            {###   Список федеральных округов   ###}
+            <ul class="list-group list-group-flush mt-3">
+                {% for area in areas %}
+                    <li class="list-group-item border-bottom-0">
+                        <div class="d-flex justify-content-between small">
+                            <span>{{ area.title }}</span>
+                            <span>{{ area.visited_regions }} из {{ area.total_regions  }}</span>
+                        </div>
 
-                <div class="progress mb-3" style="height: 10px">
-                    <div class="progress-bar bg-secondary progressArea"
-                         role="progressbar"
-                         style="width: {{ area.ratio_visited|floatformat:0 }}%"
-                         aria-valuenow="{{ area.ratio_visited|floatformat:0 }}"
-                         aria-valuemin="0"
-                         aria-valuemax="100"
-                    ></div>
-                </div>
-            {% empty %}
-                Вы ещё не посетили ни одного федерального округа.
-            {% endfor %}
+                        <div class="progress mt-1" style="height: 10px">
+                            <div class="progress-bar bg-secondary progressArea"
+                                 role="progressbar"
+                                 style="width: {{ area.ratio_visited|floatformat:0 }}%"
+                                 aria-valuenow="{{ area.ratio_visited|floatformat:0 }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"
+                            ></div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            {### ^^^ Список федеральных округов ^^^ ###}
+
+
+{#            {% empty %}#}
+{#                Вы ещё не посетили ни одного федерального округа.#}
+{#            {% endfor %}#}
         </div>
     </div>
 </div>

@@ -15,7 +15,7 @@
                     <div class="card text-center shadow">
                         <div class="card-body">
                             <p class="fs-4">Я посетил</p>
-                            <h1>{{ cities.num_visited }}</h1>
+                            <h1>{{ cities.number_of_visited_cities }}</h1>
                             <p class="fs-4">городов</p>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                     <div class="card text-center shadow">
                         <div class="card-body">
                             <p class="fs-4">Осталось</p>
-                            <h1>{{ cities.num_not_visited }}</h1>
+                            <h1>{{ cities.number_of_not_visited_cities }}</h1>
                             <p class="fs-4">городов</p>
                         </div>
                     </div>
@@ -50,7 +50,7 @@
                     <div class="card text-center shadow">
                         <div class="card-body">
                             <p class="fs-4">В этом году</p>
-                            <h1>{{ cities.visited_this_year }}</h1>
+                            <h1>{{ cities.number_of_visited_cities_current_year }}</h1>
                             <p class="fs-4">городов</p>
                         </div>
                     </div>
@@ -60,7 +60,7 @@
                     <div class="card text-center shadow">
                         <div class="card-body">
                             <p class="fs-4">В прошлом году</p>
-                            <h1>{{ cities.visited_prev_year }}</h1>
+                            <h1>{{ cities.number_of_visited_cities_previoous_year }}</h1>
                             <p class="fs-4">городов</p>
                         </div>
                     </div>
@@ -178,7 +178,7 @@
                 labels: ['Посещённые', 'Не посещённые'],
                 datasets: [
                     {
-                        data: ['{{ cities.num_visited }}', '{{ cities.num_not_visited }}'],
+                        data: ['{{ cities.number_of_visited_cities }}', '{{ cities.number_of_not_visited_cities }}'],
                         borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
                         backgroundColor: ['rgba(255,86,86,0.6)', 'rgba(255,86,86,0.3)']
                     },

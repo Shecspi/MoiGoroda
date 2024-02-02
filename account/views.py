@@ -16,6 +16,8 @@ from django.views.generic import CreateView, DetailView, UpdateView, TemplateVie
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
 from city.models import VisitedCity, City
+from services.db.visited_city import get_number_of_visited_cities, get_number_of_visited_cities_by_year, \
+    get_number_of_not_visited_cities
 from utils.LoggingMixin import LoggingMixin
 
 logger_email = logging.getLogger(__name__)
@@ -205,14 +207,19 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         )
 
         context['cities'] = {
-            'num_visited': num_visited_cities,
-            'num_not_visited': num_not_visited_cities,
-            'num_all': num_all_cities,
+            'number_of_visited_cities': get_number_of_visited_cities(self.request.user.pk),
+            'number_of_not_visited_cities': get_number_of_not_visited_cities(self.request.user.pk),
             'ratio_visited': ratio_visited_cities,
             'ratio_not_visited': ratio_not_visited_cities,
             'last_visited': last_cities,
-            'visited_this_year': num_cities_this_year,
-            'visited_prev_year': num_cities_prev_year,
+            'number_of_visited_cities_current_year': get_number_of_visited_cities_by_year(
+                self.request.user.pk,
+                datetime.datetime.now().year
+            ),
+            'number_of_visited_cities_previoous_year': get_number_of_visited_cities_by_year(
+                self.request.user.pk,
+                datetime.datetime.now().year - 1
+            ),
             'ratio_this_year': ratio_cities_this_year,
             'ratio_prev_year': ratio_cities_prev_year,
             'qty_cities_by_year': qty_cities_by_year,

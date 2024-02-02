@@ -4,7 +4,7 @@ from datetime import datetime
 
 from city.models import City, VisitedCity
 from region.models import Area, Region
-from utils.db.visited_city import get_number_of_visited_cities
+from services.db.visited_city import get_number_of_visited_cities
 
 
 @pytest.fixture
@@ -21,5 +21,10 @@ def setup(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test__get_number_of_visited_cities(setup):
+def test__get_number_of_visited_cities_for_existing_user(setup):
     assert get_number_of_visited_cities(user_id=1) == 5
+
+
+@pytest.mark.django_db
+def test__get_number_of_visited_cities_for_not_existing_user(setup):
+    assert get_number_of_visited_cities(user_id=2) == 0

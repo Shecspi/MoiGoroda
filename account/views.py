@@ -17,7 +17,7 @@ from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
 from city.models import VisitedCity, City
 from services.db.visited_city import get_number_of_visited_cities, get_number_of_visited_cities_by_year, \
-    get_number_of_not_visited_cities
+    get_number_of_not_visited_cities, calculate_ratio, get_last_10_visited_cities
 from utils.LoggingMixin import LoggingMixin
 
 logger_email = logging.getLogger(__name__)
@@ -113,6 +113,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         user = self.request.user.pk
+        user_id = self.request.user.pk
 
         # Статистика по городам
         visited_cities = VisitedCity.objects.filter(user=user)
@@ -127,8 +128,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         num_visited_cities = visited_cities.count()
         num_all_cities = City.objects.count()
         num_not_visited_cities = num_all_cities - num_visited_cities
-        ratio_visited_cities = calculate_ratio(num_visited_cities, num_all_cities)
-        ratio_not_visited_cities = 100 - ratio_visited_cities
+
         qty_cities_by_year = (
             visited_cities
             .annotate(year=TruncYear('date_of_visit'))
@@ -206,12 +206,17 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             .order_by('-ratio_visited', 'title')
         )
 
+        ###################################################
+
+        ratio_visited_cities = calculate_ratio(num_visited_cities, num_all_cities)
+        ratio_not_visited_cities = 100 - ratio_visited_cities
+
         context['cities'] = {
-            'number_of_visited_cities': get_number_of_visited_cities(self.request.user.pk),
-            'number_of_not_visited_cities': get_number_of_not_visited_cities(self.request.user.pk),
+            'number_of_visited_cities': get_number_of_visited_cities(user_id),
+            'number_of_not_visited_cities': get_number_of_not_visited_cities(user_id),
             'ratio_visited': ratio_visited_cities,
             'ratio_not_visited': ratio_not_visited_cities,
-            'last_visited': last_cities,
+            'last_visited': get_last_10_visited_cities(user_id),
             'number_of_visited_cities_current_year': get_number_of_visited_cities_by_year(
                 self.request.user.pk,
                 datetime.datetime.now().year
@@ -298,10 +303,3 @@ class MyPasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
         context['page_description'] = 'Пароль успешно изменён'
 
         return context
-
-
-def calculate_ratio(divisible: int, divisor: int) -> int:
-    try:
-        return int((divisible / divisor) * 100)
-    except ZeroDivisionError:
-        return 0

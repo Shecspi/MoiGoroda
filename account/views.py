@@ -210,7 +210,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
 
         ratio_visited_cities = calculate_ratio(num_visited_cities, num_all_cities)
         ratio_not_visited_cities = 100 - ratio_visited_cities
-
+        
         context['cities'] = {
             'number_of_visited_cities': get_number_of_visited_cities(user_id),
             'number_of_not_visited_cities': get_number_of_not_visited_cities(user_id),

@@ -5,8 +5,6 @@
         Личная статистика
     </h1>
 
-
-
     <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list-content">
         <!-- Первый столбик -->
         <div class="col">
@@ -22,7 +20,7 @@
                 </div>
 
                 <div class="col">
-                    <div class="card text-center shadow" id="section-city_{{ forloop.counter }}">
+                    <div class="card text-center shadow">
                         <div class="card-body">
                             <p class="fs-4">Города России</p>
                             <canvas class="vert" id="chart__qty_of_cities"></canvas>
@@ -60,7 +58,7 @@
                     <div class="card text-center shadow">
                         <div class="card-body">
                             <p class="fs-4">В прошлом году</p>
-                            <h1>{{ cities.number_of_visited_cities_previoous_year }}</h1>
+                            <h1>{{ cities.number_of_visited_cities_previous_year }}</h1>
                             <p class="fs-4">городов</p>
                         </div>
                     </div>
@@ -203,7 +201,7 @@
 
         // График посещённых городов по месяцам
         let data_month = {}
-        {% for month in cities.qty_cities_by_month reversed %}
+        {% for month in cities.number_of_visited_cities_in_several_month reversed %}
             data_month['{{ month.month_year|date:'m Y' }}'] = '{{ month.qty }}'
         {% endfor %}
 
@@ -227,7 +225,7 @@
 
          // График посещённых городов по годам
         let data_year = {}
-        {% for year in cities.qty_cities_by_year %}
+        {% for year in cities.number_of_visited_cities_in_several_years %}
             data_year['{{ year.year|date:'Y' }}'] = '{{ year.qty }}'
         {% endfor %}
 

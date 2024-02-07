@@ -114,3 +114,8 @@ def test__calculate_ratio():
     assert calculate_ratio(1000, 100) == 1000
     assert calculate_ratio(0, 100) == 0
     assert calculate_ratio(100, 0) == 0
+
+
+@pytest.mark.django_db
+def test__get_number_of_cities(setup):
+    assert get_number_of_cities() == 17

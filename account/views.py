@@ -16,8 +16,7 @@ from django.views.generic import CreateView, DetailView, UpdateView, TemplateVie
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
 from city.models import VisitedCity, City
-from services.db.visited_city import get_number_of_visited_cities, get_number_of_visited_cities_by_year, \
-    get_number_of_not_visited_cities, calculate_ratio, get_last_10_visited_cities
+from services.db.visited_city import *
 from utils.LoggingMixin import LoggingMixin
 
 logger_email = logging.getLogger(__name__)
@@ -82,7 +81,8 @@ class SignIn(LoginView):
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Вход'
-        context['page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
+        context[
+            'page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
 
         return context
 
@@ -111,41 +111,41 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         user = self.request.user.pk
         user_id = self.request.user.pk
+        current_year = datetime.datetime.now().year
 
-        # Статистика по городам
-        visited_cities = VisitedCity.objects.filter(user=user)
-        last_cities = visited_cities.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')[:10]
+        #############################
+        #   Статистика по городам   #
+        #############################
 
-        num_cities_this_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year).count()
-        num_cities_prev_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year - 1).count()
-        num_cities_2_year = num_cities_prev_year + num_cities_this_year
-        ratio_cities_this_year = calculate_ratio(num_cities_this_year, num_cities_2_year)
+        number_of_visited_cities = get_number_of_visited_cities(user_id)
+        number_of_not_visited_cities = get_number_of_not_visited_cities(user_id)
+
+        number_of_visited_cities_current_year = get_number_of_visited_cities_by_year(user_id, current_year)
+        number_of_visited_cities_previous_year = get_number_of_visited_cities_by_year(user_id, current_year - 1)
+        ratio_cities_this_year = calculate_ratio(
+            number_of_visited_cities_current_year,
+            number_of_visited_cities_previous_year
+        )
         ratio_cities_prev_year = 100 - ratio_cities_this_year
 
-        num_visited_cities = visited_cities.count()
-        num_all_cities = City.objects.count()
-        num_not_visited_cities = num_all_cities - num_visited_cities
+        number_of_visited_cities_in_several_years = get_number_of_visited_cities_in_several_years(user_id)
+        number_of_visited_cities_in_several_month = get_number_of_visited_cities_in_several_month(user_id)
 
-        qty_cities_by_year = (
-            visited_cities
-            .annotate(year=TruncYear('date_of_visit'))
-            .values('year')
-            .exclude(year=None)
-            .annotate(qty=Count('id', distinct=True))
-            .values('year', 'qty')
-        )
-        qty_cities_by_month = (
-            visited_cities
-            .annotate(month_year=TruncMonth('date_of_visit'))
-            .values('month_year')
-            .order_by('-month_year')
-            .exclude(month_year=None)
-            .annotate(qty=Count('id', distinct=True))
-            .values('month_year', 'qty')
-        )[:24]
+        context['cities'] = {
+            'number_of_visited_cities': number_of_visited_cities,
+            'number_of_not_visited_cities': number_of_not_visited_cities,
+            'last_10_visited_cities': get_last_10_visited_cities(user_id),
+            'number_of_visited_cities_current_year': number_of_visited_cities_current_year,
+            'number_of_visited_cities_previous_year': number_of_visited_cities_previous_year,
+            'ratio_cities_this_year': ratio_cities_this_year,
+            'ratio_cities_prev_year': ratio_cities_prev_year,
+            'number_of_visited_cities_in_several_years': number_of_visited_cities_in_several_years,
+            'number_of_visited_cities_in_several_month': number_of_visited_cities_in_several_month
+        }
+
+        ###########################
 
         # Статистика по регионам
         regions = (
@@ -198,38 +198,14 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
                 # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.
                 # Например, 76 / 54 получается 1.
                 ratio_visited=(
-                    Cast(
-                        F('visited_regions'), output_field=FloatField()
-                    ) / Cast(
-                        F('total_regions'), output_field=FloatField()
-                    )) * 100)
+                                      Cast(
+                                          F('visited_regions'), output_field=FloatField()
+                                      ) / Cast(
+                                  F('total_regions'), output_field=FloatField()
+                              )) * 100)
             .order_by('-ratio_visited', 'title')
         )
 
-        ###################################################
-
-        ratio_visited_cities = calculate_ratio(num_visited_cities, num_all_cities)
-        ratio_not_visited_cities = 100 - ratio_visited_cities
-        
-        context['cities'] = {
-            'number_of_visited_cities': get_number_of_visited_cities(user_id),
-            'number_of_not_visited_cities': get_number_of_not_visited_cities(user_id),
-            'ratio_visited': ratio_visited_cities,
-            'ratio_not_visited': ratio_not_visited_cities,
-            'last_visited': get_last_10_visited_cities(user_id),
-            'number_of_visited_cities_current_year': get_number_of_visited_cities_by_year(
-                self.request.user.pk,
-                datetime.datetime.now().year
-            ),
-            'number_of_visited_cities_previoous_year': get_number_of_visited_cities_by_year(
-                self.request.user.pk,
-                datetime.datetime.now().year - 1
-            ),
-            'ratio_this_year': ratio_cities_this_year,
-            'ratio_prev_year': ratio_cities_prev_year,
-            'qty_cities_by_year': qty_cities_by_year,
-            'qty_cities_by_month': qty_cities_by_month
-        }
         context['regions'] = {
             'visited': regions[:10],
             'num_visited': num_visited_regions,

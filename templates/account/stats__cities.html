@@ -8,10 +8,10 @@
                  data-bs-title="Отображается 5 последних посещённых городов"></i>
         </div>
 
-        {% if cities.last_visited %}
+        {% if cities.last_10_visited_cities %}
             {###   Список последних посещённых городов   ###}
             <ul class="list-group list-group-flush mt-3">
-                {% for city in cities.last_visited %}
+                {% for city in cities.last_10_visited_cities %}
                     <li class="list-group-item">
                         <div class="d-flex justify-content-between small">
                             <a href="{{ city.get_absolute_url }}"

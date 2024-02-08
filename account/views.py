@@ -145,9 +145,9 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             'number_of_visited_cities_in_several_month': number_of_visited_cities_in_several_month
         }
 
-        ###########################
-
-        # Статистика по регионам
+        ##############################
+        #   Статистика по регионам   #
+        ##############################
         regions = (
             Region.objects
             .all()
@@ -186,6 +186,19 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         ratio_finished = calculate_ratio(num_finished_regions, num_finished_regions + num_not_visited_regions)
         ratio_not_finished = 100 - ratio_finished
 
+        context['regions'] = {
+            'most_visited_regions': regions[:10],
+            'number_of_visited_regions': num_visited_regions,
+            'number_of_not_visited_regions': num_not_visited_regions,
+            'number_of_finished_regions': num_finished_regions,
+            'ratio_visited_regions': ratio_visited,
+            'ratio_not_visited_reginos': ratio_not_visited,
+            'ratio_finished_regions': ratio_finished,
+            'ratio_not_finished_regions': ratio_not_finished
+        }
+
+        #########################
+
         areas = (
             Area.objects
             .all()
@@ -206,16 +219,6 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             .order_by('-ratio_visited', 'title')
         )
 
-        context['regions'] = {
-            'visited': regions[:10],
-            'num_visited': num_visited_regions,
-            'num_not_visited': num_not_visited_regions,
-            'num_finished': num_finished_regions,
-            'ratio_visited': ratio_visited,
-            'ratio_not_visited': ratio_not_visited,
-            'ratio_finished': ratio_finished,
-            'ratio_not_finished': ratio_not_finished
-        }
         context['areas'] = areas
 
         context['active_page'] = 'stats'

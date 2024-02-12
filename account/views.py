@@ -16,6 +16,7 @@ from django.views.generic import CreateView, DetailView, UpdateView, TemplateVie
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
 from city.models import VisitedCity, City
+from services.db.statistics_of_visited_regions import *
 from services.db.visited_city import *
 from utils.LoggingMixin import LoggingMixin
 
@@ -169,14 +170,8 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             .exclude(~Q(visitedcity__user=user))
             .order_by('-ratio_visited', '-visited_cities')
         )
-        num_visited_regions = (
-            Region.objects
-            .all()
-            .exclude(visitedcity__city=None)
-            .exclude(~Q(visitedcity__user=user))
-            .count()
-        )
-        num_not_visited_regions = Region.objects.count() - num_visited_regions
+        num_visited_regions = get_number_of_visited_regions(user_id)
+        num_not_visited_regions = get_number_of_regions() - num_visited_regions
         # Количество регионов, в которых посещены все города.
         # Для этого забираем те записи, где 'total_cities' и 'visitied_cities' равны.
         num_finished_regions = regions.filter(total_cities=F('visited_cities')).count()
@@ -189,8 +184,8 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         context['regions'] = {
             'most_visited_regions': regions[:10],
             'number_of_visited_regions': num_visited_regions,
-            'number_of_not_visited_regions': num_not_visited_regions,
             'number_of_finished_regions': num_finished_regions,
+            'number_of_not_visited_regions': num_not_visited_regions,
             'ratio_visited_regions': ratio_visited,
             'ratio_not_visited_reginos': ratio_not_visited,
             'ratio_finished_regions': ratio_finished,

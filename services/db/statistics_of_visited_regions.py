@@ -25,7 +25,15 @@ def get_number_of_visited_regions(user_id: int) -> int:
 
 
 def get_number_of_finished_regions(user_id: int) -> int:
-    ...
+    """
+    Возвращает количество регионов, в которых пользователь с ID == user_id посетил все города.
+    Эта функция расширяет функцию get_all_visited_regions(), добавляя одно условие фильтрации.
+    """
+    return (
+        get_all_visited_regions(user_id)
+        .filter(total_cities=F('visited_cities'))
+        .count()
+    )
 
 
 def get_all_visited_regions(user_id: int) -> QuerySet:

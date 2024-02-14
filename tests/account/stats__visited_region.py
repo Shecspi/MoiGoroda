@@ -24,6 +24,7 @@ def create_area() -> Area:
 def create_region(area: Area) -> list[Region]:
     """
     Создаёт number_of_regions регионов и возвращает список с экземплярами модели Region.
+    Всего создаётся 15 регионов.
     """
     regions = []
     for i in range(1, 16):
@@ -37,6 +38,7 @@ def create_city(regions: Sequence[Region]) -> dict[int, list[City]]:
     """
     Добавляет в базу данных 3 города для каждого региона и возвращает список с инстансами созданных городов.
     Для каждого города создаётся связь с Region, указанным в regions.
+    Для каждого из 15 регионов создаётся по 3 города.
     """
     cities = defaultdict(list)
     city_id = 1
@@ -63,10 +65,10 @@ def create_visited_city(
 ):
     """
     Добавляет в базу данных посещённые города.
-    Для регионов с ID 1, 5, 9 и т.д. добавляется 1 посещённый город.
-    Для регионов с ID 2, 6, 10 и т.д. добавляется 2 посещённых города.
-    Для регионов с ID 3, 7, 11 и т.д. добавляется 3 посещённых города.
-    Для регионов с ID 4, 8, 12 и т.д. посещённые города не добавляются
+    Для регионов с ID 1, 5, 9 и 13 добавляется 1 посещённый город. Таких 4 региона.
+    Для регионов с ID 2, 6, 10 и 14 добавляется 2 посещённых города. Таких 4 региона.
+    Для регионов с ID 3, 7, 11 и 15 добавляется 3 посещённых города. Таких 4 региона.
+    Для регионов с ID 4, 8, 12 посещённые города не добавляются. Таких 3 региона.
     """
     i = 0
     for item in cities.items():
@@ -99,13 +101,11 @@ def setup(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test__get_number_of_visited_regions(setup):
-    assert get_number_of_visited_regions(1) == 1
-
-
-@pytest.mark.django_db
-def test__get_number_of_visited_regions_for_not_existing_user(setup):
-    assert get_number_of_visited_regions(2) == 0
+def test__get_number_of_regions(setup):
+    """
+    Проверяет, что get_number_of_regions() возвращает корректное общее количество регионов.
+    """
+    assert get_number_of_regions() == 15
 
 
 @pytest.mark.django_db
@@ -135,7 +135,7 @@ def test__get_all_visited_regions__contains(setup):
 @pytest.mark.django_db
 def test__get_all_visited_regions__order(setup):
     """
-    Тестирует сортировку, которая применяется в get_all_visited_regions().
+    Проверяет сортировку, которая применяется в get_all_visited_regions().
     В начале должны идти регионы с самым большим количеством посещённых городов и постепенно уменьшаться.
     """
     regions = tuple(get_all_visited_regions(1).values_list('title', flat=True))
@@ -152,3 +152,61 @@ def test__get_all_visited_regions__order(setup):
     assert 'Регион 5' in regions[8:12]
     assert 'Регион 9' in regions[8:12]
     assert 'Регион 13' in regions[8:12]
+
+
+@pytest.mark.django_db
+def test__get_all_visited_regions__total_cities(setup):
+    """
+    Проверяет поле `total_cities` в QuerySet, возвращаемом функцией get_all_visited_regions
+    """
+    regions = get_all_visited_regions(1)
+
+    for region in regions:
+        assert region.total_cities == 3
+
+
+@pytest.mark.django_db
+def test__get_all_visited_regions__visited_cities(setup):
+    """
+    Проверяет поле `visited_cities` в QuerySet, возвращаемом функцией get_all_visited_regions
+    """
+    regions = get_all_visited_regions(1)
+
+    numbers = [3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1]
+    for index, region in enumerate(regions):
+        assert region.visited_cities == numbers[index]
+
+
+@pytest.mark.django_db
+def test__get_all_visited_regions__ratio_visited(setup):
+    """
+    Проверяет поле `ratio_visited` в QuerySet, возвращаемом функцией get_all_visited_regions
+    """
+    regions = get_all_visited_regions(1)
+
+    numbers = [100, 100, 100, 100, 2, 2, 2, 2, 1, 1, 1, 1]
+    for index, region in enumerate(regions):
+        assert region.ratio_visited == (region.visited_cities / region.total_cities) * 100
+
+
+@pytest.mark.django_db
+def test__get_number_of_visited_regions__has_visited_regions(setup):
+    """
+    Проверяет корректность работы функции get_number_of_visited_regions.
+    Для пользователя, у которого имеются посещённые регионы, должно возвращаться их число.
+    """
+    assert get_number_of_visited_regions(1) == 12
+
+
+@pytest.mark.django_db
+def test__get_number_of_visited_regions__has_no_visited_regions(setup):
+    """
+    Проверяет корректность работы функции get_number_of_visited_regions.
+    Для пользователя, у которого нет посещённых регионов, должен возвращаться 0..
+    """
+    assert get_number_of_visited_regions(2) == 0
+
+
+@pytest.mark.django_db
+def test__get_number_of_finished_regions(setup):
+    assert get_number_of_finished_regions(1) == 4

@@ -5,133 +5,153 @@
         Личная статистика
     </h1>
 
-    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list-content">
-        <!-- Первый столбик -->
+    <div class="row row-cols-1 row-cols-md-4 mx-3 mt-2 mb-3 g-3 px-xxl-5">
         <div class="col">
-            <div class="row row-cols-1 g-3">
-                <div class="col">
-                    <div class="card text-center shadow">
-                        <div class="card-body">
-                            <p class="fs-4">Я посетил</p>
-                            <h1>{{ cities.number_of_visited_cities }}</h1>
-                            <p class="fs-4">городов</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="card text-center shadow">
-                        <div class="card-body">
-                            <p class="fs-4">Города России</p>
-                            <canvas class="vert" id="chart__qty_of_cities"></canvas>
-                        </div>
-                    </div>
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Города России</p>
+                    <canvas class="vert" id="chart__qty_of_cities"></canvas>
                 </div>
             </div>
         </div>
+
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Регионы России</p>
+                    <canvas id="chart__qty_of_regions"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5">
+        <!-- Первый столбик -->
+        <div class="col">
+{#            <div class="row row-cols-1 g-3">#}
+{#                <div class="col">#}
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Я посетил</p>
+                    <h1>{{ cities.number_of_visited_cities }}</h1>
+                    <p class="fs-4">городов</p>
+                </div>
+            </div>
+        </div>
+
+{#        <div class="col">#}
+{#            <div class="card text-center shadow h-100">#}
+{#                <div class="card-body">#}
+{#                    <p class="fs-4">Города России</p>#}
+{#                    <canvas class="vert" id="chart__qty_of_cities" style="max-height: 250px;"></canvas>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#            </div>#}
+{#        </div>#}
         <!-- ^^^ Первый столбик -->
 
         <!-- Второй столбик -->
         <div class="col">
-            <div class="row row-cols-1 g-3">
-                <div class="col">
-                    <div class="card text-center shadow">
-                        <div class="card-body">
-                            <p class="fs-4">Осталось</p>
-                            <h1>{{ cities.number_of_not_visited_cities }}</h1>
-                            <p class="fs-4">городов</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="card text-center shadow">
-                        <div class="card-body">
-                            <p class="fs-4">В этом году</p>
-                            <h1>{{ cities.number_of_visited_cities_current_year }}</h1>
-                            <p class="fs-4">городов</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="card text-center shadow">
-                        <div class="card-body">
-                            <p class="fs-4">В прошлом году</p>
-                            <h1>{{ cities.number_of_visited_cities_previous_year }}</h1>
-                            <p class="fs-4">городов</p>
-                        </div>
-                    </div>
+{#            <div class="row row-cols-1 g-3">#}
+{#                <div class="col">#}
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Осталось</p>
+                    <h1>{{ cities.number_of_not_visited_cities }}</h1>
+                    <p class="fs-4">городов</p>
                 </div>
             </div>
         </div>
+
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">В этом году</p>
+                    <h1>{{ cities.number_of_visited_cities_current_year }}</h1>
+                    <p class="fs-4">городов</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">В прошлом году</p>
+                    <h1>{{ cities.number_of_visited_cities_previous_year }}</h1>
+                    <p class="fs-4">городов</p>
+                </div>
+            </div>
+        </div>
+{#            </div>#}
+{#        </div>#}
         <!-- ^^^ Второй столбик -->
 
         <!-- Третий столбик -->
-        <div class="col">
-            <div class="row row-cols-1 g-3">
-                <div class="col">
-                    <div class="card text-center shadow" id="section-city_{{ forloop.counter }}">
-                        <div class="card-body">
-                            <p class="fs-4">Регионы России</p>
-                            <canvas id="chart__qty_of_regions" height="50px"></canvas>
-                        </div>
-                    </div>
-                </div>
+{#        <div class="col">#}
+{#            <div class="row row-cols-1 g-3">#}
+{#                <div class="col">#}
+{#            <div class="card text-center shadow h-100">#}
+{#                <div class="card-body">#}
+{#                    <p class="fs-4">Регионы России</p>#}
+{#                    <canvas id="chart__qty_of_regions" style="max-height: 250px;"></canvas>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
 
-                <div class="col">
-                    <div class="card text-center shadow">
-                        <div class="card-body">
-                            <p class="fs-4">Я был в</p>
-                            <h1>{{ regions.num_visited }}</h1>
-                            <p class="fs-4">регионе</p>
-                        </div>
-                    </div>
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Я был в</p>
+                    <h1>{{ regions.number_of_visited_regions }}</h1>
+                    <p class="fs-4">регионе</p>
                 </div>
             </div>
         </div>
+{#            </div>#}
+{#        </div>#}
         <!-- ^^^ Третий столбик -->
 
         <!-- Четвёртый столбик -->
         <div class="col">
-            <div class="row row-cols-1 g-3">
-                <div class="col">
-                    <div class="card text-center shadow">
-                        <div class="card-body">
-                            <p class="fs-4">Осталось</p>
-                            <h1>{{ regions.num_not_visited }}</h1>
-                            <p class="fs-4">регионов</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="card text-center shadow">
-                        <div class="card-body">
-                            <p class="fs-4">Посещено полностью</p>
-                            <h1>{{ regions.num_finished }}</h1>
-                            <p class="fs-4">регионов</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="card text-center shadow">
-                        <div class="card-body">
-                            <p class="fs-4">???</p>
-                            <h1>???</h1>
-                            <p class="fs-4">???</p>
-                        </div>
-                    </div>
+{#            <div class="row row-cols-1 g-3">#}
+{#                <div class="col">#}
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Осталось</p>
+                    <h1>{{ regions.number_of_not_visited_regions }}</h1>
+                    <p class="fs-4">регионов</p>
                 </div>
             </div>
         </div>
+
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Посещено полностью</p>
+                    <h1>{{ regions.number_of_finished_regions }}</h1>
+                    <p class="fs-4">регионов</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Более половины городов в</p>
+                    <h1>???</h1>
+                    <p class="fs-4">регионе</p>
+                </div>
+            </div>
+        </div>
+{#            </div>#}
+{#        </div>#}
         <!-- ^^^ Четвёртый столбик -->
     </div>
 
     <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5">
         <div class="col">
-            <div class="card text-center shadow">
+            <div class="card text-center shadow h-100">
                 <div class="card-body">
                     <p class="fs-4">Количество посещённых городов по месяцам</p>
                     <canvas id="chart__cities_by_month"></canvas>
@@ -140,7 +160,7 @@
         </div>
 
         <div class="col">
-            <div class="card text-center shadow">
+            <div class="card text-center shadow h-100">
                 <div class="card-body">
                     <p class="fs-4">Количество посещённых городов по годам</p>
                     <canvas id="chart__cities_by_year"></canvas>
@@ -191,7 +211,7 @@
                 labels: ['Посещённые', 'Не посещённые'],
                 datasets: [
                     {
-                        data: ['{{ regions.num_visited }}', '{{ regions.num_not_visited }}'],
+                        data: ['{{ regions.number_of_visited_regions }}', '{{ regions.number_of_not_visited_regions }}'],
                         borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
                         backgroundColor: ['rgba(66, 189, 53, 0.6)', 'rgba(66, 189, 53, 0.3)']
                     },

@@ -8,10 +8,10 @@
                  data-bs-title="Отображается количество посещённых городов и общее количество городов в каждом из регионов"></i>
         </div>
 
-        {% if regions.visited %}
+        {% if regions.most_visited_regions %}
             {###   Список самых посещённых регионов   ###}
             <ul class="list-group list-group-flush mt-3">
-                {% for region in regions.visited %}
+                {% for region in regions.most_visited_regions %}
                     <li class="list-group-item border-bottom-0">
                         <div class="d-flex justify-content-between small">
                             <a href="{% url 'region-selected-list' region.pk %}"

@@ -149,32 +149,11 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         ##############################
         #   Статистика по регионам   #
         ##############################
-        regions = (
-            Region.objects
-            .all()
-            .annotate(
-                # Добавляем в QuerySet общее количество городов в регионе
-                total_cities=Count('city', distinct=True),
-                # Добавляем в QuerySet количество посещённых городов в регионе
-                visited_cities=Count('city', filter=Q(city__visitedcity__user__id=user), distinct=True),
-                # Добавляем в QuerySet процентное отношение посещённых городов
-                # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.
-                # Например, 76 / 54 получается 1.
-                ratio_visited=(
-                                      Cast(
-                                          F('visited_cities'), output_field=FloatField()
-                                      ) / Cast(
-                                  F('total_cities'), output_field=FloatField()
-                              )) * 100)
-            .exclude(visitedcity__city=None)
-            .exclude(~Q(visitedcity__user=user))
-            .order_by('-ratio_visited', '-visited_cities')
-        )
+
+        regions = get_all_visited_regions(user_id)
         num_visited_regions = get_number_of_visited_regions(user_id)
         num_not_visited_regions = get_number_of_regions() - num_visited_regions
-        # Количество регионов, в которых посещены все города.
-        # Для этого забираем те записи, где 'total_cities' и 'visitied_cities' равны.
-        num_finished_regions = regions.filter(total_cities=F('visited_cities')).count()
+        num_finished_regions = get_number_of_finished_regions(user_id)
 
         ratio_visited = calculate_ratio(num_visited_regions, num_visited_regions + num_not_visited_regions)
         ratio_not_visited = 100 - ratio_visited
@@ -187,7 +166,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             'number_of_finished_regions': num_finished_regions,
             'number_of_not_visited_regions': num_not_visited_regions,
             'ratio_visited_regions': ratio_visited,
-            'ratio_not_visited_reginos': ratio_not_visited,
+            'ratio_not_visited_regions': ratio_not_visited,
             'ratio_finished_regions': ratio_finished,
             'ratio_not_finished_regions': ratio_not_finished
         }

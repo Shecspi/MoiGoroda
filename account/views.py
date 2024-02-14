@@ -16,6 +16,7 @@ from django.views.generic import CreateView, DetailView, UpdateView, TemplateVie
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from region.models import Region, Area
 from city.models import VisitedCity, City
+from services.db.statistics_of_area import get_visited_areas
 from services.db.statistics_of_visited_regions import *
 from services.db.visited_city import *
 from utils.LoggingMixin import LoggingMixin
@@ -171,29 +172,17 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             'ratio_not_finished_regions': ratio_not_finished
         }
 
-        #########################
+        #########################################
+        #   Статистика по федеральным округам   #
+        #########################################
 
-        areas = (
-            Area.objects
-            .all()
-            .annotate(
-                # Добавляем в QuerySet общее количество регионов в округе
-                total_regions=Count('region', distinct=True),
-                # Добавляем в QuerySet количество посещённых регионов в округе
-                visited_regions=Count('region', filter=Q(region__visitedcity__user__id=user), distinct=True),
-                # Добавляем в QuerySet процентное соотношение посещённых регионов.
-                # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.
-                # Например, 76 / 54 получается 1.
-                ratio_visited=(
-                                      Cast(
-                                          F('visited_regions'), output_field=FloatField()
-                                      ) / Cast(
-                                  F('total_regions'), output_field=FloatField()
-                              )) * 100)
-            .order_by('-ratio_visited', 'title')
-        )
+        areas = get_visited_areas(user_id)
 
         context['areas'] = areas
+
+        ##############################
+        #   Вспомогательные данные   #
+        ##############################
 
         context['active_page'] = 'stats'
         context['page_title'] = 'Личная статистика'

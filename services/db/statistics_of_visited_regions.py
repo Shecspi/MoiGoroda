@@ -36,7 +36,7 @@ def get_all_visited_regions(user_id: int) -> QuerySet:
             # Добавляем в QuerySet общее количество городов в регионе
             total_cities=Count('city', distinct=True),
             # Добавляем в QuerySet количество посещённых городов в регионе
-            visited_cities=Count('city', filter=Q(city__visitedcity__user__id=user), distinct=True),
+            visited_cities=Count('city', filter=Q(city__visitedcity__user__id=user_id), distinct=True),
             # Добавляем в QuerySet процентное отношение посещённых городов
             # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.
             # Например, 76 / 54 получается 1.
@@ -49,6 +49,6 @@ def get_all_visited_regions(user_id: int) -> QuerySet:
                     output_field=FloatField()
                 )) * 100)
         .exclude(visitedcity__city=None)
-        .exclude(~Q(visitedcity__user=user))
+        .exclude(~Q(visitedcity__user_id=user_id))
         .order_by('-ratio_visited', '-visited_cities')
     )

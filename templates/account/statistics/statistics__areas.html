@@ -8,7 +8,7 @@
                  data-bs-title="Отображается информация о количестве посещённых регионов в каждом из федеральных округов"></i>
         </div>
 
-        <div class="mt-5">
+        {% if regions.most_visited_regions %}
             {###   Список федеральных округов   ###}
             <ul class="list-group list-group-flush mt-3">
                 {% for area in areas %}
@@ -31,11 +31,11 @@
                 {% endfor %}
             </ul>
             {### ^^^ Список федеральных округов ^^^ ###}
-
-
-{#            {% empty %}#}
-{#                Вы ещё не посетили ни одного федерального округа.#}
-{#            {% endfor %}#}
-        </div>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
+                Вы ещё не добавили ни одного посещённого города.<br><br>
+                Сделайте это для того, чтобы просматривать список самых популярных федеральных округов.
+            </div>
+        {% endif %}
     </div>
 </div>

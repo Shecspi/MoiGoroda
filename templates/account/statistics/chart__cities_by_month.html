@@ -1,0 +1,32 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <p class="fs-4">Количество посещённых городов по месяцам</p>
+        <canvas id="chart__cities_by_month"></canvas>
+    </div>
+</div>
+
+<script>
+    const ctx_cities_by_month = document.getElementById('chart__cities_by_month').getContext('2d');
+    let data_month = {}
+        {% for month in cities.number_of_visited_cities_in_several_month reversed %}
+            data_month['{{ month.month_year|date:'m Y' }}'] = '{{ month.qty }}'
+        {% endfor %}
+
+        new Chart(ctx_cities_by_month, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data_month),
+                datasets: [
+                    {
+                        label: 'Посещено городов в этом месяце',
+                        data: Object.values(data_month),
+                        borderColor: 'rgba(51,171,255,0.5)',
+                        backgroundColor: 'rgba(51,171,255,0.2)',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderSkipped: false
+                    },
+                ],
+            }
+        });
+</script>

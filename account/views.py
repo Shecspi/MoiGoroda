@@ -101,7 +101,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
 
     > Доступ на эту страницу возможен только авторизованным пользователям.
     """
-    template_name = 'account/stats.html'
+    template_name = 'account/statistics/statistics.html'
 
     def get(self, *args, **kwargs):
         self.set_message(
@@ -113,15 +113,21 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        fake_statistics = False
         user = self.request.user.pk
         user_id = self.request.user.pk
         current_year = datetime.datetime.now().year
+
+        number_of_visited_cities = get_number_of_visited_cities(user_id)
+        if number_of_visited_cities == 0:
+            context['fake_statistics'] = True
+
+            return context
 
         #############################
         #   Статистика по городам   #
         #############################
 
-        number_of_visited_cities = get_number_of_visited_cities(user_id)
         number_of_not_visited_cities = get_number_of_not_visited_cities(user_id)
 
         number_of_visited_cities_current_year = get_number_of_visited_cities_by_year(user_id, current_year)

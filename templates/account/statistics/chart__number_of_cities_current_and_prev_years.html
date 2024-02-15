@@ -1,0 +1,23 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <p class="fs-4">В этом и прошлом годах</p>
+        <canvas class="vert" id="chart__number_of_cities_current_and_prev_years"></canvas>
+    </div>
+</div>
+
+<script>
+    const ctx_cities_current_and_prev_years = document.getElementById('chart__qty_of_cities_current_and_prev_years').getContext('2d');
+    const myChart_cities_current_and_prev_years = new Chart(ctx_cities_current_and_prev_years, {
+            type: 'pie',
+            data: {
+                labels: ['В этом году', 'В прошлом году'],
+                datasets: [
+                    {
+                        data: ['{{ cities.number_of_visited_cities_current_year }}', '{{ cities.number_of_visited_cities_previous_year }}'],
+                        borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                        backgroundColor: ['rgba(51,171,255,0.6)', 'rgba(51,171,255,0.3)']
+                    },
+                ]
+            },
+        });
+</script>

@@ -152,9 +152,11 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         ##############################
 
         regions = get_all_visited_regions(user_id)
+        number_of_regions = get_number_of_regions()
         num_visited_regions = get_number_of_visited_regions(user_id)
-        num_not_visited_regions = get_number_of_regions() - num_visited_regions
+        num_not_visited_regions = number_of_regions - num_visited_regions
         num_finished_regions = get_number_of_finished_regions(user_id)
+        number_of_not_finished_regions = number_of_regions - num_finished_regions
 
         ratio_visited = calculate_ratio(num_visited_regions, num_visited_regions + num_not_visited_regions)
         ratio_not_visited = 100 - ratio_visited
@@ -164,8 +166,9 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         context['regions'] = {
             'most_visited_regions': regions[:10],
             'number_of_visited_regions': num_visited_regions,
-            'number_of_finished_regions': num_finished_regions,
             'number_of_not_visited_regions': num_not_visited_regions,
+            'number_of_finished_regions': num_finished_regions,
+            'number_of_not_finished_regions': number_of_not_finished_regions,
             'ratio_visited_regions': ratio_visited,
             'ratio_not_visited_regions': ratio_not_visited,
             'ratio_finished_regions': ratio_finished,

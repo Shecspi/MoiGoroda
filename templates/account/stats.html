@@ -5,31 +5,8 @@
         Личная статистика
     </h1>
 
-    <div class="row row-cols-1 row-cols-md-4 mx-3 mt-2 mb-3 g-3 px-xxl-5">
-        <div class="col">
-            <div class="card text-center shadow h-100">
-                <div class="card-body">
-                    <p class="fs-4">Города России</p>
-                    <canvas class="vert" id="chart__qty_of_cities"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card text-center shadow h-100">
-                <div class="card-body">
-                    <p class="fs-4">Регионы России</p>
-                    <canvas id="chart__qty_of_regions"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5">
-        <!-- Первый столбик -->
         <div class="col">
-{#            <div class="row row-cols-1 g-3">#}
-{#                <div class="col">#}
             <div class="card text-center shadow h-100">
                 <div class="card-body">
                     <p class="fs-4">Я посетил</p>
@@ -39,22 +16,7 @@
             </div>
         </div>
 
-{#        <div class="col">#}
-{#            <div class="card text-center shadow h-100">#}
-{#                <div class="card-body">#}
-{#                    <p class="fs-4">Города России</p>#}
-{#                    <canvas class="vert" id="chart__qty_of_cities" style="max-height: 250px;"></canvas>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
-{#            </div>#}
-{#        </div>#}
-        <!-- ^^^ Первый столбик -->
-
-        <!-- Второй столбик -->
         <div class="col">
-{#            <div class="row row-cols-1 g-3">#}
-{#                <div class="col">#}
             <div class="card text-center shadow h-100">
                 <div class="card-body">
                     <p class="fs-4">Осталось</p>
@@ -83,22 +45,47 @@
                 </div>
             </div>
         </div>
-{#            </div>#}
-{#        </div>#}
-        <!-- ^^^ Второй столбик -->
+    </div>
 
-        <!-- Третий столбик -->
-{#        <div class="col">#}
-{#            <div class="row row-cols-1 g-3">#}
-{#                <div class="col">#}
-{#            <div class="card text-center shadow h-100">#}
-{#                <div class="card-body">#}
-{#                    <p class="fs-4">Регионы России</p>#}
-{#                    <canvas id="chart__qty_of_regions" style="max-height: 250px;"></canvas>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5">
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Посещённые города</p>
+                    <canvas class="vert" id="chart__qty_of_cities"></canvas>
+                </div>
+            </div>
+        </div>
 
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">В этом и прошлом годах</p>
+                    <canvas class="vert" id="chart__qty_of_cities_this_and_prev_years"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Посещённые регионы</p>
+                    <canvas id="chart__qty_of_regions"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card text-center shadow h-100">
+                <div class="card-body">
+                    <p class="fs-4">Завершённые регионы</p>
+                    <canvas id="chart__qty_of_finished_regions"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5">
         <div class="col">
             <div class="card text-center shadow h-100">
                 <div class="card-body">
@@ -108,14 +95,8 @@
                 </div>
             </div>
         </div>
-{#            </div>#}
-{#        </div>#}
-        <!-- ^^^ Третий столбик -->
 
-        <!-- Четвёртый столбик -->
         <div class="col">
-{#            <div class="row row-cols-1 g-3">#}
-{#                <div class="col">#}
             <div class="card text-center shadow h-100">
                 <div class="card-body">
                     <p class="fs-4">Осталось</p>
@@ -144,12 +125,9 @@
                 </div>
             </div>
         </div>
-{#            </div>#}
-{#        </div>#}
-        <!-- ^^^ Четвёртый столбик -->
     </div>
 
-    <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5">
+    <div class="row row-cols-1 row-cols-xl-2 mx-3 mt-2 mb-3 g-3 px-xxl-5">
         <div class="col">
             <div class="card text-center shadow h-100">
                 <div class="card-body">
@@ -185,7 +163,9 @@
 
     <script>
         const ctx_cities = document.getElementById('chart__qty_of_cities').getContext('2d');
+        const ctx_cities_current_and_prev_years = document.getElementById('chart__qty_of_cities_this_and_prev_years').getContext('2d');
         const ctx_regions = document.getElementById('chart__qty_of_regions').getContext('2d');
+        const ctx_finished_regions = document.getElementById('chart__qty_of_finished_regions').getContext('2d');
         const ctx_cities_by_month = document.getElementById('chart__cities_by_month').getContext('2d');
         const ctx_cities_by_year = document.getElementById('chart__cities_by_year').getContext('2d');
 
@@ -201,7 +181,22 @@
                         backgroundColor: ['rgba(255,86,86,0.6)', 'rgba(255,86,86,0.3)']
                     },
                 ]
-            }
+            },
+        });
+
+        // График посещённых городов в этом и прошлом годах
+        const myChart_cities_current_and_prev_years = new Chart(ctx_cities_current_and_prev_years, {
+            type: 'pie',
+            data: {
+                labels: ['В этом году', 'В прошлом году'],
+                datasets: [
+                    {
+                        data: ['{{ cities.number_of_visited_cities_current_year }}', '{{ cities.number_of_visited_cities_previous_year }}'],
+                        borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                        backgroundColor: ['rgba(51,171,255,0.6)', 'rgba(51,171,255,0.3)']
+                    },
+                ]
+            },
         });
 
         // График посещённых регионов
@@ -214,6 +209,21 @@
                         data: ['{{ regions.number_of_visited_regions }}', '{{ regions.number_of_not_visited_regions }}'],
                         borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
                         backgroundColor: ['rgba(66, 189, 53, 0.6)', 'rgba(66, 189, 53, 0.3)']
+                    },
+                ],
+            }
+        });
+
+        // График завершённых регионов
+        const myChart_finished_regions = new Chart(ctx_finished_regions, {
+            type: 'pie',
+            data: {
+                labels: ['Завершённые', 'Не заавершённые'],
+                datasets: [
+                    {
+                        data: ['{{ regions.number_of_finished_regions }}', '{{ regions.number_of_not_finished_regions }}'],
+                        borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                        backgroundColor: ['rgb(193,70,255,0.6)', 'rgba(193,70,255,0.3)']
                     },
                 ],
             }

@@ -121,6 +121,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         number_of_visited_cities = get_number_of_visited_cities(user_id)
         if number_of_visited_cities == 0:
             context['fake_statistics'] = True
+            context.update(get_fake_statistics())
 
             return context
 

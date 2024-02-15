@@ -8,42 +8,35 @@
                  data-bs-title="Отображается 5 последних посещённых городов"></i>
         </div>
 
-        {% if cities.last_10_visited_cities %}
-            {###   Список последних посещённых городов   ###}
-            <ul class="list-group list-group-flush mt-3">
-                {% for city in cities.last_10_visited_cities %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between small">
-                            <a href="{{ city.get_absolute_url }}"
-                               class="link-offset-2 link-underline-dark link-dark
-                                      link-underline-opacity-50-hover link-opacity-50-hover">
-                                {{ city }}
-                            </a>
-                            {{ city.date_of_visit }}
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-            {### ^^^ Список последних посещённых городов ^^^ ###}
-
-            {###   Ссылка "Посмотреть все"   ###}
-            <ul class="list-group list-group-flush mt-3">
+        {###   Список последних посещённых городов   ###}
+        <ul class="list-group list-group-flush mt-3">
+            {% for city in cities.last_10_visited_cities %}
                 <li class="list-group-item">
-                    <div class="d-flex justify-content-end small">
-                        <a href="{% url 'city-all-list' %}"
+                    <div class="d-flex justify-content-between small">
+                        <a href="{{ city.get_absolute_url }}"
                            class="link-offset-2 link-underline-dark link-dark
                                   link-underline-opacity-50-hover link-opacity-50-hover">
-                            Посмотреть все
+                            {{ city.title }}
                         </a>
+                        {{ city.date_of_visit }}
                     </div>
                 </li>
-            </ul>
-            {### ^^^ Ссылка "Посмотреть все" ^^^ ###}
-        {% else %}
-            <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
-                Вы ещё не добавили ни одного посещённого города.<br><br>
-                Сделайте это для того, чтобы просматривать список последних посещённых городов.
-            </div>
-        {% endif %}
+            {% endfor %}
+        </ul>
+        {### ^^^ Список последних посещённых городов ^^^ ###}
+
+        {###   Ссылка "Посмотреть все"   ###}
+        <ul class="list-group list-group-flush mt-3">
+            <li class="list-group-item">
+                <div class="d-flex justify-content-end small">
+                    <a href="{% url 'city-all-list' %}"
+                       class="link-offset-2 link-underline-dark link-dark
+                              link-underline-opacity-50-hover link-opacity-50-hover">
+                        Посмотреть все
+                    </a>
+                </div>
+            </li>
+        </ul>
+        {### ^^^ Ссылка "Посмотреть все" ^^^ ###}
     </div>
 </div>

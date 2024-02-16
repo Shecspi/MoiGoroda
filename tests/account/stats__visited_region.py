@@ -210,3 +210,8 @@ def test__get_number_of_visited_regions__has_no_visited_regions(setup):
 @pytest.mark.django_db
 def test__get_number_of_finished_regions(setup):
     assert get_number_of_finished_regions(1) == 4
+
+
+@pytest.mark.django_db
+def test__get_number_of_half_finished_regions(setup):
+    assert get_number_of_half_finished_regions(1) == 8

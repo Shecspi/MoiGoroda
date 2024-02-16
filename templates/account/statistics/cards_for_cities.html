@@ -4,7 +4,7 @@
             <div class="card-body">
                 <p class="fs-4">Я посетил</p>
                 <h1>{{ cities.number_of_visited_cities }}</h1>
-                <p class="fs-4">городов</p>
+                <p class="fs-4">{{ word_modifications.city.number_of_visited_cities }}</p>
             </div>
         </div>
     </div>
@@ -12,9 +12,9 @@
     <div class="col">
         <div class="card text-center shadow h-100">
             <div class="card-body">
-                <p class="fs-4">Осталось</p>
+                <p class="fs-4">Осталось посетить</p>
                 <h1>{{ cities.number_of_not_visited_cities }}</h1>
-                <p class="fs-4">городов</p>
+                <p class="fs-4">{{ word_modifications.city.number_of_not_visited_cities }}</p>
             </div>
         </div>
     </div>
@@ -22,9 +22,9 @@
     <div class="col">
         <div class="card text-center shadow h-100">
             <div class="card-body">
-                <p class="fs-4">В этом году</p>
+                <p class="fs-4">В этом году я посетил</p>
                 <h1>{{ cities.number_of_visited_cities_current_year }}</h1>
-                <p class="fs-4">городов</p>
+                <p class="fs-4">{{ word_modifications.city.number_of_visited_cities_current_year }}</p>
             </div>
         </div>
     </div>
@@ -32,9 +32,9 @@
     <div class="col">
         <div class="card text-center shadow h-100">
             <div class="card-body">
-                <p class="fs-4">В прошлом году</p>
+                <p class="fs-4">В прошлом году посещено</p>
                 <h1>{{ cities.number_of_visited_cities_previous_year }}</h1>
-                <p class="fs-4">городов</p>
+                <p class="fs-4">{{ word_modifications.city.number_of_visited_cities_previous_year }}</p>
             </div>
         </div>
     </div>

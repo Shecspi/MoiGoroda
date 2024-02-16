@@ -36,6 +36,14 @@ def get_number_of_finished_regions(user_id: int) -> int:
     )
 
 
+def get_number_of_half_finished_regions(user_id: int):
+    return (
+        get_all_visited_regions(user_id)
+        .filter(ratio_visited__gte=50)
+        .count()
+    )
+
+
 def get_all_visited_regions(user_id: int) -> QuerySet:
     return (
         Region.objects

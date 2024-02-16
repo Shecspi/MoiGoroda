@@ -5,7 +5,9 @@
         Личная статистика
     </h1>
 
-    {% include 'account/statistics/info_about_fake_statistics.html' %}
+    {% if fake_statistics %}
+        {% include 'account/statistics/info_about_fake_statistics.html' %}
+    {% endif %}
 
     {% include 'account/statistics/cards_for_cities.html' %}
 

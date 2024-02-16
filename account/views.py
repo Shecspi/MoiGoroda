@@ -113,8 +113,6 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        fake_statistics = False
-        user = self.request.user.pk
         user_id = self.request.user.pk
         current_year = datetime.datetime.now().year
 
@@ -164,6 +162,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         num_not_visited_regions = number_of_regions - num_visited_regions
         num_finished_regions = get_number_of_finished_regions(user_id)
         number_of_not_finished_regions = number_of_regions - num_finished_regions
+        number_of_half_finished_regions = get_number_of_half_finished_regions(user_id)
 
         ratio_visited = calculate_ratio(num_visited_regions, num_visited_regions + num_not_visited_regions)
         ratio_not_visited = 100 - ratio_visited
@@ -179,7 +178,8 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             'ratio_visited_regions': ratio_visited,
             'ratio_not_visited_regions': ratio_not_visited,
             'ratio_finished_regions': ratio_finished,
-            'ratio_not_finished_regions': ratio_not_finished
+            'ratio_not_finished_regions': ratio_not_finished,
+            'number_of_half_finished_regions': number_of_half_finished_regions
         }
 
         #########################################

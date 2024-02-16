@@ -1,8 +1,12 @@
+import datetime
+
 from django.db.models import F, QuerySet, Count
 from django.db.models.functions import TruncYear, TruncMonth
 
 from city.models import VisitedCity, City
 from services.db.statistics_of_visited_regions import get_number_of_regions
+from services.word_modifications import modification__city
+from services.word_modifications.modification__city import modification__city
 
 
 def calculate_ratio(divisible: int, divisor: int) -> int:
@@ -104,8 +108,47 @@ def get_fake_statistics():
         'number_of_visited_cities_previous_year': 55,
         'ratio_cities_this_year': calculate_ratio(38, 55),
         'ratio_cities_prev_year': 100 - calculate_ratio(38, 55),
-        'number_of_visited_cities_in_several_years': [],
-        'number_of_visited_cities_in_several_month': []
+        'number_of_visited_cities_in_several_years': (
+            {'year': datetime.datetime.strptime('2024', '%Y'), 'qty': 38},
+            {'year': datetime.datetime.strptime('2023', '%Y'), 'qty': 55},
+            {'year': datetime.datetime.strptime('2022', '%Y'), 'qty': 47},
+            {'year': datetime.datetime.strptime('2021', '%Y'), 'qty': 30},
+            {'year': datetime.datetime.strptime('2020', '%Y'), 'qty': 22},
+            {'year': datetime.datetime.strptime('2019', '%Y'), 'qty': 27},
+            {'year': datetime.datetime.strptime('2018', '%Y'), 'qty': 12},
+            {'year': datetime.datetime.strptime('2017', '%Y'), 'qty': 24},
+            {'year': datetime.datetime.strptime('2016', '%Y'), 'qty': 7},
+            {'year': datetime.datetime.strptime('2015', '%Y'), 'qty': 11},
+            {'year': datetime.datetime.strptime('2014', '%Y'), 'qty': 3},
+            {'year': datetime.datetime.strptime('2013', '%Y'), 'qty': 4},
+            {'year': datetime.datetime.strptime('2012', '%Y'), 'qty': 3},
+        ),
+        'number_of_visited_cities_in_several_month': (
+            {'month_year': datetime.datetime.strptime('122024', '%m%Y'), 'qty': 2},
+            {'month_year': datetime.datetime.strptime('112024', '%m%Y'), 'qty': 5},
+            {'month_year': datetime.datetime.strptime('102024', '%m%Y'), 'qty': 3},
+            {'month_year': datetime.datetime.strptime('092024', '%m%Y'), 'qty': 2},
+            {'month_year': datetime.datetime.strptime('082024', '%m%Y'), 'qty': 1},
+            {'month_year': datetime.datetime.strptime('072024', '%m%Y'), 'qty': 5},
+            {'month_year': datetime.datetime.strptime('062024', '%m%Y'), 'qty': 4},
+            {'month_year': datetime.datetime.strptime('052024', '%m%Y'), 'qty': 2},
+            {'month_year': datetime.datetime.strptime('042024', '%m%Y'), 'qty': 4},
+            {'month_year': datetime.datetime.strptime('032024', '%m%Y'), 'qty': 4},
+            {'month_year': datetime.datetime.strptime('022024', '%m%Y'), 'qty': 2},
+            {'month_year': datetime.datetime.strptime('012024', '%m%Y'), 'qty': 3},
+            {'month_year': datetime.datetime.strptime('122023', '%m%Y'), 'qty': 3},
+            {'month_year': datetime.datetime.strptime('112023', '%m%Y'), 'qty': 3},
+            {'month_year': datetime.datetime.strptime('102023', '%m%Y'), 'qty': 2},
+            {'month_year': datetime.datetime.strptime('092023', '%m%Y'), 'qty': 3},
+            {'month_year': datetime.datetime.strptime('082023', '%m%Y'), 'qty': 2},
+            {'month_year': datetime.datetime.strptime('072023', '%m%Y'), 'qty': 4},
+            {'month_year': datetime.datetime.strptime('062023', '%m%Y'), 'qty': 3},
+            {'month_year': datetime.datetime.strptime('052023', '%m%Y'), 'qty': 2},
+            {'month_year': datetime.datetime.strptime('042023', '%m%Y'), 'qty': 3},
+            {'month_year': datetime.datetime.strptime('032023', '%m%Y'), 'qty': 1},
+            {'month_year': datetime.datetime.strptime('022023', '%m%Y'), 'qty': 2},
+            {'month_year': datetime.datetime.strptime('012023', '%m%Y'), 'qty': 2},
+        )
     }
 
     number_of_regions = get_number_of_regions()
@@ -139,7 +182,8 @@ def get_fake_statistics():
         'ratio_visited_regions': calculate_ratio(45, number_of_regions),
         'ratio_not_visited_regions': calculate_ratio(number_of_regions - 45, number_of_regions),
         'ratio_finished_regions': calculate_ratio(10, number_of_regions),
-        'ratio_not_finished_regions': calculate_ratio(number_of_regions - 10, number_of_regions)
+        'ratio_not_finished_regions': calculate_ratio(number_of_regions - 10, number_of_regions),
+        'number_of_half_finished_regions': 11
     }
 
     context['areas'] = (
@@ -152,5 +196,14 @@ def get_fake_statistics():
         {'title': 'Дальневосточный', 'visited_regions': 0, 'total_regions': 11, 'ratio_visited': int((0 / 11) * 100)},
         {'title': 'Сибирский', 'visited_regions': 0, 'total_regions': 10, 'ratio_visited': int((0 / 10) * 100)},
     )
+
+    context['word_modifications'] = {
+        'city': {
+            'number_of_visited_cities': modification__city(345),
+            'number_of_not_visited_cities': modification__city(790),
+            'number_of_visited_cities_current_year': modification__city(38),
+            'number_of_visited_cities_previous_year': modification__city(55)
+        }
+    }
 
     return context

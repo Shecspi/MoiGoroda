@@ -7,6 +7,9 @@ from city.models import VisitedCity, City
 from services.db.statistics_of_visited_regions import get_number_of_regions
 from services.word_modifications import modification__city
 from services.word_modifications.modification__city import modification__city
+from services.word_modifications.modification__visited import modification__visited
+from services.word_modifications.modification_region import modification__region__accusative_case, \
+    modification__region__prepositional_case
 
 
 def calculate_ratio(divisible: int, divisor: int) -> int:
@@ -203,6 +206,16 @@ def get_fake_statistics():
             'number_of_not_visited_cities': modification__city(790),
             'number_of_visited_cities_current_year': modification__city(38),
             'number_of_visited_cities_previous_year': modification__city(55)
+        },
+        'region': {
+            'number_of_visited_regions': modification__region__prepositional_case(45),
+            'number_of_not_visited_regions': modification__region__accusative_case(number_of_regions - 45),
+            'number_of_finished_regions': modification__region__prepositional_case(10),
+            'number_of_half_finished_regions': modification__region__prepositional_case(11),
+
+        },
+        'visited': {
+            'number_of_visited_cities_previous_year': modification__visited(55)
         }
     }
 

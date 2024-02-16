@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'mathfilters',
     'mdeditor',
     'markdownify',
-    'django_browser_reload',
     'dashboard'
 ]
 

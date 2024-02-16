@@ -13,12 +13,22 @@
             {% for city in cities.last_10_visited_cities %}
                 <li class="list-group-item">
                     <div class="d-flex justify-content-between small">
-                        <a href="{{ city.get_absolute_url }}"
-                           class="link-offset-2 link-underline-dark link-dark
-                                  link-underline-opacity-50-hover link-opacity-50-hover">
+                        {% if fake_statistics %}
                             {{ city.title }}
-                        </a>
-                        {{ city.date_of_visit }}
+                        {% else %}
+                            <a href="{{ city.get_absolute_url }}"
+                               class="link-offset-2 link-underline-dark link-dark
+                                      link-underline-opacity-50-hover link-opacity-50-hover">
+                                {{ city.city.title }}
+                            </a>
+                        {% endif %}
+                        <span class="text-end">
+                            {% if city.date_of_visit %}
+                                {{ city.date_of_visit }}
+                            {% else %}
+                                Дата не указана
+                            {% endif %}
+                        </span>
                     </div>
                 </li>
             {% endfor %}

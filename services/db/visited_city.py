@@ -1,4 +1,5 @@
 import datetime
+import calendar
 
 from django.db.models import F, QuerySet, Count
 from django.db.models.functions import TruncYear, TruncMonth
@@ -67,13 +68,27 @@ def get_number_of_visited_cities_in_several_month(user_id: int):
     """
     Возвращает статистику по количеству посещённых городов за каждый месяц (последние 24 месяца).
     """
-    return (VisitedCity.objects.filter(user=user_id)
-            .annotate(month_year=TruncMonth('date_of_visit'))
-            .values('month_year')
-            .order_by('-month_year')
-            .exclude(month_year=None)
-            .annotate(qty=Count('id', distinct=True))
-            .values('month_year', 'qty'))[:24]
+
+    # В график идут последние 24 месяца, для этого вычисляется месяц отсчёта и месяц завершения графика.
+    # Для того чтобы первый и последний месяцы полностью попали в расчёт, нужно в первом месяце
+    # указать началом 1 день, а в последнем - последний.
+    now = datetime.datetime.now()
+    start_date = datetime.date(now.year - 2, now.month + 1, 1)
+    last_day_of_end_month = calendar.monthrange(now.year, now.month)[1]
+    end_date = datetime.date(now.year, now.month, last_day_of_end_month)
+
+    result = (
+        VisitedCity.objects.filter(user=user_id)
+        .filter(date_of_visit__range=(start_date, end_date))
+        .annotate(month_year=TruncMonth('date_of_visit'))
+        .values('month_year')
+        .order_by('-month_year')
+        .exclude(month_year=None)
+        .annotate(qty=Count('id', distinct=True))
+        .values('month_year', 'qty')
+    )
+
+    return result
 
 
 def get_last_10_visited_cities(user_id: int) -> QuerySet:
@@ -92,28 +107,42 @@ def get_last_10_visited_cities(user_id: int) -> QuerySet:
 def get_fake_statistics():
     context = {}
 
+    tmp_number_of_visited_cities = 345
+    tmp_number_of_visited_cities_current_year = 35
+    tmp_number_of_visited_cities_previous_year = 59
+    tmp_number_of_visited_regions = 46
+    tmp_number_of_finished_regions = 13
+    tmp_number_of_half_finished_regions = 18
+
     context['cities'] = {
-        'number_of_visited_cities': 345,
-        'number_of_not_visited_cities': get_number_of_cities() - 345,
-        'last_10_visited_cities': [
-            {'title': 'Москва', 'date_of_visit': '15.02.2024'},
-            {'title': 'Санкт-Петербург', 'date_of_visit': '10.02.2024'},
-            {'title': 'Удомля', 'date_of_visit': '31.01.2024'},
-            {'title': 'Вышний Волочёк', 'date_of_visit': '30.01.2024'},
-            {'title': 'Дрезна', 'date_of_visit': '22.01.2024'},
-            {'title': 'Ахчой-Мартан', 'date_of_visit': '15.01.2024'},
-            {'title': 'Грозный', 'date_of_visit': '14.01.2024'},
-            {'title': 'Калининград', 'date_of_visit': '31.12.2023'},
-            {'title': 'Владивосток', 'date_of_visit': '23.12.2023'},
-            {'title': 'Кранознаменск', 'date_of_visit': '05.12.2023'},
-        ],
-        'number_of_visited_cities_current_year': 38,
-        'number_of_visited_cities_previous_year': 55,
-        'ratio_cities_this_year': calculate_ratio(38, 55),
-        'ratio_cities_prev_year': 100 - calculate_ratio(38, 55),
+        'number_of_visited_cities': tmp_number_of_visited_cities,
+        'number_of_not_visited_cities': get_number_of_cities() - tmp_number_of_visited_cities,
+        'last_10_visited_cities': (
+            {'title': 'Донецк', 'date_of_visit': '16 февраля 2024 г.'},
+            {'title': 'Ялта', 'date_of_visit': '14 февраля 2024 г.'},
+            {'title': 'Белгород', 'date_of_visit': '30 декабря 2023 г.'},
+            {'title': 'Бологое', 'date_of_visit': '23 августа 2023 г.'},
+            {'title': 'Нижний Новгород', 'date_of_visit': '6 мая 2023 г.'},
+            {'title': 'Москва', 'date_of_visit': '3 мая 2023 г.'},
+            {'title': 'Химки', 'date_of_visit': '6 апреля 2023 г.'},
+            {'title': 'Санкт-Петербург', 'date_of_visit': '2 апреля 2023 г.'},
+            {'title': 'Энгельс', 'date_of_visit': '5 декабря 2022 г.'},
+            {'title': 'Керчь', 'date_of_visit': '8 октября 2022 г.'},
+            {'title': 'Голицыно', 'date_of_visit': '20 августа 2022 г.'},
+        ),
+        'number_of_visited_cities_current_year': tmp_number_of_visited_cities_current_year,
+        'number_of_visited_cities_previous_year': tmp_number_of_visited_cities_previous_year,
+        'ratio_cities_this_year': calculate_ratio(
+            tmp_number_of_visited_cities_current_year,
+            tmp_number_of_visited_cities_previous_year
+        ),
+        'ratio_cities_prev_year': 100 - calculate_ratio(
+            tmp_number_of_visited_cities_current_year,
+            tmp_number_of_visited_cities_previous_year
+        ),
         'number_of_visited_cities_in_several_years': (
-            {'year': datetime.datetime.strptime('2024', '%Y'), 'qty': 38},
-            {'year': datetime.datetime.strptime('2023', '%Y'), 'qty': 55},
+            {'year': datetime.datetime.strptime('2024', '%Y'), 'qty': tmp_number_of_visited_cities_current_year},
+            {'year': datetime.datetime.strptime('2023', '%Y'), 'qty': tmp_number_of_visited_cities_previous_year},
             {'year': datetime.datetime.strptime('2022', '%Y'), 'qty': 47},
             {'year': datetime.datetime.strptime('2021', '%Y'), 'qty': 30},
             {'year': datetime.datetime.strptime('2020', '%Y'), 'qty': 22},
@@ -178,15 +207,15 @@ def get_fake_statistics():
             {'title': 'Владимирская область', 'visited_cities': 5,
              'total_cities': 23, 'ratio_visited': int((5/23) * 100)},
         ),
-        'number_of_visited_regions': 45,
-        'number_of_not_visited_regions': number_of_regions - 45,
-        'number_of_finished_regions': 10,
-        'number_of_not_finished_regions': number_of_regions - 10,
-        'ratio_visited_regions': calculate_ratio(45, number_of_regions),
-        'ratio_not_visited_regions': calculate_ratio(number_of_regions - 45, number_of_regions),
-        'ratio_finished_regions': calculate_ratio(10, number_of_regions),
-        'ratio_not_finished_regions': calculate_ratio(number_of_regions - 10, number_of_regions),
-        'number_of_half_finished_regions': 11
+        'number_of_visited_regions': tmp_number_of_visited_regions,
+        'number_of_not_visited_regions': number_of_regions - tmp_number_of_visited_regions,
+        'number_of_finished_regions': tmp_number_of_finished_regions,
+        'number_of_not_finished_regions': number_of_regions - tmp_number_of_finished_regions,
+        'ratio_visited_regions': calculate_ratio(tmp_number_of_visited_regions, number_of_regions),
+        'ratio_not_visited_regions': calculate_ratio(number_of_regions - tmp_number_of_visited_regions, number_of_regions),
+        'ratio_finished_regions': calculate_ratio(tmp_number_of_finished_regions, number_of_regions),
+        'ratio_not_finished_regions': calculate_ratio(number_of_regions - tmp_number_of_finished_regions, number_of_regions),
+        'number_of_half_finished_regions': tmp_number_of_half_finished_regions
     }
 
     context['areas'] = (
@@ -202,20 +231,20 @@ def get_fake_statistics():
 
     context['word_modifications'] = {
         'city': {
-            'number_of_visited_cities': modification__city(345),
-            'number_of_not_visited_cities': modification__city(790),
-            'number_of_visited_cities_current_year': modification__city(38),
-            'number_of_visited_cities_previous_year': modification__city(55)
+            'number_of_visited_cities': modification__city(tmp_number_of_visited_cities),
+            'number_of_not_visited_cities': modification__city(get_number_of_cities() - tmp_number_of_visited_cities),
+            'number_of_visited_cities_current_year': modification__city(tmp_number_of_visited_cities_current_year),
+            'number_of_visited_cities_previous_year': modification__city(tmp_number_of_visited_cities_previous_year)
         },
         'region': {
-            'number_of_visited_regions': modification__region__prepositional_case(45),
-            'number_of_not_visited_regions': modification__region__accusative_case(number_of_regions - 45),
-            'number_of_finished_regions': modification__region__prepositional_case(10),
-            'number_of_half_finished_regions': modification__region__prepositional_case(11),
+            'number_of_visited_regions': modification__region__prepositional_case(tmp_number_of_visited_regions),
+            'number_of_not_visited_regions': modification__region__accusative_case(number_of_regions - tmp_number_of_visited_regions),
+            'number_of_finished_regions': modification__region__prepositional_case(tmp_number_of_finished_regions),
+            'number_of_half_finished_regions': modification__region__prepositional_case(tmp_number_of_half_finished_regions),
 
         },
         'visited': {
-            'number_of_visited_cities_previous_year': modification__visited(55)
+            'number_of_visited_cities_previous_year': modification__visited(tmp_number_of_visited_cities_previous_year)
         }
     }
 

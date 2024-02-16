@@ -1,7 +1,13 @@
 <div class="card text-center shadow h-100">
     <div class="card-body">
         <p class="fs-4">Количество посещённых городов по годам</p>
-        <canvas id="chart__cities_by_year"></canvas>
+        {% if cities.number_of_visited_cities_in_several_years %}
+            <canvas id="chart__cities_by_year"></canvas>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert">
+                У вас не сохранено ни одного города с указанием даты посещения.
+            </div>
+        {% endif %}
     </div>
 </div>
 

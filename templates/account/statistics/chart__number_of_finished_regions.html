@@ -1,0 +1,23 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <p class="fs-4">Завершённые регионы</p>
+        <canvas id="chart__number_of_finished_regions"></canvas>
+    </div>
+</div>
+
+<script>
+    const ctx_number_of_finished_regions = document.getElementById('chart__number_of_finished_regions').getContext('2d');
+    const myChart_finished_regions = new Chart(ctx_number_of_finished_regions, {
+        type: 'pie',
+        data: {
+            labels: ['Завершённые', 'Не заавершённые'],
+            datasets: [
+                {
+                    data: ['{{ regions.number_of_finished_regions }}', '{{ regions.number_of_not_finished_regions }}'],
+                    borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                    backgroundColor: ['rgb(193,70,255,0.6)', 'rgba(193,70,255,0.3)']
+                },
+            ],
+        }
+    });
+</script>

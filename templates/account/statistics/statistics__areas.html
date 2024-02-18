@@ -1,0 +1,42 @@
+<div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="align-self-center mb-0">
+                Федеральные округа
+            </h4>
+            <i class="fa-regular fa-circle-question fs-4 text-body-secondary tooltips"
+               data-bs-toggle="tooltip"
+               data-bs-title="Отображается информация о количестве посещённых регионов в каждом из федеральных округов"></i>
+        </div>
+
+        {% if regions.most_visited_regions %}
+            {###   Список федеральных округов   ###}
+            <ul class="list-group list-group-flush mt-3">
+                {% for area in areas %}
+                    <li class="list-group-item border-bottom-0">
+                        <div class="d-flex justify-content-between small">
+                            <span>{{ area.title }}</span>
+                            <span>{{ area.visited_regions }} из {{ area.total_regions  }}</span>
+                        </div>
+
+                        <div class="progress mt-1" style="height: 10px">
+                            <div class="progress-bar bg-secondary progressArea"
+                                 role="progressbar"
+                                 style="width: {{ area.ratio_visited|floatformat:0 }}%"
+                                 aria-valuenow="{{ area.ratio_visited|floatformat:0 }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"
+                            ></div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            {### ^^^ Список федеральных округов ^^^ ###}
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
+                Вы ещё не добавили ни одного посещённого города.<br><br>
+                Сделайте это для того, чтобы просматривать список самых популярных федеральных округов.
+            </div>
+        {% endif %}
+    </div>
+</div>

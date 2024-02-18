@@ -1,5 +1,4 @@
 {% load static %}
-{% load django_browser_reload %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -44,7 +43,6 @@
 <body>
     {% block base %}
     {% endblock %}
-
-    {% django_browser_reload_script %}
+    <script src="{% static 'js/enable_tooltips.js' %}"
 </body>
 </html>

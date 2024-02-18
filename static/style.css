@@ -171,3 +171,11 @@ div#main-background {
 .index-logo {
     font-family: 'Pacifico', cursive;
 }
+
+/*------------ Всплывающие подсдказки ------------*/
+[data-bs-toggle="tooltip"] {
+    opacity: 0.3;
+}
+[data-bs-toggle="tooltip"]:hover {
+    opacity: 0.8;
+}

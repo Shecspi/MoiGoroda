@@ -22,9 +22,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Set up Poetry
-      - run: poetry install --no-interaction --no-root
-      - run: poetry install --no-interaction
-      - run: poetry run pytest
+        run: poetry install --no-interaction --no-root && poetry install --no-interaction && poetry run pytest
 
       - name: Test with pytest
         run: |

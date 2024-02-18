@@ -4,6 +4,22 @@ on:
       branches: [ "dev" ]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          ${{ secrets.DEV__POETRY_PATH }} install
+          ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
+          ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py migrate
+      - name: Test with pytest
+        run: |
+          ${{ secrets.DEV__POETRY_PATH }} pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
   deploy:
     runs-on: [ubuntu-latest]
     steps:

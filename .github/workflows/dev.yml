@@ -1,10 +1,36 @@
 name: Deploy to the DEV-server
 on:
     push:
-      branches: [ "dev" ]
+      branches: ["dev"]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+
+      - name: Create .env file
+        run: cp MoiGoroda/.env.example MoiGoroda/.env
+
+      - name: Poetry install
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.7.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Set up Poetry
+        run: poetry install --no-interaction --no-root && poetry install --no-interaction
+
+      - name: Test with pytest
+        run: poetry run pytest
   deploy:
+    needs: test
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v1

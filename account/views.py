@@ -1,22 +1,25 @@
 import logging
-import datetime
 
-from django.contrib.auth import login
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetCompleteView, PasswordResetDoneView, \
-    PasswordChangeView
-from django.db.models import Count, Q, F, FloatField
-from django.db.models.functions import Cast
-from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views import View
-from django.views.generic import CreateView, DetailView, UpdateView, TemplateView, FormView
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import CreateView, UpdateView, TemplateView
+from django.contrib.auth.views import LoginView, PasswordResetDoneView, PasswordChangeView
 
-from account.forms import SignUpForm, SignInForm, UpdateProfileForm
-from region.models import Region, Area
-from city.models import VisitedCity, City
+from services.calculate import calculate_ratio
+from services.db.statistics.fake_statistics import get_fake_statistics
+from services.word_modifications.city import modification__city
+from services.word_modifications.region import modification__region__prepositional_case, \
+    modification__region__accusative_case
+from services.word_modifications.visited import modification__visited
 from utils.LoggingMixin import LoggingMixin
+from services.db.statistics.visited_city import *
+from services.db.statistics.visited_region import *
+from services.db.statistics.area import get_visited_areas
+from account.forms import SignUpForm, SignInForm, UpdateProfileForm
+
 
 logger_email = logging.getLogger(__name__)
 
@@ -56,7 +59,8 @@ class SignUp(CreateView):
 
         context['page_title'] = 'Регистрация'
         context[
-            'page_description'] = 'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои посещённые города и просматривать их на карте'
+            'page_description'] = 'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои ' \
+                                  'посещённые города и просматривать их на карте'
 
         return context
 
@@ -80,7 +84,9 @@ class SignIn(LoginView):
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Вход'
-        context['page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
+        context[
+            'page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города ' \
+                                  'и сохранить новые'
 
         return context
 
@@ -97,7 +103,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
 
     > Доступ на эту страницу возможен только авторизованным пользователям.
     """
-    template_name = 'account/stats.html'
+    template_name = 'account/statistics/statistics.html'
 
     def get(self, *args, **kwargs):
         self.set_message(
@@ -109,107 +115,112 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user_id = self.request.user.pk
+        current_year = datetime.datetime.now().year
 
-        user = self.request.user.pk
+        number_of_visited_cities = get_number_of_visited_cities(user_id)
+        if number_of_visited_cities == 0:
+            context['fake_statistics'] = True
+            context.update(get_fake_statistics())
 
-        # Статистика по городам
-        visited_cities = VisitedCity.objects.filter(user=user)
-        last_cities = visited_cities.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')[:10]
+            return context
 
-        num_cities_this_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year).count()
-        num_cities_prev_year = visited_cities.filter(date_of_visit__year=datetime.datetime.now().year - 1).count()
-        num_cities_2_year = num_cities_prev_year + num_cities_this_year
-        ratio_cities_this_year = calculate_ratio(num_cities_this_year, num_cities_2_year)
+        #############################
+        #   Статистика по городам   #
+        #############################
+
+        number_of_not_visited_cities = get_number_of_not_visited_cities(user_id)
+
+        number_of_visited_cities_current_year = get_number_of_visited_cities_by_year(user_id, current_year)
+        number_of_visited_cities_previous_year = get_number_of_visited_cities_by_year(user_id, current_year - 1)
+        ratio_cities_this_year = calculate_ratio(
+            number_of_visited_cities_current_year,
+            number_of_visited_cities_previous_year
+        )
         ratio_cities_prev_year = 100 - ratio_cities_this_year
 
-        num_visited_cities = visited_cities.count()
-        num_all_cities = City.objects.count()
-        num_not_visited_cities = num_all_cities - num_visited_cities
-        ratio_visited_cities = calculate_ratio(num_visited_cities, num_all_cities)
-        ratio_not_visited_cities = 100 - ratio_visited_cities
+        number_of_visited_cities_in_several_years = get_number_of_visited_cities_in_several_years(user_id)
+        number_of_visited_cities_in_several_month = get_number_of_visited_cities_in_several_month(user_id)
 
-        # Статистика по регионам
-        regions = (
-            Region.objects
-            .all()
-            .annotate(
-                # Добавляем в QuerySet общее количество городов в регионе
-                total_cities=Count('city', distinct=True),
-                # Добавляем в QuerySet количество посещённых городов в регионе
-                visited_cities=Count('city', filter=Q(city__visitedcity__user__id=user), distinct=True),
-                # Добавляем в QuerySet процентное отношение посещённых городов
-                # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.
-                # Например, 76 / 54 получается 1.
-                ratio_visited=(
-                                      Cast(
-                                          F('visited_cities'), output_field=FloatField()
-                                      ) / Cast(
-                                  F('total_cities'), output_field=FloatField()
-                              )) * 100)
-            .exclude(visitedcity__city=None)
-            .exclude(~Q(visitedcity__user=user))
-            .order_by('-ratio_visited', '-visited_cities')
-        )
-        num_visited_regions = (
-            Region.objects
-            .all()
-            .exclude(visitedcity__city=None)
-            .exclude(~Q(visitedcity__user=user))
-            .count()
-        )
-        num_not_visited_regions = Region.objects.count() - num_visited_regions
-        # Количество регионов, в которых посещены все города.
-        # Для этого забираем те записи, где 'total_cities' и 'visitied_cities' равны.
-        num_finished_regions = regions.filter(total_cities=F('visited_cities')).count()
+        context['cities'] = {
+            'number_of_visited_cities': number_of_visited_cities,
+            'number_of_not_visited_cities': number_of_not_visited_cities,
+            'last_10_visited_cities': get_last_10_visited_cities(user_id),
+            'number_of_visited_cities_current_year': number_of_visited_cities_current_year,
+            'number_of_visited_cities_previous_year': number_of_visited_cities_previous_year,
+            'ratio_cities_this_year': ratio_cities_this_year,
+            'ratio_cities_prev_year': ratio_cities_prev_year,
+            'number_of_visited_cities_in_several_years': number_of_visited_cities_in_several_years,
+            'number_of_visited_cities_in_several_month': number_of_visited_cities_in_several_month
+        }
+
+        ##############################
+        #   Статистика по регионам   #
+        ##############################
+
+        regions = get_all_visited_regions(user_id)
+        number_of_regions = get_number_of_regions()
+        num_visited_regions = get_number_of_visited_regions(user_id)
+        num_not_visited_regions = number_of_regions - num_visited_regions
+        num_finished_regions = get_number_of_finished_regions(user_id)
+        number_of_not_finished_regions = number_of_regions - num_finished_regions
+        number_of_half_finished_regions = get_number_of_half_finished_regions(user_id)
 
         ratio_visited = calculate_ratio(num_visited_regions, num_visited_regions + num_not_visited_regions)
         ratio_not_visited = 100 - ratio_visited
         ratio_finished = calculate_ratio(num_finished_regions, num_finished_regions + num_not_visited_regions)
         ratio_not_finished = 100 - ratio_finished
 
-        areas = (
-            Area.objects
-            .all()
-            .annotate(
-                # Добавляем в QuerySet общее количество регионов в округе
-                total_regions=Count('region', distinct=True),
-                # Добавляем в QuerySet количество посещённых регионов в округе
-                visited_regions=Count('region', filter=Q(region__visitedcity__user__id=user), distinct=True),
-                # Добавляем в QuerySet процентное соотношение посещённых регионов.
-                # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.
-                # Например, 76 / 54 получается 1.
-                ratio_visited=(
-                    Cast(
-                        F('visited_regions'), output_field=FloatField()
-                    ) / Cast(
-                        F('total_regions'), output_field=FloatField()
-                    )) * 100)
-            .order_by('-ratio_visited', 'title')
-        )
-
-        context['cities'] = {
-            'num_visited': num_visited_cities,
-            'num_not_visited': num_not_visited_cities,
-            'num_all': num_all_cities,
-            'ratio_visited': ratio_visited_cities,
-            'ratio_not_visited': ratio_not_visited_cities,
-            'last_visited': last_cities,
-            'visited_this_year': num_cities_this_year,
-            'visited_prev_year': num_cities_prev_year,
-            'ratio_this_year': ratio_cities_this_year,
-            'ratio_prev_year': ratio_cities_prev_year
-        }
         context['regions'] = {
-            'visited': regions[:10],
-            'num_visited': num_visited_regions,
-            'num_not_visited': num_not_visited_regions,
-            'num_finished': num_finished_regions,
-            'ratio_visited': ratio_visited,
-            'ratio_not_visited': ratio_not_visited,
-            'ratio_finished': ratio_finished,
-            'ratio_not_finished': ratio_not_finished
+            'most_visited_regions': regions[:10],
+            'number_of_visited_regions': num_visited_regions,
+            'number_of_not_visited_regions': num_not_visited_regions,
+            'number_of_finished_regions': num_finished_regions,
+            'number_of_not_finished_regions': number_of_not_finished_regions,
+            'ratio_visited_regions': ratio_visited,
+            'ratio_not_visited_regions': ratio_not_visited,
+            'ratio_finished_regions': ratio_finished,
+            'ratio_not_finished_regions': ratio_not_finished,
+            'number_of_half_finished_regions': number_of_half_finished_regions
         }
+
+        #########################################
+        #   Статистика по федеральным округам   #
+        #########################################
+
+        areas = get_visited_areas(user_id)
+
         context['areas'] = areas
+
+        ####################
+        # Изменённые слова #
+        ####################
+        context['word_modifications'] = {
+            'city': {
+                'number_of_visited_cities': modification__city(number_of_visited_cities),
+                'number_of_not_visited_cities': modification__city(
+                    get_number_of_cities() - number_of_visited_cities),
+                'number_of_visited_cities_current_year': modification__city(number_of_visited_cities_current_year),
+                'number_of_visited_cities_previous_year': modification__city(number_of_visited_cities_previous_year)
+            },
+            'region': {
+                'number_of_visited_regions': modification__region__prepositional_case(num_visited_regions),
+                'number_of_not_visited_regions': modification__region__accusative_case(
+                    number_of_regions - num_visited_regions),
+                'number_of_finished_regions': modification__region__prepositional_case(num_finished_regions),
+                'number_of_half_finished_regions': modification__region__prepositional_case(
+                    number_of_half_finished_regions),
+
+            },
+            'visited': {
+                'number_of_visited_cities_previous_year': modification__visited(
+                    number_of_visited_cities_previous_year)
+            }
+        }
+
+        ##############################
+        #   Вспомогательные данные   #
+        ##############################
 
         context['active_page'] = 'stats'
         context['page_title'] = 'Личная статистика'
@@ -272,10 +283,3 @@ class MyPasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
         context['page_description'] = 'Пароль успешно изменён'
 
         return context
-
-
-def calculate_ratio(divisible: int, divisor: int) -> int:
-    try:
-        return int((divisible / divisor) * 100)
-    except ZeroDivisionError:
-        return 0

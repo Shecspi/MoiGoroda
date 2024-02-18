@@ -12,19 +12,21 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
+
+
 from datetime import datetime
 
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value, F, AutoField, CharField
+from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
 from city.models import VisitedCity, City
-from utils.CitiesByRegionMixin import CitiesByRegionMixin
 from utils.LoggingMixin import LoggingMixin
 from utils.RegionListMixin import RegionListMixin
+from utils.CitiesByRegionMixin import CitiesByRegionMixin
 
 
 class RegionList(RegionListMixin, LoggingMixin, ListView):

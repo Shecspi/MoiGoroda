@@ -17,8 +17,6 @@ urlpatterns = [
 
     path('mdeditor/', include('mdeditor.urls')),
 
-    path("__reload__/", include("django_browser_reload.urls")),
-
     path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     path("sitemap.xml", TemplateView.as_view(template_name="sitemap.xml", content_type="text/xml")),
     path('dashboard/', include('dashboard.urls')),

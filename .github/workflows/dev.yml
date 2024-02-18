@@ -7,16 +7,25 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v1
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v1
         with:
           python-version: '3.11'
-      - name: Install dependencies
-        run: |
-          ${{ secrets.DEV__POETRY_PATH }} install
-          ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
-          ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py migrate
+
+      - name: Poetry install
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.7.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Set up Poetry
+      - run: poetry install --no-interaction --no-root
+      - run: poetry install --no-interaction
+      - run: poetry run pytest
+
       - name: Test with pytest
         run: |
           ${{ secrets.DEV__POETRY_PATH }} pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html

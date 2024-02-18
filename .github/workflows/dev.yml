@@ -14,6 +14,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Create .env file
+        run: pwd && ls -l
+
       - name: Poetry install
         uses: snok/install-poetry@v1
         with:

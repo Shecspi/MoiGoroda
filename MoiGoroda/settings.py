@@ -315,9 +315,9 @@ if not DEBUG:
         dsn=env('SENTRY_TOKEN'),
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
-        traces_sample_rate=env('SENTRY_TRACES_SAMPLE_RATE'),
+        traces_sample_rate=float(env('SENTRY_TRACES_SAMPLE_RATE')),
         # Set profiles_sample_rate to 1.0 to profile 100%
         # of sampled transactions.
         # We recommend adjusting this value in production.
-        profiles_sample_rate=env('SENTRY_PROFILES_SAMPLE_RATE'),
+        profiles_sample_rate=float(env('SENTRY_PROFILES_SAMPLE_RATE')),
     )

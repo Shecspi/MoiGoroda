@@ -25,12 +25,13 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Set up Poetry
-        run: poetry install --no-interaction --no-root && poetry install --no-interaction && poetry run pytest
+        run: poetry install --no-interaction --no-root && poetry install --no-interaction
 
       - name: Test with pytest
         run: |
-          ${{ secrets.DEV__POETRY_PATH }} pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+          poetry run pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
   deploy:
+    needs: test
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v1

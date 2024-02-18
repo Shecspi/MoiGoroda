@@ -1,7 +1,9 @@
 name: Deploy to the DEV-server
 on:
     push:
-      branches: [ "dev" ]
+      branches: ["dev"]
+    pull_request:
+      branches: ["dev"]
 
 jobs:
   test:
@@ -28,8 +30,7 @@ jobs:
         run: poetry install --no-interaction --no-root && poetry install --no-interaction
 
       - name: Test with pytest
-        run: |
-          poetry run pytest --junitxml=junit/test-results.xml
+        run: poetry run pytest
   deploy:
     needs: test
     runs-on: [ubuntu-latest]

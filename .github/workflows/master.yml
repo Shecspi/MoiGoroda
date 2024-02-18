@@ -1,9 +1,36 @@
 name: Deploy to the server
 on:
     push:
-      branches: [ "master" ]
+      branches: ["master"]
+    pull_request:
+      branches: ["master"]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+
+      - name: Create .env file
+        run: cp MoiGoroda/.env.example MoiGoroda/.env
+
+      - name: Poetry install
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.7.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Set up Poetry
+        run: poetry install --no-interaction --no-root && poetry install --no-interaction
+
+      - name: Test with pytest
+        run: poetry run pytest
   deploy:
     runs-on: [ubuntu-latest]
     steps:
@@ -18,6 +45,7 @@ jobs:
             cd ${{ secrets.LOCAL_PATH }}
             git pull origin master
             git checkout master
+            ${{ secrets.POETRY_PATH }} install
             ${{ secrets.POETRY_PATH }} run python3 manage.py makemigrations
             ${{ secrets.POETRY_PATH }} run python3 manage.py migrate
             export POETRY_PATH=${{ secrets.POETRY_PATH }}

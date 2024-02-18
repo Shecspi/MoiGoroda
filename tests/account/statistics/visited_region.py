@@ -8,9 +8,8 @@ from django.contrib.auth.models import User
 
 from city.models import City, VisitedCity
 from region.models import Area, Region
-from services.db.statistics_of_visited_regions import *
-
-from services.db.statistics_of_visited_regions import get_all_visited_regions
+from services.db.statistics.visited_region import *
+from services.db.statistics.visited_region import get_all_visited_regions
 
 
 def create_user(django_user_model):
@@ -184,7 +183,6 @@ def test__get_all_visited_regions__ratio_visited(setup):
     """
     regions = get_all_visited_regions(1)
 
-    numbers = [100, 100, 100, 100, 2, 2, 2, 2, 1, 1, 1, 1]
     for index, region in enumerate(regions):
         assert region.ratio_visited == (region.visited_cities / region.total_cities) * 100
 

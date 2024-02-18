@@ -1,25 +1,25 @@
 import logging
-import datetime
 
-from django.contrib.auth import login
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetCompleteView, PasswordResetDoneView, \
-    PasswordChangeView
-from django.db.models import Count, Q, F, FloatField
-from django.db.models.functions import Cast, TruncMonth, TruncYear
-from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views import View
-from django.views.generic import CreateView, DetailView, UpdateView, TemplateView, FormView
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import CreateView, UpdateView, TemplateView
+from django.contrib.auth.views import LoginView, PasswordResetDoneView, PasswordChangeView
 
-from account.forms import SignUpForm, SignInForm, UpdateProfileForm
-from region.models import Region, Area
-from city.models import VisitedCity, City
-from services.db.statistics_of_area import get_visited_areas
-from services.db.statistics_of_visited_regions import *
-from services.db.visited_city import *
+from services.calculate import calculate_ratio
+from services.db.statistics.fake_statistics import get_fake_statistics
+from services.word_modifications.city import modification__city
+from services.word_modifications.region import modification__region__prepositional_case, \
+    modification__region__accusative_case
+from services.word_modifications.visited import modification__visited
 from utils.LoggingMixin import LoggingMixin
+from services.db.statistics.visited_city import *
+from services.db.statistics.visited_region import *
+from services.db.statistics.area import get_visited_areas
+from account.forms import SignUpForm, SignInForm, UpdateProfileForm
+
 
 logger_email = logging.getLogger(__name__)
 
@@ -59,7 +59,8 @@ class SignUp(CreateView):
 
         context['page_title'] = 'Регистрация'
         context[
-            'page_description'] = 'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои посещённые города и просматривать их на карте'
+            'page_description'] = 'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои ' \
+                                  'посещённые города и просматривать их на карте'
 
         return context
 
@@ -84,7 +85,8 @@ class SignIn(LoginView):
 
         context['page_title'] = 'Вход'
         context[
-            'page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города и сохранить новые'
+            'page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города ' \
+                                  'и сохранить новые'
 
         return context
 

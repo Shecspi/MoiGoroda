@@ -5,7 +5,8 @@ import pytest
 from datetime import datetime
 
 from region.models import Area, Region
-from services.db.visited_city import *
+from services.calculate import calculate_ratio
+from services.db.statistics.visited_city import *
 
 
 def create_user(django_user_model):

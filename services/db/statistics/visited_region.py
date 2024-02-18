@@ -1,5 +1,16 @@
-from django.db.models import Q, QuerySet, Count, F, FloatField
+"""
+Реализует функции, работающие с моделью Region.
+----------------------------------------------
+
+Copyright 2024 Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
+
 from django.db.models.functions import Cast
+from django.db.models import Q, F, Count, QuerySet, FloatField
 
 from region.models import Region
 

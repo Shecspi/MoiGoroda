@@ -1,9 +1,8 @@
 import pytest
 
-from services.word_modifications import modification__city
-from services.word_modifications.modification__city import modification__city
-from services.word_modifications.modification__visited import modification__visited
-from services.word_modifications.modification_region import *
+from services.word_modifications.city import modification__city
+from services.word_modifications.visited import modification__visited
+from services.word_modifications.region import *
 
 
 @pytest.mark.parametrize(

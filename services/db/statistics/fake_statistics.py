@@ -1,110 +1,25 @@
-import datetime
-import calendar
+"""
+Реализует функцию, генерирующую поддельные данные для страницы статистики.
+----------------------------------------------
 
-from django.db.models import F, QuerySet, Count
-from django.db.models.functions import TruncYear, TruncMonth
+Copyright 2024 Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
 
-from city.models import VisitedCity, City
-from services.db.statistics_of_visited_regions import get_number_of_regions
-from services.word_modifications import modification__city
-from services.word_modifications.modification__city import modification__city
-from services.word_modifications.modification__visited import modification__visited
-from services.word_modifications.modification_region import modification__region__accusative_case, \
-    modification__region__prepositional_case
+----------------------------------------------
+"""
+from services.calculate import calculate_ratio
+from services.db.statistics.visited_city import *
+from services.db.statistics.visited_region import get_number_of_regions
+from services.word_modifications.city import modification__city
+from services.word_modifications.visited import modification__visited
+from services.word_modifications.region import modification__region__prepositional_case, \
+    modification__region__accusative_case
 
 
-def calculate_ratio(divisible: int, divisor: int) -> int:
+def get_fake_statistics() -> dict:
     """
-    Рассчитывает процентное соотношение divisible к divisor и возвращает его в округлённом до целого числа значении.
-    В случае, если в качестве divisor передаётся 0, то возвращается 0.
+    Возвращает словарь, в котором находятся поддельные данные для использования на странице личной статистики.
     """
-    try:
-        return int((divisible / divisor) * 100)
-    except ZeroDivisionError:
-        return 0
-
-
-def get_number_of_cities() -> int:
-    """
-    Возвращает общее количество городов в России.
-    """
-    return City.objects.count()
-
-
-def get_number_of_visited_cities(user_id: int) -> int:
-    """
-    Возвращает количество посещённых городов пользователем с ID, указанном в user_id.
-    """
-    return VisitedCity.objects.filter(user=user_id).count()
-
-
-def get_number_of_not_visited_cities(user_id: int) -> int:
-    """
-    Возвращает количество непосещённых городов пользователем с ID, указанном в user_id.
-    """
-    return City.objects.count() - VisitedCity.objects.filter(user=user_id).count()
-
-
-def get_number_of_visited_cities_by_year(user_id: int, year: int) -> int:
-    """
-    Возвращает количество посещённых городов пользователем с ID, указанном в user_id, за один год, указанный в year.
-    """
-    return VisitedCity.objects.filter(user=user_id, date_of_visit__year=year).count()
-
-
-def get_number_of_visited_cities_in_several_years(user_id: int):
-    """
-    Возвращает статистику по количеству посещённых городов за каждый год.
-    """
-    return (VisitedCity.objects.filter(user=user_id)
-            .annotate(year=TruncYear('date_of_visit'))
-            .values('year')
-            .exclude(year=None)
-            .annotate(qty=Count('id', distinct=True))
-            .values('year', 'qty'))
-
-
-def get_number_of_visited_cities_in_several_month(user_id: int):
-    """
-    Возвращает статистику по количеству посещённых городов за каждый месяц (последние 24 месяца).
-    """
-
-    # В график идут последние 24 месяца, для этого вычисляется месяц отсчёта и месяц завершения графика.
-    # Для того чтобы первый и последний месяцы полностью попали в расчёт, нужно в первом месяце
-    # указать началом 1 день, а в последнем - последний.
-    now = datetime.datetime.now()
-    start_date = datetime.date(now.year - 2, now.month + 1, 1)
-    last_day_of_end_month = calendar.monthrange(now.year, now.month)[1]
-    end_date = datetime.date(now.year, now.month, last_day_of_end_month)
-
-    result = (
-        VisitedCity.objects.filter(user=user_id)
-        .filter(date_of_visit__range=(start_date, end_date))
-        .annotate(month_year=TruncMonth('date_of_visit'))
-        .values('month_year')
-        .order_by('-month_year')
-        .exclude(month_year=None)
-        .annotate(qty=Count('id', distinct=True))
-        .values('month_year', 'qty')
-    )
-
-    return result
-
-
-def get_last_10_visited_cities(user_id: int) -> QuerySet:
-    """
-    Возвращает последние 10 посещённых городов пользователя с ID, указанным в user_id.
-    """
-    return (
-        VisitedCity.objects
-        .filter(user_id=user_id)
-        .order_by(
-            F('date_of_visit')
-            .desc(nulls_last=True), 'city__title'
-        )[:10])
-
-
-def get_fake_statistics():
     context = {}
 
     tmp_number_of_visited_cities = 345
@@ -212,9 +127,14 @@ def get_fake_statistics():
         'number_of_finished_regions': tmp_number_of_finished_regions,
         'number_of_not_finished_regions': number_of_regions - tmp_number_of_finished_regions,
         'ratio_visited_regions': calculate_ratio(tmp_number_of_visited_regions, number_of_regions),
-        'ratio_not_visited_regions': calculate_ratio(number_of_regions - tmp_number_of_visited_regions, number_of_regions),
+        'ratio_not_visited_regions': calculate_ratio(
+            number_of_regions - tmp_number_of_visited_regions,
+            number_of_regions),
         'ratio_finished_regions': calculate_ratio(tmp_number_of_finished_regions, number_of_regions),
-        'ratio_not_finished_regions': calculate_ratio(number_of_regions - tmp_number_of_finished_regions, number_of_regions),
+        'ratio_not_finished_regions': calculate_ratio(
+            number_of_regions - tmp_number_of_finished_regions,
+            number_of_regions
+        ),
         'number_of_half_finished_regions': tmp_number_of_half_finished_regions
     }
 
@@ -238,9 +158,13 @@ def get_fake_statistics():
         },
         'region': {
             'number_of_visited_regions': modification__region__prepositional_case(tmp_number_of_visited_regions),
-            'number_of_not_visited_regions': modification__region__accusative_case(number_of_regions - tmp_number_of_visited_regions),
+            'number_of_not_visited_regions': modification__region__accusative_case(
+                number_of_regions - tmp_number_of_visited_regions
+            ),
             'number_of_finished_regions': modification__region__prepositional_case(tmp_number_of_finished_regions),
-            'number_of_half_finished_regions': modification__region__prepositional_case(tmp_number_of_half_finished_regions),
+            'number_of_half_finished_regions': modification__region__prepositional_case(
+                tmp_number_of_half_finished_regions
+            ),
 
         },
         'visited': {

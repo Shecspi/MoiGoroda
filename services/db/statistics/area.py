@@ -1,3 +1,14 @@
+"""
+Реализует функции, работающие с моделью Area.
+----------------------------------------------
+
+Copyright 2024 Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
+
 from django.db.models import Count, F, FloatField, Q, QuerySet
 from django.db.models.functions import Cast
 
@@ -5,6 +16,14 @@ from region.models import Area
 
 
 def get_visited_areas(user_id: int) -> QuerySet:
+    """
+    Возвращает последовательность федеральных округов из БД, которая имеет дополнительные поля:
+     - total_regions: количество регионов в федеральном округе;
+     - visited_regions: количество посещённых регионов в федеральном округе;
+     - ratio_visited: процентное соотношение количества посещённых регионов к общему количеству.
+
+     Записи сортируются сначала по полю ratio_visited (от большего к меньшему), а потом по полю title.
+    """
     return (
         Area.objects
         .all()

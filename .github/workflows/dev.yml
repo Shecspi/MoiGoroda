@@ -15,7 +15,7 @@ jobs:
           python-version: '3.11'
 
       - name: Create .env file
-        run: pwd && ls -l
+        run: cp MoiGoroda/.env.example MoiGoroda/.env
 
       - name: Poetry install
         uses: snok/install-poetry@v1

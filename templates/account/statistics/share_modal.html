@@ -1,0 +1,139 @@
+<div class="modal fade" id="share_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="share_modal_label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="share_modal_label">Поделиться статистикой</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        Вы можете поделиться с другими пользователями своей статистикой.<br>
+                        Они увидят только ту информацию, которую Вы захотите показать.<br>
+                        Доступ к Вашей статистике будет возможен по ссылке, которая сгенерирована ниже.<br>
+                        В любой момент Вы сможете изменить параметры доступа к Вашей
+                        статистике или вообще запретить её отображение.<br>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="switch_share_general">
+                            <label class="form-check-label" for="switch_share_general">&nbsp;&nbsp;&nbsp;Разрешить доступ к Вашей статистике</label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="switch_share_basic_info" disabled>
+                            <label class="form-check-label" for="switch_share_basic_info">&nbsp;&nbsp;&nbsp;Отображать общую информацию</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="switch_share_city_map" disabled>
+                            <label class="form-check-label" for="switch_share_city_map">&nbsp;&nbsp;&nbsp;Отображать карту городов</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="switch_share_region_map" disabled>
+                            <label class="form-check-label" for="switch_share_region_map">&nbsp;&nbsp;&nbsp;Отображать карту регионов</label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col">
+                        <input class="form-control" type="text" value="https://moi-goroda.ru/share/1"
+                               id="input_with_share_link" disabled>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-outline-secondary" id="button_make_a_copy" disabled>
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+                    Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast_success_copied" class="toast bg-success-subtle" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;&nbsp;
+                <strong class="me-auto">Скопировано</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+            </div>
+            <div class="toast-body">
+                Ссылка на страницу со статистикой успешно скопирована.
+            </div>
+        </div>
+    </div>
+
+<script>
+    const switch_share_general = document.getElementById('switch_share_general')
+    const switch_share_basic_info = document.getElementById('switch_share_basic_info')
+    const switch_share_city_map = document.getElementById('switch_share_city_map')
+    const switch_share_region_map = document.getElementById('switch_share_region_map')
+    const input_with_share_link = document.getElementById('input_with_share_link')
+    const button_make_a_copy = document.getElementById('button_make_a_copy')
+
+    switch_share_general.addEventListener('change', (event) => {
+        if (event.currentTarget.checked) {
+            switch_share_basic_info.disabled = false;
+            switch_share_city_map.disabled = false;
+            switch_share_region_map.disabled = false;
+            input_with_share_link.disabled = false;
+            button_make_a_copy.disabled = false;
+        } else {
+            switch_share_basic_info.disabled = true;
+            switch_share_city_map.disabled = true;
+            switch_share_region_map.disabled = true;
+            input_with_share_link.disabled = true;
+            button_make_a_copy.disabled = true;
+        }
+    });
+
+    input_with_share_link.addEventListener(`focus`, () => input_with_share_link.select());
+
+    // Копирование ссылки в буфер обмена
+    button_make_a_copy.addEventListener('click', () => {
+        const inputValue = input_with_share_link.value.trim();
+        if (inputValue) {
+            navigator.clipboard.writeText(inputValue)
+            .then(() => {
+                let toast_success_copied =document.getElementById('toast_success_copied');
+                let toast = new bootstrap.Toast(toast_success_copied);
+                toast.show();
+            })
+            .catch(err => {
+                    console.log('Something went wrong', err);
+            })
+        }
+    });
+</script>

@@ -7,6 +7,9 @@
 
     {% if fake_statistics %}
         {% include 'account/statistics/info_about_fake_statistics.html' %}
+    {% else %}
+        {% include 'account/statistics/share_link.html' %}
+        {% include 'account/statistics/share_modal.html' %}
     {% endif %}
 
     {% include 'account/statistics/cards_for_cities.html' %}

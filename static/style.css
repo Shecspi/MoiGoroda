@@ -173,9 +173,9 @@ div#main-background {
 }
 
 /*------------ Всплывающие подсдказки ------------*/
-[data-bs-toggle="tooltip"] {
+.opacity_until_hover[data-bs-toggle="tooltip"] {
     opacity: 0.3;
 }
-[data-bs-toggle="tooltip"]:hover {
+.opacity_until_hover[data-bs-toggle="tooltip"]:hover {
     opacity: 0.8;
 }

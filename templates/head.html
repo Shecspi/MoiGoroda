@@ -30,14 +30,32 @@
     </noscript>
     <!-- /Yandex.Metrika counter -->
 
+    {# ----------------------- #}
+    {#   Загрузка CSS-стилей   #}
+    {# ----------------------- #}
+
+    {# Bootstrap стили #}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    {#  Шрифт с иконками Font Awesome  #}
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+    {# Локальные стили #}
     <link rel="stylesheet" href="{% static 'style.css' %}?ver={{ PROJECT_VERSION }}">
+    {# Иконка сайта #}
     <link rel="icon" type="image/svg+xml" href="{% static "image/favicon.svg" %}">
 
+    {# ---------------------- #}
+    {#   Загрузка JS-файлов   #}
+    {# ---------------------- #}
+
+    {# Bootstrap JS #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+            crossorigin="anonymous"></script>
+    {# jQuery JS #}
     <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    {# API Яндекс-карт #}
     <script src="https://api-maps.yandex.ru/2.1/?apikey={{ API_YANDEX_MAP }}&lang=ru_RU" type="text/javascript"></script>
-    <script src="https://kit.fontawesome.com/1d9659a07a.js" crossorigin="anonymous"></script>
+    {# ChartJS для построения графиков #}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 </head>
 <body>

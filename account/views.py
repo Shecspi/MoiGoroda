@@ -1,5 +1,7 @@
 import logging
 
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, Http404
 from django.urls import reverse_lazy
 from django.contrib.auth import login
 from django.contrib.auth.models import User
@@ -8,6 +10,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import CreateView, UpdateView, TemplateView
 from django.contrib.auth.views import LoginView, PasswordResetDoneView, PasswordChangeView
 
+from account.models import ShareSettings
 from services.calculate import calculate_ratio
 from services.db.statistics.fake_statistics import get_fake_statistics
 from services.word_modifications.city import modification__city
@@ -218,6 +221,28 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             }
         }
 
+        ##############################################
+        # --- Настройки "Поделиться статистикой" --- #
+        ##############################################
+
+        try:
+            obj = ShareSettings.objects.get(user=self.request.user)
+        except ShareSettings.DoesNotExist:
+            share_settings = {
+                'switch_share_general': False,
+                'switch_share_basic_info': False,
+                'switch_share_city_map': False,
+                'switch_share_region_map': False
+            }
+        else:
+            share_settings = {
+                'switch_share_general': obj.switch_share_general,
+                'switch_share_basic_info': obj.switch_share_basic_info,
+                'switch_share_city_map': obj.switch_share_city_map,
+                'switch_share_region_map': obj.switch_share_region_map
+            }
+        context['share_settings'] = share_settings
+
         ##############################
         #   Вспомогательные данные   #
         ##############################
@@ -228,6 +253,33 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
                                       ' - посещённые города, регионы и федеральнаые округа'
 
         return context
+
+
+@login_required()
+def save_share_settings(request):
+    if request.method == 'POST':
+        user = get_object_or_404(User, pk=request.user.pk)
+
+        share_data = request.POST.dict()
+        switch_share_general = True if share_data.get('switch_share_general') else False
+        switch_share_basic_info = True if share_data.get('switch_share_basic_info') else False
+        switch_share_city_map = True if share_data.get('switch_share_city_map') else False
+        switch_share_region_map = True if share_data.get('switch_share_region_map') else False
+
+        ShareSettings.objects.update_or_create(
+            user=user,
+            defaults={
+                'user': user,
+                'switch_share_general': switch_share_general,
+                'switch_share_basic_info': switch_share_basic_info,
+                'switch_share_city_map': switch_share_city_map,
+                'switch_share_region_map': switch_share_region_map
+            }
+        )
+
+        return redirect('stats')
+    else:
+        raise Http404
 
 
 class Profile(LoginRequiredMixin, LoggingMixin, UpdateView):

@@ -7,77 +7,97 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
 
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col">
-                        Вы можете поделиться с другими пользователями своей статистикой.<br>
-                        Они увидят только ту информацию, которую Вы захотите показать.<br>
-                        Доступ к Вашей статистике будет возможен по ссылке, которая сгенерирована ниже.<br>
-                        В любой момент Вы сможете изменить параметры доступа к Вашей
-                        статистике или вообще запретить её отображение.<br>
+            <form action="{% url 'save_share_settings' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            Вы можете поделиться с другими пользователями своей статистикой.<br>
+                            Они увидят только ту информацию, которую Вы захотите показать.<br>
+                            Доступ к Вашей статистике будет возможен по ссылке, которая сгенерирована ниже.<br>
+                            В любой момент Вы сможете изменить параметры доступа к Вашей
+                            статистике или вообще запретить её отображение.<br>
+                        </div>
                     </div>
-                </div>
 
-                <hr>
+                    <hr>
 
-                <div class="row">
-                    <div class="col">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="switch_share_general">
-                            <label class="form-check-label" for="switch_share_general">&nbsp;&nbsp;&nbsp;Разрешить доступ к Вашей статистике</label>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="switch_share_general" name="switch_share_general"
+                                       {% if share_settings.switch_share_general %}checked{% endif %}
+                                >
+                                <label class="form-check-label" for="switch_share_general">&nbsp;&nbsp;&nbsp;Разрешить доступ к Вашей статистике</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="switch_share_basic_info" name="switch_share_basic_info"
+                                       {% if not share_settings.switch_share_general %}disabled{% endif %}
+                                       {% if share_settings.switch_share_basic_info %}checked{% endif %}
+                                >
+                                <label class="form-check-label" for="switch_share_basic_info">&nbsp;&nbsp;&nbsp;Отображать общую информацию</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="switch_share_city_map" name="switch_share_city_map"
+                                       {% if not share_settings.switch_share_general %}disabled{% endif %}
+                                       {% if share_settings.switch_share_city_map %}checked{% endif %}
+                                >
+                                <label class="form-check-label" for="switch_share_city_map">&nbsp;&nbsp;&nbsp;Отображать карту городов</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="switch_share_region_map" name="switch_share_region_map"
+                                       {% if not share_settings.switch_share_general %}disabled{% endif %}
+                                       {% if share_settings.switch_share_region_map %}checked{% endif %}
+                                >
+                                <label class="form-check-label" for="switch_share_region_map">&nbsp;&nbsp;&nbsp;Отображать карту регионов</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col">
+                            <input class="form-control" type="text" id="input_with_share_link"
+                                   value="https://moi-goroda.ru/share/{{ request.user.id }}"
+                                   {% if not share_settings.switch_share_general %}disabled{% endif %}
+                            >
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-outline-secondary" id="button_make_a_copy"
+                                   {% if not share_settings.switch_share_general %}disabled{% endif %}
+                            >
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <hr>
-
-                <div class="row">
-                    <div class="col">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="switch_share_basic_info" disabled>
-                            <label class="form-check-label" for="switch_share_basic_info">&nbsp;&nbsp;&nbsp;Отображать общую информацию</label>
-                        </div>
-                    </div>
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-success" value="Сохранить">
                 </div>
-
-                <div class="row">
-                    <div class="col">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="switch_share_city_map" disabled>
-                            <label class="form-check-label" for="switch_share_city_map">&nbsp;&nbsp;&nbsp;Отображать карту городов</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="switch_share_region_map" disabled>
-                            <label class="form-check-label" for="switch_share_region_map">&nbsp;&nbsp;&nbsp;Отображать карту регионов</label>
-                        </div>
-                    </div>
-                </div>
-
-                <hr>
-
-                <div class="row">
-                    <div class="col">
-                        <input class="form-control" type="text" value="https://moi-goroda.ru/share/1"
-                               id="input_with_share_link" disabled>
-                    </div>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-outline-secondary" id="button_make_a_copy" disabled>
-                            <i class="fa-regular fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal">
-                    Сохранить
-                </button>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -114,6 +134,9 @@
             switch_share_basic_info.disabled = true;
             switch_share_city_map.disabled = true;
             switch_share_region_map.disabled = true;
+            switch_share_basic_info.checked = false;
+            switch_share_city_map.checked = false;
+            switch_share_region_map.checked = false;
             input_with_share_link.disabled = true;
             button_make_a_copy.disabled = true;
         }

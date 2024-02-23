@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
 
-            <form action="{% url 'save_share_settings' %}" method="POST">
+            <form action="{% url 'save_share_settings' %}" method="POST" id="share_settings_form">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row">
@@ -92,10 +92,21 @@
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <input type="submit" class="btn btn-success" value="Сохранить">
+                    <hr>
+
+                    <div class="row row-cols-1 row-cols-sm-2 align-items-center">
+                        <div class="col col-6-md">
+                            <span id="save_success" class="fw-normal mb-2" style="display: none;">
+                                <i class="fa-solid fa-check-double text-success"></i>&nbsp;&nbsp;&nbsp;Успешно сохранено
+                            </span>
+                        </div>
+                        <div class="col text-end">
+                            <button type="button" id="button_send_to_server" class="btn btn-success">
+                                <i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;&nbsp;Сохранить
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -122,6 +133,7 @@
     const switch_share_region_map = document.getElementById('switch_share_region_map')
     const input_with_share_link = document.getElementById('input_with_share_link')
     const button_make_a_copy = document.getElementById('button_make_a_copy')
+    const button_send_to_server = document.getElementById('button_send_to_server')
 
     switch_share_general.addEventListener('change', (event) => {
         if (event.currentTarget.checked) {
@@ -142,6 +154,24 @@
         }
     });
 
+    button_send_to_server.addEventListener('click', (event) => {
+        button_send_to_server.innerHTML = '<i class="fa-solid fa-spin fa-spinner"></i>&nbsp;&nbsp;&nbsp;Сохранить'
+        let form = $('#share_settings_form').serialize();
+        $.ajax({
+            type: 'POST',
+            url: '{% url 'save_share_settings' %}',
+            data: form,
+            success: function(data) {
+                button_send_to_server.innerHTML = '<i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;&nbsp;Сохранить'
+                $("#save_success").show('fast');
+                setTimeout(function() { $("#save_success").hide('fast'); }, 2000);
+            },
+            error:  function(){
+                console.log('Ошибка при сохранении настроек. ' + data)
+            }
+        });
+    });
+
     input_with_share_link.addEventListener(`focus`, () => input_with_share_link.select());
 
     // Копирование ссылки в буфер обмена
@@ -159,4 +189,9 @@
             })
         }
     });
+
+    function send_form() {
+
+
+    }
 </script>

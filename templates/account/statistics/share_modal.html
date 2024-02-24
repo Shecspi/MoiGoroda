@@ -100,6 +100,9 @@
                             <span id="save_success" class="fw-normal mb-2" style="display: none;">
                                 <i class="fa-solid fa-check-double text-success"></i>&nbsp;&nbsp;&nbsp;Успешно сохранено
                             </span>
+                            <span id="save_error" class="fw-normal mb-2" style="display: none;">
+                                <i class="fa-solid fa-triangle-exclamation text-danger"></i>&nbsp;&nbsp;&nbsp;Ошибка при сохранении
+                            </span>
                         </div>
                         <div class="col text-end">
                             <button type="button" id="button_send_to_server" class="btn btn-success">
@@ -133,17 +136,17 @@
          */
         document.getElementById('switch_share_general').checked = false;
 
-        const switch_share_basic_info = document.getElementById('switch_share_basic_info');
-        switch_share_basic_info.checked = false;
-        switch_share_basic_info.disabled = true;
+        {#const switch_share_basic_info = document.getElementById('switch_share_basic_info');#}
+        {#switch_share_basic_info.checked = false;#}
+        {#switch_share_basic_info.disabled = true;#}
 
-        const switch_share_city_map = document.getElementById('switch_share_city_map');
-        switch_share_city_map.checked = false;
-        switch_share_city_map.disabled = true;
+        {#const switch_share_city_map = document.getElementById('switch_share_city_map');#}
+        {#switch_share_city_map.checked = false;#}
+        {#switch_share_city_map.disabled = true;#}
 
-        const switch_share_region_map = document.getElementById('switch_share_region_map')
-        switch_share_region_map.checked = false;
-        switch_share_region_map.disabled = true;
+        {#const switch_share_region_map = document.getElementById('switch_share_region_map')#}
+        {#switch_share_region_map.checked = false;#}
+        {#switch_share_region_map.disabled = true;#}
 
         const input_with_share_link = document.getElementById('input_with_share_link')
         input_with_share_link.disabled = true;
@@ -159,15 +162,15 @@
         document.getElementById('switch_share_general').checked = true;
 
         const switch_share_basic_info = document.getElementById('switch_share_basic_info');
-        switch_share_basic_info.checked = true;
+        {#switch_share_basic_info.checked = true;#}
         switch_share_basic_info.disabled = false;
 
         const switch_share_city_map = document.getElementById('switch_share_city_map');
-        switch_share_city_map.checked = true;
+        {#switch_share_city_map.checked = true;#}
         switch_share_city_map.disabled = false;
 
         const switch_share_region_map = document.getElementById('switch_share_region_map')
-        switch_share_region_map.checked = true;
+        {#switch_share_region_map.checked = true;#}
         switch_share_region_map.disabled = false;
 
         const input_with_share_link = document.getElementById('input_with_share_link')
@@ -236,9 +239,19 @@
             url: '{% url 'save_share_settings' %}',
             data: form,
             success: function(data) {
-                button_send_to_server.innerHTML = '<i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;&nbsp;Сохранить'
-                $("#save_success").show('fast');
-                setTimeout(function() { $("#save_success").hide('fast'); }, 2000);
+                if (data.status === 'ok') {
+                    button_send_to_server.innerHTML = '<i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;&nbsp;Сохранить'
+                    $("#save_success").show('fast');
+                    setTimeout(function() { $("#save_success").hide('fast'); }, 2000);
+                } else {
+                    button_send_to_server.innerHTML = '<i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;&nbsp;Сохранить'
+                    $("#save_error").show('fast');
+                    setTimeout(function() { $("#save_error").hide('fast'); }, 2000);
+                    console.log(data);
+                }
+                {#button_send_to_server.innerHTML = '<i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;&nbsp;Сохранить'#}
+                {#$("#save_success").show('fast');#}
+                {#setTimeout(function() { $("#save_success").hide('fast'); }, 2000);#}
             },
             error:  function(){
                 console.log('Ошибка при сохранении настроек. ' + data)

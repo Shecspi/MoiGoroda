@@ -2,7 +2,7 @@ import logging
 from typing import Any
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.urls import reverse_lazy
 from django.contrib.auth import login
 from django.contrib.auth.models import User
@@ -276,6 +276,9 @@ class Share(TemplateView, LoggingMixin):
         return super().get(*args, **kwargs)
 
     def get_template_names(self):
+        """
+        Определяет приоритетность открытия шаблона в зависимости от того, какие части статистики разрешено показывать.
+        """
         obj = ShareSettings.objects.get(user=self.user_id)
         if obj.can_share_basic_info:
             return ['account/share/basic_info.html']
@@ -286,13 +289,15 @@ class Share(TemplateView, LoggingMixin):
         else:
             self.set_message(
                 self.request,
-                '(Share statistics) All share settins are False. Cannot find the HTML-template.'
+                '(Share statistics) All share settings are False. Cannot find the HTML-template.'
             )
             raise Http404
 
 
 @login_required()
 def save_share_settings(request):
+    logger = LoggingMixin()
+
     if request.method == 'POST':
         user = get_object_or_404(User, pk=request.user.pk)
 
@@ -301,6 +306,29 @@ def save_share_settings(request):
         switch_share_basic_info = True if share_data.get('switch_share_basic_info') else False
         switch_share_city_map = True if share_data.get('switch_share_city_map') else False
         switch_share_region_map = True if share_data.get('switch_share_region_map') else False
+
+        # В ситуации, когда основной чекбокс включён, а все остальные выключены, возвращаем ошибку,
+        # так как не понятно, как конкретно обрабатывать такую ситуацию.
+        if switch_share_general and not any([switch_share_basic_info, switch_share_city_map, switch_share_region_map]):
+            logger.set_message(
+                request,
+                '(Save share settings): All additional share settings are False, but main setting is True.'
+            )
+            return JsonResponse({
+                'status': 'fail',
+                'message': 'All additional share settings are False, but main setting is True.'
+            })
+
+        # Если основной чекбокс выключен, то и все остальные должны быть выключены.
+        # Если это не так - исправляем.
+        if not switch_share_general and any([switch_share_basic_info, switch_share_city_map, switch_share_region_map]):
+            switch_share_basic_info = False
+            switch_share_city_map = False
+            switch_share_region_map = False
+            logger.set_message(
+                request,
+                '(Save share settings): All additional share settings are True, but main setting is False.'
+            )
 
         ShareSettings.objects.update_or_create(
             user=user,
@@ -312,9 +340,18 @@ def save_share_settings(request):
                 'can_share_region_map': switch_share_region_map
             }
         )
-
-        return redirect('stats')
+        logger.set_message(
+            request,
+            '(Save share settings): Successful saving of share settings'
+        )
+        return JsonResponse({
+            'status': 'ok'
+        })
     else:
+        logger.set_message(
+            request,
+            '(Save share settings): Connection is not using the POST method'
+        )
         raise Http404
 
 

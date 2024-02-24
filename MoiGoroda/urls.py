@@ -5,10 +5,13 @@ from django.contrib import admin
 from django.conf import settings
 from django.views.generic import TemplateView
 
+import account.views
+
 urlpatterns = [
     path('', include('main_page.urls'), name='main_page'),
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
+    path('share/<int:pk>', account.views.Share.as_view(), name='share'),
     path('news/', include('news.urls')),
     path('collection/', include('collection.urls')),
 

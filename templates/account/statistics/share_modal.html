@@ -80,7 +80,7 @@
                     <div class="row">
                         <div class="col">
                             <input class="form-control" type="text" id="input_with_share_link"
-                                   value="https://moi-goroda.ru/share/{{ request.user.id }}"
+                                   value="{{ SITE_URL }}{% url 'share' request.user.id %}"
                                    {% if not share_settings.switch_share_general %}disabled{% endif %}
                             >
                         </div>
@@ -127,6 +127,56 @@
     </div>
 
 <script>
+    function disable_all_checkboxes() {
+        /**
+         * Изменяет состояние и активность чекбоксов в случае, когда нужно все их выключить.
+         */
+        document.getElementById('switch_share_general').checked = false;
+
+        const switch_share_basic_info = document.getElementById('switch_share_basic_info');
+        switch_share_basic_info.checked = false;
+        switch_share_basic_info.disabled = true;
+
+        const switch_share_city_map = document.getElementById('switch_share_city_map');
+        switch_share_city_map.checked = false;
+        switch_share_city_map.disabled = true;
+
+        const switch_share_region_map = document.getElementById('switch_share_region_map')
+        switch_share_region_map.checked = false;
+        switch_share_region_map.disabled = true;
+
+        const input_with_share_link = document.getElementById('input_with_share_link')
+        input_with_share_link.disabled = true;
+
+        const button_make_a_copy = document.getElementById('button_make_a_copy')
+        button_make_a_copy.disabled = true;
+    }
+
+    function enable_all_checkboxes() {
+        /**
+         * Изменяет состояние и активность чекбоксов в случае, когда нужно все их включить.
+         */
+        document.getElementById('switch_share_general').checked = true;
+
+        const switch_share_basic_info = document.getElementById('switch_share_basic_info');
+        switch_share_basic_info.checked = true;
+        switch_share_basic_info.disabled = false;
+
+        const switch_share_city_map = document.getElementById('switch_share_city_map');
+        switch_share_city_map.checked = true;
+        switch_share_city_map.disabled = false;
+
+        const switch_share_region_map = document.getElementById('switch_share_region_map')
+        switch_share_region_map.checked = true;
+        switch_share_region_map.disabled = false;
+
+        const input_with_share_link = document.getElementById('input_with_share_link')
+        input_with_share_link.disabled = false;
+
+        const button_make_a_copy = document.getElementById('button_make_a_copy')
+        button_make_a_copy.disabled = false;
+    }
+
     const switch_share_general = document.getElementById('switch_share_general')
     const switch_share_basic_info = document.getElementById('switch_share_basic_info')
     const switch_share_city_map = document.getElementById('switch_share_city_map')
@@ -135,22 +185,46 @@
     const button_make_a_copy = document.getElementById('button_make_a_copy')
     const button_send_to_server = document.getElementById('button_send_to_server')
 
+    // Количество включённых дополнительных чекбоксов.
+    // Когда доходит до 0 - все чекбоксы выключаются и становятся неактивными. Когда до 3 - включаются.
+    let number_of_active_checkboxes = 0
+    if (switch_share_basic_info.checked === true) { number_of_active_checkboxes++; }
+    if (switch_share_city_map.checked === true) { number_of_active_checkboxes++; }
+    if (switch_share_region_map.checked === true) { number_of_active_checkboxes++; }
+
+    // Переключение основного чекбокса с разрешением делиться статистикой
     switch_share_general.addEventListener('change', (event) => {
+        // Когда он включается, то все дополнительные чекбоксы должны стать активными и получить состояние checked.
+        // Это необходимо для того, чтобы избежать ситуации, когда основной чекбокс включён,
+        // а ни один из дополнительных - нет. В таком случае непонятно, что именно отображать.
+        // Также становится активным поле ввода с сылкой и кнопка скопировать.
         if (event.currentTarget.checked) {
-            switch_share_basic_info.disabled = false;
-            switch_share_city_map.disabled = false;
-            switch_share_region_map.disabled = false;
-            input_with_share_link.disabled = false;
-            button_make_a_copy.disabled = false;
+            enable_all_checkboxes();
+            number_of_active_checkboxes = 3;
         } else {
-            switch_share_basic_info.disabled = true;
-            switch_share_city_map.disabled = true;
-            switch_share_region_map.disabled = true;
-            switch_share_basic_info.checked = false;
-            switch_share_city_map.checked = false;
-            switch_share_region_map.checked = false;
-            input_with_share_link.disabled = true;
-            button_make_a_copy.disabled = true;
+            disable_all_checkboxes();
+            number_of_active_checkboxes = 0;
+        }
+    });
+
+    // При каждом переключени дополнительного чекбокса уменьшаем счётчик активных чекбоксов на 1
+    // и в случае, если он станет равен 0, выключаем основной чекбокс и делаем неактивными дополнительные.
+    switch_share_basic_info.addEventListener('change', (event) => {
+        switch_share_basic_info.checked === true ? number_of_active_checkboxes++ : number_of_active_checkboxes--;
+        if (number_of_active_checkboxes === 0) {
+            disable_all_checkboxes()
+        }
+    });
+    switch_share_city_map.addEventListener('change', (event) => {
+        switch_share_basic_info.checked === true ? number_of_active_checkboxes++ : number_of_active_checkboxes--;
+        if (number_of_active_checkboxes === 0) {
+            disable_all_checkboxes()
+        }
+    });
+    switch_share_region_map.addEventListener('change', (event) => {
+        switch_share_basic_info.checked === true ? number_of_active_checkboxes++ : number_of_active_checkboxes--;
+        if (number_of_active_checkboxes === 0) {
+            disable_all_checkboxes()
         }
     });
 

@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
@@ -22,7 +23,6 @@ from services.db.statistics.visited_city import *
 from services.db.statistics.visited_region import *
 from services.db.statistics.area import get_visited_areas
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
-
 
 logger_email = logging.getLogger(__name__)
 
@@ -236,10 +236,10 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
             }
         else:
             share_settings = {
-                'switch_share_general': obj.switch_share_general,
-                'switch_share_basic_info': obj.switch_share_basic_info,
-                'switch_share_city_map': obj.switch_share_city_map,
-                'switch_share_region_map': obj.switch_share_region_map
+                'switch_share_general': obj.can_share,
+                'switch_share_basic_info': obj.can_share_basic_info,
+                'switch_share_city_map': obj.can_share_city_map,
+                'switch_share_region_map': obj.can_share_region_map
             }
         context['share_settings'] = share_settings
 
@@ -253,6 +253,42 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
                                       ' - посещённые города, регионы и федеральнаые округа'
 
         return context
+
+
+class Share(TemplateView, LoggingMixin):
+    template_name = 'account/share/share.html'
+
+    def __init__(self, **kwargs: Any):
+        super().__init__(**kwargs)
+        self.user_id = None
+
+    def get(self, *args, **kwargs):
+        self.user_id = kwargs.get('pk')
+
+        # Если пользователь не разрешил делиться своей статистикой, то возвращаем 404.
+        # Это происходит в 2 случаях - когда пользователь ни разу не изменял настройки
+        # (в таком случае в БД не будет записи), либо если запись имеется, но поле can_share имеет значение False.
+        if (ShareSettings.objects.filter(user=self.user_id).count() == 0 or
+                not ShareSettings.objects.get(user=self.user_id).can_share):
+            self.set_message(self.request, '(Share statistics): Has no permissions from owner')
+            raise Http404
+
+        return super().get(*args, **kwargs)
+
+    def get_template_names(self):
+        obj = ShareSettings.objects.get(user=self.user_id)
+        if obj.can_share_basic_info:
+            return ['account/share/basic_info.html']
+        elif obj.can_share_city_map:
+            return ['account/share/share_city_map.html']
+        elif obj.can_share_region_map:
+            return ['account/share/share_region_map.html']
+        else:
+            self.set_message(
+                self.request,
+                '(Share statistics) All share settins are False. Cannot find the HTML-template.'
+            )
+            raise Http404
 
 
 @login_required()
@@ -270,10 +306,10 @@ def save_share_settings(request):
             user=user,
             defaults={
                 'user': user,
-                'switch_share_general': switch_share_general,
-                'switch_share_basic_info': switch_share_basic_info,
-                'switch_share_city_map': switch_share_city_map,
-                'switch_share_region_map': switch_share_region_map
+                'can_share': switch_share_general,
+                'can_share_basic_info': switch_share_basic_info,
+                'can_share_city_map': switch_share_city_map,
+                'can_share_region_map': switch_share_region_map
             }
         )
 

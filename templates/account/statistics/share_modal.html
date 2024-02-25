@@ -136,17 +136,17 @@
          */
         document.getElementById('switch_share_general').checked = false;
 
-        {#const switch_share_basic_info = document.getElementById('switch_share_basic_info');#}
-        {#switch_share_basic_info.checked = false;#}
-        {#switch_share_basic_info.disabled = true;#}
+        const switch_share_basic_info = document.getElementById('switch_share_basic_info');
+        switch_share_basic_info.checked = false;
+        switch_share_basic_info.disabled = true;
 
-        {#const switch_share_city_map = document.getElementById('switch_share_city_map');#}
-        {#switch_share_city_map.checked = false;#}
-        {#switch_share_city_map.disabled = true;#}
+        const switch_share_city_map = document.getElementById('switch_share_city_map');
+        switch_share_city_map.checked = false;
+        switch_share_city_map.disabled = true;
 
-        {#const switch_share_region_map = document.getElementById('switch_share_region_map')#}
-        {#switch_share_region_map.checked = false;#}
-        {#switch_share_region_map.disabled = true;#}
+        const switch_share_region_map = document.getElementById('switch_share_region_map')
+        switch_share_region_map.checked = false;
+        switch_share_region_map.disabled = true;
 
         const input_with_share_link = document.getElementById('input_with_share_link')
         input_with_share_link.disabled = true;
@@ -162,15 +162,15 @@
         document.getElementById('switch_share_general').checked = true;
 
         const switch_share_basic_info = document.getElementById('switch_share_basic_info');
-        {#switch_share_basic_info.checked = true;#}
+        switch_share_basic_info.checked = true;
         switch_share_basic_info.disabled = false;
 
         const switch_share_city_map = document.getElementById('switch_share_city_map');
-        {#switch_share_city_map.checked = true;#}
+        switch_share_city_map.checked = true;
         switch_share_city_map.disabled = false;
 
         const switch_share_region_map = document.getElementById('switch_share_region_map')
-        {#switch_share_region_map.checked = true;#}
+        switch_share_region_map.checked = true;
         switch_share_region_map.disabled = false;
 
         const input_with_share_link = document.getElementById('input_with_share_link')

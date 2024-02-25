@@ -1,0 +1,17 @@
+<div class="row row-cols-1 row-cols-lg-3 mx-3 mt-2 mb-3 g-3 px-xxl-5">
+    <div class="col d-grid">
+        <button class="btn {% if active_page == 'basic_info' %}btn-primary{% else %}btn-outline-primary{% endif %} block"{% if not can_share_basic_info %} disabled{% endif %}>
+            Общая информация
+        </button>
+    </div>
+    <div class="col d-grid">
+        <button class="btn {% if active_page == 'city_map' %}btn-primary{% else %}btn-outline-primary{% endif %} block"{% if not can_share_city_map %} disabled{% endif %}>
+            Карта посещённых городов
+        </button>
+    </div>
+    <div class="col d-grid">
+        <button class="btn {% if active_page == 'region_map' %}btn-primary{% else %}btn-outline-primary{% endif %} block"{% if not can_share_region_map %} disabled{% endif %}>
+            Карта посещённых регионов
+        </button>
+    </div>
+</div>

@@ -255,45 +255,6 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         return context
 
 
-class Share(TemplateView, LoggingMixin):
-    template_name = 'account/share/share.html'
-
-    def __init__(self, **kwargs: Any):
-        super().__init__(**kwargs)
-        self.user_id = None
-
-    def get(self, *args, **kwargs):
-        self.user_id = kwargs.get('pk')
-
-        # Если пользователь не разрешил делиться своей статистикой, то возвращаем 404.
-        # Это происходит в 2 случаях - когда пользователь ни разу не изменял настройки
-        # (в таком случае в БД не будет записи), либо если запись имеется, но поле can_share имеет значение False.
-        if (ShareSettings.objects.filter(user=self.user_id).count() == 0 or
-                not ShareSettings.objects.get(user=self.user_id).can_share):
-            self.set_message(self.request, '(Share statistics): Has no permissions from owner')
-            raise Http404
-
-        return super().get(*args, **kwargs)
-
-    def get_template_names(self):
-        """
-        Определяет приоритетность открытия шаблона в зависимости от того, какие части статистики разрешено показывать.
-        """
-        obj = ShareSettings.objects.get(user=self.user_id)
-        if obj.can_share_basic_info:
-            return ['account/share/basic_info.html']
-        elif obj.can_share_city_map:
-            return ['account/share/share_city_map.html']
-        elif obj.can_share_region_map:
-            return ['account/share/share_region_map.html']
-        else:
-            self.set_message(
-                self.request,
-                '(Share statistics) All share settings are False. Cannot find the HTML-template.'
-            )
-            raise Http404
-
-
 @login_required()
 def save_share_settings(request):
     """

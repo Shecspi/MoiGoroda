@@ -12,43 +12,5 @@
         {% include 'account/statistics/share_modal.html' %}
     {% endif %}
 
-    {% include 'account/statistics/cards_for_cities.html' %}
-
-    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5">
-        <div class="col">
-            {% include 'account/statistics/statistics__chart__number_of_cities.html' %}
-        </div>
-        <div class="col">
-            {% include 'account/statistics/chart__number_of_cities_current_and_prev_years.html' %}
-        </div>
-        <div class="col">
-            {% include 'account/statistics/chart__number_of_regions.html' %}
-        </div>
-        <div class="col">
-            {% include 'account/statistics/chart__number_of_finished_regions.html' %}
-        </div>
-    </div>
-
-    {% include 'account/statistics/cards_for_regions.html' %}
-
-    <div class="row row-cols-1 row-cols-xl-2 mx-3 mt-2 mb-3 g-3 px-xxl-5">
-        <div class="col">
-            {% include 'account/statistics/chart__cities_by_month.html' %}
-        </div>
-        <div class="col">
-            {% include 'account/statistics/chart__cities_by_year.html' %}
-        </div>
-    </div>
-
-    <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list-content">
-        <div class="col-xl-4 order-last order-xl-first">
-            {% include 'account/statistics/statistics__cities.html' %}
-        </div>
-        <div class="col-xl-4 order-last order-xl-first">
-            {% include 'account/statistics/statistics__regions.html' %}
-        </div>
-        <div class="col-xl-4 order-last order-xl-first">
-            {% include 'account/statistics/statistics__areas.html' %}
-        </div>
-    </div>
+    {% include 'account/statistics/all_cards_and_charts.html' %}
 {% endblock %}

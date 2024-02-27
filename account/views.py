@@ -135,7 +135,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
         else:
             share_settings = {
                 'switch_share_general': obj.can_share,
-                'switch_share_basic_info': obj.can_share_basic_info,
+                'switch_share_basic_info': obj.can_share_dashboard,
                 'switch_share_city_map': obj.can_share_city_map,
                 'switch_share_region_map': obj.can_share_region_map
             }
@@ -167,13 +167,13 @@ def save_share_settings(request):
 
         share_data = request.POST.dict()
         switch_share_general = True if share_data.get('switch_share_general') else False
-        switch_share_basic_info = True if share_data.get('switch_share_basic_info') else False
+        switch_share_dashboard = True if share_data.get('switch_share_dashboard') else False
         switch_share_city_map = True if share_data.get('switch_share_city_map') else False
         switch_share_region_map = True if share_data.get('switch_share_region_map') else False
 
         # В ситуации, когда основной чекбокс включён, а все остальные выключены, возвращаем ошибку,
         # так как не понятно, как конкретно обрабатывать такую ситуацию.
-        if switch_share_general and not any([switch_share_basic_info, switch_share_city_map, switch_share_region_map]):
+        if switch_share_general and not any([switch_share_dashboard, switch_share_city_map, switch_share_region_map]):
             logger.set_message(
                 request,
                 '(Save share settings): All additional share settings are False, but main setting is True.'
@@ -185,8 +185,8 @@ def save_share_settings(request):
 
         # Если основной чекбокс выключен, то и все остальные должны быть выключены.
         # Если это не так - исправляем.
-        if not switch_share_general and any([switch_share_basic_info, switch_share_city_map, switch_share_region_map]):
-            switch_share_basic_info = False
+        if not switch_share_general and any([switch_share_dashboard, switch_share_city_map, switch_share_region_map]):
+            switch_share_dashboard = False
             switch_share_city_map = False
             switch_share_region_map = False
             logger.set_message(
@@ -199,7 +199,7 @@ def save_share_settings(request):
             defaults={
                 'user': user,
                 'can_share': switch_share_general,
-                'can_share_basic_info': switch_share_basic_info,
+                'can_share_dashboard': switch_share_dashboard,
                 'can_share_city_map': switch_share_city_map,
                 'can_share_region_map': switch_share_region_map
             }

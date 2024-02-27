@@ -1,20 +1,41 @@
 <div class="row row-cols-1 row-cols-lg-3 mx-3 mt-2 mb-3 g-3 px-xxl-5">
     <div class="col d-grid">
-        <a href="{% url 'share' user_id %}"
-           class="btn {% if statistics_block == 'basic_info' %}btn-primary{% else %}btn-outline-primary{% endif %} block"{% if not can_share_basic_info or statistics_block == 'basic_info' %} disabled{% endif %}>
-            Общая информация
-        </a>
+        {% if not can_share_dashboard or displayed_page == 'dashboard' %}
+            <button class="btn {% if displayed_page == 'dashboard' %}btn-primary{% else %}btn-outline-primary{% endif %} block"
+                    disabled>
+                Общая информация
+            </button>
+        {% else %}
+            <a href="{% url 'share' user_id %}"
+               class="btn {% if displayed_page == 'dashboard' %}btn-primary{% else %}btn-outline-primary{% endif %} block">
+                Общая информация
+            </a>
+        {% endif %}
     </div>
     <div class="col d-grid">
-        <a href="{% url 'share' user_id 'city_map' %}"
-           class="btn {% if statistics_block == 'city_map' %}btn-primary{% else %}btn-outline-primary{% endif %} block"{% if not can_share_city_map or statistics_block == 'city_map' %} disabled{% endif %}>
-            Карта посещённых городов
-        </a>
+        {% if not can_share_city_map or displayed_page == 'city_map' %}
+            <button class="btn {% if displayed_page == 'city_map' %}btn-primary{% else %}btn-outline-primary{% endif %} block"
+                    disabled>
+                Карта посещённых городов
+            </button>
+        {% else %}
+            <a href="{% url 'share' user_id 'city_map' %}"
+               class="btn {% if displayed_page == 'city_map' %}btn-primary{% else %}btn-outline-primary{% endif %} block">
+                Карта посещённых городов
+            </a>
+        {% endif %}
     </div>
     <div class="col d-grid">
-        <a href="{% url 'share' user_id 'region_map' %}"
-           class="btn {% if statistics_block == 'region_map' %}btn-primary{% else %}btn-outline-primary{% endif %} block"{% if not can_share_region_map or statistics_block == 'region_map' %} disabled{% endif %}>
-            Карта посещённых регионов
-        </a>
+        {% if not can_share_region_map or displayed_page == 'region_map' %}
+            <button class="btn {% if displayed_page == 'region_map' %}btn-primary{% else %}btn-outline-primary{% endif %} block"
+                    disabled>
+                Карта посещённых регионов
+            </button>
+        {% else %}
+            <a href="{% url 'share' user_id 'region_map' %}"
+               class="btn {% if displayed_page == 'region_map' %}btn-primary{% else %}btn-outline-primary{% endif %} block">
+                Карта посещённых регионов
+            </a>
+        {% endif %}
     </div>
 </div>

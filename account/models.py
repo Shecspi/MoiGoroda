@@ -18,7 +18,7 @@ class ShareSettings(models.Model):
         default=False,
         verbose_name='Разрешить доступ к статистике'
     )
-    can_share_basic_info = models.BooleanField(
+    can_share_dashboard = models.BooleanField(
         blank=True,
         null=False,
         default=False,

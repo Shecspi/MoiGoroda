@@ -1,25 +1,84 @@
+import enum
+from enum import auto
+from typing import Literal, TypeAlias, Any
+
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.views.generic import TemplateView
 
 from account.models import ShareSettings
-from services.db.statistics.get_info_for_statistic_cards_and_charts import *
+from services.db.statistics.get_info_for_statistic_cards_and_charts import get_info_for_statistic_cards_and_charts
 from utils.LoggingMixin import LoggingMixin
+
+
+class TypeOfSharePage(enum.StrEnum):
+    general = auto()
+    city_map = auto()
+    region_map = auto()
+
+
+DisplayedPageType: TypeAlias = Literal['basic_info', 'city_map', 'region_map', False]
+
+
+def get_displayed_page(requested_page: str, settings: ShareSettings) -> DisplayedPageType:
+    """
+    Возвращает страницу, которую необходимо отобразить пользователю на основе запрошенной страницы requested_page
+    и настроек settings, сохранённых в базе данных. Если запрошенная страница не доступна для отображения,
+    соответственно настройкам БД, то выбираются другие на основе приоритетности. Если и они не доступны для отображения,
+    то возвращается False.
+    """
+    displayed_page: DisplayedPageType = False
+
+    if requested_page == TypeOfSharePage.general:
+        if settings.can_share_basic_info:
+            displayed_page = 'basic_info'
+        elif settings.can_share_city_map:
+            displayed_page = 'city_map'
+        elif settings.can_share_region_map:
+            displayed_page = 'region_map'
+    elif requested_page == TypeOfSharePage.city_map:
+        if settings.can_share_city_map:
+            displayed_page = 'city_map'
+        elif settings.can_share_basic_info:
+            displayed_page = 'basic_info'
+        elif settings.can_share_region_map:
+            displayed_page = 'region_map'
+    elif requested_page == TypeOfSharePage.region_map:
+        if settings.can_share_region_map:
+            displayed_page = 'region_map'
+        elif settings.can_share_basic_info:
+            displayed_page = 'basic_info'
+        elif settings.can_share_region_map:
+            displayed_page = 'city_map'
+
+    return displayed_page
 
 
 class Share(TemplateView, LoggingMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.request_type = None
-        self.can_share_basic_info = None
-        self.can_share_city_map = None
-        self.can_share_region_map = None
-        self.statistics_block = None
+        # ID пользователя, статистику которого необходимо отобразить
         self.user_id = None
+
+        # Страница, которую пользователь запрашивает через GET-параметр
+        self.requested_page = None
+
+        # Страница, которая будет отображена пользоватлю после всех проверок.
+        # Она может отличаться от запрошенной self.requested_page, так как
+        # пользователь мог ограничить отображение какого-то вида информации.
+        self.displayed_page: str | None = None
+
+        # Разрешил ли пользователь отображать основную информацию
+        self.can_share_basic_info: bool = False
+
+        # Разрешил ли пользователь отображать карту посещённых городов
+        self.can_share_city_map: bool = False
+
+        # Разрешил ли пользователь отображать карту посещённых регионов
+        self.can_share_region_map: bool = False
 
     def get(self, *args, **kwargs):
         self.user_id = kwargs.get('pk')
-        self.request_type = kwargs.get('request_type')
 
         # Если пользователь не разрешил делиться своей статистикой, то возвращаем 404.
         # Это происходит в 2 случаях - когда пользователь ни разу не изменял настройки
@@ -29,42 +88,36 @@ class Share(TemplateView, LoggingMixin):
             self.set_message(self.request, '(Share statistics): Has no permissions from owner to see this page')
             raise Http404
 
-        obj = ShareSettings.objects.get(user=self.user_id)
+        settings = ShareSettings.objects.get(user=self.user_id)
 
-        # Определение активной страницы
-        # Если request_type в URL не указан, то смотрим, какие страницы пользователь разрешил показывать.
-        # Обрабатываем их в порядке приоритетности - страница с общей информацией, карта городов, карта регионов.
-        if not self.request_type:
-            if obj.can_share_basic_info:
-                self.statistics_block = 'basic_info'
-            elif obj.can_share_city_map:
-                self.statistics_block = 'city_map'
-            elif obj.can_share_region_map:
-                self.statistics_block = 'region_map'
-            else:
-                self.set_message(
-                    self.request,
-                    '(Share statistics) All share settings are False. Cannot find the HTML-template.'
-                )
-                raise Http404
-        # Если request_type указан, то он должен быть одним из двух - 'city_map' или 'region_map',
-        # а также в БД должна быть включена соответствующая н9астройка.
-        elif self.request_type == 'city_map' and obj.can_share_city_map:
-            self.statistics_block = 'city_map'
-        elif self.request_type == 'region_map' and obj.can_share_region_map:
-            self.statistics_block = 'region_map'
-        # Если совпадений нет, то возвращаем 404.
-        else:
+        # Если по каким-то причинам оказалось так, что все три возможных страницы для отображения
+        # в БД указаны как False, то возвращаем 404. Хотя такого быть не должно. Но на всякий случай проверил.
+        if not settings.can_share_basic_info and not settings.can_share_city_map and not settings.can_share_region_map:
             self.set_message(
                 self.request,
-                '(Share statistics) Cannot find a match between the request_type and active_page.'
+                '(Share statistics) All share settings are False. I do not know what to show.'
+            )
+            raise Http404
+
+        self.requested_page = kwargs.get('request_type')
+
+        # Если URL имеет вид /share/1, то отображаем общую информацию
+        if not self.requested_page:
+            self.requested_page = TypeOfSharePage.general
+
+        # Определяем страницу, которую необходимо отобразить
+        self.displayed_page = get_displayed_page(self.requested_page, settings)
+        if not self.displayed_page:
+            self.set_message(
+                self.request,
+                '(Share statistics) All share settings are False. Cannot find the HTML-template.'
             )
             raise Http404
 
         # Определяем доступность кнопок для перехода в определённые пункты статистики
-        self.can_share_basic_info = True if obj.can_share_basic_info else False
-        self.can_share_city_map = True if obj.can_share_city_map else False
-        self.can_share_region_map = True if obj.can_share_region_map else False
+        self.can_share_basic_info = True if settings.can_share_basic_info else False
+        self.can_share_city_map = True if settings.can_share_city_map else False
+        self.can_share_region_map = True if settings.can_share_region_map else False
 
         return super().get(*args, **kwargs)
 
@@ -73,16 +126,16 @@ class Share(TemplateView, LoggingMixin):
 
         context['username'] = User.objects.get(pk=self.user_id).username
         context['user_id'] = self.user_id
-        context['statistics_block'] = self.statistics_block
+        context['displayed_page'] = self.displayed_page
         context['can_share_basic_info'] = self.can_share_basic_info
         context['can_share_city_map'] = self.can_share_city_map
         context['can_share_region_map'] = self.can_share_region_map
 
-        if self.statistics_block == 'basic_info':
+        if self.displayed_page == 'basic_info':
             result = context | get_info_for_statistic_cards_and_charts(self.user_id)
-        elif self.statistics_block == 'city_map':
+        elif self.displayed_page == 'city_map':
             result = context
-        elif self.statistics_block == 'region_map':
+        elif self.displayed_page == 'region_map':
             result = context
         else:
             self.set_message(
@@ -94,5 +147,5 @@ class Share(TemplateView, LoggingMixin):
         return result
 
     def get_template_names(self):
-        return [f'share/{self.statistics_block}.html']
+        return [f'share/{self.displayed_page}.html']
 

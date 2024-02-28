@@ -97,6 +97,19 @@ class Share(TemplateView, LoggingMixin):
     def get(self, *args, **kwargs):
         self.user_id = kwargs.get('pk')
 
+        # Суперпользователь может просматривать статистику любого пользователя вне зависимости от настроек.
+        # Поэтому определяем необходимые параметры и пропускаем все проверки.
+        if self.request.user.is_authenticated and self.request.user.is_superuser:
+            self.displayed_page = kwargs.get('requested_page')
+            if not self.displayed_page:
+                self.displayed_page = TypeOfSharePage.dashboard
+
+            self.can_share_dashboard = True
+            self.can_share_city_map = True
+            self.can_share_region_map = True
+
+            return super().get(*args, **kwargs)
+
         # Если пользователь не разрешил делиться своей статистикой, то возвращаем 404.
         # Это происходит в 2 случаях - когда пользователь ни разу не изменял настройки
         # (в таком случае в БД не будет записи), либо если запись имеется, но поле can_share имеет значение False.

@@ -1,13 +1,18 @@
 import enum
 from enum import auto, EnumMeta
-from typing import Literal, TypeAlias, Any
+from typing import Literal, TypeAlias
 
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 from django.http import Http404
 from django.views.generic import TemplateView
 
 from account.models import ShareSettings
+from city.models import VisitedCity
+from region.models import Region
 from services.db.statistics.get_info_for_statistic_cards_and_charts import get_info_for_statistic_cards_and_charts
+from services.db.visited_cities import get_all_visited_cities
+from services.db.visited_regions import get_all_visited_regions
 from utils.LoggingMixin import LoggingMixin
 
 
@@ -154,9 +159,9 @@ class Share(TemplateView, LoggingMixin):
         if self.displayed_page == TypeOfSharePage.dashboard:
             result = context | get_info_for_statistic_cards_and_charts(self.user_id)
         elif self.displayed_page == TypeOfSharePage.city_map:
-            result = context
+            result = context | additional_context_for_city_map(self.user_id)
         elif self.displayed_page == TypeOfSharePage.region_map:
-            result = context
+            result = context | additional_context_for_region_map(self.user_id)
         else:
             self.set_message(
                 self.request,
@@ -168,3 +173,21 @@ class Share(TemplateView, LoggingMixin):
 
     def get_template_names(self):
         return [f'share/{self.displayed_page}.html']
+
+
+def additional_context_for_city_map(user_id: int) -> dict[str, QuerySet[VisitedCity]]:
+    """
+    Получает из БД все города, которые посетил пользователь с ID user_id и возвращает их в виде словаря.
+    """
+    return {
+        'all_cities': get_all_visited_cities(user_id)
+    }
+
+
+def additional_context_for_region_map(user_id: int) -> dict[str, QuerySet[Region]]:
+    """
+    Получает из БД все регионы, которые посетил пользователь с ID user_id и возвращает их в виде словаря.
+    """
+    return {
+        'all_regions': get_all_visited_regions(user_id)
+    }

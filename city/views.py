@@ -12,6 +12,7 @@ from django.views.generic import ListView, CreateView, DeleteView, UpdateView, D
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
+from services.db.visited_cities import get_all_visited_cities
 from utils.VisitedCityMixin import VisitedCityMixin
 from utils.LoggingMixin import LoggingMixin
 
@@ -202,36 +203,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, LoggingMixin, ListV
         self.qty_of_visited_cities_last_year: int = 0
 
     def get_queryset(self) -> QuerySet[dict]:
-        """
-        Получает из базы данных все посещённые города пользователя.
-        Возвращает Queryset, состоящий из полей:
-            * `id` - ID посещённого города
-            * `date_of_visit` - дата посещения города
-            * `rating` - рейтинг посещённого города
-            * `has_magnet` - наличие магните
-            * `city.id` - ID города
-            * `city.title` - Название города
-            * `city.population` - население города
-            * `city.date_of_foundation` - дата основания города
-            * `city.coordinate_width` - широта
-            * `city.coordinate_longitude` - долгота
-            * `region.id` - ID региона, в котором расположен город
-            * `region.title` - название региона, в котором расположен город
-            * `region.type` - тип региона, в котором расположен город
-            (для отображение названия региона лучше использовать просто `region`,
-            а не `region.title` и `region.type`, так как `region` через __str__()
-            отображает корректное обработанное название)
-        """
-        queryset = VisitedCity.objects.filter(
-            user=self.request.user
-        ).select_related(
-            'city', 'region'
-        ).only(
-            'id', 'date_of_visit', 'rating', 'has_magnet',
-            'city__id', 'city__title', 'city__population', 'city__date_of_foundation',
-            'city__coordinate_width', 'city__coordinate_longitude',
-            'region__id', 'region__title', 'region__type'
-        )
+        queryset = get_all_visited_cities(self.request.user.pk)
 
         self.total_qty_of_cities = City.objects.count()
         self.qty_of_visited_cities = queryset.count()

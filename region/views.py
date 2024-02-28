@@ -24,6 +24,7 @@ from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from region.models import Region
 from city.models import VisitedCity, City
+from services.db.visited_regions import get_all_visited_regions
 from utils.LoggingMixin import LoggingMixin
 from utils.RegionListMixin import RegionListMixin
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
@@ -60,14 +61,7 @@ class RegionList(RegionListMixin, LoggingMixin, ListView):
         self.qty_of_regions = Region.objects.count()
 
         if self.request.user.is_authenticated:
-            queryset = Region.objects.select_related('area').annotate(
-                num_total=Count('city', distinct=True),
-                num_visited=Count(
-                    'city',
-                    filter=Q(city__visitedcity__user=self.request.user.pk),
-                    distinct=True
-                )
-            ).order_by('-num_visited', 'title')
+            queryset = get_all_visited_regions(self.request.user.pk)
             self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
         else:
             queryset = Region.objects.select_related('area').annotate(

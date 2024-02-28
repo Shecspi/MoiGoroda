@@ -92,7 +92,7 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
             'number_of_visited_cities_previous_year': modification__city(number_of_visited_cities_previous_year)
         },
         'region': {
-            'number_of_visited_regions': modification__region__prepositional_case(num_visited_regions),
+            'number_of_visited_regions': modification__region__accusative_case(num_visited_regions),
             'number_of_not_visited_regions': modification__region__accusative_case(
                 number_of_regions - num_visited_regions),
             'number_of_finished_regions': modification__region__prepositional_case(num_finished_regions),
@@ -101,8 +101,10 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
 
         },
         'visited': {
-            'number_of_visited_cities_previous_year': modification__visited(
-                number_of_visited_cities_previous_year)
+            'number_of_visited_cities': modification__visited(number_of_visited_cities),
+            'number_of_visited_cities_previous_year': modification__visited(number_of_visited_cities_previous_year),
+            'number_of_visited_cities_current_year': modification__visited(number_of_visited_cities_current_year),
+            'number_of_visited_regions': modification__visited(num_visited_regions)
         }
     }
 

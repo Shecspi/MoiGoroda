@@ -2,7 +2,7 @@
     <div class="col">
         <div class="card text-center shadow h-100">
             <div class="card-body">
-                <p class="fs-4">Я посетил</p>
+                <p class="fs-4">{{ word_modifications.visited.number_of_visited_cities|title }}</p>
                 <h1>{{ cities.number_of_visited_cities }}</h1>
                 <p class="fs-4">{{ word_modifications.city.number_of_visited_cities }}</p>
             </div>
@@ -22,7 +22,7 @@
     <div class="col">
         <div class="card text-center shadow h-100">
             <div class="card-body">
-                <p class="fs-4">В этом году я посетил</p>
+                <p class="fs-4">В этом году {{ word_modifications.visited.number_of_visited_cities }}</p>
                 <h1>{{ cities.number_of_visited_cities_current_year }}</h1>
                 <p class="fs-4">{{ word_modifications.city.number_of_visited_cities_current_year }}</p>
             </div>

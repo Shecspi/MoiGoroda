@@ -37,40 +37,6 @@ class TypeOfSharePage(enum.StrEnum, metaclass=MetaEnum):
 DisplayedPageType: TypeAlias = Literal['dashboard', 'city_map', 'region_map', False]
 
 
-def get_displayed_page(requested_page: str, settings: ShareSettings) -> DisplayedPageType:
-    """
-    Возвращает страницу, которую необходимо отобразить пользователю на основе запрошенной страницы requested_page
-    и настроек settings, сохранённых в базе данных. Если запрошенная страница не доступна для отображения,
-    соответственно настройкам БД, то выбираются другие на основе приоритетности. Если и они не доступны для отображения,
-    то возвращается False.
-    """
-    displayed_page: DisplayedPageType = False
-
-    if requested_page == TypeOfSharePage.dashboard:
-        if settings.can_share_dashboard:
-            displayed_page = 'dashboard'
-        elif settings.can_share_city_map:
-            displayed_page = 'city_map'
-        elif settings.can_share_region_map:
-            displayed_page = 'region_map'
-    elif requested_page == TypeOfSharePage.city_map:
-        if settings.can_share_city_map:
-            displayed_page = 'city_map'
-        elif settings.can_share_dashboard:
-            displayed_page = 'dashboard'
-        elif settings.can_share_region_map:
-            displayed_page = 'region_map'
-    elif requested_page == TypeOfSharePage.region_map:
-        if settings.can_share_region_map:
-            displayed_page = 'region_map'
-        elif settings.can_share_dashboard:
-            displayed_page = 'dashboard'
-        elif settings.can_share_region_map:
-            displayed_page = 'city_map'
-
-    return displayed_page
-
-
 class Share(TemplateView, LoggingMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -186,6 +152,40 @@ class Share(TemplateView, LoggingMixin):
 
     def get_template_names(self):
         return [f'share/{self.displayed_page}.html']
+
+
+def get_displayed_page(requested_page: str, settings: ShareSettings) -> DisplayedPageType:
+    """
+    Возвращает страницу, которую необходимо отобразить пользователю на основе запрошенной страницы requested_page
+    и настроек settings, сохранённых в базе данных. Если запрошенная страница не доступна для отображения,
+    соответственно настройкам БД, то выбираются другие на основе приоритетности. Если и они не доступны для отображения,
+    то возвращается False.
+    """
+    displayed_page: DisplayedPageType = False
+
+    if requested_page == TypeOfSharePage.dashboard:
+        if settings.can_share_dashboard:
+            displayed_page = 'dashboard'
+        elif settings.can_share_city_map:
+            displayed_page = 'city_map'
+        elif settings.can_share_region_map:
+            displayed_page = 'region_map'
+    elif requested_page == TypeOfSharePage.city_map:
+        if settings.can_share_city_map:
+            displayed_page = 'city_map'
+        elif settings.can_share_dashboard:
+            displayed_page = 'dashboard'
+        elif settings.can_share_region_map:
+            displayed_page = 'region_map'
+    elif requested_page == TypeOfSharePage.region_map:
+        if settings.can_share_region_map:
+            displayed_page = 'region_map'
+        elif settings.can_share_dashboard:
+            displayed_page = 'dashboard'
+        elif settings.can_share_region_map:
+            displayed_page = 'city_map'
+
+    return displayed_page
 
 
 def additional_context_for_city_map(user_id: int) -> dict[str, QuerySet[VisitedCity]]:

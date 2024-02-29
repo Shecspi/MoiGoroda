@@ -5,6 +5,7 @@ from typing import Literal, TypeAlias
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import Http404
+from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
 from account.models import ShareSettings
@@ -111,6 +112,12 @@ class Share(TemplateView, LoggingMixin):
 
         # Определяем страницу, которую необходимо отобразить
         self.displayed_page = get_displayed_page(self.requested_page, settings)
+        if self.displayed_page != self.requested_page:
+            print(1)
+            if self.displayed_page == TypeOfSharePage.dashboard:
+                return redirect('share', pk=self.user_id)
+            else:
+                return redirect('share', pk=self.user_id, requested_page=self.displayed_page)
         if not self.displayed_page:
             self.set_message(
                 self.request,
@@ -182,7 +189,7 @@ def get_displayed_page(requested_page: str, settings: ShareSettings) -> Displaye
             displayed_page = 'region_map'
         elif settings.can_share_dashboard:
             displayed_page = 'dashboard'
-        elif settings.can_share_region_map:
+        elif settings.can_share_city_map:
             displayed_page = 'city_map'
 
     return displayed_page

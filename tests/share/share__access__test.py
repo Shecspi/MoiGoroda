@@ -78,3 +78,14 @@ def test__access__has_no_permissions__existing_user__superuser(setup, client):
     client.login(username='superuser', password='password')
     response = client.get(reverse('share', kwargs={'pk': 2}))
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test__access__has_no_permissions__existing_user__self(setup, client):
+    """
+    При просмотре своей статистики действуют те же ограничения, что и для всех.
+    Если записи в БД нет, то и доступа к этой статистике нет
+    """
+    client.login(username='username1', password='password')
+    response = client.get(reverse('share', kwargs={'pk': 1}))
+    assert response.status_code == 404

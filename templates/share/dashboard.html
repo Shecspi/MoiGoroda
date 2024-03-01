@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-5 text-center mt-3" id="block-page_header">
+        Статистика пользователя {{ username }}
+    </h1>
+    
+    {% include 'share/parts/tab_panel.html' %}
+
+    {% include 'account/statistics/all_cards_and_charts.html' %}
+{% endblock %}

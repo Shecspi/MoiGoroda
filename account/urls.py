@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import user_passes_test
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
@@ -12,6 +13,7 @@ urlpatterns = [
 
     path('logout/', LogoutView.as_view(), name='logout'),
 
+    path('stats/', views.Stats.as_view(), name='stats'),
     path('profile/', views.Profile.as_view(), name='profile'),
 
     # -----  Сброс пароля  ----- #
@@ -58,10 +60,5 @@ urlpatterns = [
 
     # -----  Изменение пароля  ----- #
     path('password/change/', MyPasswordChangeView.as_view(), name='password_change_form'),
-    path('password/change/done/', MyPasswordResetDoneView.as_view(), name='password_change_done'),
-
-    # -----  Статистика  ----- #
-    path('stats/', views.Stats.as_view(), name='stats'),
-    # ----- Сохранение настроек "Поделиться статистикой"  ----- #
-    path('stats/save_share_settings', views.save_share_settings, name='save_share_settings')
+    path('password/change/done/', MyPasswordResetDoneView.as_view(), name='password_change_done')
 ]

@@ -179,19 +179,3 @@ div#main-background {
 .opacity_until_hover[data-bs-toggle="tooltip"]:hover {
     opacity: 0.8;
 }
-
-/*------------ Модальное окно настроек "Поделиться статистикой" ------------*/
-@media (max-width: 575px) {
-    #button_send_to_server {
-        width: 100%;
-        display: block;
-    }
-}
-
-@media (max-width: 575px) {
-    #save_success {
-        width: 100%;
-        display: block;
-        text-align: center;
-    }
-}

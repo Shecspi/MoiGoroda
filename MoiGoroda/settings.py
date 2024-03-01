@@ -57,8 +57,7 @@ INSTALLED_APPS = [
     'mathfilters',
     'mdeditor',
     'markdownify',
-    'dashboard',
-    "share.apps.ShareConfig"
+    'dashboard'
 ]
 
 MIDDLEWARE = [

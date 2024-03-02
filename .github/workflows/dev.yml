@@ -1,5 +1,6 @@
 name: Deploy to the DEV-server
 on:
+    workflow_dispatch:
     push:
       branches: ["dev"]
 

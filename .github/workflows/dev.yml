@@ -2,6 +2,7 @@ name: Deploy to the DEV-server
 on:
     push:
       branches: ["dev"]
+    workflow_dispatch:
 
 jobs:
   test:

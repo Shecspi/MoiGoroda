@@ -1,8 +1,8 @@
 name: Deploy to the DEV-server
 on:
-    workflow_dispatch:
     push:
       branches: ["dev"]
+    workflow_dispatch:
 
 jobs:
   test:

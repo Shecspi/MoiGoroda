@@ -1,19 +1,10 @@
 name: Manual trigger
+
 on:
-  workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   deploy:
-    needs: test
     runs-on: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@v1
-      - name: Deploy to the DEV-server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEV__SSH_HOST }}
-          username: ${{ secrets.DEV__SSH_USER }}
-          key: ${{ secrets.DEV__SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/www
-            ls -la
+      - run: echo "Hello, world!!!"

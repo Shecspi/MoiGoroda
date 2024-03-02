@@ -1,0 +1,10 @@
+name: Manual trigger
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: [ubuntu-latest]
+    steps:
+      - run: echo "Hello, world!!!"

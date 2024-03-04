@@ -5,15 +5,11 @@ on:
 
 jobs:
   deploy:
-    runs-on: [ ubuntu-latest ]
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v1
       - name: Deploy to 92.255.77.19
-        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DEV__SSH_HOST }}
-          username: ${{ secrets.DEV__SSH_USER }}
-          key: ${{ secrets.DEV__SSH_PRIVATE_KEY }}
           script: |
             : # Переходим в папку с проектом
             cd ${{ secrets.DEV__LOCAL_PATH }}

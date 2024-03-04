@@ -9,8 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Deploy to 92.255.77.19
-        with:
-          script: |
+        run: |
             : # Переходим в папку с проектом
             cd ${{ secrets.DEV__LOCAL_PATH }}
 

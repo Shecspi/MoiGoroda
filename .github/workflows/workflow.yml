@@ -1,4 +1,4 @@
-name: Upgrade to the latest version (manual trigger)
+name: Manual trigger
 
 on:
   workflow_dispatch:

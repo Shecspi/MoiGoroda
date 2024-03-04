@@ -18,6 +18,7 @@ django-mdeditor = "^0.1.20"
 psycopg2-binary = "^2.9.6"
 pytest-django = "^4.5.2"
 sentry-sdk = "^1.39.0"
+gunicorn = "^21.2.0"
 
 
 [tool.poetry.group.dev.dependencies]

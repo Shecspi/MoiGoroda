@@ -5,6 +5,37 @@ on:
 
 jobs:
   deploy:
-    runs-on: [ubuntu-latest]
+    runs-on: [ ubuntu-latest ]
     steps:
-      - run: echo "Hello, world!!!"
+      - uses: actions/checkout@v1
+      - name: Deploy to the DEV-server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV__SSH_HOST }}
+          username: ${{ secrets.DEV__SSH_USER }}
+          key: ${{ secrets.DEV__SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.DEV__LOCAL_PATH }}
+#           Удаляем виртуальное окружение и создаём новое на основе той версии Python,
+#           которая указана в .python-version
+            rm -rf $(poetry env info -p)
+            poetry env use $(pyenv which python)
+            poetry install
+
+#           Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
+#           нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
+#           Имя папки может меняться, поэтому нужен такой ход.
+            ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
+
+            git pull origin dev
+            git checkout dev
+            ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
+            ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py migrate
+#            export POETRY_PATH=${{ secrets.DEV__POETRY_PATH }}
+            chmod +x ./scripts/collectstatic.sh
+            ./scripts/collectstatic.sh
+            chmod -x ./scripts/collectstatic.sh
+            chmod +x ./scripts/restart.sh
+            export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
+            ./scripts/restart.sh
+            chmod -x ./scripts/restart.sh

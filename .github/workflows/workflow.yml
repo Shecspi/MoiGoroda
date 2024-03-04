@@ -10,34 +10,35 @@ jobs:
       - uses: actions/checkout@v1
       - name: Deploy to 92.255.77.19
         run: |
-            : # Переходим в папку с проектом
-            cd ${{ secrets.DEV__LOCAL_PATH }}
+          : # Переходим в папку с проектом
+          cd ${{ secrets.DEV__LOCAL_PATH }}
 
-            : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
-            : # которая указана в .python-version
-            if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
-            poetry env use $(cat .python-version)
-            poetry install
+          : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
+          : # которая указана в .python-version
+          if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
+          poetry env use $(cat .python-version)
+          poetry install
 
-            : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
-            : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
-            : # Имя папки может меняться, поэтому нужен такой ход.
-            ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
+          : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
+          : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
+          : # Имя папки может меняться, поэтому нужен такой ход.
+          if [ -f ~/gunicorn ]; then rm ~/gunicorn; fi
+          ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
 
-            git pull origin workflow
-            git checkout workflow
-            : # ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
-            poetry run python3 manage.py makemigrations
-            poetry run python3 manage.py migrate
-            export POETRY_PATH=$(poetry env info -p)
-                    
-            : # Производим сборку статичных файлов
-            chmod +x ./scripts/collectstatic.sh
-            ./scripts/collectstatic.sh
-            chmod -x ./scripts/collectstatic.sh
-                    
-            : # Перезагружаем сервер
-            chmod +x ./scripts/restart.sh
-            export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
-            ./scripts/restart.sh
-            chmod -x ./scripts/restart.sh
+          git pull origin workflow
+          git checkout workflow
+          : # ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
+          poetry run python3 manage.py makemigrations
+          poetry run python3 manage.py migrate
+          export POETRY_PATH=$(poetry env info -p)
+                  
+          : # Производим сборку статичных файлов
+          chmod +x ./scripts/collectstatic.sh
+          ./scripts/collectstatic.sh
+          chmod -x ./scripts/collectstatic.sh
+                  
+          : # Перезагружаем сервер
+          chmod +x ./scripts/restart.sh
+          export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
+          ./scripts/restart.sh
+          chmod -x ./scripts/restart.sh

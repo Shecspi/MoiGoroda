@@ -8,30 +8,38 @@
 [![Apache License 2.0](https://img.shields.io/badge/License-Apache%20License%202.0-orange?style=for-the-badge&logo=apache)](https://github.com/Shecspi/MoiGoroda/blob/master/LICENSE)
 
 ## :floppy_disk: Установка
+0. Подготовить директорию, в которой будет располагаться проект, и перейти в неё.
 1. Скачать репозиторий  
-  ```bash
-  git clone https://github.com/Shecspi/MoiGoroda.git
-  ```
-2. Установить все зависимости  
-  ```python
-  poetry install
-  ```
-3. В папке `MoiGoroga` скопировать файл `.env.example` в `.env` и указать в нём актуальные настройки
-4. В файле `MoiGoroda/settings.py` указать домен или IP-адрес сайта в директиве `ALLOW_HOSTS`, а также указать нужную директорию для статичных файлов `STATIC_ROOT`. 
+```shell
+git clone https://github.com/Shecspi/MoiGoroda.git .
+```
+2. Установить необходимую версию Python  
+ ```shell
+ pyenv install $(cat .python-version)
+ ```
+3. Удалить текущее виртуальное окружение (если оно есть), создать новое и устанавить все зависимости  
+```shell
+if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi;
+poetry env use $(cat .python-version);
+poetry install;
+```
+4. В папке `MoiGoroga` скопировать файл `.env.example` в `.env` и указать в нём актуальные настройки
 5. Сделать миграции  
-```python
+```shell
 poetry run python3 manage.py makemigrations && poetry run python3 manage.py migrate
 ```
 6. Создать суперпользователя
-```python
+```shell
 poetry run python3 manage.py createsuperuser
 ```
-7. Настроить выдачу статичных файлов. Для этого выполнить команду  
-```python
-python3 manage.py collectstatic
+7. Создать папку для хранения статичных файлов (если её ещё не существует), изменить ей владельца и сделать сборку статичных файлов
+```shell
+if [ ! -d '/var/www' ]; then sudo mkdir /var/www; fi;
+sudo chown www:www /var/www;
+poetry run python3 manage.py collectstatic
 ```
 9. Загрузить изначальные настройки базы данных (федеральные округа, регионы, города)  
-```python
+```shell
 poetry run python3 manage.py loaddata db.json
 ```
 11. Перезапустить сервер
@@ -39,6 +47,6 @@ poetry run python3 manage.py loaddata db.json
 ## :bomb: Тестирование
 Для тестирование используются модули `pytest` и `pytest-django`. Эти зависимости прописаны в `pyproject.toml`.  
 Чтобы запустить тесты выполните команду в корневой директории проекта
-```bash
+```shell
 poetry run pytest
 ```

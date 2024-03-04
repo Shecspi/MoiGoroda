@@ -28,13 +28,9 @@ jobs:
           git pull origin workflow
           git checkout workflow
           : # ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
-          poetry run python3 manage.py makemigrations
-          poetry run python3 manage.py migrate
-          export POETRY_PATH=$(poetry env info -p)
+          poetry run python3 manage.py makemigratio
                   
           : # Производим сборку статичных файлов
-          pwd
-          ls -l
           chmod +x ./scripts/collectstatic.sh
           ./scripts/collectstatic.sh
           chmod -x ./scripts/collectstatic.sh

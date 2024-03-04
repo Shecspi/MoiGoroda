@@ -33,6 +33,8 @@ jobs:
           export POETRY_PATH=$(poetry env info -p)
                   
           : # Производим сборку статичных файлов
+          pwd
+          ls -l
           chmod +x ./scripts/collectstatic.sh
           ./scripts/collectstatic.sh
           chmod -x ./scripts/collectstatic.sh

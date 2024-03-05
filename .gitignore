@@ -163,3 +163,5 @@ cython_debug/
 **/__pycache__/
 /db.sqlite3
 /news/tests/__pycache__/
+
+poetry.lock

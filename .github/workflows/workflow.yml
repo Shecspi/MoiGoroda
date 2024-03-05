@@ -11,16 +11,16 @@ jobs:
       - name: Deploy to 92.255.77.19
         run: |
           : # Переходим в папку с проектом
-          echo "\n\nПереходим в папку с проектом\n\n"
+          echo -e "\n\nПереходим в папку с проектом\n\n"
           cd ${{ secrets.DEV__LOCAL_PATH }}
           
           : # Устанавливаем необходимую версию Python, если она ещё не установлена
-          echo "\n\nУстанавливаем необходимую версию Python\n\n"
+          echo -e "\n\nУстанавливаем необходимую версию Python\n\n"
           if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
 
           : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
           : # которая указана в .python-version
-          echo "\n\nУдаляем виртуальное окружение и создаём новое\n\n"
+          echo -e "\n\nУдаляем виртуальное окружение и создаём новое\n\n"
           if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
           poetry env use $(cat .python-version)
           poetry install --only-root
@@ -28,26 +28,26 @@ jobs:
           : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
           : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
           : # Имя папки может меняться, поэтому нужен такой ход.
-          echo "\n\nСоздаём символическую ссылку на Gunicron\n\n"
+          echo -e "\n\nСоздаём символическую ссылку на Gunicron\n\n"
           if [ -f ~/gunicorn ]; then rm ~/gunicorn; fi
           ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
 
-          echo "\n\nПодтягиваем изменения из Git\n\n"
+          echo -e "\n\nПодтягиваем изменения из Git\n\n"
           git pull origin workflow
           git checkout workflow
           
-          echo "\n\nДелаем миграции\n\n"
+          echo -e "\n\nДелаем миграции\n\n"
           poetry run python3 manage.py makemigrations
           poetry run python3 manage.py migrate
                   
           : # Производим сборку статичных файлов
-          echo "\n\nПроизводим сборку статичных файлов\n\n"
+          echo -e "\n\nПроизводим сборку статичных файлов\n\n"
           chmod +x ./scripts/collectstatic.sh
           ./scripts/collectstatic.sh
           chmod -x ./scripts/collectstatic.sh
                   
           : # Перезагружаем сервер
-          echo "\n\nПерезагружаем сервер\n\n"
+          echo -e "\n\nПерезагружаем сервер\n\n"
           chmod +x ./scripts/restart.sh
           export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
           ./scripts/restart.sh

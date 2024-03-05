@@ -20,7 +20,7 @@ jobs:
           : # которая указана в .python-version
           if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
           poetry env use $(cat .python-version)
-          poetry install
+          poetry install --no-dev
 
           : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
           : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.

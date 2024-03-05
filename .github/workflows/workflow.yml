@@ -25,7 +25,7 @@ jobs:
           : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
           : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
           : # Имя папки может меняться, поэтому нужен такой ход.
-          if [ -f ~/gunicorn ]; then rm ~/gunicorn; fi
+          rm -а ~/gunicorn
           ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
 
           git pull origin workflow

@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'debug_toolbar',
     'crispy_forms',
     'crispy_bootstrap5',
     'main_page',
@@ -69,8 +68,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
+
+# Debug toolbar находится в DEV-зависимостях, поэтому на продакшене он не устанавливается.
+if DEBUG:
+    INSTALLED_APPS += [
+        'debug_toolbar'
+    ]
+    MIDDLEWARE += [
+        'debug_toolbar.middleware.DebugToolbarMiddleware'
+    ]
 
 ROOT_URLCONF = 'MoiGoroda.urls'
 

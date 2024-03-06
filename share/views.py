@@ -143,11 +143,11 @@ class Share(TemplateView, LoggingMixin):
         context['can_share_region_map'] = self.can_share_region_map
 
         if self.displayed_page == TypeOfSharePage.dashboard:
-            result = context | get_info_for_statistic_cards_and_charts(self.user_id)
+            context = context | get_info_for_statistic_cards_and_charts(self.user_id)
         elif self.displayed_page == TypeOfSharePage.city_map:
-            result = context | additional_context_for_city_map(self.user_id)
+            context = context | additional_context_for_city_map(self.user_id)
         elif self.displayed_page == TypeOfSharePage.region_map:
-            result = context | additional_context_for_region_map(self.user_id)
+            context = context | additional_context_for_region_map(self.user_id)
         else:
             self.set_message(
                 self.request,
@@ -155,7 +155,10 @@ class Share(TemplateView, LoggingMixin):
             )
             raise Http404
 
-        return result
+        context['page_title'] = f'Статистика пользователя {context["username"]}'
+        context['page_description'] = f'Статистика посещённых городов и регионов пользователя {context["username"]}'
+
+        return context
 
     def get_template_names(self):
         return [f'share/{self.displayed_page}.html']

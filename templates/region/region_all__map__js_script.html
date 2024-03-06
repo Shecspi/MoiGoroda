@@ -1,0 +1,76 @@
+<script>
+    ymaps.ready(init);
+
+    let regionList = new Map();
+    {% for item in all_regions %}
+        regionList.set('{{ item.iso3166 }}', '{{ item.num_visited }}');
+    {% endfor %}
+
+    function init() {
+        let map = new ymaps.Map('map', {
+            center: [58.01, 56.22],
+            zoom: 4,
+            type: 'yandex#map',
+            controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
+        });
+        map.controls.get('zoomControl').options.set({size: 'small'});
+
+        let objectManager = new ymaps.ObjectManager();
+
+        // Загрузим регионы и создаём объект regions, где ключи это ISO код региона
+        ymaps.borders.load('RU', {
+            lang: 'ru',
+            quality: 2
+        }).then(function (result) {
+            let queue = [];
+            let regions = result.features.reduce(function (acc, feature) {
+                let iso = feature.properties.iso3166;
+                feature.id = iso;
+                feature.options = {
+                    fillOpacity: 0.6,
+                    strokeColor: '#FFF',
+                    strokeOpacity: 0.5,
+                    visited: regionList.get(iso) > 0
+                };
+                acc[iso] = feature;
+                return acc;
+            }, {});
+
+            // Функция, которая раскрашивает регион и добавляет всех нераскрасшенных соседей в очередь на раскраску.
+            function paint(iso) {
+                let region = regions[iso];
+
+                // Если у региона есть опция fillColor, значит мы его уже раскрасили.
+                if (region.options.fillColor) {
+                    return;
+                }
+
+                if (region.options.visited) {
+                    region.options.fillColor = '#32b700';
+                } else {
+                    region.options.fillColor = '#9a9a9a';
+                }
+            }
+
+            for (let iso in regions) {
+                // Если регион не раскрашен, добавим его в очередь на раскраску.
+                if (!regions[iso].options.fillColor) {
+                    queue.push(iso);
+                }
+                // Раскрасим все регионы из очереди.
+                while (queue.length > 0) {
+                    paint(queue.shift());
+                }
+
+            }
+
+            // Добавим регионы на карту.
+            result.features = [];
+            for (let reg in regions) {
+                result.features.push(regions[reg]);
+            }
+            objectManager.add(result);
+            map.geoObjects.add(objectManager);
+        })
+    }
+</script>

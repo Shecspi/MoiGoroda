@@ -1,10 +1,10 @@
 import enum
 from enum import auto, EnumMeta
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, Any
 
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
-from django.http import Http404
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
@@ -25,7 +25,7 @@ class MetaEnum(EnumMeta):
     Этот дополнительный класс нужен для того, чтобы дочерний Enum-класс мог проверять вхождение строки по 'in'.
     """
 
-    def __contains__(cls, item):
+    def __contains__(cls, item: Any) -> Any:
         try:
             cls(item)
         except ValueError:
@@ -33,7 +33,7 @@ class MetaEnum(EnumMeta):
         return True
 
 
-class TypeOfSharePage(enum.StrEnum, metaclass=MetaEnum):
+class TypeOfSharedPage(enum.StrEnum):
     """
     Структура данных, которая хранит в себе информацию о трёх возможных типах отображаемых страниц.
     """
@@ -46,18 +46,18 @@ DisplayedPageType: TypeAlias = Literal["dashboard", "city_map", "region_map", Fa
 
 
 class Share(TemplateView, LoggingMixin):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         # ID пользователя, статистику которого необходимо отобразить
-        self.user_id = None
+        self.user_id: int
 
         # Страница, которую пользователь запрашивает через GET-параметр
-        self.requested_page = None
+        self.requested_page: str | None = None
 
         # Страница, которая будет отображена пользоватлю после всех проверок.
         # Она может отличаться от запрошенной self.requested_page, так как
         # пользователь мог ограничить отображение какого-то вида информации.
-        self.displayed_page: str | None = None
+        self.displayed_page: TypeOfSharedPage | None = None
 
         # Разрешил ли пользователь отображать основную информацию
         self.can_share_dashboard: bool = False
@@ -68,15 +68,15 @@ class Share(TemplateView, LoggingMixin):
         # Разрешил ли пользователь отображать карту посещённых регионов
         self.can_share_region_map: bool = False
 
-    def get(self, *args, **kwargs):
-        self.user_id = kwargs.get("pk")
+    def get(self, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.user_id = kwargs['pk']
 
         # Суперпользователь может просматривать статистику любого пользователя вне зависимости от настроек.
         # Поэтому определяем необходимые параметры и пропускаем все проверки.
         if self.request.user.is_authenticated and self.request.user.is_superuser:
             self.displayed_page = kwargs.get("requested_page")
             if not self.displayed_page:
-                self.displayed_page = TypeOfSharePage.dashboard
+                self.displayed_page = TypeOfSharedPage.dashboard
 
             self.can_share_dashboard = True
             self.can_share_city_map = True
@@ -104,6 +104,7 @@ class Share(TemplateView, LoggingMixin):
 
         settings = ShareSettings.objects.get(user=self.user_id)
 
+
         # Если по каким-то причинам оказалось так, что все три возможных страницы для отображения
         # в БД указаны как False, то возвращаем 404. Хотя такого быть не должно. Но на всякий случай проверил.
         if (
@@ -117,14 +118,14 @@ class Share(TemplateView, LoggingMixin):
             )
             raise Http404
 
-        self.requested_page = kwargs.get("requested_page")
+        self.requested_page = kwargs.get("requested_page", None)
 
         # Если URL имеет вид /share/1, то отображаем общую информацию
         if not self.requested_page:
-            self.requested_page = TypeOfSharePage.dashboard
+            self.requested_page = TypeOfSharedPage.dashboard
 
         # Если в URL указан неподдерживаемый параметр 'requested_page', то возвращаем 404.
-        if self.requested_page not in TypeOfSharePage:
+        if self.requested_page not in TypeOfSharedPage:
             logger.error(
                 self.request,
                 '(Share statistics) Invalid GET-parameter "requested_page"',
@@ -134,12 +135,11 @@ class Share(TemplateView, LoggingMixin):
         # Определяем страницу, которую необходимо отобразить
         self.displayed_page = get_displayed_page(self.requested_page, settings)
         if self.displayed_page != self.requested_page:
-            print(1)
-            if self.displayed_page == TypeOfSharePage.dashboard:
+            if self.displayed_page == TypeOfSharedPage.dashboard:
                 return redirect("share", pk=self.user_id)
             else:
                 return redirect(
-                    "share", pk=self.user_id, requested_page=self.displayed_page
+                    "share", pk=self.user_id, requested_page=self.displayed_page.value
                 )
         if not self.displayed_page:
             logger.error(
@@ -157,7 +157,7 @@ class Share(TemplateView, LoggingMixin):
 
         return super().get(*args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         context["username"] = User.objects.get(pk=self.user_id).username
@@ -171,11 +171,11 @@ class Share(TemplateView, LoggingMixin):
             f'Статистика посещённых городов и регионов пользователя {context["username"]}'
         )
 
-        if self.displayed_page == TypeOfSharePage.dashboard:
+        if self.displayed_page == TypeOfSharedPage.dashboard:
             context = context | get_info_for_statistic_cards_and_charts(self.user_id)
-        elif self.displayed_page == TypeOfSharePage.city_map:
+        elif self.displayed_page == TypeOfSharedPage.city_map:
             context = context | additional_context_for_city_map(self.user_id)
-        elif self.displayed_page == TypeOfSharePage.region_map:
+        elif self.displayed_page == TypeOfSharedPage.region_map:
             context = context | additional_context_for_region_map(self.user_id)
         else:
             self.set_message(
@@ -186,42 +186,42 @@ class Share(TemplateView, LoggingMixin):
 
         return context
 
-    def get_template_names(self):
-        return [f"share/{self.displayed_page}.html"]
+    def get_template_names(self) -> list[str]:
+        return [f"share/{self.displayed_page.value}.html"]
 
 
 def get_displayed_page(
     requested_page: str, settings: ShareSettings
-) -> DisplayedPageType:
+) -> TypeOfSharedPage | None:
     """
     Возвращает страницу, которую необходимо отобразить пользователю на основе запрошенной страницы requested_page
     и настроек settings, сохранённых в базе данных. Если запрошенная страница не доступна для отображения,
     соответственно настройкам БД, то выбираются другие на основе приоритетности. Если и они не доступны для отображения,
     то возвращается False.
     """
-    displayed_page: DisplayedPageType = False
+    displayed_page = None
 
-    if requested_page == TypeOfSharePage.dashboard:
+    if requested_page == TypeOfSharedPage.dashboard:
         if settings.can_share_dashboard:
-            displayed_page = "dashboard"
+            displayed_page = TypeOfSharedPage.dashboard
         elif settings.can_share_city_map:
-            displayed_page = "city_map"
+            displayed_page = TypeOfSharedPage.city_map
         elif settings.can_share_region_map:
-            displayed_page = "region_map"
-    elif requested_page == TypeOfSharePage.city_map:
+            displayed_page = TypeOfSharedPage.region_map
+    elif requested_page == TypeOfSharedPage.city_map:
         if settings.can_share_city_map:
-            displayed_page = "city_map"
+            displayed_page = TypeOfSharedPage.city_map
         elif settings.can_share_dashboard:
-            displayed_page = "dashboard"
+            displayed_page = TypeOfSharedPage.dashboard
         elif settings.can_share_region_map:
-            displayed_page = "region_map"
-    elif requested_page == TypeOfSharePage.region_map:
+            displayed_page = TypeOfSharedPage.region_map
+    elif requested_page == TypeOfSharedPage.region_map:
         if settings.can_share_region_map:
-            displayed_page = "region_map"
+            displayed_page = TypeOfSharedPage.region_map
         elif settings.can_share_dashboard:
-            displayed_page = "dashboard"
+            displayed_page = TypeOfSharedPage.dashboard
         elif settings.can_share_city_map:
-            displayed_page = "city_map"
+            displayed_page = TypeOfSharedPage.city_map
 
     return displayed_page
 

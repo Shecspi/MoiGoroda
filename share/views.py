@@ -1,10 +1,9 @@
-import enum
-from enum import auto, EnumMeta
-from typing import Literal, TypeAlias, Any
+from enum import auto, StrEnum
+from typing import Any, Literal
 
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
@@ -20,39 +19,24 @@ from services.db.visited_regions import get_all_visited_regions
 from utils.LoggingMixin import LoggingMixin
 
 
-class MetaEnum(EnumMeta):
-    """
-    Этот дополнительный класс нужен для того, чтобы дочерний Enum-класс мог проверять вхождение строки по 'in'.
-    """
-
-    def __contains__(cls, item: Any) -> Any:
-        try:
-            cls(item)
-        except ValueError:
-            return False
-        return True
-
-
-class TypeOfSharedPage(enum.StrEnum):
+class TypeOfSharedPage(StrEnum):
     """
     Структура данных, которая хранит в себе информацию о трёх возможных типах отображаемых страниц.
     """
+
     dashboard = auto()
     city_map = auto()
     region_map = auto()
-
-
-DisplayedPageType: TypeAlias = Literal["dashboard", "city_map", "region_map", False]
 
 
 class Share(TemplateView, LoggingMixin):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         # ID пользователя, статистику которого необходимо отобразить
-        self.user_id: int
+        self.user_id: int | None = None
 
-        # Страница, которую пользователь запрашивает через GET-параметр
-        self.requested_page: str | None = None
+        # Страница, которую пользователь запрашивает через GET-параметр.
+        self.requested_page: Literal['city_map', 'region_map'] | None = None
 
         # Страница, которая будет отображена пользоватлю после всех проверок.
         # Она может отличаться от запрошенной self.requested_page, так как
@@ -74,7 +58,7 @@ class Share(TemplateView, LoggingMixin):
         # Суперпользователь может просматривать статистику любого пользователя вне зависимости от настроек.
         # Поэтому определяем необходимые параметры и пропускаем все проверки.
         if self.request.user.is_authenticated and self.request.user.is_superuser:
-            self.displayed_page = kwargs.get("requested_page")
+            self.displayed_page = kwargs.get('requested_page')
             if not self.displayed_page:
                 self.displayed_page = TypeOfSharedPage.dashboard
 
@@ -84,7 +68,7 @@ class Share(TemplateView, LoggingMixin):
 
             logger.info(
                 self.request,
-                "(Share statistics) Viewing shared statistics by superuser",
+                '(Share statistics) Viewing shared statistics by superuser',
             )
 
             return super().get(*args, **kwargs)
@@ -98,27 +82,22 @@ class Share(TemplateView, LoggingMixin):
         ):
             logger.error(
                 self.request,
-                "(Share statistics): Has no permissions from owner to see this page",
+                '(Share statistics): Has no permissions from owner to see this page',
             )
             raise Http404
 
         settings = ShareSettings.objects.get(user=self.user_id)
 
-
         # Если по каким-то причинам оказалось так, что все три возможных страницы для отображения
         # в БД указаны как False, то возвращаем 404. Хотя такого быть не должно. Но на всякий случай проверил.
-        if (
-            not settings.can_share_dashboard
-            and not settings.can_share_city_map
-            and not settings.can_share_region_map
-        ):
+        if not settings.can_share_dashboard and not settings.can_share_city_map and not settings.can_share_region_map:
             logger.error(
                 self.request,
-                "(Share statistics) All share settings are False. I do not know what to show.",
+                '(Share statistics) All share settings are False. I do not know what to show.',
             )
             raise Http404
 
-        self.requested_page = kwargs.get("requested_page", None)
+        self.requested_page = kwargs.get('requested_page', None)
 
         # Если URL имеет вид /share/1, то отображаем общую информацию
         if not self.requested_page:
@@ -136,15 +115,13 @@ class Share(TemplateView, LoggingMixin):
         self.displayed_page = get_displayed_page(self.requested_page, settings)
         if self.displayed_page != self.requested_page:
             if self.displayed_page == TypeOfSharedPage.dashboard:
-                return redirect("share", pk=self.user_id)
+                return redirect('share', pk=self.user_id)
             else:
-                return redirect(
-                    "share", pk=self.user_id, requested_page=self.displayed_page.value
-                )
+                return redirect('share', pk=self.user_id, requested_page=self.displayed_page.value)
         if not self.displayed_page:
             logger.error(
                 self.request,
-                "(Share statistics) All share settings are False. Cannot find the HTML-template.",
+                '(Share statistics) All share settings are False. Cannot find the HTML-template.',
             )
             raise Http404
 
@@ -153,23 +130,21 @@ class Share(TemplateView, LoggingMixin):
         self.can_share_city_map = True if settings.can_share_city_map else False
         self.can_share_region_map = True if settings.can_share_region_map else False
 
-        logger.info(self.request, "(Share statistics) Viewing shared statistics")
+        logger.info(self.request, '(Share statistics) Viewing shared statistics')
 
         return super().get(*args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        context["username"] = User.objects.get(pk=self.user_id).username
-        context["user_id"] = self.user_id
-        context["displayed_page"] = self.displayed_page
-        context["can_share_dashboard"] = self.can_share_dashboard
-        context["can_share_city_map"] = self.can_share_city_map
-        context["can_share_region_map"] = self.can_share_region_map
-        context["page_title"] = f'Статистика пользователя {context["username"]}'
-        context["page_description"] = (
-            f'Статистика посещённых городов и регионов пользователя {context["username"]}'
-        )
+        context['username'] = User.objects.get(pk=self.user_id).username
+        context['user_id'] = self.user_id
+        context['displayed_page'] = self.displayed_page
+        context['can_share_dashboard'] = self.can_share_dashboard
+        context['can_share_city_map'] = self.can_share_city_map
+        context['can_share_region_map'] = self.can_share_region_map
+        context['page_title'] = f'Статистика пользователя {context["username"]}'
+        context['page_description'] = f'Статистика посещённых городов и регионов пользователя {context["username"]}'
 
         if self.displayed_page == TypeOfSharedPage.dashboard:
             context = context | get_info_for_statistic_cards_and_charts(self.user_id)
@@ -180,19 +155,17 @@ class Share(TemplateView, LoggingMixin):
         else:
             self.set_message(
                 self.request,
-                "(Share statistics) All share settings are False. Cannot find the context generator.",
+                '(Share statistics) All share settings are False. Cannot find the context generator.',
             )
             raise Http404
 
         return context
 
     def get_template_names(self) -> list[str]:
-        return [f"share/{self.displayed_page.value}.html"]
+        return [f'share/{self.displayed_page}.html']
 
 
-def get_displayed_page(
-    requested_page: str, settings: ShareSettings
-) -> TypeOfSharedPage | None:
+def get_displayed_page(requested_page: str, settings: ShareSettings) -> TypeOfSharedPage | None:
     """
     Возвращает страницу, которую необходимо отобразить пользователю на основе запрошенной страницы requested_page
     и настроек settings, сохранённых в базе данных. Если запрошенная страница не доступна для отображения,
@@ -230,11 +203,11 @@ def additional_context_for_city_map(user_id: int) -> dict[str, QuerySet[VisitedC
     """
     Получает из БД все города, которые посетил пользователь с ID user_id и возвращает их в виде словаря.
     """
-    return {"all_cities": get_all_visited_cities(user_id)}
+    return {'all_cities': get_all_visited_cities(user_id)}
 
 
 def additional_context_for_region_map(user_id: int) -> dict[str, QuerySet[Region]]:
     """
     Получает из БД все регионы, которые посетил пользователь с ID user_id и возвращает их в виде словаря.
     """
-    return {"all_regions": get_all_visited_regions(user_id)}
+    return {'all_regions': get_all_visited_regions(user_id)}

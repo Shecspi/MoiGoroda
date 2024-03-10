@@ -44,3 +44,9 @@ disallow_untyped_defs = true
 
 [tool.django-stubs]
 django_settings_module = "MoiGoroda.settings"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+quote-style = "single"

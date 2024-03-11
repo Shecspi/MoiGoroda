@@ -80,7 +80,7 @@ class Share(TemplateView, LoggingMixin):
             ShareSettings.objects.filter(user=self.user_id).count() == 0
             or not ShareSettings.objects.get(user=self.user_id).can_share
         ):
-            logger.error(
+            logger.warning(
                 self.request,
                 '(Share statistics): Has no permissions from owner to see this page',
             )
@@ -91,7 +91,7 @@ class Share(TemplateView, LoggingMixin):
         # Если по каким-то причинам оказалось так, что все три возможных страницы для отображения
         # в БД указаны как False, то возвращаем 404. Хотя такого быть не должно. Но на всякий случай проверил.
         if not settings.can_share_dashboard and not settings.can_share_city_map and not settings.can_share_region_map:
-            logger.error(
+            logger.warning(
                 self.request,
                 '(Share statistics) All share settings are False. I do not know what to show.',
             )
@@ -105,7 +105,7 @@ class Share(TemplateView, LoggingMixin):
 
         # Если в URL указан неподдерживаемый параметр 'requested_page', то возвращаем 404.
         if self.requested_page not in TypeOfSharedPage:
-            logger.error(
+            logger.warning(
                 self.request,
                 '(Share statistics) Invalid GET-parameter "requested_page"',
             )
@@ -119,7 +119,7 @@ class Share(TemplateView, LoggingMixin):
             else:
                 return redirect('share', pk=self.user_id, requested_page=self.displayed_page.value)
         if not self.displayed_page:
-            logger.error(
+            logger.warning(
                 self.request,
                 '(Share statistics) All share settings are False. Cannot find the HTML-template.',
             )

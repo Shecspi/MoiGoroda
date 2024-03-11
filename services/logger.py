@@ -18,13 +18,13 @@ def info(request: HttpRequest, message: str, logger_name: str = "base") -> None:
     )
 
 
-def error(request: HttpRequest, message: str, logger_name: str = "base") -> None:
+def warning(request: HttpRequest, message: str, logger_name: str = "base") -> None:
     """
-    Формирует сообщение уровня Error, которое будет записано в логи, на основе текста 'message'.
+    Формирует сообщение уровня Warning, которое будет записано в логи, на основе текста 'message'.
     По-умолчанию используется базовый логгер 'base', но в случае необходимости его можно переопределить.
     """
     logger = logging.getLogger(logger_name)
-    logger.error(
+    logger.warning(
         f"{message}   {request.get_full_path()}",
         extra={
             "IP": __get_client_ip(request),

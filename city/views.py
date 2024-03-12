@@ -1,5 +1,4 @@
 from typing import Any, NoReturn
-from datetime import datetime
 
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest

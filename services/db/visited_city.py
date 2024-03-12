@@ -1,6 +1,21 @@
+from datetime import datetime
+from typing import Literal
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
 
 from city.models import VisitedCity
+
+
+def get_visited_city(user_id: int, city_id: int) -> VisitedCity | Literal[False]:
+    """
+    Возвращает экземпляр класса VisitedCity с информацией о посещённом городе, если запись,
+    соответствующая указанным в user_id и city_id параметрах, существует. Иначе возвращает False.
+    """
+    try:
+        return VisitedCity.objects.get(user_id=user_id, id=city_id)
+    except ObjectDoesNotExist:
+        return False
 
 
 def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
@@ -35,3 +50,24 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
             'region__id', 'region__title', 'region__type'
         )
     )
+
+
+def get_number_of_visited_cities(user_id: int) -> int:
+    """
+    Возвращает количество городов, посещённых пользователем с user_id.
+    """
+    return get_all_visited_cities(user_id).count()
+
+
+def get_number_of_visited_cities_current_year(user_id: int) -> int:
+    """
+    Возвращает количество городов, посещённых пользователем с user_id в текущем году.
+    """
+    return get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year).count()
+
+
+def get_number_of_visited_cities_previous_year(user_id: int) -> int:
+    """
+    Возвращает количество городов, посещённых пользователем с user_id в прошлом году.
+    """
+    return get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year - 1).count()

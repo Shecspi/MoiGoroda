@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('city', '0002_alter_visitedcity_options_alter_visitedcity_rating'),
     ]
@@ -28,6 +27,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='visitedcity',
             name='date_of_visit',
-            field=models.DateField(blank=True, help_text='Укажите дату посещения города в формате ДД.ММ.ГГГГ. На основе этой даты будет происходить сортировка городов, а также это влияет на отображаемую статистику посещённых городов за год.', null=True, verbose_name='Дата посещения'),
+            field=models.DateField(
+                blank=True,
+                help_text='Укажите дату посещения города в формате ДД.ММ.ГГГГ. На основе этой даты будет происходить сортировка городов, а также это влияет на отображаемую статистику посещённых городов за год.',
+                null=True,
+                verbose_name='Дата посещения',
+            ),
         ),
     ]

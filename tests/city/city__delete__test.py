@@ -68,7 +68,7 @@ def test__access__incorrect_user_by_get(setup_db, client):
 def test__access__incorrect_user_by_post(setup_db, client):
     client.login(username='username2', password='password')
     response = client.post(reverse('city-delete', kwargs={'pk': 1}))
-    assert response.status_code == 403
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db

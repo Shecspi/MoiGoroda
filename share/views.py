@@ -14,7 +14,7 @@ from services import logger
 from services.db.statistics.get_info_for_statistic_cards_and_charts import (
     get_info_for_statistic_cards_and_charts,
 )
-from services.db.visited_cities import get_all_visited_cities
+from services.db.visited_city import get_all_visited_cities
 from services.db.visited_regions import get_all_visited_regions
 from utils.LoggingMixin import LoggingMixin
 

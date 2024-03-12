@@ -14,7 +14,11 @@ from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 from collection.models import Collection
 from services import logger
-from services.db.visited_cities import get_all_visited_cities
+from services.db.city import get_number_of_cities
+from services.db.visited_city import get_all_visited_cities, get_visited_city, get_number_of_visited_cities, \
+    get_number_of_visited_cities_current_year, get_number_of_visited_cities_previous_year
+from services.word_modifications.city import modification__city
+from services.word_modifications.visited import modification__visited
 from utils.VisitedCityMixin import VisitedCityMixin
 
 
@@ -150,18 +154,17 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
         self.city_title: str = ''
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        try:
-            queryset = VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
+        if queryset := get_visited_city(self.request.user.pk, self.kwargs['pk']):
             self.collections_list = City.objects.get(id=queryset.city.id).collections_list.all()
-        except ObjectDoesNotExist:
+        else:
             logger.warning(
                 self.request, f'(Visited city) Attempt to access a non-existent visited city #{self.kwargs["pk"]}'
             )
             raise Http404
-        else:
-            logger.info(self.request, f'(Visited city) Viewing the visited city #{self.kwargs["pk"]}')
 
+        logger.info(self.request, f'(Visited city) Viewing the visited city #{self.kwargs["pk"]}')
         self.city_title = queryset.city.title
+
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -204,18 +207,16 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.sort: str | None = ''
         self.filter: str | None = ''
         self.list_or_map = list_or_map
+        self.user_id: int | None = None
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
-        self.qty_of_visited_cities_current_year: int = 0
         self.qty_of_visited_cities_last_year: int = 0
+        self.qty_of_visited_cities_current_year: int = 0
+        self.all_visited_cities: QuerySet[VisitedCity] | None = None
 
     def get_queryset(self) -> QuerySet[VisitedCity]:
-        queryset = get_all_visited_cities(self.request.user.pk)
-
-        self.total_qty_of_cities = City.objects.count()
-        self.qty_of_visited_cities = queryset.count()
-        self.qty_of_visited_cities_current_year = queryset.filter(date_of_visit__year=datetime.now().year).count()
-        self.qty_of_visited_cities_last_year = queryset.filter(date_of_visit__year=datetime.now().year - 1).count()
+        self.user_id = self.request.user.pk
+        self.all_visited_cities = get_all_visited_cities(self.user_id)
 
         if self.list_or_map == 'list':
             logger.info(self.request, '(Visited city) Viewing the list of visited cities')
@@ -226,7 +227,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
         if self.filter:
             try:
-                queryset = self.apply_filter_to_queryset(queryset, self.filter)
+                self.all_visited_cities = self.apply_filter_to_queryset(self.all_visited_cities, self.filter)
                 logger.info(self.request, f"(Visited city) Using the filter '{self.filter}'")
             except KeyError:
                 logger.warning(self.request, f"(Visited city) Unexpected value of the 'filter' - '{self.filter}'")
@@ -235,33 +236,36 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         sort_default = 'default'
         self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
         try:
-            queryset = self.apply_sort_to_queryset(queryset, self.sort)
+            self.all_visited_cities = self.apply_sort_to_queryset(self.all_visited_cities, self.sort)
             if self.sort != 'default':
                 logger.info(self.request, f"(Visited city) Using sorting '{self.sort}'")
         except KeyError:
             logger.info(self.request, f"(Visited city) Unexpected value of the sorting - '{self.sort}'")
-            queryset = self.apply_sort_to_queryset(queryset, sort_default)
+            self.all_visited_cities = self.apply_sort_to_queryset(self.all_visited_cities, sort_default)
             self.sort = ''
 
         # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
         # устанавливает лимит на выборку, равный `paginate_by`.
         # Из-за этого на карте отображается только `paginate_by` городов.
         # Чтобы отображались все города - используем доп. переменную без лимита.
-        self.all_cities = queryset
+        self.all_cities = self.all_visited_cities
 
-        return queryset
+        return self.all_visited_cities
 
     def get_context_data(self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        number_of_cities = get_number_of_cities()
+        number_of_visited_cities = get_number_of_visited_cities(self.user_id)
+
         context['all_cities'] = self.all_cities
-        context['total_qty_of_cities'] = self.total_qty_of_cities
-        context['qty_of_visited_cities'] = self.qty_of_visited_cities
-        context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
-        context['qty_of_visited_cities_last_year'] = self.qty_of_visited_cities_last_year
-        context['declension_of_total_cities'] = self.declension_of_city(self.total_qty_of_cities)
-        context['declension_of_visited_cities'] = self.declension_of_city(self.qty_of_visited_cities)
-        context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_cities)
+        context['total_qty_of_cities'] = number_of_cities
+        context['qty_of_visited_cities'] = number_of_visited_cities
+        context['qty_of_visited_cities_current_year'] = get_number_of_visited_cities_current_year(self.user_id)
+        context['qty_of_visited_cities_last_year'] = get_number_of_visited_cities_previous_year(self.user_id)
+        context['declension_of_total_cities'] = modification__city(number_of_cities)
+        context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
+        context['declension_of_visited'] = modification__visited(number_of_visited_cities)
 
         context['filter'] = self.filter
         context['sort'] = self.sort

@@ -1,22 +1,30 @@
-import logging
 from typing import Any
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Q, Exists, OuterRef, Subquery, DateField, IntegerField, QuerySet, BooleanField, \
-    Value
+from django.db.models import (
+    Count,
+    Q,
+    Exists,
+    OuterRef,
+    Subquery,
+    DateField,
+    IntegerField,
+    QuerySet,
+    BooleanField,
+    Value,
+)
 from django.http import Http404
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView
 
 from city.models import VisitedCity, City
 from collection.models import Collection
+from services import logger
+from services.word_modifications.city import modification__city
+from services.word_modifications.visited import modification__visited
 from utils.CollectionListMixin import CollectionListMixin
-from utils.LoggingMixin import LoggingMixin
-from utils.word_changes import change
-
-logger = logging.getLogger('moi-goroda')
 
 
-class CollectionList(CollectionListMixin, LoggingMixin, ListView):
+class CollectionList(CollectionListMixin, ListView):
     model = Collection
     paginate_by = 16
     template_name = 'collection/collection__list.html'
@@ -36,18 +44,21 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
         if self.request.user.is_authenticated:
             queryset = Collection.objects.prefetch_related('city').annotate(
                 qty_of_cities=Count('city', distinct=True),
-                qty_of_visited_cities=Count('city__visitedcity', filter=Q(city__visitedcity__user=self.request.user))
+                qty_of_visited_cities=Count(
+                    'city__visitedcity',
+                    filter=Q(city__visitedcity__user=self.request.user),
+                ),
             )
 
-            self.visited_cities = VisitedCity.objects.filter(
-                user=self.request.user
-            ).values_list('city__id', flat=True)
+            self.visited_cities = VisitedCity.objects.filter(user=self.request.user).values_list(
+                'city__id', flat=True
+            )
         else:
             queryset = Collection.objects.prefetch_related('city').annotate(
                 qty_of_cities=Count('city', distinct=True)
             )
 
-        self.set_message(self.request, f'Viewing the collection list')
+        logger.info(self.request, '(Collections) Viewing the collection list')
 
         # Обновление счётчиков коллекций
         self.qty_of_collections = queryset.count()
@@ -60,31 +71,38 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
 
         # Фильтры работают только для авторизованного пользователя
         if self.request.GET.get('filter') and self.request.user.is_authenticated:
-            self.filter = self.request.GET.get('filter')
             try:
-                queryset = self.apply_filter_to_queryset(queryset, self.filter)
-                self.set_message(self.request, f'Using filtering \'{self.filter}\'')
+                queryset = self.apply_filter_to_queryset(queryset, self.request.GET.get('filter'))
             except KeyError:
-                self.set_message(
+                logger.warning(
                     self.request,
-                    f"Unexpected value of the GET-param 'filter' - {self.request.GET.get('filter')}"
+                    f"(Collections) Unexpected value of the filter - {self.request.GET.get('filter')}",
                 )
-                self.filter = ''
+            else:
+                self.filter = self.request.GET.get('filter')
+                logger.info(
+                    self.request,
+                    f"(Collections) Using the filter '{self.filter}'",
+                )
 
         # Определяем сортировку
         sort_default = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
         self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
         try:
             queryset = self.apply_sort_to_queryset(queryset, self.sort)
-            if self.sort != 'default_auth' and self.sort != 'default_guest':
-                self.set_message(self.request, f'Using sorting \'{self.sort}\'')
         except KeyError:
-            self.set_message(
+            logger.warning(
                 self.request,
-                f"Unexpected value of the GET-param 'sort' - {self.sort}"
+                f"(Collections) Unexpected value of the sort - '{self.sort}'",
             )
             queryset = self.apply_sort_to_queryset(queryset, sort_default)
             self.sort = ''
+        else:
+            if self.sort != 'default_auth' and self.sort != 'default_guest':
+                logger.info(
+                    self.request,
+                    f"(Collections) Using the sorting '{self.sort}'",
+                )
 
         return queryset
 
@@ -100,15 +118,16 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
 
         context['active_page'] = 'collection'
 
-        url_params_for_sort = '' if self.sort == 'default_auth' or self.sort == 'default_guest' else self.sort
+        url_params_for_sort = (
+            '' if self.sort == 'default_auth' or self.sort == 'default_guest' else self.sort
+        )
 
         context['url_for_filter_not_started'] = self.get_url_params(
             'not_started' if self.filter != 'not_started' else '',
-            url_params_for_sort
+            url_params_for_sort,
         )
         context['url_for_filter_finished'] = self.get_url_params(
-            'finished' if self.filter != 'finished' else '',
-            url_params_for_sort
+            'finished' if self.filter != 'finished' else '', url_params_for_sort
         )
         context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
         context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
@@ -116,12 +135,14 @@ class CollectionList(CollectionListMixin, LoggingMixin, ListView):
         context['url_for_sort_progress_up'] = self.get_url_params(self.filter, 'progress_up')
 
         context['page_title'] = 'Коллекции городов'
-        context['page_description'] = 'Города России, распределённые по различным коллекциям. Путешествуйте по России и закрывайте коллекции.'
+        context['page_description'] = (
+            'Города России, распределённые по различным коллекциям. Путешествуйте по России и закрывайте коллекции.'
+        )
 
         return context
 
 
-class CollectionSelected_List(LoggingMixin, ListView):
+class CollectionSelected_List(ListView):
     model = Collection
     paginate_by = 16
 
@@ -145,9 +166,12 @@ class CollectionSelected_List(LoggingMixin, ListView):
         # При этом в указанной коллекции может не быть посещённых городов, это ок
         try:
             self.collection_title = Collection.objects.get(id=self.pk)
-        except ObjectDoesNotExist as exc:
-            self.set_message(self.request, 'Attempt to access a non-existent region')
-            raise Http404 from exc
+        except ObjectDoesNotExist:
+            logger.warning(
+                self.request,
+                f'(Collection #{self.pk}) Attempt to access a non-existent collection',
+            )
+            raise Http404
 
         return super().get(*args, **kwargs)
 
@@ -177,32 +201,54 @@ class CollectionSelected_List(LoggingMixin, ListView):
         cities_id = [city.id for city in Collection.objects.get(id=self.pk).city.all()]
 
         if self.request.user.is_authenticated:
-            self.cities = City.objects.filter(id__in=cities_id).annotate(
-                is_visited=Exists(
-                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-                ),
-                visited_id=Subquery(
-                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('id'),
-                    output_field=IntegerField()
-                ),
-                date_of_visit=Subquery(
-                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('date_of_visit'),
-                    output_field=DateField()
-                ),
-                has_magnet=Subquery(
-                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('has_magnet'),
-                    output_field=BooleanField()
-                ),
-                rating=Subquery(
-                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user).values('rating'),
-                    output_field=IntegerField()
+            self.cities = (
+                City.objects.filter(id__in=cities_id)
+                .annotate(
+                    is_visited=Exists(
+                        VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+                    ),
+                    visited_id=Subquery(
+                        VisitedCity.objects.filter(
+                            city_id=OuterRef('pk'), user=self.request.user
+                        ).values('id'),
+                        output_field=IntegerField(),
+                    ),
+                    date_of_visit=Subquery(
+                        VisitedCity.objects.filter(
+                            city_id=OuterRef('pk'), user=self.request.user
+                        ).values('date_of_visit'),
+                        output_field=DateField(),
+                    ),
+                    has_magnet=Subquery(
+                        VisitedCity.objects.filter(
+                            city_id=OuterRef('pk'), user=self.request.user
+                        ).values('has_magnet'),
+                        output_field=BooleanField(),
+                    ),
+                    rating=Subquery(
+                        VisitedCity.objects.filter(
+                            city_id=OuterRef('pk'), user=self.request.user
+                        ).values('rating'),
+                        output_field=IntegerField(),
+                    ),
                 )
-            ).values(
-                'id', 'title', 'is_visited', 'population', 'date_of_foundation',
-                'coordinate_width', 'coordinate_longitude',
-                'visited_id', 'date_of_visit', 'has_magnet', 'rating'
+                .values(
+                    'id',
+                    'title',
+                    'is_visited',
+                    'population',
+                    'date_of_foundation',
+                    'coordinate_width',
+                    'coordinate_longitude',
+                    'visited_id',
+                    'date_of_visit',
+                    'has_magnet',
+                    'rating',
+                )
             )
-            self.qty_of_visited_cities = sum([1 if city['is_visited'] else 0 for city in self.cities])
+            self.qty_of_visited_cities = sum(
+                [1 if city['is_visited'] else 0 for city in self.cities]
+            )
         else:
             self.cities = self.cities = City.objects.filter(id__in=cities_id).annotate(
                 is_visited=Value(False)
@@ -216,9 +262,16 @@ class CollectionSelected_List(LoggingMixin, ListView):
             if self.filter:
                 try:
                     self.cities = apply_filter(self.cities, self.filter)
-                    self.set_message(self.request, f'Using filtering \'{self.filter}\'')
                 except KeyError:
-                    self.set_message(self.request, f'Unexpected value of the GET-argument \'filter={self.filter}\'')
+                    logger.warning(
+                        self.request,
+                        f"(Collection #{self.pk}) Unexpected value of the filter - {self.request.GET.get('filter')}",
+                    )
+                else:
+                    logger.info(
+                        self.request,
+                        f"(Collection #{self.pk}) Using the filter '{self.filter}'",
+                    )
 
         return self.cities
 
@@ -232,23 +285,33 @@ class CollectionSelected_List(LoggingMixin, ListView):
         context['cities'] = self.cities
 
         if self.request.user.is_authenticated:
-            context['change__city'] = change('город', self.qty_of_visited_cities)
-            context['change__visited'] = change('посещено', self.qty_of_visited_cities)
-            context['url_for_filter_visited'] = get_url_params('visited' if self.filter != 'visited' else '')
-            context['url_for_filter_not_visited'] = get_url_params('not_visited' if self.filter != 'not_visited' else '')
+            context['change__city'] = modification__city(self.qty_of_visited_cities)
+            context['change__visited'] = modification__visited(self.qty_of_visited_cities)
+            context['url_for_filter_visited'] = get_url_params(
+                'visited' if self.filter != 'visited' else ''
+            )
+            context['url_for_filter_not_visited'] = get_url_params(
+                'not_visited' if self.filter != 'not_visited' else ''
+            )
 
         context['pk'] = self.pk
         context['page_title'] = self.collection_title
-        context['page_description'] = (f'Города России, представленные в коллекции "{self.collection_title}". '
-                                       f'Путешествуйте по России и закрывайте коллекции.')
+        context['page_description'] = (
+            f'Города России, представленные в коллекции "{self.collection_title}". '
+            f'Путешествуйте по России и закрывайте коллекции.'
+        )
 
         return context
 
     def get_template_names(self) -> list[str]:
         if self.list_or_map == 'list':
-            return ['collection/collection_selected__list.html', ]
+            return [
+                'collection/collection_selected__list.html',
+            ]
         elif self.list_or_map == 'map':
-            return ['collection/collection_selected__map.html', ]
+            return [
+                'collection/collection_selected__map.html',
+            ]
 
 
 def apply_filter(queryset: QuerySet, filter_value: str) -> QuerySet:

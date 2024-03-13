@@ -229,7 +229,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
                 self.all_visited_cities = self.apply_filter_to_queryset(self.all_visited_cities, self.filter)
                 logger.info(self.request, f"(Visited city) Using the filter '{self.filter}'")
             except KeyError:
-                logger.warning(self.request, f"(Visited city) Unexpected value of the 'filter' - '{self.filter}'")
+                logger.warning(self.request, f"(Visited city) Unexpected value of the filter - '{self.filter}'")
 
         # Обработка сортировки
         sort_default = 'default'

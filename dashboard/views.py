@@ -75,4 +75,7 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         # Количество пользователей без посещённых городов
         context['qty_user_without_visited_cities'] = context['qty_users'] - len(qty_visited_cities_by_user)
 
+        context['page_title'] = 'Dashboard'
+        context['page_description'] = ''
+
         return context

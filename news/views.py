@@ -10,25 +10,29 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
-from django.db.models import Value, Exists, OuterRef
+
+from django.db.models import Exists, OuterRef
 from django.views.generic import ListView
 
 from news.models import News
-from utils.LoggingMixin import LoggingMixin
+from services import logger
 
 
-class NewsList(ListView, LoggingMixin):
+class NewsList(ListView):
     """
     Отображает список всех новостей с разделением по страницам.
     """
+
     model = News
     paginate_by = 5
     ordering = '-created'
     template_name = 'news/news__list.html'
 
     def get(self, *args, **kwargs):
-        self.set_message(self.request, 'Viewing the news list')
-
+        logger.info(
+            self.request,
+            '(News) Viewing the news list',
+        )
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
@@ -36,7 +40,9 @@ class NewsList(ListView, LoggingMixin):
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
                 is_read=Exists(
-                    News.users_read.through.objects.filter(user_id=self.request.user, news_id=OuterRef('pk'))
+                    News.users_read.through.objects.filter(
+                        user_id=self.request.user, news_id=OuterRef('pk')
+                    )
                 )
             )
 

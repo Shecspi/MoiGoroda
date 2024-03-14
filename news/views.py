@@ -11,11 +11,11 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from django.db.models import Exists, OuterRef
 from django.views.generic import ListView
 
 from news.models import News
 from services import logger
+from services.db.news_repo import annotate_news_as_read
 
 
 class NewsList(ListView):
@@ -37,14 +37,9 @@ class NewsList(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+
         if self.request.user.is_authenticated:
-            queryset = queryset.annotate(
-                is_read=Exists(
-                    News.users_read.through.objects.filter(
-                        user_id=self.request.user, news_id=OuterRef('pk')
-                    )
-                )
-            )
+            queryset = annotate_news_as_read(queryset, self.request.user.pk)
 
         return queryset
 

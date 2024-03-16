@@ -3,7 +3,7 @@ from django.db.models import QuerySet, Exists, OuterRef
 from news.models import News
 
 
-def annotate_news_as_read(queryset: QuerySet[News], user_id: int) -> QuerySet:
+def annotate_news_as_read(queryset: QuerySet[News], user_id: int) -> QuerySet[News]:
     """
     Добавляет к QuerySet булево поле 'is_read', которое равно True, если пользователь
     с указанным user_id уже прочитал новость, иначе False.

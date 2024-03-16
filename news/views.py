@@ -21,7 +21,7 @@ from services import logger
 from services.db.news_repo import annotate_news_as_read
 
 
-class NewsList(ListView[News]):
+class NewsList(ListView):
     """
     Отображает список всех новостей с разделением по страницам.
     """
@@ -32,17 +32,14 @@ class NewsList(ListView[News]):
     template_name = 'news/news__list.html'
 
     def get(self, *args: Any, **kwargs: Any) -> HttpResponse:
-        logger.info(
-            self.request,
-            '(News) Viewing the news list',
-        )
+        logger.info(self.request, '(News) Viewing the news list')
         return super().get(*args, **kwargs)
 
     def get_queryset(self) -> QuerySet[News]:
         queryset = super().get_queryset()
 
-        # if self.request.user.is_authenticated:
-        #     queryset = annotate_news_as_read(queryset, self.request.user.pk)
+        if self.request.user.is_authenticated:
+            queryset = annotate_news_as_read(queryset, self.request.user.pk)
 
         return queryset
 

@@ -30,7 +30,7 @@ from utils.RegionListMixin import RegionListMixin
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
 
 
-class RegionList(RegionListMixin, LoggingMixin, ListView):
+class RegionList(RegionListMixin, ListView):
     """
     Отображает список всех регионов с указанием количества городов в регионе.
     Для авторизованных пользователей также указывается количество посещённых городов с прогресс-баром.

@@ -11,7 +11,7 @@ from django.views.generic import CreateView, UpdateView, TemplateView
 from django.contrib.auth.views import LoginView, PasswordResetDoneView, PasswordChangeView
 
 from account.models import ShareSettings
-from utils.LoggingMixin import LoggingMixin
+from services import logger
 from services.db.statistics.visited_city import *
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from services.db.statistics.fake_statistics import get_fake_statistics
@@ -91,7 +91,7 @@ def signup_success(request):
     return render(request, 'account/signup_success.html')
 
 
-class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
+class Stats(LoginRequiredMixin, TemplateView):
     """
     Отображает страницу со статистикой пользователя.
 
@@ -102,7 +102,7 @@ class Stats(LoginRequiredMixin, LoggingMixin, TemplateView):
     template_name = 'account/statistics/statistics.html'
 
     def get(self, *args, **kwargs):
-        self.set_message(
+        logger.info(
             self.request,
             f"Viewing stats: {self.request.user.username} ({self.request.user.email})"
         )
@@ -160,7 +160,6 @@ def save_share_settings(request):
     В таблице для каждого пользователя может быть только одна запись с настройками.
     Поэтому данная функция либо обновляет эту запись, либо создаёт новую, если её ещё нет.
     """
-    logger = LoggingMixin()
 
     if request.method == 'POST':
         user = get_object_or_404(User, pk=request.user.pk)
@@ -174,7 +173,7 @@ def save_share_settings(request):
         # В ситуации, когда основной чекбокс включён, а все остальные выключены, возвращаем ошибку,
         # так как не понятно, как конкретно обрабатывать такую ситуацию.
         if switch_share_general and not any([switch_share_dashboard, switch_share_city_map, switch_share_region_map]):
-            logger.set_message(
+            logger.warning(
                 request,
                 '(Save share settings): All additional share settings are False, but main setting is True.'
             )
@@ -189,7 +188,7 @@ def save_share_settings(request):
             switch_share_dashboard = False
             switch_share_city_map = False
             switch_share_region_map = False
-            logger.set_message(
+            logger.warning(
                 request,
                 '(Save share settings): All additional share settings are True, but main setting is False.'
             )
@@ -204,7 +203,7 @@ def save_share_settings(request):
                 'can_share_region_map': switch_share_region_map
             }
         )
-        logger.set_message(
+        logger.info(
             request,
             '(Save share settings): Successful saving of share settings'
         )
@@ -212,14 +211,14 @@ def save_share_settings(request):
             'status': 'ok'
         })
     else:
-        logger.set_message(
+        logger.warning(
             request,
             '(Save share settings): Connection is not using the POST method'
         )
         raise Http404
 
 
-class Profile(LoginRequiredMixin, LoggingMixin, UpdateView):
+class Profile(LoginRequiredMixin, UpdateView):
     form_class = UpdateProfileForm
     success_url = reverse_lazy('profile')
     template_name = 'account/profile.html'
@@ -234,7 +233,7 @@ class Profile(LoginRequiredMixin, LoggingMixin, UpdateView):
         """
         Переопределение этого метода нужно только для того, чтобы произвести запись в лог.
         """
-        self.set_message(
+        logger.info(
             self.request,
             f"Updating user's information: {self.request.user.username} ({self.request.user.email})"
         )

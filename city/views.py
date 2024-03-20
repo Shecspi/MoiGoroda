@@ -69,16 +69,12 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):  # type: ignore
     success_url = reverse_lazy('city-all-list')
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        try:
-            VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
-        except ObjectDoesNotExist:
+        if not get_visited_city(self.request.user.pk, self.kwargs['pk']):
             logger.warning(
                 self.request, f'(Visited city) Attempt to delete a non-existent visited city #{self.kwargs["pk"]}'
             )
             raise Http404
-        else:
-            logger.info(self.request, f'(Visited city) Deleting the visited city #{self.kwargs["pk"]}')
-
+        logger.info(self.request, f'(Visited city) Deleting the visited city #{self.kwargs["pk"]}')
         return super().post(request, *args, **kwargs)
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> NoReturn:

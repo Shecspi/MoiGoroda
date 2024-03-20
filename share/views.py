@@ -16,7 +16,6 @@ from services.db.statistics.get_info_for_statistic_cards_and_charts import (
 )
 from services.db.visited_city import get_all_visited_cities
 from services.db.visited_regions import get_all_visited_regions
-from utils.LoggingMixin import LoggingMixin
 
 
 class TypeOfSharedPage(StrEnum):
@@ -29,7 +28,7 @@ class TypeOfSharedPage(StrEnum):
     region_map = auto()
 
 
-class Share(TemplateView, LoggingMixin):
+class Share(TemplateView):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         # ID пользователя, статистику которого необходимо отобразить
@@ -90,7 +89,11 @@ class Share(TemplateView, LoggingMixin):
 
         # Если по каким-то причинам оказалось так, что все три возможных страницы для отображения
         # в БД указаны как False, то возвращаем 404. Хотя такого быть не должно. Но на всякий случай проверил.
-        if not settings.can_share_dashboard and not settings.can_share_city_map and not settings.can_share_region_map:
+        if (
+            not settings.can_share_dashboard
+            and not settings.can_share_city_map
+            and not settings.can_share_region_map
+        ):
             logger.warning(
                 self.request,
                 '(Share statistics) All share settings are False. I do not know what to show.',
@@ -144,7 +147,9 @@ class Share(TemplateView, LoggingMixin):
         context['can_share_city_map'] = self.can_share_city_map
         context['can_share_region_map'] = self.can_share_region_map
         context['page_title'] = f'Статистика пользователя {context["username"]}'
-        context['page_description'] = f'Статистика посещённых городов и регионов пользователя {context["username"]}'
+        context['page_description'] = (
+            f'Статистика посещённых городов и регионов пользователя {context["username"]}'
+        )
 
         if self.displayed_page == TypeOfSharedPage.dashboard:
             context = context | get_info_for_statistic_cards_and_charts(self.user_id)
@@ -153,7 +158,7 @@ class Share(TemplateView, LoggingMixin):
         elif self.displayed_page == TypeOfSharedPage.region_map:
             context = context | additional_context_for_region_map(self.user_id)
         else:
-            self.set_message(
+            logger.info(
                 self.request,
                 '(Share statistics) All share settings are False. Cannot find the context generator.',
             )

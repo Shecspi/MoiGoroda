@@ -1,43 +1,26 @@
-"""
-Тестирует наличие на странице добавления нового города всех необходимых HTML-элементов.
-Страница тестирования '/city/create'.
-
-----------------------------------------------
-
-Copyright 2023 Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
-
-
 import pytest
 from bs4 import BeautifulSoup
 from django.urls import reverse
 
 
-@pytest.fixture
-def setup_db(client, django_user_model):
-    django_user_model.objects.create_user(username='username', password='password')
-
-
 @pytest.mark.django_db
-def test__header(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-create'))
+def test__content__header(setup, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-update', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     page_header = content.find('h1', {'id': 'section-page_header'})
 
+    assert 'city/city_create.html' in (t.name for t in response.templates)
     assert content
     assert page_header
-    assert 'Добавление нового города' in page_header.get_text()
+    assert 'Редактирование города' in page_header.get_text()
 
 
 @pytest.mark.django_db
-def test__form_region(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-create'))
+def test__form_region(setup, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-update', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     form = content.find('form')
@@ -54,9 +37,9 @@ def test__form_region(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__form_city(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-create'))
+def test__form_city(setup, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-update', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     form = content.find('form')
@@ -73,9 +56,9 @@ def test__form_city(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__form_date_of_visit(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-create'))
+def test__form_date_of_visit(setup, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-update', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     form = content.find('form')
@@ -92,9 +75,9 @@ def test__form_date_of_visit(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__form_has_magnet(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-create'))
+def test__form_has_magnet(setup, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-update', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     form = content.find('form')
@@ -111,9 +94,9 @@ def test__form_has_magnet(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__form_rating(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-create'))
+def test__form_rating(setup, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-update', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     form = content.find('form')
@@ -148,9 +131,9 @@ def test__form_rating(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__form_impression(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-create'))
+def test__form_impression(setup, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-update', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     form = content.find('form')
@@ -165,9 +148,9 @@ def test__form_impression(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__form_button_submit(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-create'))
+def test__form_button_submit(setup, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-update', kwargs={'pk': 1}))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     form = content.find('form')

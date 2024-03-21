@@ -97,14 +97,11 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     template_name = 'city/city_create.html'
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        try:
-            VisitedCity.objects.get(user=self.request.user.pk, id=self.kwargs['pk'])
-        except ObjectDoesNotExist:
+        if not get_visited_city(self.request.user.pk, self.kwargs['pk']):
             logger.warning(
                 self.request, f'(Visited city) Attempt to update a non-existent visited city #{self.kwargs["pk"]}'
             )
             raise Http404
-
         return super().get(request, *args, **kwargs)
 
     def get_form_kwargs(self) -> dict[str, Any]:
@@ -113,10 +110,10 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         return form_kwargs
 
     def get_success_url(self) -> str:
+        logger.info(self.request, f'(Visited city) Updating the visited city #{self.kwargs["pk"]}')
         return reverse('city-selected', kwargs={'pk': self.kwargs['pk']})
 
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
-        logger.info(self.request, f'(Visited city) Updating the visited city #{self.kwargs["pk"]}')
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:

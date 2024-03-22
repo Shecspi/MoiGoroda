@@ -1,9 +1,11 @@
 # <img src="static/image/favicon.ico" height="28"> Moi Goroda
-Это проект для контроля и визуализации посещённых городов России, написанный на языке Python 3.10 и фреймворке Django 4.1.  
+Это проект для контроля и визуализации посещённых городов России, написанный на языке Python 3.12 и фреймворке Django 4.2.  
 Работающий пример Вы можете посмотреть на сайте [moi-goroda.ru](https://moi-goroda.ru/).  
 Исходный код распространяется под лицензией [Apache License 2.0](https://github.com/Shecspi/MoiGoroda/blob/master/LICENSE).  
 
-![Python 3.10](https://img.shields.io/badge/Python-3.10-blue?style=for-the-badge&logo=python)
+![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)
+![Poetry](https://img.shields.io/badge/Poetry-4cae58?style=for-the-badge)
+![Pyenv](https://img.shields.io/badge/Pyenv-e43562?style=for-the-badge)
 ![Django 4.2](https://img.shields.io/badge/Django-4.2-brightgreen?style=for-the-badge&logo=django)
 [![Apache License 2.0](https://img.shields.io/badge/License-Apache%20License%202.0-orange?style=for-the-badge&logo=apache)](https://github.com/Shecspi/MoiGoroda/blob/master/LICENSE)
 

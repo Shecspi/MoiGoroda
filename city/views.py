@@ -13,7 +13,7 @@ from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 from collection.models import Collection
 from services import logger
-from services.db.city import get_number_of_cities
+from services.db.city_repo import get_number_of_cities, get_list_of_collections
 from services.db.visited_city import get_all_visited_cities, get_visited_city, get_number_of_visited_cities, \
     get_number_of_visited_cities_current_year, get_number_of_visited_cities_previous_year
 from services.word_modifications.city import modification__city
@@ -147,7 +147,7 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         if queryset := get_visited_city(self.request.user.pk, self.kwargs['pk']):
-            self.collections_list = City.objects.get(id=queryset.city.id).collections_list.all()
+            self.collections_list = get_list_of_collections(queryset.city.id)
         else:
             logger.warning(
                 self.request, f'(Visited city) Attempt to access a non-existent visited city #{self.kwargs["pk"]}'

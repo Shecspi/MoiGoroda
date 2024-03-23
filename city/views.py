@@ -14,7 +14,7 @@ from city.models import VisitedCity, City
 from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities, get_list_of_collections
-from services.db.visited_city import get_all_visited_cities, get_visited_city, get_number_of_visited_cities, \
+from services.db.visited_city_repo import get_all_visited_cities, get_visited_city, get_number_of_visited_cities, \
     get_number_of_visited_cities_current_year, get_number_of_visited_cities_previous_year
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited

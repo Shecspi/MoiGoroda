@@ -24,7 +24,7 @@ from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 from region.models import Region
 from city.models import VisitedCity, City
 from services import logger
-from services.db.visited_regions import get_all_visited_regions
+from services.db.regions_repo import get_all_visited_regions
 from utils.RegionListMixin import RegionListMixin
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
 

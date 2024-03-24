@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 import logging
 
 from django.urls import reverse_lazy
@@ -12,10 +21,12 @@ from django.contrib.auth.views import LoginView, PasswordResetDoneView, Password
 
 from account.models import ShareSettings
 from services import logger
-from services.db.statistics.visited_city import *
+from services.db.statistics.visited_city import get_number_of_visited_cities
 from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from services.db.statistics.fake_statistics import get_fake_statistics
-from services.db.statistics.get_info_for_statistic_cards_and_charts import get_info_for_statistic_cards_and_charts
+from services.db.statistics.get_info_for_statistic_cards_and_charts import (
+    get_info_for_statistic_cards_and_charts,
+)
 
 logger_email = logging.getLogger(__name__)
 
@@ -26,6 +37,7 @@ class SignUp(CreateView):
 
     > Авторизованных пользователей перенаправляет в список посещённых городов.
     """
+
     form_class = SignUpForm
     success_url = reverse_lazy('signup_success')
     template_name = 'account/signup.html'
@@ -40,12 +52,13 @@ class SignUp(CreateView):
         user = User.objects.create_user(
             username=self.request.POST['username'],
             password=self.request.POST['password1'],
-            email=self.request.POST['email']
+            email=self.request.POST['email'],
         )
         user.save()
         logger_email.info(
             f"Registration of a new user: {self.request.POST['username']} ({self.request.POST['email']}). "
-            f"Total numbers of users: {User.objects.count()}")
+            f"Total numbers of users: {User.objects.count()}"
+        )
         login(self.request, user)
 
         return redirect('city-all-list')
@@ -54,9 +67,10 @@ class SignUp(CreateView):
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Регистрация'
-        context[
-            'page_description'] = 'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои ' \
-                                  'посещённые города и просматривать их на карте'
+        context['page_description'] = (
+            'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои '
+            'посещённые города и просматривать их на карте'
+        )
 
         return context
 
@@ -67,6 +81,7 @@ class SignIn(LoginView):
 
     > Авторизованных пользователей перенаправляет в список посещённых городов.
     """
+
     form_class = SignInForm
     template_name = 'account/signin.html'
 
@@ -80,9 +95,10 @@ class SignIn(LoginView):
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Вход'
-        context[
-            'page_description'] = 'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города ' \
-                                  'и сохранить новые'
+        context['page_description'] = (
+            'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города '
+            'и сохранить новые'
+        )
 
         return context
 
@@ -99,12 +115,12 @@ class Stats(LoginRequiredMixin, TemplateView):
 
     > Доступ на эту страницу возможен только авторизованным пользователям.
     """
+
     template_name = 'account/statistics/statistics.html'
 
     def get(self, *args, **kwargs):
         logger.info(
-            self.request,
-            f"Viewing stats: {self.request.user.username} ({self.request.user.email})"
+            self.request, f'Viewing stats: {self.request.user.username} ({self.request.user.email})'
         )
 
         return super().get(*args, **kwargs)
@@ -130,14 +146,14 @@ class Stats(LoginRequiredMixin, TemplateView):
                 'switch_share_general': False,
                 'switch_share_basic_info': False,
                 'switch_share_city_map': False,
-                'switch_share_region_map': False
+                'switch_share_region_map': False,
             }
         else:
             share_settings = {
                 'switch_share_general': obj.can_share,
                 'switch_share_basic_info': obj.can_share_dashboard,
                 'switch_share_city_map': obj.can_share_city_map,
-                'switch_share_region_map': obj.can_share_region_map
+                'switch_share_region_map': obj.can_share_region_map,
             }
         context['share_settings'] = share_settings
 
@@ -147,8 +163,10 @@ class Stats(LoginRequiredMixin, TemplateView):
 
         context['active_page'] = 'stats'
         context['page_title'] = 'Личная статистика'
-        context['page_description'] = 'Здесь отображается подробная информация о результатах Ваших путешествий' \
-                                      ' - посещённые города, регионы и федеральнаые округа'
+        context['page_description'] = (
+            'Здесь отображается подробная информация о результатах Ваших путешествий'
+            ' - посещённые города, регионы и федеральнаые округа'
+        )
 
         return context | get_info_for_statistic_cards_and_charts(user_id)
 
@@ -172,25 +190,31 @@ def save_share_settings(request):
 
         # В ситуации, когда основной чекбокс включён, а все остальные выключены, возвращаем ошибку,
         # так как не понятно, как конкретно обрабатывать такую ситуацию.
-        if switch_share_general and not any([switch_share_dashboard, switch_share_city_map, switch_share_region_map]):
+        if switch_share_general and not any(
+            [switch_share_dashboard, switch_share_city_map, switch_share_region_map]
+        ):
             logger.warning(
                 request,
-                '(Save share settings): All additional share settings are False, but main setting is True.'
+                '(Save share settings): All additional share settings are False, but main setting is True.',
             )
-            return JsonResponse({
-                'status': 'fail',
-                'message': 'All additional share settings are False, but main setting is True.'
-            })
+            return JsonResponse(
+                {
+                    'status': 'fail',
+                    'message': 'All additional share settings are False, but main setting is True.',
+                }
+            )
 
         # Если основной чекбокс выключен, то и все остальные должны быть выключены.
         # Если это не так - исправляем.
-        if not switch_share_general and any([switch_share_dashboard, switch_share_city_map, switch_share_region_map]):
+        if not switch_share_general and any(
+            [switch_share_dashboard, switch_share_city_map, switch_share_region_map]
+        ):
             switch_share_dashboard = False
             switch_share_city_map = False
             switch_share_region_map = False
             logger.warning(
                 request,
-                '(Save share settings): All additional share settings are True, but main setting is False.'
+                '(Save share settings): All additional share settings are True, but main setting is False.',
             )
 
         ShareSettings.objects.update_or_create(
@@ -200,21 +224,13 @@ def save_share_settings(request):
                 'can_share': switch_share_general,
                 'can_share_dashboard': switch_share_dashboard,
                 'can_share_city_map': switch_share_city_map,
-                'can_share_region_map': switch_share_region_map
-            }
+                'can_share_region_map': switch_share_region_map,
+            },
         )
-        logger.info(
-            request,
-            '(Save share settings): Successful saving of share settings'
-        )
-        return JsonResponse({
-            'status': 'ok'
-        })
+        logger.info(request, '(Save share settings): Successful saving of share settings')
+        return JsonResponse({'status': 'ok'})
     else:
-        logger.warning(
-            request,
-            '(Save share settings): Connection is not using the POST method'
-        )
+        logger.warning(request, '(Save share settings): Connection is not using the POST method')
         raise Http404
 
 
@@ -235,7 +251,7 @@ class Profile(LoginRequiredMixin, UpdateView):
         """
         logger.info(
             self.request,
-            f"Updating user's information: {self.request.user.username} ({self.request.user.email})"
+            f"Updating user's information: {self.request.user.username} ({self.request.user.email})",
         )
         return super().form_valid(form)
 
@@ -256,7 +272,9 @@ class MyPasswordChangeView(PasswordChangeView):
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Изменение пароля'
-        context['page_description'] = 'Для того, чтобы изменить свой пароль, введите старый и новый пароли'
+        context['page_description'] = (
+            'Для того, чтобы изменить свой пароль, введите старый и новый пароли'
+        )
 
         return context
 

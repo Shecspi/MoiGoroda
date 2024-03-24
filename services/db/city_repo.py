@@ -1,3 +1,14 @@
+"""
+Реализует функции, взаимодействующие с моделью City.
+Любая работа с этой моделью должна происходить только через описанные в этом файле функции.
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from django.db.models import QuerySet
 
 from city.models import City

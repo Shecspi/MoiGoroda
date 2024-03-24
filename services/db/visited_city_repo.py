@@ -1,3 +1,14 @@
+"""
+Реализует функции, взаимодействующие с моделью VisitedCity.
+Любая работа с этой моделью должна происходить только через описанные в этом файле функции.
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from datetime import datetime
 from typing import Literal
 
@@ -40,14 +51,22 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
         отображает корректное обработанное название)
     """
     return (
-        VisitedCity.objects
-        .filter(user_id=user_id)
+        VisitedCity.objects.filter(user_id=user_id)
         .select_related('city', 'region')
         .only(
-            'id', 'date_of_visit', 'rating', 'has_magnet',
-            'city__id', 'city__title', 'city__population', 'city__date_of_foundation',
-            'city__coordinate_width', 'city__coordinate_longitude',
-            'region__id', 'region__title', 'region__type'
+            'id',
+            'date_of_visit',
+            'rating',
+            'has_magnet',
+            'city__id',
+            'city__title',
+            'city__population',
+            'city__date_of_foundation',
+            'city__coordinate_width',
+            'city__coordinate_longitude',
+            'region__id',
+            'region__title',
+            'region__type',
         )
     )
 
@@ -70,4 +89,6 @@ def get_number_of_visited_cities_previous_year(user_id: int) -> int:
     """
     Возвращает количество городов, посещённых пользователем с user_id в прошлом году.
     """
-    return get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year - 1).count()
+    return (
+        get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year - 1).count()
+    )

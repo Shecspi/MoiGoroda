@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from typing import Any
 
 from django.core.exceptions import ObjectDoesNotExist

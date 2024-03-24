@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from django.db import models
 from django.db.models import CASCADE
 from django.urls import reverse
@@ -8,17 +17,13 @@ TYPES_OF_REGIONS = [
     ('O', 'область'),
     ('G', 'город федерального значения'),
     ('AOb', 'автономная область'),
-    ('AOk', 'автономный округ')
+    ('AOk', 'автономный округ'),
 ]
 
 
 class Area(models.Model):
     title = models.CharField(
-        max_length=100,
-        verbose_name='Название',
-        blank=False,
-        null=False,
-        unique=True
+        max_length=100, verbose_name='Название', blank=False, null=False, unique=True
     )
 
     class Meta:
@@ -31,31 +36,18 @@ class Area(models.Model):
 
 class Region(models.Model):
     area = models.ForeignKey(
-        Area,
-        on_delete=CASCADE,
-        verbose_name='Федеральный округ',
-        blank=False,
-        null=False
+        Area, on_delete=CASCADE, verbose_name='Федеральный округ', blank=False, null=False
     )
-    title = models.CharField(
-        max_length=100,
-        verbose_name='Название',
-        blank=False,
-        null=False
-    )
+    title = models.CharField(max_length=100, verbose_name='Название', blank=False, null=False)
     type = models.CharField(
         max_length=100,
         choices=TYPES_OF_REGIONS,
         verbose_name='Тип субъекта',
         blank=False,
-        null=False
+        null=False,
     )
     iso3166 = models.CharField(
-        max_length=10,
-        verbose_name='Код ISO3166',
-        blank=False,
-        null=False,
-        unique=True
+        max_length=10, verbose_name='Код ISO3166', blank=False, null=False, unique=True
     )
 
     class Meta:
@@ -71,7 +63,13 @@ class Region(models.Model):
         # Для республик, кроме некоторых, слово "Республика" не используем
         elif self.type == 'R':
             match self.title:
-                case 'Кабардино-Балкарская' | 'Карачаево-Черкесская' | 'Удмуртская' | 'Чеченская' | 'Чувашская':
+                case (
+                    'Кабардино-Балкарская'
+                    | 'Карачаево-Черкесская'
+                    | 'Удмуртская'
+                    | 'Чеченская'
+                    | 'Чувашская'
+                ):
                     return self.title + ' республика'
                 case _:
                     return self.title

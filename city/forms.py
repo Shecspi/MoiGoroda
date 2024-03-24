@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from typing import Any
 
 from crispy_forms.bootstrap import InlineRadios
@@ -57,7 +66,9 @@ class VisitedCity_Create_Form(ModelForm):
         # Так как по-умолчанию список городов is None, поэтому его нужно дозагрузить при проверке формы
         if 'region' in self.data:
             region_id = int(self.data.get('region'))
-            self.fields['city'].queryset = City.objects.filter(region_id=region_id).order_by('title')
+            self.fields['city'].queryset = City.objects.filter(region_id=region_id).order_by(
+                'title'
+            )
         elif self.instance.pk:
             self.fields['city'].queryset = self.instance.region.city_set.order_by('title')
 

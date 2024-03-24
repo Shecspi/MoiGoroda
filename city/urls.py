@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from django.urls import path
 from . import views
 
@@ -11,5 +20,9 @@ urlpatterns = [
     path('delete/<int:pk>', views.VisitedCity_Delete.as_view(), name='city-delete'),
     path('update/<int:pk>', views.VisitedCity_Update.as_view(), name='city-update'),
     # API
-    path('api/get_cities_based_on_region/', views.get_cities_based_on_region, name='get_cities_based_on_region'),
+    path(
+        'api/get_cities_based_on_region/',
+        views.get_cities_based_on_region,
+        name='get_cities_based_on_region',
+    ),
 ]

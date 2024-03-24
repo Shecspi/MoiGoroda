@@ -1,7 +1,16 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from datetime import timedelta, date, timezone
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, F, OuterRef, Subquery
+from django.db.models import Count, OuterRef, Subquery
 from django.contrib.auth.models import User
 from django.db.models.functions import TruncDay, TruncDate
 from django.shortcuts import redirect
@@ -31,26 +40,28 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         ).count()
 
         # Количество регистраций за неделю (не учитывая сегодня)
-        context['qty_registrations_week'] = User.objects.annotate(
-            day=TruncDay('date_joined', tzinfo=timezone.utc)
-        ).filter(
-            day__range=[date.today() - timedelta(days=7), date.today()]
-        ).count()
+        context['qty_registrations_week'] = (
+            User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
+            .filter(day__range=[date.today() - timedelta(days=7), date.today()])
+            .count()
+        )
 
         # Количество регистраций за месяц (не учитывая сегодня)
-        context['qty_registrations_month'] = User.objects.annotate(
-            day=TruncDay('date_joined', tzinfo=timezone.utc)
-        ).filter(
-            day__range=[date.today() - timedelta(days=30), date.today()]
-        ).count()
+        context['qty_registrations_month'] = (
+            User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
+            .filter(day__range=[date.today() - timedelta(days=30), date.today()])
+            .count()
+        )
 
         # Количество регистраций за каждый из 50 последних дней
         # Именно 50, так как график с этим количеством дней красивее всего смотрится. Субъективно
-        context['registrations_by_day'] = User.objects.annotate(
-            day=TruncDay('date_joined', tzinfo=timezone.utc)
-        ).annotate(
-            date=TruncDate('day')
-        ).values('date').annotate(qty=Count('id')).order_by('-date')[:50]
+        context['registrations_by_day'] = (
+            User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
+            .annotate(date=TruncDate('day'))
+            .values('date')
+            .annotate(qty=Count('id'))
+            .order_by('-date')[:50]
+        )
 
         # Количество посещённых городов всеми пользователями
         context['qty_visited_cities'] = VisitedCity.objects.count()
@@ -60,12 +71,14 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 
         # Максимальное количество посещённых городов 1 пользователем
         qty_visited_cities_by_user = (
-            User.objects
-            .annotate(qty_visited_cities=Subquery(VisitedCity.objects
-                                                  .filter(user=OuterRef('pk'))
-                                                  .values('user')
-                                                  .annotate(qty=Count('pk'))
-                                                  .values('qty')))
+            User.objects.annotate(
+                qty_visited_cities=Subquery(
+                    VisitedCity.objects.filter(user=OuterRef('pk'))
+                    .values('user')
+                    .annotate(qty=Count('pk'))
+                    .values('qty')
+                )
+            )
             .values('username', 'qty_visited_cities')
             .exclude(qty_visited_cities=None)
             .order_by('-qty_visited_cities')
@@ -73,7 +86,9 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         context['qty_visited_cities_by_user'] = qty_visited_cities_by_user[:50]
 
         # Количество пользователей без посещённых городов
-        context['qty_user_without_visited_cities'] = context['qty_users'] - len(qty_visited_cities_by_user)
+        context['qty_user_without_visited_cities'] = context['qty_users'] - len(
+            qty_visited_cities_by_user
+        )
 
         context['page_title'] = 'Dashboard'
         context['page_description'] = ''

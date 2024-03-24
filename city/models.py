@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE
@@ -14,12 +23,20 @@ class City(models.Model):
     """
 
     title = models.CharField(max_length=100, verbose_name='Название', blank=False, null=False)
-    region = models.ForeignKey(Region, on_delete=CASCADE, verbose_name='Регион', blank=False, null=False)
-    population = models.PositiveIntegerField(verbose_name='Численность населения', blank=True, null=True)
-    date_of_foundation = models.PositiveSmallIntegerField(verbose_name='Год основания', blank=True, null=True)
+    region = models.ForeignKey(
+        Region, on_delete=CASCADE, verbose_name='Регион', blank=False, null=False
+    )
+    population = models.PositiveIntegerField(
+        verbose_name='Численность населения', blank=True, null=True
+    )
+    date_of_foundation = models.PositiveSmallIntegerField(
+        verbose_name='Год основания', blank=True, null=True
+    )
     coordinate_width = models.FloatField(verbose_name='Широта', blank=False, null=False)
     coordinate_longitude = models.FloatField(verbose_name='Долгота', blank=False, null=False)
-    wiki = models.URLField(max_length=256, verbose_name='Ссылка на Wikipedia', blank=True, null=True)
+    wiki = models.URLField(
+        max_length=256, verbose_name='Ссылка на Wikipedia', blank=True, null=True
+    )
 
     class Meta:
         ordering = ['title']
@@ -35,7 +52,9 @@ class VisitedCity(models.Model):
     Сводная таблица, хранящая информацию о посещённых городах пользователей.
     """
 
-    user = models.ForeignKey(User, on_delete=CASCADE, verbose_name='Пользователь', blank=False, null=False)
+    user = models.ForeignKey(
+        User, on_delete=CASCADE, verbose_name='Пользователь', blank=False, null=False
+    )
     region = models.ForeignKey(
         Region,
         on_delete=CASCADE,
@@ -72,7 +91,10 @@ class VisitedCity(models.Model):
     )
     impression = models.TextField(verbose_name='Впечатления о городе', blank=True, null=True)
     rating = models.SmallIntegerField(
-        verbose_name='Рейтинг', help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.', blank=False, null=False
+        verbose_name='Рейтинг',
+        help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.',
+        blank=False,
+        null=False,
     )
 
     class Meta:

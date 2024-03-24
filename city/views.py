@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from typing import Any, NoReturn
 
 from django.forms import BaseModelForm
@@ -6,7 +15,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.db.models import QuerySet
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 
 from city.forms import VisitedCity_Create_Form
@@ -14,8 +23,13 @@ from city.models import VisitedCity, City
 from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities, get_list_of_collections
-from services.db.visited_city_repo import get_all_visited_cities, get_visited_city, get_number_of_visited_cities, \
-    get_number_of_visited_cities_current_year, get_number_of_visited_cities_previous_year
+from services.db.visited_city_repo import (
+    get_all_visited_cities,
+    get_visited_city,
+    get_number_of_visited_cities,
+    get_number_of_visited_cities_current_year,
+    get_number_of_visited_cities_previous_year,
+)
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
 from utils.VisitedCityMixin import VisitedCityMixin
@@ -71,7 +85,8 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):  # type: ignore
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         if not get_visited_city(self.request.user.pk, self.kwargs['pk']):
             logger.warning(
-                self.request, f'(Visited city) Attempt to delete a non-existent visited city #{self.kwargs["pk"]}'
+                self.request,
+                f'(Visited city) Attempt to delete a non-existent visited city #{self.kwargs["pk"]}',
             )
             raise Http404
         logger.info(self.request, f'(Visited city) Deleting the visited city #{self.kwargs["pk"]}')
@@ -99,7 +114,8 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         if not get_visited_city(self.request.user.pk, self.kwargs['pk']):
             logger.warning(
-                self.request, f'(Visited city) Attempt to update a non-existent visited city #{self.kwargs["pk"]}'
+                self.request,
+                f'(Visited city) Attempt to update a non-existent visited city #{self.kwargs["pk"]}',
             )
             raise Http404
         return super().get(request, *args, **kwargs)
@@ -150,7 +166,8 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
             self.collections_list = get_list_of_collections(queryset.city.id)
         else:
             logger.warning(
-                self.request, f'(Visited city) Attempt to access a non-existent visited city #{self.kwargs["pk"]}'
+                self.request,
+                f'(Visited city) Attempt to access a non-existent visited city #{self.kwargs["pk"]}',
             )
             raise Http404
 
@@ -219,21 +236,31 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
         if self.filter:
             try:
-                self.all_visited_cities = self.apply_filter_to_queryset(self.all_visited_cities, self.filter)
+                self.all_visited_cities = self.apply_filter_to_queryset(
+                    self.all_visited_cities, self.filter
+                )
                 logger.info(self.request, f"(Visited city) Using the filter '{self.filter}'")
             except KeyError:
-                logger.warning(self.request, f"(Visited city) Unexpected value of the filter - '{self.filter}'")
+                logger.warning(
+                    self.request, f"(Visited city) Unexpected value of the filter - '{self.filter}'"
+                )
 
         # Обработка сортировки
         sort_default = 'default'
         self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
         try:
-            self.all_visited_cities = self.apply_sort_to_queryset(self.all_visited_cities, self.sort)
+            self.all_visited_cities = self.apply_sort_to_queryset(
+                self.all_visited_cities, self.sort
+            )
             if self.sort != 'default':
                 logger.info(self.request, f"(Visited city) Using sorting '{self.sort}'")
         except KeyError:
-            logger.info(self.request, f"(Visited city) Unexpected value of the sorting - '{self.sort}'")
-            self.all_visited_cities = self.apply_sort_to_queryset(self.all_visited_cities, sort_default)
+            logger.info(
+                self.request, f"(Visited city) Unexpected value of the sorting - '{self.sort}'"
+            )
+            self.all_visited_cities = self.apply_sort_to_queryset(
+                self.all_visited_cities, sort_default
+            )
             self.sort = ''
 
         # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
@@ -244,7 +271,9 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
 
         return self.all_visited_cities
 
-    def get_context_data(self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(
+        self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any
+    ) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         number_of_cities = get_number_of_cities()
@@ -253,8 +282,12 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['all_cities'] = self.all_cities
         context['total_qty_of_cities'] = number_of_cities
         context['qty_of_visited_cities'] = number_of_visited_cities
-        context['qty_of_visited_cities_current_year'] = get_number_of_visited_cities_current_year(self.user_id)
-        context['qty_of_visited_cities_last_year'] = get_number_of_visited_cities_previous_year(self.user_id)
+        context['qty_of_visited_cities_current_year'] = get_number_of_visited_cities_current_year(
+            self.user_id
+        )
+        context['qty_of_visited_cities_last_year'] = get_number_of_visited_cities_previous_year(
+            self.user_id
+        )
         context['declension_of_total_cities'] = modification__city(number_of_cities)
         context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
         context['declension_of_visited'] = modification__visited(number_of_visited_cities)
@@ -263,7 +296,9 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['sort'] = self.sort
 
         context['active_page'] = 'city_list' if self.list_or_map == 'list' else 'city_map'
-        context['url_for_filter_magnet'] = self.get_url_params('magnet' if self.filter != 'magnet' else '', self.sort)
+        context['url_for_filter_magnet'] = self.get_url_params(
+            'magnet' if self.filter != 'magnet' else '', self.sort
+        )
         context['url_for_filter_current_year'] = self.get_url_params(
             'current_year' if self.filter != 'current_year' else '', self.sort
         )
@@ -277,7 +312,9 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
 
         if self.list_or_map == 'list':
             context['page_title'] = 'Список посещённых городов'
-            context['page_description'] = 'Список всех посещённых городов, отсортированный в порядке посещения'
+            context['page_description'] = (
+                'Список всех посещённых городов, отсортированный в порядке посещения'
+            )
         else:
             context['page_title'] = 'Карта посещённых городов'
             context['page_description'] = 'Карта с отмеченными посещёнными городами'

@@ -1,15 +1,15 @@
 """
 Реализует классы для отображения новостей.
 
-* NewsList - Отображает список всех новостей с разделением по страницам.
-
+* NewsList - Отображает список
 ----------------------------------------------
 
-Copyright 2023 Egor Vavilov (Shecspi)
+Copyright © Egor Vavilov (Shecspi)
 Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
+
 from typing import Any
 
 from django.db.models import QuerySet
@@ -43,7 +43,9 @@ class NewsList(ListView):
 
         return queryset
 
-    def get_context_data(self, *, object_list: QuerySet[News] | None = None, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(
+        self, *, object_list: QuerySet[News] | None = None, **kwargs: Any
+    ) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         # Непрочитанные пользователем новости отмечаются прочитанными

@@ -17,7 +17,7 @@ git clone https://github.com/Shecspi/MoiGoroda.git .
 ```
 2. Установить необходимую версию Python  
  ```shell
- pyenv install $(cat .python-version)
+ if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
  ```
 3. Удалить текущее виртуальное окружение (если оно есть), создать новое и устанавить все зависимости  
 ```shell

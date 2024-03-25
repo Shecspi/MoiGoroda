@@ -2,6 +2,7 @@ name: Deploy to the DEV-server
 on:
     push:
       branches: ["dev"]
+    workflow_dispatch:
 
 jobs:
   test:
@@ -12,7 +13,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Create .env file
         run: cp MoiGoroda/.env.example MoiGoroda/.env
@@ -20,7 +21,7 @@ jobs:
       - name: Poetry install
         uses: snok/install-poetry@v1
         with:
-          version: 1.7.1
+          version: 1.8.2
           virtualenvs-create: true
           virtualenvs-in-project: true
 
@@ -31,27 +32,42 @@ jobs:
         run: poetry run pytest
   deploy:
     needs: test
-    runs-on: [ubuntu-latest]
+    runs-on: [self-hosted, dev]
     steps:
       - uses: actions/checkout@v1
-      - name: Deploy to the DEV-server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEV__SSH_HOST }}
-          username: ${{ secrets.DEV__SSH_USER }}
-          key: ${{ secrets.DEV__SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.DEV__LOCAL_PATH }}
-            git pull origin dev
-            git checkout dev
-            ${{ secrets.DEV__POETRY_PATH }} install
-            ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py makemigrations
-            ${{ secrets.DEV__POETRY_PATH }} run python3 manage.py migrate
-            export POETRY_PATH=${{ secrets.DEV__POETRY_PATH }}
-            chmod +x ./scripts/collectstatic.sh
-            ./scripts/collectstatic.sh
-            chmod -x ./scripts/collectstatic.sh
-            chmod +x ./scripts/restart.sh
-            export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
-            ./scripts/restart.sh
-            chmod -x ./scripts/restart.sh
+      - name: Deploy to 92.255.77.19
+        run: |
+          : # Переходим в папку с проектом
+          cd ${{ secrets.DEV__LOCAL_PATH }}
+
+          : # Устанавливаем необходимую версию Python, если она ещё не установлена
+          if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
+
+          : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
+          : # которая указана в .python-version
+          if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
+          poetry env use $(cat .python-version)
+          poetry install --only main
+
+          : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
+          : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
+          : # Имя папки может меняться, поэтому нужен такой ход.
+          rm -f ~/gunicorn
+          ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
+
+          git pull origin dev
+          git checkout dev
+
+          poetry run python3 manage.py makemigrations
+          poetry run python3 manage.py migrate
+
+          : # Производим сборку статичных файлов
+          chmod +x ./scripts/collectstatic.sh
+          ./scripts/collectstatic.sh
+          chmod -x ./scripts/collectstatic.sh
+
+          : # Перезагружаем сервер
+          chmod +x ./scripts/restart.sh
+          export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
+          ./scripts/restart.sh
+          chmod -x ./scripts/restart.sh

@@ -1,8 +1,8 @@
 """
-Реализует функции, изменяющие слово "регион".
+Реализует функции, изменяющие написание слова "регион".
 ----------------------------------------------
 
-Copyright 2024 Egor Vavilov (Shecspi)
+Copyright © Egor Vavilov (Shecspi)
 Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
@@ -18,8 +18,11 @@ def modification__region__accusative_case(num: int) -> str:
         return 'регион'
     elif 5 <= num <= 20 or num == 0:
         return 'регионов'
-    elif len(str(num)) >= 2 and 10 <= int(str(num)[-2:]) <= 20 \
-            or str(num)[-1] in ['5', '6', '7', '8', '9', '0']:
+    elif (
+        len(str(num)) >= 2
+        and 10 <= int(str(num)[-2:]) <= 20
+        or str(num)[-1] in ['5', '6', '7', '8', '9', '0']
+    ):
         return 'регионов'
     elif str(num)[-1] in ['2', '3', '4']:
         return 'региона'

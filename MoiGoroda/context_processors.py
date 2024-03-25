@@ -1,10 +1,11 @@
-import environ
+import os
+
 from django.db.models import Q
+from dotenv import load_dotenv
 
 from news.models import News
 
-env = environ.Env()
-environ.Env.read_env()
+load_dotenv()
 
 
 def general_settings(request):
@@ -16,14 +17,14 @@ def general_settings(request):
         has_unread_news = News.objects.filter(~Q(id__in=users_read_news)).exists()
 
     context = {
-        'SITE_NAME': env('SITE_NAME'),
-        'SITE_URL': env('SITE_URL'),
-        'PROJECT_VERSION': env('PROJECT_VERSION'),
-        'API_YANDEX_MAP': env('API_YANDEX_MAP'),
-        'YANDEX_METRIKA': env('YANDEX_METRIKA'),
-        'SUPPORT_EMAIL': env('DEFAULT_FROM_EMAIL'),
+        'SITE_NAME': os.getenv('SITE_NAME'),
+        'SITE_URL': os.getenv('SITE_URL'),
+        'PROJECT_VERSION': os.getenv('PROJECT_VERSION'),
+        'API_YANDEX_MAP': os.getenv('API_YANDEX_MAP'),
+        'YANDEX_METRIKA': os.getenv('YANDEX_METRIKA'),
+        'SUPPORT_EMAIL': os.getenv('DEFAULT_FROM_EMAIL'),
         'has_unread_news': has_unread_news,
-        'DONATE_LINK': env('DONATE_LINK')
+        'DONATE_LINK': os.getenv('DONATE_LINK')
     }
 
     return context

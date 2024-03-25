@@ -215,7 +215,7 @@ def test__dashboard_has_cards__row_pie_charts(setup, client):
     chart_number_of_cities = row_pie_charts.find('div', {'id': 'chart_number_of_cities'})
     chart_number_of_cities_current_and_prev_years = row_pie_charts.find('div', {'id': 'chart_number_of_cities_current_and_prev_years'})
     chart_number_of_regions = row_pie_charts.find('div', {'id': 'chart_number_of_regions'})
-    chart__number_of_finished_regions = row_pie_charts.find('div', {'id': 'chart__number_of_finished_regions'})
+    chart__number_of_finished_regions = row_pie_charts.find('div', {'id': 'chart_number_of_finished_regions'})
 
     assert row_pie_charts
     assert chart_number_of_cities

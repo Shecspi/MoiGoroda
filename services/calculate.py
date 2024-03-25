@@ -2,7 +2,7 @@
 Реализует функции, производящие какие-либо рассчёты, не связанные с обращением в БД.
 ----------------------------------------------
 
-Copyright 2024 Egor Vavilov (Shecspi)
+Copyright © Egor Vavilov (Shecspi)
 Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------

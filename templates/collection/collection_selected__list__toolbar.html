@@ -6,7 +6,7 @@
             <div class="card-body d-grid bg-warning-subtle" id="block-statistic">
                 <div class="align-self-center">
                     {% if user.is_authenticated %}
-                        {{ change__visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
+                        {{ change__visited|title }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
                         {{ change__city }} из {{ qty_of_cities }}
                     {% else %}
                         Городов в коллекции: <span class="fs-4 fw-medium">{{ qty_of_cities }}</span>

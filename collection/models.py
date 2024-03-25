@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from django.db import models
 from django.shortcuts import reverse
 
@@ -9,12 +18,8 @@ class Collection(models.Model):
         max_length=256,
         verbose_name='Название',
         blank=False,
-
     )
-    city = models.ManyToManyField(
-        City,
-        related_name='collections_list'
-    )
+    city = models.ManyToManyField(City, related_name='collections_list')
 
     def __str__(self):
         return self.title

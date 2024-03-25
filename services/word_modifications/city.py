@@ -1,8 +1,8 @@
 """
-Реализует функции, изменяющие слово "город".
+Реализует функции, изменяющие написание слова "город".
 ----------------------------------------------
 
-Copyright 2024 Egor Vavilov (Shecspi)
+Copyright © Egor Vavilov (Shecspi)
 Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
@@ -17,8 +17,11 @@ def modification__city(num: int) -> str:
         return 'город'
     elif 5 <= num <= 20:
         return 'городов'
-    elif len(str(num)) >= 2 and 10 <= int(str(num)[-2:]) <= 20\
-            or str(num)[-1] in ['5', '6', '7', '8', '9', '0']:
+    elif (
+        len(str(num)) >= 2
+        and 10 <= int(str(num)[-2:]) <= 20
+        or str(num)[-1] in ['5', '6', '7', '8', '9', '0']
+    ):
         return 'городов'
     elif str(num)[-1] in ['2', '3', '4']:
         return 'города'

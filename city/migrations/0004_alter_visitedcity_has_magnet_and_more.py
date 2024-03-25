@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('city', '0003_alter_city_date_of_foundation_alter_city_population_and_more'),
     ]
@@ -13,7 +12,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='visitedcity',
             name='has_magnet',
-            field=models.BooleanField(blank=True, help_text='Отметьте этот пункт, если у Вас есть магнитик с названием города. В списке городов можно будет отфильтровать только те города, которые без магнитов.', null=True, verbose_name='Наличие магнита'),
+            field=models.BooleanField(
+                blank=True,
+                help_text='Отметьте этот пункт, если у Вас есть магнитик с названием города. В списке городов можно будет отфильтровать только те города, которые без магнитов.',
+                null=True,
+                verbose_name='Наличие магнита',
+            ),
         ),
         migrations.AlterField(
             model_name='visitedcity',
@@ -23,6 +27,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='visitedcity',
             name='rating',
-            field=models.SmallIntegerField(help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.', verbose_name='Рейтинг'),
+            field=models.SmallIntegerField(
+                help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.', verbose_name='Рейтинг'
+            ),
         ),
     ]

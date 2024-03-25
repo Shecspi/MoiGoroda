@@ -1,48 +1,51 @@
 """
 Реализует классы для отображения новостей.
 
-* NewsList - Отображает список всех новостей с разделением по страницам.
-
+* NewsList - Отображает список
 ----------------------------------------------
 
-Copyright 2023 Egor Vavilov (Shecspi)
+Copyright © Egor Vavilov (Shecspi)
 Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
-from django.db.models import Value, Exists, OuterRef
+
+from typing import Any
+
+from django.db.models import QuerySet
+from django.http import HttpResponse
 from django.views.generic import ListView
 
 from news.models import News
-from utils.LoggingMixin import LoggingMixin
+from services import logger
+from services.db.news_repo import annotate_news_as_read
 
 
-class NewsList(ListView, LoggingMixin):
+class NewsList(ListView):
     """
     Отображает список всех новостей с разделением по страницам.
     """
+
     model = News
     paginate_by = 5
     ordering = '-created'
     template_name = 'news/news__list.html'
 
-    def get(self, *args, **kwargs):
-        self.set_message(self.request, 'Viewing the news list')
-
+    def get(self, *args: Any, **kwargs: Any) -> HttpResponse:
+        logger.info(self.request, '(News) Viewing the news list')
         return super().get(*args, **kwargs)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[News]:
         queryset = super().get_queryset()
+
         if self.request.user.is_authenticated:
-            queryset = queryset.annotate(
-                is_read=Exists(
-                    News.users_read.through.objects.filter(user_id=self.request.user, news_id=OuterRef('pk'))
-                )
-            )
+            queryset = annotate_news_as_read(queryset, self.request.user.pk)
 
         return queryset
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(
+        self, *, object_list: QuerySet[News] | None = None, **kwargs: Any
+    ) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         # Непрочитанные пользователем новости отмечаются прочитанными

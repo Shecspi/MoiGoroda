@@ -38,7 +38,7 @@ jobs:
       - name: Deploy to 92.255.77.19
         run: |
           : # Переходим в папку с проектом
-          cd ${{ secrets.DEV__LOCAL_PATH }}
+          cd ${{ secrets.DEV__PROJECT_PATH }}
 
           : # Устанавливаем необходимую версию Python, если она ещё не установлена
           if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi

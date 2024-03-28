@@ -356,13 +356,11 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
 
         if self.list_or_map == 'list':
-            context['page_title'] = self.region_name
+            context['page_title'] = f'{self.region_name} - Список городов региона'
             context['page_description'] = f"Список городов региона '{self.region_name}'"
         else:
-            context['page_title'] = self.region_name
-            context['page_description'] = (
-                f"Карта с отмеченными городами региона '{self.region_name}'"
-            )
+            context['page_title'] = f'{self.region_name} - Города региона на карте'
+            context['page_description'] = f"Карта с отмеченными городами региона '{self.region_name}'"
 
         return context
 

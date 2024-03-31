@@ -54,8 +54,8 @@ jobs:
           rm -f ~/gunicorn
           ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
           
-          git pull origin dev
-          git checkout dev
+          git pull origin master
+          git checkout master
           
           poetry run python3 manage.py makemigrations
           poetry run python3 manage.py migrate

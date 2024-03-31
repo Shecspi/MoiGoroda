@@ -35,7 +35,7 @@ jobs:
     runs-on: [self-hosted, dev]
     steps:
       - uses: actions/checkout@v1
-      - name: Deploy to 92.255.77.19
+      - name: Deploy to 5.44.47.96
         run: |
           : # Переходим в папку с проектом
           cd ${{ secrets.DEV__PROJECT_PATH }}

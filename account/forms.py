@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from django import forms
 from django.forms import ModelForm
 from crispy_forms.helper import FormHelper
@@ -8,20 +17,12 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 
 class SignUpForm(UserCreationForm):
-    username = forms.CharField(
-        label='Имя пользователя',
-        required=True)
-    email = forms.EmailField(
-        label='Электронная почта',
-        required=True)
-    password1 = forms.CharField(
-        label='Пароль',
-        widget=forms.PasswordInput(),
-        required=True)
+    username = forms.CharField(label='Имя пользователя', required=True)
+    email = forms.EmailField(label='Электронная почта', required=True)
+    password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput(), required=True)
     password2 = forms.CharField(
-        label='Повторите пароль',
-        widget=forms.PasswordInput(),
-        required=True)
+        label='Повторите пароль', widget=forms.PasswordInput(), required=True
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,10 +31,7 @@ class SignUpForm(UserCreationForm):
         self.helper.form_tag = False
 
         self.helper.layout = Layout(
-            Field('username'),
-            Field('email'),
-            Field('password1'),
-            Field('password2')
+            Field('username'), Field('email'), Field('password1'), Field('password2')
         )
 
     class Meta:
@@ -59,10 +57,7 @@ class SignInForm(AuthenticationForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
-        self.helper.layout = Layout(
-            Field('username'),
-            Field('password')
-        )
+        self.helper.layout = Layout(Field('username'), Field('password'))
 
 
 class UpdateProfileForm(ModelForm):
@@ -86,14 +81,14 @@ class UpdateProfileForm(ModelForm):
                     HTML("""<a href="{% url 'password_change_form' %}"
                     class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover 
                     link-opacity-50-hover">Изменить пароль</a>"""),
-                    css_class='small'
+                    css_class='small',
                 ),
                 Column(
                     Submit('submit', 'Сохранить изменения', css_class='btn-success btn-block'),
-                    css_class='d-flex justify-content-end'
+                    css_class='d-flex justify-content-end',
                 ),
-                css_class='d-flex'
-            )
+                css_class='d-flex',
+            ),
         )
 
     class Meta:

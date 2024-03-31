@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('city', '0004_alter_visitedcity_has_magnet_and_more'),
     ]
@@ -13,6 +12,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='visitedcity',
             name='has_magnet',
-            field=models.BooleanField(blank=True, default=False, help_text='Отметьте этот пункт, если у Вас есть магнитик с названием города. В списке городов можно будет отфильтровать только те города, которые без магнитов.', verbose_name='Наличие магнита'),
+            field=models.BooleanField(
+                blank=True,
+                default=False,
+                help_text='Отметьте этот пункт, если у Вас есть магнитик с названием города. В списке городов можно будет отфильтровать только те города, которые без магнитов.',
+                verbose_name='Наличие магнита',
+            ),
         ),
     ]

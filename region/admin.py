@@ -1,7 +1,16 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from city.models import City
 from django.contrib import admin
 
-from .models import *
+from .models import Area, Region
 
 
 @admin.register(Area)

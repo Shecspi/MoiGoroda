@@ -4,7 +4,7 @@ from services.word_modifications.region import *
 from services.word_modifications.visited import *
 from services.db.statistics.visited_city import *
 from services.db.statistics.visited_region import *
-from services.db.statistics.area import get_visited_areas
+from services.db.area_repo import get_visited_areas
 
 
 def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:

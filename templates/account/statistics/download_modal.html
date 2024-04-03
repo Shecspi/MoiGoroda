@@ -1,0 +1,88 @@
+<div class="modal fade" id="download_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="download_modal_label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="share_modal_label">Скачать посещённые города</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        Текст про то, что будет скачано
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row text-center">
+                    <div class="col">
+                        <p>Посещённые города</p>
+                        <div class="row">
+                            <div class="col d-grid">
+                                <button type="button" class="btn btn-outline-primary btn-sm">
+                                    <i class="fa-solid fa-share-from-square"></i>&nbsp;&nbsp;&nbsp;TXT
+                                </button>
+                            </div>
+                            <div class="col d-grid">
+                                <button type="button" class="btn btn-outline-primary btn-sm">
+                                    <i class="fa-solid fa-share-from-square"></i>&nbsp;&nbsp;&nbsp;CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row text-center">
+                    <div class="col">
+                        <p>Посещённые регионы</p>
+                        <div class="row">
+                            <div class="col d-grid">
+                                <button type="button" class="btn btn-outline-primary btn-sm">
+                                    <i class="fa-solid fa-share-from-square"></i>&nbsp;&nbsp;&nbsp;TXT
+                                </button>
+                            </div>
+                            <div class="col d-grid">
+                                <button type="button" class="btn btn-outline-primary btn-sm">
+                                    <i class="fa-solid fa-share-from-square"></i>&nbsp;&nbsp;&nbsp;CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row text-center">
+                    <div class="col d-grid">
+                        <p>Посещённые федеральные округа</p>
+                        <div class="row">
+                            <div class="col d-grid">
+                                <button type="button" class="btn btn-outline-primary btn-sm">
+                                    <i class="fa-solid fa-share-from-square"></i>&nbsp;&nbsp;&nbsp;TXT
+                                </button>
+                            </div>
+                            <div class="col d-grid">
+                                <button type="button" class="btn btn-outline-primary btn-sm">
+                                    <i class="fa-solid fa-share-from-square"></i>&nbsp;&nbsp;&nbsp;CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast_success_copied" class="toast bg-success-subtle" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;&nbsp;
+                <strong class="me-auto">Скопировано</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+            </div>
+            <div class="toast-body">
+                Ссылка на страницу со статистикой успешно скопирована.
+            </div>
+        </div>
+    </div>

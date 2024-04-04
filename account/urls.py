@@ -72,4 +72,5 @@ urlpatterns = [
     path('stats/', views.Stats.as_view(), name='stats'),
     # ----- Сохранение настроек "Поделиться статистикой"  ----- #
     path('stats/save_share_settings', views.save_share_settings, name='save_share_settings'),
+    path('download', views.download, name='download'),
 ]

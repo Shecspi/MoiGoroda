@@ -11,6 +11,7 @@ from django.urls import path
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
 
+from .view import download
 from . import views
 from .views import MyPasswordResetDoneView, MyPasswordChangeView
 
@@ -72,5 +73,5 @@ urlpatterns = [
     path('stats/', views.Stats.as_view(), name='stats'),
     # ----- Сохранение настроек "Поделиться статистикой"  ----- #
     path('stats/save_share_settings', views.save_share_settings, name='save_share_settings'),
-    path('download', views.download, name='download'),
+    path('download', download.download, name='download'),
 ]

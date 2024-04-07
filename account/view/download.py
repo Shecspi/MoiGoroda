@@ -1,213 +1,155 @@
 import csv
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from io import StringIO
 from typing import Literal
 
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from services.db.area_repo import get_visited_areas
 from services.db.regions_repo import get_all_visited_regions
 from services.db.visited_city_repo import get_all_visited_cities
 
-"""
-Города:
- - Название
- - Регион
- - Дата посещения
- - Наличие магнита
- - Оценка
 
-Регионы:
- - Название
- - Всего городов
- - Посещено городов в штуках
- - Посещено городов в процентах
- 
-Округа:
- - Название
- - Всего регионов
- - Посещено регионов
-"""
+class Report(ABC):
+    @abstractmethod
+    def __init__(self, user_id: int) -> None:
+        ...
+
+    @abstractmethod
+    def get_report(self) -> list[tuple]:
+        ...
 
 
-@dataclass
-class CityFields:
-    title: str
-    region: str
-    date_of_visit: datetime.date
-    has_magnet: bool
-    rating: int
+class CityReport(Report):
+    def __init__(self, user_id: int) -> None:
+        self.user_id = user_id
 
-
-@dataclass
-class RegionFields:
-    title: str
-    number_of_cities: int
-    number_of_visited_cities: int
-    ratio_of_visited_cities: int
-    number_of_not_visited_cities: int
-
-
-@dataclass
-class AreaFields:
-    title: str
-    number_of_regions: int
-    number_of_visited_regions: int
-    ratio_of_visited_regions: int
-    number_of_not_visited_regions: int
-
-
-class ReportTypeError(Exception):
-    pass
-
-
-def txt_serializer(user_id: int, reporttime: Literal['city', 'region', 'area']):
-    buffer = StringIO()
-    if reporttime == 'city':
-        buffer.write(header_line_for_city())
-        for city in get_prepared_visited_city_for_download(user_id):
-            buffer.write(content_line_for_city(city))
-    elif reporttime == 'region':
-        buffer.write(header_line_for_region())
-        for region in get_prepared_visited_regions_for_download(user_id):
-            buffer.write(content_line_for_region(region))
-    elif reporttime == 'area':
-        buffer.write(header_line_for_area())
-        for area in get_prepared_visited_areas_for_download(user_id):
-            buffer.write(content_line_for_area(area))
-    else:
-        raise ReportTypeError('Неверно указан тип репорта')
-
-    return buffer.getvalue()
-
-
-def header_line_for_city():
-    return (
-        f"{str('Город'):<30}"
-        f"{str('Регион'):<40}"
-        f'{str('Дата посещения'):<20}'
-        f'{str('Наличие магнита'):<20}'
-        f'{str('Оценка'):<10}\n\n'
-    )
-
-
-def content_line_for_city(city: CityFields):
-    return (
-        f'{city.title:<30}'
-        f'{str(city.region):<40}'
-        f'{"Не указана" if not city.date_of_visit else str(city.date_of_visit):<20}'
-        f'{"+" if city.has_magnet else "-":<20}'
-        f'{"*" * city.rating:<10}\n'
-    )
-
-
-def header_line_for_region():
-    return (
-        f"{str('Регион'):<40}"
-        f'{str('Всего городов'):<20}'
-        f'{str('Посещено городов, шт'):<25}'
-        f'{str('Посещено городов, %'):<25}'
-        f'{str('Осталось посетить, шт'):<25}\n\n'
-    )
-
-
-def content_line_for_region(region: RegionFields):
-    return (
-        f"{region.title:<40}"
-        f'{region.number_of_cities :<20}'
-        f'{region.number_of_visited_cities:<25}'
-        f'{region.ratio_of_visited_cities:<25}'
-        f'{region.number_of_not_visited_cities:<25}\n'
-    )
-
-
-def header_line_for_area():
-    return (
-        f'{str('Федеральный округ'):<20}'
-        f'{str('Всего регионов, шт'):<25}'
-        f'{str('Посещено регионов, шт'):<25}'
-        f'{str('Посещено регионов, %'):<25}'
-        f'{str('Осталось посетить, шт'):<25}\n\n'
-    )
-
-
-def content_line_for_area(area: AreaFields):
-    return (
-        f'{area.title:<20}'
-        f'{area.number_of_regions:<25}'
-        f'{area.number_of_visited_regions:<25}'
-        f'{area.ratio_of_visited_regions:<25}'
-        f'{area.number_of_not_visited_regions:<25}\n'
-    )
-
-
-def csv_serializer(request):
-    csv_buffer = StringIO()
-    csv_writer = csv.writer(csv_buffer, delimiter=',', lineterminator='\r')
-    csv_writer.writerow(['Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'])
-    for city in get_prepared_visited_city_for_download(1):
-        csv_writer.writerow(
-            [city.title, city.region, city.date_of_visit, city.has_magnet, city.rating]
-        )
-
-    return csv_buffer.getvalue()
-
-
-def get_prepared_visited_city_for_download(user_id: int) -> list[CityFields]:
-    cities = get_all_visited_cities(user_id)
-    result = []
-    for city in cities:
-        result.append(
-            CityFields(
-                title=city.city.title,
-                region=str(city.region),
-                date_of_visit=city.date_of_visit,
-                has_magnet=city.has_magnet,
-                rating=city.rating,
+    def get_report(self) -> list[tuple]:
+        cities = get_all_visited_cities(self.user_id)
+        result = [
+            ('Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'),
+        ]
+        for city in cities:
+            result.append(
+                (city.city.title, str(city.region), str(city.date_of_visit), str(city.has_magnet), str(city.rating)),
             )
-        )
-    return result
+        return result
 
 
-def get_prepared_visited_regions_for_download(user_id: int) -> list[RegionFields]:
-    regions = get_all_visited_regions(user_id)
-    result = []
-    for region in regions:
-        result.append(
-            RegionFields(
-                title=region,
-                number_of_cities=10,
-                number_of_visited_cities=5,
-                ratio_of_visited_cities=50,
-                number_of_not_visited_cities=5
+class RegionReport(Report):
+    def __init__(self, user_id: int) -> None:
+        self.user_id = user_id
+
+    def get_report(self) -> list[tuple]:
+        regions = get_all_visited_regions(self.user_id)
+        result = [
+            ('Регион', 'Всего городов', 'Посещено городов, шт', 'Посещено городов, %', 'Осталось посетить, шт'),
+        ]
+        for region in regions:
+            result.append(
+                (region, 10, 5, 50, 5)
             )
-        )
-    return result
+        return result
 
 
-def get_prepared_visited_areas_for_download(user_id: int) -> list[AreaFields]:
-    areas = get_visited_areas(user_id)
-    result = []
-    for area in areas:
-        result.append(
-            AreaFields(
-                title=area.title,
-                number_of_regions=5,
-                number_of_visited_regions=2,
-                ratio_of_visited_regions=40,
-                number_of_not_visited_regions=3
+class Serializer(ABC):
+    @abstractmethod
+    def convert(self, report):
+        ...
+
+    @abstractmethod
+    def content_type(self):
+        ...
+
+    @abstractmethod
+    def filetype(self):
+        ...
+
+
+class TxtSerializer(Serializer):
+    def convert(self, report: list[tuple]) -> StringIO:
+        buffer = StringIO()
+        for line in report:
+            buffer.write(f'{" --- ||| --- ".join([item for item in line])}\n')
+        return buffer
+
+    def content_type(self) -> str:
+        return 'text/txt'
+
+    def filetype(self) -> str:
+        return 'txt'
+
+
+class CsvSerializer(Serializer):
+    def convert(self, report: list[tuple]) -> StringIO:
+        csv_buffer = StringIO()
+        csv_writer = csv.writer(csv_buffer, delimiter=',', lineterminator='\r')
+        for line in report:
+            csv_writer.writerow([item for item in line])
+        return csv_buffer
+
+    def content_type(self) -> str:
+        return 'text/csv'
+
+    def filetype(self) -> str:
+        return 'csv'
+
+
+class XlsSerializer(Serializer):
+    def convert(self, report):
+        return report
+
+    def content_type(self) -> str:
+        return 'application/vnd.ms-excel'
+
+    def filetype(self) -> str:
+        return 'xls'
+
+
+class AreaReport(Report):
+    def __init__(self, user_id: int) -> None:
+        self.user_id = user_id
+
+    def get_report(self) -> list:
+        areas = get_visited_areas(self.user_id)
+        result = [
+            ('Федеральный округ', 'Всего регионов, шт', 'Посещено регионов, шт',
+             'Посещено регионов, %', 'Осталось посетить, шт'),
+        ]
+        for area in areas:
+            result.append(
+                (area.title, 5, 2, 40, 3),
             )
-        )
-    return result
+        return result
 
 
 def download(request):
     if request.method == 'POST':
         users_data = request.POST.dict()
-        filetype = users_data.get('')
+        reporttype = users_data.get('reporttype')
+        filetype = users_data.get('filetype')
 
-    download_file = csv_serializer(request)
-    response = HttpResponse(download_file, content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=myfile.csv'
+        if reporttype == 'city':
+            report = CityReport(request.user.id)
+        elif reporttype == 'region':
+            report = RegionReport(request.user.id)
+        elif reporttype == 'area':
+            report = AreaReport(request.user.id)
+        else:
+            raise Http404
+
+        if filetype == 'txt':
+            buffer = TxtSerializer()
+        elif filetype == 'csv':
+            buffer = CsvSerializer()
+        elif filetype == 'xls':
+            buffer = XlsSerializer()
+        else:
+            raise Http404
+
+    response = HttpResponse(buffer.convert(report.get_report()).getvalue(), content_type=buffer.content_type())
+    filename = f'MoiGoroda__{request.user}__{int(datetime.now().timestamp())}'
+    response['Content-Disposition'] = f'attachment; filename={filename}.{buffer.filetype()}'
     return response

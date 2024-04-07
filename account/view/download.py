@@ -2,9 +2,10 @@ import csv
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from io import StringIO
+from io import StringIO, BytesIO
 from typing import Literal
 
+import openpyxl
 from django.http import HttpResponse, Http404
 
 from services.db.area_repo import get_visited_areas
@@ -98,8 +99,15 @@ class CsvSerializer(Serializer):
 
 
 class XlsSerializer(Serializer):
-    def convert(self, report):
-        return report
+    def convert(self, report: list[tuple]) -> BytesIO:
+        workbook = openpyxl.Workbook()
+        buffer = BytesIO()
+        worksheet = workbook.active
+        for line in report:
+            worksheet.append(line)
+        workbook.save(buffer)
+
+        return buffer
 
     def content_type(self) -> str:
         return 'application/vnd.ms-excel'

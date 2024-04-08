@@ -1,4 +1,5 @@
 import csv
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
@@ -116,6 +117,19 @@ class XlsSerializer(Serializer):
         return 'xls'
 
 
+class JsonSerialixer(Serializer):
+    def convert(self, report: list[tuple]) -> StringIO:
+        buffer = StringIO()
+        json.dump(report, buffer, indent=4, ensure_ascii=False)
+        return buffer
+
+    def content_type(self) -> str:
+        return 'application/json'
+
+    def filetype(self) -> str:
+        return 'json'
+
+
 class AreaReport(Report):
     def __init__(self, user_id: int) -> None:
         self.user_id = user_id
@@ -152,6 +166,8 @@ def download(request):
             buffer = TxtSerializer()
         elif filetype == 'csv':
             buffer = CsvSerializer()
+        elif filetype == 'json':
+            buffer = JsonSerialixer()
         elif filetype == 'xls':
             buffer = XlsSerializer()
         else:

@@ -11,16 +11,15 @@ from django.urls import path
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
 
-from .view import download
-from . import views
-from .views import MyPasswordResetDoneView, MyPasswordChangeView
+from .views import access, download, profile, statistics
+from .views.access import MyPasswordResetDoneView, MyPasswordChangeView
 
 urlpatterns = [
-    path('signin/', views.SignIn.as_view(), name='signin'),
-    path('signup/', views.SignUp.as_view(), name='signup'),
-    path('signup/success/', views.signup_success, name='signup_success'),
+    path('signin/', access.SignIn.as_view(), name='signin'),
+    path('signup/', access.SignUp.as_view(), name='signup'),
+    path('signup/success/', access.signup_success, name='signup_success'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('profile/', views.Profile.as_view(), name='profile'),
+    path('profile/', profile.Profile.as_view(), name='profile'),
     # -----  Сброс пароля  ----- #
     path(
         'password/reset',
@@ -69,9 +68,11 @@ urlpatterns = [
     # -----  Изменение пароля  ----- #
     path('password/change/', MyPasswordChangeView.as_view(), name='password_change_form'),
     path('password/change/done/', MyPasswordResetDoneView.as_view(), name='password_change_done'),
+
     # -----  Статистика  ----- #
-    path('stats/', views.Stats.as_view(), name='stats'),
+    path('stats/', statistics.Statistics.as_view(), name='stats'),
     # ----- Сохранение настроек "Поделиться статистикой"  ----- #
-    path('stats/save_share_settings', views.save_share_settings, name='save_share_settings'),
+    path('stats/save_share_settings', statistics.save_share_settings, name='save_share_settings'),
+
     path('download', download.download, name='download'),
 ]

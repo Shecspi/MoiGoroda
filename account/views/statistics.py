@@ -7,114 +7,23 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-import logging
-import os
-from dataclasses import dataclass
-from datetime import datetime
-from io import StringIO
-from wsgiref.util import FileWrapper
-
-from django.urls import reverse_lazy
-from django.contrib.auth import login
-from django.contrib.auth.models import User
-from django.http import Http404, JsonResponse, FileResponse, HttpResponse
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import CreateView, UpdateView, TemplateView
-from django.contrib.auth.views import LoginView, PasswordResetDoneView, PasswordChangeView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.http import JsonResponse, Http404
+from django.shortcuts import get_object_or_404
+from django.views.generic import TemplateView
 
 from account.models import ShareSettings
-from city.models import City
 from services import logger
-from services.db.statistics.visited_city import get_number_of_visited_cities
-from account.forms import SignUpForm, SignInForm, UpdateProfileForm
 from services.db.statistics.fake_statistics import get_fake_statistics
 from services.db.statistics.get_info_for_statistic_cards_and_charts import (
     get_info_for_statistic_cards_and_charts,
 )
-from services.db.visited_city_repo import get_all_visited_cities
-
-logger_email = logging.getLogger(__name__)
+from services.db.statistics.visited_city import get_number_of_visited_cities
 
 
-class SignUp(CreateView):
-    """
-    Отображает и обрабатывает форму регистрации.
-
-    > Авторизованных пользователей перенаправляет в список посещённых городов.
-    """
-
-    form_class = SignUpForm
-    success_url = reverse_lazy('signup_success')
-    template_name = 'account/signup.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            return redirect('city-all-list')
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        user = User.objects.create_user(
-            username=self.request.POST['username'],
-            password=self.request.POST['password1'],
-            email=self.request.POST['email'],
-        )
-        user.save()
-        logger_email.info(
-            f"Registration of a new user: {self.request.POST['username']} ({self.request.POST['email']}). "
-            f"Total numbers of users: {User.objects.count()}"
-        )
-        login(self.request, user)
-
-        return redirect('city-all-list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['page_title'] = 'Регистрация'
-        context['page_description'] = (
-            'Зарегистрируйтесь на сервисе "Мои города" для того, чтобы сохранять свои '
-            'посещённые города и просматривать их на карте'
-        )
-
-        return context
-
-
-class SignIn(LoginView):
-    """
-    Отображает и обрабатывает форму авторизации.
-
-    > Авторизованных пользователей перенаправляет в список посещённых городов.
-    """
-
-    form_class = SignInForm
-    template_name = 'account/signin.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            return redirect('city-all-list')
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['page_title'] = 'Вход'
-        context['page_description'] = (
-            'Войдите в свой аккаунт для того, чтобы посмотреть свои посещённые города '
-            'и сохранить новые'
-        )
-
-        return context
-
-
-def signup_success(request):
-    return render(request, 'account/signup_success.html')
-
-
-class Stats(LoginRequiredMixin, TemplateView):
+class Statistics(LoginRequiredMixin, TemplateView):
     """
     Отображает страницу со статистикой пользователя.
 
@@ -239,60 +148,3 @@ def save_share_settings(request):
     else:
         logger.warning(request, '(Save share settings): Connection is not using the POST method')
         raise Http404
-
-
-class Profile(LoginRequiredMixin, UpdateView):
-    form_class = UpdateProfileForm
-    success_url = reverse_lazy('profile')
-    template_name = 'account/profile.html'
-
-    def get_object(self, queryset=None):
-        """
-        Убирает необходимость указывать ID пользователя в URL, используя сессионный ID.
-        """
-        return get_object_or_404(User, pk=self.request.user.pk)
-
-    def form_valid(self, form):
-        """
-        Переопределение этого метода нужно только для того, чтобы произвести запись в лог.
-        """
-        logger.info(
-            self.request,
-            f"Updating user's information: {self.request.user.username} ({self.request.user.email})",
-        )
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['active_page'] = 'profile'
-        context['page_title'] = 'Профиль'
-        context['page_description'] = 'Просмотр и изменения персональной информации'
-
-        return context
-
-
-class MyPasswordChangeView(PasswordChangeView):
-    template_name = 'account/profile__password_change_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['page_title'] = 'Изменение пароля'
-        context['page_description'] = (
-            'Для того, чтобы изменить свой пароль, введите старый и новый пароли'
-        )
-
-        return context
-
-
-class MyPasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
-    template_name = 'account/profile__password_change_done.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['page_title'] = 'Изменение пароля'
-        context['page_description'] = 'Пароль успешно изменён'
-
-        return context

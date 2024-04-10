@@ -8,6 +8,7 @@ from typing import Literal
 
 import openpyxl
 from django.http import HttpResponse, Http404
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
 from services.db.area_repo import get_visited_areas
@@ -149,6 +150,7 @@ class AreaReport(Report):
 
 
 @require_http_methods(['POST'])
+@login_required()
 def download(request):
     users_data = request.POST.dict()
     reporttype = users_data.get('reporttype')

@@ -8,6 +8,7 @@ from typing import Literal
 
 import openpyxl
 from django.http import HttpResponse, Http404
+from django.views.decorators.http import require_http_methods
 
 from services.db.area_repo import get_visited_areas
 from services.db.regions_repo import get_all_visited_regions
@@ -147,31 +148,31 @@ class AreaReport(Report):
         return result
 
 
+@require_http_methods(['POST'])
 def download(request):
-    if request.method == 'POST':
-        users_data = request.POST.dict()
-        reporttype = users_data.get('reporttype')
-        filetype = users_data.get('filetype')
+    users_data = request.POST.dict()
+    reporttype = users_data.get('reporttype')
+    filetype = users_data.get('filetype')
 
-        if reporttype == 'city':
-            report = CityReport(request.user.id)
-        elif reporttype == 'region':
-            report = RegionReport(request.user.id)
-        elif reporttype == 'area':
-            report = AreaReport(request.user.id)
-        else:
-            raise Http404
+    if reporttype == 'city':
+        report = CityReport(request.user.id)
+    elif reporttype == 'region':
+        report = RegionReport(request.user.id)
+    elif reporttype == 'area':
+        report = AreaReport(request.user.id)
+    else:
+        raise Http404
 
-        if filetype == 'txt':
-            buffer = TxtSerializer()
-        elif filetype == 'csv':
-            buffer = CsvSerializer()
-        elif filetype == 'json':
-            buffer = JsonSerialixer()
-        elif filetype == 'xls':
-            buffer = XlsSerializer()
-        else:
-            raise Http404
+    if filetype == 'txt':
+        buffer = TxtSerializer()
+    elif filetype == 'csv':
+        buffer = CsvSerializer()
+    elif filetype == 'json':
+        buffer = JsonSerialixer()
+    elif filetype == 'xls':
+        buffer = XlsSerializer()
+    else:
+        raise Http404
 
     response = HttpResponse(buffer.convert(report.get_report()).getvalue(), content_type=buffer.content_type())
     filename = f'MoiGoroda__{request.user}__{int(datetime.now().timestamp())}'

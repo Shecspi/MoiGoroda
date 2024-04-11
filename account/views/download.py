@@ -58,7 +58,7 @@ class RegionReport(Report):
     def __init__(self, user_id: int) -> None:
         self.user_id = user_id
 
-    def get_report(self) -> list[tuple]:
+    def get_report(self) -> list[tuple[str, ...]]:
         regions = get_all_visited_regions(self.user_id)
         result = [
             (
@@ -70,7 +70,29 @@ class RegionReport(Report):
             ),
         ]
         for region in regions:
-            result.append((region, 10, 5, 50, 5))
+            result.append((str(region), str(10), str(5), str(50), str(5)))
+        return result
+
+
+class AreaReport(Report):
+    def __init__(self, user_id: int) -> None:
+        self.user_id = user_id
+
+    def get_report(self) -> list[tuple[str]]:
+        areas = get_visited_areas(self.user_id)
+        result = [
+            (
+                'Федеральный округ',
+                'Всего регионов, шт',
+                'Посещено регионов, шт',
+                'Посещено регионов, %',
+                'Осталось посетить, шт',
+            ),
+        ]
+        for area in areas:
+            result.append(
+                (area.title, 5, 2, 40, 3),
+            )
         return result
 
 
@@ -86,7 +108,7 @@ class Serializer(ABC):
 
 
 class TxtSerializer(Serializer):
-    def convert(self, report: list[tuple]) -> StringIO:
+    def convert(self, report: list[tuple[str]]) -> StringIO:
         buffer = StringIO()
         number_of_symbols = self.__get_max_length(report)
         for report_line in report:
@@ -163,28 +185,6 @@ class JsonSerialixer(Serializer):
 
     def filetype(self) -> str:
         return 'json'
-
-
-class AreaReport(Report):
-    def __init__(self, user_id: int) -> None:
-        self.user_id = user_id
-
-    def get_report(self) -> list:
-        areas = get_visited_areas(self.user_id)
-        result = [
-            (
-                'Федеральный округ',
-                'Всего регионов, шт',
-                'Посещено регионов, шт',
-                'Посещено регионов, %',
-                'Осталось посетить, шт',
-            ),
-        ]
-        for area in areas:
-            result.append(
-                (area.title, 5, 2, 40, 3),
-            )
-        return result
 
 
 @require_http_methods(['POST'])

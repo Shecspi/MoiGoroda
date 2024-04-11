@@ -12,6 +12,7 @@ import json
 from abc import ABC, abstractmethod
 from datetime import datetime
 from io import StringIO, BytesIO
+from typing import Sequence, Iterable
 
 import openpyxl
 from django.http import HttpResponse, Http404
@@ -87,9 +88,29 @@ class Serializer(ABC):
 class TxtSerializer(Serializer):
     def convert(self, report: list[tuple]) -> StringIO:
         buffer = StringIO()
-        for line in report:
-            buffer.write(f'{" --- ||| --- ".join([item for item in line])}\n')
+        number_of_symbols = self.__get_max_length(report)
+        for report_line in report:
+            buffer.write(self.__get_formated_row(report_line, number_of_symbols))
         return buffer
+
+    @staticmethod
+    def __get_max_length(row: Sequence[Sequence]) -> list[int]:
+        """
+        Определяет максимальную длину элементов, расположенных в одном столбике многомерного массива.
+        Возвращает список с максимальными длинами для каждого столбика.
+        Количество элементов равно количеству столбиков в оригинальной итерируемом объекте.
+        """
+        number_of_symbols = []
+        for index, value in enumerate(row[0]):
+            number_of_symbols.append(len(max((x[index] for x in row), key=len)))
+        return number_of_symbols
+
+    @staticmethod
+    def __get_formated_row(row: Sequence, number_of_symbols: Sequence[int]) -> str:
+        formated_row = ''
+        for index, value in enumerate(row):
+            formated_row += f'{value:<{number_of_symbols[index] + 5}}'
+        return formated_row + '\n'
 
     def content_type(self) -> str:
         return 'text/txt'

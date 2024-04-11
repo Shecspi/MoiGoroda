@@ -78,7 +78,7 @@ class AreaReport(Report):
     def __init__(self, user_id: int) -> None:
         self.user_id = user_id
 
-    def get_report(self) -> list[tuple[str]]:
+    def get_report(self) -> list[tuple[str, ...]]:
         areas = get_visited_areas(self.user_id)
         result = [
             (
@@ -91,7 +91,7 @@ class AreaReport(Report):
         ]
         for area in areas:
             result.append(
-                (area.title, 5, 2, 40, 3),
+                (str(area.title), str(5), str(2), str(40), str(3)),
             )
         return result
 

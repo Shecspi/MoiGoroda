@@ -103,8 +103,19 @@ class AreaReport(Report):
             ),
         ]
         for area in areas:
+            title = area.title
+            num_total_regions = area.total_regions
+            num_visited_regions = area.visited_regions
+            ratio_visited_regions = f'{(num_visited_regions / num_total_regions):.0%}'
+            num_not_visited_regions = num_total_regions - num_visited_regions
             result.append(
-                (str(area.title), str(5), str(2), str(40), str(3)),
+                (
+                    str(area.title),
+                    str(num_total_regions),
+                    str(num_visited_regions),
+                    str(ratio_visited_regions),
+                    str(num_not_visited_regions)
+                ),
             )
         return result
 

@@ -46,9 +46,9 @@ class CityReport(Report):
                 (
                     city.city.title,
                     str(city.region),
-                    str(city.date_of_visit),
-                    str(city.has_magnet),
-                    str(city.rating),
+                    str(city.date_of_visit) if city.date_of_visit else 'Не указана',
+                    '+' if city.has_magnet else '-',
+                    '*' * city.rating if city.rating else '',
                 ),
             )
         return result

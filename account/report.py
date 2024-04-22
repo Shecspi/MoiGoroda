@@ -9,6 +9,8 @@ Licensed under the Apache License, Version 2.0
 
 from abc import ABC, abstractmethod
 
+from django.db.models import F
+
 from services.db.area_repo import get_visited_areas
 from services.db.regions_repo import get_all_visited_regions
 from services.db.visited_city_repo import get_all_visited_cities
@@ -27,7 +29,7 @@ class CityReport(Report):
         self.user_id = user_id
 
     def get_report(self) -> list[tuple]:
-        cities = get_all_visited_cities(self.user_id)
+        cities = get_all_visited_cities(self.user_id).order_by(F('date_of_visit').desc(nulls_last=True))
         result = [
             ('Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'),
         ]

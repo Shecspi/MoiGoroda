@@ -29,7 +29,8 @@ def get_visited_city(user_id: int, city_id: int) -> VisitedCity | Literal[False]
         return False
 
 
-def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
+def \
+        get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     """
     Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.
     Возвращает Queryset, состоящий из полей:

@@ -70,7 +70,20 @@ class RegionReport(Report):
             ),
         ]
         for region in regions:
-            result.append((str(region), str(10), str(5), str(50), str(5)))
+            title = region
+            num_total_cities = region.num_total
+            num_visited_cities = region.num_visited
+            ratio_visited_cities = f'{(num_visited_cities / num_total_cities):.0%}'
+            num_not_visited_cities = num_total_cities - num_visited_cities
+            result.append(
+                (
+                    str(title),
+                    str(num_total_cities),
+                    str(num_visited_cities),
+                    ratio_visited_cities,
+                    str(num_not_visited_cities)
+                ),
+            )
         return result
 
 

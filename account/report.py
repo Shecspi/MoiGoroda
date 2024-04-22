@@ -13,7 +13,7 @@ from django.db.models import F
 
 from services.db.area_repo import get_visited_areas
 from services.db.regions_repo import get_all_visited_regions
-from services.db.visited_city_repo import get_all_visited_cities
+from services.db.visited_city_repo import get_all_visited_cities, order_by_date_of_visit_desc
 
 
 class Report(ABC):
@@ -29,11 +29,12 @@ class CityReport(Report):
         self.user_id = user_id
 
     def get_report(self) -> list[tuple]:
-        cities = get_all_visited_cities(self.user_id).order_by(F('date_of_visit').desc(nulls_last=True))
+        all_visited_cities = get_all_visited_cities(self.user_id)
+        sorted_visited_cities = order_by_date_of_visit_desc(all_visited_cities)
         result = [
             ('Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'),
         ]
-        for city in cities:
+        for city in sorted_visited_cities:
             result.append(
                 (
                     city.city.title,

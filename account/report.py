@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 from abc import ABC, abstractmethod
 
-from django.db.models import F
 
 from services.db.area_repo import get_visited_areas
 from services.db.regions_repo import get_all_visited_regions
@@ -74,7 +73,7 @@ class RegionReport(Report):
                     str(num_total_cities),
                     str(num_visited_cities),
                     ratio_visited_cities,
-                    str(num_not_visited_cities)
+                    str(num_not_visited_cities),
                 ),
             )
         return result
@@ -107,7 +106,7 @@ class AreaReport(Report):
                     str(num_total_regions),
                     str(num_visited_regions),
                     str(ratio_visited_regions),
-                    str(num_not_visited_regions)
+                    str(num_not_visited_regions),
                 ),
             )
         return result

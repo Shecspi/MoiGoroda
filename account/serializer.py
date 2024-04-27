@@ -64,7 +64,7 @@ class TxtSerializer(Serializer):
 class CsvSerializer(Serializer):
     def convert(self, report: list[tuple]) -> StringIO:
         csv_buffer = StringIO()
-        csv_writer = csv.writer(csv_buffer, delimiter=',', lineterminator='\r')
+        csv_writer = csv.writer(csv_buffer, delimiter=',', lineterminator='\n')
         for line in report:
             csv_writer.writerow([item for item in line])
         return csv_buffer

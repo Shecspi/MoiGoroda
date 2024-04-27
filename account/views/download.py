@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
 from account.report import CityReport, RegionReport, AreaReport
-from account.serializer import TxtSerializer, CsvSerializer, JsonSerialixer, XlsSerializer
+from account.serializer import TxtSerializer, CsvSerializer, JsonSerializer, XlsSerializer
 
 
 @require_http_methods(['POST'])
@@ -42,7 +42,7 @@ def download(request):
     elif filetype == 'csv':
         buffer = CsvSerializer()
     elif filetype == 'json':
-        buffer = JsonSerialixer()
+        buffer = JsonSerializer()
     elif filetype == 'xls':
         buffer = XlsSerializer()
     else:

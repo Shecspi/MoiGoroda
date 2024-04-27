@@ -94,7 +94,7 @@ class XlsSerializer(Serializer):
         return 'xls'
 
 
-class JsonSerialixer(Serializer):
+class JsonSerializer(Serializer):
     def convert(self, report: list[tuple]) -> StringIO:
         buffer = StringIO()
         json.dump(report, buffer, indent=4, ensure_ascii=False)

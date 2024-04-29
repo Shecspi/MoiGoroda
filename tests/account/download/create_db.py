@@ -6,8 +6,8 @@ from city.models import City, VisitedCity
 from region.models import Area, Region
 
 
-def create_user(django_user_model):
-    return django_user_model.objects.create_user(id=1, username='username', password='password')
+def create_user(django_user_model, user_id: int):
+    return django_user_model.objects.create_user(id=user_id, username=f'username{user_id}', password=f'password')
 
 
 def create_area(num: int) -> list[Area]:

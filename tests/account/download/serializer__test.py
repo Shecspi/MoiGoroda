@@ -12,7 +12,7 @@ from tests.account.download.create_db import create_user, create_area, create_re
 
 @pytest.fixture
 def setup_db(django_user_model):
-    user = create_user(django_user_model)
+    user = create_user(django_user_model, 1)
     area = create_area(1)
     region = create_region(1, area[0])
     city = create_city(2, region[0])

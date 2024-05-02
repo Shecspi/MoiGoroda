@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime
 
 import pytest
@@ -76,6 +77,26 @@ def test__content_of_city_report_in_txt_file(setup_db, client):
 
 
 @pytest.mark.django_db
+def test__content_of_city_report_in_csv_file(setup_db, client):
+    client.login(username='username1', password='password')
+    data = {
+        'reporttype': 'city',
+        'filetype': 'csv'
+    }
+    response = client.post(reverse('download'), data=data)
+    report = response.content.decode().strip().split('\n')
+    reader = csv.reader(report, delimiter=',', lineterminator='\n')
+    expected_results = (
+        ['Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'],
+        ['Город 1', 'Регион 1 область', '2024-01-01', '-', '***'],
+        ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****']
+    )
+
+    for index, row in enumerate(reader):
+        assert row == expected_results[index]
+
+
+@pytest.mark.django_db
 def test__content_of_region_report_in_txt_file(setup_db, client):
     client.login(username='username1', password='password')
     data = {
@@ -92,6 +113,25 @@ def test__content_of_region_report_in_txt_file(setup_db, client):
 
 
 @pytest.mark.django_db
+def test__content_of_region_report_in_csv_file(setup_db, client):
+    client.login(username='username1', password='password')
+    data = {
+        'reporttype': 'region',
+        'filetype': 'csv'
+    }
+    response = client.post(reverse('download'), data=data)
+    report = response.content.decode().strip().split('\n')
+    reader = csv.reader(report, delimiter=',', lineterminator='\n')
+    expected_results = (
+        ['Регион', 'Всего городов', 'Посещено городов, шт', 'Посещено городов, %', 'Осталось посетить, шт'],
+        ['Регион 1 область', '2', '2', '100%', '0']
+    )
+
+    for index, row in enumerate(reader):
+        assert row == expected_results[index]
+
+
+@pytest.mark.django_db
 def test__content_of_area_report_in_txt_file(setup_db, client):
     client.login(username='username1', password='password')
     data = {
@@ -105,3 +145,23 @@ def test__content_of_area_report_in_txt_file(setup_db, client):
                          'Посещено регионов, %     Осталось посетить, шт     ')
     assert report[1] == ('Округ 1               1                      1                         '
                          '100%                     0                         ')
+
+
+@pytest.mark.django_db
+def test__content_of_area_report_in_csv_file(setup_db, client):
+    client.login(username='username1', password='password')
+    data = {
+        'reporttype': 'area',
+        'filetype': 'csv'
+    }
+    response = client.post(reverse('download'), data=data)
+    report = response.content.decode().strip().split('\n')
+    reader = csv.reader(report, delimiter=',', lineterminator='\n')
+    expected_results = (
+        ['Федеральный округ', 'Всего регионов, шт', 'Посещено регионов, шт',
+         'Посещено регионов, %', 'Осталось посетить, шт'],
+        ['Округ 1', '1', '1', '100%', '0']
+    )
+
+    for index, row in enumerate(reader):
+        assert row == expected_results[index]

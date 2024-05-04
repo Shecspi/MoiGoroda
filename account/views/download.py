@@ -15,6 +15,7 @@ from django.views.decorators.http import require_http_methods
 
 from account.report import CityReport, RegionReport, AreaReport
 from account.serializer import TxtSerializer, CsvSerializer, JsonSerializer, XlsSerializer
+from services import logger
 
 
 @require_http_methods(['POST'])
@@ -33,6 +34,9 @@ def download(request):
     elif reporttype == 'area':
         report = AreaReport(request.user.id)
     else:
+        logger.info(
+            request, f'(Download stats): Incorrect reporttype "{reporttype}", raise 404'
+        )
         raise Http404
 
     # Для того чтобы добавить новый формат файла, достаточно создать класс,
@@ -46,11 +50,19 @@ def download(request):
     elif filetype == 'xls':
         buffer = XlsSerializer()
     else:
+        logger.info(
+            request, f'(Download stats): Incorrect filetype "{filetype}", raise 404'
+        )
         raise Http404
 
     response = HttpResponse(
         buffer.convert(report.get_report()).getvalue(), content_type=buffer.content_type()
     )
-    filename = f'MoiGoroda__{request.user}__{int(datetime.now().timestamp())}'
-    response['Content-Disposition'] = f'attachment; filename={filename}.{buffer.filetype()}'
+    filename = f'MoiGoroda__{request.user}__{int(datetime.now().timestamp())}.{buffer.filetype()}'
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    logger.info(
+        request, f'(Download stats): Successfully downloaded file {filename}'
+    )
+
     return response

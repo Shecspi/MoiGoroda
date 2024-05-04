@@ -12,6 +12,7 @@ psycopg2-binary = "^2.9.6"
 sentry-sdk = "^1.39.0"
 gunicorn = "^21.2.0"
 python-dotenv = "^1.0.1"
+openpyxl = "^3.1.2"
 
 
 [tool.poetry.group.dev.dependencies]

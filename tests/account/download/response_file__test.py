@@ -1,6 +1,9 @@
 import csv
+import json
 from datetime import datetime
+from io import BytesIO
 
+import openpyxl
 import pytest
 from django.urls import reverse
 
@@ -55,6 +58,43 @@ def test__content_of_city_report_in_csv_file(setup_db, client):
 
 
 @pytest.mark.django_db
+def test__content_of_city_report_in_json_file(setup_db, client):
+    client.login(username='username1', password='password')
+    data = {
+        'reporttype': 'city',
+        'filetype': 'json'
+    }
+    response = client.post(reverse('download'), data=data)
+    report = response.content.decode()
+    recieved_data = json.loads(report)
+    expected_data = [
+        ['Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'],
+        ['Город 1', 'Регион 1 область', '2024-01-01', '-', '***'],
+        ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****']
+    ]
+
+    assert recieved_data == expected_data
+
+
+@pytest.mark.django_db
+def test__content_of_city_report_in_xls_file(setup_db, client):
+    client.login(username='username1', password='password')
+    data = {
+        'reporttype': 'city',
+        'filetype': 'xls'
+    }
+    response = client.post(reverse('download'), data=data)
+    workbook = openpyxl.load_workbook(BytesIO(response.content))
+    expected_data = [
+        ('Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'),
+        ('Город 1', 'Регион 1 область', '2024-01-01', '-', '***'),
+        ('Город 2', 'Регион 1 область', '2023-01-01', '+', '*****')
+     ]
+
+    assert list(workbook['Sheet'].values) == expected_data
+
+
+@pytest.mark.django_db
 def test__content_of_region_report_in_txt_file(setup_db, client):
     client.login(username='username1', password='password')
     data = {
@@ -87,6 +127,41 @@ def test__content_of_region_report_in_csv_file(setup_db, client):
 
     for index, row in enumerate(reader):
         assert row == expected_results[index]
+
+
+@pytest.mark.django_db
+def test__content_of_region_report_in_json_file(setup_db, client):
+    client.login(username='username1', password='password')
+    data = {
+        'reporttype': 'region',
+        'filetype': 'json'
+    }
+    response = client.post(reverse('download'), data=data)
+    report = response.content.decode()
+    recieved_data = json.loads(report)
+    expected_data = [
+        ['Регион', 'Всего городов', 'Посещено городов, шт', 'Посещено городов, %', 'Осталось посетить, шт'],
+        ['Регион 1 область', '2', '2', '100%', '0']
+    ]
+
+    assert recieved_data == expected_data
+
+
+@pytest.mark.django_db
+def test__content_of_region_report_in_xls_file(setup_db, client):
+    client.login(username='username1', password='password')
+    data = {
+        'reporttype': 'region',
+        'filetype': 'xls'
+    }
+    response = client.post(reverse('download'), data=data)
+    workbook = openpyxl.load_workbook(BytesIO(response.content))
+    expected_data = [
+        ('Регион', 'Всего городов', 'Посещено городов, шт', 'Посещено городов, %', 'Осталось посетить, шт'),
+        ('Регион 1 область', '2', '2', '100%', '0')
+     ]
+
+    assert list(workbook['Sheet'].values) == expected_data
 
 
 @pytest.mark.django_db
@@ -123,3 +198,40 @@ def test__content_of_area_report_in_csv_file(setup_db, client):
 
     for index, row in enumerate(reader):
         assert row == expected_results[index]
+
+
+@pytest.mark.django_db
+def test__content_of_area_report_in_json_file(setup_db, client):
+    client.login(username='username1', password='password')
+    data = {
+        'reporttype': 'area',
+        'filetype': 'json'
+    }
+    response = client.post(reverse('download'), data=data)
+    report = response.content.decode()
+    recieved_data = json.loads(report)
+    expected_data = [
+        ['Федеральный округ', 'Всего регионов, шт', 'Посещено регионов, шт',
+         'Посещено регионов, %', 'Осталось посетить, шт'],
+        ['Округ 1', '1', '1', '100%', '0']
+    ]
+
+    assert recieved_data == expected_data
+
+
+@pytest.mark.django_db
+def test__content_of_area_report_in_xls_file(setup_db, client):
+    client.login(username='username1', password='password')
+    data = {
+        'reporttype': 'area',
+        'filetype': 'xls'
+    }
+    response = client.post(reverse('download'), data=data)
+    workbook = openpyxl.load_workbook(BytesIO(response.content))
+    expected_data = [
+        ('Федеральный округ', 'Всего регионов, шт', 'Посещено регионов, шт',
+         'Посещено регионов, %', 'Осталось посетить, шт'),
+        ('Округ 1', '1', '1', '100%', '0')
+     ]
+
+    assert list(workbook['Sheet'].values) == expected_data

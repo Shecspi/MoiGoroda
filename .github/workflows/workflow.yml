@@ -12,6 +12,9 @@ jobs:
         run: |
           : # Переходим в папку с проектом
           cd ${{ secrets.DEV__LOCAL_PATH }}
+
+          git pull origin workflow
+          git checkout workflow
           
           : # Устанавливаем необходимую версию Python, если она ещё не установлена
           if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
@@ -20,6 +23,7 @@ jobs:
           : # которая указана в .python-version
           if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
           poetry env use $(cat .python-version)
+          poetry lock
           poetry install --only main
 
           : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
@@ -27,9 +31,6 @@ jobs:
           : # Имя папки может меняться, поэтому нужен такой ход.
           rm -f ~/gunicorn
           ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
-
-          git pull origin workflow
-          git checkout workflow
           
           poetry run python3 manage.py makemigrations
           poetry run python3 manage.py migrate

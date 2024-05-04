@@ -40,6 +40,9 @@ jobs:
           : # Переходим в папку с проектом
           cd ${{ secrets.DEV__PROJECT_PATH }}
 
+          git pull origin dev
+          git checkout dev
+
           : # Устанавливаем необходимую версию Python, если она ещё не установлена
           if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
 
@@ -54,9 +57,6 @@ jobs:
           : # Имя папки может меняться, поэтому нужен такой ход.
           rm -f ~/gunicorn
           ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
-
-          git pull origin dev
-          git checkout dev
 
           poetry run python3 manage.py makemigrations
           poetry run python3 manage.py migrate

@@ -101,7 +101,7 @@ def test__xls_serializer__output_data(setup_db):
     report = CityReport(1).get_report()
     buffer = XlsSerializer().convert(report)
     workbook = openpyxl.load_workbook(buffer)
-    sheet = workbook.get_sheet_by_name('Sheet')
+    sheet = workbook['Sheet']
     correct_results = (
         ['Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'],
         ['Город 1', 'Регион 1 область', '2024-01-01', '-', '***'],

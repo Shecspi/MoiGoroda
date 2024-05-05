@@ -46,10 +46,10 @@ class SignUp(CreateView):
             email=self.request.POST['email'],
         )
         user.save()
-        # logger_email.info(
-        #     f"Registration of a new user: {self.request.POST['username']} ({self.request.POST['email']}). "
-        #     f"Total numbers of users: {User.objects.count()}"
-        # )
+        logger_email.info(
+            f"Registration of a new user: {self.request.POST['username']} ({self.request.POST['email']}). "
+            f"Total numbers of users: {User.objects.count()}"
+        )
         login(self.request, user)
 
         return redirect('city-all-list')

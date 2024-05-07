@@ -36,6 +36,12 @@
                                 {% endif %}
                             </div>
 
+                            {% if user.is_superuser %}
+                            	<div class="fw-lighter text-muted">
+                                    Количество прочитываний: {{ item.number_of_users_who_read_news }}
+                                </div>
+                            {% endif %}
+
                             <div class="fw-lighter text-muted">
                                 <span class="fw-medium">Создано:</span> {{ item.created }}
                             </div>

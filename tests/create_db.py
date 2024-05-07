@@ -12,7 +12,7 @@ def create_user(django_user_model, user_id: int):
 
 
 def create_superuser(django_user_model, user_id: int):
-    return django_user_model.objects.create_superuser(id=user_id, username=f'username{user_id}', password=f'password')
+    return django_user_model.objects.create_superuser(id=user_id, username=f'superuser{user_id}', password=f'password')
 
 
 def create_area(num: int) -> list[Area]:

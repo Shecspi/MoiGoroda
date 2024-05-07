@@ -1,15 +1,9 @@
 """
-Тестирует содержимое страницы.
-Страница тестирования '/news'.
 
-----------------------------------------------
-
-Copyright 2023 Egor Vavilov (Shecspi)
+Copyright 2024 Egor Vavilov (Shecspi)
 Licensed under the Apache License, Version 2.0
 
-----------------------------------------------
 """
-
 
 import re
 import pytest
@@ -17,42 +11,8 @@ from bs4 import BeautifulSoup
 
 from django.urls import reverse
 
-from tests.create_db import create_user, create_superuser, create_news
-
 url = reverse('news-list')
 login_url = reverse('signin')
-
-
-@pytest.fixture
-def setup(django_user_model):
-    create_user(django_user_model, 1)
-    create_superuser(django_user_model, 2)
-    create_news(id=1, title='Заголовок новости 1', content='Content 1')
-    create_news(id=2, title='Заголовок новости 2', content='Content 2')
-    create_news(id=3, title='Заголовок новости 1', content='* list1\r\r1. list2')
-    create_news(id=4,
-                title='Заголовок новости 2',
-                content='#H1\r##H2\r###H3\r####H4\r#####H5\r######H6\r'
-                        '**bold1**\r__bold2__\r*italic1*\r_italic2_\r'
-                        '[Link](https://link)\r![Изображение](https://link)\r'
-                        '```somecode1```\r`somecode2`\r> Quoting')
-
-
-@pytest.mark.django_db
-def test__access__guest(setup, client):
-    response = client.get(url)
-
-    assert response.status_code == 200
-    assert 'news/news__list.html' in (t.name for t in response.templates)
-
-
-@pytest.mark.django_db
-def test__access__auth_user(setup, client):
-    client.login(username='username1', password='password')
-    response = client.get(url)
-
-    assert response.status_code == 200
-    assert 'news/news__list.html' in (t.name for t in response.templates)
 
 
 @pytest.mark.django_db
@@ -76,12 +36,27 @@ def test__regular_user_has_no_info_about_number_of_users_who_read_news(setup, cl
 
 @pytest.mark.django_db
 def test__superuser_has_info_about_number_of_users_who_read_news(setup, client):
-    client.login(username='superuser1', password='password')
+    """
+    Что происходит в этом тесте:
+    1. Заходим на страницу с аккаунта суперпользователя. Он должен увидеть надпись "Количество прочитываний: 0".
+       Текущий заход не засчитывается в этот показатель.
+    2. Далее заходим на страницу под аккаунтом обычного пользователя. Счётчик прочитываний становится равным 2.
+    3. Чтобы увидеть эту цифру, заходим ещё раз под аккаунтом суперпользователя.
+    """
+    client.login(username='superuser2', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
+    assert 'Количество прочитываний: 0' in footer.get_text()
 
-    assert 'Количество прочитываний: 1' in footer.get_text()
+    client.login(username='username1', password='password')
+    client.get(url)
+
+    client.login(username='superuser2', password='password')
+    response = client.get(url)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
+    assert 'Количество прочитываний: 2' in footer.get_text()
 
 
 @pytest.mark.django_db
@@ -155,7 +130,9 @@ def test__news__unread_messages__sidebar__auth_user(setup, client):
     # так как непрочитанная новость сразу же помечается прочитанной и бейджик не отображается в сайдбаре
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    sidebar_news = source.find('div', {'class': 'sidebar'}).find('ul').find('li', {'id': 'sidebar_news'})
+    sidebar_news = (
+        source.find('div', {'class': 'sidebar'}).find('ul').find('li', {'id': 'sidebar_news'})
+    )
     link_news = sidebar_news.find('a', {'id': 'sidebar_news_link'})
     span = link_news.find('span', {'class': 'badge bg-danger'})
 
@@ -172,7 +149,9 @@ def test__news__read_messages__sidebar__auth_user(setup, client):
     client.login(username='username1', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    sidebar_news = source.find('div', {'class': 'sidebar'}).find('ul').find('li', {'id': 'sidebar_news'})
+    sidebar_news = (
+        source.find('div', {'class': 'sidebar'}).find('ul').find('li', {'id': 'sidebar_news'})
+    )
     link_news = sidebar_news.find('a', {'id': 'sidebar_news_link'})
     span = link_news.find('span', {'class': 'badge bg-danger'})
 
@@ -187,7 +166,9 @@ def test__news__read_messages__sidebar__guest(setup, client):
     """
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
-    sidebar_news = source.find('div', {'class': 'sidebar'}).find('ul').find('li', {'id': 'sidebar_news'})
+    sidebar_news = (
+        source.find('div', {'class': 'sidebar'}).find('ul').find('li', {'id': 'sidebar_news'})
+    )
     link_news = sidebar_news.find('a', {'id': 'sidebar_news_link'})
     span = link_news.find('span', {'class': 'badge bg-danger'})
 

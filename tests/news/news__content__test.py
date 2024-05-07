@@ -56,7 +56,7 @@ def test__access__auth_user(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__guest_has_no_info_about_user_who_read_news(setup_db__news, client):
+def test__guest_has_no_info_about_number_of_users_who_read_news(setup_db__news, client):
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
@@ -65,7 +65,7 @@ def test__guest_has_no_info_about_user_who_read_news(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__regular_user_has_no_info_about_user_who_read_news(setup_db__news, client):
+def test__regular_user_has_no_info_about_number_of_users_who_read_news(setup_db__news, client):
     client.login(username='username', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -75,7 +75,7 @@ def test__regular_user_has_no_info_about_user_who_read_news(setup_db__news, clie
 
 
 @pytest.mark.django_db
-def test__superuser_has_info_about_user_who_read_news(setup_db__news, client):
+def test__superuser_has_info_about_number_of_users_who_read_news(setup_db__news, client):
     client.login(username='superuser', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')

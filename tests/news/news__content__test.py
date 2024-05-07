@@ -56,6 +56,35 @@ def test__access__auth_user(setup_db__news, client):
 
 
 @pytest.mark.django_db
+def test__guest_has_no_info_about_user_who_read_news(setup_db__news, client):
+    response = client.get(url)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
+
+    assert 'Количество прочитываний' not in footer.get_text()
+
+
+@pytest.mark.django_db
+def test__regular_user_has_no_info_about_user_who_read_news(setup_db__news, client):
+    client.login(username='username', password='password')
+    response = client.get(url)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
+
+    assert 'Количество прочитываний' not in footer.get_text()
+
+
+@pytest.mark.django_db
+def test__superuser_has_info_about_user_who_read_news(setup_db__news, client):
+    client.login(username='superuser', password='password')
+    response = client.get(url)
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
+
+    assert 'Количество прочитываний: 2' in footer.get_text()
+
+
+@pytest.mark.django_db
 def test__news__unreaded_message__guest(setup_db__news, client):
     """
     У неавторизованного пользовавтеля в карточке новости не должно быть

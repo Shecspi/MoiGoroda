@@ -51,3 +51,10 @@ line-length = 100
 
 [tool.ruff.format]
 quote-style = "single"
+
+# PyTest
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+DJANGO_SETTINGS_MODULE = "MoiGoroda.settings"
+python_files = "*_test.py"
+python_functions = "*__test test__*"

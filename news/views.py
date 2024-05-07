@@ -17,6 +17,7 @@ from django.http import HttpResponse
 from django.views.generic import ListView
 
 from news.models import News
+from news.repository import annotate_news_with_number_of_users_who_read_news
 from services import logger
 from services.db.news_repo import annotate_news_as_read
 
@@ -40,6 +41,9 @@ class NewsList(ListView):
 
         if self.request.user.is_authenticated:
             queryset = annotate_news_as_read(queryset, self.request.user.pk)
+
+        if self.request.user.is_superuser:
+            queryset = annotate_news_with_number_of_users_who_read_news(queryset)
 
         return queryset
 

@@ -5,18 +5,28 @@ import mdeditor.fields
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
             name='News',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(help_text='Указанный заголовок новости будет отображатьсят только в админ-панели.<br>Пользователи его не увидят. Для них необходимо указывать заголовок новости в поле ниже.', max_length=256, verbose_name='Заголовок')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+                    ),
+                ),
+                (
+                    'title',
+                    models.CharField(
+                        help_text='Указанный заголовок новости будет отображатьсят только в админ-панели.<br>Пользователи его не увидят. Для них необходимо указывать заголовок новости в поле ниже.',
+                        max_length=256,
+                        verbose_name='Заголовок',
+                    ),
+                ),
                 ('content', mdeditor.fields.MDTextField(verbose_name='Новость')),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='Создано')),
                 ('last_modified', models.DateTimeField(auto_now=True, verbose_name='Изменено')),

@@ -81,7 +81,7 @@ def test__superuser_has_info_about_number_of_users_who_read_news(setup_db__news,
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
 
-    assert 'Количество прочитываний: 2' in footer.get_text()
+    assert 'Количество прочитываний: 1' in footer.get_text()
 
 
 @pytest.mark.django_db

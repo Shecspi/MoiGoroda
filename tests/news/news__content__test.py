@@ -17,29 +17,29 @@ from bs4 import BeautifulSoup
 
 from django.urls import reverse
 
-from news.models import News
+from tests.create_db import create_user, create_superuser, create_news
 
 url = reverse('news-list')
 login_url = reverse('signin')
 
 
 @pytest.fixture
-def setup_db__news(django_user_model):
-    django_user_model.objects.create_user(username='username', password='password')
-    News.objects.create(id=1, title='Заголовок новости 1', content='Content 1')
-    News.objects.create(id=2, title='Заголовок новости 2', content='Content 2')
-    News.objects.create(id=3, title='Заголовок новости 1', content='* list1\r\r1. list2')
-    News.objects.create(id=4,
-                        title='Заголовок новости 2',
-                        content='#H1\r##H2\r###H3\r####H4\r#####H5\r######H6\r'
-                                '**bold1**\r__bold2__\r*italic1*\r_italic2_\r'
-                                '[Link](https://link)\r![Изображение](https://link)\r'
-                                '```somecode1```\r`somecode2`\r> Quoting'
-                        )
+def setup(django_user_model):
+    create_user(django_user_model, 1)
+    create_superuser(django_user_model, 2)
+    create_news(id=1, title='Заголовок новости 1', content='Content 1')
+    create_news(id=2, title='Заголовок новости 2', content='Content 2')
+    create_news(id=3, title='Заголовок новости 1', content='* list1\r\r1. list2')
+    create_news(id=4,
+                title='Заголовок новости 2',
+                content='#H1\r##H2\r###H3\r####H4\r#####H5\r######H6\r'
+                        '**bold1**\r__bold2__\r*italic1*\r_italic2_\r'
+                        '[Link](https://link)\r![Изображение](https://link)\r'
+                        '```somecode1```\r`somecode2`\r> Quoting')
 
 
 @pytest.mark.django_db
-def test__access__guest(setup_db__news, client):
+def test__access__guest(setup, client):
     response = client.get(url)
 
     assert response.status_code == 200
@@ -47,8 +47,8 @@ def test__access__guest(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__access__auth_user(setup_db__news, client):
-    client.login(username='username', password='password')
+def test__access__auth_user(setup, client):
+    client.login(username='username1', password='password')
     response = client.get(url)
 
     assert response.status_code == 200
@@ -56,7 +56,7 @@ def test__access__auth_user(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__guest_has_no_info_about_number_of_users_who_read_news(setup_db__news, client):
+def test__guest_has_no_info_about_number_of_users_who_read_news(setup, client):
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
@@ -65,8 +65,8 @@ def test__guest_has_no_info_about_number_of_users_who_read_news(setup_db__news, 
 
 
 @pytest.mark.django_db
-def test__regular_user_has_no_info_about_number_of_users_who_read_news(setup_db__news, client):
-    client.login(username='username', password='password')
+def test__regular_user_has_no_info_about_number_of_users_who_read_news(setup, client):
+    client.login(username='username1', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
@@ -75,8 +75,8 @@ def test__regular_user_has_no_info_about_number_of_users_who_read_news(setup_db_
 
 
 @pytest.mark.django_db
-def test__superuser_has_info_about_number_of_users_who_read_news(setup_db__news, client):
-    client.login(username='superuser', password='password')
+def test__superuser_has_info_about_number_of_users_who_read_news(setup, client):
+    client.login(username='superuser1', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
@@ -85,7 +85,7 @@ def test__superuser_has_info_about_number_of_users_who_read_news(setup_db__news,
 
 
 @pytest.mark.django_db
-def test__news__unreaded_message__guest(setup_db__news, client):
+def test__news__unreaded_message__guest(setup, client):
     """
     У неавторизованного пользовавтеля в карточке новости не должно быть
     никакой информации о том, прочитана эта новость или нет.
@@ -101,12 +101,12 @@ def test__news__unreaded_message__guest(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__news__unreaded_message__auth_user(setup_db__news, client):
+def test__news__unreaded_message__auth_user(setup, client):
     """
     При первом заходе на страницу новостей авторизованным пользователем
     непрочитанная новость должна иметь соответствующую пометку.
     """
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     footer = source.find('div', {'id': 'news_1'}).find('div', {'class': 'card-footer'})
@@ -118,12 +118,12 @@ def test__news__unreaded_message__auth_user(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__news__read_messages__auth_user(setup_db__news, client):
+def test__news__read_messages__auth_user(setup, client):
     """
     При первом прочтении новости авторизованным пользователем она помечается как прочитанная
     и при повторном заходе на страницу новость должна быть отмечена как прочитанная.
     """
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
 
     # После первого открытия страницы новость должна отображаться как непрочитанная
     response = client.get(url)
@@ -145,12 +145,12 @@ def test__news__read_messages__auth_user(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__news__unread_messages__sidebar__auth_user(setup_db__news, client):
+def test__news__unread_messages__sidebar__auth_user(setup, client):
     """
     При заходе на любую страницу сайта авторизованный пользователь должен видеть уведомление
     о наличии непрочитанных новостей (в случае, если они имеются)
     """
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     # Проверять нужно на другой странице (не на новостях),
     # так как непрочитанная новость сразу же помечается прочитанной и бейджик не отображается в сайдбаре
     response = client.get(reverse('city-all-list'))
@@ -165,11 +165,11 @@ def test__news__unread_messages__sidebar__auth_user(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__news__read_messages__sidebar__auth_user(setup_db__news, client):
+def test__news__read_messages__sidebar__auth_user(setup, client):
     """
     Если непрочитанных новостей нет, то и уведомления на сайдбаре не должно быть.
     """
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(url)
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     sidebar_news = source.find('div', {'class': 'sidebar'}).find('ul').find('li', {'id': 'sidebar_news'})
@@ -181,7 +181,7 @@ def test__news__read_messages__sidebar__auth_user(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__news__read_messages__sidebar__guest(setup_db__news, client):
+def test__news__read_messages__sidebar__guest(setup, client):
     """
     Для неавторизованных пользователей на сайдбаре никаких уведомлений быть не должно.
     """
@@ -196,7 +196,7 @@ def test__news__read_messages__sidebar__guest(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__news__html_tags_headers(setup_db__news, client):
+def test__news__html_tags_headers(setup, client):
     response = client.get(url)
     assert '<h1>H1</h1>' in response.content.decode()
     assert '<h2>H2</h2>' in response.content.decode()
@@ -207,7 +207,7 @@ def test__news__html_tags_headers(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__news__html_tags_text_style(setup_db__news, client):
+def test__news__html_tags_text_style(setup, client):
     response = client.get(url)
     assert '<strong>bold1</strong>' in response.content.decode()
     assert '<strong>bold2</strong>' in response.content.decode()
@@ -216,33 +216,33 @@ def test__news__html_tags_text_style(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__news__html_tags_link(setup_db__news, client):
+def test__news__html_tags_link(setup, client):
     response = client.get(url)
     assert '<a href="https://link">Link</a>' in response.content.decode()
 
 
 @pytest.mark.django_db
-def test__news__html_tags_image(setup_db__news, client):
+def test__news__html_tags_image(setup, client):
     response = client.get(url)
     assert '<img alt="Изображение" src="https://link">' in response.content.decode()
 
 
 @pytest.mark.django_db
-def test__news__html_tags_code(setup_db__news, client):
+def test__news__html_tags_code(setup, client):
     response = client.get(url)
     assert '<code>somecode1</code>' in response.content.decode()
     assert '<code>somecode2</code>' in response.content.decode()
 
 
 @pytest.mark.django_db
-def test__news__html_tags_blockquote(setup_db__news, client):
+def test__news__html_tags_blockquote(setup, client):
     response = client.get(url)
     parse = re.compile(r'(?s)<blockquote>(.*?)</blockquote>')
     assert re.search(parse, response.content.decode())
 
 
 @pytest.mark.django_db
-def test__news__html_tags_list(setup_db__news, client):
+def test__news__html_tags_list(setup, client):
     response = client.get(url)
     parse1 = re.compile(r'(?s)<ul>(.*?)</ul>')
     parse2 = re.compile(r'(?s)<li>(.*?)</li>')
@@ -251,7 +251,7 @@ def test__news__html_tags_list(setup_db__news, client):
 
 
 @pytest.mark.django_db
-def test__news__without_title(setup_db__news, client):
+def test__news__without_title(setup, client):
     response = client.get(url)
     assert 'Заголовок новости 1' not in response.content.decode()
     assert 'Заголовок новости 2' not in response.content.decode()

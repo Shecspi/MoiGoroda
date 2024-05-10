@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,12 +16,44 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ShareSettings',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('switch_share_general', models.BooleanField(blank=True, default=False, verbose_name='Разрешить доступ к статистике')),
-                ('switch_share_basic_info', models.BooleanField(blank=True, default=False, verbose_name='Отображать общую информацию')),
-                ('switch_share_city_map', models.BooleanField(blank=True, default=False, verbose_name='Отображать карту городов')),
-                ('switch_share_region_map', models.BooleanField(blank=True, default=False, verbose_name='Отображать карту регионов')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+                    ),
+                ),
+                (
+                    'switch_share_general',
+                    models.BooleanField(
+                        blank=True, default=False, verbose_name='Разрешить доступ к статистике'
+                    ),
+                ),
+                (
+                    'switch_share_basic_info',
+                    models.BooleanField(
+                        blank=True, default=False, verbose_name='Отображать общую информацию'
+                    ),
+                ),
+                (
+                    'switch_share_city_map',
+                    models.BooleanField(
+                        blank=True, default=False, verbose_name='Отображать карту городов'
+                    ),
+                ),
+                (
+                    'switch_share_region_map',
+                    models.BooleanField(
+                        blank=True, default=False, verbose_name='Отображать карту регионов'
+                    ),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name='Пользователь',
+                    ),
+                ),
             ],
         ),
     ]

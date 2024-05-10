@@ -32,8 +32,11 @@ class RegionListMixin:
             return 'регион'
         elif 5 <= quantity <= 20:
             return 'регионов'
-        elif len(str(quantity)) >= 2 and 10 <= int(str(quantity)[-2:]) <= 20 \
-                or str(quantity)[-1] in ['5', '6', '7', '8', '9', '0']:
+        elif (
+            len(str(quantity)) >= 2
+            and 10 <= int(str(quantity)[-2:]) <= 20
+            or str(quantity)[-1] in ['5', '6', '7', '8', '9', '0']
+        ):
             return 'регионов'
         elif str(quantity)[-1] in ['2', '3', '4']:
             return 'региона'

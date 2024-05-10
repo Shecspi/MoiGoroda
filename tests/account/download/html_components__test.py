@@ -5,7 +5,13 @@ from bs4 import BeautifulSoup
 
 from django.urls import reverse
 
-from tests.account.download.create_db import create_user, create_area, create_region, create_city, create_visited_city
+from tests.account.download.create_db import (
+    create_user,
+    create_area,
+    create_region,
+    create_city,
+    create_visited_city,
+)
 
 
 @pytest.fixture

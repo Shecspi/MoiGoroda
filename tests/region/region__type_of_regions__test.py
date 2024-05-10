@@ -9,21 +9,21 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-
 import pytest
 
 from region.models import TYPES_OF_REGIONS
 
 
 @pytest.mark.parametrize(
-    'code, title', (
+    'code, title',
+    (
         ('R', 'республика'),
         ('K', 'край'),
         ('O', 'область'),
         ('G', 'город федерального значения'),
         ('AOb', 'автономная область'),
-        ('AOk', 'автономный округ')
-    )
+        ('AOk', 'автономный округ'),
+    ),
 )
 def test__type_of_regions(code, title):
     for i in TYPES_OF_REGIONS:

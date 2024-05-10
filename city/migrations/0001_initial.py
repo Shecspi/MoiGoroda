@@ -17,23 +17,39 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='City',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+                    ),
+                ),
                 ('title', models.CharField(max_length=100, verbose_name='Название')),
                 (
                     'population',
-                    models.PositiveIntegerField(blank=True, default=0, verbose_name='Численность населения'),
+                    models.PositiveIntegerField(
+                        blank=True, default=0, verbose_name='Численность населения'
+                    ),
                 ),
                 (
                     'date_of_foundation',
-                    models.PositiveSmallIntegerField(blank=True, default=0, verbose_name='Год основания'),
+                    models.PositiveSmallIntegerField(
+                        blank=True, default=0, verbose_name='Год основания'
+                    ),
                 ),
                 ('coordinate_width', models.FloatField(verbose_name='Широта')),
                 ('coordinate_longitude', models.FloatField(verbose_name='Долгота')),
-                ('wiki', models.URLField(blank=True, default='', max_length=256, verbose_name='Ссылка на Wikipedia')),
+                (
+                    'wiki',
+                    models.URLField(
+                        blank=True, default='', max_length=256, verbose_name='Ссылка на Wikipedia'
+                    ),
+                ),
                 (
                     'region',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to='region.region', verbose_name='Регион'
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='region.region',
+                        verbose_name='Регион',
                     ),
                 ),
             ],
@@ -46,7 +62,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='VisitedCity',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+                    ),
+                ),
                 (
                     'date_of_visit',
                     models.DateField(
@@ -63,8 +84,14 @@ class Migration(migrations.Migration):
                         verbose_name='Наличие магнита',
                     ),
                 ),
-                ('impression', models.TextField(blank=True, default='', verbose_name='Впечатления о городе')),
-                ('rating', models.SmallIntegerField(default=0, help_text='fdsf', verbose_name='Рейтинг')),
+                (
+                    'impression',
+                    models.TextField(blank=True, default='', verbose_name='Впечатления о городе'),
+                ),
+                (
+                    'rating',
+                    models.SmallIntegerField(default=0, help_text='fdsf', verbose_name='Рейтинг'),
+                ),
                 (
                     'city',
                     models.ForeignKey(

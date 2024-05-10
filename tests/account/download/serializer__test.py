@@ -7,7 +7,13 @@ import pytest
 
 from account.report import CityReport
 from account.serializer import TxtSerializer, CsvSerializer, XlsSerializer, JsonSerializer
-from tests.account.download.create_db import create_user, create_area, create_region, create_city, create_visited_city
+from tests.account.download.create_db import (
+    create_user,
+    create_area,
+    create_region,
+    create_city,
+    create_visited_city,
+)
 
 
 @pytest.fixture
@@ -27,9 +33,18 @@ def test__txt_serializer__output_data(setup_db):
     report = CityReport(1).get_report()
     output = TxtSerializer().convert(report).getvalue().split('\n')
 
-    assert output[0] == 'Город       Регион               Дата посещения     Наличие магнита     Оценка     '
-    assert output[1] == 'Город 1     Регион 1 область     2024-01-01         -                   ***        '
-    assert output[2] == 'Город 2     Регион 1 область     2023-01-01         +                   *****      '
+    assert (
+        output[0]
+        == 'Город       Регион               Дата посещения     Наличие магнита     Оценка     '
+    )
+    assert (
+        output[1]
+        == 'Город 1     Регион 1 область     2024-01-01         -                   ***        '
+    )
+    assert (
+        output[2]
+        == 'Город 2     Регион 1 область     2023-01-01         +                   *****      '
+    )
 
 
 @pytest.mark.django_db
@@ -52,7 +67,7 @@ def test__csv_serializer__output_data(setup_db):
     correct_results = (
         ['Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'],
         ['Город 1', 'Регион 1 область', '2024-01-01', '-', '***'],
-        ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****']
+        ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****'],
     )
     for index, row in enumerate(reader):
         assert row == correct_results[index]
@@ -78,7 +93,7 @@ def test__json_serializer__output_data(setup_db):
     correct_results = (
         ['Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'],
         ['Город 1', 'Регион 1 область', '2024-01-01', '-', '***'],
-        ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****']
+        ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****'],
     )
     for index, row in enumerate(reader):
         assert row == correct_results[index]
@@ -105,7 +120,7 @@ def test__xls_serializer__output_data(setup_db):
     correct_results = (
         ['Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'],
         ['Город 1', 'Регион 1 область', '2024-01-01', '-', '***'],
-        ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****']
+        ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****'],
     )
     for index_row, value_row in enumerate(correct_results):
         for index_column, value_column in enumerate(value_row):

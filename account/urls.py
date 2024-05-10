@@ -68,11 +68,9 @@ urlpatterns = [
     # -----  Изменение пароля  ----- #
     path('password/change/', MyPasswordChangeView.as_view(), name='password_change_form'),
     path('password/change/done/', MyPasswordResetDoneView.as_view(), name='password_change_done'),
-
     # -----  Статистика  ----- #
     path('stats/', statistics.Statistics.as_view(), name='stats'),
     # ----- Сохранение настроек "Поделиться статистикой"  ----- #
     path('stats/save_share_settings', statistics.save_share_settings, name='save_share_settings'),
-
     path('download', download.download, name='download'),
 ]

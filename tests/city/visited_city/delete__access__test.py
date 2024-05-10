@@ -63,5 +63,8 @@ def test__auth_user_not_owner_by_post(setup, caplog, client):
     response = client.post(reverse('city-delete', kwargs={'pk': 1}))
 
     assert caplog.records[0].levelname == 'WARNING'
-    assert '(Visited city) Attempt to delete a non-existent visited city #1' in caplog.records[0].getMessage()
+    assert (
+        '(Visited city) Attempt to delete a non-existent visited city #1'
+        in caplog.records[0].getMessage()
+    )
     assert response.status_code == 404

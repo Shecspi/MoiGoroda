@@ -1,3 +1,4 @@
+fail_fast: true
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.3.0
@@ -6,6 +7,7 @@ repos:
     - id: end-of-file-fixer
     - id: detect-private-key
     - id: name-tests-test
+      exclude: create_db.py
     - id: no-commit-to-branch
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -16,10 +18,10 @@ repos:
 - repo: local
   hooks:
     - id: pytest
-      name: PyTest
-      entry: pytest
-      language: python
-      types: [python]
-      require_serial: true
+      name: Run tests
+      stages: [push]
+      entry: poetry run pytest tests/
+      language: system
+      types: [file, python]
       pass_filenames: false
       always_run: true

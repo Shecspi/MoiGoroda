@@ -13,21 +13,21 @@ def test__username_exists(setup_db, client):
         'username': 'username',
         'email': 'username@yaa.ru',
         'password1': 'password',
-        'password2': 'password'
+        'password2': 'password',
     }
     form1 = SignUpForm(data=data1)
     data2 = {
         'username': 'username ',
         'email': 'username@yaa.ru',
         'password1': 'password',
-        'password2': 'password'
+        'password2': 'password',
     }
     form2 = SignUpForm(data=data2)
     data2 = {
         'username': ' username',
         'email': 'username@yaa.ru',
         'password1': 'password',
-        'password2': 'password'
+        'password2': 'password',
     }
     form3 = SignUpForm(data=data2)
 

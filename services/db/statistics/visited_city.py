@@ -8,7 +8,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-
 import datetime
 import calendar
 
@@ -50,12 +49,14 @@ def get_number_of_visited_cities_in_several_years(user_id: int):
     """
     Возвращает статистику по количеству посещённых городов за каждый год.
     """
-    return (VisitedCity.objects.filter(user=user_id)
-            .annotate(year=TruncYear('date_of_visit'))
-            .values('year')
-            .exclude(year=None)
-            .annotate(qty=Count('id', distinct=True))
-            .values('year', 'qty'))
+    return (
+        VisitedCity.objects.filter(user=user_id)
+        .annotate(year=TruncYear('date_of_visit'))
+        .values('year')
+        .exclude(year=None)
+        .annotate(qty=Count('id', distinct=True))
+        .values('year', 'qty')
+    )
 
 
 def get_number_of_visited_cities_in_several_month(user_id: int):
@@ -89,10 +90,6 @@ def get_last_10_visited_cities(user_id: int) -> QuerySet:
     """
     Возвращает последние 10 посещённых городов пользователя с ID, указанным в user_id.
     """
-    return (
-        VisitedCity.objects
-        .filter(user_id=user_id)
-        .order_by(
-            F('date_of_visit')
-            .desc(nulls_last=True), 'city__title'
-        )[:10])
+    return VisitedCity.objects.filter(user_id=user_id).order_by(
+        F('date_of_visit').desc(nulls_last=True), 'city__title'
+    )[:10]

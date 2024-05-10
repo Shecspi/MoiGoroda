@@ -10,7 +10,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-
 import pytest
 from django.urls import reverse
 

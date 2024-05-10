@@ -5,17 +5,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
             name='Area',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+                    ),
+                ),
                 ('title', models.CharField(max_length=100, unique=True, verbose_name='Название')),
             ],
             options={
@@ -26,11 +29,46 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Region',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+                    ),
+                ),
                 ('title', models.CharField(max_length=100, verbose_name='Название')),
-                ('type', models.CharField(choices=[('R', 'республика'), ('K', 'край'), ('O', 'область'), ('G', 'город федерального значения'), ('AOb', 'автономная область'), ('AOk', 'автономный округ')], max_length=100, verbose_name='Тип субъекта')),
-                ('iso3166', models.CharField(blank=True, default='', max_length=10, unique=True, verbose_name='Код ISO3166')),
-                ('area', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='region.area', verbose_name='Федеральный округ')),
+                (
+                    'type',
+                    models.CharField(
+                        choices=[
+                            ('R', 'республика'),
+                            ('K', 'край'),
+                            ('O', 'область'),
+                            ('G', 'город федерального значения'),
+                            ('AOb', 'автономная область'),
+                            ('AOk', 'автономный округ'),
+                        ],
+                        max_length=100,
+                        verbose_name='Тип субъекта',
+                    ),
+                ),
+                (
+                    'iso3166',
+                    models.CharField(
+                        blank=True,
+                        default='',
+                        max_length=10,
+                        unique=True,
+                        verbose_name='Код ISO3166',
+                    ),
+                ),
+                (
+                    'area',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='region.area',
+                        verbose_name='Федеральный округ',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Регион',

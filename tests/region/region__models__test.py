@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-
 import pytest
 
 from django.db import models, transaction
@@ -22,7 +21,7 @@ def setup_db__model_region():
     areas = [
         (1, 'Южный федеральный округ'),
         (2, 'Дальневосточный федеральный округ'),
-        (3, 'Северо-Кавказский федеральный округ')
+        (3, 'Северо-Кавказский федеральный округ'),
     ]
     regions = [
         [1, 1, 'Адыгея', 'R', 'RU-AD'],
@@ -31,14 +30,16 @@ def setup_db__model_region():
         [4, 1, 'Севастополь', 'G', 'RU-SEV'],
         [5, 2, 'Еврейская', 'AOb', 'RU-YEV'],
         [6, 2, 'Чукотский', 'AOk', 'RU-CHU'],
-        [7, 3, 'Чеченская', 'R', 'RU-CE']
+        [7, 3, 'Чеченская', 'R', 'RU-CE'],
     ]
     with transaction.atomic():
         for area in areas:
             area = Area.objects.create(id=area[0], title=area[1])
             for region in regions:
                 if region[1] == area.id:
-                    Region.objects.create(id=region[0], area=area, title=region[2], type=region[3], iso3166=region[4])
+                    Region.objects.create(
+                        id=region[0], area=area, title=region[2], type=region[3], iso3166=region[4]
+                    )
 
 
 @pytest.mark.django_db
@@ -53,7 +54,13 @@ def test__ordering(setup_db__model_region):
 
     assert Region._meta.ordering == ['title']
     assert list(queryset) == [
-        'Адыгея', 'Волгоградская', 'Еврейская', 'Краснодарский', 'Севастополь', 'Чеченская', 'Чукотский'
+        'Адыгея',
+        'Волгоградская',
+        'Еврейская',
+        'Краснодарский',
+        'Севастополь',
+        'Чеченская',
+        'Чукотский',
     ]
 
 
@@ -64,15 +71,16 @@ def test__unique_fields(setup_db__model_region):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'region', (
+    'region',
+    (
         (1, 'Адыгея', 'R', 'RU-AD'),
         (2, 'Краснодарский', 'K', 'RU-KDA'),
         (3, 'Волгоградская', 'O', 'RU-VGG'),
         (4, 'Севастополь', 'G', 'RU-SEV'),
         (5, 'Еврейская', 'AOb', 'RU-YEV'),
         (6, 'Чукотский', 'AOk', 'RU-CHU'),
-        (7, 'Чеченская', 'R', 'RU-CE')
-    )
+        (7, 'Чеченская', 'R', 'RU-CE'),
+    ),
 )
 def test__filling_of_table(setup_db__model_region, region: tuple):
     queryset = Region.objects.get(id=region[0])
@@ -83,15 +91,16 @@ def test__filling_of_table(setup_db__model_region, region: tuple):
 
 
 @pytest.mark.parametrize(
-    'region', (
+    'region',
+    (
         (1, 'Адыгея'),
         (2, 'Краснодарский край'),
         (3, 'Волгоградская область'),
         (4, 'Севастополь'),
         (5, 'Еврейская автономная область'),
         (6, 'Чукотский автономный округ'),
-        (7, 'Чеченская республика')
-    )
+        (7, 'Чеченская республика'),
+    ),
 )
 @pytest.mark.django_db
 def test__str(setup_db__model_region, region: tuple):

@@ -40,5 +40,8 @@ def test__auth_user_by_get_to_incorrect_city(setup, caplog, client):
     client.login(username='username1', password='password')
     response = client.get(reverse('city-update', kwargs={'pk': 2}))
     assert caplog.records[0].levelname == 'WARNING'
-    assert '(Visited city) Attempt to update a non-existent visited city #2' in caplog.records[0].getMessage()
+    assert (
+        '(Visited city) Attempt to update a non-existent visited city #2'
+        in caplog.records[0].getMessage()
+    )
     assert response.status_code == 404

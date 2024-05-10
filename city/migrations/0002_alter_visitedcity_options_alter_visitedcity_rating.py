@@ -21,7 +21,9 @@ class Migration(migrations.Migration):
             model_name='visitedcity',
             name='rating',
             field=models.SmallIntegerField(
-                default=0, help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.', verbose_name='Рейтинг'
+                default=0,
+                help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.',
+                verbose_name='Рейтинг',
             ),
         ),
     ]

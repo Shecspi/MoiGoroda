@@ -79,7 +79,9 @@ def test__dashboard_page_has_active_region_map_button(setup, client):
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     tab_panel = content.find('div', {'id': 'tab-panel'})
-    btn_dashboard = tab_panel.find('button', {'id': 'tab-button-region_map', 'class': 'btn-primary'})
+    btn_dashboard = tab_panel.find(
+        'button', {'id': 'tab-button-region_map', 'class': 'btn-primary'}
+    )
 
     assert btn_dashboard
     assert btn_dashboard.has_attr('disabled')
@@ -98,7 +100,9 @@ def test__dashboard_page_has_city_map_button(setup, client):
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     tab_panel = content.find('div', {'id': 'tab-panel'})
-    btn_city_map = tab_panel.find('button', {'id': 'tab-button-city_map', 'class': 'btn-outline-primary'})
+    btn_city_map = tab_panel.find(
+        'button', {'id': 'tab-button-city_map', 'class': 'btn-outline-primary'}
+    )
 
     assert btn_city_map
     assert btn_city_map.has_attr('disabled')
@@ -135,7 +139,9 @@ def test__dashboard_page_has_region_map_button(setup, client):
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     tab_panel = content.find('div', {'id': 'tab-panel'})
-    btn_region_map = tab_panel.find('button', {'id': 'tab-button-region_map', 'class': 'btn-outline-primary'})
+    btn_region_map = tab_panel.find(
+        'button', {'id': 'tab-button-region_map', 'class': 'btn-outline-primary'}
+    )
 
     assert btn_region_map
     assert btn_region_map.has_attr('disabled')
@@ -154,7 +160,9 @@ def test__dashboard_page_has_region_map_link(setup, client):
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     tab_panel = content.find('div', {'id': 'tab-panel'})
-    link_region_map = tab_panel.find('a', {'id': 'tab-link-region_map', 'class': 'btn-outline-primary'})
+    link_region_map = tab_panel.find(
+        'a', {'id': 'tab-link-region_map', 'class': 'btn-outline-primary'}
+    )
 
     assert link_region_map
     assert 'Карта посещённых регионов' in link_region_map.get_text()
@@ -192,10 +200,18 @@ def test__dashboard_has_cards__row_city_cards(setup, client):
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     row_city_stats = content.find('div', {'id': 'row-city-stats'})
-    card_number_of_visited_cities = row_city_stats.find('div', {'id': 'card_number_of_visited_cities'})
-    card_number_of_not_visited_cities = row_city_stats.find('div', {'id': 'card_number_of_not_visited_cities'})
-    card_number_of_visited_cities_current_year = row_city_stats.find('div', {'id': 'card_number_of_visited_cities_current_year'})
-    card_number_of_visited_cities_prev_year = row_city_stats.find('div', {'id': 'card_number_of_visited_cities_prev_year'})
+    card_number_of_visited_cities = row_city_stats.find(
+        'div', {'id': 'card_number_of_visited_cities'}
+    )
+    card_number_of_not_visited_cities = row_city_stats.find(
+        'div', {'id': 'card_number_of_not_visited_cities'}
+    )
+    card_number_of_visited_cities_current_year = row_city_stats.find(
+        'div', {'id': 'card_number_of_visited_cities_current_year'}
+    )
+    card_number_of_visited_cities_prev_year = row_city_stats.find(
+        'div', {'id': 'card_number_of_visited_cities_prev_year'}
+    )
 
     assert row_city_stats
     assert card_number_of_visited_cities
@@ -213,9 +229,13 @@ def test__dashboard_has_cards__row_pie_charts(setup, client):
     content = source.find('div', {'id': 'section-content'})
     row_pie_charts = content.find('div', {'id': 'row-pie-charts'})
     chart_number_of_cities = row_pie_charts.find('div', {'id': 'chart_number_of_cities'})
-    chart_number_of_cities_current_and_prev_years = row_pie_charts.find('div', {'id': 'chart_number_of_cities_current_and_prev_years'})
+    chart_number_of_cities_current_and_prev_years = row_pie_charts.find(
+        'div', {'id': 'chart_number_of_cities_current_and_prev_years'}
+    )
     chart_number_of_regions = row_pie_charts.find('div', {'id': 'chart_number_of_regions'})
-    chart__number_of_finished_regions = row_pie_charts.find('div', {'id': 'chart_number_of_finished_regions'})
+    chart__number_of_finished_regions = row_pie_charts.find(
+        'div', {'id': 'chart_number_of_finished_regions'}
+    )
 
     assert row_pie_charts
     assert chart_number_of_cities
@@ -233,9 +253,13 @@ def test__dashboard_has_cards__row_region_cards(setup, client):
     content = source.find('div', {'id': 'section-content'})
     row_region_stats = content.find('div', {'id': 'row-region-stats'})
     number_of_visited_regions = row_region_stats.find('div', {'id': 'number_of_visited_regions'})
-    number_of_not_visited_regions = row_region_stats.find('div', {'id': 'number_of_not_visited_regions'})
+    number_of_not_visited_regions = row_region_stats.find(
+        'div', {'id': 'number_of_not_visited_regions'}
+    )
     number_of_finished_regions = row_region_stats.find('div', {'id': 'number_of_finished_regions'})
-    number_of_half_finished_regions = row_region_stats.find('div', {'id': 'number_of_half_finished_regions'})
+    number_of_half_finished_regions = row_region_stats.find(
+        'div', {'id': 'number_of_half_finished_regions'}
+    )
 
     assert row_region_stats
     assert number_of_visited_regions
@@ -276,5 +300,3 @@ def test__dashboard_has_cards__row_list_cards(setup, client):
     assert list_last_visited_cities
     assert list_most_popular_regions
     assert list_areas
-
-

@@ -28,7 +28,9 @@ def create_region(area: Area) -> list[Region]:
     regions = []
     for i in range(1, 16):
         regions.append(
-            Region.objects.create(id=i, area=area, title=f'Регион {i}', type='область', iso3166=f'RU-RU{i}')
+            Region.objects.create(
+                id=i, area=area, title=f'Регион {i}', type='область', iso3166=f'RU-RU{i}'
+            )
         )
     return regions
 
@@ -50,7 +52,7 @@ def create_city(regions: Sequence[Region]) -> dict[int, list[City]]:
                     title=f'Город {city_id}',
                     region=region,
                     coordinate_width=1,
-                    coordinate_longitude=1
+                    coordinate_longitude=1,
                 )
             )
             city_id += 1
@@ -58,10 +60,7 @@ def create_city(regions: Sequence[Region]) -> dict[int, list[City]]:
     return cities
 
 
-def create_visited_city(
-        user: User,
-        cities: Mapping[int, list[City]]
-):
+def create_visited_city(user: User, cities: Mapping[int, list[City]]):
     """
     Добавляет в базу данных посещённые города.
     Для регионов с ID 1, 5, 9 и 13 добавляется 1 посещённый город. Таких 4 региона.
@@ -85,7 +84,7 @@ def create_visited_city(
                 city=city,
                 date_of_visit=f'{datetime.now().year}-01-01',
                 has_magnet=False,
-                rating=3
+                rating=3,
             )
         i += 1
 

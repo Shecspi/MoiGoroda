@@ -34,18 +34,21 @@ def create_city(number_of_cities, region):
                 title=f'Город {num + 1}',
                 region=region,
                 coordinate_width=1,
-                coordinate_longitude=1
-            ))
+                coordinate_longitude=1,
+            )
+        )
 
     return cities
 
 
 def create_visited_city(
-        number_of_cities: int,  # Количество создаваемых посещённых городов
-        region: int,  # Регион, в который будут добавляться посещаемые города
-        user: int,  # Пользователь, которому будут добавляться посещяемые города
-        cities: Sequence,  # Последовательность инстансов из таблицы City
-        date_of_visit: Sequence[str]  # Последовательность дат посещения города (её длина равна number_of_cities)
+    number_of_cities: int,  # Количество создаваемых посещённых городов
+    region: int,  # Регион, в который будут добавляться посещаемые города
+    user: int,  # Пользователь, которому будут добавляться посещяемые города
+    cities: Sequence,  # Последовательность инстансов из таблицы City
+    date_of_visit: Sequence[
+        str
+    ],  # Последовательность дат посещения города (её длина равна number_of_cities)
 ):
     """
     Добавляет в базу данных посещённые города.
@@ -57,7 +60,7 @@ def create_visited_city(
             city=cities[num],
             date_of_visit=date_of_visit[num],
             has_magnet=False,
-            rating=3
+            rating=3,
         )
 
 
@@ -68,9 +71,9 @@ def setup(client, django_user_model):
     region = create_region(area)
     cities = create_city(17, region)
 
-    date_of_visit = [f'{datetime.now().year}-01-01' for _ in range(3)]
-    date_of_visit += [f'{datetime.now().year - 1}-01-01' for _ in range(5)]
-    date_of_visit += [f'{datetime.now().year - 2}-01-01' for _ in range(4)]
+    date_of_visit = [f'{datetime.datetime.now().year}-01-01' for _ in range(3)]
+    date_of_visit += [f'{datetime.datetime.now().year - 1}-01-01' for _ in range(5)]
+    date_of_visit += [f'{datetime.datetime.now().year - 2}-01-01' for _ in range(4)]
     create_visited_city(12, region, user, cities, date_of_visit=date_of_visit)
 
 
@@ -91,12 +94,14 @@ def test__get_number_of_not_visited_cities(setup):
 
 @pytest.mark.django_db
 def test__get_number_of_visited_cities_by_year_current_year(setup):
-    assert get_number_of_visited_cities_by_year(user_id=1, year=datetime.now().year) == 3
+    assert get_number_of_visited_cities_by_year(user_id=1, year=datetime.datetime.now().year) == 3
 
 
 @pytest.mark.django_db
 def test__get_number_of_visited_cities_by_year_prev_year(setup):
-    assert get_number_of_visited_cities_by_year(user_id=1, year=datetime.now().year - 1) == 5
+    assert (
+        get_number_of_visited_cities_by_year(user_id=1, year=datetime.datetime.now().year - 1) == 5
+    )
 
 
 @pytest.mark.django_db
@@ -104,9 +109,15 @@ def test__get_last_10_visited_cities(setup):
     cities = get_last_10_visited_cities(1)
     assert len(cities) == 10
     assert cities[0].city.title == 'Город 1'
-    assert cities[0].date_of_visit == datetime.strptime(f'{datetime.now().year}-01-01', '%Y-%m-%d').date()
+    assert (
+        cities[0].date_of_visit
+        == datetime.datetime.strptime(f'{datetime.datetime.now().year}-01-01', '%Y-%m-%d').date()
+    )
     assert cities[3].city.title == 'Город 4'
-    assert cities[3].date_of_visit == datetime.strptime(f'{datetime.now().year -1}-01-01', '%Y-%m-%d').date()
+    assert (
+        cities[3].date_of_visit
+        == datetime.datetime.strptime(f'{datetime.datetime.now().year -1}-01-01', '%Y-%m-%d').date()
+    )
 
 
 def test__calculate_ratio():

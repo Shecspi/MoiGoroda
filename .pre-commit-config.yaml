@@ -3,6 +3,7 @@ repos:
   rev: v2.3.0
   hooks:
     - id: check-yaml
+    - id: end-of-file-fixer
     - id: detect-private-key
     - id: name-tests-test
     - id: no-commit-to-branch

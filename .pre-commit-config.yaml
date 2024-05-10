@@ -9,6 +9,7 @@ repos:
     - id: name-tests-test
       exclude: create_db.py
     - id: no-commit-to-branch
+    - id: detect-private-key
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.4.4

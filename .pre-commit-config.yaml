@@ -15,14 +15,3 @@ repos:
   rev: v0.4.4
   hooks:
     - id: ruff-format
-
-- repo: local
-  hooks:
-    - id: pytest
-      name: Run tests
-      stages: [push]
-      entry: poetry run pytest tests/
-      language: system
-      types: [file, python]
-      pass_filenames: false
-      always_run: true

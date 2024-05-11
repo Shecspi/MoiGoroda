@@ -21,8 +21,8 @@
                     <hr>
 
                     <div class="card-footer small" style="background: none; border-top: none;">
-                        <div class="d-flex justify-content-between">
-                            <div class="fw-lighter text-muted">
+                        <div class="row g-1">
+                            <div class="col-xxl-4 fw-lighter text-muted text-start">
                                 {% if user.is_authenticated %}
                                     {% if item.is_read %}
                                         <span>
@@ -36,13 +36,13 @@
                                 {% endif %}
                             </div>
 
-                            {% if user.is_superuser %}
-                            	<div class="fw-lighter text-muted">
+                            <div class="col-xxl-4 fw-lighter text-muted text-start">
+                                {% if user.is_superuser %}
                                     Количество прочитываний: {{ item.number_of_users_who_read_news }}
-                                </div>
-                            {% endif %}
+                                {% endif %}
+                            </div>
 
-                            <div class="fw-lighter text-muted">
+                            <div class="col-xxl-4 fw-lighter text-muted text-start">
                                 <span class="fw-medium">Создано:</span> {{ item.created }}
                             </div>
                         </div>

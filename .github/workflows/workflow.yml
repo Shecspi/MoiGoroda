@@ -4,17 +4,43 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    runs-on: self-hosted
+  test:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Deploy to 92.255.77.19
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.12'
+
+      - name: Create .env file
+        run: cp MoiGoroda/.env.example MoiGoroda/.env
+
+      - name: Poetry install
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.8.2
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Set up Poetry
+        run: poetry install --no-interaction --no-root && poetry install --no-interaction
+
+      - name: Test with pytest
+        run: poetry run pytest
+  deploy:
+    needs: test
+    runs-on: [self-hosted, dev]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Deploy to 5.44.47.96
         run: |
           : # Переходим в папку с проектом
-          cd ${{ secrets.DEV__LOCAL_PATH }}
+          cd ${{ secrets.DEV__PROJECT_PATH }}
 
-          git pull origin workflow
-          git checkout workflow
+          git pull origin pre-commit
+          git checkout pre-commit
           
           : # Устанавливаем необходимую версию Python, если она ещё не установлена
           if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi

@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'mdeditor',
     'markdownify',
     'dashboard',
-    "share.apps.ShareConfig"
+    'share.apps.ShareConfig',
 ]
 
 MIDDLEWARE = [
@@ -71,12 +71,8 @@ MIDDLEWARE = [
 
 # Debug toolbar находится в DEV-зависимостях, поэтому на продакшене он не устанавливается.
 if DEBUG:
-    INSTALLED_APPS += [
-        'debug_toolbar'
-    ]
-    MIDDLEWARE += [
-        'debug_toolbar.middleware.DebugToolbarMiddleware'
-    ]
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 
 ROOT_URLCONF = 'MoiGoroda.urls'
 
@@ -91,7 +87,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'MoiGoroda.context_processors.general_settings'
+                'MoiGoroda.context_processors.general_settings',
             ],
         },
     },
@@ -109,15 +105,12 @@ DATABASES = {
         'USER': os.getenv('DATABASE_USER'),
         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
         'HOST': os.getenv('DATABASE_HOST'),
-        'PORT': os.getenv('DATABASE_PORT')
+        'PORT': os.getenv('DATABASE_PORT'),
     }
 }
 
 if 'test' in sys.argv:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase'
-    }
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3', 'NAME': 'mydatabase'}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -143,9 +136,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.getenv('STATIC_ROOT')
 
 # Default primary key field type
@@ -153,15 +144,13 @@ STATIC_ROOT = os.getenv('STATIC_ROOT')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 LOGIN_REDIRECT_URL = '/city/all/list'
 LOGOUT_REDIRECT_URL = '/'
 
-INTERNAL_IPS = [
-    '127.0.0.1', '0.0.0.0'
-]
+INTERNAL_IPS = ['127.0.0.1', '0.0.0.0']
 
 LOGIN_URL = '/account/signin'
 
@@ -174,7 +163,9 @@ EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL') == 'True'
 
 SERVER_EMAIL = os.getenv('SERVER_EMAIL')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
-ADMINS = [(os.getenv('ADMIN_NAME'), os.getenv('ADMIN_EMAIL')), ]
+ADMINS = [
+    (os.getenv('ADMIN_NAME'), os.getenv('ADMIN_EMAIL')),
+]
 
 LOG_FIlE_PATH = os.path.join(BASE_DIR, 'logs/log.log')
 if not os.path.exists(os.path.dirname(LOG_FIlE_PATH)):
@@ -187,28 +178,22 @@ LOGGING = {
     'disable_existing_loggers': False,
     'filters': {
         # Отправка писем только при DEBUG = False
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        },
+        'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'},
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },
     },
-
     'formatters': {
         'detail_app': {
             'format': '%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)-s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
+            'datefmt': '%Y-%m-%d %H:%M:%S',
         },
         'detail_django': {
             'format': '%(levelname)-8s %(asctime)-22s INTERNAL           DJANGO     %(message)-s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
+            'datefmt': '%Y-%m-%d %H:%M:%S',
         },
-        'simple': {
-            'format': '%(levelname)-8s %(message)s'
-        }
+        'simple': {'format': '%(levelname)-8s %(message)s'},
     },
-
     'handlers': {
         # Запись в файл логов приложения
         # Только при DEBUG=False
@@ -219,7 +204,7 @@ LOGGING = {
             'formatter': 'detail_app',
             'filename': LOG_FIlE_PATH,
             'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 5
+            'backupCount': 5,
         },
         # Запись в файл логов Django
         # Только при DEBUG=False
@@ -237,7 +222,6 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
-
         },
         # Отправка регистрационного письма на почту
         # Только при DEBUG=False
@@ -246,7 +230,6 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
-
         },
         # Вывод в консоль логов приложения
         # только при DEBUG=True
@@ -254,7 +237,7 @@ LOGGING = {
             'level': 'INFO',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'detail_app'
+            'formatter': 'detail_app',
         },
         # Вывод в консоль логов Django
         # только при DEBUG=True
@@ -262,30 +245,29 @@ LOGGING = {
             'level': 'INFO',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'detail_django'
+            'formatter': 'detail_django',
         },
     },
-
     'loggers': {
         # Базовый логгер. Используется для логирования действий внутри приложения
         'base': {
             'level': 'INFO',
             'propogate': True,
-            'handlers': ['to_console_app', 'to_file_app', 'to_email_general']
+            'handlers': ['to_console_app', 'to_file_app', 'to_email_general'],
         },
         # Логгер, который срабатывает при регистрации пользователей
         'account.views': {
             'level': 'INFO',
             'propogate': True,
-            'handlers': ['to_file_app', 'to_email_signup']
+            'handlers': ['to_file_app', 'to_email_signup'],
         },
         # Логгер для перехватывания логирования Django
         'django': {
             'level': 'INFO',
             'propogate': True,
-            'handlers': ['to_console_django', 'to_file_django']
-        }
-    }
+            'handlers': ['to_console_django', 'to_file_django'],
+        },
+    },
 }
 
 MEDIA_URL = '/media/'
@@ -293,21 +275,32 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # MDEditor
 X_FRAME_OPTIONS = 'SAMEORIGIN'
-MDEDITOR_CONFIGS = {
-    'default': {
-        'language': 'en'
-    }
-}
+MDEDITOR_CONFIGS = {'default': {'language': 'en'}}
 
 # Markdownify
 MARKDOWNIFY = {
-    "default": {
+    'default': {
         'WHITELIST_TAGS': [
             # Протестированные теги
-            'a', 'blockquote', 'code', 'img', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong',
+            'a',
+            'blockquote',
+            'code',
+            'img',
+            'em',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'strong',
             # Непротестированные теги
-            'li', 'ol', 'p', 'ul'],
-        'WHITELIST_ATTRS': ['href', 'src', 'alt']
+            'li',
+            'ol',
+            'p',
+            'ul',
+        ],
+        'WHITELIST_ATTRS': ['href', 'src', 'alt'],
     }
 }
 

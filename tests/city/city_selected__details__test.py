@@ -33,17 +33,17 @@ def setup_db__detail__data_exists(client, django_user_model):
         date_of_foundation=1990,
         coordinate_width=1,
         coordinate_longitude=1,
-        wiki='https://wiki.ru/Город_1'
+        wiki='https://wiki.ru/Город_1',
     )
     VisitedCity.objects.create(
         id=1,
         user=user,
         region=region,
         city=city,
-        date_of_visit=f"2023-01-01",
+        date_of_visit=f'2023-01-01',
         has_magnet=True,
         impression='Хороший город',
-        rating=3
+        rating=3,
     )
     # Collection.objects.create(id=1, title='Коллекция 1', city=city)
     # Collection.objects.create(id=1, title='Коллекция 2', city=city)
@@ -55,18 +55,10 @@ def setup_db__detail__data_not_exists(client, django_user_model):
     area = Area.objects.create(title='Округ 1')
     region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU1')
     city = City.objects.create(
-        title=f'Город 1',
-        region=region,
-        coordinate_width=1,
-        coordinate_longitude=1
+        title=f'Город 1', region=region, coordinate_width=1, coordinate_longitude=1
     )
     VisitedCity.objects.create(
-        id=1,
-        user=user,
-        region=region,
-        city=city,
-        has_magnet=False,
-        rating=3
+        id=1, user=user, region=region, city=city, has_magnet=False, rating=3
     )
 
 
@@ -117,7 +109,10 @@ def test__section_date_of_foundation_exists(setup_db__detail__data_exists, clien
     section = content.find('div', {'id': 'section-date_of_foundation'})
 
     assert section
-    assert 'Год основания:' in section.find('div', {'id': 'subsection-date_of_foundation_title'}).get_text()
+    assert (
+        'Год основания:'
+        in section.find('div', {'id': 'subsection-date_of_foundation_title'}).get_text()
+    )
     assert '1990' in section.find('div', {'id': 'subsection-date_of_foundation_value'}).get_text()
 
 
@@ -130,10 +125,14 @@ def test__section_date_of_foundation_not_exists(setup_db__detail__data_not_exist
     section = content.find('div', {'id': 'section-date_of_foundation'})
 
     assert section
-    assert 'Год основания:' in section.find('div', {'id': 'subsection-date_of_foundation_title'}).get_text()
-    assert 'Год основания не известен' in section.find(
-        'div', {'id': 'subsection-date_of_foundation_value'}
-    ).get_text()
+    assert (
+        'Год основания:'
+        in section.find('div', {'id': 'subsection-date_of_foundation_title'}).get_text()
+    )
+    assert (
+        'Год основания не известен'
+        in section.find('div', {'id': 'subsection-date_of_foundation_value'}).get_text()
+    )
 
 
 @pytest.mark.django_db
@@ -159,9 +158,10 @@ def test__section_population_not_exists(setup_db__detail__data_not_exists, clien
 
     assert section
     assert 'Население:' in section.find('div', {'id': 'subsection-population_title'}).get_text()
-    assert 'Численность населения не известна' in section.find(
-        'div', {'id': 'subsection-population_value'}
-    ).get_text()
+    assert (
+        'Численность населения не известна'
+        in section.find('div', {'id': 'subsection-population_value'}).get_text()
+    )
 
 
 @pytest.mark.django_db
@@ -174,9 +174,10 @@ def test__section_collectins_not_exists(setup_db__detail__data_not_exists, clien
 
     assert section
     assert 'Коллекции:' in section.find('div', {'id': 'subsection-collections_title'}).get_text()
-    assert 'Город не состоит ни в каких коллекциях' in section.find(
-        'div', {'id': 'subsection-collections_value'}
-    ).get_text()
+    assert (
+        'Город не состоит ни в каких коллекциях'
+        in section.find('div', {'id': 'subsection-collections_value'}).get_text()
+    )
 
 
 @pytest.mark.django_db
@@ -188,8 +189,14 @@ def test__section_date_of_visit_exists(setup_db__detail__data_exists, client):
     section = content.find('div', {'id': 'section-date_of_visit'})
 
     assert section
-    assert 'Дата посещения:' in section.find('div', {'id': 'subsection-date_of_visit_title'}).get_text()
-    assert '1 января 2023 г.' in section.find('div', {'id': 'subsection-date_of_visit_value'}).get_text()
+    assert (
+        'Дата посещения:'
+        in section.find('div', {'id': 'subsection-date_of_visit_title'}).get_text()
+    )
+    assert (
+        '1 января 2023 г.'
+        in section.find('div', {'id': 'subsection-date_of_visit_value'}).get_text()
+    )
 
 
 @pytest.mark.django_db
@@ -201,8 +208,14 @@ def test__section_population_not_exists(setup_db__detail__data_not_exists, clien
     section = content.find('div', {'id': 'section-date_of_visit'})
 
     assert section
-    assert 'Дата посещения:' in section.find('div', {'id': 'subsection-date_of_visit_title'}).get_text()
-    assert 'Дата посещения не указана' in section.find('div', {'id': 'subsection-date_of_visit_value'}).get_text()
+    assert (
+        'Дата посещения:'
+        in section.find('div', {'id': 'subsection-date_of_visit_title'}).get_text()
+    )
+    assert (
+        'Дата посещения не указана'
+        in section.find('div', {'id': 'subsection-date_of_visit_value'}).get_text()
+    )
 
 
 @pytest.mark.django_db
@@ -215,9 +228,12 @@ def test__section_has_magnet_exists(setup_db__detail__data_exists, client):
 
     assert section
     assert 'Магнит:' in section.find('div', {'id': 'subsection-has_magnet_title'}).get_text()
-    assert 'имеется' in section.find(
-        'div', {'id': 'subsection-has_magnet_value'}
-    ).find('span', {'class': 'badge bg-success'}).get_text()
+    assert (
+        'имеется'
+        in section.find('div', {'id': 'subsection-has_magnet_value'})
+        .find('span', {'class': 'badge bg-success'})
+        .get_text()
+    )
 
 
 @pytest.mark.django_db
@@ -230,9 +246,12 @@ def test__section_has_magnet_not_exists(setup_db__detail__data_not_exists, clien
 
     assert section
     assert 'Магнит:' in section.find('div', {'id': 'subsection-has_magnet_title'}).get_text()
-    assert 'отсутствует' in section.find(
-        'div', {'id': 'subsection-has_magnet_value'}
-    ).find('span', {'class': 'badge bg-danger'}).get_text()
+    assert (
+        'отсутствует'
+        in section.find('div', {'id': 'subsection-has_magnet_value'})
+        .find('span', {'class': 'badge bg-danger'})
+        .get_text()
+    )
 
 
 @pytest.mark.django_db
@@ -258,8 +277,22 @@ def test__section_rating(setup_db__detail__data_exists, client):
 
     assert section
     assert 'Ваша оценка:' in section.find('div', {'id': 'subsection-rating_title'}).get_text()
-    assert len(section.find('div', {'id': 'subsection-rating_value'}).find_all('i', {'class': 'fa-solid fa-star'})) == 3
-    assert len(section.find('div', {'id': 'subsection-rating_value'}).find_all('i', {'class': 'fa-regular fa-star'})) == 2
+    assert (
+        len(
+            section.find('div', {'id': 'subsection-rating_value'}).find_all(
+                'i', {'class': 'fa-solid fa-star'}
+            )
+        )
+        == 3
+    )
+    assert (
+        len(
+            section.find('div', {'id': 'subsection-rating_value'}).find_all(
+                'i', {'class': 'fa-regular fa-star'}
+            )
+        )
+        == 2
+    )
 
 
 @pytest.mark.django_db
@@ -269,7 +302,9 @@ def test__buttons(setup_db__detail__data_exists, client):
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     content = source.find('div', {'id': 'section-content'})
     link_wiki = content.find('a', {'id': 'link-wiki', 'href': 'https://wiki.ru/Город_1'})
-    link_update = content.find('a', {'id': 'link-update', 'href': reverse('city-update', kwargs={'pk': 1})})
+    link_update = content.find(
+        'a', {'id': 'link-update', 'href': reverse('city-update', kwargs={'pk': 1})}
+    )
     link_delete = content.find('button', {'id': 'link-delete'})
 
     assert link_wiki

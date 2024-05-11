@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('collection', '0001_initial'),
     ]
@@ -12,6 +11,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='collection',
-            options={'ordering': ['title'], 'verbose_name': 'Коллекция', 'verbose_name_plural': 'Коллекции'},
+            options={
+                'ordering': ['title'],
+                'verbose_name': 'Коллекция',
+                'verbose_name_plural': 'Коллекции',
+            },
         ),
     ]

@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-
 import pytest
 
 from django.db import models
@@ -23,9 +22,15 @@ def setup_db(client, django_user_model):
     django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Area 1')
     region = Region.objects.create(id=1, area=area, title='Регион 1', type='O', iso3166=f'RU-RU')
-    City.objects.create(id=1, title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1)
-    City.objects.create(id=2, title='Город 2', region=region, coordinate_width=1, coordinate_longitude=1)
-    City.objects.create(id=3, title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1)
+    City.objects.create(
+        id=1, title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1
+    )
+    City.objects.create(
+        id=2, title='Город 2', region=region, coordinate_width=1, coordinate_longitude=1
+    )
+    City.objects.create(
+        id=3, title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1
+    )
 
 
 @pytest.mark.django_db

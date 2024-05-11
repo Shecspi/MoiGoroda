@@ -59,4 +59,3 @@ def test__footer(client):
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert source.find('footer', {'id': 'section-footer'})
-

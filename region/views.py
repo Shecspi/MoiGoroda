@@ -360,7 +360,9 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             context['page_description'] = f"Список городов региона '{self.region_name}'"
         else:
             context['page_title'] = f'{self.region_name} - Города региона на карте'
-            context['page_description'] = f"Карта с отмеченными городами региона '{self.region_name}'"
+            context['page_description'] = (
+                f"Карта с отмеченными городами региона '{self.region_name}'"
+            )
 
         return context
 

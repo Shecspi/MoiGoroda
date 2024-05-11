@@ -25,18 +25,41 @@ def setup_db(client, django_user_model):
     user = django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Округ 1')
     region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU1')
-    city_1 = City.objects.create(title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1)
-    city_2 = City.objects.create(title='Город 2', region=region, coordinate_width=1, coordinate_longitude=1)
-    city_3 = City.objects.create(title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1)
-    city_4 = City.objects.create(title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1)
-    VisitedCity.objects.create(
-        user=user, region=region, city=city_1, date_of_visit=f"{datetime.now().year}-01-01", has_magnet=False, rating=3
+    city_1 = City.objects.create(
+        title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1
+    )
+    city_2 = City.objects.create(
+        title='Город 2', region=region, coordinate_width=1, coordinate_longitude=1
+    )
+    city_3 = City.objects.create(
+        title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1
+    )
+    city_4 = City.objects.create(
+        title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1
     )
     VisitedCity.objects.create(
-        user=user, region=region, city=city_2, date_of_visit=f"{datetime.now().year - 1}-01-01", has_magnet=False, rating=3
+        user=user,
+        region=region,
+        city=city_1,
+        date_of_visit=f'{datetime.now().year}-01-01',
+        has_magnet=False,
+        rating=3,
     )
     VisitedCity.objects.create(
-        user=user, region=region, city=city_2, date_of_visit=f"{datetime.now().year - 1}-01-01", has_magnet=False, rating=3
+        user=user,
+        region=region,
+        city=city_2,
+        date_of_visit=f'{datetime.now().year - 1}-01-01',
+        has_magnet=False,
+        rating=3,
+    )
+    VisitedCity.objects.create(
+        user=user,
+        region=region,
+        city=city_2,
+        date_of_visit=f'{datetime.now().year - 1}-01-01',
+        has_magnet=False,
+        rating=3,
     )
 
 
@@ -102,4 +125,3 @@ def test__section__sorting(setup_db, client):
     assert button
     assert button.find('i', {'class': 'fa-solid fa-sort'})
     assert 'Сортировка' in button.get_text()
-

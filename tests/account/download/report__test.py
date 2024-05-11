@@ -3,7 +3,13 @@ from datetime import datetime
 import pytest
 
 from account.report import CityReport, RegionReport, AreaReport
-from tests.account.download.create_db import create_user, create_area, create_region, create_city, create_visited_city
+from tests.account.download.create_db import (
+    create_user,
+    create_area,
+    create_region,
+    create_city,
+    create_visited_city,
+)
 
 
 @pytest.fixture
@@ -32,7 +38,11 @@ def test__region_report(setup_db):
     report = RegionReport(1).get_report()
 
     assert report[0] == (
-        'Регион', 'Всего городов', 'Посещено городов, шт', 'Посещено городов, %', 'Осталось посетить, шт'
+        'Регион',
+        'Всего городов',
+        'Посещено городов, шт',
+        'Посещено городов, %',
+        'Осталось посетить, шт',
     )
     assert report[1] == ('Регион 1 область', '2', '2', '100%', '0')
 
@@ -42,7 +52,10 @@ def test__area_report(setup_db):
     report = AreaReport(1).get_report()
 
     assert report[0] == (
-        'Федеральный округ', 'Всего регионов, шт', 'Посещено регионов, шт',
-        'Посещено регионов, %', 'Осталось посетить, шт'
+        'Федеральный округ',
+        'Всего регионов, шт',
+        'Посещено регионов, шт',
+        'Посещено регионов, %',
+        'Осталось посетить, шт',
     )
     assert report[1] == ('Округ 1', '1', '1', '100%', '0')

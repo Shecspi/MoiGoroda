@@ -5,7 +5,8 @@ from utils.VisitedCityMixin import VisitedCityMixin
 
 
 @pytest.mark.parametrize(
-    'quantity, word', (
+    'quantity, word',
+    (
         (1, 'регион'),
         (2, 'региона'),
         (3, 'региона'),
@@ -36,8 +37,8 @@ from utils.VisitedCityMixin import VisitedCityMixin
         (77, 'регионов'),
         (88, 'регионов'),
         (99, 'регионов'),
-        (100, 'регионов')
-    )
+        (100, 'регионов'),
+    ),
 )
 def test__declension_of_city(quantity, word):
     mixin = RegionListMixin()

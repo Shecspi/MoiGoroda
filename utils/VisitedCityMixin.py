@@ -15,7 +15,6 @@ from django.db.models import QuerySet, F
 
 
 class VisitedCityMixin:
-
     @staticmethod
     def get_url_params(filter_value: str | None, sort_value: str | None) -> str | None:
         """
@@ -73,7 +72,9 @@ class VisitedCityMixin:
             case 'date_up':
                 queryset = queryset.order_by(F('date_of_visit').desc(nulls_last=True))
             case 'default':
-                queryset = queryset.order_by(F('date_of_visit').desc(nulls_last=True), 'city__title')
+                queryset = queryset.order_by(
+                    F('date_of_visit').desc(nulls_last=True), 'city__title'
+                )
             case _:
                 raise KeyError(f'Неверный параметр "sort_value" - {sort_value}')
 

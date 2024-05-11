@@ -12,17 +12,23 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='city',
             name='date_of_foundation',
-            field=models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='Год основания'),
+            field=models.PositiveSmallIntegerField(
+                blank=True, null=True, verbose_name='Год основания'
+            ),
         ),
         migrations.AlterField(
             model_name='city',
             name='population',
-            field=models.PositiveIntegerField(blank=True, null=True, verbose_name='Численность населения'),
+            field=models.PositiveIntegerField(
+                blank=True, null=True, verbose_name='Численность населения'
+            ),
         ),
         migrations.AlterField(
             model_name='city',
             name='wiki',
-            field=models.URLField(blank=True, max_length=256, null=True, verbose_name='Ссылка на Wikipedia'),
+            field=models.URLField(
+                blank=True, max_length=256, null=True, verbose_name='Ссылка на Wikipedia'
+            ),
         ),
         migrations.AlterField(
             model_name='visitedcity',

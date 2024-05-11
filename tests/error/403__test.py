@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-
 import pytest
 from bs4 import BeautifulSoup
 from django.urls import reverse
@@ -23,7 +22,9 @@ def setup_db(client, django_user_model):
     user = django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Area 1')
     region = Region.objects.create(area=area, title='Регион 1', type='O')
-    city = City.objects.create(title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1)
+    city = City.objects.create(
+        title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1
+    )
     VisitedCity.objects.create(id=1, user=user, region=region, city=city, rating='5')
 
 

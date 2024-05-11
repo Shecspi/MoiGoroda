@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-
 from datetime import datetime
 
 from django.db.models import QuerySet, F
@@ -26,8 +25,11 @@ class CitiesByRegionMixin:
             return 'город'
         elif 5 <= quantity <= 20:
             return 'городов'
-        elif len(str(quantity)) >= 2 and 10 <= int(str(quantity)[-2:]) <= 20 \
-                or str(quantity)[-1] in ['5', '6', '7', '8', '9', '0']:
+        elif (
+            len(str(quantity)) >= 2
+            and 10 <= int(str(quantity)[-2:]) <= 20
+            or str(quantity)[-1] in ['5', '6', '7', '8', '9', '0']
+        ):
             return 'городов'
         elif str(quantity)[-1] in ['2', '3', '4']:
             return 'города'
@@ -52,7 +54,14 @@ class CitiesByRegionMixin:
         """
         url_params = []
         valid_filters = ['magnet', 'current_year', 'last_year']
-        valid_sorts = ['name_down', 'name_up', 'date_down', 'date_up', 'default_auth', 'default_guest']
+        valid_sorts = [
+            'name_down',
+            'name_up',
+            'date_down',
+            'date_up',
+            'default_auth',
+            'default_guest',
+        ]
 
         if filter_value and filter_value in valid_filters:
             url_params.append(f'filter={filter_value}')
@@ -97,16 +106,20 @@ class CitiesByRegionMixin:
             case 'name_up':
                 queryset = queryset.order_by('-title')
             case 'date_down':
-                queryset = queryset.order_by('-is_visited', F('date_of_visit').asc(nulls_first=True))
+                queryset = queryset.order_by(
+                    '-is_visited', F('date_of_visit').asc(nulls_first=True)
+                )
             case 'date_up':
-                queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True))
+                queryset = queryset.order_by(
+                    '-is_visited', F('date_of_visit').desc(nulls_last=True)
+                )
             case 'default_auth':
-                queryset = queryset.order_by('-is_visited', F('date_of_visit').desc(nulls_last=True), 'title')
+                queryset = queryset.order_by(
+                    '-is_visited', F('date_of_visit').desc(nulls_last=True), 'title'
+                )
             case 'default_guest':
                 queryset = queryset.order_by('title')
             case _:
                 raise KeyError
 
         return queryset
-
-

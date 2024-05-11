@@ -38,12 +38,10 @@ def test__access_by_post_for_auth_user_is_allowed(django_user_model, client):
     create_user(django_user_model, 1)
 
     client.login(username='username1', password='password')
-    data = {
-        'reporttype': 'city',
-        'filetype': 'txt'
-    }
+    data = {'reporttype': 'city', 'filetype': 'txt'}
     response = client.post(reverse('download'), data=data)
 
     assert response.status_code == 200
-    assert response.content.decode() == ('Город     Регион     Дата посещения     '
-                                         'Наличие магнита     Оценка     \n')
+    assert response.content.decode() == (
+        'Город     Регион     Дата посещения     ' 'Наличие магнита     Оценка     \n'
+    )

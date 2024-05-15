@@ -1,7 +1,7 @@
 <!-- Панель инструментов -->
-<div class="row mx-3 my-3 g-3" id="toolbar">
+<div class="row row-cols-md-2 row-cols-xxl-4 mx-3 my-3 g-3" id="toolbar">
     <!-- Статистика посещёния -->
-    <div class="col-xxl-3 col-md-6 order-xl-1" id="block-statistic">
+    <div class="order-xl-1" id="block-statistic">
         <div class="card text-center shadow h-100">
             <div class="card-body d-grid bg-warning-subtle" id="block-statistic">
                 <div class="align-self-center">
@@ -14,7 +14,7 @@
     <!-- ^^^ Статистика посещёния -->
 
     <!-- Посмотреть на карте -->
-    <div class="col-xxl-3 col-md-6 order-xl-4" id="section-show_map">
+    <div class="order-xl-4" id="section-show_map">
         <div class="card text-center shadow h-100">
             <div class="card-body d-grid bg-success-subtle">
                 <a href="{% url 'city-all-map' %}" class="btn btn-outline-success align-self-center">
@@ -26,7 +26,7 @@
     <!-- ^^^ Посмотреть на карте -->
 
     <!-- Фильтры -->
-    <div class="col-xxl-3 col-md-6 order-xl-2">
+    <div class="order-xl-2">
         <div class="card text-center shadow h-100" id="section-filter">
             <div class="card-body d-grid bg-primary-subtle">
                 {% if qty_of_visited_cities > 0 %}
@@ -47,7 +47,7 @@
     <!-- ^^^ Фильтры -->
 
     <!-- Сортировка -->
-    <div class="col-xxl-3 col-md-6 order-xl-3">
+    <div class="order-xl-3">
             <div class="card text-center shadow h-100" id="section-sorting">
                 <div class="card-body d-grid bg-secondary-subtle">
                     {% if qty_of_visited_cities > 0 %}

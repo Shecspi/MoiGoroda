@@ -1,6 +1,6 @@
 {% include 'account/statistics/cards_for_cities.html' %}
 
-<div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5"
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 row-cols-xl-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5"
      id="row-pie-charts">
     <div class="col" id="chart_number_of_cities">
         {% include 'account/statistics/statistics__chart__number_of_cities.html' %}
@@ -27,14 +27,14 @@
     </div>
 </div>
 
-<div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list_cards">
-    <div class="col-xl-4 order-last order-xl-first" id="list_last_visited_cities">
+<div class="row row-cols-md-2 row-cols-lg-3 mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list_cards">
+    <div class="order-md-2 order-lg-1" id="list_last_visited_cities">
         {% include 'account/statistics/statistics__cities.html' %}
     </div>
-    <div class="col-xl-4 order-last order-xl-first" id="list_most_popular_regions">
+    <div class="order-md-1 order-lg-2" id="list_most_popular_regions">
         {% include 'account/statistics/statistics__regions.html' %}
     </div>
-    <div class="col-xl-4 order-last order-xl-first" id="list_areas">
+    <div class="order-md-3 order-lg-3" id="list_areas">
         {% include 'account/statistics/statistics__areas.html' %}
     </div>
 </div>

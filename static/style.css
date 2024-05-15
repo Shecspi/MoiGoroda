@@ -58,7 +58,7 @@ body.simple {
     background: #0d6efd;
     color: #fff;
 }
-@media(max-width: 767px) {
+@media(max-width: 1200px) {
     #sidebar {
         margin-left: -300px;
         position: fixed;

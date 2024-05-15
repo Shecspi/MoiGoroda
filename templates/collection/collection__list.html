@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3" id="block-page_header">
+    <h1 class="display-5 text-center mt-3 mx-3" id="block-page_header">
         Коллекции городов
     </h1>
 
     <!-- Карточки с коллекциями -->
     {% if object_list %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4  mx-3 mt-2 mb-3 g-3" id="list-content">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
             {% for collection in object_list %}
                 {% include 'collection/collection__card.html' %}
             {% endfor %}

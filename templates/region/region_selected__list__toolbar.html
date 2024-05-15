@@ -1,7 +1,7 @@
 <!-- Панель инструментов -->
-<div class="row mx-3 my-3 g-3" id="toolbar">
+<div class="row row-cols-md-2 row-cols-xxl-4 mx-3 my-3 g-3" id="toolbar">
     <!-- Статистика посещёния -->
-    <div class="col-xl-3 order-xl-1" id="section-statistic">
+    <div class="order-xl-1" id="section-statistic">
         <div class="card text-center shadow h-100">
             <div class="card-body d-grid bg-warning-subtle">
                 <div class="align-self-center">
@@ -18,7 +18,7 @@
     <!-- ^^^ Статистика посещёния -->
 
     <!-- Посмотреть на карте -->
-    <div class="col-xl-3 order-xl-4" id="section-show_map">
+    <div class="order-xl-4" id="section-show_map">
         <div class="card text-center shadow h-100">
             <div class="card-body d-grid bg-success-subtle">
                 <a href="{% url 'region-selected-map' region_id %}" class="btn btn-outline-success align-self-center">
@@ -30,7 +30,7 @@
     <!-- ^^^ Посмотреть на карте -->
 
     <!-- Фильтры -->
-    <div class="col-xl-3 order-xl-2">
+    <div class="order-xl-2">
         <div class="card text-center shadow h-100" id="section-filter">
             <div class="card-body d-grid bg-primary-subtle">
                 {% if user.is_authenticated and qty_of_visited_cities > 0 %}
@@ -53,7 +53,7 @@
     <!-- ^^^ Фильтры -->
 
     <!-- Сортировка -->
-    <div class="col-xl-3 order-xl-3">
+    <div class="order-xl-3">
             <div class="card text-center shadow h-100" id="section-sorting">
                 <div class="card-body d-grid bg-secondary-subtle">
                     {% if user.is_authenticated and qty_of_visited_cities > 0 %}
@@ -113,7 +113,7 @@
 
 {% if user.is_authenticated and qty_of_visited_cities > 0 %}
     <!-- Меню сортировки -->
-    <div class="row mx-3 my-3 g-3 collapse" id="collapse-sorting">
+    <div         class="row mx-3 my-3 g-3 collapse" id="collapse-sorting">
         <div class="col-xl-3" id="section-name_down">
             <div class="card text-center shadow h-100">
                 <div class="card-body d-grid">

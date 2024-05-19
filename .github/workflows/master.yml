@@ -1,10 +1,40 @@
 name: Deploy to the server
 on:
-    push:
-      branches: ["master"]
+  push:
+    branches: ["master"]
+  release:
+    types: [published]
 
 jobs:
+  changelog:
+    name: Generate changelog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --verbose
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
+
+      - name: Commit the genereted changelog
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          set +e
+          git switch master
+          git add CHANGELOG.md
+          git commit -m "Обновление CHANGELOG.md"
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git master
   test:
+    needs: changelog
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -34,7 +64,7 @@ jobs:
     runs-on: [self-hosted, prod]
     steps:
       - uses: actions/checkout@v1
-      - name: Deploy to 92.255.77.19
+      - name: Deploy to the production server
         run: |
           : # Переходим в папку с проектом
           cd ${{ secrets.PROD__PROJECT_PATH }}

@@ -58,7 +58,7 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
         * `id` - ID посещённого города
         * `date_of_visit` - дата посещения города
         * `rating` - рейтинг посещённого города
-        * `has_magnet` - наличие магните
+        * `has_magnet` - наличие сувенира из города
         * `city.id` - ID города
         * `city.title` - Название города
         * `city.population` - население города

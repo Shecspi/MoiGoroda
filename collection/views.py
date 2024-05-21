@@ -199,7 +199,7 @@ class CollectionSelected_List(ListView):
             Для авторизованных пользователей доступны дополнительные поля:
             * `visited_id` - ID посещённого города
             * `date_of_visit` - дата посещения
-            * `has_magnet` - True, если имеется магнит
+            * `has_magnet` - True, если имеется сувенир из города
             * `rating` - рейтинг от 1 до 5
         """
         # В связи с тем, что модель Collections - это связь Many To Many, я не нашёл способа,

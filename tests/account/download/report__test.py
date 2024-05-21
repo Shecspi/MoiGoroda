@@ -28,7 +28,7 @@ def setup_db(django_user_model):
 def test__city_report(setup_db):
     report = CityReport(1).get_report()
 
-    assert report[0] == ('Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка')
+    assert report[0] == ('Город', 'Регион', 'Дата посещения', 'Наличие сувенира', 'Оценка')
     assert report[1] == ('Город 1', 'Регион 1 область', '2024-01-01', '-', '***')
     assert report[2] == ('Город 2', 'Регион 1 область', '2023-01-01', '+', '*****')
 

@@ -104,7 +104,7 @@ def test__form_has_magnet(setup_db, client):
 
     assert form
     assert block
-    assert 'Наличие магнита' in label.get_text()
+    assert 'Наличие сувенира из города' in label.get_text()
     assert input_checkbox
     assert hint
 

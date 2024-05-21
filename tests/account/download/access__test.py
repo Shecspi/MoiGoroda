@@ -43,5 +43,5 @@ def test__access_by_post_for_auth_user_is_allowed(django_user_model, client):
 
     assert response.status_code == 200
     assert response.content.decode() == (
-        'Город     Регион     Дата посещения     ' 'Наличие магнита     Оценка     \n'
+        'Город     Регион     Дата посещения     ' 'Наличие сувенира     Оценка     \n'
     )

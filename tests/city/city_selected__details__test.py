@@ -227,7 +227,10 @@ def test__section_has_magnet_exists(setup_db__detail__data_exists, client):
     section = content.find('div', {'id': 'section-has_magnet'})
 
     assert section
-    assert 'Магнит:' in section.find('div', {'id': 'subsection-has_magnet_title'}).get_text()
+    assert (
+        'Сувенир из города:'
+        in section.find('div', {'id': 'subsection-has_magnet_title'}).get_text()
+    )
     assert (
         'имеется'
         in section.find('div', {'id': 'subsection-has_magnet_value'})
@@ -245,7 +248,10 @@ def test__section_has_magnet_not_exists(setup_db__detail__data_not_exists, clien
     section = content.find('div', {'id': 'section-has_magnet'})
 
     assert section
-    assert 'Магнит:' in section.find('div', {'id': 'subsection-has_magnet_title'}).get_text()
+    assert (
+        'Сувенир из города:'
+        in section.find('div', {'id': 'subsection-has_magnet_title'}).get_text()
+    )
     assert (
         'отсутствует'
         in section.find('div', {'id': 'subsection-has_magnet_value'})

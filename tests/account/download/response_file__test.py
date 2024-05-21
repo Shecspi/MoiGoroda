@@ -37,15 +37,15 @@ def test__content_of_city_report_in_txt_file(setup_db, client):
 
     assert (
         report[0]
-        == 'Город       Регион               Дата посещения     Наличие магнита     Оценка     '
+        == 'Город       Регион               Дата посещения     Наличие сувенира     Оценка     '
     )
     assert (
         report[1]
-        == 'Город 1     Регион 1 область     2024-01-01         -                   ***        '
+        == 'Город 1     Регион 1 область     2024-01-01         -                    ***        '
     )
     assert (
         report[2]
-        == 'Город 2     Регион 1 область     2023-01-01         +                   *****      '
+        == 'Город 2     Регион 1 область     2023-01-01         +                    *****      '
     )
 
 
@@ -57,7 +57,7 @@ def test__content_of_city_report_in_csv_file(setup_db, client):
     report = response.content.decode().strip().split('\n')
     reader = csv.reader(report, delimiter=',', lineterminator='\n')
     expected_results = (
-        ['Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'],
+        ['Город', 'Регион', 'Дата посещения', 'Наличие сувенира', 'Оценка'],
         ['Город 1', 'Регион 1 область', '2024-01-01', '-', '***'],
         ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****'],
     )
@@ -74,7 +74,7 @@ def test__content_of_city_report_in_json_file(setup_db, client):
     report = response.content.decode()
     recieved_data = json.loads(report)
     expected_data = [
-        ['Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'],
+        ['Город', 'Регион', 'Дата посещения', 'Наличие сувенира', 'Оценка'],
         ['Город 1', 'Регион 1 область', '2024-01-01', '-', '***'],
         ['Город 2', 'Регион 1 область', '2023-01-01', '+', '*****'],
     ]
@@ -89,7 +89,7 @@ def test__content_of_city_report_in_xls_file(setup_db, client):
     response = client.post(reverse('download'), data=data)
     workbook = openpyxl.load_workbook(BytesIO(response.content))
     expected_data = [
-        ('Город', 'Регион', 'Дата посещения', 'Наличие магнита', 'Оценка'),
+        ('Город', 'Регион', 'Дата посещения', 'Наличие сувенира', 'Оценка'),
         ('Город 1', 'Регион 1 область', '2024-01-01', '-', '***'),
         ('Город 2', 'Регион 1 область', '2023-01-01', '+', '*****'),
     ]

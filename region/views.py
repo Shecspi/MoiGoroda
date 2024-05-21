@@ -124,7 +124,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
     Отображает список всех городов в указанном регионе, как посещённых, так и нет.
 
     Фильтрация городов передаётся через GET-параметр `filter` и может принимать одно из следующих значений:
-        * `magnet` - наличие магнита
+        * `magnet` - наличие сувенира из города
         * `current_year` - посещённые в текущем году
         * `last_yesr` - посещённые в прошлом году
 
@@ -195,7 +195,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
 
             Для авторизованных пользователей доступны дополнительные поля:
             * `visited_id` - ID посещённого города
-            * `has_magnet` - True, если имеется магнит
+            * `has_magnet` - True, если имеется сувенир из города
             * `rating` - рейтинг от 1 до 5
         """
         if self.request.user.is_authenticated:

@@ -42,14 +42,16 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         # Количество регистраций за неделю (не учитывая сегодня)
         context['qty_registrations_week'] = (
             User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
-            .filter(day__range=[date.today() - timedelta(days=7), date.today()])
+            .filter(day__range=[date.today() - timedelta(days=7), date.today() - timedelta(days=1)])
             .count()
         )
 
         # Количество регистраций за месяц (не учитывая сегодня)
         context['qty_registrations_month'] = (
             User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
-            .filter(day__range=[date.today() - timedelta(days=30), date.today()])
+            .filter(
+                day__range=[date.today() - timedelta(days=30), date.today() - timedelta(days=1)]
+            )
             .count()
         )
 

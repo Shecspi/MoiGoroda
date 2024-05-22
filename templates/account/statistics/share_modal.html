@@ -81,11 +81,11 @@
                         <div class="col">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch"
-                                       id="switch_share_subscribe" name="switch_share_subscribe"
+                                       id="switch_subscribe" name="switch_subscribe"
                                        {% if not share_settings.switch_share_general %}disabled{% endif %}
-                                       {% if share_settings.switch_share_subscribe %}checked{% endif %}
+                                       {% if share_settings.switch_subscribe %}checked{% endif %}
                                 >
-                                <label class="form-check-label" for="switch_share_subscribe">&nbsp;&nbsp;&nbsp;Разрешить подписываться на Вас&nbsp;&nbsp;&nbsp;<i class="fa-solid fa-question"></i></label>
+                                <label class="form-check-label" for="switch_subscribe">&nbsp;&nbsp;&nbsp;Разрешить подписываться на Вас&nbsp;&nbsp;&nbsp;<i class="fa-solid fa-question"></i></label>
                             </div>
                         </div>
                     </div>
@@ -163,9 +163,9 @@
         switch_share_region_map.checked = false;
         switch_share_region_map.disabled = true;
 
-        const switch_share_subscribe = document.getElementById('switch_share_subscribe')
-        switch_share_subscribe.checked = false;
-        switch_share_subscribe.disabled = true;
+        const switch_subscribe = document.getElementById('switch_subscribe')
+        switch_subscribe.checked = false;
+        switch_subscribe.disabled = true;
 
         const input_with_share_link = document.getElementById('input_with_share_link')
         input_with_share_link.disabled = true;
@@ -192,9 +192,9 @@
         switch_share_region_map.checked = true;
         switch_share_region_map.disabled = false;
 
-        const switch_share_subscribe = document.getElementById('switch_share_subscribe')
-        switch_share_subscribe.checked = true;
-        switch_share_subscribe.disabled = false;
+        const switch_subscribe = document.getElementById('switch_subscribe')
+        switch_subscribe.checked = true;
+        switch_subscribe.disabled = false;
 
         const input_with_share_link = document.getElementById('input_with_share_link')
         input_with_share_link.disabled = false;
@@ -207,7 +207,7 @@
     const switch_share_dashboard = document.getElementById('switch_share_dashboard')
     const switch_share_city_map = document.getElementById('switch_share_city_map')
     const switch_share_region_map = document.getElementById('switch_share_region_map')
-    const switch_share_subscribe = document.getElementById('switch_share_subscribe')
+    const switch_subscribe = document.getElementById('switch_subscribe')
     const input_with_share_link = document.getElementById('input_with_share_link')
     const button_make_a_copy = document.getElementById('button_make_a_copy')
     const button_send_to_server = document.getElementById('button_send_to_server')

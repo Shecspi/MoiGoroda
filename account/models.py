@@ -29,6 +29,9 @@ class ShareSettings(models.Model):
     can_share_region_map = models.BooleanField(
         blank=True, null=False, default=False, verbose_name='Отображать карту регионов'
     )
+    can_subscribe = models.BooleanField(
+        blank=True, null=False, default=False, verbose_name='Разрешить подписываться'
+    )
 
     def get_absolute_url(self):
         return reverse('share', kwargs={'pk': self.pk})

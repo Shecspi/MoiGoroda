@@ -2,11 +2,14 @@
     <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5 text-end">
         <div class="col">
                 {% if is_subscribed %}
-                    <button type="button" class="btn btn-success">
+                    <button type="button" class="btn btn-success"
+                            data-bs-toggle="tooltip" data-bs-title="Нажмите, чтобы убрать пользователя из своих подписок"
+                    >
                         <i class="fa-regular fa-bell"></i>&nbsp;&nbsp;&nbsp;Отписаться
                     </button>
                 {% else %}
-                    <button type="button" class="btn btn-outline-success">
+                    <button type="button" class="btn btn-outline-success"
+                            data-bs-toggle="tooltip" data-bs-title="После подписки на пользователя Вы сможете сравнивать его посещённые города со своими на одной карте">
                         <i class="fa-solid fa-bell"></i>&nbsp;&nbsp;&nbsp;Подписаться
                     </button>
                 {% endif %}

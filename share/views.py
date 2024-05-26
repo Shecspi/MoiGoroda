@@ -161,6 +161,7 @@ class Share(TemplateView):
         context['can_share_city_map'] = self.can_share_city_map
         context['can_share_region_map'] = self.can_share_region_map
         context['can_subscribe'] = self.can_subscribe
+        context['is_subscribed'] = True
         context['page_title'] = f'Статистика пользователя {context["username"]}'
         context['page_description'] = (
             f'Статистика посещённых городов и регионов пользователя {context["username"]}'

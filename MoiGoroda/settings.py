@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'markdownify',
     'dashboard',
     'share.apps.ShareConfig',
+    'subscribe',
 ]
 
 MIDDLEWARE = [

@@ -1,14 +1,17 @@
+{% load static %}
+
 {% if can_subscribe and user.is_authenticated %}
     <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5 text-end">
         <div class="col">
                 {% if is_subscribed %}
-                    <button type="button" class="btn btn-success" id="subscribe"
+                    <button type="button" class="btn btn-success" id="subscribe_button"
                             data-bs-toggle="tooltip" data-bs-title="Нажмите, чтобы убрать пользователя из своих подписок"
                     >
                         <i class="fa-regular fa-bell"></i>&nbsp;&nbsp;&nbsp;Отписаться
                     </button>
                 {% else %}
-                    <button type="button" class="btn btn-outline-success" id="subscribe"
+                    <button type="button" class="btn btn-outline-success" id="subscribe_button"
+                            onclick="send_to_server()" data-url="{% url 'save_subscribe' %}"
                             data-bs-toggle="tooltip" data-bs-title="После подписки на пользователя Вы сможете сравнивать его посещённые города со своими на одной карте">
                         <i class="fa-solid fa-bell"></i>&nbsp;&nbsp;&nbsp;Подписаться
                     </button>
@@ -16,4 +19,6 @@
             </button>
         </div>
     </div>
+
+    <script src="{% static 'js/subscribe_api.js' %}"></script>
 {% endif %}

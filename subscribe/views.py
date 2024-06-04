@@ -4,4 +4,4 @@ from django.http import JsonResponse
 
 @login_required()
 def save(request):
-    return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'subscribed'})

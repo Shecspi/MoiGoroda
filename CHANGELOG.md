@@ -13,6 +13,8 @@
 
 - *(dashboard)* Исправлен неверный подсчёт количества регистраций пользователей ([ad377c1](https://github.com/Shecspi/MoiGoroda/commit/ad377c1275405a68548e99cd6dd53f5710647946))
 
+- *(initial_db)* Актуализирован файл для начальной инициализации БД ([1559839](https://github.com/Shecspi/MoiGoroda/commit/15598393a6f9ce8ea9151229eaed650dce637fa0))
+
 
 #### ⚡ Производительность
 

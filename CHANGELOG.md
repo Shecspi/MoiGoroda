@@ -15,6 +15,8 @@
 
 - *(initial_db)* Актуализирован файл для начальной инициализации БД ([1559839](https://github.com/Shecspi/MoiGoroda/commit/15598393a6f9ce8ea9151229eaed650dce637fa0))
 
+- *(openpyxl)* Обновлена версия openpyxl в зависимостях до 3.1.3 ([d65783a](https://github.com/Shecspi/MoiGoroda/commit/d65783ac8e28457ef27132a6667365580b5947f0))
+
 
 #### ⚡ Производительность
 

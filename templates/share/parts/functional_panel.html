@@ -8,6 +8,9 @@
                         id="unsubscribe_button"
                         onclick="send_to_server()"
                         data-url="{% url 'save_subscribe' %}"
+                        data-action="unsubscribe"
+                        data-from_id="{{ request.user.id }}"
+                        data-to_id="{{ user_id }}"
                         data-bs-toggle="tooltip"
                         data-bs-title="Нажмите, чтобы убрать пользователя из своих подписок"
                         {% if not is_subscribed %}hidden{% endif %}>
@@ -18,6 +21,9 @@
                         id="subscribe_button"
                         onclick="send_to_server()"
                         data-url="{% url 'save_subscribe' %}"
+                        data-action="subscribe"
+                        data-from_id="{{ request.user.id }}"
+                        data-to_id="{{ user_id }}"
                         data-bs-toggle="tooltip"
                         data-bs-title="После подписки на пользователя Вы сможете сравнивать его посещённые города со своими на одной карте"
                         {% if is_subscribed %}hidden{% endif %}>
@@ -28,27 +34,34 @@
     </div>
 
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toast_subscribe_api_ok" class="toast bg-success-subtle" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header bg-success text-white">
-                <i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;&nbsp;
-                <strong class="me-auto">Успешно</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Закрыть"></button>
-            </div>
-            <div class="toast-body">
-                Вы подписались на пользователя.
+        <div id="toast_subscribe_api_ok" class="toast text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class='d-flex'>
+                <div class="toast-body">
+                    Вы подписались на пользователя.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
             </div>
         </div>
     </div>
 
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toast_unsubscribe_api_ok" class="toast bg-success-subtle" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header bg-success text-white">
-                <i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;&nbsp;
-                <strong class="me-auto">Успешно</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+        <div id="toast_unsubscribe_api_ok" class="toast text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class='d-flex'>
+                <div class="toast-body">
+                    Вы отписались от пользователя.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
             </div>
-            <div class="toast-body">
-                Вы отписались от пользователя.
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast_error" class="toast text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class='d-flex'>
+                <div class="toast-body">
+                    Во время отправки запроса произошла ошибка. Попробуйте, пожалуйста, ещё раз.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
             </div>
         </div>
     </div>

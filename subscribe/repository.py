@@ -7,6 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from account.models import ShareSettings
 from subscribe.models import Subscribe
 
 
@@ -17,3 +18,7 @@ def is_subscribed(subscribe_from_id: int, subscribe_to_id: int):
         return False
     else:
         return True
+
+
+def can_subscribe(to_id: int):
+    return ShareSettings.objects.get(user_id=to_id).can_subscribe

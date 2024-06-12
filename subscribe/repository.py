@@ -21,4 +21,7 @@ def is_subscribed(subscribe_from_id: int, subscribe_to_id: int):
 
 
 def can_subscribe(to_id: int):
-    return ShareSettings.objects.get(user_id=to_id).can_subscribe
+    try:
+        return ShareSettings.objects.get(user_id=to_id).can_subscribe
+    except ShareSettings.DoesNotExist:
+        return False

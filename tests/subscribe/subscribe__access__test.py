@@ -60,3 +60,45 @@ def user_is_not_allowed_to_subscribe_to_himself__test(setup, client):
     )
 
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def incorrect_json_fromid_data__test(setup, client):
+    create_permissions_in_db(1, (True, True, True, True, True))
+
+    client.login(username='username2', password='password')
+    response = client.post(
+        reverse('save_subscribe'),
+        data=json.dumps({'from_id': 'a', 'to_id': 1, 'action': 'subscribe'}),
+        content_type='application/json',
+    )
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def incorrect_json_toid_data__test(setup, client):
+    create_permissions_in_db(1, (True, True, True, True, True))
+
+    client.login(username='username2', password='password')
+    response = client.post(
+        reverse('save_subscribe'),
+        data=json.dumps({'from_id': 2, 'to_id': 'e', 'action': 'subscribe'}),
+        content_type='application/json',
+    )
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def incorrect_json_action_data__test(setup, client):
+    create_permissions_in_db(1, (True, True, True, True, True))
+
+    client.login(username='username2', password='password')
+    response = client.post(
+        reverse('save_subscribe'),
+        data=json.dumps({'from_id': 2, 'to_id': 1, 'action': 'casdsa'}),
+        content_type='application/json',
+    )
+
+    assert response.status_code == 400

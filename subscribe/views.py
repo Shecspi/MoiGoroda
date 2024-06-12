@@ -4,6 +4,7 @@ from enum import StrEnum, auto
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from pydantic import BaseModel, ValidationError
 
 from subscribe.repository import can_subscribe
 
@@ -11,6 +12,12 @@ from subscribe.repository import can_subscribe
 class Action(StrEnum):
     subscribe = auto()
     unsubscribe = auto()
+
+
+class SubscriptionRequest(BaseModel):
+    from_id: int
+    to_id: int
+    action: Action
 
 
 def is_user_has_permission_to_change_subscription(from_id: int, user_id: int):
@@ -24,21 +31,19 @@ def has_user_allowed_to_subscribe_to_himself(to_id: int):
 @require_POST
 @login_required
 def save(request):
-    data = json.loads(request.body.decode('utf-8'))
-    from_id = data.get('from_id')
-    to_id = data.get('to_id')
-    action = data.get('action')
+    json_data = request.body.decode('utf-8')
 
-    if not is_user_has_permission_to_change_subscription(from_id, request.user.id):
+    try:
+        subscription = SubscriptionRequest.model_validate_json(json_data)
+    except ValidationError as exc:
+        return JsonResponse(data={'status': 'error', 'exception': exc.json()}, status=400)
+
+    if not is_user_has_permission_to_change_subscription(subscription.from_id, request.user.id):
         return JsonResponse(data={'status': 'forbidden'}, status=403)
-    if not has_user_allowed_to_subscribe_to_himself(to_id):
+    if not has_user_allowed_to_subscribe_to_himself(subscription.to_id):
         return JsonResponse(data={'status': 'forbidden'}, status=403)
 
-    if action == 'subscribe':
-        print(action, from_id, to_id)
+    if subscription.action == Action.subscribe:
         return JsonResponse({'status': 'subscribed'})
-    elif action == 'unsubscribe':
-        print(action, from_id, to_id)
+    elif subscription.action == Action.unsubscribe:
         return JsonResponse({'status': 'unsubscribed'})
-    else:
-        return JsonResponse({'status': 'error'})

@@ -32,6 +32,7 @@ from services.db.visited_city_repo import (
 )
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
+from subscribe.repository import is_user_has_subscriptions, get_all_subscriptions
 from utils.VisitedCityMixin import VisitedCityMixin
 
 
@@ -219,6 +220,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.user_id: int | None = None
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
+        self.has_subscriptions: bool = False
         self.qty_of_visited_cities_last_year: int = 0
         self.qty_of_visited_cities_current_year: int = 0
         self.all_visited_cities: QuerySet[VisitedCity] | None = None
@@ -309,6 +311,9 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
         context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')
         context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
+
+        context['is_user_has_subscriptions'] = is_user_has_subscriptions(self.user_id)
+        context['subscriptions'] = get_all_subscriptions(self.user_id)
 
         if self.list_or_map == 'list':
             context['page_title'] = 'Список посещённых городов'

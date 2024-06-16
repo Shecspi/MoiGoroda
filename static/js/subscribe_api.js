@@ -67,8 +67,13 @@ async function send_to_server() {
     }
   }
   else {
+    let json = await response.json()
+
+    const error_message = document.getElementById('error-message');
     const element = document.getElementById('toast_error');
     const toast = new bootstrap.Toast(element)
+
+    error_message.innerText = json.message
     toast.show()
   }
 

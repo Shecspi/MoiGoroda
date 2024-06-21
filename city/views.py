@@ -9,8 +9,9 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any, NoReturn
 
+from django.contrib.auth.models import User
 from django.forms import BaseModelForm
-from django.http import Http404, HttpResponse, HttpRequest
+from django.http import Http404, HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.db.models import QuerySet
@@ -352,3 +353,27 @@ def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:
         logger.info(request, "(Visited city) Couldn't find cities in the requested region")
         cities = None
     return render(request, 'city/city_create__dropdown_list.html', {'cities': cities})
+
+
+def get_users_cities(request: HttpRequest) -> JsonResponse:
+    users_id = [1, 2, 3]
+    cities = []
+
+    for user_id in users_id:
+        username = User.objects.get(pk=user_id).username
+
+        visited_cities = []
+        for city in VisitedCity.objects.filter(user_id=user_id):
+            visited_cities.append(
+                {
+                    'title': city.city.title,
+                    'coordinates': {
+                        'lat': city.city.coordinate_width,
+                        'lon': city.city.coordinate_longitude,
+                    },
+                }
+            )
+
+        cities.append({'username': username, 'cities': visited_cities})
+
+    return JsonResponse(cities, safe=False)

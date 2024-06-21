@@ -25,4 +25,5 @@ urlpatterns = [
         views.get_cities_based_on_region,
         name='get_cities_based_on_region',
     ),
+    path('api/get_users_cities', views.get_users_cities, name='get_users_cities'),
 ]

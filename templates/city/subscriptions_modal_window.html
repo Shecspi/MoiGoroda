@@ -19,7 +19,10 @@
                         <div class="list-group">
                             {% for subscription in subscriptions %}
                                 <label class="list-group-item">
-                                    <input class="form-check-input me-1" type="checkbox" value="{{ subscription.to_id }}">
+                                    <input class="form-check-input me-1"
+                                            type="checkbox"
+                                            name="users"
+                                            value="{{ subscription.to_id }}">
                                     {{ subscription.username }}
                                 </label>
                             {% endfor %}
@@ -29,12 +32,70 @@
 
                 <div class="row mt-3">
                     <div class="col">
-                        <button class="btn btn-success">
+                        <button class="btn btn-success" id='button_send_to_server' data-url="{% url 'get_users_cities' %}" onclick="send_to_server()">
                             Применить
                         </button>
                     </div>
                 </div>
+
+                <div id="target_block"></div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function getCookie(c_name)
+    {
+        if (document.cookie.length > 0)
+        {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start != -1)
+            {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if (c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+
+    async function send_to_server() {
+        const button = document.getElementById("button_send_to_server");
+        const url = button.dataset.url
+        const data = [1, 2, 3]
+
+        let response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie("csrftoken")
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            var myMap = new ymaps.Map("map", {
+                center: [50, 50],
+                zoom: 5,
+                controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
+            }, {
+                searchControlProvider: 'yandex#search'
+            });
+
+            var myModalEl = document.getElementById('subscriptions_modal_window');
+            var modal = bootstrap.Modal.getInstance(myModalEl)
+            modal.hide();
+
+            let json = await response.json();
+            for(let i = 0; i < json.length; i++) {
+                let obj = json[i];
+            
+                console.log(obj);
+            }
+        }
+
+        return false;
+    }
+</script>

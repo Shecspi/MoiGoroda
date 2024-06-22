@@ -355,25 +355,50 @@ def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:
     return render(request, 'city/city_create__dropdown_list.html', {'cities': cities})
 
 
+from pydantic import BaseModel
+
+
+class Coordinates(BaseModel):
+    lat: float
+    lon: float
+
+
+class Cities(BaseModel):
+    title: str
+    coordinates: Coordinates
+
+
+class OwnCities(BaseModel):
+    cities: list[Cities]
+
+
+class SubscriptionsCities(BaseModel):
+    username: str
+    cities: list[Cities]
+
+
+class CitiesResponse(BaseModel):
+    own: OwnCities | None
+    subscriptions: SubscriptionsCities
+
+
 def get_users_cities(request: HttpRequest) -> JsonResponse:
     users_id = [1, 2, 3]
-    cities = []
 
     for user_id in users_id:
         username = User.objects.get(pk=user_id).username
 
         visited_cities = []
         for city in VisitedCity.objects.filter(user_id=user_id):
-            visited_cities.append(
-                {
-                    'title': city.city.title,
-                    'coordinates': {
-                        'lat': city.city.coordinate_width,
-                        'lon': city.city.coordinate_longitude,
-                    },
-                }
+            coordinates = Coordinates(
+                lat=city.city.coordinate_width, lon=city.city.coordinate_longitude
             )
+            city = Cities(title=city.city.title, coordinates=coordinates)
+            visited_cities.append(city)
+        subscriptions_cities = SubscriptionsCities(username=username, cities=visited_cities)
 
-        cities.append({'username': username, 'cities': visited_cities})
+        response = CitiesResponse(own=None, subscriptions=subscriptions_cities)
 
-    return JsonResponse(cities, safe=False)
+    response = CitiesResponse(own=None, subscriptions=subscriptions_cities)
+
+    return JsonResponse(data=response.model_dump_json(), safe=False)

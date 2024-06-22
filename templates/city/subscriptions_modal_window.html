@@ -76,23 +76,21 @@
         });
 
         if (response.ok) {
-            var myMap = new ymaps.Map("map", {
-                center: [50, 50],
-                zoom: 5,
-                controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
-            }, {
-                searchControlProvider: 'yandex#search'
-            });
-
             var myModalEl = document.getElementById('subscriptions_modal_window');
             var modal = bootstrap.Modal.getInstance(myModalEl)
             modal.hide();
+
+            // Удаление отметок, которые сейчас  существуют на карте
+            for (let placemark of placemarks) {
+                myMap.geoObjects.remove(placemark);
+            }
+            placemarks.length = 0;
 
             let json = await response.json();
             for(let i = 0; i < json.length; i++) {
                 let obj = json[i];
             
-                console.log(obj);
+                
             }
         }
 

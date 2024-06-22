@@ -1,3 +1,6 @@
+let placemarks = Array();
+let myMap;
+
 function createMap(center_lat, center_lon, zoom) {
     var myMap = new ymaps.Map("map", {
         center: [center_lat, center_lon],
@@ -15,13 +18,15 @@ function addCitiesOnMap(visited_cities, myMap) {
         let lat = visited_cities[i][0];
         let lon = visited_cities[i][1];
         let city = visited_cities[i][2]
-        myMap.geoObjects.add(
-            new ymaps.Placemark(
-                [lat, lon], {
-                balloonContent: city }, {
-                preset: 'islands#dotIcon', iconColor: '#009d31'
-            }));
+        placemark = new ymaps.Placemark(
+            [lat, lon], {
+            balloonContent: city }, {
+            preset: 'islands#dotIcon', iconColor: '#009d31'
+        });
+        placemarks.push(placemark);
+        myMap.geoObjects.add(placemark);
     }
+    console.log(placemarks);
 }
 
 function calculateCenterCoordinates(visited_cities) {

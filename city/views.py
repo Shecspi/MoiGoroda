@@ -21,6 +21,7 @@ from django.views.generic import ListView, CreateView, DeleteView, UpdateView, D
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
+import city.structs as structs
 from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities, get_list_of_collections
@@ -355,33 +356,6 @@ def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:
     return render(request, 'city/city_create__dropdown_list.html', {'cities': cities})
 
 
-from pydantic import BaseModel
-
-
-class Coordinates(BaseModel):
-    lat: float
-    lon: float
-
-
-class Cities(BaseModel):
-    title: str
-    coordinates: Coordinates
-
-
-class OwnCities(BaseModel):
-    cities: list[Cities]
-
-
-class SubscriptionsCities(BaseModel):
-    username: str
-    cities: list[Cities]
-
-
-class CitiesResponse(BaseModel):
-    own: OwnCities | None
-    subscriptions: SubscriptionsCities
-
-
 def get_users_cities(request: HttpRequest) -> JsonResponse:
     users_id = [1, 2, 3]
 
@@ -390,15 +364,15 @@ def get_users_cities(request: HttpRequest) -> JsonResponse:
 
         visited_cities = []
         for city in VisitedCity.objects.filter(user_id=user_id):
-            coordinates = Coordinates(
+            coordinates = structs.Coordinates(
                 lat=city.city.coordinate_width, lon=city.city.coordinate_longitude
             )
-            city = Cities(title=city.city.title, coordinates=coordinates)
+            city = structs.City(title=city.city.title, coordinates=coordinates)
             visited_cities.append(city)
-        subscriptions_cities = SubscriptionsCities(username=username, cities=visited_cities)
+        subscriptions_cities = structs.SubscriptionCities(username=username, cities=visited_cities)
 
-        response = CitiesResponse(own=None, subscriptions=subscriptions_cities)
+        response = structs.CitiesResponse(subscriptions=subscriptions_cities)
 
-    response = CitiesResponse(own=None, subscriptions=subscriptions_cities)
+    response = structs.CitiesResponse(subscriptions=subscriptions_cities)
 
     return JsonResponse(data=response.model_dump_json(), safe=False)

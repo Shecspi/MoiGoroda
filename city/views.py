@@ -356,23 +356,38 @@ def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:
     return render(request, 'city/city_create__dropdown_list.html', {'cities': cities})
 
 
-def get_users_cities(request: HttpRequest) -> JsonResponse:
-    users_id = [1, 2, 3]
+def get_struct_city(user_id: int) -> list[structs.City]:
+    own_cities = []
 
-    for user_id in users_id:
+    for city in get_all_visited_cities(user_id):
+        coordinates = structs.Coordinates(
+            lat=city.city.coordinate_width, lon=city.city.coordinate_longitude
+        )
+        city = structs.City(title=city.city.title, coordinates=coordinates)
+        own_cities.append(city)
+
+    return own_cities
+
+
+def get_struct_subscription_cities(user_ids: list) -> list[structs.SubscriptionCities]:
+    subscriptions_cities = []
+
+    for user_id in user_ids:
         username = User.objects.get(pk=user_id).username
+        visited_cities = get_struct_city(user_id)
+        subscriptions_cities.append(
+            structs.SubscriptionCities(username=username, cities=visited_cities)
+        )
 
-        visited_cities = []
-        for city in VisitedCity.objects.filter(user_id=user_id):
-            coordinates = structs.Coordinates(
-                lat=city.city.coordinate_width, lon=city.city.coordinate_longitude
-            )
-            city = structs.City(title=city.city.title, coordinates=coordinates)
-            visited_cities.append(city)
-        subscriptions_cities = structs.SubscriptionCities(username=username, cities=visited_cities)
+    return subscriptions_cities
 
-        response = structs.CitiesResponse(subscriptions=subscriptions_cities)
 
-    response = structs.CitiesResponse(subscriptions=subscriptions_cities)
+def get_users_cities(request: HttpRequest) -> JsonResponse:
+    users_id = [2, 3]
+
+    own_cities = get_struct_city(request.user.pk)
+    subscriptions_cities = get_struct_subscription_cities(users_id)
+
+    response = structs.CitiesResponse(own=own_cities, subscriptions=subscriptions_cities)
 
     return JsonResponse(data=response.model_dump_json(), safe=False)

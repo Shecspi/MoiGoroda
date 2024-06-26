@@ -11,15 +11,11 @@ class City(BaseModel):
     coordinates: Coordinates
 
 
-class OwnCities(BaseModel):
-    cities: list[City]
-
-
 class SubscriptionCities(BaseModel):
     username: str
     cities: list[City]
 
 
 class CitiesResponse(BaseModel):
-    own: OwnCities | None = None
-    subscriptions: SubscriptionCities | None = None
+    own: list[City] | None = None
+    subscriptions: list[SubscriptionCities] | None = None

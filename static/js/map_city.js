@@ -2,7 +2,7 @@ let placemarks = Array();
 let myMap;
 
 function createMap(center_lat, center_lon, zoom) {
-    var myMap = new ymaps.Map("map", {
+    let myMap = new ymaps.Map("map", {
         center: [center_lat, center_lon],
         zoom: zoom,
         controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
@@ -18,7 +18,7 @@ function addCitiesOnMap(visited_cities, myMap) {
         let lat = visited_cities[i][0];
         let lon = visited_cities[i][1];
         let city = visited_cities[i][2]
-        placemark = new ymaps.Placemark(
+        let placemark = new ymaps.Placemark(
             [lat, lon], {
             balloonContent: city }, {
             preset: 'islands#dotIcon', iconColor: '#009d31'
@@ -70,6 +70,60 @@ function calculateCenterCoordinates(visited_cities) {
     }
 }
 
+
+function getCookie(c_name)
+    {
+        if (document.cookie.length > 0)
+        {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start != -1)
+            {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if (c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+
+    async function send_to_server() {
+        const button = document.getElementById("button_send_to_server");
+        const url = button.dataset.url
+        const data = [1, 2, 3]
+
+        let response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie("csrftoken")
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            var myModalEl = document.getElementById('subscriptions_modal_window');
+            var modal = bootstrap.Modal.getInstance(myModalEl)
+            modal.hide();
+
+            // Удаление отметок, которые сейчас  существуют на карте
+            for (let placemark of placemarks) {
+                myMap.geoObjects.remove(placemark);
+            }
+            placemarks.length = 0;
+
+            const json_source = await response.json();
+            const json = JSON.parse(json_source);
+            console.log(json);
+            for(let i = 0; i < json.length; i++) {
+                let obj = json[i];
+                // console.log(obj);
+            }
+        }
+
+        return false;
+    }
+
 function init() {
     const [center_lat, center_lon, zoom] = calculateCenterCoordinates(visited_cities);
     myMap = createMap(center_lat, center_lon, zoom);
@@ -77,3 +131,8 @@ function init() {
 }
 
 ymaps.ready(init);
+
+const button = document.getElementById('button_send_to_server');
+button.addEventListener('click', function () {
+    send_to_server();
+});

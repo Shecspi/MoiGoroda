@@ -7,6 +7,7 @@ class Coordinates(BaseModel):
 
 
 class City(BaseModel):
+    id: int
     title: str
     coordinates: Coordinates
 

@@ -1,5 +1,26 @@
 let placemarks = Array();
+let unique_placemarks = new Map();
 let myMap;
+
+/**
+ * Содержит типы отметок, которые можно использовать на карте.
+ * Полный список отметок, поддерживаемях API Яндекс.карт находится по ссылке
+ * https://yandex.ru/dev/jsapi-v2-1/doc/ru/v2-1/ref/reference/option.presetStorage
+ */
+const PlacemarkStyle = {
+    OWN: {
+        preset: 'islands#darkGreenDotIcon',
+        zIndex: 3
+    },
+    TOGETHER: {
+        preset: 'islands#blueDotIcon',
+        zIndex: 2
+    },
+    SUBSCRIPTION: {
+        preset: 'islands#darkOrangeDotIcon',
+        zIndex: 1
+    }
+}
 
 function createMap(center_lat, center_lon, zoom) {
     let myMap = new ymaps.Map("map", {
@@ -18,15 +39,25 @@ function addCitiesOnMap(visited_cities, myMap) {
         let lat = visited_cities[i][0];
         let lon = visited_cities[i][1];
         let city = visited_cities[i][2]
-        let placemark = new ymaps.Placemark(
-            [lat, lon], {
-            balloonContent: city }, {
-            preset: 'islands#dotIcon', iconColor: '#009d31'
-        });
-        placemarks.push(placemark);
-        myMap.geoObjects.add(placemark);
+        add_placemark_to_map(city, lat, lon, PlacemarkStyle.OWN);
     }
-    console.log(placemarks);
+}
+
+function add_placemark_to_map(city, lat, lon, placemarkStyle,) {
+    let placemark = new ymaps.Placemark(
+        [lat, lon],
+        {
+            balloonContentHeader: city,
+            // balloonContent: 'Город посещён пользователями:<br>Вы'
+        }, {
+            preset: placemarkStyle.preset,
+            zIndex: placemarkStyle.zIndex
+        }
+    );
+    placemarks.push(placemark);
+    myMap.geoObjects.add(placemark);
+
+    return placemark;
 }
 
 function calculateCenterCoordinates(visited_cities) {
@@ -70,59 +101,90 @@ function calculateCenterCoordinates(visited_cities) {
     }
 }
 
-
 function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
     {
-        if (document.cookie.length > 0)
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
         {
-            c_start = document.cookie.indexOf(c_name + "=");
-            if (c_start != -1)
-            {
-                c_start = c_start + c_name.length + 1;
-                c_end = document.cookie.indexOf(";", c_start);
-                if (c_end == -1) c_end = document.cookie.length;
-                return unescape(document.cookie.substring(c_start,c_end));
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+}
+
+function remove_all_placemarks() {
+    for (let placemark of placemarks) {
+        myMap.geoObjects.remove(placemark);
+    }
+    placemarks.length = 0;
+    unique_placemarks.clear();
+}
+
+async function send_to_server() {
+    const button = document.getElementById("button_send_to_server");
+    const url = button.dataset.url
+    const data = [1, 2, 3]
+
+    let response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie("csrftoken")
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+        var myModalEl = document.getElementById('subscriptions_modal_window');
+        var modal = bootstrap.Modal.getInstance(myModalEl)
+        modal.hide();
+
+        remove_all_placemarks()
+
+        const json_source = await response.json();
+        const json = JSON.parse(json_source);
+        const own_cities = json.own;
+        const subscriptions_cities = json.subscriptions
+
+        // Наносим собственные города на карту
+        for (let i = 0; i < own_cities.length; i++) {
+            const id = own_cities[i].id
+            const city = own_cities[i].title;
+            const lat = own_cities[i].coordinates.lat;
+            const lon = own_cities[i].coordinates.lon;
+
+            let placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.OWN);
+            unique_placemarks.set(id, placemark);
+        }
+
+        // Наносим города пользователей, на которых оформлена подписка
+        for (let i = 0; i < subscriptions_cities.length; i++) {
+            for (let j = 0; j < subscriptions_cities[i].cities.length; j++) {
+                const id = subscriptions_cities[i].cities[j].id
+                const city = subscriptions_cities[i].cities[j].title;
+                const lat = subscriptions_cities[i].cities[j].coordinates.lat;
+                const lon = subscriptions_cities[i].cities[j].coordinates.lon;
+                let placemark;
+
+                if (unique_placemarks.has(id)) {
+                    myMap.geoObjects.remove(unique_placemarks.get(id));
+                    placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.TOGETHER);
+                }
+                else {
+                    placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.SUBSCRIPTION);
+                }
+                unique_placemarks.set(id, placemark);
             }
         }
-        return "";
     }
 
-    async function send_to_server() {
-        const button = document.getElementById("button_send_to_server");
-        const url = button.dataset.url
-        const data = [1, 2, 3]
-
-        let response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie("csrftoken")
-            },
-            body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-            var myModalEl = document.getElementById('subscriptions_modal_window');
-            var modal = bootstrap.Modal.getInstance(myModalEl)
-            modal.hide();
-
-            // Удаление отметок, которые сейчас  существуют на карте
-            for (let placemark of placemarks) {
-                myMap.geoObjects.remove(placemark);
-            }
-            placemarks.length = 0;
-
-            const json_source = await response.json();
-            const json = JSON.parse(json_source);
-            console.log(json);
-            for(let i = 0; i < json.length; i++) {
-                let obj = json[i];
-                // console.log(obj);
-            }
-        }
-
-        return false;
-    }
+    return false;
+}
 
 function init() {
     const [center_lat, center_lon, zoom] = calculateCenterCoordinates(visited_cities);

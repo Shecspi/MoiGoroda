@@ -363,7 +363,7 @@ def get_struct_city(user_id: int) -> list[structs.City]:
         coordinates = structs.Coordinates(
             lat=city.city.coordinate_width, lon=city.city.coordinate_longitude
         )
-        city = structs.City(title=city.city.title, coordinates=coordinates)
+        city = structs.City(id=city.city.id, title=city.city.title, coordinates=coordinates)
         own_cities.append(city)
 
     return own_cities
@@ -383,7 +383,7 @@ def get_struct_subscription_cities(user_ids: list) -> list[structs.SubscriptionC
 
 
 def get_users_cities(request: HttpRequest) -> JsonResponse:
-    users_id = [2, 3]
+    users_id = [3]
 
     own_cities = get_struct_city(request.user.pk)
     subscriptions_cities = get_struct_subscription_cities(users_id)

@@ -19,7 +19,7 @@
                         <div class="list-group">
                             {% for subscription in subscriptions %}
                                 <label class="list-group-item">
-                                    <input class="form-check-input me-1"
+                                    <input class="form-check-input me-1 checkbox_username"
                                             type="checkbox"
                                             name="users"
                                             value="{{ subscription.to_id }}">
@@ -43,3 +43,5 @@
         </div>
     </div>
 </div>
+
+{% include 'parts/toast/danger.html' with error_message='Неверный формат переданных на сервер данных' %}

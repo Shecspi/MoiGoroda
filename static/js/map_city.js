@@ -128,7 +128,10 @@ function remove_all_placemarks() {
 async function send_to_server() {
     const button = document.getElementById("button_send_to_server");
     const url = button.dataset.url
-    const data = [1, 2, 3]
+
+    let selectedCheckboxes = document.querySelectorAll('input.checkbox_username:checked');
+    let checkedValues = Array.from(selectedCheckboxes).map(cb => Number(cb.value));
+    let data = {'ids': checkedValues};
 
     let response = await fetch(url, {
         method: 'POST',
@@ -181,6 +184,11 @@ async function send_to_server() {
                 unique_placemarks.set(id, placemark);
             }
         }
+    }
+    else {
+        const element = document.getElementById('toast_validation_error');
+        const toast = new bootstrap.Toast(element);
+        toast.show()
     }
 
     return false;

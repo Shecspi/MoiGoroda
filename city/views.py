@@ -18,6 +18,8 @@ from django.db.models import QuerySet
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
+from pydantic.main import BaseModel
+from pydantic_core._pydantic_core import ValidationError
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
@@ -369,10 +371,10 @@ def get_struct_city(user_id: int) -> list[structs.City]:
     return own_cities
 
 
-def get_struct_subscription_cities(user_ids: list) -> list[structs.SubscriptionCities]:
+def get_struct_subscription_cities(user_ids: structs.UserIds) -> list[structs.SubscriptionCities]:
     subscriptions_cities = []
 
-    for user_id in user_ids:
+    for user_id in user_ids.ids:
         username = User.objects.get(pk=user_id).username
         visited_cities = get_struct_city(user_id)
         subscriptions_cities.append(
@@ -383,10 +385,13 @@ def get_struct_subscription_cities(user_ids: list) -> list[structs.SubscriptionC
 
 
 def get_users_cities(request: HttpRequest) -> JsonResponse:
-    users_id = [3]
+    try:
+        user_ids = structs.UserIds.model_validate_json(request.body)
+    except ValidationError as exc:
+        return JsonResponse(data=exc.json(include_url=False), status=400, safe=False)
 
     own_cities = get_struct_city(request.user.pk)
-    subscriptions_cities = get_struct_subscription_cities(users_id)
+    subscriptions_cities = get_struct_subscription_cities(user_ids)
 
     response = structs.CitiesResponse(own=own_cities, subscriptions=subscriptions_cities)
 

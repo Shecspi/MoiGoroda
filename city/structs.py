@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from pydantic.types import conint
+from pydantic.v1.types import PositiveInt
 
 
 class Coordinates(BaseModel):
@@ -20,3 +22,12 @@ class SubscriptionCities(BaseModel):
 class CitiesResponse(BaseModel):
     own: list[City] | None = None
     subscriptions: list[SubscriptionCities] | None = None
+
+
+class UserIds(BaseModel):
+    """
+    Формат получаемых JSON-данных при запросе списка посещённых городов.
+    ids - идентификаторы пользователей, для которых необходимо вернуть список городов.
+    """
+
+    ids: list[conint(gt=0)]

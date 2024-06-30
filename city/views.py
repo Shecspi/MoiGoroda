@@ -9,17 +9,18 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any, NoReturn
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest, JsonResponse
+from django.views.decorators.http import require_POST
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.db.models import QuerySet
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
-from pydantic.main import BaseModel
-from pydantic_core._pydantic_core import ValidationError
+from pydantic import ValidationError
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
@@ -384,6 +385,8 @@ def get_struct_subscription_cities(user_ids: structs.UserIds) -> list[structs.Su
     return subscriptions_cities
 
 
+@require_POST
+@login_required
 def get_users_cities(request: HttpRequest) -> JsonResponse:
     try:
         user_ids = structs.UserIds.model_validate_json(request.body)

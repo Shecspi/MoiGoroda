@@ -7,8 +7,10 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import json
 from typing import Any, NoReturn
 
+from rest_framework import generics, serializers
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.forms import BaseModelForm
@@ -21,10 +23,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from pydantic import ValidationError
+from rest_framework.permissions import IsAuthenticated
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 import city.structs as structs
+from city.serializers import CitySerializer
 from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities, get_list_of_collections
@@ -34,6 +38,7 @@ from services.db.visited_city_repo import (
     get_number_of_visited_cities,
     get_number_of_visited_cities_current_year,
     get_number_of_visited_cities_previous_year,
+    get_visited_cities_many_users,
 )
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
@@ -399,3 +404,47 @@ def get_users_cities(request: HttpRequest) -> JsonResponse:
     response = structs.CitiesResponse(own=own_cities, subscriptions=subscriptions_cities)
 
     return JsonResponse(data=response.model_dump_json(), safe=False)
+
+
+class GetVisitedCities_API(generics.ListAPIView):
+    serializer_class = CitySerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        user_id = self.request.user.pk
+
+        return get_visited_cities_many_users(
+            [user_id],
+            ('city', 'user'),
+            [
+                'user__username',
+                'id',
+                'city__title',
+                'city__coordinate_width',
+                'city__coordinate_longitude',
+            ],
+        )
+
+
+class GetVisitedCitiesFromSubscriptions_API(generics.ListAPIView):
+    serializer_class = CitySerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        input_data = self.request.GET.get('data')
+        json_data = json.loads(input_data)
+        user_ids = json_data.get('ids')
+
+        return get_visited_cities_many_users(
+            user_ids,
+            ('city', 'user'),
+            [
+                'user__username',
+                'id',
+                'city__title',
+                'city__coordinate_width',
+                'city__coordinate_longitude',
+            ],
+        )

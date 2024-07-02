@@ -133,13 +133,12 @@ async function send_to_server() {
     let checkedValues = Array.from(selectedCheckboxes).map(cb => Number(cb.value));
     let data = {'ids': checkedValues};
 
-    let response = await fetch(url, {
-        method: 'POST',
+    let response = await fetch(url + '?data=' + encodeURIComponent(JSON.stringify(data)), {
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie("csrftoken")
-        },
-        body: JSON.stringify(data)
+        }
     });
 
     if (response.ok) {
@@ -149,40 +148,38 @@ async function send_to_server() {
 
         remove_all_placemarks()
 
-        const json_source = await response.json();
-        const json = JSON.parse(json_source);
-        const own_cities = json.own;
-        const subscriptions_cities = json.subscriptions
+        const json = await response.json();
+        // const own_cities = json.own;
+        // const subscriptions_cities = json.subscriptions
 
         // Наносим собственные города на карту
-        for (let i = 0; i < own_cities.length; i++) {
-            const id = own_cities[i].id
-            const city = own_cities[i].title;
-            const lat = own_cities[i].coordinates.lat;
-            const lon = own_cities[i].coordinates.lon;
-
-            let placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.OWN);
-            unique_placemarks.set(id, placemark);
-        }
+        // for (let i = 0; i < own_cities.length; i++) {
+        //     const id = own_cities[i].id
+        //     const city = own_cities[i].title;
+        //     const lat = own_cities[i].coordinates.lat;
+        //     const lon = own_cities[i].coordinates.lon;
+        //
+        //     let placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.OWN);
+        //     unique_placemarks.set(id, placemark);
+        // }
 
         // Наносим города пользователей, на которых оформлена подписка
-        for (let i = 0; i < subscriptions_cities.length; i++) {
-            for (let j = 0; j < subscriptions_cities[i].cities.length; j++) {
-                const id = subscriptions_cities[i].cities[j].id
-                const city = subscriptions_cities[i].cities[j].title;
-                const lat = subscriptions_cities[i].cities[j].coordinates.lat;
-                const lon = subscriptions_cities[i].cities[j].coordinates.lon;
-                let placemark;
+        for (let i = 0; i < json.length; i++) {
+            const username = json[i].username;
+            const id = json[i].id;
+            const city = json[i].title;
+            const lat = json[i].lat;
+            const lon = json[i].lon;
+            let placemark;
 
-                if (unique_placemarks.has(id)) {
-                    myMap.geoObjects.remove(unique_placemarks.get(id));
-                    placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.TOGETHER);
-                }
-                else {
-                    placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.SUBSCRIPTION);
-                }
-                unique_placemarks.set(id, placemark);
+            if (unique_placemarks.has(id)) {
+                myMap.geoObjects.remove(unique_placemarks.get(id));
+                placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.TOGETHER);
             }
+            else {
+                placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.SUBSCRIPTION);
+            }
+            unique_placemarks.set(id, placemark);
         }
     }
     else {
@@ -194,7 +191,7 @@ async function send_to_server() {
     return false;
 }
 
-function init() {
+async function init() {
     const [center_lat, center_lon, zoom] = calculateCenterCoordinates(visited_cities);
     myMap = createMap(center_lat, center_lon, zoom);
     addCitiesOnMap(visited_cities, myMap);

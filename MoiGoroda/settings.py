@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'dashboard',
     'share.apps.ShareConfig',
     'subscribe',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

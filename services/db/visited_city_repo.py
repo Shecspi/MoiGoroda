@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Sequence
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet, F
@@ -90,6 +90,16 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
             'region__title',
             'region__type',
         )
+    )
+
+
+def get_visited_cities_many_users(
+    user_ids: Sequence[int], select_related_fields: Sequence[str], fields: Sequence[str]
+) -> QuerySet[VisitedCity]:
+    return (
+        VisitedCity.objects.filter(user_id__in=user_ids)
+        .select_related(*select_related_fields)
+        .only(*fields)
     )
 
 

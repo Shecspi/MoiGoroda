@@ -1,7 +1,14 @@
-let placemarks = Array();
-let unique_placemarks = new Map();
 let myMap;
-let usersVisitedCities;
+
+let usersVisitedCitiesJSON;
+
+// Массив, содержащий в себе ID городов, посещённых пользователем.
+// Этот массив всегда существует без изменений и может быть использован для перерисовки карты.
+let usersVisitedCities = [];
+
+// Словарь, хранящий в себе все отметки на карте.
+// Ключём является ID города, а значением - объект отметки.
+let stateMap = new Map();
 
 /**
  * Содержит типы отметок, которые можно использовать на карте.
@@ -35,16 +42,44 @@ function createMap(center_lat, center_lon, zoom) {
     return myMap;
 }
 
-function addCitiesOnMap(visited_cities, myMap) {
+function addOwnCitiesOnMap(visited_cities) {
     for (let i = 0; i < (visited_cities.length); i++) {
-        let lat = visited_cities[i][0];
-        let lon = visited_cities[i][1];
-        let city = visited_cities[i][2]
-        add_placemark_to_map(city, lat, lon, PlacemarkStyle.OWN);
+        let id = visited_cities[i].id
+        let city = visited_cities[i].title
+        let lat = visited_cities[i].lat;
+        let lon = visited_cities[i].lon;
+        let placemark = addPlacemarkToMap(city, lat, lon, PlacemarkStyle.OWN);
+
+        stateMap.set(id, placemark);
+        if (!usersVisitedCities.includes(id)) {
+            usersVisitedCities.push(id);
+        }
     }
 }
 
-function add_placemark_to_map(city, lat, lon, placemarkStyle,) {
+function addSubscriptionsCitiesOnMap(visited_cities) {
+    for (let i = 0; i < (visited_cities.length); i++) {
+        let placemark;
+        let id = visited_cities[i].id
+        let city = visited_cities[i].title
+        let lat = visited_cities[i].lat;
+        let lon = visited_cities[i].lon;
+
+        if (usersVisitedCities.includes(id)) {
+            myMap.geoObjects.remove(stateMap.get(id));
+            placemark = addPlacemarkToMap(city, lat, lon, PlacemarkStyle.TOGETHER);
+        }
+        else {
+            placemark = addPlacemarkToMap(city, lat, lon, PlacemarkStyle.SUBSCRIPTION);
+        }
+        stateMap.set(id, placemark);
+    }
+}
+
+function addPlacemarkToMap(city, lat, lon, placemarkStyle) {
+    /**
+     * Добавляет на карту, находящуюся в глобальной переменной myMap, отметку города city по координатам lat и lon.
+     */
     let placemark = new ymaps.Placemark(
         [lat, lon],
         {
@@ -55,7 +90,7 @@ function add_placemark_to_map(city, lat, lon, placemarkStyle,) {
             zIndex: placemarkStyle.zIndex
         }
     );
-    placemarks.push(placemark);
+    // placemarks.push(placemark);
     myMap.geoObjects.add(placemark);
 
     return placemark;
@@ -72,8 +107,8 @@ function calculateCenterCoordinates(visited_cities) {
         // Добавляем все координаты в один массив и находим большее и меньшее значения из них,
         // а затем вычисляем среднее, это и будет являться центром карты.
         for (let i = 0; i < visited_cities.length; i++) {
-            array_lat.push(parseFloat(visited_cities[i][0]));
-            array_lon.push(parseFloat(visited_cities[i][1]));
+            array_lat.push(parseFloat(visited_cities[i].lat));
+            array_lon.push(parseFloat(visited_cities[i].lon));
         }
         let max_lon = Math.max(...array_lon);
         let min_lon = Math.min(...array_lon);
@@ -118,12 +153,13 @@ function getCookie(c_name)
     return "";
 }
 
-function remove_all_placemarks() {
-    for (let placemark of placemarks) {
+function removeAllPlacemarks() {
+    /**
+     * Удаляет все отметки с карты.
+     */
+    for (let [id, placemark] of stateMap.entries()) {
         myMap.geoObjects.remove(placemark);
     }
-    placemarks.length = 0;
-    unique_placemarks.clear();
 }
 
 async function send_to_server() {
@@ -143,45 +179,18 @@ async function send_to_server() {
     });
 
     if (response.ok) {
+        // Закрываем модальное окно
         var myModalEl = document.getElementById('subscriptions_modal_window');
         var modal = bootstrap.Modal.getInstance(myModalEl)
         modal.hide();
 
-        remove_all_placemarks()
+        // Удаляем все отметки с карты и из stateMap
+        removeAllPlacemarks();
+        stateMap.clear();
 
         const json = await response.json();
-        // const own_cities = json.own;
-        // const subscriptions_cities = json.subscriptions
-
-        // Наносим собственные города на карту
-        for (let i = 0; i < usersVisitedCities.length; i++) {
-            const id = usersVisitedCities[i].id
-            const city = usersVisitedCities[i].title;
-            const lat = usersVisitedCities[i].lat;
-            const lon = usersVisitedCities[i].lon;
-
-            let placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.OWN);
-            unique_placemarks.set(id, placemark);
-        }
-
-        // Наносим города пользователей, на которых оформлена подписка
-        for (let i = 0; i < json.length; i++) {
-            const username = json[i].username;
-            const id = json[i].id;
-            const city = json[i].title;
-            const lat = json[i].lat;
-            const lon = json[i].lon;
-            let placemark;
-
-            if (unique_placemarks.has(id)) {
-                myMap.geoObjects.remove(unique_placemarks.get(id));
-                placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.TOGETHER);
-            }
-            else {
-                placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.SUBSCRIPTION);
-            }
-            unique_placemarks.set(id, placemark);
-        }
+        addOwnCitiesOnMap(usersVisitedCitiesJSON);
+        addSubscriptionsCitiesOnMap(json);
     }
     else {
         const element = document.getElementById('toast_validation_error');
@@ -193,18 +202,10 @@ async function send_to_server() {
 }
 
 async function init() {
-    /**
-     * На текущий момент изначальный список городов для отображения получается из Django Views,
-     * а в этот скрипт передаётся просто через переменную Django Templates.
-     * ToDo: Удалить этот функционал и отрисовывать карту на основе данных, получаемых функцией getVisitedCities().
-     * При загрузке страницы в любом случае идёт запрос на получение посещённых городов пользователя,
-     * так как они сохраняются в переменную usersVisitedCities и при последующей перерисовке карты
-     * берутся именно из неё. Для таких городов повторный запрос на сервер не требуется.
-     */
-    const [center_lat, center_lon, zoom] = calculateCenterCoordinates(visited_cities);
+    usersVisitedCitiesJSON = await getVisitedCities();
+    const [center_lat, center_lon, zoom] = calculateCenterCoordinates(usersVisitedCitiesJSON);
     myMap = createMap(center_lat, center_lon, zoom);
-    addCitiesOnMap(visited_cities, myMap);
-    await getVisitedCities();
+    addOwnCitiesOnMap(usersVisitedCitiesJSON);
 }
 
 async function getVisitedCities() {
@@ -222,7 +223,7 @@ async function getVisitedCities() {
         }
     });
     if (response.ok) {
-        usersVisitedCities = await response.json();
+        return await response.json();
     } else {
         const element = document.getElementById('toast_request_error');
         const toast = new bootstrap.Toast(element);

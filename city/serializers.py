@@ -4,6 +4,7 @@ from city.models import VisitedCity
 
 
 class CitySerializer(serializers.ModelSerializer):
+    id = serializers.CharField(source='city.id', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
     title = serializers.CharField(source='city.title', read_only=True)
     lat = serializers.CharField(source='city.coordinate_width', read_only=True)

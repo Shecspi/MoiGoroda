@@ -442,7 +442,7 @@ class GetVisitedCitiesFromSubscriptions_API(generics.ListAPIView):
             ('city', 'user'),
             [
                 'user__username',
-                'id',
+                'city__id',
                 'city__title',
                 'city__coordinate_width',
                 'city__coordinate_longitude',

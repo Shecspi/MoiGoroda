@@ -1,6 +1,7 @@
 let placemarks = Array();
 let unique_placemarks = new Map();
 let myMap;
+let usersVisitedCities;
 
 /**
  * Содержит типы отметок, которые можно использовать на карте.
@@ -153,15 +154,15 @@ async function send_to_server() {
         // const subscriptions_cities = json.subscriptions
 
         // Наносим собственные города на карту
-        // for (let i = 0; i < own_cities.length; i++) {
-        //     const id = own_cities[i].id
-        //     const city = own_cities[i].title;
-        //     const lat = own_cities[i].coordinates.lat;
-        //     const lon = own_cities[i].coordinates.lon;
-        //
-        //     let placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.OWN);
-        //     unique_placemarks.set(id, placemark);
-        // }
+        for (let i = 0; i < usersVisitedCities.length; i++) {
+            const id = usersVisitedCities[i].id
+            const city = usersVisitedCities[i].title;
+            const lat = usersVisitedCities[i].lat;
+            const lon = usersVisitedCities[i].lon;
+
+            let placemark = add_placemark_to_map(city, lat, lon, PlacemarkStyle.OWN);
+            unique_placemarks.set(id, placemark);
+        }
 
         // Наносим города пользователей, на которых оформлена подписка
         for (let i = 0; i < json.length; i++) {
@@ -192,9 +193,41 @@ async function send_to_server() {
 }
 
 async function init() {
+    /**
+     * На текущий момент изначальный список городов для отображения получается из Django Views,
+     * а в этот скрипт передаётся просто через переменную Django Templates.
+     * ToDo: Удалить этот функционал и отрисовывать карту на основе данных, получаемых функцией getVisitedCities().
+     * При загрузке страницы в любом случае идёт запрос на получение посещённых городов пользователя,
+     * так как они сохраняются в переменную usersVisitedCities и при последующей перерисовке карты
+     * берутся именно из неё. Для таких городов повторный запрос на сервер не требуется.
+     */
     const [center_lat, center_lon, zoom] = calculateCenterCoordinates(visited_cities);
     myMap = createMap(center_lat, center_lon, zoom);
     addCitiesOnMap(visited_cities, myMap);
+    await getVisitedCities();
+}
+
+async function getVisitedCities() {
+    /**
+     * Делает запрос на сервер, получает список городов, посещённых пользователем,
+     * и помещает его в глобальную переменную usersVisitedCities, откуда можно получить
+     * данные из любого места скрипта.
+     */
+    let url = document.getElementById('url-api__get_visited_cities').dataset.url;
+    let response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie("csrftoken")
+        }
+    });
+    if (response.ok) {
+        usersVisitedCities = await response.json();
+    } else {
+        const element = document.getElementById('toast_request_error');
+        const toast = new bootstrap.Toast(element);
+        toast.show()
+    }
 }
 
 ymaps.ready(init);

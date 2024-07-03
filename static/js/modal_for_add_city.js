@@ -32,6 +32,8 @@ form.addEventListener('submit', event => {
             button.disabled = false;
             button.innerText = 'Добавить';
 
+            form.reset();
+
             const element = document.getElementById('toast-success');
             const toast = new bootstrap.Toast(element);
             document.getElementById('city-title-in-toast').innerText = data.city.city_title;

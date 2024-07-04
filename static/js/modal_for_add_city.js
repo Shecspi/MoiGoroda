@@ -16,7 +16,7 @@ form.addEventListener('submit', event => {
     fetch('/api/city/visited/add', {
         method: 'POST',
         headers: {
-          'X-CSRFToken': getCookie("csrftoken")
+            'X-CSRFToken': getCookie("csrftoken")
         },
         body: formData
     })
@@ -47,7 +47,7 @@ form.addEventListener('submit', event => {
             button.disabled = false;
             button.innerText = 'Добавить';
         })
-    });
+});
 
 function open_modal_for_add_city(city, city_id, region_title) {
     const el_city_title = document.getElementById('city-title-in-modal');

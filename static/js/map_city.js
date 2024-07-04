@@ -410,7 +410,7 @@ class ToolbarActions {
             for (let i = this.notVisitedCities.length - 1; i >= 0; i--) {
                 if (this.notVisitedCities[i].id === id) {
                     city = this.notVisitedCities[i];
-                    this.notVisitedCities.splice(i,  1);
+                    this.notVisitedCities.splice(i, 1);
                     break;
                 }
             }
@@ -459,7 +459,7 @@ class ToolbarActions {
                 this.PlacemarkStyle.TOGETHER,
                 usersWhoVisitedCity.get(id)
             );
-            this.stateSubscriptionCities.set(id,  new_placemark);
+            this.stateSubscriptionCities.set(id, new_placemark);
         } else {
             throw new Error(`Неизвестное состояние добавленного города с ID ${id}`);
         }

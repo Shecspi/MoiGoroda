@@ -202,11 +202,13 @@ class AddVisitedCity(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
+        from_page = request.data.get('from') if request.data.get('from') else 'unknown location'
+
         serializer = AddVisitedCitySerializer(data=request.data, context={'request': self.request})
         if not serializer.is_valid():
             logger.info(
                 self.request,
-                '(API: Add visited city) Validation in the serializer failed',
+                f'(API: Add visited city) Validation in the serializer failed from {from_page}',
             )
             raise drf_exc.ValidationError(serializer.errors)
 
@@ -216,7 +218,7 @@ class AddVisitedCity(generics.CreateAPIView):
 
         logger.info(
             self.request,
-            '(API: Add visited city) The visited city has been successfully added',
+            f'(API: Add visited city) The visited city has been successfully added from {from_page}',
         )
 
         return Response({'status': 'success', 'city': serializer.data})

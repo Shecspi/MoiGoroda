@@ -16,7 +16,14 @@ from django.urls import reverse_lazy, reverse
 from django.db.models import QuerySet
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
+from django.views.generic import (
+    ListView,
+    CreateView,
+    DeleteView,
+    UpdateView,
+    DetailView,
+    TemplateView,
+)
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
@@ -187,6 +194,39 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
         return context
 
 
+class VisitedCity_Map(LoginRequiredMixin, TemplateView):
+    template_name = 'city/city_all__map.html'
+
+    def get_context_data(
+        self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any
+    ) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        logger.info(self.request, '(Visited city) Viewing the map of visited cities')
+
+        user_id = self.request.user.pk
+
+        number_of_cities = get_number_of_cities()
+        number_of_visited_cities = get_number_of_visited_cities(user_id)
+
+        context['total_qty_of_cities'] = number_of_cities
+        context['qty_of_visited_cities'] = number_of_visited_cities
+
+        context['declension_of_total_cities'] = modification__city(number_of_cities)
+        context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
+        context['declension_of_visited'] = modification__visited(number_of_visited_cities)
+
+        context['active_page'] = 'city_map'
+
+        context['is_user_has_subscriptions'] = is_user_has_subscriptions(user_id)
+        context['subscriptions'] = get_all_subscriptions(user_id)
+
+        context['page_title'] = 'Карта посещённых городов'
+        context['page_description'] = 'Карта с отмеченными посещёнными городами'
+
+        return context
+
+
 class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
     """
     Отображает список всех посещённых городов пользователя.
@@ -207,16 +247,15 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
 
     model = VisitedCity
     paginate_by = 16
+    template_name = 'city/city_all__list.html'
 
     all_cities = None
-    list_or_map: str = ''
 
-    def __init__(self, list_or_map: str) -> None:
+    def __init__(self) -> None:
         super().__init__()
 
         self.sort: str | None = ''
         self.filter: str | None = ''
-        self.list_or_map = list_or_map
         self.user_id: int | None = None
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
@@ -229,10 +268,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.user_id = self.request.user.pk
         self.all_visited_cities = get_all_visited_cities(self.user_id)
 
-        if self.list_or_map == 'list':
-            logger.info(self.request, '(Visited city) Viewing the list of visited cities')
-        else:
-            logger.info(self.request, '(Visited city) Viewing the map of visited cities')
+        logger.info(self.request, '(Visited city) Viewing the list of visited cities')
 
         # Обработка фильтрации
         self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
@@ -297,7 +333,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['filter'] = self.filter
         context['sort'] = self.sort
 
-        context['active_page'] = 'city_list' if self.list_or_map == 'list' else 'city_map'
+        context['active_page'] = 'city_list'
         context['url_for_filter_magnet'] = self.get_url_params(
             'magnet' if self.filter != 'magnet' else '', self.sort
         )
@@ -315,29 +351,12 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(self.user_id)
         context['subscriptions'] = get_all_subscriptions(self.user_id)
 
-        if self.list_or_map == 'list':
-            context['page_title'] = 'Список посещённых городов'
-            context['page_description'] = (
-                'Список всех посещённых городов, отсортированный в порядке посещения'
-            )
-        else:
-            context['page_title'] = 'Карта посещённых городов'
-            context['page_description'] = 'Карта с отмеченными посещёнными городами'
+        context['page_title'] = 'Список посещённых городов'
+        context['page_description'] = (
+            'Список всех посещённых городов, отсортированный в порядке посещения'
+        )
 
         return context
-
-    def get_template_names(self) -> list[str] | NoReturn:
-        if self.list_or_map == 'list':
-            return [
-                'city/city_all__list.html',
-            ]
-        elif self.list_or_map == 'map':
-            return [
-                'city/city_all__map.html',
-            ]
-        else:
-            logger.info(self.request, '(Visited city) Can not determine which template to display')
-            raise Http404
 
 
 def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:

@@ -18,13 +18,18 @@
                     <div class="col">
                         <div class="list-group">
                             {% for subscription in subscriptions %}
-                                <label class="list-group-item">
-                                    <input class="form-check-input me-1 checkbox_username"
-                                            type="checkbox"
-                                            name="users"
-                                            value="{{ subscription.to_id }}">
-                                    {{ subscription.username }}
-                                </label>
+                                <div class="form-check form-switch mt-1">
+                                    <input class="form-check-input checkbox_username"
+                                           type="checkbox"
+                                           name="users"
+                                           value="{{ subscription.to_id }}"
+                                           role="switch"
+                                           id="switch{{ subscription.to_id }}">
+                                    <label class="form-check-label mx-3"
+                                           for="switch{{ subscription.to_id }}">
+                                        {{ subscription.username }}
+                                    </label>
+                                </div>
                             {% endfor %}
                         </div>
                     </div>
@@ -40,7 +45,7 @@
                     </div>
                 </div>
 
-                <div id="target_block"></div>
+                <hr>
             </div>
         </div>
     </div>

@@ -317,6 +317,7 @@ const button = document.getElementById('btn_show-subscriptions-cities');
 const btnShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
 
 button.addEventListener('click', function () {
+    alert(1);
     showSubscriptionCities();
 });
 btnShowNotVisitedCities.addEventListener('click', function () {

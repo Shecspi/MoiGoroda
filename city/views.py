@@ -10,7 +10,6 @@ Licensed under the Apache License, Version 2.0
 import json
 from typing import Any, NoReturn
 
-from rest_framework import generics, serializers
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.forms import BaseModelForm
@@ -29,7 +28,6 @@ from account.models import ShareSettings
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 import city.structs as structs
-from city.serializers import CitySerializer, City2Serializer
 from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities, get_list_of_collections
@@ -364,130 +362,3 @@ def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:
         logger.info(request, "(Visited city) Couldn't find cities in the requested region")
         cities = None
     return render(request, 'city/city_create__dropdown_list.html', {'cities': cities})
-
-
-def get_struct_city(user_id: int) -> list[structs.City]:
-    own_cities = []
-
-    for city in get_all_visited_cities(user_id):
-        coordinates = structs.Coordinates(
-            lat=city.city.coordinate_width, lon=city.city.coordinate_longitude
-        )
-        city = structs.City(id=city.city.id, title=city.city.title, coordinates=coordinates)
-        own_cities.append(city)
-
-    return own_cities
-
-
-def get_struct_subscription_cities(user_ids: structs.UserIds) -> list[structs.SubscriptionCities]:
-    subscriptions_cities = []
-
-    for user_id in user_ids.ids:
-        username = User.objects.get(pk=user_id).username
-        visited_cities = get_struct_city(user_id)
-        subscriptions_cities.append(
-            structs.SubscriptionCities(username=username, cities=visited_cities)
-        )
-
-    return subscriptions_cities
-
-
-@require_POST
-@login_required
-def get_users_cities(request: HttpRequest) -> JsonResponse:
-    try:
-        user_ids = structs.UserIds.model_validate_json(request.body)
-    except ValidationError as exc:
-        return JsonResponse(data=exc.json(include_url=False), status=400, safe=False)
-
-    own_cities = get_struct_city(request.user.pk)
-    subscriptions_cities = get_struct_subscription_cities(user_ids)
-
-    response = structs.CitiesResponse(own=own_cities, subscriptions=subscriptions_cities)
-
-    return JsonResponse(data=response.model_dump_json(), safe=False)
-
-
-class GetVisitedCities_API(generics.ListAPIView):
-    serializer_class = CitySerializer
-    permission_classes = (IsAuthenticated,)
-    http_method_names = ['get']
-
-    def get_queryset(self):
-        user_id = self.request.user.pk
-
-        return get_visited_cities_many_users(
-            [user_id],
-            ('city', 'user'),
-            [
-                'user__username',
-                'id',
-                'city__title',
-                'city__coordinate_width',
-                'city__coordinate_longitude',
-            ],
-        )
-
-
-class GetVisitedCitiesFromSubscriptions_API(generics.ListAPIView):
-    serializer_class = CitySerializer
-    permission_classes = (IsAuthenticated,)
-    http_method_names = ['get']
-
-    def __init__(self):
-        # Список ID пользователей, у которых необходимо вернуть посещённые города
-        self.user_id: list = []
-
-        super().__init__()
-
-    def get(self, *args, **kwargs):
-        input_data = self.request.GET.get('data')
-        json_data = json.loads(input_data)
-        user_id = json_data.get('ids')
-
-        if not self.request.user.is_superuser:
-            # Убираем из списка ID тех пользователей, которые не разрешили подписываться на себя.
-            # Вообще это нештатная ситуация, но теоритически возможная, когда пользователь запретил
-            # подписываться после того, как была открыта страница с картой, но до того, как запрос пришёл на сервер.
-            for id in user_id:
-                try:
-                    user_settings = ShareSettings.objects.get(id=id)
-                except ShareSettings.DoesNotExist:
-                    logger.warning(
-                        self.request,
-                        f'(Share settings) Attempt to get a list of the cities of a user who did not change initial settings',
-                    )
-                else:
-                    if user_settings.can_subscribe:
-                        self.user_id.append(id)
-                    else:
-                        logger.warning(
-                            self.request,
-                            f'(Share settings) Attempt to get a list of the cities of a user who did not allow it',
-                        )
-        else:
-            self.user_id = user_id
-
-        return super().get(*args, **kwargs)
-
-    def get_queryset(self):
-        return get_visited_cities_many_users(
-            self.user_id,
-            ('city', 'user'),
-            [
-                'user__username',
-                'city__id',
-                'city__title',
-                'city__coordinate_width',
-                'city__coordinate_longitude',
-            ],
-        )
-
-
-class GetNotVisitedCities_API(generics.ListAPIView):
-    serializer_class = City2Serializer
-    permission_classes = (IsAuthenticated,)
-    http_method_names = ['get']
-
-    def get_queryset(self):
-        return get_not_visited_cities(self.request.user.pk)

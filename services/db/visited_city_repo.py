@@ -15,7 +15,7 @@ from typing import Literal, Sequence
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet, F
 
-from city.models import VisitedCity
+from city.models import VisitedCity, City
 
 
 def order_by_date_of_visit_desc(cities: QuerySet[VisitedCity]):
@@ -101,6 +101,12 @@ def get_visited_cities_many_users(
         .select_related(*select_related_fields)
         .only(*fields)
     )
+
+
+def get_not_visited_cities(user_id: int):
+    visited_cities = get_all_visited_cities(user_id)
+
+    return City.objects.exclude(id__in=visited_cities)
 
 
 def get_number_of_visited_cities(user_id: int) -> int:

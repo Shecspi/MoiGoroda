@@ -1,7 +1,11 @@
-from django.urls import path, include
+from django.urls import path
 
 import city.api
-from city.views import GetVisitedCitiesFromSubscriptions_API, GetVisitedCities_API
+from city.views import (
+    GetVisitedCitiesFromSubscriptions_API,
+    GetVisitedCities_API,
+    GetNotVisitedCities_API,
+)
 
 urlpatterns = [
     # /api/city/visiited
@@ -19,5 +23,5 @@ urlpatterns = [
         name='api__get_visited_cities_from_subscriptions',
     ),
     # /api/city/not_visited
-    path('not_visited', city.api.get_not_visited_cities, name='api__get_not_visited_cities'),
+    path('not_visited', GetNotVisitedCities_API.as_view(), name='api__get_not_visited_cities'),
 ]

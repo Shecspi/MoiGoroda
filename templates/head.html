@@ -57,6 +57,8 @@
     <script src="https://api-maps.yandex.ru/2.1/?apikey={{ API_YANDEX_MAP }}&lang=ru_RU" type="text/javascript"></script>
     {# ChartJS для построения графиков #}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    {# Вспомогательный файл, нужный для того, чтобы работала CSRF #}
+    <script src="{% static 'js/get_cookie.js' %}"></script>
 </head>
 <body>
     {% block base %}

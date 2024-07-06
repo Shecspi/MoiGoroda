@@ -50,6 +50,8 @@
 
         <!-- Показать непосещённые города -->
         <button class="align-self-center btn btn-outline-danger"
+                id="btn_show-not-visited-cities"
+                data-url="{% url 'api__get_not_visited_cities' %}"
                 data-bs-toggle="tooltip"
                 data-bs-title="Показать непосещённые города">
             <i class="fa-solid fa-eye"></i>

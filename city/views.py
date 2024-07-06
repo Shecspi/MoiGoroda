@@ -29,7 +29,7 @@ from account.models import ShareSettings
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 import city.structs as structs
-from city.serializers import CitySerializer
+from city.serializers import CitySerializer, City2Serializer
 from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities, get_list_of_collections
@@ -40,6 +40,7 @@ from services.db.visited_city_repo import (
     get_number_of_visited_cities_current_year,
     get_number_of_visited_cities_previous_year,
     get_visited_cities_many_users,
+    get_not_visited_cities,
 )
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
@@ -481,3 +482,12 @@ class GetVisitedCitiesFromSubscriptions_API(generics.ListAPIView):
                 'city__coordinate_longitude',
             ],
         )
+
+
+class GetNotVisitedCities_API(generics.ListAPIView):
+    serializer_class = City2Serializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        return get_not_visited_cities(self.request.user.pk)

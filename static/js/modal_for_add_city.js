@@ -13,7 +13,9 @@ form.addEventListener('submit', event => {
     button.disabled = true;
     button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;<span role="status">Загрузка...</span>';
 
-    fetch('/api/city/visited/add', {
+    const url = button.dataset.url;
+
+    fetch(url, {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie("csrftoken")

@@ -13,5 +13,5 @@ urlpatterns = [
     ),
     # /api/city/not_visited
     path('not_visited', api.GetNotVisitedCities.as_view(), name='api__get_not_visited_cities'),
-    path('visited/add', api.AddVisitedCity.as_view(), name='api_add_visited_city'),
+    path('visited/add', api.AddVisitedCity.as_view(), name='api__add_visited_city'),
 ]

@@ -27,15 +27,15 @@ let stateNotVisitedCities = new Map();
 const PlacemarkStyle = {
     OWN: {
         preset: 'islands#darkGreenDotIcon',
-        zIndex: 4
-    },
-    TOGETHER: {
-        preset: 'islands#blueDotIcon',
         zIndex: 3
     },
-    SUBSCRIPTION: {
-        preset: 'islands#darkOrangeDotIcon',
+    TOGETHER: {
+        preset: 'islands#darkBlueDotIcon',
         zIndex: 2
+    },
+    SUBSCRIPTION: {
+        preset: 'islands#brownDotIcon',
+        zIndex: 4
     },
     NOT_VISITED: {
         preset: 'islands#redDotIcon',
@@ -247,24 +247,32 @@ async function showNotVisitedCities() {
     const btn = document.getElementById('btn_show-not-visited-cities');
     const url = btn.dataset.url;
 
-    let response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie("csrftoken")
-        }
-    });
+    if (notVisitedCities.length === 0) {
+        let response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': getCookie("csrftoken")
+            }
+        });
 
-    if (response.ok) {
-        notVisitedCities = await response.json();
+        if (response.ok) {
+            notVisitedCities = await response.json();
+            addNotVisitedCitiesOnMap(notVisitedCities);
+        } else {
+            const element = document.getElementById('toast_validation_error');
+            const toast = new bootstrap.Toast(element);
+            toast.show();
+
+            return false;
+        }
+    } else {
         addNotVisitedCitiesOnMap(notVisitedCities);
     }
-    else {
-        const element = document.getElementById('toast_validation_error');
-        const toast = new bootstrap.Toast(element);
-        toast.show();
+}
 
-        return false;
-    }
+function hideNotVisitedCities() {
+    removeNotVisitedPlacemarks();
+    stateNotVisitedCities.clear();
 }
 
 async function init() {
@@ -312,5 +320,15 @@ button.addEventListener('click', function () {
     showSubscriptionCities();
 });
 btnShowNotVisitedCities.addEventListener('click', function () {
-    showNotVisitedCities();
+    if (btnShowNotVisitedCities.dataset.type === 'show') {
+        showNotVisitedCities();
+        btnShowNotVisitedCities.dataset.type = 'hide';
+        btnShowNotVisitedCities.classList.remove('btn-outline-danger');
+        btnShowNotVisitedCities.classList.add('btn-danger');
+    } else {
+        hideNotVisitedCities();
+        btnShowNotVisitedCities.dataset.type = 'show';
+        btnShowNotVisitedCities.classList.remove('btn-danger');
+        btnShowNotVisitedCities.classList.add('btn-outline-danger');
+    }
 })

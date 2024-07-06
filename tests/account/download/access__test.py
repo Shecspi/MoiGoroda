@@ -1,6 +1,3 @@
-import csv
-from datetime import datetime
-
 import pytest
 from django.urls import reverse
 

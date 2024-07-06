@@ -1,4 +1,3 @@
-import json
 from enum import StrEnum, auto
 
 from django.contrib.auth.decorators import login_required
@@ -46,7 +45,7 @@ def save(request):
         return JsonResponse(data={'status': 'error', 'exception': exc.json()}, status=400)
 
     if not is_user_has_permission_to_change_subscription(subscription.from_id, request.user.id):
-        logger.warning(request, f'(Subscription): Attempt to subscribe for another user')
+        logger.warning(request, '(Subscription): Attempt to subscribe for another user')
         return JsonResponse(
             data={
                 'status': 'forbidden',
@@ -56,12 +55,12 @@ def save(request):
         )
 
     if not is_user_exists(subscription.from_id):
-        logger.warning(request, f'(Subscription): Attempt to subscribe from not exists user')
+        logger.warning(request, '(Subscription): Attempt to subscribe from not exists user')
         return JsonResponse(
             data={'status': 'forbidden', 'message': 'Передан неверный ID пользователя'}, status=403
         )
     if not is_user_exists(subscription.to_id):
-        logger.warning(request, f'(Subscription): Attempt to subscribe to not exists user')
+        logger.warning(request, '(Subscription): Attempt to subscribe to not exists user')
         return JsonResponse(
             data={'status': 'forbidden', 'message': 'Передан неверный ID пользователя'}, status=403
         )
@@ -72,7 +71,7 @@ def save(request):
     ):
         logger.warning(
             request,
-            f'(Subscription): Attempt to subscribe to a user, who has not allowed subscriptions',
+            '(Subscription): Attempt to subscribe to a user, who has not allowed subscriptions',
         )
         return JsonResponse(
             data={

@@ -36,7 +36,7 @@ def setup_db__content_without_visited_regions__region_all(client, django_user_mo
 def setup_db__content_with_visited_regions__region_all(client, django_user_model):
     user = django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Area 1')
-    region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166=f'RU-RU')
+    region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU')
     for num in range(1, 4):
         city = City.objects.create(
             title=f'Город {num}', region=region, coordinate_width=1, coordinate_longitude=1
@@ -242,7 +242,7 @@ def test__without_visited_regions__3rd_page__auth_user(
     assert 'Список регионов России' in page_header.get_text()
     for num in range(1, 8):
         card = content.find('div', {'id': f'region_card_{num}'})
-        assert f'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
+        assert 'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert '0 из 1' in card.find('div', {'id': f'section-qty_of_cities_{num}'}).get_text()
         assert (
@@ -267,7 +267,7 @@ def test__without_visited_regions__1st_page__guest(
     assert 'Список регионов России' in page_header.get_text()
     for num in range(1, 17):
         card = content.find('div', {'id': f'region_card_{num}'})
-        assert f'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
+        assert 'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert (
             'Всего городов: 1'
@@ -295,7 +295,7 @@ def test__without_visited_regions__2nd_page__guest(
     assert 'Список регионов России' in page_header.get_text()
     for num in range(1, 17):
         card = content.find('div', {'id': f'region_card_{num}'})
-        assert f'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
+        assert 'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert (
             'Всего городов: 1'
@@ -323,7 +323,7 @@ def test__without_visited_regions__3rd_page__guest(
     assert 'Список регионов России' in page_header.get_text()
     for num in range(1, 8):
         card = content.find('div', {'id': f'region_card_{num}'})
-        assert f'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
+        assert 'Регион' in card.find('h4', {'id': f'section-region_title_{num}'}).get_text()
         assert 'Area 1' in card.find('div', {'id': f'section-area_title_{num}'}).get_text()
         assert (
             'Всего городов: 1'
@@ -350,10 +350,10 @@ def test__with_visited_regions__1st_page__auth_user(
     assert content
     assert page_header
     assert 'Список регионов России' in page_header.get_text()
-    card = content.find('div', {'id': f'region_card_1'})
-    assert 'Регион' in card.find('h4', {'id': f'section-region_title_1'}).get_text()
-    assert 'Area 1' in card.find('div', {'id': f'section-area_title_1'}).get_text()
-    assert '3 из 5' in card.find('div', {'id': f'section-qty_of_cities_1'}).get_text()
-    assert card.find('div', {'id': f'section-qty_of_cities_1'}).find(
+    card = content.find('div', {'id': 'region_card_1'})
+    assert 'Регион' in card.find('h4', {'id': 'section-region_title_1'}).get_text()
+    assert 'Area 1' in card.find('div', {'id': 'section-area_title_1'}).get_text()
+    assert '3 из 5' in card.find('div', {'id': 'section-qty_of_cities_1'}).get_text()
+    assert card.find('div', {'id': 'section-qty_of_cities_1'}).find(
         'div', {'id': 'progress_bar_1', 'style': 'width: 60%', 'aria-valuenow': '60'}
     )

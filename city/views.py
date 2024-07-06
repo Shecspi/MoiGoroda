@@ -7,27 +7,19 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-import json
 from typing import Any, NoReturn
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.forms import BaseModelForm
-from django.http import Http404, HttpResponse, HttpRequest, JsonResponse
-from django.views.decorators.http import require_POST
+from django.http import Http404, HttpResponse, HttpRequest
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.db.models import QuerySet
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
-from pydantic import ValidationError
-from rest_framework.permissions import IsAuthenticated
 
-from account.models import ShareSettings
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
-import city.structs as structs
 from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities, get_list_of_collections
@@ -37,8 +29,6 @@ from services.db.visited_city_repo import (
     get_number_of_visited_cities,
     get_number_of_visited_cities_current_year,
     get_number_of_visited_cities_previous_year,
-    get_visited_cities_many_users,
-    get_not_visited_cities,
 )
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited

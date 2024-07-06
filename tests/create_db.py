@@ -9,13 +9,13 @@ from region.models import Area, Region
 
 def create_user(django_user_model, user_id: int):
     return django_user_model.objects.create_user(
-        id=user_id, username=f'username{user_id}', password=f'password'
+        id=user_id, username=f'username{user_id}', password='password'
     )
 
 
 def create_superuser(django_user_model, user_id: int):
     return django_user_model.objects.create_superuser(
-        id=user_id, username=f'superuser{user_id}', password=f'password'
+        id=user_id, username=f'superuser{user_id}', password='password'
     )
 
 

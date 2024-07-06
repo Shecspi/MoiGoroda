@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from pydantic.types import conint
-from pydantic.v1.types import PositiveInt
 
 
 class Coordinates(BaseModel):

@@ -15,7 +15,6 @@ import sys
 from pathlib import Path
 
 import sentry_sdk
-from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 load_dotenv()

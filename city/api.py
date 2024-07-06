@@ -56,8 +56,8 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
                 except ShareSettings.DoesNotExist:
                     logger.warning(
                         self.request,
-                        f'(Share settings) Attempt to get a list of the cities of a user who did not change initial '
-                        f'settings',
+                        '(Share settings) Attempt to get a list of the cities of a user who did not change initial '
+                        'settings',
                     )
                 else:
                     if user_settings.can_subscribe:
@@ -65,7 +65,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
                     else:
                         logger.warning(
                             self.request,
-                            f'(Share settings) Attempt to get a list of the cities of a user who did not allow it',
+                            '(Share settings) Attempt to get a list of the cities of a user who did not allow it',
                         )
         else:
             self.user_id = user_id

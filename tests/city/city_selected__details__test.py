@@ -11,13 +11,11 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
-from datetime import datetime
 
 from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from city.models import City, VisitedCity
-from collection.models import Collection
 from region.models import Area, Region
 
 
@@ -27,7 +25,7 @@ def setup_db__detail__data_exists(client, django_user_model):
     area = Area.objects.create(title='Округ 1')
     region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU1')
     city = City.objects.create(
-        title=f'Город 1',
+        title='Город 1',
         region=region,
         population=5000,
         date_of_foundation=1990,
@@ -40,7 +38,7 @@ def setup_db__detail__data_exists(client, django_user_model):
         user=user,
         region=region,
         city=city,
-        date_of_visit=f'2023-01-01',
+        date_of_visit='2023-01-01',
         has_magnet=True,
         impression='Хороший город',
         rating=3,
@@ -55,7 +53,7 @@ def setup_db__detail__data_not_exists(client, django_user_model):
     area = Area.objects.create(title='Округ 1')
     region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU1')
     city = City.objects.create(
-        title=f'Город 1', region=region, coordinate_width=1, coordinate_longitude=1
+        title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1
     )
     VisitedCity.objects.create(
         id=1, user=user, region=region, city=city, has_magnet=False, rating=3
@@ -165,6 +163,25 @@ def test__section_population_not_exists(setup_db__detail__data_not_exists, clien
 
 
 @pytest.mark.django_db
+def test__section_date_of_visit_not_exists(setup_db__detail__data_not_exists, client):
+    client.login(username='username', password='password')
+    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    content = source.find('div', {'id': 'section-content'})
+    section = content.find('div', {'id': 'section-date_of_visit'})
+
+    assert section
+    assert (
+        'Дата посещения:'
+        in section.find('div', {'id': 'subsection-date_of_visit_title'}).get_text()
+    )
+    assert (
+        'Дата посещения не указана'
+        in section.find('div', {'id': 'subsection-date_of_visit_value'}).get_text()
+    )
+
+
+@pytest.mark.django_db
 def test__section_collectins_not_exists(setup_db__detail__data_not_exists, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-selected', kwargs={'pk': 1}))
@@ -195,25 +212,6 @@ def test__section_date_of_visit_exists(setup_db__detail__data_exists, client):
     )
     assert (
         '1 января 2023 г.'
-        in section.find('div', {'id': 'subsection-date_of_visit_value'}).get_text()
-    )
-
-
-@pytest.mark.django_db
-def test__section_population_not_exists(setup_db__detail__data_not_exists, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-selected', kwargs={'pk': 1}))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-    content = source.find('div', {'id': 'section-content'})
-    section = content.find('div', {'id': 'section-date_of_visit'})
-
-    assert section
-    assert (
-        'Дата посещения:'
-        in section.find('div', {'id': 'subsection-date_of_visit_title'}).get_text()
-    )
-    assert (
-        'Дата посещения не указана'
         in section.find('div', {'id': 'subsection-date_of_visit_value'}).get_text()
     )
 

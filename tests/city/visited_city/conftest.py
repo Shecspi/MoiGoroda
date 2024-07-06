@@ -24,7 +24,7 @@ def create_city(region: Region):
     Добавляет в базу данных города и возвращает список с инстансами созданных городов.
     """
     return City.objects.create(
-        id=1, title=f'Город 1', region=region, coordinate_width=1, coordinate_longitude=1
+        id=1, title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1
     )
 
 
@@ -43,8 +43,8 @@ def create_visited_city(user: User, region: Region, city: City):
 @pytest.fixture
 def setup(client, django_user_model):
     user1 = create_user(django_user_model, 1)
-    user2 = create_user(django_user_model, 2)
+    create_user(django_user_model, 2)
     area = create_area()
     region = create_region(area)
     city = create_city(region)
-    visited_city = create_visited_city(user1, region, city)
+    create_visited_city(user1, region, city)

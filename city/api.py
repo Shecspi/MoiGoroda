@@ -26,6 +26,7 @@ class GetVisitedCities(generics.ListAPIView):
                 'city__title',
                 'city__coordinate_width',
                 'city__coordinate_longitude',
+                'date_of_visit',
             ],
         )
 

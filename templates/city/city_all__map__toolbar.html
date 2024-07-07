@@ -37,25 +37,25 @@
         <!-- ^^^ Помощь -->
 
         <!-- В прошлом году -->
-        <a href="{% url 'city-all-map' %}?{{ url_for_filter_last_year }}"
-            class="align-self-center btn
-                    {% if filter == 'last_year' %}btn-secondary{% else %}btn-outline-secondary{% endif %}
-                    {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
-            data-bs-toggle="tooltip"
-            data-bs-title="Показать города, посещённые Вами в прошлом году">
+        <button class="align-self-center btn btn-outline-secondary
+                       {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
+                id="btn_show-visited-cities-previous-year"
+                data-type="show"
+                data-bs-toggle="tooltip"
+                data-bs-title="Показать города, посещённые Вами в прошлом году">
             <i class="fa-solid fa-calendar-week"></i>
-        </a>
+        </button>
         <!-- ^^^ В прошлом году -->
 
         <!-- В этом году -->
-        <a href="{% url 'city-all-map' %}?{{ url_for_filter_current_year }}"
-           class="align-self-center btn
-                  {% if filter == 'current_year' %}btn-primary {% else %}btn-outline-primary  {% endif %}
+        <button  class="align-self-center btn btn-outline-primary
                   {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
-            data-bs-toggle="tooltip"
-            data-bs-title="Показать города, посещённые Вами в текущем году">
+                id="btn_show-visited-cities-current-year"
+                data-type="show"
+                data-bs-toggle="tooltip"
+                data-bs-title="Показать города, посещённые Вами в текущем году">
             <i class="fa-solid fa-calendar-days"></i>
-        </a>
+        </button>
         <!-- ^^^ В этом году -->
 
         <!-- Показать непосещённые города -->

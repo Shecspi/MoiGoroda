@@ -9,10 +9,16 @@ class VisitedCitySerializer(serializers.ModelSerializer):
     title = serializers.CharField(source='city.title', read_only=True)
     lat = serializers.CharField(source='city.coordinate_width', read_only=True)
     lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
+    year = serializers.SerializerMethodField()
+
+    def get_year(self, obj) -> int | None:
+        if obj.date_of_visit:
+            return obj.date_of_visit.year
+        return None
 
     class Meta:
         model = VisitedCity
-        fields = ('username', 'id', 'title', 'lat', 'lon')
+        fields = ('username', 'id', 'title', 'lat', 'lon', 'year')
 
 
 class NotVisitedCitySerializer(serializers.ModelSerializer):

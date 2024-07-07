@@ -26,6 +26,16 @@
     <!-- ^^^ Посмотреть список -->
 
     <div class="col-xxl-6 col-md-12 text-end g-3">
+        <!-- Помощь -->
+        <button class="align-self-center btn btn-outline-dark"
+                data-bs-toggle="modal"
+                data-bs-target="#modal_help"
+                data-bs-tooltip="tooltip"
+                data-bs-title="Посмотреть описание меток, использованных на карте">
+            <i class="fa-regular fa-circle-question"></i>
+        </button>
+        <!-- ^^^ Помощь -->
+
         <!-- В прошлом году -->
         <a href="{% url 'city-all-map' %}?{{ url_for_filter_last_year }}"
             class="align-self-center btn

@@ -1,0 +1,76 @@
+{% load static %}
+
+<div class="modal fade"
+     id="modal_help"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false"
+     tabindex="-1"
+     aria-labelledby="modal_help_label"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modal_help_label">Помощь</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        На карте использованы следующие условные обозначения:
+                    </div>
+                </div>
+
+                <div class="row mt-3 align-items-center">
+                    <div class="col-2">
+                        <img src="{% static 'image/balloon-darkGreenDotIcon.png' %}" alt="balloon-darkGreenDotIcon">
+                    </div>
+                    <div class="col-10">
+                        Города, которые Вы посетили. Если отображаются города пользователей, на которых Вы подписаны,
+                        то такая метка показывает те города, в которых были только Вы.
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mt-3 align-items-center">
+                    <div class="col-2">
+                        <img src="{% static 'image/balloon-darkBlueDotIcon.png' %}" alt="balloon-darkBlueDotIcon">
+                    </div>
+                    <div class="col-10">
+                        Города, которые были посещены Вами и кем-то из отображаемых пользователей.
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mt-3 align-items-center">
+                    <div class="col-2">
+                        <img src="{% static 'image/balloon-brownDotIcon.png' %}" alt="balloon-brownDotIcon">
+                    </div>
+                    <div class="col-10">
+                        Города, которые были посещены кем-то из отображаемых пользователей, но не посещены Вами.
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mt-3 align-items-center">
+                    <div class="col-2">
+                        <img src="{% static 'image/balloon-redDotIcon.png' %}" alt="balloon-redDotIcon">
+                    </div>
+                    <div class="col-10">
+                        Города, которые не посещены ни Вами, ни кем из отображаемых пользователей.
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col small text-muted">
+                        Обратите внимание, что при одновременном отображении большого количества меток возможно
+                        незначительное замедление работы сайта.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

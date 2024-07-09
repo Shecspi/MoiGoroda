@@ -11,6 +11,7 @@ import pytest
 
 from django.urls import reverse
 
+from test_data.add_visited_city import add_visited_city_test_data
 from tests.create_db import (
     create_user,
     create_area,
@@ -78,39 +79,17 @@ def access_by_POST_for_guest_is_prohibited__test(setup_db_without_visited_cities
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'request_data, correct_response_data, log_message',
-    (
-        (
-            {
-                'city': 1,
-                'date_of_visit': '2024-08-01',
-                'has_magnet': True,
-                'impression': 'impression',
-                'rating': 3,
-            },
-            {
-                'status': 'success',
-                'city': {
-                    'id': 1,
-                    'city': 1,
-                    'city_title': 'Город 1',
-                    'region_title': 'Регион 1 область',
-                    'date_of_visit': '2024-08-01',
-                    'has_magnet': True,
-                    'impression': 'impression',
-                    'rating': 3,
-                },
-            },
-            '(API: Add visited city) The visited city has been successfully added from unknown location   /api/city/visited/add',
-        ),
-    ),
+    'request_data, status_code, correct_response_data, log_level, log_message',
+    add_visited_city_test_data,
 )
 def test__response_with_correct_request_data(
     setup_db_without_visited_cities,
     caplog,
     client,
     request_data,
+    status_code,
     correct_response_data,
+    log_level,
     log_message,
 ):
     client.login(username='username1', password='password')
@@ -120,6 +99,8 @@ def test__response_with_correct_request_data(
         content_type='application/json',
     )
     response_data = json.loads(response.content.decode())
+
+    assert response.status_code == status_code
     assert response_data == correct_response_data
-    assert caplog.records[0].levelname == 'INFO'
+    assert caplog.records[0].levelname == log_level
     assert caplog.records[0].getMessage() == log_message

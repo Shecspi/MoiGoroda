@@ -78,13 +78,7 @@ function addOwnCitiesOnMap(visited_cities, year) {
             continue;
         }
 
-        placemark = addPlacemarkToMap(
-            city,
-            lat,
-            lon,
-            PlacemarkStyle.OWN,
-            'Этот город посетили только Вы'
-        );
+        placemark = addPlacemarkToMap(city, lat, lon, PlacemarkStyle.OWN, 'Этот город был посещён только Вами');
         stateOwnCities.set(id,  placemark);
     }
 }
@@ -114,6 +108,7 @@ function addSubscriptionsCitiesOnMap(visited_cities, year) {
 
     for (let i = 0; i < (visited_cities.length); i++) {
         let placemark;
+        let placemarkStyle;
         let id = visited_cities[i].id
         let city = visited_cities[i].title
         let lat = visited_cities[i].lat;
@@ -126,16 +121,17 @@ function addSubscriptionsCitiesOnMap(visited_cities, year) {
 
         if (stateOwnCities.has(id)) {
             myMap.geoObjects.remove(stateOwnCities.get(id));
-            placemark = addPlacemarkToMap(
-                city,
-                lat,
-                lon,
-                PlacemarkStyle.TOGETHER,
-                'Пользователи, посетившие этот город:<br>' + usersWhoVisitedCity[id].join(', ')
-            );
+            placemarkStyle = PlacemarkStyle.TOGETHER
         } else {
-            placemark = addPlacemarkToMap(city, lat, lon, PlacemarkStyle.SUBSCRIPTION);
+            placemarkStyle = PlacemarkStyle.SUBSCRIPTION;
         }
+        placemark = addPlacemarkToMap(
+            city,
+            lat,
+            lon,
+            placemarkStyle,
+            usersWhoVisitedCity[id]
+        );
         stateSubscriptionCities.set(id,  placemark);
     }
 }
@@ -166,7 +162,9 @@ function addPlacemarkToMap(city, lat, lon, placemarkStyle, content) {
         [lat, lon],
         {
             balloonContentHeader: city,
-            balloonContent: content !== undefined ? content : 'Этот город не был посещён ни Вами, ни кем-то из выбранный пользователей'
+            balloonContent: content === undefined ? 'Этот город не был посещён ни Вами, ни кем-то из выбранный пользователей' :
+                            typeof content === "string" ? '' :
+                                'Пользователи, посетившие город:<br>' + content.join(', ')
         }, {
             preset: placemarkStyle.preset,
             zIndex: placemarkStyle.zIndex

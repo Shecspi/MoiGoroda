@@ -78,7 +78,13 @@ function addOwnCitiesOnMap(visited_cities, year) {
             continue;
         }
 
-        placemark = addPlacemarkToMap(city, lat, lon, PlacemarkStyle.OWN);
+        placemark = addPlacemarkToMap(
+            city,
+            lat,
+            lon,
+            PlacemarkStyle.OWN,
+            'Этот город посетили только Вы'
+        );
         stateOwnCities.set(id,  placemark);
     }
 }
@@ -92,6 +98,20 @@ function addSubscriptionsCitiesOnMap(visited_cities, year) {
      * @param visited_cities JSON-объект со списком городов
      * @param year Необязательный параметр, уазывающий за какой год нужно добавлять города на карту
      */
+    let usersWhoVisitedCity = new Map();
+    for (let i = 0; i < (visited_cities.length); i++) {
+        if (usersWhoVisitedCity.has(visited_cities[i].id)) {
+            usersWhoVisitedCity[visited_cities[i].id].push(visited_cities[i].username)
+        } else {
+            if (stateOwnCities.has(visited_cities[i].id)) {
+                usersWhoVisitedCity[visited_cities[i].id] = ['Вы', visited_cities[i].username];
+            } else {
+                usersWhoVisitedCity[visited_cities[i].id] = [visited_cities[i].username];
+            }
+
+        }
+    }
+
     for (let i = 0; i < (visited_cities.length); i++) {
         let placemark;
         let id = visited_cities[i].id
@@ -106,7 +126,13 @@ function addSubscriptionsCitiesOnMap(visited_cities, year) {
 
         if (stateOwnCities.has(id)) {
             myMap.geoObjects.remove(stateOwnCities.get(id));
-            placemark = addPlacemarkToMap(city, lat, lon, PlacemarkStyle.TOGETHER);
+            placemark = addPlacemarkToMap(
+                city,
+                lat,
+                lon,
+                PlacemarkStyle.TOGETHER,
+                'Пользователи, посетившие этот город:<br>' + usersWhoVisitedCity[id].join(', ')
+            );
         } else {
             placemark = addPlacemarkToMap(city, lat, lon, PlacemarkStyle.SUBSCRIPTION);
         }
@@ -132,7 +158,7 @@ function addNotVisitedCitiesOnMap(not_visited_cities) {
     }
 }
 
-function addPlacemarkToMap(city, lat, lon, placemarkStyle) {
+function addPlacemarkToMap(city, lat, lon, placemarkStyle, content) {
     /**
      * Добавляет на карту, находящуюся в глобальной переменной myMap, отметку города city по координатам lat и lon.
      */
@@ -140,7 +166,7 @@ function addPlacemarkToMap(city, lat, lon, placemarkStyle) {
         [lat, lon],
         {
             balloonContentHeader: city,
-            // balloonContent: 'Город посещён пользователями:<br>Вы'
+            balloonContent: content !== undefined ? content : 'Этот город не был посещён ни Вами, ни кем-то из выбранный пользователей'
         }, {
             preset: placemarkStyle.preset,
             zIndex: placemarkStyle.zIndex
@@ -216,6 +242,7 @@ function removeNotVisitedPlacemarks() {
 
 async function showSubscriptionCities() {
     const button = document.getElementById("btn_show-subscriptions-cities");
+    const btnShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
     const url = button.dataset.url
 
     let selectedCheckboxes = document.querySelectorAll('input.checkbox_username:checked');
@@ -248,7 +275,9 @@ async function showSubscriptionCities() {
 
         addOwnCitiesOnMap(ownCities);
         addSubscriptionsCitiesOnMap(subscriptionCities);
-        addNotVisitedCitiesOnMap(notVisitedCities);
+        if (btnShowNotVisitedCities.dataset.type === 'hide') {
+            addNotVisitedCitiesOnMap(notVisitedCities);
+        }
     }
     else {
         const element = document.getElementById('toast_validation_error');
@@ -388,43 +417,101 @@ const btnShowVisitedCitiesCurrentYear = document.getElementById('btn_show-visite
 
 button.addEventListener('click', function () {
     showSubscriptionCities();
+
+    offBtnShowVisitedCitiesPreviousYear();
+    offBtnShowVisitedCitiesCurrentYear();
 });
 btnShowNotVisitedCities.addEventListener('click', function () {
     if (btnShowNotVisitedCities.dataset.type === 'show') {
         showNotVisitedCities();
-        btnShowNotVisitedCities.dataset.type = 'hide';
-        btnShowNotVisitedCities.classList.remove('btn-outline-danger');
-        btnShowNotVisitedCities.classList.add('btn-danger');
+        onBtnShowNotVisitedCities();
     } else {
         hideNotVisitedCities();
-        btnShowNotVisitedCities.dataset.type = 'show';
-        btnShowNotVisitedCities.classList.remove('btn-danger');
-        btnShowNotVisitedCities.classList.add('btn-outline-danger');
+        offBtnShowNotVisitedCities();
     }
 })
 btnShowVisitedCitiesPreviousYear.addEventListener('click', function () {
     if (btnShowVisitedCitiesPreviousYear.dataset.type === 'show') {
         showVisitedCitiesPreviousYear();
-        btnShowVisitedCitiesPreviousYear.dataset.type = 'hide';
-        btnShowVisitedCitiesPreviousYear.classList.remove('btn-outline-secondary');
-        btnShowVisitedCitiesPreviousYear.classList.add('btn-secondary');
+        onBtnShowVisitedCitiesPreviousYear();
+        offBtnShowNotVisitedCities();
+        disableBtnShowNotVisitedCities();
+        offBtnShowVisitedCitiesCurrentYear();
     } else {
         hideVisitedCitiesPreviousYear();
-        btnShowVisitedCitiesPreviousYear.dataset.type = 'show';
-        btnShowVisitedCitiesPreviousYear.classList.remove('btn-secondary');
-        btnShowVisitedCitiesPreviousYear.classList.add('btn-outline-secondary');
+        offBtnShowVisitedCitiesPreviousYear();
+        enableBtnShowNotVisitedCities();
     }
 });
 btnShowVisitedCitiesCurrentYear.addEventListener('click', function () {
     if (btnShowVisitedCitiesCurrentYear.dataset.type === 'show') {
         showVisitedCitiesCurrentYear();
-        btnShowVisitedCitiesCurrentYear.dataset.type = 'hide';
-        btnShowVisitedCitiesCurrentYear.classList.remove('btn-outline-primary');
-        btnShowVisitedCitiesCurrentYear.classList.add('btn-primary');
+
+        onBtnShowVisitedCitiesCurrentYear();
+        offBtnShowNotVisitedCities();
+        disableBtnShowNotVisitedCities();
+        offBtnShowVisitedCitiesPreviousYear();
     } else {
         hideVisitedCitiesCurrentYear();
-        btnShowVisitedCitiesCurrentYear.dataset.type = 'show';
-        btnShowVisitedCitiesCurrentYear.classList.remove('btn-primary');
-        btnShowVisitedCitiesCurrentYear.classList.add('btn-outline-primary');
+        offBtnShowVisitedCitiesCurrentYear();
+        enableBtnShowNotVisitedCities();
     }
 });
+
+function offBtnShowNotVisitedCities() {
+    const btnShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
+
+    btnShowNotVisitedCities.dataset.type = 'show';
+    btnShowNotVisitedCities.classList.remove('btn-danger');
+    btnShowNotVisitedCities.classList.add('btn-outline-danger');
+}
+
+function onBtnShowNotVisitedCities() {
+    const btnShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
+
+    btnShowNotVisitedCities.dataset.type = 'hide';
+    btnShowNotVisitedCities.classList.remove('btn-outline-danger');
+    btnShowNotVisitedCities.classList.add('btn-danger');
+}
+
+function disableBtnShowNotVisitedCities() {
+    const btnShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
+    btnShowNotVisitedCities.classList.add('disabled');
+}
+
+function enableBtnShowNotVisitedCities() {
+    const btnShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
+    btnShowNotVisitedCities.classList.remove('disabled')
+}
+
+function offBtnShowVisitedCitiesCurrentYear() {
+    const btnShowVisitedCitiesCurrentYear = document.getElementById('btn_show-visited-cities-current-year')
+
+    btnShowVisitedCitiesCurrentYear.dataset.type = 'show';
+    btnShowVisitedCitiesCurrentYear.classList.remove('btn-primary');
+    btnShowVisitedCitiesCurrentYear.classList.add('btn-outline-primary');
+}
+
+function onBtnShowVisitedCitiesCurrentYear() {
+    const btnShowVisitedCitiesCurrentYear = document.getElementById('btn_show-visited-cities-current-year')
+
+    btnShowVisitedCitiesCurrentYear.dataset.type = 'hide';
+    btnShowVisitedCitiesCurrentYear.classList.remove('btn-outline-primary');
+    btnShowVisitedCitiesCurrentYear.classList.add('btn-primary');
+}
+
+function onBtnShowVisitedCitiesPreviousYear() {
+    const btnShowVisitedCitiesPreviousYear = document.getElementById('btn_show-visited-cities-previous-year')
+
+    btnShowVisitedCitiesPreviousYear.dataset.type = 'hide';
+    btnShowVisitedCitiesPreviousYear.classList.remove('btn-outline-secondary');
+    btnShowVisitedCitiesPreviousYear.classList.add('btn-secondary');
+}
+
+function offBtnShowVisitedCitiesPreviousYear() {
+    const btnShowVisitedCitiesPreviousYear = document.getElementById('btn_show-visited-cities-previous-year')
+
+    btnShowVisitedCitiesPreviousYear.dataset.type = 'show';
+    btnShowVisitedCitiesPreviousYear.classList.remove('btn-secondary');
+    btnShowVisitedCitiesPreviousYear.classList.add('btn-outline-secondary');
+}

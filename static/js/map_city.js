@@ -128,24 +128,6 @@ class ToolbarActions {
         });
     }
 
-    removeOwnPlacemarks() {
-        for (let [id, placemark] of this.stateOwnCities.entries()) {
-            this.myMap.geoObjects.remove(placemark);
-        }
-    }
-
-    removeSubscriptionPlacemarks() {
-        for (let [id, placemark] of this.stateSubscriptionCities.entries()) {
-            this.myMap.geoObjects.remove(placemark);
-        }
-    }
-
-    removeNotVisitedPlacemarks() {
-        for (let [id, placemark] of this.stateNotVisitedCities.entries()) {
-            this.myMap.geoObjects.remove(placemark);
-        }
-    }
-
     async showSubscriptionCities() {
         const url = this.elementShowSubscriptionCities.dataset.url
 
@@ -218,96 +200,114 @@ class ToolbarActions {
         }
     }
 
+    showVisitedCitiesPreviousYear() {
+        const btn = document.getElementById('btn_show-visited-cities-previous-year');
+
+        this.removeOwnPlacemarks();
+        this.removeSubscriptionPlacemarks();
+        this.removeNotVisitedPlacemarks();
+        this.stateOwnCities.clear();
+        this.stateSubscriptionCities.clear();
+
+        this.addOwnCitiesOnMap(new Date().getFullYear() - 1);
+        this.addSubscriptionsCitiesOnMap(new Date().getFullYear() - 1);
+    }
+
+    showVisitedCitiesCurrentYear() {
+        const btn = document.getElementById('btn_show-visited-cities-previous-year');
+
+        this.removeOwnPlacemarks();
+        this.removeSubscriptionPlacemarks();
+        this.removeNotVisitedPlacemarks();
+        this.stateOwnCities.clear();
+        this.stateSubscriptionCities.clear();
+
+        this.addOwnCitiesOnMap(new Date().getFullYear());
+        this.addSubscriptionsCitiesOnMap(new Date().getFullYear());
+    }
+
+    hideVisitedCitiesPreviousYear() {
+        const btn = document.getElementById('btn_show-visited-cities-previous-year');
+
+        this.removeOwnPlacemarks();
+        this.removeSubscriptionPlacemarks();
+        this.removeNotVisitedPlacemarks();
+        this.stateOwnCities.clear();
+        this.stateSubscriptionCities.clear();
+
+        this.addOwnCitiesOnMap();
+        this.addSubscriptionsCitiesOnMap();
+    }
+
+    hideVisitedCitiesCurrentYear() {
+        const btn = document.getElementById('btn_show-visited-cities-previous-year');
+
+        this.removeOwnPlacemarks();
+        this.removeSubscriptionPlacemarks();
+        this.removeNotVisitedPlacemarks();
+        this.stateOwnCities.clear();
+        this.stateSubscriptionCities.clear();
+
+        this.addOwnCitiesOnMap();
+        this.addSubscriptionsCitiesOnMap();
+    }
+
+    hideNotVisitedCities() {
+        this.removeNotVisitedPlacemarks();
+        this.stateNotVisitedCities.clear();
+    }
+
     addSubscriptionsCitiesOnMap(year) {
-    /**
-     * Помещает на карту отметку города, посещённого пользователем, на которого произведена подписка
-     * и сохраняет объект Placemark в глобальный словарь stateSubscriptionCities.
-     * В случае, если город был посещён и пользователем, и адресантом подписки, то соответствующая Placemark
-     * удаляется из stateOwnCities и помещается в stateSubscriptionCities.
-     * @param year Необязательный параметр, уазывающий за какой год нужно добавлять города на карту
-     */
-    let usersWhoVisitedCity = new Map();
-    for (let i = 0; i < (this.subscriptionCities.length); i++) {
-        let city = this.subscriptionCities[i]
-        if (usersWhoVisitedCity.has(city.id)) {
-            usersWhoVisitedCity[city.id].push(city.username)
-        } else {
-            if (this.stateOwnCities.has(city.id)) {
-                usersWhoVisitedCity[city.id] = ['Вы', city.username];
+        /**
+         * Помещает на карту отметку города, посещённого пользователем, на которого произведена подписка
+         * и сохраняет объект Placemark в глобальный словарь stateSubscriptionCities.
+         * В случае, если город был посещён и пользователем, и адресантом подписки, то соответствующая Placemark
+         * удаляется из stateOwnCities и помещается в stateSubscriptionCities.
+         * @param year Необязательный параметр, уазывающий за какой год нужно добавлять города на карту
+         */
+        let usersWhoVisitedCity = new Map();
+        for (let i = 0; i < (this.subscriptionCities.length); i++) {
+            let city = this.subscriptionCities[i]
+            if (usersWhoVisitedCity.has(city.id)) {
+                usersWhoVisitedCity[city.id].push(city.username)
             } else {
-                usersWhoVisitedCity[city.id] = [city.username];
+                if (this.stateOwnCities.has(city.id)) {
+                    usersWhoVisitedCity[city.id] = ['Вы', city.username];
+                } else {
+                    usersWhoVisitedCity[city.id] = [city.username];
+                }
+
+            }
+        }
+
+        for (let i = 0; i < (this, this.subscriptionCities.length); i++) {
+            let placemark;
+            let placemarkStyle;
+            let id = this.subscriptionCities[i].id
+            let city = this.subscriptionCities[i].title
+            let lat = this.subscriptionCities[i].lat;
+            let lon = this.subscriptionCities[i].lon;
+            let year_city = this.subscriptionCities[i].year
+
+            if (year !== undefined && year !== year_city) {
+                continue;
             }
 
-        }
-    }
-
-    for (let i = 0; i < (this, this.subscriptionCities.length); i++) {
-        let placemark;
-        let placemarkStyle;
-        let id = this.subscriptionCities[i].id
-        let city = this.subscriptionCities[i].title
-        let lat = this.subscriptionCities[i].lat;
-        let lon = this.subscriptionCities[i].lon;
-        let year_city = this.subscriptionCities[i].year
-
-        if (year !== undefined && year !== year_city) {
-            continue;
-        }
-
-        if (this.stateOwnCities.has(id)) {
-            this.myMap.geoObjects.remove(this.stateOwnCities.get(id));
-            placemarkStyle = this.PlacemarkStyle.TOGETHER
-        } else {
-            placemarkStyle = this.PlacemarkStyle.SUBSCRIPTION;
-        }
-        placemark = this.addPlacemarkToMap(
-            city,
-            lat,
-            lon,
-            placemarkStyle,
-            usersWhoVisitedCity[id]
-        );
-        this.stateSubscriptionCities.set(id,  placemark);
-    }
-}
-
-    createMap(center_lat, center_lon, zoom) {
-        /**
-         * Создаёт и возвращает карту с центром и зумом, указанными в аргументах.
-         */
-        this.myMap = new ymaps.Map("map", {
-            center: [center_lat, center_lon],
-            zoom: zoom,
-            controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
-        }, {
-            searchControlProvider: 'yandex#search'
-        });
-    }
-
-    async getVisitedCities() {
-        /**
-         * Делает запрос на сервер, получает список городов, посещённых пользователем,
-         * и помещает его в глобальную переменную usersVisitedCities, откуда можно получить
-         * данные из любого места скрипта.
-         */
-        let url = document.getElementById('url-api__get_visited_cities').dataset.url;
-        let response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': getCookie("csrftoken")
+            if (this.stateOwnCities.has(id)) {
+                this.myMap.geoObjects.remove(this.stateOwnCities.get(id));
+                placemarkStyle = this.PlacemarkStyle.TOGETHER
+            } else {
+                placemarkStyle = this.PlacemarkStyle.SUBSCRIPTION;
             }
-        });
-        if (response.ok) {
-            this.ownCities = await response.json();
-        } else {
-            const element = document.getElementById('toast_request_error');
-            const toast = new bootstrap.Toast(element);
-            toast.show();
-
-            this.ownCities = [];
+            placemark = this.addPlacemarkToMap(
+                city,
+                lat,
+                lon,
+                placemarkStyle,
+                usersWhoVisitedCity[id]
+            );
+            this.stateSubscriptionCities.set(id,  placemark);
         }
-
-        return this.ownCities;
     }
 
     addOwnCitiesOnMap(year) {
@@ -370,61 +370,61 @@ class ToolbarActions {
         return placemark;
     }
 
-    showVisitedCitiesPreviousYear() {
-        const btn = document.getElementById('btn_show-visited-cities-previous-year');
-
-        this.removeOwnPlacemarks();
-        this.removeSubscriptionPlacemarks();
-        this.removeNotVisitedPlacemarks();
-        this.stateOwnCities.clear();
-        this.stateSubscriptionCities.clear();
-
-        this.addOwnCitiesOnMap(new Date().getFullYear() - 1);
-        this.addSubscriptionsCitiesOnMap(new Date().getFullYear() - 1);
+    removeOwnPlacemarks() {
+        for (let [id, placemark] of this.stateOwnCities.entries()) {
+            this.myMap.geoObjects.remove(placemark);
+        }
     }
 
-    hideVisitedCitiesPreviousYear() {
-        const btn = document.getElementById('btn_show-visited-cities-previous-year');
-
-        this.removeOwnPlacemarks();
-        this.removeSubscriptionPlacemarks();
-        this.removeNotVisitedPlacemarks();
-        this.stateOwnCities.clear();
-        this.stateSubscriptionCities.clear();
-
-        this.addOwnCitiesOnMap();
-        this.addSubscriptionsCitiesOnMap();
+    removeSubscriptionPlacemarks() {
+        for (let [id, placemark] of this.stateSubscriptionCities.entries()) {
+            this.myMap.geoObjects.remove(placemark);
+        }
     }
 
-    showVisitedCitiesCurrentYear() {
-        const btn = document.getElementById('btn_show-visited-cities-previous-year');
-
-        this.removeOwnPlacemarks();
-        this.removeSubscriptionPlacemarks();
-        this.removeNotVisitedPlacemarks();
-        this.stateOwnCities.clear();
-        this.stateSubscriptionCities.clear();
-
-        this.addOwnCitiesOnMap(new Date().getFullYear());
-        this.addSubscriptionsCitiesOnMap(new Date().getFullYear());
+    removeNotVisitedPlacemarks() {
+        for (let [id, placemark] of this.stateNotVisitedCities.entries()) {
+            this.myMap.geoObjects.remove(placemark);
+        }
     }
 
-    hideVisitedCitiesCurrentYear() {
-        const btn = document.getElementById('btn_show-visited-cities-previous-year');
-
-        this.removeOwnPlacemarks();
-        this.removeSubscriptionPlacemarks();
-        this.removeNotVisitedPlacemarks();
-        this.stateOwnCities.clear();
-        this.stateSubscriptionCities.clear();
-
-        this.addOwnCitiesOnMap();
-        this.addSubscriptionsCitiesOnMap();
+    createMap(center_lat, center_lon, zoom) {
+        /**
+         * Создаёт и возвращает карту с центром и зумом, указанными в аргументах.
+         */
+        this.myMap = new ymaps.Map("map", {
+            center: [center_lat, center_lon],
+            zoom: zoom,
+            controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
+        }, {
+            searchControlProvider: 'yandex#search'
+        });
     }
 
-    hideNotVisitedCities() {
-        this.removeNotVisitedPlacemarks();
-        this.stateNotVisitedCities.clear();
+    async getVisitedCities() {
+        /**
+         * Делает запрос на сервер, получает список городов, посещённых пользователем,
+         * и помещает его в глобальную переменную usersVisitedCities, откуда можно получить
+         * данные из любого места скрипта.
+         */
+        let url = document.getElementById('url-api__get_visited_cities').dataset.url;
+        let response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': getCookie("csrftoken")
+            }
+        });
+        if (response.ok) {
+            this.ownCities = await response.json();
+        } else {
+            const element = document.getElementById('toast_request_error');
+            const toast = new bootstrap.Toast(element);
+            toast.show();
+
+            this.ownCities = [];
+        }
+
+        return this.ownCities;
     }
 }
 

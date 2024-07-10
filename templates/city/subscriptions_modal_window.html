@@ -34,16 +34,16 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="row mt-3">
-                    <div class="col">
-                        <button class="btn btn-success"
-                                id='btn_show-subscriptions-cities'
-                                data-url="{% url 'api__get_visited_cities_from_subscriptions' %}">
-                            Применить
-                        </button>
-                    </div>
-                </div>
+            <div class="modal-footer justify-content-between">
+                <button class="btn btn-success"
+                        id='btn_show-subscriptions-cities'
+                        data-url="{% url 'api__get_visited_cities_from_subscriptions' %}">
+                    Применить
+                </button>
+
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
             </div>
         </div>
     </div>

@@ -267,20 +267,17 @@ class ToolbarActions {
          */
         let usersWhoVisitedCity = new Map();
         for (let i = 0; i < (this.subscriptionCities.length); i++) {
-            let city = this.subscriptionCities[i]
-            if (usersWhoVisitedCity.has(city.id)) {
-                usersWhoVisitedCity[city.id].push(city.username)
-            } else {
+            let city = this.subscriptionCities[i];
+            if (!usersWhoVisitedCity.has(city.id)) {
+                usersWhoVisitedCity.set(city.id, [])
                 if (this.stateOwnCities.has(city.id)) {
-                    usersWhoVisitedCity[city.id] = ['Вы', city.username];
-                } else {
-                    usersWhoVisitedCity[city.id] = [city.username];
+                    usersWhoVisitedCity.get(city.id).push('Вы');
                 }
-
             }
+            usersWhoVisitedCity.get(city.id).push(city.username);
         }
 
-        for (let i = 0; i < (this, this.subscriptionCities.length); i++) {
+        for (let i = 0; i < this.subscriptionCities.length; i++) {
             let placemark;
             let placemarkStyle;
             let id = this.subscriptionCities[i].id
@@ -304,7 +301,7 @@ class ToolbarActions {
                 lat,
                 lon,
                 placemarkStyle,
-                usersWhoVisitedCity[id]
+                usersWhoVisitedCity.get(id)
             );
             this.stateSubscriptionCities.set(id,  placemark);
         }

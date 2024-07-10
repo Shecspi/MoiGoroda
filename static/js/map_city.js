@@ -65,15 +65,15 @@ class ToolbarActions {
 
         this.btnShowVisitedCitiesPreviousYear = new Button(
             'btn_show-visited-cities-previous-year',
-            'btn-primary',
-            'btn-outline-primary'
+            'btn-secondary',
+            'btn-outline-secondary'
         )
         this.elementShowVisitedCitiesPreviousYear = this.btnShowVisitedCitiesPreviousYear.get_element();
 
         this.btnShowVisitedCitiesCurrentYear = new Button(
             'btn_show-visited-cities-current-year',
-            'btn-secondary',
-            'btn-outline-secondary'
+            'btn-primary',
+            'btn-outline-primary'
         )
         this.elementShowVisitedCitiesCurrentYear = this.btnShowVisitedCitiesCurrentYear.get_element();
 

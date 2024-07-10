@@ -104,7 +104,7 @@ def get_visited_cities_many_users(
 
 
 def get_not_visited_cities(user_id: int):
-    visited_cities = get_all_visited_cities(user_id)
+    visited_cities = [city.city.id for city in get_all_visited_cities(user_id)]
 
     return City.objects.exclude(id__in=visited_cities)
 

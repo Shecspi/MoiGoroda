@@ -70,9 +70,10 @@
         <!-- ^^^ Показать непосещённые города -->
 
         <!-- Подписки -->
-        <button data-bs-toggle="modal"
+        <button class="align-self-center btn btn-outline-success{% if not is_user_has_subscriptions %} disabled{% endif %}"
+                id="btn_open_modal_with_subscriptions"
+                data-bs-toggle="modal"
                 data-bs-target="#subscriptions_modal_window"
-                class="align-self-center btn btn-outline-success{% if not is_user_has_subscriptions %} disabled{% endif %}"
                 data-bs-tooltip="tooltip"
                 data-bs-title="Показать города, посещённые пользователями, на которых Вы подписаны">
                 <i class="fa-solid fa-bell"></i>

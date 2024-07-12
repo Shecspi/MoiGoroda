@@ -15685,5 +15685,44 @@
     "coordinate_longitude": 45.308849,
     "wiki": "https://ru.wikipedia.org/wiki/Наурская"
   }
+},
+{
+  "model": "city.city",
+  "pk": 1152,
+  "fields": {
+    "title": "Тельмана",
+    "region": 24,
+    "population": 23986,
+    "date_of_foundation": 1792,
+    "coordinate_width": 59.725612,
+    "coordinate_longitude": 30.612222,
+    "wiki": "https://ru.wikipedia.org/wiki/Тельмана_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1153,
+  "fields": {
+    "title": "Шелковская",
+    "region": 43,
+    "population": null,
+    "date_of_foundation": 1718,
+    "coordinate_width": 43.508043,
+    "coordinate_longitude": 46.336108,
+    "wiki": "https://ru.wikipedia.org/wiki/Шелковская"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1154,
+  "fields": {
+    "title": "Бугры",
+    "region": 24,
+    "population": 22428,
+    "date_of_foundation": 1855,
+    "coordinate_width": 60.068722,
+    "coordinate_longitude": 30.393806,
+    "wiki": "https://ru.wikipedia.org/wiki/Бугры_(город)#cite_note-19"
+  }
 }
 ]

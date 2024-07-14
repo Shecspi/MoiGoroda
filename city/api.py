@@ -2,6 +2,7 @@ import json
 
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ParseError
 
 from account.models import ShareSettings
 from city.serializers import VisitedCitySerializer, NotVisitedCitySerializer
@@ -52,7 +53,16 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
 
     def get(self, *args, **kwargs):
         input_data = self.request.GET.get('data')
-        json_data = json.loads(input_data)
+
+        try:
+            json_data = json.loads(input_data)
+        except TypeError:
+            logger.warning(
+                self.request,
+                '(API) An incorrect list of user IDs was received',
+            )
+            raise ParseError('Получен некорректный список идентификаторов пользователей')
+
         user_id = json_data.get('ids')
 
         if not self.request.user.is_superuser:
@@ -61,23 +71,32 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
             # подписываться после того, как была открыта страница с картой, но до того, как запрос пришёл на сервер.
             for id in user_id:
                 try:
-                    user_settings = ShareSettings.objects.get(id=id)
+                    user_settings = ShareSettings.objects.get(user_id=id)
                 except ShareSettings.DoesNotExist:
                     logger.warning(
                         self.request,
-                        '(Share settings) Attempt to get a list of the cities of a user who did not change initial '
-                        'settings',
+                        '(API) Attempt to get a list of the cities of a user who did not change initial settings ('
+                        '(user #{self.request.user.id}, subscription #{id})',
                     )
                 else:
                     if user_settings.can_subscribe:
                         self.user_id.append(id)
+                        logger.info(
+                            self.request,
+                            f'(API) Successful request for a list of visited cities from subscriptions (user #{self.request.user.id})',
+                        )
                     else:
                         logger.warning(
                             self.request,
-                            '(Share settings) Attempt to get a list of the cities of a user who did not allow it',
+                            '(API) Attempt to get a list of the cities of a user who did not allow it',
                         )
         else:
             self.user_id = user_id
+
+            logger.info(
+                self.request,
+                f'(API) Successful request from superuser for a list of visited cities from subscriptions (user #{self.request.user.id})',
+            )
 
         return super().get(*args, **kwargs)
 

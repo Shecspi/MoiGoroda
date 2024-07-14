@@ -135,6 +135,7 @@ class ToolbarActions {
         let checkedValues = Array.from(selectedCheckboxes).map(cb => Number(cb.value));
         let data = {'ids': checkedValues};
 
+        console.log('?data=' + encodeURIComponent(JSON.stringify(data)));
         let response = await fetch(url + '?data=' + encodeURIComponent(JSON.stringify(data)), {
             method: 'GET',
             headers: {

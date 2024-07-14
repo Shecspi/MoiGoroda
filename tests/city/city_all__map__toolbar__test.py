@@ -16,53 +16,39 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from django.urls import reverse
 
-from city.models import City, VisitedCity
-from region.models import Area, Region
+from tests.create_db import (
+    create_user,
+    create_area,
+    create_region,
+    create_city,
+    create_visited_city,
+    create_share_settings,
+    create_subscription,
+)
 
 
 @pytest.fixture
 def setup_db(client, django_user_model):
-    user = django_user_model.objects.create_user(username='username', password='password')
-    area = Area.objects.create(title='Округ 1')
-    region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU1')
-    city_1 = City.objects.create(
-        title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1
-    )
-    city_2 = City.objects.create(
-        title='Город 2', region=region, coordinate_width=1, coordinate_longitude=1
-    )
-    City.objects.create(title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1)
-    City.objects.create(title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1)
-    VisitedCity.objects.create(
-        user=user,
-        region=region,
-        city=city_1,
-        date_of_visit=f'{datetime.now().year}-01-01',
-        has_magnet=False,
-        rating=3,
-    )
-    VisitedCity.objects.create(
-        user=user,
-        region=region,
-        city=city_2,
-        date_of_visit=f'{datetime.now().year - 1}-01-01',
-        has_magnet=False,
-        rating=3,
-    )
-    VisitedCity.objects.create(
-        user=user,
-        region=region,
-        city=city_2,
-        date_of_visit=f'{datetime.now().year - 1}-01-01',
-        has_magnet=False,
-        rating=3,
-    )
+    user1 = create_user(django_user_model, 1)
+    create_user(django_user_model, 2)
+    area = create_area(1)
+    region = create_region(1, area[0])
+    city = create_city(4, region[0])
+    for i in range(3):
+        create_visited_city(
+            region=region[0],
+            user=user1,
+            city=city[i],
+            date_of_visit=datetime.now(),
+            has_magnet=True,
+            rating=5,
+        )
 
 
 @pytest.mark.django_db
 def test__toolbar(setup_db, client):
-    client.login(username='username', password='password')
-    response = client.get(reverse('city-all-map'))
+    client.login(username='username1', password='password')
+    response = client.get(reverse('-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert source.find('div', {'id': 'toolbar'})
@@ -70,7 +56,7 @@ def test__toolbar(setup_db, client):
 
 @pytest.mark.django_db
 def test__section__visited_cities(setup_db, client):
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-statistic'})
@@ -83,7 +69,7 @@ def test__section__visited_cities(setup_db, client):
 
 @pytest.mark.django_db
 def test__section__show_list(setup_db, client):
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-show_list'})
@@ -96,7 +82,7 @@ def test__section__show_list(setup_db, client):
 
 @pytest.mark.django_db
 def test__section__small_buttons(setup_db, client):
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-small-buttons'})
@@ -106,7 +92,7 @@ def test__section__small_buttons(setup_db, client):
 
 @pytest.mark.django_db
 def test__section__help(setup_db, client):
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-small-buttons'})
@@ -118,7 +104,7 @@ def test__section__help(setup_db, client):
 
 @pytest.mark.django_db
 def test__section__previous_year(setup_db, client):
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-small-buttons'})
@@ -130,7 +116,7 @@ def test__section__previous_year(setup_db, client):
 
 @pytest.mark.django_db
 def test__section__current_year(setup_db, client):
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-small-buttons'})
@@ -142,7 +128,7 @@ def test__section__current_year(setup_db, client):
 
 @pytest.mark.django_db
 def test__section__show_not_visited_cities(setup_db, client):
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-small-buttons'})
@@ -154,7 +140,7 @@ def test__section__show_not_visited_cities(setup_db, client):
 
 @pytest.mark.django_db
 def test__section__subscriptions(setup_db, client):
-    client.login(username='username', password='password')
+    client.login(username='username1', password='password')
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-small-buttons'})
@@ -162,3 +148,27 @@ def test__section__subscriptions(setup_db, client):
 
     assert button
     assert button.find('i', {'class': 'fa-solid fa-bell'})
+
+
+@pytest.mark.django_db
+def test__subscriptions_button_are_disabled_if_user_has_no_subscriptions(setup_db, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-all-map'))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-small-buttons'})
+    button = block.find('button', {'id': 'btn_open_modal_with_subscriptions', 'class': 'disabled'})
+
+    assert button
+
+
+@pytest.mark.django_db
+def test__subscriptions_button_are_enabled_if_user_has_subscriptions(setup_db, client):
+    create_share_settings(1)
+    create_subscription(1, 2)
+    client.login(username='username1', password='password')
+    response = client.get(reverse('city-all-map'))
+    source = BeautifulSoup(response.content.decode(), 'html.parser')
+    block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-small-buttons'})
+    button = block.find('button', {'id': 'btn_open_modal_with_subscriptions', 'class': 'disabled'})
+
+    assert not button

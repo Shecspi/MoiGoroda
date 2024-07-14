@@ -14,6 +14,14 @@ class GetVisitedCities(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
 
+    def get(self, *args, **kwargs):
+        logger.info(
+            self.request,
+            f'(API) Successful request for a list of visited cities (user #{self.request.user.id})',
+        )
+
+        return super().get(*args, **kwargs)
+
     def get_queryset(self):
         user_id = self.request.user.pk
 

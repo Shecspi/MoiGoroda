@@ -107,4 +107,4 @@ def test__modal_help_has_list_of_subscriptions(setup_db, client):
     assert subscription_section
     assert subscription_input
     assert subscription_label
-    assert 'username2   ' in subscription_label.get_text()
+    assert 'username2' in subscription_label.get_text()

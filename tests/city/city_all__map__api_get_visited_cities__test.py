@@ -61,6 +61,42 @@ def setup_db_with_visited_cities(client, django_user_model):
     )
 
 
+def test__access_by_POST_is_prohibited(setup_db_without_visited_cities, caplog, client):
+    client.login(username='username1', password='password')
+    response = client.post(reverse('api__get_visited_cities'))
+
+    assert caplog.records[0].levelname == 'WARNING'
+    assert caplog.records[0].getMessage() == 'Method Not Allowed: /api/city/visited'
+    assert response.status_code == 405
+
+
+def test__access_by_DELETE_is_prohibited(setup_db_without_visited_cities, caplog, client):
+    client.login(username='username1', password='password')
+    response = client.delete(reverse('api__get_visited_cities'))
+
+    assert caplog.records[0].levelname == 'WARNING'
+    assert caplog.records[0].getMessage() == 'Method Not Allowed: /api/city/visited'
+    assert response.status_code == 405
+
+
+def test__access_by_PUT_is_prohibited(setup_db_without_visited_cities, caplog, client):
+    client.login(username='username1', password='password')
+    response = client.put(reverse('api__get_visited_cities'))
+
+    assert caplog.records[0].levelname == 'WARNING'
+    assert caplog.records[0].getMessage() == 'Method Not Allowed: /api/city/visited'
+    assert response.status_code == 405
+
+
+def test__access_by_PATCH_is_prohibited(setup_db_without_visited_cities, caplog, client):
+    client.login(username='username1', password='password')
+    response = client.patch(reverse('api__get_visited_cities'))
+
+    assert caplog.records[0].levelname == 'WARNING'
+    assert caplog.records[0].getMessage() == 'Method Not Allowed: /api/city/visited'
+    assert response.status_code == 405
+
+
 def guest_can_not_get_visited_cities__test(setup_db_without_visited_cities, caplog, client):
     response = client.get(reverse('api__get_visited_cities'))
 

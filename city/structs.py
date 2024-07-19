@@ -23,10 +23,10 @@ class CitiesResponse(BaseModel):
     subscriptions: list[SubscriptionCities] | None = None
 
 
-class UserIds(BaseModel):
+class UserID(BaseModel):
     """
     Формат получаемых JSON-данных при запросе списка посещённых городов.
-    ids - идентификаторы пользователей, для которых необходимо вернуть список городов.
+    id - идентификаторы пользователей, для которых необходимо вернуть список городов.
     """
 
-    ids: list[conint(gt=0)]
+    id: list[conint(gt=0)]

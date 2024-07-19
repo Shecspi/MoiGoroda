@@ -1,11 +1,14 @@
 import json
+from json import JSONDecodeError
 
+from pydantic import ValidationError
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ParseError
 
 from account.models import ShareSettings
 from city.serializers import VisitedCitySerializer, NotVisitedCitySerializer
+from city.structs import UserID
 from services import logger
 from services.db.visited_city_repo import get_visited_cities_many_users, get_not_visited_cities
 
@@ -51,19 +54,36 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
 
         super().__init__()
 
-    def get(self, *args, **kwargs):
-        input_data = self.request.GET.get('data')
-
+    def _validate_json(self, data: str):
         try:
-            json_data = json.loads(input_data)
-        except TypeError:
+            UserID.model_validate_json(data)
+        except ValidationError:
             logger.warning(
                 self.request,
                 '(API) An incorrect list of user IDs was received',
             )
             raise ParseError('Получен некорректный список идентификаторов пользователей')
 
-        user_id = json_data.get('ids')
+    def _load_json(self, data: str):
+        try:
+            return json.loads(data)
+        except JSONDecodeError:
+            logger.warning(
+                self.request,
+                '(API) An incorrect list of user IDs was received',
+            )
+            raise ParseError('Получен некорректный список идентификаторов пользователей')
+
+    def get(self, *args, **kwargs):
+        input_data = self.request.GET.get('data')
+
+        self._validate_json(input_data)
+
+        # По идее ошибок загрузки JSON быть не должно, так как его уже проверил Pydantic,
+        # но на всякий случай обрабатываю эту ситуацию.
+        json_data = self._load_json(input_data)
+
+        user_id = json_data.get('id')
 
         if not self.request.user.is_superuser:
             # Убираем из списка ID тех пользователей, которые не разрешили подписываться на себя.

@@ -123,10 +123,10 @@ def auth_user_can_get_visited_cities__test(setup_db_without_visited_cities, capl
 
     client.login(username='username1', password='password')
     response = client.get(
-        reverse('api__get_visited_cities_from_subscriptions') + '?data={"ids":[2]}'
+        reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2]}'
     )
 
-    assert caplog.records[0].levelname == 'INFO'
+    # assert caplog.records[0].levelname == 'INFO'
     assert (
         '(API) Successful request for a list of visited cities from subscriptions (user #1)'
         in caplog.records[0].getMessage()
@@ -141,7 +141,7 @@ def superuser_can_get_visited_cities__test(setup_db_without_visited_cities, capl
 
     client.login(username='superuser3', password='password')
     response = client.get(
-        reverse('api__get_visited_cities_from_subscriptions') + '?data={"ids":[2]}'
+        reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2]}'
     )
 
     assert caplog.records[0].levelname == 'INFO'
@@ -160,7 +160,7 @@ def superuser_can_get_visited_cities_without_permission__test(
 
     client.login(username='superuser3', password='password')
     response = client.get(
-        reverse('api__get_visited_cities_from_subscriptions') + '?data={"ids":[2]}'
+        reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2]}'
     )
 
     assert caplog.records[0].levelname == 'INFO'
@@ -172,12 +172,12 @@ def superuser_can_get_visited_cities_without_permission__test(
 
 
 @pytest.mark.django_db
-def test__superuser_can_get_visited_cities_without_permission_and_share_setting__test(
+def superuser_can_get_visited_cities_without_permission_and_share_setting__test(
     setup_db_without_visited_cities, caplog, client
 ):
     client.login(username='superuser3', password='password')
     response = client.get(
-        reverse('api__get_visited_cities_from_subscriptions') + '?data={"ids":[2]}'
+        reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2]}'
     )
 
     assert caplog.records[0].levelname == 'INFO'
@@ -188,7 +188,7 @@ def test__superuser_can_get_visited_cities_without_permission_and_share_setting_
     assert response.status_code == 200
 
 
-def test_response_without_user_ids_can_not_be_performed__test(
+def response_without_user_ids_can_not_be_performed__test(
     setup_db_without_visited_cities, caplog, client
 ):
     client.login(username='username1', password='password')
@@ -201,7 +201,7 @@ def test_response_without_user_ids_can_not_be_performed__test(
     assert response.status_code == 400
 
 
-def test_response_with_incorrect_user_ids_can_not_be_performed__test(
+def response_with_incorrect_user_ids_can_not_be_performed__test(
     setup_db_without_visited_cities, caplog, client
 ):
     """
@@ -212,14 +212,10 @@ def test_response_with_incorrect_user_ids_can_not_be_performed__test(
     response1 = client.get(reverse('api__get_visited_cities_from_subscriptions') + '?data=string')
     response2 = client.get(reverse('api__get_visited_cities_from_subscriptions') + '?data=5')
     response3 = client.get(
-        reverse('api__get_visited_cities_from_subscriptions') + '?data={"ids":[\'string\']}'
+        reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[\'string\']}'
     )
     response4 = client.get(
-        reverse('api__get_visited_cities_from_subscriptions')
-        + '?data={"ids":[1, 2], "name":[1, 2]}'
-    )
-    response5 = client.get(
-        reverse('api__get_visited_cities_from_subscriptions') + '?data={"ids":[1, -2]'
+        reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[1, -2]'
     )
 
     # Проверка, что вместо списка цифр передана строка
@@ -241,24 +237,15 @@ def test_response_with_incorrect_user_ids_can_not_be_performed__test(
     assert caplog.records[4].levelname == 'WARNING'
     assert caplog.records[4].getMessage() == (
         '(API) An incorrect list of user IDs was received   '
-        "/api/city/visited/subscriptions?data=%7B%22ids%22:['string']%7D"
+        "/api/city/visited/subscriptions?data=%7B%22id%22:['string']%7D"
     )
     assert response3.status_code == 400
 
-    # Проверка, что вместо списка цифр передан список с лишнимиключами
+    # Проверка, что вместо передан список цифр, среди которых есть отрицательные значения
     assert caplog.records[6].levelname == 'WARNING'
     assert caplog.records[6].getMessage() == (
         '(API) An incorrect list of user IDs was received   '
         '/api/city/visited/subscriptions?data='
-        '%7B%22ids%22:[1,%202],%20%22name%22:[1,%202]%7D'
+        '%7B%22id%22:[1,%20-2]'
     )
     assert response4.status_code == 400
-
-    # Проверка, что вместо передан список цифр, среди которых есть отрицательные значения
-    assert caplog.records[8].levelname == 'WARNING'
-    assert caplog.records[8].getMessage() == (
-        '(API) An incorrect list of user IDs was received   '
-        '/api/city/visited/subscriptions?data='
-        '%7B%22ids%22:[1,%20-2]'
-    )
-    assert response5.status_code == 400

@@ -1,5 +1,6 @@
 import json
 from json import JSONDecodeError
+from typing import NoReturn
 
 from pydantic import ValidationError
 from rest_framework import generics
@@ -48,13 +49,13 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Список ID пользователей, у которых необходимо вернуть посещённые города
         self.user_id: list = []
 
         super().__init__()
 
-    def _validate_json(self, data: str):
+    def _validate_json(self, data: str) -> None | NoReturn:
         try:
             UserID.model_validate_json(data)
         except ValidationError:
@@ -64,7 +65,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
             )
             raise ParseError('Получен некорректный список идентификаторов пользователей')
 
-    def _load_json(self, data: str):
+    def _load_json(self, data: str) -> dict | NoReturn:
         try:
             return json.loads(data)
         except JSONDecodeError:

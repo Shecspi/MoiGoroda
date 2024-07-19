@@ -35,7 +35,7 @@ def setup_db_without_visited_cities(client, django_user_model):
 
 
 @pytest.fixture
-def setup_db_with_visited_cities(client, django_user_model):
+def setup_db_with_visited_cities_for_1_user(client, django_user_model):
     user1 = create_user(django_user_model, 1)
     user2 = create_user(django_user_model, 2)
     create_superuser(django_user_model, 3)
@@ -54,6 +54,41 @@ def setup_db_with_visited_cities(client, django_user_model):
     create_visited_city(
         region=region[0],
         user=user2,
+        city=city[3],
+        date_of_visit=datetime.now(),
+        has_magnet=True,
+        rating=5,
+    )
+
+
+@pytest.fixture
+def setup_db_with_visited_cities_for_2_users(client, django_user_model):
+    user1 = create_user(django_user_model, 1)
+    user2 = create_user(django_user_model, 2)
+    user3 = create_superuser(django_user_model, 3)
+    area = create_area(1)
+    region = create_region(1, area[0])
+    city = create_city(4, region[0])
+    for i in range(3):
+        create_visited_city(
+            region=region[0],
+            user=user1,
+            city=city[i],
+            date_of_visit=datetime.now(),
+            has_magnet=True,
+            rating=5,
+        )
+    create_visited_city(
+        region=region[0],
+        user=user2,
+        city=city[3],
+        date_of_visit=datetime.now(),
+        has_magnet=True,
+        rating=5,
+    )
+    create_visited_city(
+        region=region[0],
+        user=user3,
         city=city[3],
         date_of_visit=datetime.now(),
         has_magnet=True,
@@ -117,7 +152,9 @@ def user_without_correct_account_data_can_not_get_visited_cities__test(
 
 
 @pytest.mark.django_db
-def auth_user_can_get_visited_cities__test(setup_db_without_visited_cities, caplog, client):
+def auth_user_can_get_visited_cities_for_1_subscription__test(
+    setup_db_without_visited_cities, caplog, client
+):
     create_share_settings(2)
     create_subscription(1, 2)
 
@@ -126,10 +163,39 @@ def auth_user_can_get_visited_cities__test(setup_db_without_visited_cities, capl
         reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2]}'
     )
 
-    # assert caplog.records[0].levelname == 'INFO'
+    assert caplog.records[0].levelname == 'INFO'
     assert (
         '(API) Successful request for a list of visited cities from subscriptions (from #1, to #2)'
         in caplog.records[0].getMessage()
+    )
+    assert response.content.decode() == (
+        '[{"username":"username2","id":"4","title":"Город 4","lat":"1.0","lon":"1.0","year":2024}]'
+    )
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test__auth_user_can_get_visited_cities_for_2_subscriptions__test(
+    setup_db_with_visited_cities_for_2_users, caplog, client
+):
+    create_share_settings(2)
+    create_share_settings(3)
+    create_subscription(1, 2)
+    create_subscription(1, 3)
+
+    client.login(username='username1', password='password')
+    response = client.get(
+        reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2,3]}'
+    )
+
+    assert caplog.records[0].levelname == 'INFO'
+    assert (
+        '(API) Successful request for a list of visited cities from subscriptions (from #1, to #2)'
+        in caplog.records[0].getMessage()
+    )
+    assert response.content.decode() == (
+        '[{"username":"superuser3","id":"4","title":"Город 4","lat":"1.0","lon":"1.0","year":2024},'
+        '{"username":"username2","id":"4","title":"Город 4","lat":"1.0","lon":"1.0","year":2024}]'
     )
     assert response.status_code == 200
 
@@ -361,8 +427,8 @@ def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscri
     assert response.status_code == 200
 
 
-def test__auth_user_dont_have_subscription_to_user_but_try_to_get_his_cities__test(
-    setup_db_with_visited_cities, caplog, client
+def auth_user_dont_have_subscription_to_user_but_try_to_get_his_cities__test(
+    setup_db_with_visited_cities_for_1_user, caplog, client
 ):
     """
     Проверяет, что невозможно посмотреть города пользователей, на которых не оформлена подписка.

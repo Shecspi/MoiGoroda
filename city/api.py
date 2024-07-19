@@ -12,6 +12,7 @@ from city.serializers import VisitedCitySerializer, NotVisitedCitySerializer
 from city.structs import UserID
 from services import logger
 from services.db.visited_city_repo import get_visited_cities_many_users, get_not_visited_cities
+from subscribe.repository import is_subscribed
 
 
 class GetVisitedCities(generics.ListAPIView):
@@ -75,6 +76,38 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
             )
             raise ParseError('Получен некорректный список идентификаторов пользователей')
 
+    def _user_has_allowed_to_subscribe_to_himself(self, user_id: int) -> bool:
+        try:
+            user_settings = ShareSettings.objects.get(user_id=user_id)
+        except ShareSettings.DoesNotExist:
+            logger.warning(
+                self.request,
+                f'(API) Attempt to get a list of the cities of a user who did not change initial settings '
+                f'(from #{self.request.user.id}, to #{user_id})',
+            )
+        else:
+            if user_settings.can_subscribe:
+                return True
+            else:
+                logger.warning(
+                    self.request,
+                    f'(API) Attempt to get a list of the cities of a user who did not allow it '
+                    f'(from #{self.request.user.id}, to #{user_id})',
+                )
+        return False
+
+    def _is_subscription_exists(self, to_id: int) -> bool:
+        from_id = self.request.user.pk
+        if is_subscribed(from_id, to_id):
+            return True
+        else:
+            logger.warning(
+                self.request,
+                f'(API) Attempt to get a list of the cities of a user for whom do not have a subscription '
+                f'(from #{from_id}, to #{to_id})',
+            )
+            return False
+
     def get(self, *args, **kwargs):
         input_data = self.request.GET.get('data')
 
@@ -91,26 +124,15 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
             # Вообще это нештатная ситуация, но теоритически возможная, когда пользователь запретил
             # подписываться после того, как была открыта страница с картой, но до того, как запрос пришёл на сервер.
             for id in user_id:
-                try:
-                    user_settings = ShareSettings.objects.get(user_id=id)
-                except ShareSettings.DoesNotExist:
-                    logger.warning(
+                if self._user_has_allowed_to_subscribe_to_himself(
+                    id
+                ) and self._is_subscription_exists(id):
+                    self.user_id.append(id)
+                    logger.info(
                         self.request,
-                        '(API) Attempt to get a list of the cities of a user who did not change initial settings ('
-                        '(user #{self.request.user.id}, subscription #{id})',
+                        f'(API) Successful request for a list of visited cities from subscriptions '
+                        f'(from #{self.request.user.id}, to #{id})',
                     )
-                else:
-                    if user_settings.can_subscribe:
-                        self.user_id.append(id)
-                        logger.info(
-                            self.request,
-                            f'(API) Successful request for a list of visited cities from subscriptions (user #{self.request.user.id})',
-                        )
-                    else:
-                        logger.warning(
-                            self.request,
-                            '(API) Attempt to get a list of the cities of a user who did not allow it',
-                        )
         else:
             self.user_id = user_id
 

@@ -31,12 +31,8 @@ def setup_db(client, django_user_model):
     city_2 = City.objects.create(
         title='Город 2', region=region, coordinate_width=1, coordinate_longitude=1
     )
-    city_3 = City.objects.create(
-        title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1
-    )
-    city_4 = City.objects.create(
-        title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1
-    )
+    City.objects.create(title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1)
+    City.objects.create(title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1)
     VisitedCity.objects.create(
         user=user,
         region=region,

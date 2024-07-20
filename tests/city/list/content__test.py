@@ -53,11 +53,11 @@ def setup_db__content_for_checking_of_cards__minimum_content(client, django_user
 
 @pytest.fixture
 def setup_db__content_for_checking_of_cards__no_content(client, django_user_model):
-    user = django_user_model.objects.create_user(username='username', password='password')
+    django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Округ 1')
     region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU1')
     for num in range(1, 3):
-        city = City.objects.create(
+        City.objects.create(
             title=f'Город {num}', region=region, coordinate_width=1, coordinate_longitude=1
         )
 

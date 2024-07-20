@@ -1,0 +1,72 @@
+{% load static %}
+
+{% if can_subscribe and user.is_authenticated %}
+    {% if request.user.pk != user_id %}
+        <div class="row mx-3 mt-2 mb-3 g-3 px-xxl-5 text-end">
+            <div class="col" id="toolbar">
+                    <button type="button"
+                            class="btn btn-success"
+                            id="unsubscribe_button"
+                            onclick="send_to_server()"
+                            data-url="{% url 'save_subscribe' %}"
+                            data-action="unsubscribe"
+                            data-from_id="{{ request.user.id }}"
+                            data-to_id="{{ user_id }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-title="Нажмите, чтобы убрать пользователя из своих подписок"
+                            {% if not is_subscribed %}hidden{% endif %}>
+                        <i class="fa-regular fa-bell"></i>&nbsp;&nbsp;&nbsp;Отписаться
+                    </button>
+                    <button type="button"
+                            class="btn btn-outline-success"
+                            id="subscribe_button"
+                            onclick="send_to_server()"
+                            data-url="{% url 'save_subscribe' %}"
+                            data-action="subscribe"
+                            data-from_id="{{ request.user.id }}"
+                            data-to_id="{{ user_id }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-title="После подписки на пользователя Вы сможете сравнивать его посещённые города со своими на одной карте"
+                            {% if is_subscribed %}hidden{% endif %}>
+                        <i class="fa-solid fa-bell"></i>&nbsp;&nbsp;&nbsp;Подписаться
+                    </button>
+                </button>
+            </div>
+        </div>
+
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="toast_subscribe_api_ok" class="toast text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class='d-flex'>
+                    <div class="toast-body">
+                        Вы подписались на пользователя.
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="toast_unsubscribe_api_ok" class="toast text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class='d-flex'>
+                    <div class="toast-body">
+                        Вы отписались от пользователя.
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="toast_error" class="toast text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class='d-flex'>
+                    <div class="toast-body" id="error-message">
+                        Во время отправки запроса произошла ошибка. Попробуйте, пожалуйста, ещё раз.
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+                </div>
+            </div>
+        </div>
+
+        <script src="{% static 'js/subscribe_api.js' %}"></script>
+    {% endif %}
+{% endif %}

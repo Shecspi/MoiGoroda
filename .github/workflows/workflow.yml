@@ -34,13 +34,18 @@ jobs:
     runs-on: [self-hosted, dev]
     steps:
       - uses: actions/checkout@v1
+
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+
       - name: Deploy to 5.44.47.96
         run: |
           : # Переходим в папку с проектом
           cd ${{ secrets.DEV__PROJECT_PATH }}
 
-          git pull origin pre-commit
-          git checkout pre-commit
+          git pull origin ${{ steps.vars.outputs.short_ref }}
+          git checkout ${{ steps.vars.outputs.short_ref }}
           
           : # Устанавливаем необходимую версию Python, если она ещё не установлена
           if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi

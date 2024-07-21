@@ -8,12 +8,12 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.urls import path
-from . import views
+from city import views
 
 urlpatterns = [
     # Списки с городами
-    path('all/list', views.VisitedCity_List.as_view(list_or_map='list'), name='city-all-list'),
-    path('all/map', views.VisitedCity_List.as_view(list_or_map='map'), name='city-all-map'),
+    path('all/list', views.VisitedCity_List.as_view(), name='city-all-list'),
+    path('all/map', views.VisitedCity_Map.as_view(), name='city-all-map'),
     path('<int:pk>', views.VisitedCity_Detail.as_view(), name='city-selected'),
     # Операции с городами
     path('create/', views.VisitedCity_Create.as_view(), name='city-create'),

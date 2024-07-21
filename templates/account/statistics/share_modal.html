@@ -79,6 +79,23 @@
 
                     <div class="row">
                         <div class="col">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="switch_subscribe" name="switch_subscribe"
+                                       {% if not share_settings.switch_share_general %}disabled{% endif %}
+                                       {% if share_settings.switch_subscribe %}checked{% endif %}
+                                >
+                                <label class="form-check-label" for="switch_subscribe">&nbsp;&nbsp;&nbsp;Разрешить подписываться на Вас</label>
+                                &nbsp;&nbsp;&nbsp;
+                                <i class="fa-regular fa-circle-question" data-bs-toggle="tooltip" data-bs-title="Если Вы включите эту настройку, то другие пользователи смогут добавлять Ваш профиль в подписки и сравнивать свои посещённые города с Вашими. Это возможно только в том случае, если Вы разрешили доступ к своей статистике."></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col">
                             <input class="form-control" type="text" id="input_with_share_link"
                                    value="{{ SITE_URL }}{% url 'share' request.user.id %}"
                                    {% if not share_settings.switch_share_general %}disabled{% endif %}
@@ -148,6 +165,10 @@
         switch_share_region_map.checked = false;
         switch_share_region_map.disabled = true;
 
+        const switch_subscribe = document.getElementById('switch_subscribe')
+        switch_subscribe.checked = false;
+        switch_subscribe.disabled = true;
+
         const input_with_share_link = document.getElementById('input_with_share_link')
         input_with_share_link.disabled = true;
 
@@ -173,6 +194,10 @@
         switch_share_region_map.checked = true;
         switch_share_region_map.disabled = false;
 
+        const switch_subscribe = document.getElementById('switch_subscribe')
+        switch_subscribe.checked = true;
+        switch_subscribe.disabled = false;
+
         const input_with_share_link = document.getElementById('input_with_share_link')
         input_with_share_link.disabled = false;
 
@@ -184,6 +209,7 @@
     const switch_share_dashboard = document.getElementById('switch_share_dashboard')
     const switch_share_city_map = document.getElementById('switch_share_city_map')
     const switch_share_region_map = document.getElementById('switch_share_region_map')
+    const switch_subscribe = document.getElementById('switch_subscribe')
     const input_with_share_link = document.getElementById('input_with_share_link')
     const button_make_a_copy = document.getElementById('button_make_a_copy')
     const button_send_to_server = document.getElementById('button_send_to_server')

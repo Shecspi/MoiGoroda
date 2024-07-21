@@ -21,7 +21,7 @@ from region.models import Area, Region
 def setup_db(client, django_user_model):
     django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Area 1')
-    region = Region.objects.create(id=1, area=area, title='Регион 1', type='O', iso3166=f'RU-RU')
+    region = Region.objects.create(id=1, area=area, title='Регион 1', type='O', iso3166='RU-RU')
     City.objects.create(
         id=1, title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1
     )

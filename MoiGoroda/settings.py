@@ -15,7 +15,6 @@ import sys
 from pathlib import Path
 
 import sentry_sdk
-from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -57,6 +56,8 @@ INSTALLED_APPS = [
     'markdownify',
     'dashboard',
     'share.apps.ShareConfig',
+    'subscribe',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

@@ -1,7 +1,6 @@
 import pytest
 
 from utils.RegionListMixin import RegionListMixin
-from utils.VisitedCityMixin import VisitedCityMixin
 
 
 @pytest.mark.parametrize(

@@ -8,9 +8,18 @@
 
     {% include 'city/city_all__map__toolbar.html' %}
 
+    {% include 'city/subscriptions_modal_window.html' %}
+    {% include 'city/modal_help.html' %}
+
     <!-- Карта -->
     <div id="map" class="h-100 mt-3"></div>
     <!-- ^^^ Карта -->
 
-    {% include 'city/city_all__map__js_script.html' %}
+    <script src="{% static 'js/map_city.js' %}"></script>
+
+    {% include 'parts/toast/danger.html' with error_title="Ошибка соединения с сервером" error_message='Не получилось загрузить список Ваших посещённых городов.' error_id='toast_request_error' %}
+
+    {# URL для получения списка посещённых пользователем городов #}
+    {# Нужно передавать через data-аргумент, так как нельзя вставить переменную Django Template напрямую в JS код #}
+    <div id="url-api__get_visited_cities" data-url="{% url 'api__get_visited_cities' %}" hidden></div>
 {% endblock %}

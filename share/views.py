@@ -25,6 +25,7 @@ from services.db.statistics.get_info_for_statistic_cards_and_charts import (
 )
 from services.db.visited_city_repo import get_all_visited_cities
 from services.db.regions_repo import get_all_visited_regions
+import subscribe.repository as repo
 
 
 class TypeOfSharedPage(StrEnum):
@@ -60,6 +61,12 @@ class Share(TemplateView):
         # Разрешил ли пользователь отображать карту посещённых регионов
         self.can_share_region_map: bool = False
 
+        # Разрешил ли пользователь подписываться на него
+        self.can_subscribe: bool = False
+
+        # Подписан ли пользователь на выбранного пользователя
+        self.is_subscribed: bool = False
+
     def get(self, *args: Any, **kwargs: Any) -> HttpResponse:
         self.user_id = kwargs['pk']
 
@@ -73,6 +80,8 @@ class Share(TemplateView):
             self.can_share_dashboard = True
             self.can_share_city_map = True
             self.can_share_region_map = True
+            self.can_subscribe = True
+            self.is_subscribed = repo.is_subscribed(self.request.user.id, self.user_id)
 
             logger.info(
                 self.request,
@@ -141,6 +150,8 @@ class Share(TemplateView):
         self.can_share_dashboard = True if settings.can_share_dashboard else False
         self.can_share_city_map = True if settings.can_share_city_map else False
         self.can_share_region_map = True if settings.can_share_region_map else False
+        self.can_subscribe = True if settings.can_subscribe else False
+        self.is_subscribed = repo.is_subscribed(self.request.user.id, self.user_id)
 
         logger.info(self.request, '(Share statistics) Viewing shared statistics')
 
@@ -155,6 +166,8 @@ class Share(TemplateView):
         context['can_share_dashboard'] = self.can_share_dashboard
         context['can_share_city_map'] = self.can_share_city_map
         context['can_share_region_map'] = self.can_share_region_map
+        context['can_subscribe'] = self.can_subscribe
+        context['is_subscribed'] = self.is_subscribed
         context['page_title'] = f'Статистика пользователя {context["username"]}'
         context['page_description'] = (
             f'Статистика посещённых городов и регионов пользователя {context["username"]}'

@@ -83,7 +83,7 @@ def test__method_filter_sort_to_queryset__incorrect_value(setup_db__filtering):
     mixin = VisitedCityMixin()
     queryset = VisitedCity.objects.filter(user=setup_db__filtering)
 
-    with pytest.raises(KeyError) as info:
+    with pytest.raises(KeyError):
         mixin.apply_filter_to_queryset(queryset, 'wrong value').values_list(
             'city__title', flat=True
         )

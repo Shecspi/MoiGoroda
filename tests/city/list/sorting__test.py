@@ -36,10 +36,8 @@ def setup_db_for_sorting(client, django_user_model):
     city_3 = City.objects.create(
         title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1
     )
-    city_4 = City.objects.create(
-        title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1
-    )
-    visited_city_1 = VisitedCity.objects.create(
+    City.objects.create(title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1)
+    VisitedCity.objects.create(
         user=user,
         region=region,
         city=city_1,
@@ -47,10 +45,8 @@ def setup_db_for_sorting(client, django_user_model):
         has_magnet=False,
         rating=3,
     )
-    visited_city_2 = VisitedCity.objects.create(
-        user=user, region=region, city=city_2, has_magnet=False, rating=3
-    )
-    visited_city_3 = VisitedCity.objects.create(
+    VisitedCity.objects.create(user=user, region=region, city=city_2, has_magnet=False, rating=3)
+    VisitedCity.objects.create(
         user=user,
         region=region,
         city=city_3,
@@ -100,7 +96,7 @@ def test__method_apply_sort_to_queryset__incorrect_value(setup_db_for_sorting):
     mixin = VisitedCityMixin()
     queryset = VisitedCity.objects.filter(user=setup_db_for_sorting)
 
-    with pytest.raises(KeyError) as info:
+    with pytest.raises(KeyError):
         mixin.apply_sort_to_queryset(queryset, 'wrong value').values_list('title', flat=True)
 
 

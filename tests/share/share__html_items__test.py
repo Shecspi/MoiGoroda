@@ -181,18 +181,6 @@ def test__city_map_has_map(setup, client):
 
 
 @pytest.mark.django_db
-def test__city_map_has_map(setup, client):
-    create_permissions_in_db(1, (True, True, True, True))
-    client.login(username='username1', password='password')
-    response = client.get(reverse('share', kwargs={'pk': 1, 'requested_page': 'region_map'}))
-    source = BeautifulSoup(response.content.decode(), 'html.parser')
-    content = source.find('div', {'id': 'section-content'})
-    div_map = content.find('div', {'id': 'map'})
-
-    assert div_map
-
-
-@pytest.mark.django_db
 def test__dashboard_has_cards__row_city_cards(setup, client):
     create_permissions_in_db(1, (True, True, True, True))
     client.login(username='username1', password='password')

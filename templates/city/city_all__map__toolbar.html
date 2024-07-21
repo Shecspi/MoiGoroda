@@ -1,5 +1,5 @@
-<div class="row mx-3 my-3 g-3" id="toolbar">
-    <div class="col-xxl-3 col-md-6 order-xl-1">
+<div class="row mx-3 my-3 g-3 align-items-center" id="toolbar">
+    <div class="col-xxl-3 col-md-6 col-xs-12">
         <div class="card text-center shadow h-100">
             <div class="card-body d-grid bg-warning-subtle" id="section-statistic">
                 <div class="align-self-center">
@@ -11,41 +11,74 @@
     </div>
 
     <!-- Посмотреть список -->
-    <div class="col-xxl-3 col-md-6 order-xl-4" id="section-show_map">
-        <div class="card text-center shadow h-100" id="section-show_list">
-            <div class="card-body d-grid bg-success-subtle">
-                <a href="{% url 'city-all-list' %}"
-                   class="btn btn-outline-success align-self-center">
-                    <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
-                </a>
+    <div class="col-xxl-3 col-md-6 col-xs-12" id="section-show_list">
+        <div class="card text-center shadow h-100">
+            <div class="card-body d-grid bg-success-subtle" id="section-statistic">
+                <div class="align-self-center">
+                    <a href="{% url 'city-all-list' %}"
+                       class="btn btn-outline-success align-self-center d-block">
+                        <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
+                    </a>
+                </div>
             </div>
         </div>
     </div>
     <!-- ^^^ Посмотреть список -->
 
-    <div class="col-xxl-3 col-md-6 order-xl-2">
-        <div class="card text-center shadow h-100" id="section-current_year">
-            <div class="card-body d-grid bg-primary-subtle">
-                 <a href="{% url 'city-all-map' %}?{{ url_for_filter_current_year }}"
-                   class="d-block align-self-center btn
-                          {% if filter == 'current_year' %}btn-success{% else %}btn-outline-success{% endif %}
-                          {% if qty_of_visited_cities == 0 %}disabled{% endif %}">
-                    <i class="fa-solid fa-calendar-days"></i>&nbsp;&nbsp;&nbsp;В этом году
-                </a>
-            </div>
-        </div>
-    </div>
+    <div class="col-xxl-6 col-md-12 text-end g-3" id="section-small-buttons">
+        <!-- Помощь -->
+        <button class="align-self-center btn btn-outline-dark"
+                id="btn_help"
+                data-bs-toggle="modal"
+                data-bs-target="#modal_help"
+                data-bs-tooltip="tooltip"
+                data-bs-title="Посмотреть описание меток, использованных на карте">
+            <i class="fa-regular fa-circle-question"></i>
+        </button>
+        <!-- ^^^ Помощь -->
 
-    <div class="col-xxl-3 col-md-6 order-xl-3">
-            <div class="card text-center shadow h-100" id="section-last_year">
-                <div class="card-body d-grid bg-secondary-subtle">
-                    <a href="{% url 'city-all-map' %}?{{ url_for_filter_last_year }}"
-                       class="d-block align-self-center btn
-                              {% if filter == 'last_year' %}btn-primary{% else %}btn-outline-primary{% endif %}
-                              {% if qty_of_visited_cities == 0 %}disabled{% endif %}">
-                        <i class="fa-solid fa-calendar-week"></i>&nbsp;&nbsp;&nbsp;В прошлом году
-                    </a>
-            </div>
-        </div>
+        <!-- В прошлом году -->
+        <button class="align-self-center btn btn-outline-secondary
+                       {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
+                id="btn_show-visited-cities-previous-year"
+                data-type="show"
+                data-bs-toggle="tooltip"
+                data-bs-title="Показать города, посещённые Вами в прошлом году">
+            <i class="fa-solid fa-calendar-week"></i>
+        </button>
+        <!-- ^^^ В прошлом году -->
+
+        <!-- В этом году -->
+        <button  class="align-self-center btn btn-outline-primary
+                  {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
+                id="btn_show-visited-cities-current-year"
+                data-type="show"
+                data-bs-toggle="tooltip"
+                data-bs-title="Показать города, посещённые Вами в текущем году">
+            <i class="fa-solid fa-calendar-days"></i>
+        </button>
+        <!-- ^^^ В этом году -->
+
+        <!-- Показать непосещённые города -->
+        <button class="align-self-center btn btn-outline-danger"
+                id="btn_show-not-visited-cities"
+                data-url="{% url 'api__get_not_visited_cities' %}"
+                data-type="show"
+                data-bs-toggle="tooltip"
+                data-bs-title="Показать непосещённые города">
+            <i class="fa-solid fa-eye"></i>
+        </button>
+        <!-- ^^^ Показать непосещённые города -->
+
+        <!-- Подписки -->
+        <button class="align-self-center btn btn-outline-success{% if not is_user_has_subscriptions %} disabled{% endif %}"
+                id="btn_open_modal_with_subscriptions"
+                data-bs-toggle="modal"
+                data-bs-target="#subscriptions_modal_window"
+                data-bs-tooltip="tooltip"
+                data-bs-title="Показать города, посещённые пользователями, на которых Вы подписаны">
+                <i class="fa-solid fa-bell"></i>
+        </button>
+        <!-- ^^^ Подписки -->
     </div>
 </div>

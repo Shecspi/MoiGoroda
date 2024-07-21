@@ -21,7 +21,7 @@ from region.models import Area, Region
 @pytest.fixture
 def setup_db(client):
     area = Area.objects.create(title='Area 1')
-    Region.objects.create(id=1, area=area, title=f'Регион 1', type='область', iso3166='RU-RU-1')
+    Region.objects.create(id=1, area=area, title='Регион 1', type='область', iso3166='RU-RU-1')
 
 
 @pytest.mark.django_db

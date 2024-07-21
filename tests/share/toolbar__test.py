@@ -129,6 +129,7 @@ def test__page_has_disabled_subscription_button_for_auth_user_if_user_has_no_sub
     )
 
     assert subscribe_button
+    assert 'Подписаться' in subscribe_button.get_text()
     assert unsubscribe_button
 
 
@@ -157,3 +158,4 @@ def test__page_has_enabled_subscription_button_for_auth_user_if_user_has_no_subs
 
     assert subscribe_button
     assert unsubscribe_button
+    assert 'Отписаться' in unsubscribe_button.get_text()

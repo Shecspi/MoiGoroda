@@ -153,7 +153,7 @@ def user_without_correct_account_data_can_not_get_visited_cities__test(
 
 @pytest.mark.django_db
 def auth_user_can_get_visited_cities_for_1_subscription__test(
-    setup_db_without_visited_cities, caplog, client
+    setup_db_with_visited_cities_for_1_user, caplog, client
 ):
     create_share_settings(2)
     create_subscription(1, 2)
@@ -318,7 +318,7 @@ def request_with_incorrect_user_ids_can_not_be_performed__test(
 
 
 def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_1__test(
-    setup_db_with_visited_cities, caplog, client
+    setup_db_without_visited_cities, caplog, client
 ):
     """
     Проверяет, что невозможно посмотреть города пользователей,
@@ -340,7 +340,7 @@ def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_1__test(
 
 
 def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_2__test(
-    setup_db_with_visited_cities, caplog, client
+    setup_db_with_visited_cities_for_1_user, caplog, client
 ):
     """
     Проверяет, что невозможно посмотреть города пользователей,
@@ -372,7 +372,7 @@ def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_2__test(
 
 
 def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscribe_is_false_1__test(
-    setup_db_with_visited_cities, caplog, client
+    setup_db_without_visited_cities, caplog, client
 ):
     """
     Проверяет, что невозможно посмотреть города пользователей,
@@ -395,7 +395,7 @@ def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscri
 
 
 def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscribe_is_false_2__test(
-    setup_db_with_visited_cities, caplog, client
+    setup_db_with_visited_cities_for_1_user, caplog, client
 ):
     """
     Проверяет, что невозможно посмотреть города пользователей,

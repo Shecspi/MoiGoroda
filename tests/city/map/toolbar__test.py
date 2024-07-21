@@ -48,7 +48,7 @@ def setup_db(client, django_user_model):
 @pytest.mark.django_db
 def test__toolbar(setup_db, client):
     client.login(username='username1', password='password')
-    response = client.get(reverse('-all-map'))
+    response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
 
     assert source.find('div', {'id': 'toolbar'})

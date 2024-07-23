@@ -1,0 +1,33 @@
+{% load static %}
+
+<div class="modal fade"
+     id="modal_add_city"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false"
+     tabindex="-1"
+     aria-labelledby="modal_add_city_label"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modal_add_city_label">
+                        <i class="fa-regular fa-circle-question"></i>&nbsp;&nbsp;&nbsp;Добавить посещённый город
+                    </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+
+            <div class="modal-body">
+
+            </div>
+
+            <div class="modal-footer justify-content-between">
+                <button class="btn btn-success"
+                        id='btn_add-visited-city'>
+                    Добавить
+                </button>
+
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>

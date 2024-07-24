@@ -351,7 +351,7 @@ class ToolbarActions {
          * Добавляет на карту, находящуюся в глобальной переменной myMap, отметку города city по координатам lat и lon.
          */
         let contentForNotVisitedCity = 'Этот город не был посещён ни Вами, ни кем-то из выбранный пользователей' +
-            '<hr><a href="#" data-bs-toggle="modal" data-bs-target="#modal_add_city">Отметить как посещённый</a>';
+            `<hr><a href="#" data-bs-toggle="modal" data-bs-target="#modal_add_city" data-city=${city}>Отметить как посещённый</a>`;
         let contentForVisitedCity = 'Пользователи, посетившие город:<br>';
 
         let placemark = new ymaps.Placemark(

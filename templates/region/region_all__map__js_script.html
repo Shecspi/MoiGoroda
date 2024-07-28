@@ -3,8 +3,17 @@
 
     let regionList = new Map();
     {% for item in all_regions %}
-        regionList.set('{{ item.iso3166 }}', '{{ item.num_visited }}');
+        regionList.set('{{ item.iso3166 }}', {
+            'num_visited': '{{ item.num_visited }}',
+            'title': '{{ item }}'
+        });
     {% endfor %}
+
+    const fillColorVisitedRegion = '#32b700';
+    const fillColorNotVisitedRegion = '#9a9a9a';
+    const fillOpacity = 0.6;
+    const strokeColor = '#FFF';
+    const strokeOpacity = 0.5;
 
     function init() {
         let map = new ymaps.Map('map', {
@@ -15,62 +24,60 @@
         });
         map.controls.get('zoomControl').options.set({size: 'small'});
 
-        let objectManager = new ymaps.ObjectManager();
-
-        // Загрузим регионы и создаём объект regions, где ключи это ISO код региона
         ymaps.borders.load('RU', {
             lang: 'ru',
             quality: 2
         }).then(function (result) {
-            let queue = [];
-            let regions = result.features.reduce(function (acc, feature) {
+            result.features.reduce(function (acc, feature) {
                 let iso = feature.properties.iso3166;
                 feature.id = iso;
                 feature.options = {
-                    fillOpacity: 0.6,
-                    strokeColor: '#FFF',
-                    strokeOpacity: 0.5,
-                    visited: regionList.get(iso) > 0
+                    fillColor: regionList.get(iso)['num_visited'] > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,
+                    fillOpacity: fillOpacity,
+                    strokeColor: strokeColor,
+                    strokeOpacity: strokeOpacity
                 };
+                feature.properties = {
+                    hintContent: regionList.get(iso)['title'],
+                }
                 acc[iso] = feature;
                 return acc;
             }, {});
 
-            // Функция, которая раскрашивает регион и добавляет всех нераскрасшенных соседей в очередь на раскраску.
-            function paint(iso) {
-                let region = regions[iso];
-
-                // Если у региона есть опция fillColor, значит мы его уже раскрасили.
-                if (region.options.fillColor) {
-                    return;
-                }
-
-                if (region.options.visited) {
-                    region.options.fillColor = '#32b700';
-                } else {
-                    region.options.fillColor = '#9a9a9a';
-                }
-            }
-
-            for (let iso in regions) {
-                // Если регион не раскрашен, добавим его в очередь на раскраску.
-                if (!regions[iso].options.fillColor) {
-                    queue.push(iso);
-                }
-                // Раскрасим все регионы из очереди.
-                while (queue.length > 0) {
-                    paint(queue.shift());
-                }
-
-            }
-
-            // Добавим регионы на карту.
-            result.features = [];
-            for (let reg in regions) {
-                result.features.push(regions[reg]);
-            }
+            let objectManager = new ymaps.ObjectManager();
             objectManager.add(result);
             map.geoObjects.add(objectManager);
-        })
+        });
+
+        // Яндекс считает, что новые территории России находятся на Украине.
+        // Поэтому нужно загрузить регионы Украины и отфильтровать их, оставив только 4 российских региона.
+        ymaps.borders.load('UA', {
+            lang: 'ru',
+            quality: 2
+        }).then(function (result) {
+            let new_regions = [];
+
+            for (let region of result.features) {
+                let iso = region.properties.iso3166;
+
+                if (regionList.get(iso)) {
+                    region.id = iso;
+                    region.options = {
+                        fillColor: regionList.get(iso)['num_visited'] > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,
+                        fillOpacity: fillOpacity,
+                        strokeColor: strokeColor,
+                        strokeOpacity: strokeOpacity
+                    };
+                    region.properties = {
+                        hintContent: regionList.get(iso)['title'],
+                    }
+                    new_regions.push(region);
+                }
+            }
+
+            let objectManager = new ymaps.ObjectManager();
+            objectManager.add(new_regions);
+            map.geoObjects.add(objectManager);
+        });
     }
 </script>

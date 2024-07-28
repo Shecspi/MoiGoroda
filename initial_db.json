@@ -906,6 +906,46 @@
   }
 },
 {
+  "model": "region.region",
+  "pk": 86,
+  "fields": {
+    "area": 3,
+    "title": "Луганская Народная Республика",
+    "type": "R",
+    "iso3166": "RU-81"
+  }
+},
+{
+  "model": "region.region",
+  "pk": 87,
+  "fields": {
+    "area": 3,
+    "title": "Запорожская",
+    "type": "O",
+    "iso3166": "UA-23"
+  }
+},
+{
+  "model": "region.region",
+  "pk": 88,
+  "fields": {
+    "area": 3,
+    "title": "Херсонская",
+    "type": "O",
+    "iso3166": "UA-65"
+  }
+},
+{
+  "model": "region.region",
+  "pk": 89,
+  "fields": {
+    "area": 3,
+    "title": "Донецкая Народная Республика",
+    "type": "R",
+    "iso3166": "UA-14"
+  }
+},
+{
   "model": "city.city",
   "pk": 1,
   "fields": {
@@ -15723,6 +15763,1475 @@
     "coordinate_width": 60.068722,
     "coordinate_longitude": 30.393806,
     "wiki": "https://ru.wikipedia.org/wiki/Бугры_(город)#cite_note-19"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1155,
+  "fields": {
+    "title": "Луганск",
+    "region": 86,
+    "population": 397677,
+    "date_of_foundation": 1795,
+    "coordinate_width": 48.573896,
+    "coordinate_longitude": 39.307708,
+    "wiki": "https://ru.ruwiki.ru/wiki/Луганск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1156,
+  "fields": {
+    "title": "Александровск",
+    "region": 86,
+    "population": 6401,
+    "date_of_foundation": 1772,
+    "coordinate_width": 48.586843,
+    "coordinate_longitude": 39.187621,
+    "wiki": "https://ru.ruwiki.ru/wiki/Александровск_(Луганская_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1157,
+  "fields": {
+    "title": "Алмазная",
+    "region": 86,
+    "population": 4148,
+    "date_of_foundation": 1870,
+    "coordinate_width": 48.521714,
+    "coordinate_longitude": 38.57992,
+    "wiki": "https://ru.ruwiki.ru/wiki/Алмазная"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1158,
+  "fields": {
+    "title": "Алчевск",
+    "region": 86,
+    "population": 106062,
+    "date_of_foundation": 1896,
+    "coordinate_width": 48.469066,
+    "coordinate_longitude": 38.797474,
+    "wiki": "https://ru.ruwiki.ru/wiki/Алчевск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1159,
+  "fields": {
+    "title": "Антрацит",
+    "region": 86,
+    "population": 52150,
+    "date_of_foundation": 1895,
+    "coordinate_width": 48.116926,
+    "coordinate_longitude": 39.083183,
+    "wiki": "https://ru.ruwiki.ru/wiki/Антрацит_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1160,
+  "fields": {
+    "title": "Артёмовск",
+    "region": 86,
+    "population": 7162,
+    "date_of_foundation": 1910,
+    "coordinate_width": 48.439637,
+    "coordinate_longitude": 38.724881,
+    "wiki": "https://ru.ruwiki.ru/wiki/Артёмовск_(Луганская_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1161,
+  "fields": {
+    "title": "Брянка",
+    "region": 86,
+    "population": 44760,
+    "date_of_foundation": 1696,
+    "coordinate_width": 48.505671,
+    "coordinate_longitude": 38.665547,
+    "wiki": "https://ru.ruwiki.ru/wiki/Брянка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1162,
+  "fields": {
+    "title": "Вахрушево",
+    "region": 86,
+    "population": 11421,
+    "date_of_foundation": 1929,
+    "coordinate_width": 48.160416,
+    "coordinate_longitude": 38.838859,
+    "wiki": "https://ru.ruwiki.ru/wiki/Вахрушево_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1163,
+  "fields": {
+    "title": "Горское",
+    "region": 86,
+    "population": 9100,
+    "date_of_foundation": 1898,
+    "coordinate_width": 48.741331,
+    "coordinate_longitude": 38.494858,
+    "wiki": "https://ru.ruwiki.ru/wiki/Горское_(ЛНР)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1164,
+  "fields": {
+    "title": "Зимогорье",
+    "region": 86,
+    "population": 9557,
+    "date_of_foundation": 1645,
+    "coordinate_width": 48.588476,
+    "coordinate_longitude": 38.925546,
+    "wiki": "https://ru.ruwiki.ru/wiki/Зимогорье"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1165,
+  "fields": {
+    "title": "Золотое",
+    "region": 86,
+    "population": 13007,
+    "date_of_foundation": 1938,
+    "coordinate_width": 48.692748,
+    "coordinate_longitude": 38.519472,
+    "wiki": "https://ru.ruwiki.ru/wiki/Золотое"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1166,
+  "fields": {
+    "title": "Зоринск",
+    "region": 86,
+    "population": 7096,
+    "date_of_foundation": 1963,
+    "coordinate_width": 48.416386,
+    "coordinate_longitude": 38.619059,
+    "wiki": "https://ru.ruwiki.ru/wiki/Зоринск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1167,
+  "fields": {
+    "title": "Ирмино",
+    "region": 86,
+    "population": 9270,
+    "date_of_foundation": 1808,
+    "coordinate_width": 48.59574,
+    "coordinate_longitude": 38.586414,
+    "wiki": "https://ru.ruwiki.ru/wiki/Ирмино"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1168,
+  "fields": {
+    "title": "Кировск",
+    "region": 86,
+    "population": 26654,
+    "date_of_foundation": 1764,
+    "coordinate_width": 48.637659,
+    "coordinate_longitude": 38.643377,
+    "wiki": "https://ru.ruwiki.ru/wiki/Кировск_(Луганская_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1169,
+  "fields": {
+    "title": "Краснодон",
+    "region": 86,
+    "population": 42315,
+    "date_of_foundation": 1914,
+    "coordinate_width": 48.299283,
+    "coordinate_longitude": 39.734327,
+    "wiki": "https://ru.ruwiki.ru/wiki/Краснодон"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1170,
+  "fields": {
+    "title": "Красный Луч",
+    "region": 86,
+    "population": 79533,
+    "date_of_foundation": 1895,
+    "coordinate_width": 48.136959,
+    "coordinate_longitude": 38.919312,
+    "wiki": "https://ru.ruwiki.ru/wiki/Красный_Луч_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1171,
+  "fields": {
+    "title": "Кременная",
+    "region": 86,
+    "population": 18116,
+    "date_of_foundation": 1733,
+    "coordinate_width": 49.049943,
+    "coordinate_longitude": 38.221114,
+    "wiki": "https://ru.ruwiki.ru/wiki/Кременная"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1172,
+  "fields": {
+    "title": "Лисичанск",
+    "region": 86,
+    "population": 93340,
+    "date_of_foundation": 1710,
+    "coordinate_width": 48.912914,
+    "coordinate_longitude": 38.419552,
+    "wiki": "https://ru.ruwiki.ru/wiki/Лисичанск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1173,
+  "fields": {
+    "title": "Лутугино",
+    "region": 86,
+    "population": 17061,
+    "date_of_foundation": 1896,
+    "coordinate_width": 48.401871,
+    "coordinate_longitude": 39.215711,
+    "wiki": "https://ru.ruwiki.ru/wiki/Лутугино"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1174,
+  "fields": {
+    "title": "Миусинск",
+    "region": 86,
+    "population": 4596,
+    "date_of_foundation": 1923,
+    "coordinate_width": 48.077408,
+    "coordinate_longitude": 38.898381,
+    "wiki": "https://ru.ruwiki.ru/wiki/Миусинск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1175,
+  "fields": {
+    "title": "Молодогвардейск",
+    "region": 86,
+    "population": 22449,
+    "date_of_foundation": 1954,
+    "coordinate_width": 48.345995,
+    "coordinate_longitude": 39.652472,
+    "wiki": "https://ru.ruwiki.ru/wiki/Молодогвардейск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1176,
+  "fields": {
+    "title": "Новодружеск",
+    "region": 86,
+    "population": 6705,
+    "date_of_foundation": 1935,
+    "coordinate_width": 48.963631,
+    "coordinate_longitude": 38.352251,
+    "wiki": "https://ru.ruwiki.ru/wiki/Новодружеск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1177,
+  "fields": {
+    "title": "Первомайск",
+    "region": 86,
+    "population": 36091,
+    "date_of_foundation": 1765,
+    "coordinate_width": 48.631705,
+    "coordinate_longitude": 38.535704,
+    "wiki": "https://ru.ruwiki.ru/wiki/Первомайск_(город,_Луганская_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1178,
+  "fields": {
+    "title": "Перевальск",
+    "region": 86,
+    "population": 24817,
+    "date_of_foundation": 1902,
+    "coordinate_width": 48.436074,
+    "coordinate_longitude": 38.808846,
+    "wiki": "https://ru.ruwiki.ru/wiki/Перевальск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1179,
+  "fields": {
+    "title": "Петровское",
+    "region": 86,
+    "population": 12642,
+    "date_of_foundation": 1896,
+    "coordinate_width": 48.293595,
+    "coordinate_longitude": 38.889129,
+    "wiki": "https://ru.ruwiki.ru/wiki/Петровское_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1180,
+  "fields": {
+    "title": "Попасная",
+    "region": 86,
+    "population": 19199,
+    "date_of_foundation": 1878,
+    "coordinate_width": 48.633795,
+    "coordinate_longitude": 38.37655,
+    "wiki": "https://ru.ruwiki.ru/wiki/Попасная_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1181,
+  "fields": {
+    "title": "Приволье",
+    "region": 86,
+    "population": 6520,
+    "date_of_foundation": 1695,
+    "coordinate_width": 49.00159,
+    "coordinate_longitude": 38.296833,
+    "wiki": "https://ru.ruwiki.ru/wiki/Приволье"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1182,
+  "fields": {
+    "title": "Ровеньки",
+    "region": 86,
+    "population": 45514,
+    "date_of_foundation": 1705,
+    "coordinate_width": 48.087797,
+    "coordinate_longitude": 39.370123,
+    "wiki": "https://ru.ruwiki.ru/wiki/Ровеньки"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1183,
+  "fields": {
+    "title": "Рубежное",
+    "region": 86,
+    "population": 55247,
+    "date_of_foundation": 1896,
+    "coordinate_width": 49.025828,
+    "coordinate_longitude": 38.369633,
+    "wiki": "https://ru.ruwiki.ru/wiki/Рубежное"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1184,
+  "fields": {
+    "title": "Сватово",
+    "region": 86,
+    "population": 16145,
+    "date_of_foundation": 1660,
+    "coordinate_width": 49.409282,
+    "coordinate_longitude": 38.16205,
+    "wiki": "https://ru.ruwiki.ru/wiki/Сватово"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1185,
+  "fields": {
+    "title": "Свердловск",
+    "region": 86,
+    "population": 62691,
+    "date_of_foundation": null,
+    "coordinate_width": 48.072827,
+    "coordinate_longitude": 39.658302,
+    "wiki": "https://ru.ruwiki.ru/wiki/Свердловск_(Луганская_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1186,
+  "fields": {
+    "title": "Северодонецк",
+    "region": 86,
+    "population": 99067,
+    "date_of_foundation": 1934,
+    "coordinate_width": 48.953355,
+    "coordinate_longitude": 38.490268,
+    "wiki": "https://ru.ruwiki.ru/wiki/Северодонецк"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1187,
+  "fields": {
+    "title": "Старобельск",
+    "region": 86,
+    "population": 15947,
+    "date_of_foundation": null,
+    "coordinate_width": 49.282243,
+    "coordinate_longitude": 38.897393,
+    "wiki": "https://ru.ruwiki.ru/wiki/Старобельск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1188,
+  "fields": {
+    "title": "Стаханов",
+    "region": 86,
+    "population": 73248,
+    "date_of_foundation": 1814,
+    "coordinate_width": 48.568137,
+    "coordinate_longitude": 38.646575,
+    "wiki": "https://ru.ruwiki.ru/wiki/Стаханов_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1189,
+  "fields": {
+    "title": "Суходольск",
+    "region": 86,
+    "population": 20390,
+    "date_of_foundation": 1914,
+    "coordinate_width": 48.353839,
+    "coordinate_longitude": 39.722325,
+    "wiki": "https://ru.ruwiki.ru/wiki/Суходольск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1190,
+  "fields": {
+    "title": "Счастье",
+    "region": 86,
+    "population": 11411,
+    "date_of_foundation": null,
+    "coordinate_width": 48.737154,
+    "coordinate_longitude": 39.234207,
+    "wiki": "https://ru.ruwiki.ru/wiki/Счастье_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1191,
+  "fields": {
+    "title": "Червонопартизанск",
+    "region": 86,
+    "population": 15218,
+    "date_of_foundation": 1947,
+    "coordinate_width": 48.075042,
+    "coordinate_longitude": 39.800461,
+    "wiki": "https://ru.ruwiki.ru/wiki/Червонопартизанск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1192,
+  "fields": {
+    "title": "Бердянск",
+    "region": 87,
+    "population": 106311,
+    "date_of_foundation": 1835,
+    "coordinate_width": 46.755673,
+    "coordinate_longitude": 36.789317,
+    "wiki": "https://ru.ruwiki.ru/wiki/Бердянск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1193,
+  "fields": {
+    "title": "Васильевка",
+    "region": 87,
+    "population": 12567,
+    "date_of_foundation": 1957,
+    "coordinate_width": 47.442112,
+    "coordinate_longitude": 35.28312,
+    "wiki": "https://ru.ruwiki.ru/wiki/Васильевка_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1194,
+  "fields": {
+    "title": "⚔️ Вольнянск",
+    "region": 87,
+    "population": 14324,
+    "date_of_foundation": 1966,
+    "coordinate_width": 47.943579,
+    "coordinate_longitude": 35.434999,
+    "wiki": "https://ru.ruwiki.ru/wiki/Вольнянск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1195,
+  "fields": {
+    "title": "⚔️ Гуляйполе",
+    "region": 87,
+    "population": 12786,
+    "date_of_foundation": 1938,
+    "coordinate_width": 47.666438,
+    "coordinate_longitude": 36.25322,
+    "wiki": "https://ru.ruwiki.ru/wiki/Гуляйполе"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1196,
+  "fields": {
+    "title": "Днепрорудное",
+    "region": 87,
+    "population": 17736,
+    "date_of_foundation": 1970,
+    "coordinate_width": 47.389894,
+    "coordinate_longitude": 35.002792,
+    "wiki": "https://ru.ruwiki.ru/wiki/Днепрорудное"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1197,
+  "fields": {
+    "title": "⚔️ Запорожье",
+    "region": 87,
+    "population": 710052,
+    "date_of_foundation": 1770,
+    "coordinate_width": 47.838312,
+    "coordinate_longitude": 35.138851,
+    "wiki": "https://ru.ruwiki.ru/wiki/Запорожье"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1198,
+  "fields": {
+    "title": "Каменка-Днепровская",
+    "region": 87,
+    "population": 12117,
+    "date_of_foundation": 1957,
+    "coordinate_width": 47.489822,
+    "coordinate_longitude": 34.408422,
+    "wiki": "https://ru.ruwiki.ru/wiki/Каменка-Днепровская"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1199,
+  "fields": {
+    "title": "Мелитополь",
+    "region": 87,
+    "population": 148851,
+    "date_of_foundation": 1841,
+    "coordinate_width": 46.842187,
+    "coordinate_longitude": 35.37288,
+    "wiki": "https://ru.ruwiki.ru/wiki/Мелитополь"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1200,
+  "fields": {
+    "title": "Молочанск",
+    "region": 87,
+    "population": 6099,
+    "date_of_foundation": 1938,
+    "coordinate_width": 47.205803,
+    "coordinate_longitude": 35.597153,
+    "wiki": "https://ru.ruwiki.ru/wiki/Молочанск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1201,
+  "fields": {
+    "title": "⚔️ Орехов",
+    "region": 87,
+    "population": 13896,
+    "date_of_foundation": 1938,
+    "coordinate_width": 47.569469,
+    "coordinate_longitude": 35.777733,
+    "wiki": "https://ru.ruwiki.ru/wiki/Орехов_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1202,
+  "fields": {
+    "title": "Пологи",
+    "region": 87,
+    "population": 18111,
+    "date_of_foundation": 1938,
+    "coordinate_width": 47.475517,
+    "coordinate_longitude": 36.276037,
+    "wiki": "https://ru.ruwiki.ru/wiki/Пологи"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1203,
+  "fields": {
+    "title": "Приморск",
+    "region": 87,
+    "population": 11157,
+    "date_of_foundation": 1967,
+    "coordinate_width": 46.734536,
+    "coordinate_longitude": 36.344471,
+    "wiki": "https://ru.ruwiki.ru/wiki/Приморск_(Запорожская_область)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1204,
+  "fields": {
+    "title": "Токмак",
+    "region": 87,
+    "population": 29573,
+    "date_of_foundation": 1938,
+    "coordinate_width": 47.255103,
+    "coordinate_longitude": 35.709191,
+    "wiki": "https://ru.ruwiki.ru/wiki/Токмак"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1205,
+  "fields": {
+    "title": "Энергодар",
+    "region": 87,
+    "population": 52237,
+    "date_of_foundation": 1985,
+    "coordinate_width": 47.499825,
+    "coordinate_longitude": 34.656007,
+    "wiki": "https://ru.ruwiki.ru/wiki/Энергодар"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1206,
+  "fields": {
+    "title": "Алешки",
+    "region": 88,
+    "population": 24124,
+    "date_of_foundation": 1711,
+    "coordinate_width": 46.626143,
+    "coordinate_longitude": 32.722006,
+    "wiki": "https://ru.ruwiki.ru/wiki/Алешки"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1207,
+  "fields": {
+    "title": "⚔️ Берислав",
+    "region": 88,
+    "population": 11895,
+    "date_of_foundation": 1784,
+    "coordinate_width": 46.841422,
+    "coordinate_longitude": 33.42942,
+    "wiki": "https://ru.ruwiki.ru/wiki/Берислав"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1208,
+  "fields": {
+    "title": "Геническ",
+    "region": 88,
+    "population": 18889,
+    "date_of_foundation": 1784,
+    "coordinate_width": 46.176416,
+    "coordinate_longitude": 34.805935,
+    "wiki": "https://ru.ruwiki.ru/wiki/Геническ"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1209,
+  "fields": {
+    "title": "Голая Пристань",
+    "region": 88,
+    "population": 13544,
+    "date_of_foundation": 1709,
+    "coordinate_width": 46.533354,
+    "coordinate_longitude": 32.532632,
+    "wiki": "https://ru.ruwiki.ru/wiki/Голая_Пристань"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1210,
+  "fields": {
+    "title": "Каховка",
+    "region": 88,
+    "population": 34749,
+    "date_of_foundation": 1791,
+    "coordinate_width": 46.806837,
+    "coordinate_longitude": 33.480992,
+    "wiki": "https://ru.ruwiki.ru/wiki/Каховка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1211,
+  "fields": {
+    "title": "Новая Каховка",
+    "region": 88,
+    "population": 44427,
+    "date_of_foundation": 1952,
+    "coordinate_width": 46.750073,
+    "coordinate_longitude": 33.35901,
+    "wiki": "https://ru.ruwiki.ru/wiki/Новая_Каховка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1212,
+  "fields": {
+    "title": "Скадовск",
+    "region": 88,
+    "population": 16969,
+    "date_of_foundation": 1894,
+    "coordinate_width": 46.11287,
+    "coordinate_longitude": 32.908792,
+    "wiki": "https://ru.ruwiki.ru/wiki/Скадовск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1213,
+  "fields": {
+    "title": "⚔️ Снигирёвка",
+    "region": 88,
+    "population": 12045,
+    "date_of_foundation": 1812,
+    "coordinate_width": 47.065205,
+    "coordinate_longitude": 32.780531,
+    "wiki": "https://ru.ruwiki.ru/wiki/Снигирёвка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1214,
+  "fields": {
+    "title": "Таврийск",
+    "region": 88,
+    "population": 10108,
+    "date_of_foundation": 1983,
+    "coordinate_width": 46.755229,
+    "coordinate_longitude": 33.422413,
+    "wiki": "https://ru.ruwiki.ru/wiki/Таврийск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1215,
+  "fields": {
+    "title": "⚔️ Херсон",
+    "region": 88,
+    "population": 279131,
+    "date_of_foundation": 1778,
+    "coordinate_width": 46.640319,
+    "coordinate_longitude": 32.614962,
+    "wiki": "https://ru.ruwiki.ru/wiki/Херсон"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1216,
+  "fields": {
+    "title": "Донецк",
+    "region": 89,
+    "population": 901645,
+    "date_of_foundation": 1869,
+    "coordinate_width": 48.015884,
+    "coordinate_longitude": 37.80285,
+    "wiki": "https://ru.ruwiki.ru/wiki/Донецк"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1217,
+  "fields": {
+    "title": "Авдеевка",
+    "region": 89,
+    "population": 31392,
+    "date_of_foundation": 1778,
+    "coordinate_width": 48.150246,
+    "coordinate_longitude": 37.737003,
+    "wiki": "https://ru.ruwiki.ru/wiki/Авдеевка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1218,
+  "fields": {
+    "title": "Амвросиевка",
+    "region": 89,
+    "population": 17998,
+    "date_of_foundation": 1869,
+    "coordinate_width": 47.795528,
+    "coordinate_longitude": 38.479775,
+    "wiki": "https://ru.ruwiki.ru/wiki/Амвросиевка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1219,
+  "fields": {
+    "title": "⚔️ Артёмово",
+    "region": 89,
+    "population": 4928,
+    "date_of_foundation": 1894,
+    "coordinate_width": 48.371684,
+    "coordinate_longitude": 37.888585,
+    "wiki": "https://ru.ruwiki.ru/wiki/Артёмово_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1220,
+  "fields": {
+    "title": "Артёмовск",
+    "region": 89,
+    "population": 71094,
+    "date_of_foundation": 1571,
+    "coordinate_width": 48.59487,
+    "coordinate_longitude": 37.999123,
+    "wiki": "https://ru.ruwiki.ru/wiki/Артёмовск_(Донецкая_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1221,
+  "fields": {
+    "title": "⚔️ Белицкое",
+    "region": 89,
+    "population": 7764,
+    "date_of_foundation": 1909,
+    "coordinate_width": 48.407421,
+    "coordinate_longitude": 37.180623,
+    "wiki": "https://ru.ruwiki.ru/wiki/Белицкое"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1222,
+  "fields": {
+    "title": "⚔️ Белозёрское",
+    "region": 89,
+    "population": 14634,
+    "date_of_foundation": 1913,
+    "coordinate_width": 48.53249,
+    "coordinate_longitude": 37.0582,
+    "wiki": "https://ru.ruwiki.ru/wiki/Белозёрское"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1223,
+  "fields": {
+    "title": "Волноваха",
+    "region": 89,
+    "population": 21166,
+    "date_of_foundation": 1881,
+    "coordinate_width": 47.597907,
+    "coordinate_longitude": 37.483508,
+    "wiki": "https://ru.ruwiki.ru/wiki/Волноваха"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1224,
+  "fields": {
+    "title": "Горловка",
+    "region": 89,
+    "population": 239828,
+    "date_of_foundation": 1867,
+    "coordinate_width": 48.30608,
+    "coordinate_longitude": 38.002536,
+    "wiki": "https://ru.ruwiki.ru/wiki/Горловка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1225,
+  "fields": {
+    "title": "⚔️ Горняк",
+    "region": 89,
+    "population": 10357,
+    "date_of_foundation": 1938,
+    "coordinate_width": 48.055232,
+    "coordinate_longitude": 37.370365,
+    "wiki": "https://ru.ruwiki.ru/wiki/Горняк_(город,_ДНР)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1226,
+  "fields": {
+    "title": "Дебальцево",
+    "region": 89,
+    "population": 24209,
+    "date_of_foundation": 1878,
+    "coordinate_width": 48.336497,
+    "coordinate_longitude": 38.401514,
+    "wiki": "https://ru.ruwiki.ru/wiki/Дебальцево"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1227,
+  "fields": {
+    "title": "⚔️ Дзержинск",
+    "region": 89,
+    "population": 30914,
+    "date_of_foundation": 1806,
+    "coordinate_width": 48.395895,
+    "coordinate_longitude": 37.845879,
+    "wiki": "https://ru.ruwiki.ru/wiki/Дзержинск_(Донецкая_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1228,
+  "fields": {
+    "title": "⚔️ Димитров",
+    "region": 89,
+    "population": 46098,
+    "date_of_foundation": 1911,
+    "coordinate_width": 48.290969,
+    "coordinate_longitude": 37.268056,
+    "wiki": "https://ru.ruwiki.ru/wiki/Димитров_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1229,
+  "fields": {
+    "title": "⚔️ Доброполье",
+    "region": 89,
+    "population": 28170,
+    "date_of_foundation": 1840,
+    "coordinate_width": 48.468779,
+    "coordinate_longitude": 37.082841,
+    "wiki": "https://ru.ruwiki.ru/wiki/Доброполье"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1230,
+  "fields": {
+    "title": "Докучаевск",
+    "region": 89,
+    "population": 22835,
+    "date_of_foundation": 1912,
+    "coordinate_width": 47.745851,
+    "coordinate_longitude": 37.676169,
+    "wiki": "https://ru.ruwiki.ru/wiki/Докучаевск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1231,
+  "fields": {
+    "title": "⚔️ Дружковка",
+    "region": 89,
+    "population": 53977,
+    "date_of_foundation": 1870,
+    "coordinate_width": 48.619527,
+    "coordinate_longitude": 37.524884,
+    "wiki": "https://ru.ruwiki.ru/wiki/Дружковка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1232,
+  "fields": {
+    "title": "Енакиево",
+    "region": 89,
+    "population": 76673,
+    "date_of_foundation": 1898,
+    "coordinate_width": 48.220776,
+    "coordinate_longitude": 38.206858,
+    "wiki": "https://ru.ruwiki.ru/wiki/Енакиево"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1233,
+  "fields": {
+    "title": "Ждановка",
+    "region": 89,
+    "population": 11867,
+    "date_of_foundation": 1924,
+    "coordinate_width": 48.158426,
+    "coordinate_longitude": 38.256346,
+    "wiki": "https://ru.ruwiki.ru/wiki/Ждановка_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1234,
+  "fields": {
+    "title": "Зугрэс",
+    "region": 89,
+    "population": 17871,
+    "date_of_foundation": 1929,
+    "coordinate_width": 48.01158,
+    "coordinate_longitude": 38.265114,
+    "wiki": "https://ru.ruwiki.ru/wiki/Зугрэс"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1235,
+  "fields": {
+    "title": "Иловайск",
+    "region": 89,
+    "population": 15395,
+    "date_of_foundation": 1869,
+    "coordinate_width": 47.92661,
+    "coordinate_longitude": 38.200175,
+    "wiki": "https://ru.ruwiki.ru/wiki/Иловайск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1236,
+  "fields": {
+    "title": "Кировское",
+    "region": 89,
+    "population": 27370,
+    "date_of_foundation": 1954,
+    "coordinate_width": 48.146404,
+    "coordinate_longitude": 38.36047,
+    "wiki": "https://ru.ruwiki.ru/wiki/Кировское_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1237,
+  "fields": {
+    "title": "Комсомольское",
+    "region": 89,
+    "population": 11422,
+    "date_of_foundation": 1933,
+    "coordinate_width": 47.665188,
+    "coordinate_longitude": 38.074635,
+    "wiki": "https://ru.ruwiki.ru/wiki/Комсомольское_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1238,
+  "fields": {
+    "title": "⚔️ Константиновка",
+    "region": 89,
+    "population": 67350,
+    "date_of_foundation": 1850,
+    "coordinate_width": 48.514069,
+    "coordinate_longitude": 37.687129,
+    "wiki": "https://ru.ruwiki.ru/wiki/Константиновка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1239,
+  "fields": {
+    "title": "⚔️ Краматорск",
+    "region": 89,
+    "population": 147145,
+    "date_of_foundation": 1868,
+    "coordinate_width": 48.738984,
+    "coordinate_longitude": 37.584398,
+    "wiki": "https://ru.ruwiki.ru/wiki/Краматорск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1240,
+  "fields": {
+    "title": "⚔️ Красноармейск",
+    "region": 89,
+    "population": 60127,
+    "date_of_foundation": 1880,
+    "coordinate_width": 48.280351,
+    "coordinate_longitude": 37.175601,
+    "wiki": "https://ru.ruwiki.ru/wiki/Красноармейск_(Донецкая_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1241,
+  "fields": {
+    "title": "⚔️ Красногоровка",
+    "region": 89,
+    "population": 14666,
+    "date_of_foundation": 1870,
+    "coordinate_width": 48.009488,
+    "coordinate_longitude": 37.511984,
+    "wiki": "https://ru.ruwiki.ru/wiki/Красногоровка_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1242,
+  "fields": {
+    "title": "⚔️ Красный Лиман",
+    "region": 89,
+    "population": 20066,
+    "date_of_foundation": 1667,
+    "coordinate_width": 48.964092,
+    "coordinate_longitude": 37.822451,
+    "wiki": "https://ru.ruwiki.ru/wiki/Красный_Лиман"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1243,
+  "fields": {
+    "title": "⚔️ Курахово",
+    "region": 89,
+    "population": 18220,
+    "date_of_foundation": 1936,
+    "coordinate_width": 47.987693,
+    "coordinate_longitude": 37.275072,
+    "wiki": "https://ru.ruwiki.ru/wiki/Курахово"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1244,
+  "fields": {
+    "title": "Макеевка",
+    "region": 89,
+    "population": 338968,
+    "date_of_foundation": 1777,
+    "coordinate_width": 48.046529,
+    "coordinate_longitude": 37.965831,
+    "wiki": "https://ru.ruwiki.ru/wiki/Макеевка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1245,
+  "fields": {
+    "title": "Мариуполь",
+    "region": 89,
+    "population": 425681,
+    "date_of_foundation": 1734,
+    "coordinate_width": 47.096703,
+    "coordinate_longitude": 37.54144,
+    "wiki": "https://ru.ruwiki.ru/wiki/Мариуполь"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1246,
+  "fields": {
+    "title": "Марьинка",
+    "region": 89,
+    "population": 9089,
+    "date_of_foundation": 1844,
+    "coordinate_width": 47.941527,
+    "coordinate_longitude": 37.503918,
+    "wiki": "https://ru.ruwiki.ru/wiki/Марьинка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1247,
+  "fields": {
+    "title": "Моспино",
+    "region": 89,
+    "population": 10471,
+    "date_of_foundation": 1800,
+    "coordinate_width": 47.88231,
+    "coordinate_longitude": 38.07185,
+    "wiki": "https://ru.ruwiki.ru/wiki/Моспино"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1248,
+  "fields": {
+    "title": "⚔️ Николаевка",
+    "region": 89,
+    "population": 14210,
+    "date_of_foundation": 1700,
+    "coordinate_width": 48.85179,
+    "coordinate_longitude": 37.776583,
+    "wiki": "https://ru.ruwiki.ru/wiki/Николаевка_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1249,
+  "fields": {
+    "title": "Новоазовск",
+    "region": 89,
+    "population": 11051,
+    "date_of_foundation": 1849,
+    "coordinate_width": 47.113883,
+    "coordinate_longitude": 38.083052,
+    "wiki": "https://ru.ruwiki.ru/wiki/Новоазовск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1250,
+  "fields": {
+    "title": "⚔️ Новогродовка",
+    "region": 89,
+    "population": 14037,
+    "date_of_foundation": 1939,
+    "coordinate_width": 48.199749,
+    "coordinate_longitude": 37.339858,
+    "wiki": "https://ru.ruwiki.ru/wiki/Новогродовка"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1251,
+  "fields": {
+    "title": "⚔️ Родинское",
+    "region": 89,
+    "population": 9850,
+    "date_of_foundation": 1950,
+    "coordinate_width": 48.353109,
+    "coordinate_longitude": 37.210043,
+    "wiki": "https://ru.ruwiki.ru/wiki/Родинское"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1252,
+  "fields": {
+    "title": "Светлодарск",
+    "region": 89,
+    "population": 11127,
+    "date_of_foundation": 1970,
+    "coordinate_width": 48.435016,
+    "coordinate_longitude": 38.220234,
+    "wiki": "https://ru.ruwiki.ru/wiki/Светлодарск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1253,
+  "fields": {
+    "title": "⚔️ Святогорск",
+    "region": 89,
+    "population": 4226,
+    "date_of_foundation": 1571,
+    "coordinate_width": 49.036685,
+    "coordinate_longitude": 37.561392,
+    "wiki": "https://ru.ruwiki.ru/wiki/Святогорск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1254,
+  "fields": {
+    "title": "⚔️ Северск",
+    "region": 89,
+    "population": 10875,
+    "date_of_foundation": 1913,
+    "coordinate_width": 48.867645,
+    "coordinate_longitude": 38.090239,
+    "wiki": "https://ru.ruwiki.ru/wiki/Северск_(Донецкая_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1255,
+  "fields": {
+    "title": "⚔️ Селидово",
+    "region": 89,
+    "population": 21521,
+    "date_of_foundation": 1770,
+    "coordinate_width": 48.148009,
+    "coordinate_longitude": 37.298697,
+    "wiki": "https://ru.ruwiki.ru/wiki/Селидово"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1256,
+  "fields": {
+    "title": "⚔️ Славянск",
+    "region": 89,
+    "population": 105141,
+    "date_of_foundation": 1645,
+    "coordinate_width": 48.852347,
+    "coordinate_longitude": 37.605939,
+    "wiki": "https://ru.ruwiki.ru/wiki/Славянск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1257,
+  "fields": {
+    "title": "Снежное",
+    "region": 89,
+    "population": 45767,
+    "date_of_foundation": 1784,
+    "coordinate_width": 48.019464,
+    "coordinate_longitude": 38.760463,
+    "wiki": "https://ru.ruwiki.ru/wiki/Снежное"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1258,
+  "fields": {
+    "title": "Соледар",
+    "region": 89,
+    "population": 10490,
+    "date_of_foundation": 1775,
+    "coordinate_width": 48.695657,
+    "coordinate_longitude": 38.066002,
+    "wiki": "https://ru.ruwiki.ru/wiki/Соледар"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1259,
+  "fields": {
+    "title": "Торез",
+    "region": 89,
+    "population": 53462,
+    "date_of_foundation": 1770,
+    "coordinate_width": 48.025629,
+    "coordinate_longitude": 38.616849,
+    "wiki": "https://ru.ruwiki.ru/wiki/Торез_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1260,
+  "fields": {
+    "title": "Углегорск",
+    "region": 89,
+    "population": 7294,
+    "date_of_foundation": 1879,
+    "coordinate_width": 48.312582,
+    "coordinate_longitude": 38.271788,
+    "wiki": "https://ru.ruwiki.ru/wiki/Углегорск_(Донецкая_Народная_Республика)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1261,
+  "fields": {
+    "title": "⚔️ Угледар",
+    "region": 89,
+    "population": 14144,
+    "date_of_foundation": 1966,
+    "coordinate_width": 47.779055,
+    "coordinate_longitude": 37.248203,
+    "wiki": "https://ru.ruwiki.ru/wiki/Угледар"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1262,
+  "fields": {
+    "title": "⚔️ Украинск",
+    "region": 89,
+    "population": 10655,
+    "date_of_foundation": 1952,
+    "coordinate_width": 48.097414,
+    "coordinate_longitude": 37.363349,
+    "wiki": "https://ru.ruwiki.ru/wiki/Украинск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1263,
+  "fields": {
+    "title": "Харцызск",
+    "region": 89,
+    "population": 56182,
+    "date_of_foundation": 1869,
+    "coordinate_width": 48.040258,
+    "coordinate_longitude": 38.145854,
+    "wiki": "https://ru.ruwiki.ru/wiki/Харцызск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1264,
+  "fields": {
+    "title": "⚔️ Часов Яр",
+    "region": 89,
+    "population": 12250,
+    "date_of_foundation": 1785,
+    "coordinate_width": 48.587665,
+    "coordinate_longitude": 37.834354,
+    "wiki": "https://ru.ruwiki.ru/wiki/Часов_Яр"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1265,
+  "fields": {
+    "title": "Шахтёрск",
+    "region": 89,
+    "population": 48208,
+    "date_of_foundation": 1764,
+    "coordinate_width": 48.041625,
+    "coordinate_longitude": 38.482084,
+    "wiki": "https://ru.ruwiki.ru/wiki/Шахтёрск_(город)"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1266,
+  "fields": {
+    "title": "Юнокоммунаровск",
+    "region": 89,
+    "population": 13495,
+    "date_of_foundation": 1908,
+    "coordinate_width": 48.223171,
+    "coordinate_longitude": 38.264099,
+    "wiki": "https://ru.ruwiki.ru/wiki/Юнокоммунаровск"
+  }
+},
+{
+  "model": "city.city",
+  "pk": 1267,
+  "fields": {
+    "title": "Ясиноватая",
+    "region": 89,
+    "population": 34144,
+    "date_of_foundation": 1872,
+    "coordinate_width": 48.129833,
+    "coordinate_longitude": 37.85921,
+    "wiki": "https://ru.ruwiki.ru/wiki/Ясиноватая"
   }
 }
 ]

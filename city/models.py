@@ -19,7 +19,6 @@ class City(models.Model):
     """
     Таблица, хранящая в себе список городов.
     Редактируется только из администраторской учётной записи.
-
     """
 
     title = models.CharField(max_length=100, verbose_name='Название', blank=False, null=False)

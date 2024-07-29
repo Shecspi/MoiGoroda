@@ -10,6 +10,7 @@ from rest_framework.exceptions import ParseError
 from account.models import ShareSettings
 from city.serializers import VisitedCitySerializer, NotVisitedCitySerializer
 from city.structs import UserID
+from region.models import Region
 from services import logger
 from services.db.visited_city_repo import get_visited_cities_many_users, get_not_visited_cities
 from subscribe.repository import is_subscribed
@@ -38,6 +39,7 @@ class GetVisitedCities(generics.ListAPIView):
                 'user__username',
                 'id',
                 'city__title',
+                'city__region',
                 'city__coordinate_width',
                 'city__coordinate_longitude',
                 'date_of_visit',
@@ -151,6 +153,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
                 'user__username',
                 'city__id',
                 'city__title',
+                'city__region',
                 'city__coordinate_width',
                 'city__coordinate_longitude',
             ],
@@ -171,4 +174,5 @@ class GetNotVisitedCities(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        return get_not_visited_cities(self.request.user.pk)
+        regions = {region.id: str(region) for region in Region.objects.all()}
+        return get_not_visited_cities(self.request.user.pk, regions)

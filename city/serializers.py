@@ -1,3 +1,14 @@
+"""
+Сериалайзеры для посещённых и непосещённых городов.
+
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from rest_framework import serializers
 
 from city.models import VisitedCity, City

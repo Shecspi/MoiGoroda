@@ -1,3 +1,14 @@
+"""
+Реализует API для получения информации о посещённых и непосещённых городах.
+
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 import json
 from json import JSONDecodeError
 from typing import NoReturn

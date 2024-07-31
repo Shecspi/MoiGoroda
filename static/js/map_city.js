@@ -293,7 +293,8 @@ class ToolbarActions {
             let placemarkStyle;
             let id = this.subscriptionCities[i].id;
             let city = this.subscriptionCities[i].title;
-            let region = this.subscriptionCities[i].region;
+            let region_title = this.ownCities[i].region_title;
+            let region_id = this.ownCities[i].region;
             let lat = this.subscriptionCities[i].lat;
             let lon = this.subscriptionCities[i].lon;
             let year_city = this.subscriptionCities[i].year;
@@ -310,7 +311,8 @@ class ToolbarActions {
             }
             placemark = this.addPlacemarkToMap(
                 city,
-                region,
+                region_id,
+                region_title,
                 lat,
                 lon,
                 placemarkStyle,
@@ -328,7 +330,8 @@ class ToolbarActions {
         for (let i = 0; i < (this.ownCities.length); i++) {
             let id = this.ownCities[i].id;
             let city = this.ownCities[i].title;
-            let region = this.ownCities[i].region;
+            let region_title = this.ownCities[i].region_title;
+            let region_id = this.ownCities[i].region_id;
             let lat = this.ownCities[i].lat;
             let lon = this.ownCities[i].lon;
             let year_city = this.ownCities[i].year;
@@ -337,7 +340,7 @@ class ToolbarActions {
                 continue;
             }
 
-            let placemark = this.addPlacemarkToMap(city, region, lat, lon, this.PlacemarkStyle.OWN, 'Этот город был посещён только Вами');
+            let placemark = this.addPlacemarkToMap(city, region_id, region_title, lat, lon, this.PlacemarkStyle.OWN, 'Этот город был посещён только Вами');
             this.stateOwnCities.set(id, placemark);
         }
     }
@@ -350,18 +353,19 @@ class ToolbarActions {
             let placemark;
             let id = this.notVisitedCities[i].id;
             let city = this.notVisitedCities[i].title;
-            let region = this.notVisitedCities[i].region_title;
+            let region_id = this.notVisitedCities[i].region;
+            let region_title = this.notVisitedCities[i].region_title;
             let lat = this.notVisitedCities[i].lat;
             let lon = this.notVisitedCities[i].lon;
 
             if (!this.stateOwnCities.has(id) && !this.stateSubscriptionCities.has(id)) {
-                placemark = this.addPlacemarkToMap(city, region, lat, lon, this.PlacemarkStyle.NOT_VISITED);
+                placemark = this.addPlacemarkToMap(city, region_id, region_title, lat, lon, this.PlacemarkStyle.NOT_VISITED);
                 this.stateNotVisitedCities.set(id, placemark);
             }
         }
     }
 
-    addPlacemarkToMap(city, region, lat, lon, placemarkStyle, content) {
+    addPlacemarkToMap(city, region_id, region_title, lat, lon, placemarkStyle, content) {
         /**
          * Добавляет на карту this.myMap отметку города 'city' по координатам 'lat' и 'lon'.
          * Создаёт балун, открывающийся по нажатию на метку, в котором содержится
@@ -372,10 +376,10 @@ class ToolbarActions {
          */
         let contentHeader =
             '<span class="fw-semibold">' + city + '</span>, ' +
-            '<small class="text-secondary fw-medium">' + region + '</small>';
+            '<small class="text-secondary fw-medium">' + region_title + '</small>';
         let contentForNotVisitedCity =
             'Этот город не был посещён ни Вами, ни кем-то из выбранный пользователей' +
-            `<hr><a href="#" onclick="open_modal_for_add_city('${city}')" data-city=${city}>Отметить как посещённый</a>`;
+            `<hr><a href="#" onclick="open_modal_for_add_city('${city}', '${region_id}', '${region_title}')">Отметить как посещённый</a>`;
         let contentForVisitedCity= 'Пользователи, посетившие город:<br>';
 
         let placemark = new ymaps.Placemark(

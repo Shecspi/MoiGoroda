@@ -16,17 +16,21 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
 
-            <div class="modal-body">
-                <h4>
-                    <span id="city-title-in-modal"></span> , <small id="region-title-in-modal" class="text-body-secondary"></small>
-                </h4>
+            <form id="form-add-city">
+                <div class="modal-body">
+                    <h4>
+                        <span id="city-title-in-modal"></span>, <small id="region-title-in-modal" class="text-body-secondary"></small>
+                    </h4>
 
-                <form>
-                    <input type="hidden" id="region-id" value="">
+                    <input type="hidden" id="city-id" value="">
                     
                     <div class="mt-3">
                         <label for="date-of-visit" class="form-label">Дата посещения</label>
-                        <input type="date" class="form-control" id="date-of-visit" aria-describedby="date-of-visit-help">
+                        <input type="date"
+                               class="form-control"
+                               name="date_of_visit"
+                               id="date-of-visit"
+                               aria-describedby="date-of-visit-help">
                         <div id="date-of-visit-help" class="form-text">
                             Укажите дату посещения города в формате ДД.ММ.ГГГГ.
                             На основе этой даты будет происходить сортировка городов, а также это влияет на
@@ -35,7 +39,10 @@
                     </div>
 
                     <div class="mt-5 form-check">
-                        <input type="checkbox" class="form-check-input" id="magnet-checkbox">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               name="has_magnet"
+                               id="magnet-checkbox">
                         <label class="form-check-label" for="magnet-checkbox">Наличие сувенира из города</label>
                         <div id="magnet-help" class="form-text">
                             Отметьте этот пункт, если у Вас в коллекции есть сувенир из города.
@@ -50,39 +57,40 @@
                         </label>
                         <div>
                             <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="1" id="id_rating_0" required="">
+                                <input type="radio" class="form-check-input" name="rating" value="1" id="id_rating_0" required>
                                 <label for="id_rating_0" class="form-check-label">1</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="2" id="id_rating_1" required="">
+                                <input type="radio" class="form-check-input" name="rating" value="2" id="id_rating_1">
                                 <label for="id_rating_1" class="form-check-label">2</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="3" id="id_rating_2" required="">
+                                <input type="radio" class="form-check-input" name="rating" value="3" id="id_rating_2">
                                 <label for="id_rating_2" class="form-check-label">3</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="4" id="id_rating_3" required="">
+                                <input type="radio" class="form-check-input" name="rating" value="4" id="id_rating_3">
                                 <label for="id_rating_3" class="form-check-label">4</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="5" id="id_rating_4" required="">
+                                <input type="radio" class="form-check-input" name="rating" value="5" id="id_rating_4">
                                 <label for="id_rating_4" class="form-check-label">5</label>
                             </div>
                         </div>
                         <div id="hint_id_rating" class="form-text">Поставьте оценку городу: 1 - плохо, 5 - отлично.</div>
                     </div>
-                </form>
-            </div>
+                </div>
 
-            <div class="modal-footer justify-content-between">
-                <button class="btn btn-success"
-                        id='btn_add-visited-city'>
-                    Добавить
-                </button>
+                <div class="modal-footer justify-content-between">
+                    <button class="btn btn-success"
+                            type="submit"
+                            id='btn_add-visited-city'>
+                        Добавить
+                    </button>
 
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
-            </div>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

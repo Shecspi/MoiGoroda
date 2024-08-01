@@ -4,6 +4,7 @@ from city.api import (
     GetVisitedCitiesFromSubscriptions,
     GetVisitedCities,
     GetNotVisitedCities,
+    add_visited_city,
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     ),
     # /api/city/not_visited
     path('not_visited', GetNotVisitedCities.as_view(), name='api__get_not_visited_cities'),
+    path('visited/add', add_visited_city, name='api_add_visited_city'),
 ]

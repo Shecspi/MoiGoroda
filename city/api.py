@@ -13,6 +13,7 @@ import json
 from json import JSONDecodeError
 from typing import NoReturn
 
+from django.http import JsonResponse
 from pydantic import ValidationError
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -189,3 +190,7 @@ class GetNotVisitedCities(generics.ListAPIView):
     def get_queryset(self):
         regions = {region.id: str(region) for region in Region.objects.all()}
         return get_not_visited_cities(self.request.user.pk, regions)
+
+
+def add_visited_city(request):
+    return JsonResponse(request.POST.dict())

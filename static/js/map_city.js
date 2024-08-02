@@ -338,7 +338,7 @@ class ToolbarActions {
                 continue;
             }
 
-            let placemark = this.addPlacemarkToMap(city, id, region_title, lat, lon, this.PlacemarkStyle.OWN, 'Этот город был посещён только Вами');
+            let placemark = this.addPlacemarkToMap(city, id, region_title, lat, lon, this.PlacemarkStyle.OWN);
             this.stateOwnCities.set(id, placemark);
         }
     }
@@ -362,7 +362,7 @@ class ToolbarActions {
         }
     }
 
-    addPlacemarkToMap(city, city_id, region_title, lat, lon, placemarkStyle, content) {
+    addPlacemarkToMap(city, city_id, region_title, lat, lon, placemarkStyle, users) {
         /**
          * Добавляет на карту this.myMap отметку города 'city' по координатам 'lat' и 'lon'.
          * Создаёт балун, открывающийся по нажатию на метку, в котором содержится
@@ -374,17 +374,23 @@ class ToolbarActions {
         let contentHeader =
             '<span class="fw-semibold">' + city + '</span>, ' +
             '<small class="text-secondary fw-medium">' + region_title + '</small>';
-        let contentForNotVisitedCity =
-            'Этот город не был посещён ни Вами, ни кем-то из выбранный пользователей' +
-            `<hr><a href="#" onclick="open_modal_for_add_city('${city}', '${city_id}', '${region_title}')">Отметить как посещённый</a>`;
-        let contentForVisitedCity= 'Пользователи, посетившие город:<br>';
+        let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city}', '${city_id}', '${region_title}')">Отметить как посещённый</a>`
+        let content = "";
+        if (placemarkStyle === this.PlacemarkStyle.SUBSCRIPTION) {
+            content = `Пользователи, посетившие город:<br> ${users.join(', ')}<hr>${linkToAdd}`;
+        } else if (placemarkStyle === this.PlacemarkStyle.TOGETHER) {
+            content = `Пользователи, посетившие город:<br> ${users.join(', ')}`;
+        } else if (placemarkStyle === this.PlacemarkStyle.NOT_VISITED) {
+            content = `Этот город не был посещён ни Вами, ни кем-то из выбранный пользователей<hr>${linkToAdd}`;
+        } else {
+            content = "Этот город был посещён только Вами";
+        }
 
         let placemark = new ymaps.Placemark(
             [lat, lon],
             {
                 balloonContentHeader: contentHeader,
-                balloonContent: content === undefined ? contentForNotVisitedCity :
-                    typeof content === "string" ? '' : contentForVisitedCity + content.join(', ')
+                balloonContent: content
             }, {
                 preset: placemarkStyle.preset,
                 zIndex: placemarkStyle.zIndex

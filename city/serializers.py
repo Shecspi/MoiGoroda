@@ -12,6 +12,7 @@ Licensed under the Apache License, Version 2.0
 from rest_framework import serializers
 
 from city.models import VisitedCity, City
+from services import logger
 
 
 class VisitedCitySerializer(serializers.ModelSerializer):
@@ -65,6 +66,10 @@ class AddVisitedCitySerializer(serializers.ModelSerializer):
         return VisitedCity.objects.create(**validated_data)
 
     def validate_city(self, city):
-        if VisitedCity.objects.filter(city=city, user=self.context['user_id']).exists():
+        if VisitedCity.objects.filter(city=city, user=self.context['request'].user.pk).exists():
+            logger.info(
+                self.context['request'],
+                '(API: Add visited city) An attempt to add a visited city that is already in the DB',
+            )
             raise serializers.ValidationError(f'Город {city} уже добавлен.')
         return city

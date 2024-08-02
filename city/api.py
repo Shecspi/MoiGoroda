@@ -16,7 +16,7 @@ from typing import NoReturn
 from pydantic import ValidationError
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import ParseError
+import rest_framework.exceptions as drf_exc
 from rest_framework.response import Response
 
 from account.models import ShareSettings
@@ -84,7 +84,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
                 self.request,
                 '(API) An incorrect list of user IDs was received',
             )
-            raise ParseError('Получен некорректный список идентификаторов пользователей')
+            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
 
     def _load_json(self, data: str) -> dict | NoReturn:
         try:
@@ -94,7 +94,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
                 self.request,
                 '(API) An incorrect list of user IDs was received',
             )
-            raise ParseError('Получен некорректный список идентификаторов пользователей')
+            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
 
     def _user_has_allowed_to_subscribe_to_himself(self, user_id: int) -> bool:
         try:
@@ -202,14 +202,21 @@ class AddVisitedCity(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
-        serializer = AddVisitedCitySerializer(
-            data=request.data, context={'user_id': self.request.user.pk}
-        )
-        serializer.is_valid(raise_exception=True)
+        serializer = AddVisitedCitySerializer(data=request.data, context={'request': self.request})
+        if not serializer.is_valid():
+            logger.info(
+                self.request,
+                '(API: Add visited city) Validation in the serializer failed',
+            )
+            raise drf_exc.ValidationError(serializer.errors)
 
         user = request.user
         region = City.objects.get(id=serializer.validated_data['city'].id).region
-
         serializer.save(user=user, region=region)
+
+        logger.info(
+            self.request,
+            '(API: Add visited city) The visited city has been successfully added',
+        )
 
         return Response({'status': 'success', 'city': serializer.data})

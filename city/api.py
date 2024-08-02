@@ -13,14 +13,19 @@ import json
 from json import JSONDecodeError
 from typing import NoReturn
 
-from django.http import JsonResponse
 from pydantic import ValidationError
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ParseError
+from rest_framework.response import Response
 
 from account.models import ShareSettings
-from city.serializers import VisitedCitySerializer, NotVisitedCitySerializer
+from city.models import City
+from city.serializers import (
+    VisitedCitySerializer,
+    NotVisitedCitySerializer,
+    AddVisitedCitySerializer,
+)
 from city.structs import UserID
 from region.models import Region
 from services import logger
@@ -192,5 +197,19 @@ class GetNotVisitedCities(generics.ListAPIView):
         return get_not_visited_cities(self.request.user.pk, regions)
 
 
-def add_visited_city(request):
-    return JsonResponse(request.POST.dict())
+class AddVisitedCity(generics.CreateAPIView):
+    serializer_class = AddVisitedCitySerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        serializer = AddVisitedCitySerializer(
+            data=request.data, context={'user_id': self.request.user.pk}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        user = request.user
+        region = City.objects.get(id=serializer.validated_data['city'].id).region
+
+        serializer.save(user=user, region=region)
+
+        return Response({'status': 'success'})

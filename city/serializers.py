@@ -42,3 +42,17 @@ class NotVisitedCitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
         fields = ('id', 'title', 'region', 'region_title', 'lat', 'lon')
+
+
+class AddVisitedCitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VisitedCity
+        fields = ('city', 'date_of_visit', 'has_magnet', 'impression', 'rating')
+
+    def create(self, validated_data):
+        return VisitedCity.objects.create(**validated_data)
+
+    def validate_city(self, city):
+        if VisitedCity.objects.filter(city=city, user=self.context['user_id']).exists():
+            raise serializers.ValidationError(f'Город {city} уже добавлен.')
+        return city

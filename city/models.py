@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import CASCADE
 from django.urls import reverse
@@ -94,12 +95,14 @@ class VisitedCity(models.Model):
         help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.',
         blank=False,
         null=False,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
     )
 
     class Meta:
         ordering = ['-id']
         verbose_name = 'Посещённый город'
         verbose_name_plural = 'Посещённые города'
+        unique_together = ['user', 'city']
 
     def __str__(self) -> str:
         return self.city.title

@@ -1,22 +1,22 @@
 {% load static %}
 
-<div class="modal fade"
-     id="modal_add_city"
-     data-bs-backdrop="static"
-     data-bs-keyboard="false"
-     tabindex="-1"
-     aria-labelledby="modal_add_city_label"
-     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="modal_add_city_label">
-                        <i class="fa-regular fa-circle-question"></i>&nbsp;&nbsp;&nbsp;Добавить посещённый город
-                    </h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-            </div>
+<form id="form-add-city">
+    <div class="modal fade"
+         id="modal_add_city"
+         data-bs-backdrop="static"
+         data-bs-keyboard="false"
+         tabindex="-1"
+         aria-labelledby="modal_add_city_label"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="modal_add_city_label">
+                            <i class="fa-regular fa-circle-question"></i>&nbsp;&nbsp;&nbsp;Добавить посещённый город
+                        </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
 
-            <form id="form-add-city">
                 <div class="modal-body">
                     <h4>
                         <span id="city-title-in-modal"></span>, <small id="region-title-in-modal" class="text-body-secondary"></small>
@@ -79,6 +79,11 @@
                         </div>
                         <div id="hint_id_rating" class="form-text">Поставьте оценку городу: 1 - плохо, 5 - отлично.</div>
                     </div>
+
+                    <div class="mt-5">
+                        <label class="form-label" for="impression">Впечатления о городе</label>
+                        <textarea class="form-control" id="impression" name="impression"></textarea>
+                    </div>
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -90,7 +95,7 @@
 
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
+</form>

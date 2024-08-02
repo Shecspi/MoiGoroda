@@ -212,4 +212,4 @@ class AddVisitedCity(generics.CreateAPIView):
 
         serializer.save(user=user, region=region)
 
-        return Response({'status': 'success'})
+        return Response({'status': 'success', 'city': serializer.data})

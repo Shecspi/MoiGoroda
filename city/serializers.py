@@ -45,9 +45,21 @@ class NotVisitedCitySerializer(serializers.ModelSerializer):
 
 
 class AddVisitedCitySerializer(serializers.ModelSerializer):
+    city_title = serializers.CharField(source='city.title', read_only=True)
+    region_title = serializers.CharField(source='city.region', read_only=True)
+
     class Meta:
         model = VisitedCity
-        fields = ('city', 'date_of_visit', 'has_magnet', 'impression', 'rating')
+        fields = (
+            'id',
+            'city',
+            'city_title',
+            'region_title',
+            'date_of_visit',
+            'has_magnet',
+            'impression',
+            'rating',
+        )
 
     def create(self, validated_data):
         return VisitedCity.objects.create(**validated_data)

@@ -9,6 +9,10 @@ form.addEventListener('submit', event => {
     const formData = new FormData(form);
     formData.set('has_magnet', formData.has('has_magnet') ? '1' : '0')
 
+    let button = document.getElementById('btn_add-visited-city');
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;<span role="status">Загрузка...</span>';
+
     fetch('/api/city/visited/add', {
         method: 'POST',
         headers: {
@@ -25,6 +29,9 @@ form.addEventListener('submit', event => {
         .then((data) => {
             modal.toggle();
 
+            button.disabled = false;
+            button.innerText = 'Добавить';
+
             const element = document.getElementById('toast-success');
             const toast = new bootstrap.Toast(element);
             document.getElementById('city-title-in-toast').innerText = data.city.city_title;
@@ -34,6 +41,9 @@ form.addEventListener('submit', event => {
         })
         .catch((err) => {
             console.log(err);
+
+            button.disabled = false;
+            button.innerText = 'Добавить';
         })
     });
 

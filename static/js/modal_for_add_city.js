@@ -25,11 +25,12 @@ form.addEventListener('submit', event => {
         .then((data) => {
             modal.toggle();
 
-            console.log(data);
             const element = document.getElementById('toast-success');
             const toast = new bootstrap.Toast(element);
             document.getElementById('city-title-in-toast').innerText = data.city.city_title;
             toast.show();
+
+            actions.updatePlacemark(data.city.city);
         })
         .catch((err) => {
             console.log(err);

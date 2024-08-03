@@ -149,6 +149,10 @@ class ToolbarActions {
         let checkedValues = Array.from(selectedCheckboxes).map(cb => Number(cb.value));
         let data = {'id': checkedValues};
 
+        let button = document.getElementById('btn_show-subscriptions-cities');
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;<span role="status">Загрузка...</span>';
+
         let response = await fetch(url + '?data=' + encodeURIComponent(JSON.stringify(data)), {
             method: 'GET',
             headers: {
@@ -183,6 +187,9 @@ class ToolbarActions {
             const toast = new bootstrap.Toast(element);
             toast.show()
         }
+
+        button.disabled = false;
+        button.innerText = 'Применить';
 
         return false;
     }

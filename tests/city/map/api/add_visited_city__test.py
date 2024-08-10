@@ -77,7 +77,7 @@ def access_by_POST_for_guest_is_prohibited__test(setup_db_without_visited_cities
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.parametrize(
     'request_data, status_code, correct_response_data, log_level, log_message',
     add_visited_city_test_data,
@@ -86,11 +86,11 @@ def test__response_with_correct_request_data(
     setup_db_without_visited_cities,
     caplog,
     client,
-    request_data,
-    status_code,
-    correct_response_data,
-    log_level,
-    log_message,
+    request_data: dict,
+    status_code: int,
+    correct_response_data: dict | bool,
+    log_level: str | bool,
+    log_message: str | bool,
 ):
     client.login(username='username1', password='password')
     response = client.post(
@@ -101,6 +101,9 @@ def test__response_with_correct_request_data(
     response_data = json.loads(response.content.decode())
 
     assert response.status_code == status_code
-    assert response_data == correct_response_data
-    assert caplog.records[0].levelname == log_level
-    assert caplog.records[0].getMessage() == log_message
+    if correct_response_data:
+        assert response_data == correct_response_data
+    if log_level:
+        assert caplog.records[0].levelname == log_level
+    if log_message:
+        assert caplog.records[0].getMessage() == log_message

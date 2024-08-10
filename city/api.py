@@ -206,7 +206,7 @@ class AddVisitedCity(generics.CreateAPIView):
 
         serializer = AddVisitedCitySerializer(data=request.data, context={'request': self.request})
         if not serializer.is_valid():
-            logger.info(
+            logger.warning(
                 self.request,
                 f'(API: Add visited city) Validation in the serializer failed from {from_page}',
             )

@@ -12,6 +12,8 @@
 
 - *(new_regions)* Добавлены города 4 новых регионов России ([fcc0be3](https://github.com/Shecspi/MoiGoroda/commit/fcc0be38f7b73d4561c6289ffa4b4c298abd276c))
 
+- *(visited_city)* Добавление посещённых городов с общей карты ([e35762d](https://github.com/Shecspi/MoiGoroda/commit/e35762d26fb07d1067dd7aec88408d2341d6fb98))
+
 
 #### 🐛 Исправление ошибок
 

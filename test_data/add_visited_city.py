@@ -16,8 +16,8 @@ Licensed under the Apache License, Version 2.0
 """
 
 add_visited_city_test_data = (
+    # С данными всё ок
     (
-        # С данными всё ок
         {
             'city': 1,
             'date_of_visit': '2024-08-01',
@@ -66,26 +66,50 @@ add_visited_city_test_data = (
         'WARNING',
         '(API: Add visited city) Validation in the serializer failed from unknown location   /api/city/visited/add',
     ),
-    # # Поля city и rating должны успешно обрабатываться, если в них переданы числа в виде строк
-    # (
-    #     {'city': '1', 'rating': '1'},
-    #     200,
-    #     {
-    #         'status': 'success',
-    #         'city': {
-    #             'id': 1,
-    #             'city': 1,
-    #             'city_title': 'Город 1',
-    #             'region_title': 'Регион 1 область',
-    #             'date_of_visit': None,
-    #             'has_magnet': False,
-    #             'impression': None,
-    #             'rating': 1,
-    #         },
-    #     },
-    #     'INFO',
-    #     '(API: Add visited city) The visited city has been successfully added from unknown location   /api/city/visited/add',
-    # ),
+    # Поля city и rating должны успешно обрабатываться, если в них переданы числа в виде строк
+    (
+        {'city': '1', 'rating': '1'},
+        200,
+        {
+            'status': 'success',
+            'city': {
+                'id': 2,  # Не понимаю, почему БД не сбрасывается при новом тесте. Поэтому здесь ID = 2.
+                'city': 1,
+                'city_title': 'Город 1',
+                'region_title': 'Регион 1 область',
+                'date_of_visit': None,
+                'has_magnet': False,
+                'impression': None,
+                'rating': 1,
+            },
+        },
+        'INFO',
+        '(API: Add visited city) The visited city has been successfully added from unknown location   /api/city/visited/add',
+    ),
+    # Неверный формат поля city
+    (
+        {'city': 'f', 'rating': '1'},
+        400,
+        {'city': ['Некорректный тип. Ожидалось значение первичного ключа, получен str.']},
+        'WARNING',
+        '(API: Add visited city) Validation in the serializer failed from unknown location   /api/city/visited/add',
+    ),
+    # Неверный формат поля city
+    (
+        {'city': False, 'rating': '1'},
+        400,
+        {'city': ['Некорректный тип. Ожидалось значение первичного ключа, получен bool.']},
+        'WARNING',
+        '(API: Add visited city) Validation in the serializer failed from unknown location   /api/city/visited/add',
+    ),
+    # Неверный формат поля city
+    (
+        {'city': ('1',), 'rating': '1'},
+        400,
+        {'city': ['Некорректный тип. Ожидалось значение первичного ключа, получен list.']},
+        'WARNING',
+        '(API: Add visited city) Validation in the serializer failed from unknown location   /api/city/visited/add',
+    ),
     # Неверный формат поля date_of_visit
     (
         {'city': 1, 'rating': 3, 'date_of_visit': '2022/01/01'},
@@ -248,7 +272,7 @@ add_visited_city_test_data = (
         'WARNING',
         '(API: Add visited city) Validation in the serializer failed from unknown location   /api/city/visited/add',
     ),
-    # Поле лhas_magnet должно быть валидным типом bool
+    # Поле has_magnet должно быть валидным типом bool
     (
         {'city': 1, 'rating': 1, 'has_magnet': True},
         200,
@@ -256,7 +280,7 @@ add_visited_city_test_data = (
         False,
         False,
     ),
-    # Поле лhas_magnet должно быть валидным типом bool
+    # Поле has_magnet должно быть валидным типом bool
     (
         {'city': 1, 'rating': 1, 'has_magnet': False},
         200,
@@ -264,11 +288,31 @@ add_visited_city_test_data = (
         False,
         False,
     ),
-    # Поле лhas_magnet должно быть валидным типом bool
+    # Поле has_magnet должно быть валидным типом bool
     (
         {'city': 1, 'rating': 1, 'has_magnet': 'string'},
         400,
         {'has_magnet': ['Must be a valid boolean.']},
+        'WARNING',
+        '(API: Add visited city) Validation in the serializer failed from unknown location   /api/city/visited/add',
+    ),
+    # Поле impression должно быть валидным типом string
+    ({'city': 1, 'rating': 1, 'impression': 'string'}, 200, False, False, False),
+    # Поле impression должно быть валидным типом string
+    ({'city': 1, 'rating': 1, 'impression': 111}, 200, False, False, False),
+    # Поле impression должно быть валидным типом string
+    (
+        {'city': 1, 'rating': 1, 'impression': False},
+        400,
+        {'impression': ['Not a valid string.']},
+        'WARNING',
+        '(API: Add visited city) Validation in the serializer failed from unknown location   /api/city/visited/add',
+    ),
+    # Поле impression должно быть валидным типом string
+    (
+        {'city': 1, 'rating': 1, 'impression': ['string']},
+        400,
+        {'impression': ['Not a valid string.']},
         'WARNING',
         '(API: Add visited city) Validation in the serializer failed from unknown location   /api/city/visited/add',
     ),

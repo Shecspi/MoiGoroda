@@ -31,7 +31,9 @@ def setup_db(client, django_user_model):
     city_2 = City.objects.create(
         title='Город 2', region=region, coordinate_width=1, coordinate_longitude=1
     )
-    City.objects.create(title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1)
+    city_3 = City.objects.create(
+        title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1
+    )
     City.objects.create(title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1)
     VisitedCity.objects.create(
         user=user,
@@ -52,7 +54,7 @@ def setup_db(client, django_user_model):
     VisitedCity.objects.create(
         user=user,
         region=region,
-        city=city_2,
+        city=city_3,
         date_of_visit=f'{datetime.now().year - 1}-01-01',
         has_magnet=False,
         rating=3,
@@ -60,7 +62,7 @@ def setup_db(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test__toolbar(setup_db, client):
+def toolbar__test(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -69,7 +71,7 @@ def test__toolbar(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section__visited_cities(setup_db, client):
+def section__visited_cities__test(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -82,7 +84,7 @@ def test__section__visited_cities(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section__show_map(setup_db, client):
+def section__show_map__test(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -96,7 +98,7 @@ def test__section__show_map(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section__filtering(setup_db, client):
+def section__filtering__test(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -110,7 +112,7 @@ def test__section__filtering(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section__sorting(setup_db, client):
+def section__sorting__test(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('city-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')

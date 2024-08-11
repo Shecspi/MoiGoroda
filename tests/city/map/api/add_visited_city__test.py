@@ -11,6 +11,7 @@ import pytest
 
 from django.urls import reverse
 
+from services.db.visited_city_repo import get_number_of_visited_cities
 from test_data.add_visited_city import add_visited_city_test_data
 from tests.create_db import (
     create_user,
@@ -107,3 +108,37 @@ def request_fields_and_response__test(
         assert caplog.records[0].levelname == log_level
     if log_message:
         assert caplog.records[0].getMessage() == log_message
+
+
+def test__db_after_succesful_request(setup_db_without_visited_cities, caplog, client):
+    num_before = get_number_of_visited_cities(1)
+    client.login(username='username1', password='password')
+    client.post(
+        reverse('api__add_visited_city'),
+        data=json.dumps(
+            {
+                'city': 1,
+                'date_of_visit': '2024-08-01',
+                'has_magnet': True,
+                'impression': 'impression',
+                'rating': 3,
+            }
+        ),
+        content_type='application/json',
+    )
+    num_after = get_number_of_visited_cities(1)
+
+    assert num_after == num_before + 1
+
+
+def test__db_after_unsuccesful_request(setup_db_without_visited_cities, caplog, client):
+    num_before = get_number_of_visited_cities(1)
+    client.login(username='username1', password='password')
+    client.post(
+        reverse('api__add_visited_city'),
+        data=json.dumps({}),
+        content_type='application/json',
+    )
+    num_after = get_number_of_visited_cities(1)
+
+    assert num_after == num_before

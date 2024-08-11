@@ -145,10 +145,38 @@ def response_with_0_visited_cities__test(setup_db_without_visited_cities, caplog
     response = client.get(reverse('api__get_not_visited_cities'))
     content = json.loads(response.content.decode())
     correct_response = [
-        {'id': 1, 'title': 'Город 1', 'lat': '1.0', 'lon': '1.0'},
-        {'id': 2, 'title': 'Город 2', 'lat': '1.0', 'lon': '1.0'},
-        {'id': 3, 'title': 'Город 3', 'lat': '1.0', 'lon': '1.0'},
-        {'id': 4, 'title': 'Город 4', 'lat': '1.0', 'lon': '1.0'},
+        {
+            'id': 1,
+            'title': 'Город 1',
+            'lat': '1.0',
+            'lon': '1.0',
+            'region': 1,
+            'region_title': 'Регион 1 область',
+        },
+        {
+            'id': 2,
+            'title': 'Город 2',
+            'lat': '1.0',
+            'lon': '1.0',
+            'region': 1,
+            'region_title': 'Регион 1 область',
+        },
+        {
+            'id': 3,
+            'title': 'Город 3',
+            'lat': '1.0',
+            'lon': '1.0',
+            'region': 1,
+            'region_title': 'Регион 1 область',
+        },
+        {
+            'id': 4,
+            'title': 'Город 4',
+            'lat': '1.0',
+            'lon': '1.0',
+            'region': 1,
+            'region_title': 'Регион 1 область',
+        },
     ]
 
     assert content == correct_response
@@ -165,9 +193,30 @@ def response_with_1_visited_city__test(setup_db_with_1_visited_city, caplog, cli
     response = client.get(reverse('api__get_not_visited_cities'))
     content = json.loads(response.content.decode())
     correct_response = [
-        {'id': 2, 'title': 'Город 2', 'lat': '1.0', 'lon': '1.0'},
-        {'id': 3, 'title': 'Город 3', 'lat': '1.0', 'lon': '1.0'},
-        {'id': 4, 'title': 'Город 4', 'lat': '1.0', 'lon': '1.0'},
+        {
+            'id': 2,
+            'title': 'Город 2',
+            'lat': '1.0',
+            'lon': '1.0',
+            'region': 1,
+            'region_title': 'Регион 1 область',
+        },
+        {
+            'id': 3,
+            'title': 'Город 3',
+            'lat': '1.0',
+            'lon': '1.0',
+            'region': 1,
+            'region_title': 'Регион 1 область',
+        },
+        {
+            'id': 4,
+            'title': 'Город 4',
+            'lat': '1.0',
+            'lon': '1.0',
+            'region': 1,
+            'region_title': 'Регион 1 область',
+        },
     ]
 
     assert content == correct_response

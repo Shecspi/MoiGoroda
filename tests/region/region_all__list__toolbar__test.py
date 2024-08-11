@@ -25,7 +25,7 @@ def setup_db(client, django_user_model):
     user = django_user_model.objects.create_user(username='username', password='password')
     area = Area.objects.create(title='Округ 1')
     region = Region.objects.create(area=area, title='Регион 1', type='область', iso3166='RU-RU1')
-    region2 = Region.objects.create(area=area, title='Регион 2', type='область', iso3166='RU-RU2')
+    Region.objects.create(area=area, title='Регион 2', type='область', iso3166='RU-RU2')
     city_1 = City.objects.create(
         title='Город 1', region=region, coordinate_width=1, coordinate_longitude=1
     )
@@ -35,9 +35,7 @@ def setup_db(client, django_user_model):
     city_3 = City.objects.create(
         title='Город 3', region=region, coordinate_width=1, coordinate_longitude=1
     )
-    city_4 = City.objects.create(
-        title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1
-    )
+    City.objects.create(title='Город 4', region=region, coordinate_width=1, coordinate_longitude=1)
     VisitedCity.objects.create(
         user=user,
         region=region,
@@ -57,7 +55,7 @@ def setup_db(client, django_user_model):
     VisitedCity.objects.create(
         user=user,
         region=region,
-        city=city_2,
+        city=city_3,
         date_of_visit=f'{datetime.now().year - 1}-01-01',
         has_magnet=False,
         rating=3,
@@ -65,7 +63,7 @@ def setup_db(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test__toolbar__auth_user(setup_db, client):
+def toolbar__auth_user__test(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -74,7 +72,7 @@ def test__toolbar__auth_user(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__toolbar__guest(setup_db, client):
+def toolbar__guest__test(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -83,7 +81,7 @@ def test__toolbar__guest(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section__visited_cities__auth_user(setup_db, client):
+def section__visited_cities__auth_user__test(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -96,7 +94,7 @@ def test__section__visited_cities__auth_user(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section__visited_cities__guest(setup_db, client):
+def section__visited_cities__guest__test(setup_db, client):
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-statistic'})
@@ -108,7 +106,7 @@ def test__section__visited_cities__guest(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section__show_map__auth_user(setup_db, client):
+def section__show_map__auth_user__test(setup_db, client):
     client.login(username='username', password='password')
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
@@ -122,7 +120,7 @@ def test__section__show_map__auth_user(setup_db, client):
 
 
 @pytest.mark.django_db
-def test__section__show_map__guest(setup_db, client):
+def section__show_map__guest__test(setup_db, client):
     response = client.get(reverse('region-all-list'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-show_map'})

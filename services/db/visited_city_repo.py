@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Literal, Sequence
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet, F
+from django.db.models import QuerySet, F, Case, When, Value
 
 from city.models import VisitedCity, City
 
@@ -103,10 +103,28 @@ def get_visited_cities_many_users(
     )
 
 
-def get_not_visited_cities(user_id: int):
+def get_not_visited_cities(user_id: int, regions: dict[int, str]) -> QuerySet[City]:
+    """
+    Возвращает QuerySet объектов City, которые пользователь с ID user_id не отметил, как посещённые.
+    Для этого берётся список всех городов, которые есть в БД, и из него убираются уже посещённые пользователем города.
+    При этом для каждого объекта City добавляется дополнительное поле 'region_title',
+    в котором сохраняется человекочитаемое название.
+    """
     visited_cities = [city.city.id for city in get_all_visited_cities(user_id)]
 
-    return City.objects.exclude(id__in=visited_cities)
+    # Для получения человекочитаемого формата используется сложная конструкция с Case, When и дополнительным словарём
+    # регионов, так как прямое обращение к полю 'region' возвращает int, а не объект 'Region', из-за чего
+    # становится невозмоным получить название региона. Точнее его получить можно, но только в том виде, в котором
+    # оно хранится в БД, а не в человекочитаемом.
+    # ToDo: Удалить эту доп. логику, когда будет выполнена задача #3.
+    return City.objects.exclude(id__in=visited_cities).annotate(
+        region_title=Case(
+            *[
+                When(region__pk=region_id, then=Value(region_title))
+                for region_id, region_title in regions.items()
+            ]
+        )
+    )
 
 
 def get_number_of_visited_cities(user_id: int) -> int:

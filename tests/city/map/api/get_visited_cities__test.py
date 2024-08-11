@@ -61,7 +61,7 @@ def setup_db_with_visited_cities(client, django_user_model):
     )
 
 
-def test__access_by_POST_is_prohibited(setup_db_without_visited_cities, caplog, client):
+def access_by_POST_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
     client.login(username='username1', password='password')
     response = client.post(reverse('api__get_visited_cities'))
 
@@ -70,7 +70,7 @@ def test__access_by_POST_is_prohibited(setup_db_without_visited_cities, caplog, 
     assert response.status_code == 405
 
 
-def test__access_by_DELETE_is_prohibited(setup_db_without_visited_cities, caplog, client):
+def access_by_DELETE_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
     client.login(username='username1', password='password')
     response = client.delete(reverse('api__get_visited_cities'))
 
@@ -79,7 +79,7 @@ def test__access_by_DELETE_is_prohibited(setup_db_without_visited_cities, caplog
     assert response.status_code == 405
 
 
-def test__access_by_PUT_is_prohibited(setup_db_without_visited_cities, caplog, client):
+def access_by_PUT_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
     client.login(username='username1', password='password')
     response = client.put(reverse('api__get_visited_cities'))
 
@@ -88,7 +88,7 @@ def test__access_by_PUT_is_prohibited(setup_db_without_visited_cities, caplog, c
     assert response.status_code == 405
 
 
-def test__access_by_PATCH_is_prohibited(setup_db_without_visited_cities, caplog, client):
+def access_by_PATCH_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
     client.login(username='username1', password='password')
     response = client.patch(reverse('api__get_visited_cities'))
 
@@ -147,27 +147,33 @@ def auth_user_with_visited_cities_should_get_list_only_with_own_cities__test(
     correct_content = [
         {
             'username': 'username1',
-            'id': '3',
+            'id': 3,
             'title': 'Город 3',
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
+            'region_id': 1,
+            'region_title': 'Регион 1 область',
         },
         {
             'username': 'username1',
-            'id': '2',
+            'id': 2,
             'title': 'Город 2',
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
+            'region_id': 1,
+            'region_title': 'Регион 1 область',
         },
         {
             'username': 'username1',
-            'id': '1',
+            'id': 1,
             'title': 'Город 1',
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
+            'region_id': 1,
+            'region_title': 'Регион 1 область',
         },
     ]
 

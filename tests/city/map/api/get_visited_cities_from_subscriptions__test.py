@@ -7,6 +7,8 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import json
+
 import pytest
 from datetime import datetime
 
@@ -162,20 +164,31 @@ def auth_user_can_get_visited_cities_for_1_subscription__test(
     response = client.get(
         reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2]}'
     )
+    content = json.loads(response.content.decode())
+    correct_content = [
+        {
+            'username': 'username2',
+            'id': 4,
+            'title': 'Город 4',
+            'lat': '1.0',
+            'lon': '1.0',
+            'year': 2024,
+            'region_id': 1,
+            'region_title': 'Регион 1 область',
+        }
+    ]
 
     assert caplog.records[0].levelname == 'INFO'
     assert (
         '(API) Successful request for a list of visited cities from subscriptions (from #1, to #2)'
         in caplog.records[0].getMessage()
     )
-    assert response.content.decode() == (
-        '[{"username":"username2","id":"4","title":"Город 4","lat":"1.0","lon":"1.0","year":2024}]'
-    )
+    assert content == correct_content
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test__auth_user_can_get_visited_cities_for_2_subscriptions__test(
+def auth_user_can_get_visited_cities_for_2_subscriptions__test(
     setup_db_with_visited_cities_for_2_users, caplog, client
 ):
     create_share_settings(2)
@@ -187,16 +200,36 @@ def test__auth_user_can_get_visited_cities_for_2_subscriptions__test(
     response = client.get(
         reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2,3]}'
     )
+    content = json.loads(response.content.decode())
+    correct_content = [
+        {
+            'username': 'superuser3',
+            'id': 4,
+            'title': 'Город 4',
+            'lat': '1.0',
+            'lon': '1.0',
+            'year': 2024,
+            'region_id': 1,
+            'region_title': 'Регион 1 область',
+        },
+        {
+            'username': 'username2',
+            'id': 4,
+            'title': 'Город 4',
+            'lat': '1.0',
+            'lon': '1.0',
+            'year': 2024,
+            'region_id': 1,
+            'region_title': 'Регион 1 область',
+        },
+    ]
 
     assert caplog.records[0].levelname == 'INFO'
     assert (
         '(API) Successful request for a list of visited cities from subscriptions (from #1, to #2)'
         in caplog.records[0].getMessage()
     )
-    assert response.content.decode() == (
-        '[{"username":"superuser3","id":"4","title":"Город 4","lat":"1.0","lon":"1.0","year":2024},'
-        '{"username":"username2","id":"4","title":"Город 4","lat":"1.0","lon":"1.0","year":2024}]'
-    )
+    assert content == correct_content
     assert response.status_code == 200
 
 
@@ -354,6 +387,19 @@ def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_2__test(
     response = client.get(
         reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2,3]}'
     )
+    content = json.loads(response.content.decode())
+    correct_content = [
+        {
+            'username': 'username2',
+            'id': 4,
+            'title': 'Город 4',
+            'lat': '1.0',
+            'lon': '1.0',
+            'year': 2024,
+            'region_id': 1,
+            'region_title': 'Регион 1 область',
+        }
+    ]
 
     assert caplog.records[0].levelname == 'INFO'
     assert (
@@ -365,9 +411,7 @@ def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_2__test(
         '(API) Attempt to get a list of the cities of a user who did not change initial settings '
         '(from #1, to #3)' in caplog.records[1].getMessage()
     )
-    assert response.content.decode() == (
-        '[{"username":"username2","id":"4","title":"Город 4","lat":"1.0","lon":"1.0","year":2024}]'
-    )
+    assert content == correct_content
     assert response.status_code == 200
 
 
@@ -410,6 +454,19 @@ def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscri
     response = client.get(
         reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2,3]}'
     )
+    content = json.loads(response.content.decode())
+    correct_content = [
+        {
+            'username': 'username2',
+            'id': 4,
+            'title': 'Город 4',
+            'lat': '1.0',
+            'lon': '1.0',
+            'year': 2024,
+            'region_id': 1,
+            'region_title': 'Регион 1 область',
+        }
+    ]
 
     assert caplog.records[0].levelname == 'INFO'
     assert (
@@ -421,9 +478,7 @@ def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscri
         '(API) Attempt to get a list of the cities of a user who did not allow it '
         '(from #1, to #3)' in caplog.records[1].getMessage()
     )
-    assert response.content.decode() == (
-        '[{"username":"username2","id":"4","title":"Город 4","lat":"1.0","lon":"1.0","year":2024}]'
-    )
+    assert content == correct_content
     assert response.status_code == 200
 
 

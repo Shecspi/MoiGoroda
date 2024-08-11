@@ -1,0 +1,103 @@
+{% load static %}
+
+<form id="form-add-city">
+    <div class="modal fade"
+         id="modal_add_city"
+         data-bs-backdrop="static"
+         data-bs-keyboard="false"
+         tabindex="-1"
+         aria-labelledby="modal_add_city_label"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="modal_add_city_label">
+                            <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить посещённый город
+                        </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+
+                <div class="modal-body">
+                    <h4>
+                        <span id="city-title-in-modal"></span>, <small id="region-title-in-modal" class="text-body-secondary"></small>
+                    </h4>
+
+                    <input type="hidden" id="city-id" name="city" value="">
+                    <input type="hidden" name="from" value="general map">
+
+                    <div class="mt-4">
+                        <label for="date-of-visit" class="form-label">Дата посещения</label>
+                        <input type="date"
+                               class="form-control"
+                               name="date_of_visit"
+                               id="date-of-visit"
+                               aria-describedby="date-of-visit-help">
+                        <div id="date-of-visit-help" class="form-text">
+                            Укажите дату посещения города в формате ДД.ММ.ГГГГ.
+                            На основе этой даты будет происходить сортировка городов, а также это влияет на
+                            отображаемую статистику посещённых городов за год.
+                        </div>
+                    </div>
+
+                    <div class="mt-4 form-check">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               name="has_magnet"
+                               id="magnet-checkbox">
+                        <label class="form-check-label" for="magnet-checkbox">Наличие сувенира из города</label>
+                        <div id="magnet-help" class="form-text">
+                            Отметьте этот пункт, если у Вас в коллекции есть сувенир из города.
+                            В списке городов можно будет отфильтровать только те города,
+                            сувенира из которых у Вас ещё нет
+                        </div>
+                    </div>
+
+                    <div id="div_id_rating" class="mt-4">
+                        <label for="" class=" form-label requiredField">
+                            Оценка города<span class="asteriskField">*</span>
+                        </label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="rating" value="1" id="id_rating_0" required>
+                                <label for="id_rating_0" class="form-check-label">1</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="rating" value="2" id="id_rating_1">
+                                <label for="id_rating_1" class="form-check-label">2</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="rating" value="3" id="id_rating_2">
+                                <label for="id_rating_2" class="form-check-label">3</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="rating" value="4" id="id_rating_3">
+                                <label for="id_rating_3" class="form-check-label">4</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="rating" value="5" id="id_rating_4">
+                                <label for="id_rating_4" class="form-check-label">5</label>
+                            </div>
+                        </div>
+                        <div id="hint_id_rating" class="form-text">Поставьте оценку городу: 1 - плохо, 5 - отлично.</div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="form-label" for="impression">Впечатления о городе</label>
+                        <textarea class="form-control" id="impression" name="impression"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
+
+                    <button class="btn btn-success"
+                            type="submit"
+                            id='btn_add-visited-city'
+                            data-url="{% url 'api__add_visited_city' %}">
+                        Добавить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

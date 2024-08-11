@@ -1,3 +1,14 @@
+"""
+Реализует API для получения информации о посещённых и непосещённых городах.
+
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 import json
 from json import JSONDecodeError
 from typing import NoReturn
@@ -5,11 +16,18 @@ from typing import NoReturn
 from pydantic import ValidationError
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import ParseError
+import rest_framework.exceptions as drf_exc
+from rest_framework.response import Response
 
 from account.models import ShareSettings
-from city.serializers import VisitedCitySerializer, NotVisitedCitySerializer
+from city.models import City
+from city.serializers import (
+    VisitedCitySerializer,
+    NotVisitedCitySerializer,
+    AddVisitedCitySerializer,
+)
 from city.structs import UserID
+from region.models import Region
 from services import logger
 from services.db.visited_city_repo import get_visited_cities_many_users, get_not_visited_cities
 from subscribe.repository import is_subscribed
@@ -38,6 +56,8 @@ class GetVisitedCities(generics.ListAPIView):
                 'user__username',
                 'id',
                 'city__title',
+                'city__region',
+                'city__region_id',
                 'city__coordinate_width',
                 'city__coordinate_longitude',
                 'date_of_visit',
@@ -64,7 +84,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
                 self.request,
                 '(API) An incorrect list of user IDs was received',
             )
-            raise ParseError('Получен некорректный список идентификаторов пользователей')
+            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
 
     def _load_json(self, data: str) -> dict | NoReturn:
         try:
@@ -74,7 +94,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
                 self.request,
                 '(API) An incorrect list of user IDs was received',
             )
-            raise ParseError('Получен некорректный список идентификаторов пользователей')
+            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
 
     def _user_has_allowed_to_subscribe_to_himself(self, user_id: int) -> bool:
         try:
@@ -151,6 +171,8 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
                 'user__username',
                 'city__id',
                 'city__title',
+                'city__region',
+                'city__region_id',
                 'city__coordinate_width',
                 'city__coordinate_longitude',
             ],
@@ -171,4 +193,32 @@ class GetNotVisitedCities(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        return get_not_visited_cities(self.request.user.pk)
+        regions = {region.id: str(region) for region in Region.objects.all()}
+        return get_not_visited_cities(self.request.user.pk, regions)
+
+
+class AddVisitedCity(generics.CreateAPIView):
+    serializer_class = AddVisitedCitySerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        from_page = request.data.get('from') if request.data.get('from') else 'unknown location'
+
+        serializer = AddVisitedCitySerializer(data=request.data, context={'request': self.request})
+        if not serializer.is_valid():
+            logger.warning(
+                self.request,
+                f'(API: Add visited city) Validation in the serializer failed from {from_page}',
+            )
+            raise drf_exc.ValidationError(serializer.errors)
+
+        user = request.user
+        region = City.objects.get(id=serializer.validated_data['city'].id).region
+        serializer.save(user=user, region=region)
+
+        logger.info(
+            self.request,
+            f'(API: Add visited city) The visited city has been successfully added from {from_page}',
+        )
+
+        return Response({'status': 'success', 'city': serializer.data})

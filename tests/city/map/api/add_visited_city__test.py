@@ -78,7 +78,7 @@ def access_by_POST_for_guest_is_prohibited__test(setup_db_without_visited_cities
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(reset_sequences=True)
 @pytest.mark.parametrize(
     'request_data, status_code, correct_response_data, log_level, log_message',
     add_visited_city_test_data,

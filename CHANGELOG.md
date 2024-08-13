@@ -23,6 +23,8 @@
 
 - *(openpyxl)* Обновлена версия openpyxl в зависимостях до 3.1.3 ([d65783a](https://github.com/Shecspi/MoiGoroda/commit/d65783ac8e28457ef27132a6667365580b5947f0))
 
+- Исправление некорректного склонения слов в тулбаре на странице карты городов ([ed7b7be](https://github.com/Shecspi/MoiGoroda/commit/ed7b7be635e654080c77def9e1b03466ac0a764a))
+
 
 #### ⚡ Производительность
 

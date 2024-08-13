@@ -60,11 +60,15 @@ def test__section__visited_cities(setup_db, client):
     response = client.get(reverse('city-all-map'))
     source = BeautifulSoup(response.content.decode(), 'html.parser')
     block = source.find('div', {'id': 'toolbar'}).find('div', {'id': 'section-statistic'})
+    visited_block = block.find('span', {'id': 'declension-visited'})
+    qty_visited_block = block.find('span', {'id': 'declension-qty-visited'})
+    visited_city_block = block.find('span', {'id': 'declension-visited-city'})
 
     assert block
-    assert 'Посещено' in block.get_text()
-    assert '3' in block.find('span').get_text()
-    assert 'города из 4' in block.get_text()
+    assert 'Посещено' in visited_block.get_text()
+    assert '3' in qty_visited_block.get_text()
+    assert 'города' in visited_city_block.get_text()
+    assert 'из 4' in block.get_text()
 
 
 @pytest.mark.django_db

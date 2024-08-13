@@ -3,8 +3,9 @@
         <div class="card text-center shadow h-100">
             <div class="card-body d-grid bg-warning-subtle" id="section-statistic">
                 <div class="align-self-center">
-                    {{ declension_of_visited|title }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
-                    {{ declension_of_visited_cities }} из {{ total_qty_of_cities }}
+                    <span id="declension-visited">{{ declension_of_visited|title }}</span>
+                    <span class="fs-4 fw-medium" id="declension-qty-visited">{{ qty_of_visited_cities }}</span>
+                    <span id="declension-visited-city">{{ declension_of_visited_cities }}</span> из {{ total_qty_of_cities }}
                 </div>
             </div>
         </div>

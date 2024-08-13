@@ -62,6 +62,9 @@ function open_modal_for_add_city(city, city_id, region_title) {
 }
 
 function change_qty_of_visited_cities_in_toolbar() {
+    /**
+     * Производит замену текста, сообщающего о количестве посещённых городов, в информационной карточке тулбара.
+     */
     const declensionVisitedElement = document.getElementById('declension-visited');
     const declensionQtyVisitedElement = document.getElementById('declension-qty-visited');
     const declensionVisitedCityElement = document.getElementById('declension-visited-city');
@@ -71,11 +74,13 @@ function change_qty_of_visited_cities_in_toolbar() {
     declensionQtyVisitedElement.innerText = newQty.toString();
 
     declensionVisitedElement.innerText = toTitleCase(declensionVisited(newQty))
-    declensionVisitedCityElement.innerText =
-        declensionVisitedCity(newQty);
+    declensionVisitedCityElement.innerText = declensionVisitedCity(newQty);
 }
 
 function declensionVisited(newQty) {
+    /**
+     * Возвращает слово 'посещён', корректно склонённое для использования с числом newQty.
+     */
     if (newQty.toString().endsWith('1') && !newQty.toString().endsWith('11')) {
         return 'посещён'
     } else {
@@ -84,6 +89,9 @@ function declensionVisited(newQty) {
 }
 
 function declensionVisitedCity(newQty) {
+    /**
+     * Возвращает слово "город", корректно склонённое для использования с числом newQty.
+     */
     const newQtyStr = newQty.toString();
     if (
         ((10 <= Number(newQtyStr.slice(-2))) && (Number(newQtyStr.slice(-2)) <= 20))
@@ -94,9 +102,15 @@ function declensionVisitedCity(newQty) {
         return 'города'
     } else if (newQtyStr.slice(-1) === '1') {
         return 'город';
+    } else {
+        // Это блок кода никогда не должен выполняться, так как выше все условия обработаны
+        return 'город';
     }
 }
 
 function toTitleCase(word) {
-    return word.charAt(0).toUpperCase() + word.slice(1);
+    /**
+     * Возвращает полученное слово в нижнем регистре с первой заглавной буквой.
+     */
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }

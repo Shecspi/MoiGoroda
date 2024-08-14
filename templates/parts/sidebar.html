@@ -22,7 +22,7 @@
             <hr>
             <li>
                 <span class="text-muted px-3 py-2 d-block">
-                    <i class="fa-solid fa-tree-city"></i>&nbsp;&nbsp;&nbsp;Посещённые города
+                    Посещённые города
                 </span>
                 <ul class="list-unstyled">
                     <li>
@@ -41,7 +41,7 @@
         {% endif %}
         <li>
             <span class="text-muted px-3 py-2 d-block">
-                <i class="fa-solid fa-earth-europe"></i>&nbsp;&nbsp;&nbsp;Регионы России
+                Регионы России
             </span>
             <ul class="list-unstyled">
                 <li>
@@ -52,6 +52,24 @@
                 <li>
                     <a href="{% url 'region-all-map' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'region_map' %} active{% endif %}">
                         <i class="fa-regular fa-map"></i>&nbsp;&nbsp;&nbsp;Карта регионов
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <hr>
+        <li>
+            <span class="text-muted px-3 py-2 d-block">
+                Страны мира
+            </span>
+            <ul class="list-unstyled">
+                <li>
+                    <a href="" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'country_list' %} active{% endif %}">
+                        <i class="fa-regular fa-flag"></i>&nbsp;&nbsp;&nbsp;Список стран
+                    </a>
+                </li>
+                <li>
+                    <a href="" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'country_map' %} active{% endif %}">
+                        <i class="fa-solid fa-earth-europe"></i>&nbsp;&nbsp;&nbsp;Карта стран
                     </a>
                 </li>
             </ul>

@@ -28,11 +28,9 @@ body.simple {
 
 #sidebar {
     background: #fff;
-    min-height: 100dvh;
-    max-height: 100%;
-    min-width: 300px;
-    max-width: 300px;
-    transition: all 0.3s;
+    height: 100dvh;;
+    width: 300px;
+    position: fixed;
 }
 .sidebar-logo {
     font-family: 'Pacifico', cursive;
@@ -58,14 +56,21 @@ body.simple {
     background: #0d6efd;
     color: #fff;
 }
-@media(max-width: 1200px) {
+@media(max-width: 1199px) {
     #sidebar {
         margin-left: -300px;
         position: fixed;
         z-index: 1;
+        transition: all 0.3s;
     }
+
     #sidebar.active {
         margin-left: 0;
+    }
+}
+@media(min-width: 1200px) {
+    #section-content {
+        padding-left: 300px;
     }
 }
 

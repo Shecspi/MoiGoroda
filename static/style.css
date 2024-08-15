@@ -31,6 +31,7 @@ body.simple {
     height: 100dvh;;
     width: 300px;
     position: fixed;
+    overscroll-behavior-y: contain;
 }
 .sidebar-logo {
     font-family: 'Pacifico', cursive;

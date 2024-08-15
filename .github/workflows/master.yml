@@ -93,8 +93,6 @@ jobs:
           rm -f ~/gunicorn
           ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
           
-      - name: Make migrations
-        run: |
           poetry run python3 manage.py makemigrations
           poetry run python3 manage.py migrate
           

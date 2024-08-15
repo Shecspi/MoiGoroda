@@ -67,7 +67,7 @@ jobs:
       - name: Get all git tags
         run: git fetch --tags --force
         
-      - name: Pull updates from remote
+      - name: Deploy to the server
         run: |
           : # Переходим в папку с проектом
           cd ${{ secrets.PROD__PROJECT_PATH }}
@@ -75,8 +75,6 @@ jobs:
           git pull origin master
           git checkout master
           
-      - name: Install Python and virtual enviroment
-        run: |
           : # Устанавливаем необходимую версию Python, если она ещё не установлена
           if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
           
@@ -96,15 +94,11 @@ jobs:
           poetry run python3 manage.py makemigrations
           poetry run python3 manage.py migrate
           
-      - name: Collect static files
-        run: |
           : # Производим сборку статичных файлов
           chmod +x ./scripts/collectstatic.sh
           ./scripts/collectstatic.sh
           chmod -x ./scripts/collectstatic.sh
           
-      - name: Restart server
-        run: |
           : # Перезагружаем сервер
           chmod +x ./scripts/restart.sh
           export SUDO_PASSWORD=${{ secrets.PROD__SUDO_PASSWORD }}

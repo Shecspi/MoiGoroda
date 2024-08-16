@@ -12,5 +12,5 @@ from django.urls import path
 from country import views
 
 urlpatterns = [
-    path('', views.country, name='country'),
+    path('map', views.country, name='country_map'),
 ]

@@ -10,7 +10,7 @@ urlpatterns = [
     path('account/', include('account.urls')),
     path('city/', include('city.urls.views')),
     path('region/', include('region.urls')),
-    path('country/', include('country.urls')),
+    path('country/', include('country.urls.views')),
     path('collection/', include('collection.urls')),
     path('news/', include('news.urls')),
     path('subscribe/', include('subscribe.urls')),
@@ -22,6 +22,7 @@ urlpatterns = [
     path('sitemap.xml', TemplateView.as_view(template_name='sitemap.xml', content_type='text/xml')),
     # API
     path('api/city/', include('city.urls.api')),
+    path('api/country/', include('country.urls.api')),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

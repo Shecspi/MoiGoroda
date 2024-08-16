@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from country.models import PartOfTheWorld, Country, Location
+
+admin.site.register([PartOfTheWorld, Location, Country])

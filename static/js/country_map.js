@@ -26,33 +26,37 @@ function init() {
                 }
                 console.log('Всего стран в БД: ', countries);
 
-                let countryGeoQuery = ymaps.geoQuery(geojson);
-                const countryGeoQueryIterator = countryGeoQuery.getIterator();
-                console.log('Всего стран у Яндекса: ', countryGeoQuery.getLength());
+                for (let i = 0; i < geojson.features.length; i++) {
+                    let countryCode = geojson.features[i].properties.iso3166;
+                    let countryName = geojson.features[i].properties.name;
+                    let contentHeader = '<span class="fw-semibold">' + countryName + '</span>'
+                    let linkToAdd = `<hr><a href="#"">Отметить страну как посещённую</a>`
 
-                // Проходим по всем странам, которые Яндекс вернул.
-                // Удаляем из результатов те, которых нет в нашей базе данных.
-                let country;
-                while ((country = countryGeoQueryIterator.getNext()) !== countryGeoQueryIterator.STOP_ITERATION) {
-                    let countryCode = country.properties._data.iso3166;
-                    let countryName = country.properties._data.name;
-
+                    // Если такой страны нет в нашей БД, то пропускаем её и печатаем в консоль.
+                    // Если есть, то удаляем её из countries, чтобы в конце посмотреть,
+                    // какие страны из нашей БД не распечатались на карте.
                     if (!countries.has(countryCode)) {
                         console.log(`Страны "${countryName}" нет в нашей БД`);
-                        countryGeoQuery = countryGeoQuery.remove(country);
+                        continue;
                     } else {
                         countries.delete(countryCode);
                     }
-                }
-                console.log('На карте отобразилось стран: ', countryGeoQuery.getLength());
-                console.log('Страны, которых нет в Яндексе:', countries);
 
-                countryGeoQuery
-                    .setOptions('fillColor', fillColorNotVisitedCoutry)
-                    .setOptions('fillOpacity', fillOpacity)
-                    .setOptions('strokeColor', strokeColor)
-                    .setOptions('strokeOpacity', strokeOpacity)
-                    .addToMap(myMap);
+                    let geoObject = new ymaps.GeoObject(geojson.features[i], {
+                        fillColor: fillColorNotVisitedCoutry,
+                        fillOpacity: fillOpacity,
+                        strokeColor: strokeColor,
+                        strokeOpacity: strokeOpacity,
+                    });
+                    geoObject.properties.set({
+                        balloonContentHeader: contentHeader,
+                        balloonContent: linkToAdd
+                    });
+
+                    myMap.geoObjects.add(geoObject);
+                }
+
+                console.log('Страны, которых нет в Яндексе:', countries);
             });
         });
 }

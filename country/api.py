@@ -10,3 +10,15 @@ class GetAllCountry(generics.ListAPIView):
     serializer_class = CountrySerializer
     http_method_names = ['get']
     permission_classes = [IsAuthenticated]
+
+
+class GetVisitedCountry(generics.ListAPIView):
+    pass
+
+
+class AddVisitedCountry(generics.CreateAPIView):
+    pass
+
+
+class DeleteVisitedCountry(generics.DestroyAPIView):
+    pass

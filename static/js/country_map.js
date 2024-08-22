@@ -30,7 +30,7 @@ function init() {
                     let countryCode = geojson.features[i].properties.iso3166;
                     let countryName = geojson.features[i].properties.name;
                     let contentHeader = '<span class="fw-semibold">' + countryName + '</span>'
-                    let linkToAdd = `<hr><a href="#"">Отметить страну как посещённую</a>`
+                    let linkToAdd = `<hr><a href="#" onclick="add_country('${countryCode}')">Отметить страну как посещённую</a>`
 
                     // Если такой страны нет в нашей БД, то пропускаем её и печатаем в консоль.
                     // Если есть, то удаляем её из countries, чтобы в конце посмотреть,
@@ -59,4 +59,26 @@ function init() {
                 console.log('Страны, которых нет в Яндексе:', countries);
             });
         });
+}
+
+function add_country(countryCode) {
+    const url = document.getElementById('url_add_visited_city').dataset.url;
+    const formData = new FormData();
+    formData.append('countryCode', countryCode);
+
+    let response = fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie("csrftoken")
+        },
+        body: JSON.stringify(formData)
+    })
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error(response.statusText)
+        }
+        return response.json()
+    })
+    .then((data) => {});
 }

@@ -8,6 +8,7 @@
 
     {% include 'country/country__map__toolbar.html' %}
 
+    <div id="url_add_visited_city" data-url="{% url 'api__add_visited_city' %}" hidden></div>
     <div id="map" class="h-100 mt-3"></div>
     <script src="{% static 'js/country_map.js'%}"></script>
 {% endblock %}

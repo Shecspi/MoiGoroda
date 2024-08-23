@@ -62,17 +62,17 @@ function init() {
 }
 
 function add_country(countryCode) {
-    const url = document.getElementById('url_add_visited_city').dataset.url;
+    const url = document.getElementById('url_add_visited_country').dataset.url;
     const formData = new FormData();
-    formData.append('countryCode', countryCode);
+    console.log(countryCode, typeof countryCode);
+    formData.set('country', countryCode);
 
     let response = fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': getCookie("csrftoken")
         },
-        body: JSON.stringify(formData)
+        body: formData
     })
     .then((response) => {
         if (!response.ok) {

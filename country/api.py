@@ -38,7 +38,7 @@ class AddVisitedCountry(generics.CreateAPIView):
                 self.request,
                 f'(API: Add visited country) Validation in the serializer failed from {from_page}. {serializer.errors}',
             )
-            raise drf_exc.ValidationError()
+            raise drf_exc.ValidationError(serializer.errors)
 
         serializer.save(user=request.user)
 

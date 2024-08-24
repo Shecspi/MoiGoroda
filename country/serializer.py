@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import TypedDict
+from typing import TypedDict, NoReturn
 
 from django.contrib.auth.models import User
 from rest_framework import serializers
@@ -18,13 +18,13 @@ import rest_framework.exceptions as drf_exc
 from country.models import Country, VisitedCountry
 
 
-class RequestedData(TypedDict):
+class ValidatedData(TypedDict):
     country: Country
     user: User
 
 
 class CountrySerializer(serializers.ModelSerializer):
-    """Сериалайзер для модели Country."""
+    """Сериалайзер для модели Country"""
 
     class Meta:
         model = Country
@@ -32,18 +32,20 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class VisitedCountrySerializer(serializers.ModelSerializer):
-    country = serializers.CharField()
+    """Сериалайзер для модели VisitedCountry"""
+
+    country = serializers.CharField(max_length=2, min_length=2)
 
     class Meta:
         model = VisitedCountry
         fields = ['country']
 
-    def create(self, validated_data: RequestedData):
+    def create(self, validated_data: ValidatedData) -> VisitedCountry:
         return VisitedCountry.objects.create(
             country=validated_data['country'], user=validated_data['user']
         )
 
-    def validate_country(self, country_code: str):
+    def validate_country(self, country_code: str) -> Country | NoReturn:
         try:
             country_instance = Country.objects.get(code=country_code)
         except Country.DoesNotExist:

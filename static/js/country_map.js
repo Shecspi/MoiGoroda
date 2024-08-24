@@ -64,7 +64,6 @@ function init() {
 function add_country(countryCode) {
     const url = document.getElementById('url_add_visited_country').dataset.url;
     const formData = new FormData();
-    console.log(countryCode, typeof countryCode);
     formData.set('country', countryCode);
 
     let response = fetch(url, {

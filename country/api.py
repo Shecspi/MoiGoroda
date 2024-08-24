@@ -41,7 +41,6 @@ class AddVisitedCountry(generics.CreateAPIView):
             raise drf_exc.ValidationError(serializer.errors)
 
         serializer.save(user=request.user)
-
         return Response({'status': 'success', 'country': serializer.data})
 
 

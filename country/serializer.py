@@ -18,8 +18,13 @@ import rest_framework.exceptions as drf_exc
 from country.models import Country, VisitedCountry
 
 
+class CountryData(TypedDict):
+    code: str
+    name: str
+
+
 class ValidatedData(TypedDict):
-    country: Country
+    country: CountryData
     user: User
 
 
@@ -34,18 +39,20 @@ class CountrySerializer(serializers.ModelSerializer):
 class VisitedCountrySerializer(serializers.ModelSerializer):
     """Сериалайзер для модели VisitedCountry"""
 
-    country = serializers.CharField(max_length=2, min_length=2)
+    code = serializers.CharField(source='country.code', max_length=2, min_length=2)
+    name = serializers.CharField(source='country.name', read_only=True)
 
     class Meta:
         model = VisitedCountry
-        fields = ['country']
+        fields = ['code', 'name']
+        extra_kwargs = {'country': {'read_only': True}}
 
     def create(self, validated_data: ValidatedData) -> VisitedCountry:
-        return VisitedCountry.objects.create(
-            country=validated_data['country'], user=validated_data['user']
-        )
+        # Проверка наличия страны в базе данных уже была сделана в validate_code, поэтому здесь она не требуется
+        country = Country.objects.get(code=validated_data['country']['code'])
+        return VisitedCountry.objects.create(country=country, user=validated_data['user'])
 
-    def validate_country(self, country_code: str) -> Country | NoReturn:
+    def validate_code(self, country_code: str) -> str | NoReturn:
         try:
             country_instance = Country.objects.get(code=country_code)
         except Country.DoesNotExist:
@@ -58,4 +65,4 @@ class VisitedCountrySerializer(serializers.ModelSerializer):
                 f'Страна {country_instance} уже была добавлена ранее.'
             )
 
-        return country_instance
+        return country_code

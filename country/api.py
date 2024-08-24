@@ -45,4 +45,7 @@ class AddVisitedCountry(generics.CreateAPIView):
 
 
 class DeleteVisitedCountry(generics.DestroyAPIView):
-    pass
+    http_method_names = ['delete']
+    permission_classes = [IsAuthenticated]
+    queryset = VisitedCountry.objects.all()
+    serializer_class = VisitedCountrySerializer

@@ -15,5 +15,5 @@ urlpatterns = [
     path('all', api.GetAllCountry.as_view(), name='api__get_all_country'),
     path('visited', api.GetVisitedCountry.as_view(), name='api__get_visited_country'),
     path('add', api.AddVisitedCountry.as_view(), name='api__add_visited_country'),
-    path('delete', api.DeleteVisitedCountry.as_view(), name='api__delete_visited_country'),
+    path('delete/<int:pk>', api.DeleteVisitedCountry.as_view(), name='api__delete_visited_country'),
 ]

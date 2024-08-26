@@ -31,6 +31,29 @@ function getVisitedCountries() {
     return getCountries(url);
 }
 
+function removeQtyVisitedCountiesPlaceholder(qtyVisitedCities, qtyAllCities) {
+    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
+    block_qty_visited_countries.classList.remove('placeholder');
+    block_qty_visited_countries.classList.remove('bg-secondary');
+    block_qty_visited_countries.innerText = `Посещено ${qtyVisitedCities} ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+
+    const block_statistic = document.getElementById('block-statistic');
+    block_statistic.classList.remove('placeholder-glow');
+}
+
+function declensionCountry(qtyOfCountries) {
+    /**
+     * Возвращает слово "страна", корректно склонённое для использования с числом qtyOfCountries.
+     */
+    if (qtyOfCountries % 100 === 1 && qtyOfCountries !== 11) {
+        return 'страна';
+    } else if (qtyOfCountries % 100 in [2, 3, 4]) {
+        return 'страны';
+    } else {
+        return 'стран';
+    }
+}
+
 function init() {
     myMap = new ymaps.Map("map", {
         center: [55.76, 37.64],
@@ -46,6 +69,8 @@ function init() {
 
             console.log('Всего стран в БД: ', countries);
             console.log('Всего посещённых стран: ', visitedCountriesSet);
+
+            removeQtyVisitedCountiesPlaceholder(visitedCountriesSet.size, countries.size);
 
             for (let i = 0; i < geojson.features.length; i++) {
                 let countryCode = geojson.features[i].properties.iso3166;

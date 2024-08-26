@@ -12,8 +12,10 @@ from django.urls import path
 from country import api
 
 urlpatterns = [
-    path('all', api.GetAllCountry.as_view(), name='api__get_all_country'),
-    path('visited', api.GetVisitedCountry.as_view(), name='api__get_visited_country'),
-    path('add', api.AddVisitedCountry.as_view(), name='api__add_visited_country'),
-    path('delete/<int:pk>', api.DeleteVisitedCountry.as_view(), name='api__delete_visited_country'),
+    path('all', api.GetAllCountry.as_view(), name='api__get_all_countries'),
+    path('visited', api.GetVisitedCountry.as_view(), name='api__get_visited_countries'),
+    path('add', api.AddVisitedCountry.as_view(), name='api__add_visited_countries'),
+    path(
+        'delete/<int:pk>', api.DeleteVisitedCountry.as_view(), name='api__delete_visited_countries'
+    ),
 ]

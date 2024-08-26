@@ -8,50 +8,48 @@ let myMap;
 
 ymaps.ready(init);
 
+function getCountries(url) {
+    return fetch(url)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json();
+        })
+        .then((data) => {
+            return data;
+        });
+}
+
+function getAllCountries() {
+    const url = document.getElementById('url_get_all_countries').dataset.url;
+    return getCountries(url);
+}
+
+function getVisitedCountries() {
+    const url = document.getElementById('url_get_visited_countries').dataset.url;
+    return getCountries(url);
+}
+
 function init() {
     myMap = new ymaps.Map("map", {
         center: [55.76, 37.64],
         zoom: 2
     });
-    const allCountryPromise = fetch('/api/country/all')
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(response.statusText)
-            }
-            return response.json();
-        })
-        .then((data) => {
-            return data;
-        });
-
-    const visitedCountryPromise = fetch('/api/country/visited')
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(response.statusText)
-            }
-            return response.json();
-        })
-        .then((data) => {
-            return data;
-        });
+    const allCountryPromise = getAllCountries();
+    const visitedCountryPromise = getVisitedCountries();
 
     Promise.all([allCountryPromise, visitedCountryPromise]).then(([allCountries, visitedCountries]) => {
         ymaps.borders.load('001', {lang: 'ru', quality: 1}).then(function (geojson) {
-            let countries = new Map();
-            for (let i = 0; i < allCountries.length; i++) {
-                countries.set(allCountries[i].code, allCountries[i].name);
-            }
-            console.log('Всего стран в БД: ', countries);
+            let countries = new Map(allCountries.map(country => { return [country.code, country.name]}));
+            let visitedCountriesSet = new Set(visitedCountries.map(country => { return country.code }));
 
-            let visitedCountriesSet = new Set();
-            for (let i = 0; i < visitedCountries.length; i++) {
-                visitedCountriesSet.add(visitedCountries[i].code);
-            }
+            console.log('Всего стран в БД: ', countries);
+            console.log('Всего посещённых стран: ', visitedCountriesSet);
 
             for (let i = 0; i < geojson.features.length; i++) {
                 let countryCode = geojson.features[i].properties.iso3166;
                 let countryName = geojson.features[i].properties.name;
-                const isVisited = visitedCountriesSet.has(countryCode);
 
                 // Если такой страны нет в нашей БД, то пропускаем её и печатаем в консоль.
                 // Если есть, то удаляем её из countries, чтобы в конце посмотреть,
@@ -63,6 +61,7 @@ function init() {
                     countries.delete(countryCode);
                 }
 
+                const isVisited = visitedCountriesSet.has(countryCode);
                 let geoObject = addCountryOnMap(geojson.features[i], countryCode, countryName, isVisited);
                 allCountriesGoeObjects.set(countryCode, geoObject);
             }
@@ -75,17 +74,17 @@ function init() {
 function addCountryOnMap(geojson, countryCode, countryName, isVisited) {
     let contentHeader = '<span class="fw-semibold">' + countryName + '</span>'
     let linkToAdd = `<hr><a href="#" onclick="add_country('${countryCode}')">Отметить страну как посещённую</a>`
+    let linkToDelete = `<hr><a href="#" onclick="delete_country('${countryCode}')">Удалить страну</a>`
 
     let geoObject = new ymaps.GeoObject(geojson, {
         fillColor: isVisited ? fillColorVisitedCountry : fillColorNotVisitedCountry,
-        // visitedCountriesSet.has(countryCode) ? fillColorVisitedCountry : fillColorNotVisitedCountry
         fillOpacity: fillOpacity,
         strokeColor: strokeColor,
         strokeOpacity: strokeOpacity,
     });
     geoObject.properties.set({
         balloonContentHeader: contentHeader,
-        balloonContent: linkToAdd
+        balloonContent: isVisited ? linkToDelete : linkToAdd
     });
     myMap.geoObjects.add(geoObject);
 
@@ -119,4 +118,8 @@ function add_country(countryCode) {
             let geoObject = addCountryOnMap(country, countryCode, 'countryName', true);
             allCountriesGoeObjects.set(countryCode, geoObject);
         });
+}
+
+function delete_country(countryCode) {
+
 }

@@ -117,7 +117,7 @@ function addCountryOnMap(geojson, countryCode, countryName, isVisited) {
 }
 
 function add_country(countryCode) {
-    const url = document.getElementById('url_add_visited_country').dataset.url;
+    const url = document.getElementById('url_add_visited_countries').dataset.url;
     const formData = new FormData();
     formData.set('code', countryCode);
 

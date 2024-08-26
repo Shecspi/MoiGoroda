@@ -38,7 +38,8 @@ function removeQtyVisitedCountiesPlaceholder(qtyVisitedCities, qtyAllCities) {
     const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
     block_qty_visited_countries.classList.remove('placeholder');
     block_qty_visited_countries.classList.remove('bg-secondary');
-    block_qty_visited_countries.innerText = `${declensionVisited(qtyVisitedCities)} ${qtyVisitedCities} ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+    block_qty_visited_countries.classList.remove('placeholder-lg');
+    block_qty_visited_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
 
     const block_statistic = document.getElementById('block-statistic');
     block_statistic.classList.remove('placeholder-glow');
@@ -48,7 +49,7 @@ function updateQtyVisitedCountiesPlaceholder() {
     const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
     const qtyVisitedCities = visitedCountryState.size;
     const qtyAllCities = allCountryState.size;
-    block_qty_visited_countries.innerText = `${declensionVisited(qtyVisitedCities)} ${qtyVisitedCities} ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+    block_qty_visited_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
 }
 
 function declensionCountry(qtyOfCountries) {
@@ -76,6 +77,10 @@ function declensionVisited(qtyOfCountries) {
 }
 
 function init() {
+    // Удаляем спиннер
+    const map_element = document.getElementById('map');
+    map_element.innerHTML = '';
+
     myMap = new ymaps.Map("map", {
         center: [55.76, 37.64],
         zoom: 2

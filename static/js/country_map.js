@@ -45,9 +45,10 @@ function declensionCountry(qtyOfCountries) {
     /**
      * Возвращает слово "страна", корректно склонённое для использования с числом qtyOfCountries.
      */
-    if (qtyOfCountries % 100 === 1 && qtyOfCountries !== 11) {
+    console.log(qtyOfCountries, qtyOfCountries % 100);
+    if (qtyOfCountries % 10 === 1 && qtyOfCountries !== 11) {
         return 'страна';
-    } else if (qtyOfCountries % 100 in [2, 3, 4]) {
+    } else if (qtyOfCountries % 10 in [2, 3, 4]) {
         return 'страны';
     } else {
         return 'стран';

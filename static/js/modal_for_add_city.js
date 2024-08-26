@@ -89,9 +89,9 @@ function declensionVisited(newQty) {
 }
 
 function declensionVisitedCity(newQty) {
-    /**
-     * Возвращает слово "город", корректно склонённое для использования с числом newQty.
-     */
+        /**
+         * Возвращает слово "город", корректно склонённое для использования с числом newQty.
+         */
     const newQtyStr = newQty.toString();
     if (
         ((10 <= Number(newQtyStr.slice(-2))) && (Number(newQtyStr.slice(-2)) <= 20))

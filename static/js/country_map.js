@@ -6,6 +6,9 @@ const strokeOpacity = 0.5;
 let allCountriesGoeObjects = new Map();
 let myMap;
 
+let allCountryState;
+let visitedCountryState;
+
 ymaps.ready(init);
 
 function getCountries(url) {
@@ -41,14 +44,20 @@ function removeQtyVisitedCountiesPlaceholder(qtyVisitedCities, qtyAllCities) {
     block_statistic.classList.remove('placeholder-glow');
 }
 
+function updateQtyVisitedCountiesPlaceholder() {
+    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
+    const qtyVisitedCities = visitedCountryState.size;
+    const qtyAllCities = allCountryState.size;
+    block_qty_visited_countries.innerText = `Посещено ${qtyVisitedCities} ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+}
+
 function declensionCountry(qtyOfCountries) {
     /**
      * Возвращает слово "страна", корректно склонённое для использования с числом qtyOfCountries.
      */
-    console.log(qtyOfCountries, qtyOfCountries % 100);
     if (qtyOfCountries % 10 === 1 && qtyOfCountries !== 11) {
         return 'страна';
-    } else if (qtyOfCountries % 10 in [2, 3, 4]) {
+    } else if ([2, 3, 4].includes(qtyOfCountries % 10)) {
         return 'страны';
     } else {
         return 'стран';
@@ -65,13 +74,15 @@ function init() {
 
     Promise.all([allCountryPromise, visitedCountryPromise]).then(([allCountries, visitedCountries]) => {
         ymaps.borders.load('001', {lang: 'ru', quality: 1}).then(function (geojson) {
-            let countries = new Map(allCountries.map(country => { return [country.code, country.name]}));
-            let visitedCountriesSet = new Set(visitedCountries.map(country => { return country.code }));
+            allCountryState = new Map(allCountries.map(country => { return [country.code, country.name]}));
+            visitedCountryState = new Set(visitedCountries.map(country => { return country.code }));
 
-            console.log('Всего стран в БД: ', countries);
-            console.log('Всего посещённых стран: ', visitedCountriesSet);
+            console.log('allCountryState: ', allCountryState);
+            console.log('visitedCountryState: ', visitedCountryState);
 
-            removeQtyVisitedCountiesPlaceholder(visitedCountriesSet.size, countries.size);
+            removeQtyVisitedCountiesPlaceholder(visitedCountryState.size, allCountryState.size);
+
+            let reserveAllCountryState = new Map(allCountryState);
 
             for (let i = 0; i < geojson.features.length; i++) {
                 let countryCode = geojson.features[i].properties.iso3166;
@@ -80,19 +91,19 @@ function init() {
                 // Если такой страны нет в нашей БД, то пропускаем её и печатаем в консоль.
                 // Если есть, то удаляем её из countries, чтобы в конце посмотреть,
                 // какие страны из нашей БД не распечатались на карте.
-                if (!countries.has(countryCode)) {
+                if (!allCountryState.has(countryCode)) {
                     console.log(`Страны "${countryName}" нет в нашей БД`);
                     continue;
                 } else {
-                    countries.delete(countryCode);
+                    reserveAllCountryState.delete(countryCode);
                 }
 
-                const isVisited = visitedCountriesSet.has(countryCode);
+                const isVisited = visitedCountryState.has(countryCode);
                 let geoObject = addCountryOnMap(geojson.features[i], countryCode, countryName, isVisited);
                 allCountriesGoeObjects.set(countryCode, geoObject);
             }
 
-            console.log('Страны, которых нет в Яндексе:', countries);
+            console.log('Страны, которых нет в Яндексе:', reserveAllCountryState);
         });
     });
 }
@@ -143,6 +154,8 @@ function add_country(countryCode) {
 
             let geoObject = addCountryOnMap(country, countryCode, 'countryName', true);
             allCountriesGoeObjects.set(countryCode, geoObject);
+            visitedCountryState.add(countryCode);
+            updateQtyVisitedCountiesPlaceholder();
         });
 }
 

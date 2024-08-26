@@ -38,7 +38,7 @@ function removeQtyVisitedCountiesPlaceholder(qtyVisitedCities, qtyAllCities) {
     const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
     block_qty_visited_countries.classList.remove('placeholder');
     block_qty_visited_countries.classList.remove('bg-secondary');
-    block_qty_visited_countries.innerText = `Посещено ${qtyVisitedCities} ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+    block_qty_visited_countries.innerText = `${declensionVisited(qtyVisitedCities)} ${qtyVisitedCities} ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
 
     const block_statistic = document.getElementById('block-statistic');
     block_statistic.classList.remove('placeholder-glow');
@@ -48,7 +48,7 @@ function updateQtyVisitedCountiesPlaceholder() {
     const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
     const qtyVisitedCities = visitedCountryState.size;
     const qtyAllCities = allCountryState.size;
-    block_qty_visited_countries.innerText = `Посещено ${qtyVisitedCities} ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+    block_qty_visited_countries.innerText = `${declensionVisited(qtyVisitedCities)} ${qtyVisitedCities} ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
 }
 
 function declensionCountry(qtyOfCountries) {
@@ -61,6 +61,17 @@ function declensionCountry(qtyOfCountries) {
         return 'страны';
     } else {
         return 'стран';
+    }
+}
+
+function declensionVisited(qtyOfCountries) {
+    /**
+     * Возвращает слово "посещено", корректно склонённое для использования с числом qtyOfCountries.
+     */
+    if (qtyOfCountries % 10 === 1 && qtyOfCountries !== 11) {
+        return 'Посещена';
+    } else {
+        return 'Посещено';
     }
 }
 

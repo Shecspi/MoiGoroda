@@ -172,6 +172,8 @@ function add_country(countryCode) {
             allCountriesGoeObjects.set(countryCode, geoObject);
             visitedCountryState.add(countryCode);
             updateQtyVisitedCountiesPlaceholder();
+
+            showSuccessToast('Успешно', `Страна <strong>${country.properties._data.name}</strong> успешно добавлена как посещённая Вами`);
         });
 }
 

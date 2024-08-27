@@ -61,8 +61,13 @@
     <script src="{% static 'js/get_cookie.js' %}"></script>
 </head>
 <body>
+    {% include 'parts/toast/success.html' %}
+    {% include 'parts/toast/danger.html' %}
+    
     {% block base %}
     {% endblock %}
     <script src="{% static 'js/enable_tooltips.js' %}"></script>
+    {# Функции для отображения информационных сообщений #}
+    <script src="{% static 'js/toast.js' %}"></script>
 </body>
 </html>

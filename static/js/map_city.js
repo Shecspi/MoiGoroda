@@ -209,10 +209,7 @@ class ToolbarActions {
                 this.notVisitedCities = await response.json();
                 this.addNotVisitedCitiesOnMap();
             } else {
-                const element = document.getElementById('toast_validation_error');
-                const toast = new bootstrap.Toast(element);
-                toast.show();
-
+                showDangerToast('Ошибка', 'Произошла ошибка при загрузке данных');
                 return false;
             }
         } else {
@@ -529,10 +526,7 @@ class ToolbarActions {
         if (response.ok) {
             this.ownCities = await response.json();
         } else {
-            const element = document.getElementById('toast_request_error');
-            const toast = new bootstrap.Toast(element);
-            toast.show();
-
+            showDangerToast('Ошибка', 'Что-то пошло не так. Попробуйте ещё раз.')
             this.ownCities = [];
         }
 

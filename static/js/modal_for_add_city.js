@@ -34,16 +34,14 @@ form.addEventListener('submit', event => {
 
             form.reset();
 
-            const element = document.getElementById('toast-success');
-            const toast = new bootstrap.Toast(element);
-            document.getElementById('city-title-in-toast').innerText = data.city.city_title;
-            toast.show();
+            showSuccessToast('Успешно', `Город ${data.city.city_title} успешно добавлен как посещённый`);
 
             actions.updatePlacemark(data.city.city);
             change_qty_of_visited_cities_in_toolbar();
         })
         .catch((err) => {
             console.log(err);
+            showDangerToast('Ошибка', 'Что-то пошло не так. Попробуйте ещё раз.');
 
             button.disabled = false;
             button.innerText = 'Добавить';

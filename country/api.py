@@ -47,5 +47,21 @@ class AddVisitedCountry(generics.CreateAPIView):
 class DeleteVisitedCountry(generics.DestroyAPIView):
     http_method_names = ['delete']
     permission_classes = [IsAuthenticated]
-    queryset = VisitedCountry.objects.all()
+    # queryset = VisitedCountry.objects.all()
     serializer_class = VisitedCountrySerializer
+
+    def delete(self, request, *args, **kwargs):
+        code = kwargs.get('code').upper()
+        try:
+            country = Country.objects.get(code=code)
+        except Country.DoesNotExist:
+            raise drf_exc.NotFound(f"Country with code '{code}' not found")
+
+        # В таблице VisitedCountry не должно быть больше одного элемента
+        # с одинаковыми полями user и country, поэтому дополнительную проверку на это можно не делать.
+        visited_country = VisitedCountry.objects.filter(user=request.user, country=country)
+
+        # delete() к несуществующей записи не создаёт исключений, поэтому обработка исключений не требуется
+        visited_country.delete()
+
+        return Response(status=204)

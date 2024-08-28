@@ -60,12 +60,3 @@ class VisitedCountry(models.Model):
 
     def __str__(self):
         return self.country
-
-    def validate_city(self, city):
-        if VisitedCountry.objects.filter(city=city, user=self.context['request'].user.pk).exists():
-            logger.info(
-                self.context['request'],
-                '(API: Add visited city) An attempt to add a visited city that is already in the DB',
-            )
-            raise serializers.ValidationError(f'Город {city} уже добавлен.')
-        return city

@@ -12,6 +12,7 @@ Licensed under the Apache License, Version 2.0
 from typing import TypedDict, NoReturn
 
 from django.contrib.auth.models import User
+from django.urls import reverse
 from rest_framework import serializers
 import rest_framework.exceptions as drf_exc
 
@@ -41,11 +42,15 @@ class VisitedCountrySerializer(serializers.ModelSerializer):
 
     code = serializers.CharField(source='country.code', max_length=2, min_length=2)
     name = serializers.CharField(source='country.name', read_only=True)
+    to_delete = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = VisitedCountry
-        fields = ['code', 'name']
+        fields = ['code', 'name', 'to_delete']
         extra_kwargs = {'country': {'read_only': True}}
+
+    def get_to_delete(self, obj: VisitedCountry) -> str:
+        return reverse('api__delete_visited_countries', kwargs={'code': obj.country.code})
 
     def create(self, validated_data: ValidatedData) -> VisitedCountry:
         # Проверка наличия страны в базе данных уже была сделана в validate_code, поэтому здесь она не требуется

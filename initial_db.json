@@ -17233,5 +17233,2765 @@
     "coordinate_longitude": 37.85921,
     "wiki": "https://ru.ruwiki.ru/wiki/Ясиноватая"
   }
+},
+{
+  "model": "country.partoftheworld",
+  "pk": 1,
+  "fields": {
+    "name": "Азия"
+  }
+},
+{
+  "model": "country.partoftheworld",
+  "pk": 2,
+  "fields": {
+    "name": "Америка"
+  }
+},
+{
+  "model": "country.partoftheworld",
+  "pk": 3,
+  "fields": {
+    "name": "Антарктика"
+  }
+},
+{
+  "model": "country.partoftheworld",
+  "pk": 4,
+  "fields": {
+    "name": "Африка"
+  }
+},
+{
+  "model": "country.partoftheworld",
+  "pk": 5,
+  "fields": {
+    "name": "Европа"
+  }
+},
+{
+  "model": "country.partoftheworld",
+  "pk": 6,
+  "fields": {
+    "name": "Океания"
+  }
+},
+{
+  "model": "country.location",
+  "pk": 1,
+  "fields": {
+    "name": "Австралия и Новая Зеландия",
+    "part_of_the_world": 6
+  }
+},
+{
+  "model": "country.location",
+  "pk": 2,
+  "fields": {
+    "name": "Восточная Азия",
+    "part_of_the_world": 1
+  }
+},
+{
+  "model": "country.location",
+  "pk": 3,
+  "fields": {
+    "name": "Восточная Африка",
+    "part_of_the_world": 4
+  }
+},
+{
+  "model": "country.location",
+  "pk": 4,
+  "fields": {
+    "name": "Восточная Европа",
+    "part_of_the_world": 5
+  }
+},
+{
+  "model": "country.location",
+  "pk": 5,
+  "fields": {
+    "name": "Закавказье",
+    "part_of_the_world": 1
+  }
+},
+{
+  "model": "country.location",
+  "pk": 6,
+  "fields": {
+    "name": "Западная Азия",
+    "part_of_the_world": 1
+  }
+},
+{
+  "model": "country.location",
+  "pk": 7,
+  "fields": {
+    "name": "Западная Африка",
+    "part_of_the_world": 4
+  }
+},
+{
+  "model": "country.location",
+  "pk": 8,
+  "fields": {
+    "name": "Западная Европа",
+    "part_of_the_world": 5
+  }
+},
+{
+  "model": "country.location",
+  "pk": 9,
+  "fields": {
+    "name": "Индийский океан",
+    "part_of_the_world": null
+  }
+},
+{
+  "model": "country.location",
+  "pk": 10,
+  "fields": {
+    "name": "Индийский океан (Азия)",
+    "part_of_the_world": 1
+  }
+},
+{
+  "model": "country.location",
+  "pk": 11,
+  "fields": {
+    "name": "Индийский океан (Океания)",
+    "part_of_the_world": 6
+  }
+},
+{
+  "model": "country.location",
+  "pk": 12,
+  "fields": {
+    "name": "Карибский бассейн",
+    "part_of_the_world": 2
+  }
+},
+{
+  "model": "country.location",
+  "pk": 13,
+  "fields": {
+    "name": "Меланезия",
+    "part_of_the_world": 6
+  }
+},
+{
+  "model": "country.location",
+  "pk": 14,
+  "fields": {
+    "name": "Микронезия",
+    "part_of_the_world": 6
+  }
+},
+{
+  "model": "country.location",
+  "pk": 15,
+  "fields": {
+    "name": "Полинезия",
+    "part_of_the_world": 6
+  }
+},
+{
+  "model": "country.location",
+  "pk": 16,
+  "fields": {
+    "name": "Северная Америка",
+    "part_of_the_world": 2
+  }
+},
+{
+  "model": "country.location",
+  "pk": 17,
+  "fields": {
+    "name": "Северная Африка",
+    "part_of_the_world": 4
+  }
+},
+{
+  "model": "country.location",
+  "pk": 18,
+  "fields": {
+    "name": "Северная Европа",
+    "part_of_the_world": 5
+  }
+},
+{
+  "model": "country.location",
+  "pk": 19,
+  "fields": {
+    "name": "Центральная Америка",
+    "part_of_the_world": 2
+  }
+},
+{
+  "model": "country.location",
+  "pk": 20,
+  "fields": {
+    "name": "Центральная Африка",
+    "part_of_the_world": 4
+  }
+},
+{
+  "model": "country.location",
+  "pk": 21,
+  "fields": {
+    "name": "Юго-Восточная Азия",
+    "part_of_the_world": 1
+  }
+},
+{
+  "model": "country.location",
+  "pk": 22,
+  "fields": {
+    "name": "Южная Америка",
+    "part_of_the_world": 2
+  }
+},
+{
+  "model": "country.location",
+  "pk": 23,
+  "fields": {
+    "name": "Южная Европа",
+    "part_of_the_world": 5
+  }
+},
+{
+  "model": "country.location",
+  "pk": 24,
+  "fields": {
+    "name": "Южная часть Африки",
+    "part_of_the_world": 4
+  }
+},
+{
+  "model": "country.location",
+  "pk": 25,
+  "fields": {
+    "name": "Южная часть Центральной Азии",
+    "part_of_the_world": 1
+  }
+},
+{
+  "model": "country.location",
+  "pk": 26,
+  "fields": {
+    "name": "Южный океан",
+    "part_of_the_world": null
+  }
+},
+{
+  "model": "country.country",
+  "pk": 1,
+  "fields": {
+    "name": "Абхазия",
+    "fullname": "Республика Абхазия",
+    "code": "AB",
+    "location": 5
+  }
+},
+{
+  "model": "country.country",
+  "pk": 2,
+  "fields": {
+    "name": "Австралия",
+    "fullname": null,
+    "code": "AU",
+    "location": 1
+  }
+},
+{
+  "model": "country.country",
+  "pk": 3,
+  "fields": {
+    "name": "Австрия",
+    "fullname": "Австрийская Республика",
+    "code": "AT",
+    "location": 8
+  }
+},
+{
+  "model": "country.country",
+  "pk": 4,
+  "fields": {
+    "name": "Азербайджан",
+    "fullname": "Республика Азербайджан",
+    "code": "AZ",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 5,
+  "fields": {
+    "name": "Албания",
+    "fullname": "Республика Албания",
+    "code": "AL",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 6,
+  "fields": {
+    "name": "Алжир",
+    "fullname": "Алжирская Народная Демократическая Республика",
+    "code": "DZ",
+    "location": 17
+  }
+},
+{
+  "model": "country.country",
+  "pk": 7,
+  "fields": {
+    "name": "Американское Самоа",
+    "fullname": null,
+    "code": "AS",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 8,
+  "fields": {
+    "name": "Ангилья",
+    "fullname": null,
+    "code": "AI",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 9,
+  "fields": {
+    "name": "Ангола",
+    "fullname": "Республика Ангола",
+    "code": "AO",
+    "location": 20
+  }
+},
+{
+  "model": "country.country",
+  "pk": 10,
+  "fields": {
+    "name": "Андорра",
+    "fullname": "Княжество Андорра",
+    "code": "AD",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 11,
+  "fields": {
+    "name": "Антарктида",
+    "fullname": null,
+    "code": "AQ",
+    "location": null
+  }
+},
+{
+  "model": "country.country",
+  "pk": 12,
+  "fields": {
+    "name": "Антигуа и Барбуда",
+    "fullname": null,
+    "code": "AG",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 13,
+  "fields": {
+    "name": "Аргентина",
+    "fullname": "Аргентинская Республика",
+    "code": "AR",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 14,
+  "fields": {
+    "name": "Армения",
+    "fullname": "Республика Армения",
+    "code": "AM",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 15,
+  "fields": {
+    "name": "Аруба",
+    "fullname": null,
+    "code": "AW",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 16,
+  "fields": {
+    "name": "Афганистан",
+    "fullname": "Переходное Исламское Государство Афганистан",
+    "code": "AF",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 17,
+  "fields": {
+    "name": "Багамы",
+    "fullname": "Содружество Багамы",
+    "code": "BS",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 18,
+  "fields": {
+    "name": "Бангладеш",
+    "fullname": "Народная Республика Бангладеш",
+    "code": "BD",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 19,
+  "fields": {
+    "name": "Барбадос",
+    "fullname": null,
+    "code": "BB",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 20,
+  "fields": {
+    "name": "Бахрейн",
+    "fullname": "Королевство Бахрейн",
+    "code": "BH",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 21,
+  "fields": {
+    "name": "Беларусь",
+    "fullname": "Республика Беларусь",
+    "code": "BY",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 22,
+  "fields": {
+    "name": "Белиз",
+    "fullname": null,
+    "code": "BZ",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 23,
+  "fields": {
+    "name": "Бельгия",
+    "fullname": "Королевство Бельгии",
+    "code": "BE",
+    "location": 8
+  }
+},
+{
+  "model": "country.country",
+  "pk": 24,
+  "fields": {
+    "name": "Бенин",
+    "fullname": "Республика Бенин",
+    "code": "BJ",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 25,
+  "fields": {
+    "name": "Бермуды",
+    "fullname": null,
+    "code": "BM",
+    "location": 16
+  }
+},
+{
+  "model": "country.country",
+  "pk": 26,
+  "fields": {
+    "name": "Болгария",
+    "fullname": "Республика Болгария",
+    "code": "BG",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 27,
+  "fields": {
+    "name": "Боливия",
+    "fullname": "Многонациональное Государство Боливия",
+    "code": "BO",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 28,
+  "fields": {
+    "name": "Бонайре, Саба и Синт-Эстатиус",
+    "fullname": null,
+    "code": "BQ",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 29,
+  "fields": {
+    "name": "Босния и Герцеговина",
+    "fullname": null,
+    "code": "BA",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 30,
+  "fields": {
+    "name": "Ботсвана",
+    "fullname": "Республика Ботсвана",
+    "code": "BW",
+    "location": 24
+  }
+},
+{
+  "model": "country.country",
+  "pk": 31,
+  "fields": {
+    "name": "Бразилия",
+    "fullname": "Федеративная Республика Бразилия",
+    "code": "BR",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 32,
+  "fields": {
+    "name": "Британская территория в Индийском океане",
+    "fullname": null,
+    "code": "IO",
+    "location": 11
+  }
+},
+{
+  "model": "country.country",
+  "pk": 33,
+  "fields": {
+    "name": "Бруней-Даруссалам",
+    "fullname": null,
+    "code": "BN",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 34,
+  "fields": {
+    "name": "Буркина-Фасо",
+    "fullname": null,
+    "code": "BF",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 35,
+  "fields": {
+    "name": "Бурунди",
+    "fullname": "Республика Бурунди",
+    "code": "BI",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 36,
+  "fields": {
+    "name": "Бутан",
+    "fullname": "Королевство Бутан",
+    "code": "BT",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 37,
+  "fields": {
+    "name": "Вануату",
+    "fullname": "Республика Вануату",
+    "code": "VU",
+    "location": 13
+  }
+},
+{
+  "model": "country.country",
+  "pk": 38,
+  "fields": {
+    "name": "Венгрия",
+    "fullname": "Венгерская Республика",
+    "code": "HU",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 39,
+  "fields": {
+    "name": "Венесуэла",
+    "fullname": "Боливарийская Республика Венесуэла",
+    "code": "VE",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 40,
+  "fields": {
+    "name": "Виргинские острова, Британские",
+    "fullname": "Британские Виргинские острова",
+    "code": "VG",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 41,
+  "fields": {
+    "name": "Виргинские острова, США",
+    "fullname": "Виргинские острова Соединенных Штатов",
+    "code": "VI",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 42,
+  "fields": {
+    "name": "Вьетнам",
+    "fullname": "Социалистическая Республика Вьетнам",
+    "code": "VN",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 43,
+  "fields": {
+    "name": "Габон",
+    "fullname": "Габонская Республика",
+    "code": "GA",
+    "location": 20
+  }
+},
+{
+  "model": "country.country",
+  "pk": 44,
+  "fields": {
+    "name": "Гаити",
+    "fullname": "Республика Гаити",
+    "code": "HT",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 45,
+  "fields": {
+    "name": "Гайана",
+    "fullname": "Республика Гайана",
+    "code": "GY",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 46,
+  "fields": {
+    "name": "Гамбия",
+    "fullname": "Республика Гамбия",
+    "code": "GM",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 47,
+  "fields": {
+    "name": "Гана",
+    "fullname": "Республика Гана",
+    "code": "GH",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 48,
+  "fields": {
+    "name": "Гваделупа",
+    "fullname": null,
+    "code": "GP",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 49,
+  "fields": {
+    "name": "Гватемала",
+    "fullname": "Республика Гватемала",
+    "code": "GT",
+    "location": 19
+  }
+},
+{
+  "model": "country.country",
+  "pk": 50,
+  "fields": {
+    "name": "Гвинея",
+    "fullname": "Гвинейская Республика",
+    "code": "GN",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 51,
+  "fields": {
+    "name": "Гвинея-Бисау",
+    "fullname": "Республика Гвинея-Бисау",
+    "code": "GW",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 52,
+  "fields": {
+    "name": "Германия",
+    "fullname": "Федеративная Республика Германия",
+    "code": "DE",
+    "location": 8
+  }
+},
+{
+  "model": "country.country",
+  "pk": 53,
+  "fields": {
+    "name": "Гернси",
+    "fullname": null,
+    "code": "GG",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 54,
+  "fields": {
+    "name": "Гибралтар",
+    "fullname": null,
+    "code": "GI",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 55,
+  "fields": {
+    "name": "Гондурас",
+    "fullname": "Республика Гондурас",
+    "code": "HN",
+    "location": 19
+  }
+},
+{
+  "model": "country.country",
+  "pk": 56,
+  "fields": {
+    "name": "Гонконг",
+    "fullname": "Специальный административный регион Китая Гонконг",
+    "code": "HK",
+    "location": 2
+  }
+},
+{
+  "model": "country.country",
+  "pk": 57,
+  "fields": {
+    "name": "Гренада",
+    "fullname": null,
+    "code": "GD",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 58,
+  "fields": {
+    "name": "Гренландия",
+    "fullname": null,
+    "code": "GL",
+    "location": 16
+  }
+},
+{
+  "model": "country.country",
+  "pk": 59,
+  "fields": {
+    "name": "Греция",
+    "fullname": "Греческая Республика",
+    "code": "GR",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 60,
+  "fields": {
+    "name": "Грузия",
+    "fullname": null,
+    "code": "GE",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 61,
+  "fields": {
+    "name": "Гуам",
+    "fullname": null,
+    "code": "GU",
+    "location": 14
+  }
+},
+{
+  "model": "country.country",
+  "pk": 62,
+  "fields": {
+    "name": "Дания",
+    "fullname": "Королевство Дания",
+    "code": "DK",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 63,
+  "fields": {
+    "name": "Джерси",
+    "fullname": null,
+    "code": "JE",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 64,
+  "fields": {
+    "name": "Джибути",
+    "fullname": "Республика Джибути",
+    "code": "DJ",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 65,
+  "fields": {
+    "name": "Доминика",
+    "fullname": "Содружество Доминики",
+    "code": "DM",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 66,
+  "fields": {
+    "name": "Доминиканская Республика",
+    "fullname": null,
+    "code": "DO",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 67,
+  "fields": {
+    "name": "Египет",
+    "fullname": "Арабская Республика Египет",
+    "code": "EG",
+    "location": 17
+  }
+},
+{
+  "model": "country.country",
+  "pk": 68,
+  "fields": {
+    "name": "Замбия",
+    "fullname": "Республика Замбия",
+    "code": "ZM",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 69,
+  "fields": {
+    "name": "Западная Сахара",
+    "fullname": null,
+    "code": "EH",
+    "location": 17
+  }
+},
+{
+  "model": "country.country",
+  "pk": 70,
+  "fields": {
+    "name": "Зимбабве",
+    "fullname": "Республика Зимбабве",
+    "code": "ZW",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 71,
+  "fields": {
+    "name": "Израиль",
+    "fullname": "Государство Израиль",
+    "code": "IL",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 72,
+  "fields": {
+    "name": "Индия",
+    "fullname": "Республика Индия",
+    "code": "IN",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 73,
+  "fields": {
+    "name": "Индонезия",
+    "fullname": "Республика Индонезия",
+    "code": "ID",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 74,
+  "fields": {
+    "name": "Иордания",
+    "fullname": "Иорданское Хашимитское Королевство",
+    "code": "JO",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 75,
+  "fields": {
+    "name": "Ирак",
+    "fullname": "Республика Ирак",
+    "code": "IQ",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 76,
+  "fields": {
+    "name": "Иран",
+    "fullname": "Исламская Республика Иран",
+    "code": "IR",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 77,
+  "fields": {
+    "name": "Ирландия",
+    "fullname": null,
+    "code": "IE",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 78,
+  "fields": {
+    "name": "Исландия",
+    "fullname": "Республика Исландия",
+    "code": "IS",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 79,
+  "fields": {
+    "name": "Испания",
+    "fullname": "Королевство Испания",
+    "code": "ES",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 80,
+  "fields": {
+    "name": "Италия",
+    "fullname": "Итальянская Республика",
+    "code": "IT",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 81,
+  "fields": {
+    "name": "Йемен",
+    "fullname": "Йеменская Республика",
+    "code": "YE",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 82,
+  "fields": {
+    "name": "Кабо-Верде",
+    "fullname": "Республика Кабо-Верде",
+    "code": "CV",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 83,
+  "fields": {
+    "name": "Казахстан",
+    "fullname": "Республика Казахстан",
+    "code": "KZ",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 84,
+  "fields": {
+    "name": "Камбоджа",
+    "fullname": "Королевство Камбоджа",
+    "code": "KH",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 85,
+  "fields": {
+    "name": "Камерун",
+    "fullname": "Республика Камерун",
+    "code": "CM",
+    "location": 20
+  }
+},
+{
+  "model": "country.country",
+  "pk": 86,
+  "fields": {
+    "name": "Канада",
+    "fullname": null,
+    "code": "CA",
+    "location": 16
+  }
+},
+{
+  "model": "country.country",
+  "pk": 87,
+  "fields": {
+    "name": "Катар",
+    "fullname": "Государство Катар",
+    "code": "QA",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 88,
+  "fields": {
+    "name": "Кения",
+    "fullname": "Республика Кения",
+    "code": "KE",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 89,
+  "fields": {
+    "name": "Кипр",
+    "fullname": "Республика Кипр",
+    "code": "CY",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 90,
+  "fields": {
+    "name": "Киргизия",
+    "fullname": "Киргизская Республика",
+    "code": "KG",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 91,
+  "fields": {
+    "name": "Кирибати",
+    "fullname": "Республика Кирибати",
+    "code": "KI",
+    "location": 14
+  }
+},
+{
+  "model": "country.country",
+  "pk": 92,
+  "fields": {
+    "name": "Китай",
+    "fullname": "Китайская Народная Республика",
+    "code": "CN",
+    "location": 2
+  }
+},
+{
+  "model": "country.country",
+  "pk": 93,
+  "fields": {
+    "name": "Кокосовые (Килинг) острова",
+    "fullname": null,
+    "code": "CC",
+    "location": 11
+  }
+},
+{
+  "model": "country.country",
+  "pk": 94,
+  "fields": {
+    "name": "Колумбия",
+    "fullname": "Республика Колумбия",
+    "code": "CO",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 95,
+  "fields": {
+    "name": "Коморы",
+    "fullname": "Союз Коморы",
+    "code": "KM",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 96,
+  "fields": {
+    "name": "Конго",
+    "fullname": "Республика Конго",
+    "code": "CG",
+    "location": 20
+  }
+},
+{
+  "model": "country.country",
+  "pk": 97,
+  "fields": {
+    "name": "Конго, Демократическая Республика",
+    "fullname": "Демократическая Республика Конго",
+    "code": "CD",
+    "location": 20
+  }
+},
+{
+  "model": "country.country",
+  "pk": 98,
+  "fields": {
+    "name": "КНДР",
+    "fullname": "Корейская Народно-Демократическая Республика",
+    "code": "KP",
+    "location": 2
+  }
+},
+{
+  "model": "country.country",
+  "pk": 99,
+  "fields": {
+    "name": "Корея, Республика",
+    "fullname": "Республика Корея",
+    "code": "KR",
+    "location": 2
+  }
+},
+{
+  "model": "country.country",
+  "pk": 100,
+  "fields": {
+    "name": "Коста-Рика",
+    "fullname": "Республика Коста-Рика",
+    "code": "CR",
+    "location": 19
+  }
+},
+{
+  "model": "country.country",
+  "pk": 101,
+  "fields": {
+    "name": "Кот д'Ивуар",
+    "fullname": "Республика Кот д'Ивуар",
+    "code": "CI",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 102,
+  "fields": {
+    "name": "Куба",
+    "fullname": "Республика Куба",
+    "code": "CU",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 103,
+  "fields": {
+    "name": "Кувейт",
+    "fullname": "Государство Кувейт",
+    "code": "KW",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 104,
+  "fields": {
+    "name": "Кюрасао",
+    "fullname": null,
+    "code": "CW",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 105,
+  "fields": {
+    "name": "Лаос",
+    "fullname": "Лаосская Народно-Демократическая Республика",
+    "code": "LA",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 106,
+  "fields": {
+    "name": "Латвия",
+    "fullname": "Латвийская Республика",
+    "code": "LV",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 107,
+  "fields": {
+    "name": "Лесото",
+    "fullname": "Королевство Лесото",
+    "code": "LS",
+    "location": 24
+  }
+},
+{
+  "model": "country.country",
+  "pk": 108,
+  "fields": {
+    "name": "Либерия",
+    "fullname": "Республика Либерия",
+    "code": "LR",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 109,
+  "fields": {
+    "name": "Ливан",
+    "fullname": "Ливанская Республика",
+    "code": "LB",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 110,
+  "fields": {
+    "name": "Ливийская Арабская Джамахирия",
+    "fullname": "Социалистическая Народная Ливийская Арабская Джамахирия",
+    "code": "LY",
+    "location": 17
+  }
+},
+{
+  "model": "country.country",
+  "pk": 111,
+  "fields": {
+    "name": "Литва",
+    "fullname": "Литовская Республика",
+    "code": "LT",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 112,
+  "fields": {
+    "name": "Лихтенштейн",
+    "fullname": "Княжество Лихтенштейн",
+    "code": "LI",
+    "location": 8
+  }
+},
+{
+  "model": "country.country",
+  "pk": 113,
+  "fields": {
+    "name": "Люксембург",
+    "fullname": "Великое Герцогство Люксембург",
+    "code": "LU",
+    "location": 8
+  }
+},
+{
+  "model": "country.country",
+  "pk": 114,
+  "fields": {
+    "name": "Маврикий",
+    "fullname": "Республика Маврикий",
+    "code": "MU",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 115,
+  "fields": {
+    "name": "Мавритания",
+    "fullname": "Исламская Республика Мавритания",
+    "code": "MR",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 116,
+  "fields": {
+    "name": "Мадагаскар",
+    "fullname": "Республика Мадагаскар",
+    "code": "MG",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 117,
+  "fields": {
+    "name": "Майотта",
+    "fullname": null,
+    "code": "YT",
+    "location": 24
+  }
+},
+{
+  "model": "country.country",
+  "pk": 118,
+  "fields": {
+    "name": "Макао",
+    "fullname": "Специальный административный регион Китая Макао",
+    "code": "MO",
+    "location": 2
+  }
+},
+{
+  "model": "country.country",
+  "pk": 119,
+  "fields": {
+    "name": "Малави",
+    "fullname": "Республика Малави",
+    "code": "MW",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 120,
+  "fields": {
+    "name": "Малайзия",
+    "fullname": null,
+    "code": "MY",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 121,
+  "fields": {
+    "name": "Мали",
+    "fullname": "Республика Мали",
+    "code": "ML",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 122,
+  "fields": {
+    "name": "Малые Тихоокеанские отдаленные острова Соединенных Штатов",
+    "fullname": null,
+    "code": "UM",
+    "location": 11
+  }
+},
+{
+  "model": "country.country",
+  "pk": 123,
+  "fields": {
+    "name": "Мальдивы",
+    "fullname": "Мальдивская Республика",
+    "code": "MV",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 124,
+  "fields": {
+    "name": "Мальта",
+    "fullname": "Республика Мальта",
+    "code": "MT",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 125,
+  "fields": {
+    "name": "Марокко",
+    "fullname": "Королевство Марокко",
+    "code": "MA",
+    "location": 17
+  }
+},
+{
+  "model": "country.country",
+  "pk": 126,
+  "fields": {
+    "name": "Мартиника",
+    "fullname": null,
+    "code": "MQ",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 127,
+  "fields": {
+    "name": "Маршалловы острова",
+    "fullname": "Республика Маршалловы острова",
+    "code": "MH",
+    "location": 14
+  }
+},
+{
+  "model": "country.country",
+  "pk": 128,
+  "fields": {
+    "name": "Мексика",
+    "fullname": "Мексиканские Соединенные Штаты",
+    "code": "MX",
+    "location": 19
+  }
+},
+{
+  "model": "country.country",
+  "pk": 129,
+  "fields": {
+    "name": "Микронезия, Федеративные Штаты",
+    "fullname": "Федеративные штаты Микронезии",
+    "code": "FM",
+    "location": 14
+  }
+},
+{
+  "model": "country.country",
+  "pk": 130,
+  "fields": {
+    "name": "Мозамбик",
+    "fullname": "Республика Мозамбик",
+    "code": "MZ",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 131,
+  "fields": {
+    "name": "Молдова",
+    "fullname": "Республика Молдова",
+    "code": "MD",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 132,
+  "fields": {
+    "name": "Монако",
+    "fullname": "Княжество Монако",
+    "code": "MC",
+    "location": 8
+  }
+},
+{
+  "model": "country.country",
+  "pk": 133,
+  "fields": {
+    "name": "Монголия",
+    "fullname": null,
+    "code": "MN",
+    "location": 2
+  }
+},
+{
+  "model": "country.country",
+  "pk": 134,
+  "fields": {
+    "name": "Монтсеррат",
+    "fullname": null,
+    "code": "MS",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 135,
+  "fields": {
+    "name": "Мьянма",
+    "fullname": "Союз Мьянма",
+    "code": "MM",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 136,
+  "fields": {
+    "name": "Намибия",
+    "fullname": "Республика Намибия",
+    "code": "NA",
+    "location": 24
+  }
+},
+{
+  "model": "country.country",
+  "pk": 137,
+  "fields": {
+    "name": "Науру",
+    "fullname": "Республика Науру",
+    "code": "NR",
+    "location": 14
+  }
+},
+{
+  "model": "country.country",
+  "pk": 138,
+  "fields": {
+    "name": "Непал",
+    "fullname": "Королевство Непал",
+    "code": "NP",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 139,
+  "fields": {
+    "name": "Нигер",
+    "fullname": "Республика Нигер",
+    "code": "NE",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 140,
+  "fields": {
+    "name": "Нигерия",
+    "fullname": "Федеративная Республика Нигерия",
+    "code": "NG",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 141,
+  "fields": {
+    "name": "Нидерланды",
+    "fullname": "Королевство Нидерландов",
+    "code": "NL",
+    "location": 8
+  }
+},
+{
+  "model": "country.country",
+  "pk": 142,
+  "fields": {
+    "name": "Никарагуа",
+    "fullname": "Республика Никарагуа",
+    "code": "NI",
+    "location": 19
+  }
+},
+{
+  "model": "country.country",
+  "pk": 143,
+  "fields": {
+    "name": "Ниуэ",
+    "fullname": "Республика Ниуэ",
+    "code": "NU",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 144,
+  "fields": {
+    "name": "Новая Зеландия",
+    "fullname": null,
+    "code": "NZ",
+    "location": 1
+  }
+},
+{
+  "model": "country.country",
+  "pk": 145,
+  "fields": {
+    "name": "Новая Каледония",
+    "fullname": null,
+    "code": "NC",
+    "location": 13
+  }
+},
+{
+  "model": "country.country",
+  "pk": 146,
+  "fields": {
+    "name": "Норвегия",
+    "fullname": "Королевство Норвегия",
+    "code": "NO",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 147,
+  "fields": {
+    "name": "ОАЭ",
+    "fullname": "Объединенные Арабские Эмираты",
+    "code": "AE",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 148,
+  "fields": {
+    "name": "Оман",
+    "fullname": "Султанат Оман",
+    "code": "OM",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 149,
+  "fields": {
+    "name": "Остров Буве",
+    "fullname": null,
+    "code": "BV",
+    "location": 26
+  }
+},
+{
+  "model": "country.country",
+  "pk": 150,
+  "fields": {
+    "name": "Остров Мэн",
+    "fullname": null,
+    "code": "IM",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 151,
+  "fields": {
+    "name": "Остров Норфолк",
+    "fullname": null,
+    "code": "NF",
+    "location": 1
+  }
+},
+{
+  "model": "country.country",
+  "pk": 152,
+  "fields": {
+    "name": "Остров Рождества",
+    "fullname": null,
+    "code": "CX",
+    "location": 10
+  }
+},
+{
+  "model": "country.country",
+  "pk": 153,
+  "fields": {
+    "name": "Остров Херд и острова Макдональд",
+    "fullname": null,
+    "code": "HM",
+    "location": 9
+  }
+},
+{
+  "model": "country.country",
+  "pk": 154,
+  "fields": {
+    "name": "Острова Кайман",
+    "fullname": null,
+    "code": "KY",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 155,
+  "fields": {
+    "name": "Острова Кука",
+    "fullname": null,
+    "code": "CK",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 156,
+  "fields": {
+    "name": "Острова Теркс и Кайкос",
+    "fullname": null,
+    "code": "TC",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 157,
+  "fields": {
+    "name": "Пакистан",
+    "fullname": "Исламская Республика Пакистан",
+    "code": "PK",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 158,
+  "fields": {
+    "name": "Палау",
+    "fullname": "Республика Палау",
+    "code": "PW",
+    "location": 14
+  }
+},
+{
+  "model": "country.country",
+  "pk": 159,
+  "fields": {
+    "name": "Палестинская территория, оккупированная",
+    "fullname": "Оккупированная Палестинская территория",
+    "code": "PS",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 160,
+  "fields": {
+    "name": "Панама",
+    "fullname": "Республика Панама",
+    "code": "PA",
+    "location": 19
+  }
+},
+{
+  "model": "country.country",
+  "pk": 161,
+  "fields": {
+    "name": "Ватикан",
+    "fullname": null,
+    "code": "VA",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 162,
+  "fields": {
+    "name": "Папуа-Новая Гвинея",
+    "fullname": null,
+    "code": "PG",
+    "location": 13
+  }
+},
+{
+  "model": "country.country",
+  "pk": 163,
+  "fields": {
+    "name": "Парагвай",
+    "fullname": "Республика Парагвай",
+    "code": "PY",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 164,
+  "fields": {
+    "name": "Перу",
+    "fullname": "Республика Перу",
+    "code": "PE",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 165,
+  "fields": {
+    "name": "Питкерн",
+    "fullname": null,
+    "code": "PN",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 166,
+  "fields": {
+    "name": "Польша",
+    "fullname": "Республика Польша",
+    "code": "PL",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 167,
+  "fields": {
+    "name": "Португалия",
+    "fullname": "Португальская Республика",
+    "code": "PT",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 168,
+  "fields": {
+    "name": "Пуэрто-Рико",
+    "fullname": null,
+    "code": "PR",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 169,
+  "fields": {
+    "name": "Республика Македония",
+    "fullname": null,
+    "code": "MK",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 170,
+  "fields": {
+    "name": "Реюньон",
+    "fullname": null,
+    "code": "RE",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 171,
+  "fields": {
+    "name": "Россия",
+    "fullname": "Российская Федерация",
+    "code": "RU",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 172,
+  "fields": {
+    "name": "Руанда",
+    "fullname": "Руандийская Республика",
+    "code": "RW",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 173,
+  "fields": {
+    "name": "Румыния",
+    "fullname": null,
+    "code": "RO",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 174,
+  "fields": {
+    "name": "Самоа",
+    "fullname": "Независимое Государство Самоа",
+    "code": "WS",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 175,
+  "fields": {
+    "name": "Сан-Марино",
+    "fullname": "Республика Сан-Марино",
+    "code": "SM",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 176,
+  "fields": {
+    "name": "Сан-Томе и Принсипи",
+    "fullname": "Демократическая Республика Сан-Томе и Принсипи",
+    "code": "ST",
+    "location": 20
+  }
+},
+{
+  "model": "country.country",
+  "pk": 177,
+  "fields": {
+    "name": "Саудовская Аравия",
+    "fullname": "Королевство Саудовская Аравия",
+    "code": "SA",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 178,
+  "fields": {
+    "name": "Святая Елена, Остров вознесения, Тристан-да-Кунья",
+    "fullname": null,
+    "code": "SH",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 179,
+  "fields": {
+    "name": "Северные Марианские острова",
+    "fullname": "Содружество Северных Марианских островов",
+    "code": "MP",
+    "location": 14
+  }
+},
+{
+  "model": "country.country",
+  "pk": 180,
+  "fields": {
+    "name": "Сен-Бартельми",
+    "fullname": null,
+    "code": "BL",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 181,
+  "fields": {
+    "name": "Сен-Мартен",
+    "fullname": null,
+    "code": "MF",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 182,
+  "fields": {
+    "name": "Сенегал",
+    "fullname": "Республика Сенегал",
+    "code": "SN",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 183,
+  "fields": {
+    "name": "Сент-Винсент и Гренадины",
+    "fullname": null,
+    "code": "VC",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 184,
+  "fields": {
+    "name": "Сент-Китс и Невис",
+    "fullname": null,
+    "code": "KN",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 185,
+  "fields": {
+    "name": "Сент-Люсия",
+    "fullname": null,
+    "code": "LC",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 186,
+  "fields": {
+    "name": "Сент-Пьер и Микелон",
+    "fullname": null,
+    "code": "PM",
+    "location": 16
+  }
+},
+{
+  "model": "country.country",
+  "pk": 187,
+  "fields": {
+    "name": "Сербия",
+    "fullname": "Республика Сербия",
+    "code": "RS",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 188,
+  "fields": {
+    "name": "Сейшелы",
+    "fullname": "Республика Сейшелы",
+    "code": "SC",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 189,
+  "fields": {
+    "name": "Сингапур",
+    "fullname": "Республика Сингапур",
+    "code": "SG",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 190,
+  "fields": {
+    "name": "Синт-Мартен",
+    "fullname": null,
+    "code": "SX",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 191,
+  "fields": {
+    "name": "Сирия",
+    "fullname": "Сирийская Арабская Республика",
+    "code": "SY",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 192,
+  "fields": {
+    "name": "Словакия",
+    "fullname": "Словацкая Республика",
+    "code": "SK",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 193,
+  "fields": {
+    "name": "Словения",
+    "fullname": "Республика Словения",
+    "code": "SI",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 194,
+  "fields": {
+    "name": "Соединенное Королевство",
+    "fullname": "Соединенное Королевство Великобритании и Северной Ирландии",
+    "code": "GB",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 195,
+  "fields": {
+    "name": "США",
+    "fullname": "Соединенные Штаты Америки",
+    "code": "US",
+    "location": 16
+  }
+},
+{
+  "model": "country.country",
+  "pk": 196,
+  "fields": {
+    "name": "Соломоновы острова",
+    "fullname": null,
+    "code": "SB",
+    "location": 13
+  }
+},
+{
+  "model": "country.country",
+  "pk": 197,
+  "fields": {
+    "name": "Сомали",
+    "fullname": "Сомалийская Республика",
+    "code": "SO",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 198,
+  "fields": {
+    "name": "Судан",
+    "fullname": "Республика Судан",
+    "code": "SD",
+    "location": 17
+  }
+},
+{
+  "model": "country.country",
+  "pk": 199,
+  "fields": {
+    "name": "Суринам",
+    "fullname": "Республика Суринам",
+    "code": "SR",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 200,
+  "fields": {
+    "name": "Сьерра-Леоне",
+    "fullname": "Республика Сьерра-Леоне",
+    "code": "SL",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 201,
+  "fields": {
+    "name": "Таджикистан",
+    "fullname": "Республика Таджикистан",
+    "code": "TJ",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 202,
+  "fields": {
+    "name": "Таиланд",
+    "fullname": "Королевство Таиланд",
+    "code": "TH",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 203,
+  "fields": {
+    "name": "Тайвань",
+    "fullname": null,
+    "code": "TW",
+    "location": 2
+  }
+},
+{
+  "model": "country.country",
+  "pk": 204,
+  "fields": {
+    "name": "Танзания",
+    "fullname": "Объединенная Республика Танзания",
+    "code": "TZ",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 205,
+  "fields": {
+    "name": "Тимор-Лесте",
+    "fullname": "Демократическая Республика Тимор-Лесте",
+    "code": "TL",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 206,
+  "fields": {
+    "name": "Того",
+    "fullname": "Тоголезская Республика",
+    "code": "TG",
+    "location": 7
+  }
+},
+{
+  "model": "country.country",
+  "pk": 207,
+  "fields": {
+    "name": "Токелау",
+    "fullname": null,
+    "code": "TK",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 208,
+  "fields": {
+    "name": "Тонга",
+    "fullname": "Королевство Тонга",
+    "code": "TO",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 209,
+  "fields": {
+    "name": "Тринидад и Тобаго",
+    "fullname": "Республика Тринидад и Тобаго",
+    "code": "TT",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 210,
+  "fields": {
+    "name": "Тувалу",
+    "fullname": null,
+    "code": "TV",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 211,
+  "fields": {
+    "name": "Тунис",
+    "fullname": "Тунисская Республика",
+    "code": "TN",
+    "location": 17
+  }
+},
+{
+  "model": "country.country",
+  "pk": 212,
+  "fields": {
+    "name": "Туркмения",
+    "fullname": "Туркменистан",
+    "code": "TM",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 213,
+  "fields": {
+    "name": "Турция",
+    "fullname": "Турецкая Республика",
+    "code": "TR",
+    "location": 6
+  }
+},
+{
+  "model": "country.country",
+  "pk": 214,
+  "fields": {
+    "name": "Уганда",
+    "fullname": "Республика Уганда",
+    "code": "UG",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 215,
+  "fields": {
+    "name": "Узбекистан",
+    "fullname": "Республика Узбекистан",
+    "code": "UZ",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 216,
+  "fields": {
+    "name": "Украина",
+    "fullname": null,
+    "code": "UA",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 217,
+  "fields": {
+    "name": "Уоллис и Футуна",
+    "fullname": null,
+    "code": "WF",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 218,
+  "fields": {
+    "name": "Уругвай",
+    "fullname": "Восточная Республика Уругвай",
+    "code": "UY",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 219,
+  "fields": {
+    "name": "Фарерские острова",
+    "fullname": null,
+    "code": "FO",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 220,
+  "fields": {
+    "name": "Фиджи",
+    "fullname": "Республика островов Фиджи",
+    "code": "FJ",
+    "location": 13
+  }
+},
+{
+  "model": "country.country",
+  "pk": 221,
+  "fields": {
+    "name": "Филиппины",
+    "fullname": "Республика Филиппины",
+    "code": "PH",
+    "location": 21
+  }
+},
+{
+  "model": "country.country",
+  "pk": 222,
+  "fields": {
+    "name": "Финляндия",
+    "fullname": "Финляндская Республика",
+    "code": "FI",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 223,
+  "fields": {
+    "name": "Фолклендские острова (Мальвинские)",
+    "fullname": null,
+    "code": "FK",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 224,
+  "fields": {
+    "name": "Франция",
+    "fullname": "Французская Республика",
+    "code": "FR",
+    "location": 8
+  }
+},
+{
+  "model": "country.country",
+  "pk": 225,
+  "fields": {
+    "name": "Французская Гвиана",
+    "fullname": null,
+    "code": "GF",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 226,
+  "fields": {
+    "name": "Французская Полинезия",
+    "fullname": null,
+    "code": "PF",
+    "location": 15
+  }
+},
+{
+  "model": "country.country",
+  "pk": 227,
+  "fields": {
+    "name": "Французские Южные территории",
+    "fullname": null,
+    "code": "TF",
+    "location": 9
+  }
+},
+{
+  "model": "country.country",
+  "pk": 228,
+  "fields": {
+    "name": "Хорватия",
+    "fullname": "Республика Хорватия",
+    "code": "HR",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 229,
+  "fields": {
+    "name": "Центрально-Африканская Республика",
+    "fullname": null,
+    "code": "CF",
+    "location": 20
+  }
+},
+{
+  "model": "country.country",
+  "pk": 230,
+  "fields": {
+    "name": "Чад",
+    "fullname": "Республика Чад",
+    "code": "TD",
+    "location": 20
+  }
+},
+{
+  "model": "country.country",
+  "pk": 231,
+  "fields": {
+    "name": "Черногория",
+    "fullname": "Республика Черногория",
+    "code": "ME",
+    "location": 23
+  }
+},
+{
+  "model": "country.country",
+  "pk": 232,
+  "fields": {
+    "name": "Чешская Республика",
+    "fullname": null,
+    "code": "CZ",
+    "location": 4
+  }
+},
+{
+  "model": "country.country",
+  "pk": 233,
+  "fields": {
+    "name": "Чили",
+    "fullname": "Республика Чили",
+    "code": "CL",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 234,
+  "fields": {
+    "name": "Швейцария",
+    "fullname": "Швейцарская Конфедерация",
+    "code": "CH",
+    "location": 8
+  }
+},
+{
+  "model": "country.country",
+  "pk": 235,
+  "fields": {
+    "name": "Швеция",
+    "fullname": "Королевство Швеция",
+    "code": "SE",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 236,
+  "fields": {
+    "name": "Шпицберген и Ян Майен",
+    "fullname": null,
+    "code": "SJ",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 237,
+  "fields": {
+    "name": "Шри-Ланка",
+    "fullname": "Демократическая Социалистическая Республика Шри-Ланка",
+    "code": "LK",
+    "location": 25
+  }
+},
+{
+  "model": "country.country",
+  "pk": 238,
+  "fields": {
+    "name": "Эквадор",
+    "fullname": "Республика Эквадор",
+    "code": "EC",
+    "location": 22
+  }
+},
+{
+  "model": "country.country",
+  "pk": 239,
+  "fields": {
+    "name": "Экваториальная Гвинея",
+    "fullname": "Республика Экваториальная Гвинея",
+    "code": "GQ",
+    "location": 20
+  }
+},
+{
+  "model": "country.country",
+  "pk": 240,
+  "fields": {
+    "name": "Эландские острова",
+    "fullname": null,
+    "code": "AX",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 241,
+  "fields": {
+    "name": "Эль-Сальвадор",
+    "fullname": "Республика Эль-Сальвадор",
+    "code": "SV",
+    "location": 19
+  }
+},
+{
+  "model": "country.country",
+  "pk": 242,
+  "fields": {
+    "name": "Эритрея",
+    "fullname": null,
+    "code": "ER",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 243,
+  "fields": {
+    "name": "Эсватини",
+    "fullname": "Королевство Эсватини",
+    "code": "SZ",
+    "location": 24
+  }
+},
+{
+  "model": "country.country",
+  "pk": 244,
+  "fields": {
+    "name": "Эстония",
+    "fullname": "Эстонская Республика",
+    "code": "EE",
+    "location": 18
+  }
+},
+{
+  "model": "country.country",
+  "pk": 245,
+  "fields": {
+    "name": "Эфиопия",
+    "fullname": "Федеративная Демократическая Республика Эфиопия",
+    "code": "ET",
+    "location": 3
+  }
+},
+{
+  "model": "country.country",
+  "pk": 246,
+  "fields": {
+    "name": "Южная Африка",
+    "fullname": "Южно-Африканская Республика",
+    "code": "ZA",
+    "location": 24
+  }
+},
+{
+  "model": "country.country",
+  "pk": 247,
+  "fields": {
+    "name": "Южная Джорджия и Южные Сандвичевы острова",
+    "fullname": null,
+    "code": "GS",
+    "location": 26
+  }
+},
+{
+  "model": "country.country",
+  "pk": 248,
+  "fields": {
+    "name": "Южная Осетия",
+    "fullname": "Республика Южная Осетия",
+    "code": "OS",
+    "location": 5
+  }
+},
+{
+  "model": "country.country",
+  "pk": 249,
+  "fields": {
+    "name": "Южный Судан",
+    "fullname": null,
+    "code": "SS",
+    "location": 17
+  }
+},
+{
+  "model": "country.country",
+  "pk": 250,
+  "fields": {
+    "name": "Ямайка",
+    "fullname": null,
+    "code": "JM",
+    "location": 12
+  }
+},
+{
+  "model": "country.country",
+  "pk": 251,
+  "fields": {
+    "name": "Япония",
+    "fullname": null,
+    "code": "JP",
+    "location": 2
+  }
 }
 ]

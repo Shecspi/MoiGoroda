@@ -3,7 +3,7 @@ const fillColorNotVisitedCountry = '#9a9a9a';
 const fillOpacity = 0.6;
 const strokeColor = '#FFF';
 const strokeOpacity = 0.5;
-let allCountriesGoeObjects = new Map();
+let allCountriesGeoObjects = new Map();
 let myMap;
 
 let allCountryState;
@@ -116,7 +116,7 @@ function init() {
 
                 const isVisited = visitedCountryState.has(countryCode);
                 let geoObject = addCountryOnMap(geojson.features[i], countryCode, countryName, isVisited);
-                allCountriesGoeObjects.set(countryCode, geoObject);
+                allCountriesGeoObjects.set(countryCode, geoObject);
             }
 
             console.log('Страны, которых нет в Яндексе:', reserveAllCountryState);
@@ -163,13 +163,13 @@ function add_country(countryCode) {
             return response.json()
         })
         .then((data) => {
-            const country = allCountriesGoeObjects.get(countryCode);
+            const country = allCountriesGeoObjects.get(countryCode);
 
-            allCountriesGoeObjects.delete(countryCode);
+            allCountriesGeoObjects.delete(countryCode);
             myMap.geoObjects.remove(country);
 
             let geoObject = addCountryOnMap(country, countryCode, 'countryName', true);
-            allCountriesGoeObjects.set(countryCode, geoObject);
+            allCountriesGeoObjects.set(countryCode, geoObject);
             visitedCountryState.add(countryCode);
             updateQtyVisitedCountiesPlaceholder();
 

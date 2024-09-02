@@ -32,6 +32,11 @@ class ValidatedData(TypedDict):
 class CountrySerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Country"""
 
+    to_delete = serializers.SerializerMethodField(read_only=True)
+
+    def get_to_delete(self, country: Country) -> str:
+        return reverse('api__delete_visited_countries', kwargs={'code': country.code})
+
     class Meta:
         model = Country
         fields = '__all__'
@@ -42,15 +47,11 @@ class VisitedCountrySerializer(serializers.ModelSerializer):
 
     code = serializers.CharField(source='country.code', max_length=2, min_length=2)
     name = serializers.CharField(source='country.name', read_only=True)
-    to_delete = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = VisitedCountry
-        fields = ['code', 'name', 'to_delete']
+        fields = ['code', 'name']
         extra_kwargs = {'country': {'read_only': True}}
-
-    def get_to_delete(self, obj: VisitedCountry) -> str:
-        return reverse('api__delete_visited_countries', kwargs={'code': obj.country.code})
 
     def create(self, validated_data: ValidatedData) -> VisitedCountry:
         # Проверка наличия страны в базе данных уже была сделана в validate_code, поэтому здесь она не требуется

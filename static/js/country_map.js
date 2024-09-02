@@ -89,9 +89,14 @@ function init() {
     const visitedCountryPromise = getVisitedCountries();
 
     Promise.all([allCountryPromise, visitedCountryPromise]).then(([allCountries, visitedCountries]) => {
+        console.log('allCountries: ', allCountries);
         ymaps.borders.load('001', {lang: 'ru', quality: 1}).then(function (geojson) {
-            allCountryState = new Map(allCountries.map(country => { return [country.code, country.name]}));
-            visitedCountryState = new Set(visitedCountries.map(country => { return country.code }));
+            allCountryState = new Map(allCountries.map(country => {
+                return [country.code, {name: country.name, 'to_delete': country.to_delete}]
+            }));
+            visitedCountryState = new Set(visitedCountries.map(country => {
+                return country.code
+            }));
 
             console.log('allCountryState: ', allCountryState);
             console.log('visitedCountryState: ', visitedCountryState);
@@ -146,6 +151,7 @@ function addCountryOnMap(geojson, countryCode, countryName, isVisited) {
 
 function add_country(countryCode) {
     const url = document.getElementById('url_add_visited_countries').dataset.url;
+    const countryName = allCountryState.get(countryCode).name;
     const formData = new FormData();
     formData.set('code', countryCode);
 
@@ -168,7 +174,7 @@ function add_country(countryCode) {
             allCountriesGeoObjects.delete(countryCode);
             myMap.geoObjects.remove(country);
 
-            let geoObject = addCountryOnMap(country, countryCode, 'countryName', true);
+            let geoObject = addCountryOnMap(country, countryCode, countryName, true);
             allCountriesGeoObjects.set(countryCode, geoObject);
             visitedCountryState.add(countryCode);
             updateQtyVisitedCountiesPlaceholder();
@@ -178,5 +184,31 @@ function add_country(countryCode) {
 }
 
 function delete_country(countryCode) {
+    const url = allCountryState.get(countryCode).to_delete;
+    const countryName = allCountryState.get(countryCode).name;
 
+    let response = fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie("csrftoken")
+        }
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+
+            const country = allCountriesGeoObjects.get(countryCode);
+
+            allCountriesGeoObjects.delete(countryCode);
+            visitedCountryState.delete(countryCode);
+            myMap.geoObjects.remove(country);
+
+            let geoObject = addCountryOnMap(country, countryCode, countryName, false);
+            allCountriesGeoObjects.set(countryCode, geoObject);
+
+            updateQtyVisitedCountiesPlaceholder();
+
+            showSuccessToast('Успешно', `Страна <strong>${country.properties._data.name}</strong> успешно удалена из списка посещённых Вами`);
+        });
 }

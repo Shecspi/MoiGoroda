@@ -10,15 +10,37 @@ from services import logger
 
 class GetAllCountry(generics.ListAPIView):
     queryset = Country.objects.all()
-    serializer_class = CountrySerializer
     http_method_names = ['get']
     permission_classes = [IsAuthenticated]
+    serializer_class = CountrySerializer
+
+    def get(self, *args, **kwargs):
+        from_page = (
+            self.request.GET.get('from') if self.request.GET.get('from') else 'unknown location'
+        )
+
+        logger.info(
+            self.request,
+            f'(API: Country): Successful request for a list of all countries from {from_page}',
+        )
+        return super().get(self, *args, **kwargs)
 
 
 class GetVisitedCountry(generics.ListAPIView):
     http_method_names = ['get']
     permission_classes = [IsAuthenticated]
     serializer_class = VisitedCountrySerializer
+
+    def get(self, *args, **kwargs):
+        from_page = (
+            self.request.GET.get('from') if self.request.GET.get('from') else 'unknown location'
+        )
+
+        logger.info(
+            self.request,
+            f'(API: Country): Successful request for a list of visited countries from {from_page}',
+        )
+        return super().get(self, *args, **kwargs)
 
     def get_queryset(self):
         return VisitedCountry.objects.filter(user=self.request.user)
@@ -41,6 +63,12 @@ class AddVisitedCountry(generics.CreateAPIView):
             raise drf_exc.ValidationError(serializer.errors)
 
         serializer.save(user=request.user)
+
+        logger.info(
+            self.request,
+            f'(API: Country): The visited country has been successfully added from {from_page}',
+        )
+
         return Response({'status': 'success', 'country': serializer.data})
 
 
@@ -50,10 +78,16 @@ class DeleteVisitedCountry(generics.DestroyAPIView):
     serializer_class = VisitedCountrySerializer
 
     def delete(self, request, *args, **kwargs):
+        from_page = request.data.get('from') if request.data.get('from') else 'unknown location'
         code = kwargs.get('code').upper()
+
         try:
             country = Country.objects.get(code=code)
         except Country.DoesNotExist:
+            logger.warning(
+                self.request,
+                f"(API: Country): Country with code '{code}' not found from {from_page}",
+            )
             raise drf_exc.NotFound(f"Country with code '{code}' not found")
 
         # В таблице VisitedCountry не должно быть больше одного элемента
@@ -62,5 +96,10 @@ class DeleteVisitedCountry(generics.DestroyAPIView):
 
         # delete() к несуществующей записи не создаёт исключений, поэтому обработка исключений не требуется
         visited_country.delete()
+
+        logger.info(
+            self.request,
+            f'(API: Country): The visited country has been successfully deleted from {from_page}',
+        )
 
         return Response(status=204)

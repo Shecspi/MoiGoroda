@@ -12,7 +12,7 @@ let visitedCountryState;
 ymaps.ready(init);
 
 function getCountries(url) {
-    return fetch(url)
+    return fetch(url + '?' + new URLSearchParams({'from': 'country map'}))
         .then((response) => {
             if (!response.ok) {
                 throw new Error(response.statusText)
@@ -186,12 +186,15 @@ function add_country(countryCode) {
 function delete_country(countryCode) {
     const url = allCountryState.get(countryCode).to_delete;
     const countryName = allCountryState.get(countryCode).name;
+    const formData = new FormData();
+    formData.set('from', 'country map');
 
     let response = fetch(url, {
         method: 'DELETE',
         headers: {
             'X-CSRFToken': getCookie("csrftoken")
-        }
+        },
+        body: formData
     })
         .then((response) => {
             if (!response.ok) {

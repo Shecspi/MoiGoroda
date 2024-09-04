@@ -17586,16 +17586,6 @@
 },
 {
   "model": "country.country",
-  "pk": 11,
-  "fields": {
-    "name": "Антарктида",
-    "fullname": null,
-    "code": "AQ",
-    "location": null
-  }
-},
-{
-  "model": "country.country",
   "pk": 12,
   "fields": {
     "name": "Антигуа и Барбуда",
@@ -17622,16 +17612,6 @@
     "fullname": "Республика Армения",
     "code": "AM",
     "location": 6
-  }
-},
-{
-  "model": "country.country",
-  "pk": 15,
-  "fields": {
-    "name": "Аруба",
-    "fullname": null,
-    "code": "AW",
-    "location": 12
   }
 },
 {
@@ -18406,16 +18386,6 @@
 },
 {
   "model": "country.country",
-  "pk": 93,
-  "fields": {
-    "name": "Кокосовые (Килинг) острова",
-    "fullname": null,
-    "code": "CC",
-    "location": 11
-  }
-},
-{
-  "model": "country.country",
   "pk": 94,
   "fields": {
     "name": "Колумбия",
@@ -18512,16 +18482,6 @@
     "fullname": "Государство Кувейт",
     "code": "KW",
     "location": 6
-  }
-},
-{
-  "model": "country.country",
-  "pk": 104,
-  "fields": {
-    "name": "Кюрасао",
-    "fullname": null,
-    "code": "CW",
-    "location": 12
   }
 },
 {
@@ -18656,16 +18616,6 @@
 },
 {
   "model": "country.country",
-  "pk": 118,
-  "fields": {
-    "name": "Макао",
-    "fullname": "Специальный административный регион Китая Макао",
-    "code": "MO",
-    "location": 2
-  }
-},
-{
-  "model": "country.country",
   "pk": 119,
   "fields": {
     "name": "Малави",
@@ -18742,16 +18692,6 @@
     "fullname": null,
     "code": "MQ",
     "location": 12
-  }
-},
-{
-  "model": "country.country",
-  "pk": 127,
-  "fields": {
-    "name": "Маршалловы острова",
-    "fullname": "Республика Маршалловы острова",
-    "code": "MH",
-    "location": 14
   }
 },
 {
@@ -18906,16 +18846,6 @@
 },
 {
   "model": "country.country",
-  "pk": 143,
-  "fields": {
-    "name": "Ниуэ",
-    "fullname": "Республика Ниуэ",
-    "code": "NU",
-    "location": 15
-  }
-},
-{
-  "model": "country.country",
   "pk": 144,
   "fields": {
     "name": "Новая Зеландия",
@@ -18966,16 +18896,6 @@
 },
 {
   "model": "country.country",
-  "pk": 149,
-  "fields": {
-    "name": "Остров Буве",
-    "fullname": null,
-    "code": "BV",
-    "location": 26
-  }
-},
-{
-  "model": "country.country",
   "pk": 150,
   "fields": {
     "name": "Остров Мэн",
@@ -18986,52 +18906,12 @@
 },
 {
   "model": "country.country",
-  "pk": 151,
-  "fields": {
-    "name": "Остров Норфолк",
-    "fullname": null,
-    "code": "NF",
-    "location": 1
-  }
-},
-{
-  "model": "country.country",
-  "pk": 152,
-  "fields": {
-    "name": "Остров Рождества",
-    "fullname": null,
-    "code": "CX",
-    "location": 10
-  }
-},
-{
-  "model": "country.country",
-  "pk": 153,
-  "fields": {
-    "name": "Остров Херд и острова Макдональд",
-    "fullname": null,
-    "code": "HM",
-    "location": 9
-  }
-},
-{
-  "model": "country.country",
   "pk": 154,
   "fields": {
     "name": "Острова Кайман",
     "fullname": null,
     "code": "KY",
     "location": 12
-  }
-},
-{
-  "model": "country.country",
-  "pk": 155,
-  "fields": {
-    "name": "Острова Кука",
-    "fullname": null,
-    "code": "CK",
-    "location": 15
   }
 },
 {
@@ -19082,16 +18962,6 @@
     "fullname": "Республика Панама",
     "code": "PA",
     "location": 19
-  }
-},
-{
-  "model": "country.country",
-  "pk": 161,
-  "fields": {
-    "name": "Ватикан",
-    "fullname": null,
-    "code": "VA",
-    "location": 23
   }
 },
 {
@@ -19286,16 +19156,6 @@
 },
 {
   "model": "country.country",
-  "pk": 181,
-  "fields": {
-    "name": "Сен-Мартен",
-    "fullname": null,
-    "code": "MF",
-    "location": 12
-  }
-},
-{
-  "model": "country.country",
   "pk": 182,
   "fields": {
     "name": "Сенегал",
@@ -19372,16 +19232,6 @@
     "fullname": "Республика Сингапур",
     "code": "SG",
     "location": 21
-  }
-},
-{
-  "model": "country.country",
-  "pk": 190,
-  "fields": {
-    "name": "Синт-Мартен",
-    "fullname": null,
-    "code": "SX",
-    "location": 12
   }
 },
 {
@@ -19502,16 +19352,6 @@
     "fullname": "Королевство Таиланд",
     "code": "TH",
     "location": 21
-  }
-},
-{
-  "model": "country.country",
-  "pk": 203,
-  "fields": {
-    "name": "Тайвань",
-    "fullname": null,
-    "code": "TW",
-    "location": 2
   }
 },
 {
@@ -19836,16 +19676,6 @@
 },
 {
   "model": "country.country",
-  "pk": 236,
-  "fields": {
-    "name": "Шпицберген и Ян Майен",
-    "fullname": null,
-    "code": "SJ",
-    "location": 18
-  }
-},
-{
-  "model": "country.country",
   "pk": 237,
   "fields": {
     "name": "Шри-Ланка",
@@ -19872,16 +19702,6 @@
     "fullname": "Республика Экваториальная Гвинея",
     "code": "GQ",
     "location": 20
-  }
-},
-{
-  "model": "country.country",
-  "pk": 240,
-  "fields": {
-    "name": "Эландские острова",
-    "fullname": null,
-    "code": "AX",
-    "location": 18
   }
 },
 {
@@ -19942,16 +19762,6 @@
     "fullname": "Южно-Африканская Республика",
     "code": "ZA",
     "location": 24
-  }
-},
-{
-  "model": "country.country",
-  "pk": 247,
-  "fields": {
-    "name": "Южная Джорджия и Южные Сандвичевы острова",
-    "fullname": null,
-    "code": "GS",
-    "location": 26
   }
 },
 {

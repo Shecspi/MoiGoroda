@@ -103,3 +103,15 @@ class DeleteVisitedCountry(generics.DestroyAPIView):
         )
 
         return Response(status=204)
+
+
+class RecieveUnknownCountries(generics.GenericAPIView):
+    def post(self, *args, **kwargs):
+        logger.warning(
+            self.request,
+            f'(API Country) Difference between lists of countries in Yandex and local DB. Unknown countries from '
+            f'Yandex: {self.request.POST.get('unknown_from_yandex')}. Unknown countries from local DB: '
+            f'{self.request.POST.get('unknown_to_yandex')}.',
+        )
+
+        return Response(status=200)

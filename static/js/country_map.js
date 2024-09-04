@@ -89,8 +89,8 @@ function init() {
     const visitedCountryPromise = getVisitedCountries();
 
     Promise.all([allCountryPromise, visitedCountryPromise]).then(([allCountries, visitedCountries]) => {
-        console.log('allCountries: ', allCountries);
         ymaps.borders.load('001', {lang: 'ru', quality: 1}).then(function (geojson) {
+            // Словари со странами и посещёнными странами из БД сервиса
             allCountryState = new Map(allCountries.map(country => {
                 return [country.code, {name: country.name, 'to_delete': country.to_delete}]
             }));
@@ -98,8 +98,13 @@ function init() {
                 return country.code
             }));
 
-            console.log('allCountryState: ', allCountryState);
-            console.log('visitedCountryState: ', visitedCountryState);
+            // Словарь стран, которые есть в Яндексе
+            let yandexCountries = new Map();
+            geojson.features.forEach(function (country) {
+                yandexCountries.set(country.properties.iso3166, country.properties.name);
+            });
+
+            compareCountriesWithYandexAndLocalBD(yandexCountries, allCountryState);
 
             removeQtyVisitedCountiesPlaceholder(visitedCountryState.size, allCountryState.size);
 
@@ -123,10 +128,45 @@ function init() {
                 let geoObject = addCountryOnMap(geojson.features[i], countryCode, countryName, isVisited);
                 allCountriesGeoObjects.set(countryCode, geoObject);
             }
-
-            console.log('Страны, которых нет в Яндексе:', reserveAllCountryState);
         });
     });
+}
+
+function compareCountriesWithYandexAndLocalBD(yandexCountries, localCountries) {
+    /**
+     * Сравнивает словари стран из БД сервиса и стран, которые предоставляет Яндекс.
+     * Если находятся расхождения, то они отправляются на специальный эндпоинт.
+     */
+    const url = document.getElementById('url_revieve_unknown_countries').dataset.url;
+    let unknownCountiesFromYandex = new Map();
+    let localCountriesCopy = new Map(localCountries);
+    yandexCountries.forEach(function (name, code) {
+        if (!localCountries.has(code)) {
+            unknownCountiesFromYandex.set(code, name);
+        } else {
+            localCountriesCopy.delete(code);
+        }
+    });
+
+    if (unknownCountiesFromYandex.size > 0 || localCountriesCopy.size > 0) {
+        const data = new FormData();
+        data.set('unknown_from_yandex', JSON.stringify(Object.fromEntries(unknownCountiesFromYandex)));
+        data.set('unknown_to_yandex', JSON.stringify(Object.fromEntries(localCountriesCopy)));
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie("csrftoken")
+            },
+            body: data
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+                return response
+            });
+    }
 }
 
 function addCountryOnMap(geojson, countryCode, countryName, isVisited) {

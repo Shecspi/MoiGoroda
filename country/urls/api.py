@@ -20,4 +20,9 @@ urlpatterns = [
         api.DeleteVisitedCountry.as_view(),
         name='api__delete_visited_countries',
     ),
+    path(
+        'unknown_countries',
+        api.RecieveUnknownCountries.as_view(),
+        name='api__revieve_unknown_countries',
+    ),
 ]

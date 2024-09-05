@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from account.models import ShareSettings
 from city.models import City, VisitedCity
+from country.models import Country, Location, PartOfTheWorld
 from news.models import News
 from region.models import Area, Region
 from subscribe.models import Subscribe
@@ -19,6 +20,34 @@ def create_superuser(django_user_model, user_id: int):
     return django_user_model.objects.create_superuser(
         id=user_id, username=f'superuser{user_id}', password='password'
     )
+
+
+def create_part_of_the_world(num: int) -> list[PartOfTheWorld]:
+    return [PartOfTheWorld.objects.create(id=i, name=f'Часть света {i}') for i in range(1, num + 1)]
+
+
+def create_location(num: int, part_of_the_world: PartOfTheWorld) -> list[Location]:
+    return [
+        Location.objects.create(
+            id=i,
+            name=f'Локация {i}',
+            part_of_the_world=part_of_the_world,
+        )
+        for i in range(1, num + 1)
+    ]
+
+
+def create_country(num: int, location: Location) -> list[Area]:
+    return [
+        Country.objects.create(
+            id=i,
+            name=f'Страна {i}',
+            fullname=f'Полное имя страны {i}',
+            code=f'{i}',
+            location=location,
+        )
+        for i in range(1, num + 1)
+    ]
 
 
 def create_area(num: int) -> list[Area]:

@@ -11,7 +11,6 @@ from services import logger
 class GetAllCountry(generics.ListAPIView):
     queryset = Country.objects.all()
     http_method_names = ['get']
-    permission_classes = [IsAuthenticated]
     serializer_class = CountrySerializer
 
     def get(self, *args, **kwargs):

@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block base %}
+    {% include 'parts/js_isAuthenticated.html' %}
+    
     <div class="main-container d-flex">
         {% include 'parts/sidebar.html' %}
 

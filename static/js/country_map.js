@@ -4,98 +4,15 @@ const fillOpacity = 0.6;
 const strokeColor = '#FFF';
 const strokeOpacity = 0.5;
 let allCountriesGeoObjects = new Map();
-let myMap;
 
+let myMap;
 let allCountryState;
 let visitedCountryState;
 
 ymaps.ready(init);
 
-function getCountries(url) {
-    return fetch(url + '?' + new URLSearchParams({'from': 'country map'}))
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(response.statusText)
-            }
-            return response.json();
-        })
-        .then((data) => {
-            return data;
-        });
-}
-
-function getAllCountries() {
-    const url = document.getElementById('url_get_all_countries').dataset.url;
-    return getCountries(url);
-}
-
-function getVisitedCountries() {
-    const url = document.getElementById('url_get_visited_countries').dataset.url;
-    return getCountries(url);
-}
-
-function showQtyVisitedCountiesPlaceholder(qtyVisitedCities, qtyAllCities) {
-    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
-    block_qty_visited_countries.classList.remove('placeholder');
-    block_qty_visited_countries.classList.remove('bg-secondary');
-    block_qty_visited_countries.classList.remove('placeholder-lg');
-    block_qty_visited_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
-
-    const block_statistic = document.getElementById('block-statistic');
-    block_statistic.classList.remove('placeholder-glow');
-}
-
-/**
- * Функция отображает количество всех стран в блоке с id 'block-qty_visited_countries'.
- * Она используется для неавторизованных пользователей.
- * @param {number} qtyAllCountries - количество всех стран.
- */
-function showQtyAllCountries(qtyAllCountries) {
-    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
-    block_qty_visited_countries.classList.remove('placeholder');
-    block_qty_visited_countries.classList.remove('bg-secondary');
-    block_qty_visited_countries.classList.remove('placeholder-lg');
-    block_qty_visited_countries.innerHTML = `Всего <span class="fs-4 fw-medium">${qtyAllCountries}</span> ${declensionCountry(qtyAllCountries)}`;
-
-    const block_statistic = document.getElementById('block-statistic');
-    block_statistic.classList.remove('placeholder-glow');
-}
-
-function updateQtyVisitedCountiesPlaceholder() {
-    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
-    const qtyVisitedCities = visitedCountryState.size;
-    const qtyAllCities = allCountryState.size;
-    block_qty_visited_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
-}
-
-function declensionCountry(qtyOfCountries) {
-    /**
-     * Возвращает слово "страна", корректно склонённое для использования с числом qtyOfCountries.
-     */
-    if (qtyOfCountries % 10 === 1 && qtyOfCountries !== 11) {
-        return 'страна';
-    } else if ([2, 3, 4].includes(qtyOfCountries % 10)) {
-        return 'страны';
-    } else {
-        return 'стран';
-    }
-}
-
-function declensionVisited(qtyOfCountries) {
-    /**
-     * Возвращает слово "посещено", корректно склонённое для использования с числом qtyOfCountries.
-     */
-    if (qtyOfCountries % 10 === 1 && qtyOfCountries !== 11) {
-        return 'Посещена';
-    } else {
-        return 'Посещено';
-    }
-}
-
 function init() {
-    // Удаляем спиннер
-    const map_element = document.getElementById('map');
-    map_element.innerHTML = '';
+    removeSpinner();
 
     myMap = new ymaps.Map("map", {
         center: [55.76, 37.64],
@@ -124,42 +41,54 @@ function init() {
                 }));
             }
 
-            // Словарь стран, которые есть в Яндексе
+            // Достаём из geojson все страны, которые есть в Яндексе и сверяем с нашей базой.
+            // Если находятся какие-то расхождения, то отправляем их на сервер для дальнейшего исследования.
             let yandexCountries = new Map();
             geojson.features.forEach(function (country) {
                 yandexCountries.set(country.properties.iso3166, country.properties.name);
             });
-
             compareCountriesWithYandexAndLocalBD(yandexCountries, allCountryState);
 
+            // Обновляем информацию на тулбаре
             if (isAuthenticated === true) {
                 showQtyVisitedCountiesPlaceholder(visitedCountryState.size, allCountryState.size);
             } else {
                 showQtyAllCountries(allCountryState.size);
             }
 
-            let reserveAllCountryState = new Map(allCountryState);
-
             for (let i = 0; i < geojson.features.length; i++) {
-                let countryCode = geojson.features[i].properties.iso3166;
-                let countryName = geojson.features[i].properties.name;
-
-                // Если такой страны нет в нашей БД, то пропускаем её и печатаем в консоль.
-                // Если есть, то удаляем её из countries, чтобы в конце посмотреть,
-                // какие страны из нашей БД не распечатались на карте.
-                if (!allCountryState.has(countryCode)) {
-                    console.log(`Страны "${countryName}" нет в нашей БД`);
-                    continue;
-                } else {
-                    reserveAllCountryState.delete(countryCode);
-                }
-
+                const countryCode = geojson.features[i].properties.iso3166;
+                const countryName = geojson.features[i].properties.name;
                 const isVisited = isAuthenticated === true ? visitedCountryState.has(countryCode) : false;
-                let geoObject = addCountryOnMap(geojson.features[i], countryCode, countryName, isVisited);
+                const geoObject = addCountryOnMap(geojson.features[i], countryCode, countryName, isVisited);
+
                 allCountriesGeoObjects.set(countryCode, geoObject);
             }
         });
     });
+}
+
+function getCountries(url) {
+    return fetch(url + '?' + new URLSearchParams({'from': 'country map'}))
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json();
+        })
+        .then((data) => {
+            return data;
+        });
+}
+
+function getAllCountries() {
+    const url = document.getElementById('url_get_all_countries').dataset.url;
+    return getCountries(url);
+}
+
+function getVisitedCountries() {
+    const url = document.getElementById('url_get_visited_countries').dataset.url;
+    return getCountries(url);
 }
 
 function compareCountriesWithYandexAndLocalBD(yandexCountries, localCountries) {
@@ -256,7 +185,7 @@ function add_country(countryCode) {
             let geoObject = addCountryOnMap(country, countryCode, countryName, true);
             allCountriesGeoObjects.set(countryCode, geoObject);
             visitedCountryState.add(countryCode);
-            updateQtyVisitedCountiesPlaceholder();
+            updateQtyVisitedCountries();
 
             showSuccessToast('Успешно', `Страна <strong>${country.properties._data.name}</strong> успешно добавлена как посещённая Вами`);
         });
@@ -289,8 +218,78 @@ function delete_country(countryCode) {
             let geoObject = addCountryOnMap(country, countryCode, countryName, false);
             allCountriesGeoObjects.set(countryCode, geoObject);
 
-            updateQtyVisitedCountiesPlaceholder();
+            updateQtyVisitedCountries();
 
             showSuccessToast('Успешно', `Страна <strong>${country.properties._data.name}</strong> успешно удалена из списка посещённых Вами`);
         });
+}
+
+function showQtyVisitedCountiesPlaceholder(qtyVisitedCities, qtyAllCities) {
+    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
+    block_qty_visited_countries.classList.remove('placeholder');
+    block_qty_visited_countries.classList.remove('bg-secondary');
+    block_qty_visited_countries.classList.remove('placeholder-lg');
+    block_qty_visited_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+
+    const block_statistic = document.getElementById('block-statistic');
+    block_statistic.classList.remove('placeholder-glow');
+}
+
+/**
+ * Функция отображает количество всех стран в блоке с id 'block-qty_visited_countries'.
+ * Она используется для неавторизованных пользователей.
+ * @param {number} qtyAllCountries - количество всех стран.
+ */
+function showQtyAllCountries(qtyAllCountries) {
+    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
+    block_qty_visited_countries.classList.remove('placeholder');
+    block_qty_visited_countries.classList.remove('bg-secondary');
+    block_qty_visited_countries.classList.remove('placeholder-lg');
+    block_qty_visited_countries.innerHTML = `Всего <span class="fs-4 fw-medium">${qtyAllCountries}</span> ${declensionCountry(qtyAllCountries)}`;
+
+    const block_statistic = document.getElementById('block-statistic');
+    block_statistic.classList.remove('placeholder-glow');
+}
+
+
+/**
+ * Функция обновляет количество посещенных стран в тулбаре.
+ */
+function updateQtyVisitedCountries() {
+    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
+    const qtyVisitedCities = visitedCountryState.size;
+    const qtyAllCities = allCountryState.size;
+    block_qty_visited_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+}
+
+function declensionCountry(qtyOfCountries) {
+    /**
+     * Возвращает слово "страна", корректно склонённое для использования с числом qtyOfCountries.
+     */
+    if (qtyOfCountries % 10 === 1 && qtyOfCountries !== 11) {
+        return 'страна';
+    } else if ([2, 3, 4].includes(qtyOfCountries % 10)) {
+        return 'страны';
+    } else {
+        return 'стран';
+    }
+}
+
+function declensionVisited(qtyOfCountries) {
+    /**
+     * Возвращает слово "посещено", корректно склонённое для использования с числом qtyOfCountries.
+     */
+    if (qtyOfCountries % 10 === 1 && qtyOfCountries !== 11) {
+        return 'Посещена';
+    } else {
+        return 'Посещено';
+    }
+}
+
+/**
+ * Функция удаляет спиннер загрузки карты.
+ */
+function removeSpinner() {
+    const map_element = document.getElementById('map');
+    map_element.innerHTML = '';
 }

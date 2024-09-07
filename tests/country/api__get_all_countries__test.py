@@ -68,3 +68,112 @@ def access_by_PATCH_is_prohibided__test(setup_db, caplog, client):
     assert caplog.records[0].getMessage() == 'Method Not Allowed: /api/country/all'
     assert response.status_code == 405
     assert response.json() == {'detail': 'Метод "PATCH" не разрешен.'}
+
+
+def access_by_GET_without_auth_is_allowed__test(setup_db, caplog, client):
+    response = client.get(reverse('api__get_all_countries'))
+    expected_response = [
+        {
+            'id': 1,
+            'to_delete': '/api/country/delete/1',
+            'name': 'Страна 1',
+            'fullname': 'Полное имя страны 1',
+            'code': '1',
+            'location': 1,
+        },
+        {
+            'id': 2,
+            'to_delete': '/api/country/delete/2',
+            'name': 'Страна 2',
+            'fullname': 'Полное имя страны 2',
+            'code': '2',
+            'location': 1,
+        },
+        {
+            'id': 3,
+            'to_delete': '/api/country/delete/3',
+            'name': 'Страна 3',
+            'fullname': 'Полное имя страны 3',
+            'code': '3',
+            'location': 1,
+        },
+        {
+            'id': 4,
+            'to_delete': '/api/country/delete/4',
+            'name': 'Страна 4',
+            'fullname': 'Полное имя страны 4',
+            'code': '4',
+            'location': 1,
+        },
+        {
+            'id': 5,
+            'to_delete': '/api/country/delete/5',
+            'name': 'Страна 5',
+            'fullname': 'Полное имя страны 5',
+            'code': '5',
+            'location': 1,
+        },
+    ]
+
+    assert caplog.records[0].levelname == 'INFO'
+    assert (
+        caplog.records[0].getMessage()
+        == '(API: Country): Successful request for a list of all countries from unknown location   /api/country/all'
+    )
+    assert response.status_code == 200
+    assert response.json() == expected_response
+
+
+def access_by_GET_with_auth_is_allowed__test(setup_db, caplog, client):
+    client.login(username='username1', password='password')
+    response = client.get(reverse('api__get_all_countries'))
+    expected_response = [
+        {
+            'id': 1,
+            'to_delete': '/api/country/delete/1',
+            'name': 'Страна 1',
+            'fullname': 'Полное имя страны 1',
+            'code': '1',
+            'location': 1,
+        },
+        {
+            'id': 2,
+            'to_delete': '/api/country/delete/2',
+            'name': 'Страна 2',
+            'fullname': 'Полное имя страны 2',
+            'code': '2',
+            'location': 1,
+        },
+        {
+            'id': 3,
+            'to_delete': '/api/country/delete/3',
+            'name': 'Страна 3',
+            'fullname': 'Полное имя страны 3',
+            'code': '3',
+            'location': 1,
+        },
+        {
+            'id': 4,
+            'to_delete': '/api/country/delete/4',
+            'name': 'Страна 4',
+            'fullname': 'Полное имя страны 4',
+            'code': '4',
+            'location': 1,
+        },
+        {
+            'id': 5,
+            'to_delete': '/api/country/delete/5',
+            'name': 'Страна 5',
+            'fullname': 'Полное имя страны 5',
+            'code': '5',
+            'location': 1,
+        },
+    ]
+
+    assert caplog.records[0].levelname == 'INFO'
+    assert (
+        caplog.records[0].getMessage()
+        == '(API: Country): Successful request for a list of all countries from unknown location   /api/country/all'
+    )
+    assert response.status_code == 200
+    assert response.json() == expected_response

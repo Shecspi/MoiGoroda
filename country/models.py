@@ -39,7 +39,9 @@ class Country(models.Model):
         max_length=100, unique=True, blank=True, null=True, verbose_name='Полное название'
     )
     code = models.CharField(max_length=2, unique=True, blank=False, null=False, verbose_name='Код')
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, blank=True)
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Расположение'
+    )
 
     class Meta:
         verbose_name = 'Страна'

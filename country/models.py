@@ -20,7 +20,7 @@ class Location(models.Model):
         max_length=50, unique=True, blank=False, null=False, verbose_name='Название'
     )
     part_of_the_world = models.ForeignKey(
-        PartOfTheWorld, on_delete=models.CASCADE, null=True, blank=True
+        PartOfTheWorld, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Часть света'
     )
 
     class Meta:

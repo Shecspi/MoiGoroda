@@ -33,6 +33,8 @@ class CountrySerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Country"""
 
     to_delete = serializers.SerializerMethodField(read_only=True)
+    part_of_the_world = serializers.CharField(source='location.part_of_the_world', read_only=True)
+    location = serializers.CharField(source='location.name', read_only=True)
 
     def get_to_delete(self, country: Country) -> str:
         return reverse('api__delete_visited_countries', kwargs={'code': country.code})

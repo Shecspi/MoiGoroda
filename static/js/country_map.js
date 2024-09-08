@@ -3,10 +3,29 @@ const fillColorNotVisitedCountry = '#9a9a9a';
 const fillOpacity = 0.6;
 const strokeColor = '#FFF';
 const strokeOpacity = 0.5;
+
+// Карта, на которой будут отрисовываться все объекты стран
+let myMap;
+
+// Словарь, хранящий в себе все добавленные на карте объекты стран
 let allCountriesGeoObjects = new Map();
 
-let myMap;
+/**
+ * Словарь, содержащий информацию обо всех странах, которые есть в БД.
+ * Формат:
+ *      "RU": {
+ *          code: "RU",
+ *          name: "Россия",
+ *          fullname: "Российская Федерация",
+ *          location: "Восточная Европа",
+ *          part_of_the_world: "Европа",
+ *          to_delete: "/api/country/delete/RU",
+ *          is_visited: true
+ *      } ...
+ */
 let allCountryState;
+
+// Множество, содержащее информацию обо всех посещённых пользователем странах.
 let visitedCountryState;
 
 ymaps.ready(init);
@@ -37,7 +56,6 @@ function init() {
                     return country.code
                 }));
             }
-
             allCountryState = new Map(allCountries.map(country => {
                 return [country.code, {
                     code: country.code,
@@ -56,19 +74,21 @@ function init() {
             let yandexCountries = new Map();
             geojson.features.forEach(function (country) {
                 const countryCode = country.properties.iso3166;
+                yandexCountries.set(countryCode, country.properties.name);
+
+                // Если в Яндексе есть страна, которой нет в БД сервиса,
+                // то просто пропускаем такую страну и не отображаем её на карте.
+                // Дальше специальный обработчик отправит все такие страны на сервер.
+                if (!allCountryState.has(countryCode)) {
+                    return;
+                }
+
                 const geoObject = addCountryOnMap(country, allCountryState.get(countryCode));
                 allCountriesGeoObjects.set(countryCode, geoObject);
-
-                yandexCountries.set(countryCode, country.properties.name);
             });
             compareCountriesWithYandexAndLocalBD(yandexCountries, allCountryState);
 
-            // Обновляем информацию на тулбаре
-            if (isAuthenticated === true) {
-                showQtyVisitedCountiesPlaceholder(visitedCountryState.size, allCountryState.size);
-            } else {
-                showQtyAllCountries(allCountryState.size);
-            }
+            showQtyCountries(allCountryState.size, isAuthenticated ? visitedCountryState.size : null);
         });
     });
 }
@@ -102,19 +122,19 @@ function compareCountriesWithYandexAndLocalBD(yandexCountries, localCountries) {
      * Если находятся расхождения, то они отправляются на специальный эндпоинт.
      */
     const url = document.getElementById('url_revieve_unknown_countries').dataset.url;
-    let unknownCountiesFromYandex = new Map();
+    let unknownCountriesFromYandex = new Map();
     let localCountriesCopy = new Map(localCountries);
     yandexCountries.forEach(function (name, code) {
         if (!localCountries.has(code)) {
-            unknownCountiesFromYandex.set(code, name);
+            unknownCountriesFromYandex.set(code, name);
         } else {
             localCountriesCopy.delete(code);
         }
     });
 
-    if (unknownCountiesFromYandex.size > 0 || localCountriesCopy.size > 0) {
+    if (unknownCountriesFromYandex.size > 0 || localCountriesCopy.size > 0) {
         const data = new FormData();
-        data.set('unknown_from_yandex', JSON.stringify(Object.fromEntries(unknownCountiesFromYandex)));
+        data.set('unknown_from_yandex', JSON.stringify(Object.fromEntries(unknownCountriesFromYandex)));
         data.set('unknown_to_yandex', JSON.stringify(Object.fromEntries(localCountriesCopy)));
 
         fetch(url, {
@@ -194,7 +214,8 @@ function add_country(countryCode) {
             allCountriesGeoObjects.delete(countryCode);
             myMap.geoObjects.remove(country);
 
-            let geoObject = addCountryOnMap(country, countryCode, countryName, true);
+            allCountryState.get(countryCode).is_visited = true;
+            let geoObject = addCountryOnMap(country, allCountryState.get(countryCode));
             allCountriesGeoObjects.set(countryCode, geoObject);
             visitedCountryState.add(countryCode);
             updateQtyVisitedCountries();
@@ -227,7 +248,8 @@ function delete_country(countryCode) {
             visitedCountryState.delete(countryCode);
             myMap.geoObjects.remove(country);
 
-            let geoObject = addCountryOnMap(country, countryCode, countryName, false);
+            allCountryState.get(countryCode).is_visited = false;
+            let geoObject = addCountryOnMap(country, allCountryState.get(countryCode));
             allCountriesGeoObjects.set(countryCode, geoObject);
 
             updateQtyVisitedCountries();
@@ -236,31 +258,45 @@ function delete_country(countryCode) {
         });
 }
 
-function showQtyVisitedCountiesPlaceholder(qtyVisitedCities, qtyAllCities) {
-    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
+/**
+ * Функция отображает количество посещенных стран в блоке с id 'block-qty_visited_countries'.
+ * В зависимости от того, авторизован опльзователь или нет, функция вызывает соответствующую функцию.
+ * @param qtyAllCountries - общее количество всех стран в сервисе
+ * @param qtyVisitedCountries - количество посещённых стран
+ */
+function showQtyCountries(qtyAllCountries, qtyVisitedCountries) {
+    const block_qty_visited_countries = document.getElementById('block-qty_countries');
     block_qty_visited_countries.classList.remove('placeholder');
     block_qty_visited_countries.classList.remove('bg-secondary');
     block_qty_visited_countries.classList.remove('placeholder-lg');
-    block_qty_visited_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
 
     const block_statistic = document.getElementById('block-statistic');
     block_statistic.classList.remove('placeholder-glow');
+
+    if (isAuthenticated === true) {
+        showQtyVisitedForAuthUsers(block_qty_visited_countries, qtyVisitedCountries, qtyAllCountries);
+    } else {
+        showQtyAllCountriesForGuest(block_qty_visited_countries, qtyAllCountries);
+    }
 }
 
 /**
- * Функция отображает количество всех стран в блоке с id 'block-qty_visited_countries'.
- * Она используется для неавторизованных пользователей.
- * @param {number} qtyAllCountries - количество всех стран.
+ * Функция отображает количество посещенных стран в блоке с id 'block-qty_visited_countries' для авторизованных пользователей.
+ * @param element - DOM-элемент, в котором будет отображаться количество посещённых стран
+ * @param qtyVisitedCities - количество посещённых стран
+ * @param qtyAllCities - общее количество всех стран в сервисе
  */
-function showQtyAllCountries(qtyAllCountries) {
-    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
-    block_qty_visited_countries.classList.remove('placeholder');
-    block_qty_visited_countries.classList.remove('bg-secondary');
-    block_qty_visited_countries.classList.remove('placeholder-lg');
-    block_qty_visited_countries.innerHTML = `Всего <span class="fs-4 fw-medium">${qtyAllCountries}</span> ${declensionCountry(qtyAllCountries)}`;
+function showQtyVisitedForAuthUsers(element, qtyVisitedCities, qtyAllCities) {
+    element.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+}
 
-    const block_statistic = document.getElementById('block-statistic');
-    block_statistic.classList.remove('placeholder-glow');
+/**
+ * Функция отображает количество всех стран в блоке с id 'block-qty_visited_countries' для неавторизованных пользователей.
+ * @param element - DOM-элемент, в котором будет отображаться количество посещённых стран
+ * @param {number} qtyAllCountries - количество всех стран
+ */
+function showQtyAllCountriesForGuest(element, qtyAllCountries) {
+    element.innerHTML = `Всего <span class="fs-4 fw-medium">${qtyAllCountries}</span> ${declensionCountry(qtyAllCountries)}`;
 }
 
 

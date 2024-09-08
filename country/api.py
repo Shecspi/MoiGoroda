@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from country.models import Country, VisitedCountry
-from country.serializer import CountrySerializer, VisitedCountrySerializer
+from country.serializers import CountrySerializer, VisitedCountrySerializer
 from services import logger
 
 

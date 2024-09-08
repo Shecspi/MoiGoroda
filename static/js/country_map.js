@@ -16,7 +16,7 @@ function init() {
 
     myMap = new ymaps.Map("map", {
         center: [55.76, 37.64],
-        zoom: 2
+        zoom: 3
     });
 
     const allPromises = [];

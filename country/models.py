@@ -50,8 +50,13 @@ class Country(models.Model):
 
 
 class VisitedCountry(models.Model):
-    country = models.ForeignKey(Country, on_delete=models.CASCADE, null=False, blank=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE, null=False, blank=False, verbose_name='Страна'
+    )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=False, blank=False, verbose_name='Пользователь'
+    )
+    added_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
 
     class Meta:
         verbose_name = 'Посещенная страна'

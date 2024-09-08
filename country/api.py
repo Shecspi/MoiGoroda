@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 from rest_framework import generics
 import rest_framework.exceptions as drf_exc
 from rest_framework.permissions import IsAuthenticated

@@ -1,0 +1,50 @@
+<div class="row mx-3" id="callout-new-regions" hidden>
+    <div class="col-">
+        <div class="callout callout-default">
+            <h4>
+                <i class="fa-solid fa-triangle-exclamation"></i>&nbsp;Важно!
+            </h4>
+            <div>
+                <a href="#"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modal-new-regions"
+                   class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
+                    Почему границы России на этой карте не отображают новые регионы?
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-new-regions" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Важно о границах России</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Для отображения карты и стран на ней сервис "Мои города" использует API "Яндекс.Карт".
+                    </p>
+                    <p>
+                        Яндекс предоставляет карту России только в старых границах, отображая 4 новых региона как часть Украины.
+                        К сожалению, я с этим ничего поделать не могу и все мои запросы в Яндекс по этому поводу остались без ответа.
+                        Поэтому, на данный момент, в сервисе "Мои города" на карте мира Россия отображается не совсем корректно.
+                    </p>
+                    <p>
+                        Но при этом, на карте регионов России мне удалось победить Яндекс и обходным путём добавить новые регионы в состав России.
+                        На карте стран мира так сделать, к сожалению, не получается.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                            onclick="closeCalloutNewRegions()">
+                        Больше не показывать
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

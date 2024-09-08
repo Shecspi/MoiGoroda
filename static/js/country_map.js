@@ -28,7 +28,35 @@ let allCountryState;
 // Множество, содержащее информацию обо всех посещённых пользователем странах.
 let visitedCountryState;
 
+// ----------------------------- Действия при загрузке страницы -----------------------------
+
+checkCalloutNewRegions();
 ymaps.ready(init);
+
+// ----------------------------- Функции -----------------------------
+
+/**
+ * Функция проверяет, отображается ли блок Callout с информацией о новых регионах.
+ * Если пользователь уже читал эту информацию, то он блок удаляется из DOM-дерева.
+ * Иначе он показывается на странице.
+ */
+function checkCalloutNewRegions() {
+    const callout = document.getElementById('callout-new-regions');
+    if (JSON.parse(localStorage.getItem('callout-new-regions')) === true) {
+        callout.remove();
+    } else {
+        callout.hidden = false;
+    }
+}
+
+/**
+ * Функция удаляет блок Callout с информацией о новых регионах из DOM-дерева.
+ */
+function closeCalloutNewRegions() {
+    const callout = document.getElementById('callout-new-regions');
+    callout.remove();
+    localStorage.setItem('callout-new-regions', JSON.stringify(true));
+}
 
 function init() {
     removeSpinner();

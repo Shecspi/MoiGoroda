@@ -27,7 +27,7 @@ def setup_db(client, django_user_model):
     create_superuser(django_user_model, 3)
     part_of_the_world = create_part_of_the_world(1)
     location = create_location(1, part_of_the_world[0])
-    country = create_country(5, location[0])
+    create_country(5, location[0])
 
 
 def access_by_POST_is_prohibided__test(setup_db, caplog, client):

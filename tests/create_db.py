@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from account.models import ShareSettings
 from city.models import City, VisitedCity
-from country.models import Country, Location, PartOfTheWorld
+from country.models import Country, Location, PartOfTheWorld, VisitedCountry
 from news.models import News
 from region.models import Area, Region
 from subscribe.models import Subscribe
@@ -37,7 +37,7 @@ def create_location(num: int, part_of_the_world: PartOfTheWorld) -> list[Locatio
     ]
 
 
-def create_country(num: int, location: Location) -> list[Area]:
+def create_country(num: int, location: Location) -> list[Country]:
     return [
         Country.objects.create(
             id=i,
@@ -48,6 +48,10 @@ def create_country(num: int, location: Location) -> list[Area]:
         )
         for i in range(1, num + 1)
     ]
+
+
+def create_visited_country(country: Country, user: User) -> VisitedCountry:
+    return VisitedCountry.objects.create(country=country, user=user)
 
 
 def create_area(num: int) -> list[Area]:

@@ -28,27 +28,35 @@
 
     <div class="col-xxl-6 col-md-12 text-end g-3">
         <!-- Фильтр по частям света -->
-        <button class="align-self-center btn btn-outline-primary"
-                data-bs-tooltip="tooltip"
-                data-bs-title="Фильтр стран по частям света будет доступен позднее">
-            <i class="fa-solid fa-earth-americas"></i>
-        </button>
+        <div class="btn-group">
+            <button class="align-self-center btn btn-outline-primary dropdown-toggle"
+                    id="shoiwPartOfTheWorld"
+                    data-bs-toggle="dropdown">
+                <i class="fa-solid fa-earth-americas"></i>
+            </button>
+
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+                <li><a class="dropdown-item" href="#">Something else here</a></li>
+            </ul>
+        </div>
         <!-- ^^^ Фильтр по частям света -->
 
         <!-- Фильтр по расположению -->
-        <button class="align-self-center btn btn-outline-danger"
-                data-bs-tooltip="tooltip"
-                data-bs-title="Фильтр по расположению стран будет доступен позднее">
-            <i class="fa-solid fa-map-pin"></i>
-        </button>
-        <!-- ^^^ Фильтр по расположению -->
+        <div class="btn-group">
+            <button class="align-self-center btn btn-outline-danger dropdown-toggle"
+                    id="showLocation"
+                    data-bs-toggle="dropdown">
+                <i class="fa-solid fa-map-pin"></i>
+            </button>
 
-        <!-- Подписки -->
-        <button class="align-self-center btn btn-outline-success"
-                data-bs-tooltip="tooltip"
-                data-bs-title="Возможность смотреть страны пользователей, на которых Вы подписаны, появится позднее">
-                <i class="fa-solid fa-bell"></i>
-        </button>
-        <!-- ^^^ Подписки -->
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+                <li><a class="dropdown-item" href="#">Something else here</a></li>
+            </ul>
+        </div>
+        <!-- ^^^ Фильтр по расположению -->
     </div>
 </div>

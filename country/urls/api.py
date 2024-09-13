@@ -25,4 +25,7 @@ urlpatterns = [
         api.RecieveUnknownCountries.as_view(),
         name='api__revieve_unknown_countries',
     ),
+    path(
+        'get_part_of_the_world', api.GetPartsOfTheWorld.as_view(), name='api__get_part_of_the_world'
+    ),
 ]

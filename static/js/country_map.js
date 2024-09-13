@@ -70,14 +70,20 @@ function init() {
     if (isAuthenticated === true) {
         allPromises.push(getAllCountries());
         allPromises.push(getVisitedCountries());
+        allPromises.push(getPartsOfTheWorld());
     } else {
         allPromises.push(getAllCountries());
     }
 
     // Если пользователь авторизован, то в allPromises будет храниться 2 массива,
     // а в случае неавторизованного пользователя - только один allCountries.
-    Promise.all([...allPromises]).then(([allCountries, visitedCountries]) => {
+    Promise.all([...allPromises]).then(([
+        allCountries,
+        visitedCountries,
+        partsOfTheWorld
+    ]) => {
         ymaps.borders.load('001', {lang: 'ru', quality: 1}).then(function (geojson) {
+            console.log(partsOfTheWorld);
             // Словари со странами и посещёнными странами из БД сервиса
             if (isAuthenticated === true) {
                 visitedCountryState = new Set(visitedCountries.map(country => {
@@ -121,7 +127,7 @@ function init() {
     });
 }
 
-function getCountries(url) {
+function getDataFromServer(url) {
     return fetch(url + '?' + new URLSearchParams({'from': 'country map'}))
         .then((response) => {
             if (!response.ok) {
@@ -136,12 +142,17 @@ function getCountries(url) {
 
 function getAllCountries() {
     const url = document.getElementById('url_get_all_countries').dataset.url;
-    return getCountries(url);
+    return getDataFromServer(url);
 }
 
 function getVisitedCountries() {
     const url = document.getElementById('url_get_visited_countries').dataset.url;
-    return getCountries(url);
+    return getDataFromServer(url);
+}
+
+function getPartsOfTheWorld() {
+    const url = document.getElementById('url_get_visited_countries').dataset.url;
+    return getDataFromServer(url);
 }
 
 function compareCountriesWithYandexAndLocalBD(yandexCountries, localCountries) {

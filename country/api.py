@@ -12,9 +12,19 @@ import rest_framework.exceptions as drf_exc
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from country.models import Country, VisitedCountry
-from country.serializers import CountrySerializer, VisitedCountrySerializer
+from country.models import Country, VisitedCountry, PartOfTheWorld
+from country.serializers import (
+    CountrySerializer,
+    VisitedCountrySerializer,
+    PartOfTheWorldSerializer,
+)
 from services import logger
+
+
+class GetPartsOfTheWorld(generics.ListAPIView):
+    queryset = PartOfTheWorld.objects.all()
+    http_method_names = ['get']
+    serializer_class = PartOfTheWorldSerializer
 
 
 class GetAllCountry(generics.ListAPIView):

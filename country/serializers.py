@@ -14,7 +14,7 @@ from django.urls import reverse
 from rest_framework import serializers
 import rest_framework.exceptions as drf_exc
 
-from country.models import Country, VisitedCountry, PartOfTheWorld
+from country.models import Country, VisitedCountry, PartOfTheWorld, Location
 
 
 class CountryData(TypedDict):
@@ -30,6 +30,14 @@ class ValidatedData(TypedDict):
 class PartOfTheWorldSerializer(serializers.ModelSerializer):
     class Meta:
         model = PartOfTheWorld
+        fields = '__all__'
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    """Сериалайзер для модели Location"""
+
+    class Meta:
+        model = Location
         fields = '__all__'
 
 

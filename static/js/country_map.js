@@ -76,21 +76,23 @@ function init() {
 
     const allPromises = [];
     if (isAuthenticated === true) {
-        allPromises.push(getAllCountries());
-        allPromises.push(getVisitedCountries());
         allPromises.push(getPartsOfTheWorld());
         allPromises.push(getLocations());
+        allPromises.push(getAllCountries());
+        allPromises.push(getVisitedCountries());
     } else {
+        allPromises.push(getPartsOfTheWorld());
+        allPromises.push(getLocations());
         allPromises.push(getAllCountries());
     }
 
     // Если пользователь авторизован, то в allPromises будет храниться 2 массива,
     // а в случае неавторизованного пользователя - только один allCountries.
     Promise.all([...allPromises]).then(([
-                                            allCountries,
-                                            visitedCountries,
                                             partsOfTheWorld,
                                             getLocations,
+                                            allCountries,
+                                            visitedCountries,
                                         ]) => {
         ymaps.borders.load('001', {lang: 'ru', quality: 1}).then(function (geojson) {
             // Словари со странами и посещёнными странами из БД сервиса

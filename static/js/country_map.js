@@ -70,7 +70,8 @@ function init() {
 
     myMap = new ymaps.Map("map", {
         center: [55.76, 37.64],
-        zoom: 3
+        zoom: 3,
+        controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
     });
 
     const allPromises = [];

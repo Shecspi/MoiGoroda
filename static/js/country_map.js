@@ -71,6 +71,7 @@ function init() {
         allPromises.push(getAllCountries());
         allPromises.push(getVisitedCountries());
         allPromises.push(getPartsOfTheWorld());
+        allPromises.push(getLocations());
     } else {
         allPromises.push(getAllCountries());
     }
@@ -78,12 +79,12 @@ function init() {
     // Если пользователь авторизован, то в allPromises будет храниться 2 массива,
     // а в случае неавторизованного пользователя - только один allCountries.
     Promise.all([...allPromises]).then(([
-        allCountries,
-        visitedCountries,
-        partsOfTheWorld
-    ]) => {
+                                            allCountries,
+                                            visitedCountries,
+                                            partsOfTheWorld,
+                                            getLocations,
+                                        ]) => {
         ymaps.borders.load('001', {lang: 'ru', quality: 1}).then(function (geojson) {
-            console.log(partsOfTheWorld);
             // Словари со странами и посещёнными странами из БД сервиса
             if (isAuthenticated === true) {
                 visitedCountryState = new Set(visitedCountries.map(country => {
@@ -123,7 +124,47 @@ function init() {
             compareCountriesWithYandexAndLocalBD(yandexCountries, allCountryState);
 
             showQtyCountries(allCountryState.size, isAuthenticated ? visitedCountryState.size : null);
+            enablePartOfTheWorldButton(partsOfTheWorld);
+            enableLocationsButton(getLocations);
         });
+    });
+}
+
+function enablePartOfTheWorldButton(array) {
+    const button = document.getElementById('btn-show-part-of-the-world');
+    const menu = document.getElementById('dropdown-menu-parts-of-the-world');
+    enableDropdownButton(array, button, menu, 'fa-solid fa-earth-americas');
+}
+
+function enableLocationsButton(array) {
+    const button = document.getElementById('btn-show-locations');
+    const menu = document.getElementById('dropdown-menu-locations');
+    enableDropdownButton(array, button, menu, 'fa-solid fa-location-dot');
+}
+
+function enableDropdownButton(array, button, menu, icon) {
+    // Убираем спиннер с кнопки и делаем её активной
+    button.disabled = false;
+    button.innerHTML = `<i class="${icon}"></i>&nbsp;&nbsp;`;
+
+    // Очищаем меню
+    menu.innerHTML = '';
+
+    // Добавляем заголовок в меню
+    const header = document.createElement('h6');
+    header.classList.add('dropdown-header');
+    header.innerHTML = 'Выберите, какие страны отобразить на карте:';
+    menu.appendChild(document.createElement('li').appendChild(header));
+
+    // Добавляем элементы в меню
+    array.forEach(country => {
+        const a = document.createElement('a');
+        a.classList.add('dropdown-item');
+        a.innerHTML = country.name;
+        menu.appendChild(document.createElement('li').appendChild(a));
+        // partOfTheWorld.addEventListener('click', () => {
+        //     showCountriesByPartOfTheWorld(country.code);
+        // });
     });
 }
 
@@ -151,7 +192,12 @@ function getVisitedCountries() {
 }
 
 function getPartsOfTheWorld() {
-    const url = document.getElementById('url_get_visited_countries').dataset.url;
+    const url = document.getElementById('url_get_parts_of_the_world').dataset.url;
+    return getDataFromServer(url);
+}
+
+function getLocations() {
+    const url = document.getElementById('url_get_locations').dataset.url;
     return getDataFromServer(url);
 }
 

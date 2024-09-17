@@ -30,32 +30,28 @@
         <!-- Фильтр по частям света -->
         <div class="btn-group">
             <button class="align-self-center btn btn-outline-primary dropdown-toggle"
-                    id="shoiwPartOfTheWorld"
-                    data-bs-toggle="dropdown">
-                <i class="fa-solid fa-earth-americas"></i>
+                    id="btn-show-part-of-the-world"
+                    data-bs-toggle="dropdown"
+                    disabled>
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span class="visually-hidden" role="status">Загрузка...</span>
             </button>
 
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Action</a></li>
-                <li><a class="dropdown-item" href="#">Another action</a></li>
-                <li><a class="dropdown-item" href="#">Something else here</a></li>
-            </ul>
+            <ul class="dropdown-menu" id="dropdown-menu-parts-of-the-world"></ul>
         </div>
         <!-- ^^^ Фильтр по частям света -->
 
         <!-- Фильтр по расположению -->
         <div class="btn-group">
             <button class="align-self-center btn btn-outline-danger dropdown-toggle"
-                    id="showLocation"
-                    data-bs-toggle="dropdown">
-                <i class="fa-solid fa-map-pin"></i>
+                    id="btn-show-locations"
+                    data-bs-toggle="dropdown"
+                    disabled>
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span class="visually-hidden" role="status">Загрузка...</span>
             </button>
 
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Action</a></li>
-                <li><a class="dropdown-item" href="#">Another action</a></li>
-                <li><a class="dropdown-item" href="#">Something else here</a></li>
-            </ul>
+            <ul class="dropdown-menu" id="dropdown-menu-locations"></ul>
         </div>
         <!-- ^^^ Фильтр по расположению -->
     </div>

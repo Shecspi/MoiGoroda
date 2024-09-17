@@ -26,7 +26,9 @@ urlpatterns = [
         name='api__revieve_unknown_countries',
     ),
     path(
-        'get_part_of_the_world', api.GetPartsOfTheWorld.as_view(), name='api__get_part_of_the_world'
+        'get_parts_of_the_world',
+        api.GetPartsOfTheWorld.as_view(),
+        name='api__get_parts_of_the_world',
     ),
     path('get_locations', api.GetLocations.as_view(), name='api__get_locations'),
 ]

@@ -438,7 +438,7 @@ function declensionCountry(qtyOfCountries) {
      */
     if (qtyOfCountries % 10 === 1 && qtyOfCountries !== 11) {
         return 'страна';
-    } else if ([2, 3, 4].includes(qtyOfCountries % 10)) {
+    } else if ([2, 3, 4].includes(qtyOfCountries % 10) && ![12, 13, 14].includes(qtyOfCountries)) {
         return 'страны';
     } else {
         return 'стран';

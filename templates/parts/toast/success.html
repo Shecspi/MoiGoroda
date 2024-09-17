@@ -1,11 +1,9 @@
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
     <div id="toast-success" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header text-bg-success">
-            <strong class="me-auto">{{ title }}</strong>
+            <strong class="me-auto" id="toast-success-title"></strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Закрыть"></button>
         </div>
-        <div class="toast-body bg-light">
-            {{ message }}
-        </div>
+        <div class="toast-body bg-light" id="toast-success-message"></div>
     </div>
 </div>

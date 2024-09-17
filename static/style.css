@@ -201,3 +201,30 @@ div#main-background {
         text-align: center;
     }
 }
+
+/*------------ Callouts ------------*/
+.callout {
+  padding: 20px;
+  border: 1px solid #eee;
+  border-left-width: 5px;
+  border-radius: 3px;
+  h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+  }
+  p:last-child {
+    margin-bottom: 0;
+  }
+  code {
+    border-radius: 3px;
+  }
+  & + .bs-callout {
+    margin-top: -5px;
+  }
+}
+.callout-default {
+    border-left-color: #d9534f;
+    h4 {
+        color: #d9534f;
+    }
+}

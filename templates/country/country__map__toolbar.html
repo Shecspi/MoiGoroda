@@ -1,0 +1,58 @@
+<div class="row mx-3 my-3 g-3 align-items-center" id="toolbar">
+    <!-- Статистика -->
+    <div class="col-xxl-3 col-xl-6 col-md-9">
+        <div class="card text-center shadow h-100">
+            <div class="card-body bg-warning-subtle d-grid placeholder-glow" id="block-statistic">
+                <div class="align-self-center placeholder placeholder-lg bg-secondary rounded" id="block-qty_countries">
+                    <button class="btn">Загружаю...</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Статистика -->
+
+    <!-- Посмотреть список -->
+{#    <div class="col-sm-12 col-md-6 col-xxl-3">#}
+{#        <div class="card text-center shadow h-100">#}
+{#            <div class="card-body d-grid bg-success-subtle" id="block-add_city">#}
+{#                <a href="#"#}
+{#                   class="btn btn-outline-success align-self-center"#}
+{#                    data-bs-tooltip="tooltip"#}
+{#                    data-bs-title="Возможность посмотреть список посещённых стран появится позднее">#}
+{#                    <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список#}
+{#                </a>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+    <!-- ^^^ Посмотреть список -->
+
+    <div class="col-xxl-9 col-xl-6 col-md-3 text-end g-3">
+        <!-- Фильтр по частям света -->
+        <div class="btn-group">
+            <button class="align-self-center btn btn-outline-primary dropdown-toggle"
+                    id="btn-show-part-of-the-world"
+                    data-bs-toggle="dropdown"
+                    disabled>
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span class="visually-hidden" role="status">Загрузка...</span>
+            </button>
+
+            <ul class="dropdown-menu" id="dropdown-menu-parts-of-the-world"></ul>
+        </div>
+        <!-- ^^^ Фильтр по частям света -->
+
+        <!-- Фильтр по расположению -->
+        <div class="btn-group">
+            <button class="align-self-center btn btn-outline-danger dropdown-toggle"
+                    id="btn-show-locations"
+                    data-bs-toggle="dropdown"
+                    disabled>
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span class="visually-hidden" role="status">Загрузка...</span>
+            </button>
+
+            <ul class="dropdown-menu" id="dropdown-menu-locations"></ul>
+        </div>
+        <!-- ^^^ Фильтр по расположению -->
+    </div>
+</div>

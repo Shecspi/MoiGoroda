@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'share.apps.ShareConfig',
     'subscribe',
     'rest_framework',
+    'country',
 ]
 
 MIDDLEWARE = [

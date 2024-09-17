@@ -7,20 +7,22 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('', include('main_page.urls'), name='main_page'),
-    path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
-    path('share/', include('share.urls')),
-    path('news/', include('news.urls')),
-    path('collection/', include('collection.urls')),
     path('city/', include('city.urls.views')),
     path('region/', include('region.urls')),
+    path('country/', include('country.urls.views')),
+    path('collection/', include('collection.urls')),
+    path('news/', include('news.urls')),
+    path('subscribe/', include('subscribe.urls')),
+    path('share/', include('share.urls')),
+    path('dashboard/', include('dashboard.urls')),
     path('mdeditor/', include('mdeditor.urls')),
+    path('admin/', admin.site.urls),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('sitemap.xml', TemplateView.as_view(template_name='sitemap.xml', content_type='text/xml')),
-    path('dashboard/', include('dashboard.urls')),
-    path('subscribe/', include('subscribe.urls')),
     # API
     path('api/city/', include('city.urls.api')),
+    path('api/country/', include('country.urls.api')),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

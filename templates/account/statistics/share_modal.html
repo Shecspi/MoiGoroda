@@ -133,19 +133,6 @@
     </div>
 </div>
 
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toast_success_copied" class="toast bg-success-subtle" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header bg-success text-white">
-                <i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;&nbsp;
-                <strong class="me-auto">Скопировано</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Закрыть"></button>
-            </div>
-            <div class="toast-body">
-                Ссылка на страницу со статистикой успешно скопирована.
-            </div>
-        </div>
-    </div>
-
 <script>
     function disable_all_checkboxes() {
         /**
@@ -288,14 +275,14 @@
     button_make_a_copy.addEventListener('click', () => {
         const inputValue = input_with_share_link.value.trim();
         if (inputValue) {
+            console.log(navigator.clipboard);
             navigator.clipboard.writeText(inputValue)
             .then(() => {
-                let toast_success_copied =document.getElementById('toast_success_copied');
-                let toast = new bootstrap.Toast(toast_success_copied);
-                toast.show();
+                showSuccessToast('Скопировано', 'Ссылка на страницу со статистикой успешно скопирована.');
             })
             .catch(err => {
-                    console.log('Something went wrong', err);
+                showDangerToast('Ошибка', 'Что-то пошло не так. Попробуйте ещё раз.');
+                console.log('Something went wrong', err);
             })
         }
     });

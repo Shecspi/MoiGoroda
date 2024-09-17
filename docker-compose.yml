@@ -1,0 +1,12 @@
+services:
+  mg-postgres:
+    container_name: mg-postgres
+    image: postgres:14-alpine
+    environment:
+      PGDATA: /var/lib/postgresql/data/some/
+      POSTGRES_PASSWORD: password
+    volumes:
+       - ~/.moi-goroda/postgres_data:/var/lib/postgresql/data/
+       - ~/.moi-goroda/postgres_data/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+    ports:
+      - "5432:5432"

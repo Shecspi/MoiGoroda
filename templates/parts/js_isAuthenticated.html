@@ -1,0 +1,7 @@
+<script>
+    {% if request.user.is_authenticated %}
+        const isAuthenticated = true;
+    {% else %}
+        const isAuthenticated = false;
+    {% endif %}
+</script>

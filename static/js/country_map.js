@@ -175,6 +175,19 @@ function enableDropdownButton(array, button, menu, icon, type) {
         });
         menu.appendChild(document.createElement('li').appendChild(a));
     });
+
+    // Добавляем пункт "Все страны"
+    const divider = document.createElement('hr');
+    divider.classList.add('dropdown-divider')
+    menu.appendChild(document.createElement('li').appendChild(divider));
+
+    const all_countries = document.createElement('a');
+    all_countries.classList.add('dropdown-item');
+    all_countries.innerHTML = 'Показать все страны';
+    menu.appendChild(document.createElement('li').appendChild(all_countries));
+    all_countries.addEventListener('click', () => {
+            filterCountriesOnTheMap('__all__', type);
+        });
 }
 
 /**
@@ -193,6 +206,14 @@ function filterCountriesOnTheMap(filterItem, type) {
             return country.location === filterItem;
         }
     });
+
+    if (filterItem === '__all__') {
+        // Если фильтр - все страны, то показываем все страны на карте
+        allCountriesGeoObjects.forEach(geoObject => {
+            geoObject.options.set('visible', true);
+        });
+        return;
+    }
 
     // Скрываем все страны на карте
     allCountriesGeoObjects.forEach(geoObject => {

@@ -25,6 +25,13 @@ let allCountriesGeoObjects = new Map();
  */
 let allCountryState;
 
+// Множество, содержащее информацию обо всех частях света, которые есть в БД
+let allPartsOfTheWorld;
+
+// Множество, содержащее информацию обо всех локациях, которые есть в БД.
+let allLocations;
+
+
 // Множество, содержащее информацию обо всех посещённых пользователем странах.
 let visitedCountryState;
 
@@ -102,6 +109,8 @@ function init() {
                     is_visited: isAuthenticated === true ? visitedCountryState.has(country.code) : false
                 }]
             }));
+            allPartsOfTheWorld = new Set(partsOfTheWorld.map(country => country.name));
+            allLocations = new Set(getLocations.map(location => location.name));
 
             // Достаём из geojson все страны, которые есть в Яндексе и добавляем их на карту.
             // А также сверяем с нашей базой. Если находятся какие-то расхождения,
@@ -133,16 +142,16 @@ function init() {
 function enablePartOfTheWorldButton(array) {
     const button = document.getElementById('btn-show-part-of-the-world');
     const menu = document.getElementById('dropdown-menu-parts-of-the-world');
-    enableDropdownButton(array, button, menu, 'fa-solid fa-earth-americas');
+    enableDropdownButton(array, button, menu, 'fa-solid fa-earth-americas', 'part-of-the-world');
 }
 
 function enableLocationsButton(array) {
     const button = document.getElementById('btn-show-locations');
     const menu = document.getElementById('dropdown-menu-locations');
-    enableDropdownButton(array, button, menu, 'fa-solid fa-location-dot');
+    enableDropdownButton(array, button, menu, 'fa-solid fa-location-dot', 'locations');
 }
 
-function enableDropdownButton(array, button, menu, icon) {
+function enableDropdownButton(array, button, menu, icon, type) {
     // Убираем спиннер с кнопки и делаем её активной
     button.disabled = false;
     button.innerHTML = `<i class="${icon}"></i>&nbsp;&nbsp;`;
@@ -157,14 +166,42 @@ function enableDropdownButton(array, button, menu, icon) {
     menu.appendChild(document.createElement('li').appendChild(header));
 
     // Добавляем элементы в меню
-    array.forEach(country => {
+    array.forEach(item => {
         const a = document.createElement('a');
         a.classList.add('dropdown-item');
-        a.innerHTML = country.name;
+        a.innerHTML = item.name;
+        a.addEventListener('click', () => {
+            filterCountriesOnTheMap(item.name, type);
+        });
         menu.appendChild(document.createElement('li').appendChild(a));
-        // partOfTheWorld.addEventListener('click', () => {
-        //     showCountriesByPartOfTheWorld(country.code);
-        // });
+    });
+}
+
+/**
+ * Функция фильтрует страны на карте и оставляет только те, которые соответствуют переданным параметрам.
+ * @param filterItem Элемент, по которому производится фильтрация.
+ * @param type Тип филльтрации - по части света или по локации.
+ */
+function filterCountriesOnTheMap(filterItem, type) {
+    const allCountries = Array.from(allCountryState.values());
+
+    // Фильтруем страны и оставляем в массиве filteredCountries только те, которые соответствуют фильтру
+    const filteredCountries = allCountries.filter(country => {
+        if (type === 'part-of-the-world') {
+            return country.part_of_the_world === filterItem;
+        } else if (type === 'locations') {
+            return country.location === filterItem;
+        }
+    });
+
+    // Скрываем все страны на карте
+    allCountriesGeoObjects.forEach(geoObject => {
+        geoObject.options.set('visible', false);
+    });
+
+    // Показываем только те страны, которые соответствуют фильтру
+    filteredCountries.forEach(country => {
+        allCountriesGeoObjects.get(country.code).options.set('visible', true);
     });
 }
 
@@ -389,7 +426,7 @@ function showQtyAllCountriesForGuest(element, qtyAllCountries) {
  * Функция обновляет количество посещенных стран в тулбаре.
  */
 function updateQtyVisitedCountries() {
-    const block_qty_visited_countries = document.getElementById('block-qty_visited_countries');
+    const block_qty_visited_countries = document.getElementById('block-statistic');
     const qtyVisitedCities = visitedCountryState.size;
     const qtyAllCities = allCountryState.size;
     block_qty_visited_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;

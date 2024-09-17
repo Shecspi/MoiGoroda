@@ -426,10 +426,10 @@ function showQtyAllCountriesForGuest(element, qtyAllCountries) {
  * Функция обновляет количество посещенных стран в тулбаре.
  */
 function updateQtyVisitedCountries() {
-    const block_qty_visited_countries = document.getElementById('block-statistic');
+    const block_qty_countries = document.getElementById('block-qty_countries');
     const qtyVisitedCities = visitedCountryState.size;
     const qtyAllCities = allCountryState.size;
-    block_qty_visited_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+    block_qty_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
 }
 
 function declensionCountry(qtyOfCountries) {

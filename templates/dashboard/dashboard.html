@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
     <h1 class="display-5 text-center mt-3 mx-3" id="section-page_header">
@@ -312,4 +313,7 @@
             </div>
         </div>
     </div>
+    
+    <div id="url_dashboard_data" data-url="{% url 'api__get_dashboard_data' %}" hidden></div>
+    <script src="{% static 'js/load_dashboard_data.js' %}"></script>
 {% endblock %}

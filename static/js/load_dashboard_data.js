@@ -1,34 +1,28 @@
-const url = document.getElementById('url_dashboard_data').dataset.url;
+const request_url_ids = [
+    ['url_get_total_visited_countries', 'number-total_visited_countries'],
+    ['url_get_users_with_visited_countries', 'number-user_with_visited_countries']
+]
 
+for (const item of request_url_ids) {
+    const url = document.getElementById(item[0]).dataset.url;
 
-fetch(url, {
-    method: 'POST', headers: {
-        'X-CSRFToken': getCookie("csrftoken")
-    }, body: formData
-})
-    .then((response) => {
-        if (!response.ok) {
-            throw new Error(response.statusText)
+    fetch(url, {
+        method: 'GET', headers: {
+            'X-CSRFToken': getCookie("csrftoken")
         }
-        return response.json()
     })
-    .then((data) => {
-        modal.toggle();
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json()
+        })
+        .then((data) => {
+            updateNumberOnCard(item[1], data.qty);
+        })
+}
 
-        button.disabled = false;
-        button.innerText = 'Добавить';
-
-        form.reset();
-
-        showSuccessToast('Успешно', `Город ${data.city.city_title} успешно добавлен как посещённый`);
-
-        actions.updatePlacemark(data.city.city);
-        change_qty_of_visited_cities_in_toolbar();
-    })
-    .catch((err) => {
-        console.log(err);
-        showDangerToast('Ошибка', 'Что-то пошло не так. Попробуйте ещё раз.');
-
-        button.disabled = false;
-        button.innerText = 'Добавить';
-    })
+function updateNumberOnCard(element_id, newNumber) {
+    const el = document.getElementById(element_id);
+    el.innerHTML = `<h1>${newNumber}</h1>`;
+}

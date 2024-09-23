@@ -235,8 +235,10 @@
                     <p class="fs-4">
                         В среднем посещённых стран у 1 пользователя
                     </p>
-                    <div class="spinner-border text-secondary" role="status">
-                        <span class="visually-hidden">Загрузка...</span>
+                    <div id="number-average_qty_visited_countries">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -268,8 +270,10 @@
                     <p class="fs-4">
                         За вчера
                     </p>
-                    <div class="spinner-border text-secondary" role="status">
-                        <span class="visually-hidden">Загрузка...</span>
+                    <div id="number-qty_of_added_visited_countries_yesterday">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -282,8 +286,10 @@
                     <p class="fs-4">
                         За неделю
                     </p>
-                    <div class="spinner-border text-secondary" role="status">
-                        <span class="visually-hidden">Загрузка...</span>
+                    <div id="number-qty_of_added_visited_countries_week">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -296,8 +302,10 @@
                     <p class="fs-4">
                         За месяц
                     </p>
-                    <div class="spinner-border text-secondary" role="status">
-                        <span class="visually-hidden">Загрузка...</span>
+                    <div id="number-qty_of_added_visited_countries_month">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -310,8 +318,10 @@
                     <p class="fs-4">
                         За год
                     </p>
-                    <div class="spinner-border text-secondary" role="status">
-                        <span class="visually-hidden">Загрузка...</span>
+                    <div id="number-qty_of_added_visited_countries_year">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -320,6 +330,11 @@
     
     <div id="url_get_total_visited_countries" data-url="{% url 'api__get_total_visited_countries' %}" hidden></div>
     <div id="url_get_users_with_visited_countries" data-url="{% url 'api__get_qty_users_with_visited_countries' %}" hidden></div>
+    <div id="url_get_average_qty_visited_countries" data-url="{% url 'api__get_average_qty_visited_countries' %}" hidden></div>
+    <div id="url_get_qty_of_added_visited_countries_yesterday" data-url="{% url 'api__get_qty_of_added_visited_countries' 1 %}" hidden></div>
+    <div id="url_get_qty_of_added_visited_countries_week" data-url="{% url 'api__get_qty_of_added_visited_countries' 7 %}" hidden></div>
+    <div id="url_get_qty_of_added_visited_countries_month" data-url="{% url 'api__get_qty_of_added_visited_countries' 30 %}" hidden></div>
+    <div id="url_get_qty_of_added_visited_countries_year" data-url="{% url 'api__get_qty_of_added_visited_countries' 365 %}" hidden></div>
     
     <script src="{% static 'js/load_dashboard_data.js' %}"></script>
 {% endblock %}

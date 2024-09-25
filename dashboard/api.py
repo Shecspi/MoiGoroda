@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.db.models import Count, Max
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -35,6 +36,21 @@ class GetAverageQtyVisitedCountries(generics.ListAPIView):
         total_users = self.queryset.values('user').distinct().count()
 
         return Response({'qty': int(total_visited_countries / total_users)})
+
+
+class GetMaxQtyVisitedCountries(generics.ListAPIView):
+    queryset = VisitedCountry.objects.all()
+    http_method_names = ['get']
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request, *args, **kwargs):
+        max_qty = (
+            self.queryset.values('user')
+            .annotate(Count('country'))
+            .aggregate(qty=Max('country__count'))
+        )
+
+        return Response(max_qty)
 
 
 class GetAddedVisitedCountryYeterday(generics.ListAPIView):

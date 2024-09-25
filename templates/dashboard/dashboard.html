@@ -253,10 +253,12 @@
                  id="section-xxx">
                 <div class="card-body">
                     <p class="fs-4">
-                        Не знаю что написать
+                        Максимум стран у 1 пользователя
                     </p>
-                    <div class="spinner-border text-secondary" role="status">
-                        <span class="visually-hidden">Загрузка...</span>
+                    <div id="number-max_qty_visited_countries">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -335,6 +337,7 @@
     <div id="url_get_total_visited_countries" data-url="{% url 'api__get_total_visited_countries' %}" hidden></div>
     <div id="url_get_users_with_visited_countries" data-url="{% url 'api__get_qty_users_with_visited_countries' %}" hidden></div>
     <div id="url_get_average_qty_visited_countries" data-url="{% url 'api__get_average_qty_visited_countries' %}" hidden></div>
+    <div id="url_get_max_qty_visited_countries" data-url="{% url 'api__max_qty_visited_countries' %}" hidden></div>
     <div id="url_get_qty_of_added_visited_countries_yesterday" data-url="{% url 'api__get_qty_of_added_visited_countries' 1 %}" hidden></div>
     <div id="url_get_qty_of_added_visited_countries_week" data-url="{% url 'api__get_qty_of_added_visited_countries' 7 %}" hidden></div>
     <div id="url_get_qty_of_added_visited_countries_month" data-url="{% url 'api__get_qty_of_added_visited_countries' 30 %}" hidden></div>

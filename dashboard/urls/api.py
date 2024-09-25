@@ -13,6 +13,7 @@ from dashboard.api import (
     GetUsersWithVisitedCountries,
     GetAverageQtyVisitedCountries,
     GetAddedVisitedCountryYeterday,
+    GetMaxQtyVisitedCountries,
 )
 
 urlpatterns = [
@@ -30,6 +31,11 @@ urlpatterns = [
         'get_average_qty_visited_countries',
         GetAverageQtyVisitedCountries.as_view(),
         name='api__get_average_qty_visited_countries',
+    ),
+    path(
+        'get_max_qty_visited_countries',
+        GetMaxQtyVisitedCountries.as_view(),
+        name='api__max_qty_visited_countries',
     ),
     path(
         'get_qty_of_added_visited_countries_yesterday/<int:days>',

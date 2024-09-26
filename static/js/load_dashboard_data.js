@@ -28,6 +28,42 @@ for (const item of request_url_ids) {
         })
 }
 
+fetch(document.getElementById('url_get_added_visited_countries_by_day').dataset.url, {
+    method: 'GET', headers: {
+        'X-CSRFToken': getCookie("csrftoken")
+    }
+}).then((response) => {
+    if (!response.ok) {
+        throw new Error(response.statusText)
+    }
+    return response.json()
+}).then((data) => {
+    let visitedCountriesData = {}
+    data.forEach((item) => {
+        visitedCountriesData[item.date] = item.qty;
+    });
+
+    const ctx = document.getElementById('visitedCountriesChart').getContext('2d');
+
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(visitedCountriesData),
+            datasets: [
+                {
+                    label: 'Количество добавленных посещённых стран за 1 день',
+                    data: Object.values(visitedCountriesData),
+                    borderColor: 'rgba(7,54,0,0.2)',
+                    backgroundColor: 'rgba(58,255,51,0.2)',
+                    borderWidth: 2,
+                    borderRadius: 5,
+                    borderSkipped: false,
+                },
+            ],
+        },
+    });
+});
+
 function updateNumberOnCard(element_id, newNumber) {
     const el = document.getElementById(element_id);
     el.innerHTML = `<h1>${newNumber}</h1>`;

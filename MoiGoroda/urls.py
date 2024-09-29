@@ -15,7 +15,7 @@ urlpatterns = [
     path('news/', include('news.urls')),
     path('subscribe/', include('subscribe.urls')),
     path('share/', include('share.urls')),
-    path('dashboard/', include('dashboard.urls')),
+    path('dashboard/', include('dashboard.urls.views')),
     path('mdeditor/', include('mdeditor.urls')),
     path('admin/', admin.site.urls),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
@@ -23,6 +23,7 @@ urlpatterns = [
     # API
     path('api/city/', include('city.urls.api')),
     path('api/country/', include('country.urls.api')),
+    path('api/dashboard/', include('dashboard.urls.api')),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

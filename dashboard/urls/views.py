@@ -8,8 +8,9 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.urls import path
-from . import views
+from dashboard.views import Dashboard
+
 
 urlpatterns = [
-    path('', views.Dashboard.as_view(), name='dashboard'),
+    path('', Dashboard.as_view(), name='dashboard'),
 ]

@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
     <h1 class="display-5 text-center mt-3 mx-3" id="section-page_header">
         Dashboard
     </h1>
+
+    <h1 class="display-6 text-center mt-3 mx-3">Регистрации</h1>
 
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
         <div class="col">
@@ -98,6 +101,8 @@
         </div>
     </div>
 
+    <h1 class="display-6 text-center mt-3 mx-3">Посещённые города</h1>
+
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
         <div class="col">
             <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
@@ -190,4 +195,167 @@
             </div>
         </div>
     </div>
+
+    <h1 class="display-6 text-center mt-3 mx-3">Посещённые страны</h1>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3"
+         id="dashboard-country">
+        <div class="col">
+            <div class="card h-100 text-center shadow"
+                 id="card-total_visited_countries">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Общее количество посещенных стран
+                    </p>
+                    <div id="number-total_visited_countries">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow"
+                 id="section-qty_user_with_visited_countries">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Пользователей с посещёнными странами
+                    </p>
+                    <div id="number-user_with_visited_countries">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow"
+                 id="section-average_qty_visited_countries">
+                <div class="card-body">
+                    <p class="fs-4">
+                        В среднем посещённых стран у 1 пользователя
+                    </p>
+                    <div id="number-average_qty_visited_countries">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow"
+                 id="section-xxx">
+                <div class="card-body">
+                    <p class="fs-4">
+                        Максимум стран у 1 пользователя
+                    </p>
+                    <div id="number-max_qty_visited_countries">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h1 class="display-6 text-center mt-3 mx-3">Количество добавленных стран</h1>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3"
+         id="dashboard-qty_added_countries">
+        <div class="col">
+            <div class="card h-100 text-center shadow"
+                 id="card-qty_added_countries_yesterday">
+                <div class="card-body">
+                    <p class="fs-4">
+                        За вчера
+                    </p>
+                    <div id="number-qty_of_added_visited_countries_yesterday">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow"
+                 id="card-qty_added_countries_week">
+                <div class="card-body">
+                    <p class="fs-4">
+                        За неделю
+                    </p>
+                    <div id="number-qty_of_added_visited_countries_week">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow"
+                 id="card-qty_added_countries_month">
+                <div class="card-body">
+                    <p class="fs-4">
+                        За месяц
+                    </p>
+                    <div id="number-qty_of_added_visited_countries_month">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center shadow"
+                 id="card-qty_added_countries_year">
+                <div class="card-body">
+                    <p class="fs-4">
+                        За год
+                    </p>
+                    <div id="number-qty_of_added_visited_countries_year">
+                        <div class="spinner-border text-secondary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mx-3 mt-2 mb-3 g-3">
+        <div class="col">
+            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
+                <div class="card-body">
+                    <p class="fs-4">
+                        График добавления посещённых стран
+                    </p>
+                    <canvas id="visitedCountriesChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="url_get_total_visited_countries" data-url="{% url 'api__get_total_visited_countries' %}" hidden></div>
+    <div id="url_get_users_with_visited_countries" data-url="{% url 'api__get_qty_users_with_visited_countries' %}" hidden></div>
+    <div id="url_get_average_qty_visited_countries" data-url="{% url 'api__get_average_qty_visited_countries' %}" hidden></div>
+    <div id="url_get_max_qty_visited_countries" data-url="{% url 'api__max_qty_visited_countries' %}" hidden></div>
+    <div id="url_get_qty_of_added_visited_countries_yesterday" data-url="{% url 'api__get_qty_of_added_visited_countries' 1 %}" hidden></div>
+    <div id="url_get_qty_of_added_visited_countries_week" data-url="{% url 'api__get_qty_of_added_visited_countries' 7 %}" hidden></div>
+    <div id="url_get_qty_of_added_visited_countries_month" data-url="{% url 'api__get_qty_of_added_visited_countries' 30 %}" hidden></div>
+    <div id="url_get_qty_of_added_visited_countries_year" data-url="{% url 'api__get_qty_of_added_visited_countries' 365 %}" hidden></div>
+    <div id="url_get_added_visited_countries_by_day" data-url="{% url 'api__get_added_visited_countries_by_day' %}" hidden>
+    
+    <script src="{% static 'js/load_dashboard_data.js' %}"></script>
 {% endblock %}

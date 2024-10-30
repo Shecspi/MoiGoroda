@@ -322,3 +322,6 @@ if not DEBUG:
         # We recommend adjusting this value in production.
         profiles_sample_rate=float(os.getenv('SENTRY_PROFILES_SAMPLE_RATE')),
     )
+
+
+URL_GEO_POLYGONS = os.getenv('URL_GEO_POLYGONS')

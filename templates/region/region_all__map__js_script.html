@@ -24,28 +24,27 @@
         });
         map.controls.get('zoomControl').options.set({size: 'small'});
 
-        fetch('http://127.0.0.1:8080/region/RU/all')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.statusText)
-                }
-                return response.json();
-            })
-            .then(data => {
-                data.forEach(region => {
-                    const obj = ymaps.geoQuery(region).addToMap(map);
-                    obj.each(item => {
-                        item.options.set({
-                            fillColor: fillColorNotVisitedRegion,
-                            fillOpacity: fillOpacity,
-                            strokeColor: strokeColor,
-                            strokeOpacity: strokeOpacity
-                        });
-                    });
-                });
-            })
-
-        /**
+        {#fetch('http://127.0.0.1:8080/region/RU/all')#}
+        {#    .then(response => {#}
+        {#        if (!response.ok) {#}
+        {#            throw new Error(response.statusText)#}
+        {#        }#}
+        {#        return response.json();#}
+        {#    })#}
+        {#    .then(data => {#}
+        {#        data.forEach(region => {#}
+        {#            const obj = ymaps.geoQuery(region).addToMap(map);#}
+        {#            obj.each(item => {#}
+        {#                item.options.set({#}
+        {#                    fillColor: fillColorNotVisitedRegion,#}
+        {#                    fillOpacity: fillOpacity,#}
+        {#                    strokeColor: strokeColor,#}
+        {#                    strokeOpacity: strokeOpacity#}
+        {#                });#}
+        {#            });#}
+        {#        });#}
+        {#    })#}
+        
         ymaps.borders.load('RU', {
             lang: 'ru',
             quality: 2
@@ -100,6 +99,6 @@
             let objectManager = new ymaps.ObjectManager();
             objectManager.add(new_regions);
             map.geoObjects.add(objectManager);
-        });**/
+        });
     }
 </script>

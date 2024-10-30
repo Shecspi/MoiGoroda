@@ -6,6 +6,9 @@
         {{ region_name }}
     </h1>
 
+    <div id="iso3166_code" data-iso3166_code="{{ iso3166_code }}" hidden></div>
+    <div id="url-geo-polygons" data-url="{{ url_geo_polygons }}" hidden></div>
+
     {% include 'region/region_selected__map__toolbar.html' %}
 
     <!-- Карта -->
@@ -13,12 +16,21 @@
     <!-- ^^^ Карта -->
 
     <script>
+        const fillOpacity = 0.2;
+        const strokeColor = '#6b6b6b';
+        const strokeOpacity = 0.5;
+        const strokeWidth = 2;
+        const iso3166_code = document.getElementById('iso3166_code').dataset.iso3166_code
+        const region_code = iso3166_code.split('-')[1];
+        const country_code = iso3166_code.split('-')[0];
+        const url_geo_polygons = document.getElementById('url-geo-polygons').dataset.url;
+
         function displayCitiesOnMap() {
             /**
              * Отображает карту и генерирует на ней отметки с городами.
              */
-            // Массив с городами региона
-            // ['latitude', 'longitude', 'city name', 'is_visited']
+                // Массив с городами региона
+                // ['latitude', 'longitude', 'city name', 'is_visited']
             let all_cities = []
             {% for city in all_cities %}
                 var is_visited = '{{ city.is_visited }}' === 'True';
@@ -78,15 +90,50 @@
                 let coordinateWidth = all_cities[i][0];
                 let coordinateLongitude = all_cities[i][1];
                 let city = all_cities[i][2]
-                let color = (all_cities[i][3] === true) ? '#009d31' :'#a45555'
+                let color = (all_cities[i][3] === true) ? '#009d31' : '#a45555'
 
                 myMap.geoObjects.add(
                     new ymaps.Placemark(
                         [coordinateWidth, coordinateLongitude], {
-                        balloonContent: city }, {
-                        preset: 'islands#dotIcon', iconColor: color
-                    }));
+                            balloonContent: city
+                        }, {
+                            preset: 'islands#dotIcon', iconColor: color
+                        }));
             }
+
+            // Загружаем полигон региона
+            const url = `${url_geo_polygons}/region/${country_code}/${region_code}`
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(response.statusText)
+                    }
+                    return response.json()
+                })
+                .then(geoJson => {
+                    // Координаты в geo-polygons не соответствуют координатам, с которыми работают Яндекс.карты.
+                    // Поэтому их нужно поменять местами друг с другом.
+                    geoJson.features.forEach(features => {
+                        features.geometry.coordinates.forEach(feature => {
+                            feature.forEach(coords => {
+                                coords.reverse();
+                            })
+                        })
+                    });
+
+                    const obj = ymaps.geoQuery(geoJson).addToMap(myMap);
+                    obj.each(item => {
+                        item.options.set({
+                            fillOpacity: fillOpacity,
+                            strokeColor: strokeColor,
+                            strokeOpacity: strokeOpacity,
+                            strokeWidth: strokeWidth
+                        });
+                    })
+                })
+                .catch(error => {
+                    console.log('Произошла ошибка при загрузке границ региона:\n' + error);
+                });
         }
 
         // Дожидаемся загрузки API

@@ -21,6 +21,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Exists, OuterRef, Subquery, Value
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
+from MoiGoroda import settings
 from region.models import Region
 from city.models import VisitedCity, City
 from services import logger
@@ -332,6 +333,8 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         context['region_id'] = self.region_id
         context['all_cities'] = self.all_cities
         context['region_name'] = self.region_name
+        context['iso3166_code'] = self.region_name.iso3166
+        context['url_geo_polygons'] = settings.URL_GEO_POLYGONS
 
         context['total_qty_of_cities'] = self.total_qty_of_cities
         context['qty_of_visited_cities'] = self.qty_of_visited_cities

@@ -6,7 +6,6 @@
         {{ region_name }}
     </h1>
 
-    <div id="iso3166_code" data-iso3166_code="{{ iso3166_code }}" hidden></div>
     <div id="url-geo-polygons" data-url="{{ url_geo_polygons }}" hidden></div>
 
     {% include 'region/region_selected__map__toolbar.html' %}
@@ -29,8 +28,8 @@
             /**
              * Отображает карту и генерирует на ней отметки с городами.
              */
-                // Массив с городами региона
-                // ['latitude', 'longitude', 'city name', 'is_visited']
+            // Массив с городами региона
+            // ['latitude', 'longitude', 'city name', 'is_visited']
             let all_cities = []
             {% for city in all_cities %}
                 var is_visited = '{{ city.is_visited }}' === 'True';
@@ -41,6 +40,8 @@
                     is_visited
                 ])
             {% endfor %}
+        
+        console.log("{{ all_cities }}")
 
             // Высчитываем центральную точку карты.
             // Ей является средняя координата всех городов, отображённых на карте.

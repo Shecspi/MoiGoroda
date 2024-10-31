@@ -4,7 +4,7 @@
     let regionList = new Map();
     {% for item in all_regions %}
         regionList.set('{{ item.iso3166 }}', {
-            'num_visited': '{{ item.num_visited }}',
+            'num_visited': {{ item.num_visited }},
             'title': '{{ item }}'
         });
     {% endfor %}
@@ -14,6 +14,7 @@
     const fillOpacity = 0.6;
     const strokeColor = '#FFF';
     const strokeOpacity = 0.5;
+    const url_geo_polygons = document.getElementById('url-geo-polygons').dataset.url;
 
     function init() {
         let map = new ymaps.Map('map', {
@@ -24,81 +25,54 @@
         });
         map.controls.get('zoomControl').options.set({size: 'small'});
 
-        {#fetch('http://127.0.0.1:8080/region/RU/all')#}
-        {#    .then(response => {#}
-        {#        if (!response.ok) {#}
-        {#            throw new Error(response.statusText)#}
-        {#        }#}
-        {#        return response.json();#}
-        {#    })#}
-        {#    .then(data => {#}
-        {#        data.forEach(region => {#}
-        {#            const obj = ymaps.geoQuery(region).addToMap(map);#}
-        {#            obj.each(item => {#}
-        {#                item.options.set({#}
-        {#                    fillColor: fillColorNotVisitedRegion,#}
-        {#                    fillOpacity: fillOpacity,#}
-        {#                    strokeColor: strokeColor,#}
-        {#                    strokeOpacity: strokeOpacity#}
-        {#                });#}
-        {#            });#}
-        {#        });#}
-        {#    })#}
-        
-        ymaps.borders.load('RU', {
-            lang: 'ru',
-            quality: 2
-        }).then(function (result) {
-            result.features.reduce(function (acc, feature) {
-                let iso = feature.properties.iso3166;
-                feature.id = iso;
-                feature.options = {
-                    fillColor: regionList.get(iso)['num_visited'] > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,
-                    fillOpacity: fillOpacity,
-                    strokeColor: strokeColor,
-                    strokeOpacity: strokeOpacity
-                };
-                feature.properties = {
-                    hintContent: regionList.get(iso)['title'],
+        // ToDo: В будущем нужно заменить RU на переменную, когда на сервисе появятся регионы в других странах
+        const url = `${url_geo_polygons}/region/RU/all`
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
                 }
-                acc[iso] = feature;
-                return acc;
-            }, {});
+                return response.json();
+            })
+            .then(geoJsons => {
+                // Координаты в geo-polygons не соответствуют координатам, с которыми работают Яндекс.карты.
+                // Поэтому их нужно поменять местами друг с другом.
+                geoJsons.forEach(geoJson => {
+                    geoJson.features.forEach(features => {
+                        features.geometry.coordinates.forEach(feature => {
+                            feature.forEach(coords => {
+                                coords.reverse();
+                            })
+                        })
+                    })
+                });
 
-            let objectManager = new ymaps.ObjectManager();
-            objectManager.add(result);
-            map.geoObjects.add(objectManager);
-        });
+                // Добавляем полигоны на карту
+                geoJsons.forEach(region => {
+                    const obj = ymaps.geoQuery(region).addToMap(map);
+                    obj.each(item => {
+                        const iso3166 = item.properties.get('iso3166');
 
-        // Яндекс считает, что новые территории России находятся на Украине.
-        // Поэтому нужно загрузить регионы Украины и отфильтровать их, оставив только 4 российских региона.
-        ymaps.borders.load('UA', {
-            lang: 'ru',
-            quality: 2
-        }).then(function (result) {
-            let new_regions = [];
+                        let fillColor;
+                        if (iso3166 && regionList.get(iso3166) && regionList.get(iso3166).num_visited) {
+                            fillColor = fillColorVisitedRegion;
+                        } else {
+                            fillColor = fillColorNotVisitedRegion;
+                        }
 
-            for (let region of result.features) {
-                let iso = region.properties.iso3166;
-
-                if (regionList.get(iso)) {
-                    region.id = iso;
-                    region.options = {
-                        fillColor: regionList.get(iso)['num_visited'] > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,
-                        fillOpacity: fillOpacity,
-                        strokeColor: strokeColor,
-                        strokeOpacity: strokeOpacity
-                    };
-                    region.properties = {
-                        hintContent: regionList.get(iso)['title'],
-                    }
-                    new_regions.push(region);
-                }
-            }
-
-            let objectManager = new ymaps.ObjectManager();
-            objectManager.add(new_regions);
-            map.geoObjects.add(objectManager);
-        });
+                        item.options.set({
+                            fillColor: fillColor,
+                            fillOpacity: fillOpacity,
+                            strokeColor: strokeColor,
+                            strokeOpacity: strokeOpacity
+                        });
+                        if (iso3166 && regionList.get(iso3166)) {
+                            item.properties.set({
+                                hintContent: regionList.get(iso3166)['title']
+                            });
+                        }
+                    });
+                });
+            })
     }
 </script>

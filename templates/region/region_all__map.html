@@ -5,6 +5,9 @@
     <h1 class="display-5 text-center mt-3 mx-3" id="page-header">
         Карта регионов России
     </h1>
+    
+    <div id="iso3166_code" data-iso3166_code="{{ iso3166_code }}" hidden></div>
+    <div id="url-geo-polygons" data-url="{{ url_geo_polygons }}" hidden></div>
 
     {% include 'region/region_all__map__toolbar.html' %}
 

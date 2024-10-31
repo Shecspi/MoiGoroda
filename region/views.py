@@ -99,6 +99,7 @@ class RegionList(RegionListMixin, ListView):
         context['qty_of_visited_regions'] = self.qty_of_visited_regions
         context['declension_of_regions'] = self.declension_of_region(self.qty_of_visited_regions)
         context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_regions)
+        context['url_geo_polygons'] = settings.URL_GEO_POLYGONS
 
         if self.list_or_map == 'list':
             context['page_title'] = 'Список регионов России'

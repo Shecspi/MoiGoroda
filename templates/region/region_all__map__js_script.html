@@ -5,7 +5,8 @@
     {% for item in all_regions %}
         regionList.set('{{ item.iso3166 }}', {
             'num_visited': '{{ item.num_visited }}',
-            'title': '{{ item }}'
+            'title': '{{ item }}',
+            'id': {{ item.id }}
         });
     {% endfor %}
 
@@ -52,14 +53,24 @@
             result.features.reduce(function (acc, feature) {
                 let iso = feature.properties.iso3166;
                 feature.id = iso;
+                id = 444;
                 feature.options = {
                     fillColor: regionList.get(iso)['num_visited'] > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,
                     fillOpacity: fillOpacity,
                     strokeColor: strokeColor,
                     strokeOpacity: strokeOpacity
                 };
+                const links = `<br>`
+                            + `<a href="/region/${regionList.get(iso)['id']}/map" `
+                               + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
+                                      + `link-underline-opacity-75 link-opacity-100-hover">Карта городов</a><br>`
+                            + `<a href="/region/${regionList.get(iso)['id']}/list" `
+                               + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
+                                      + `link-underline-opacity-75 link-opacity-100-hover">Список городов</a>`;
                 feature.properties = {
                     hintContent: regionList.get(iso)['title'],
+                    balloonContentHeader: regionList.get(iso)['title'],
+                    balloonContent: links
                 }
                 acc[iso] = feature;
                 return acc;

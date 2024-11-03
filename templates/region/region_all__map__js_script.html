@@ -66,6 +66,10 @@
                                     + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
                                            + `link-underline-opacity-75 link-opacity-100-hover">Список городов</a>`
                     geojson.bindPopup(`<h4>${title}</h4><br>${description}`);
+                    geojson.bindTooltip(title, {
+                        direction: 'top',
+                        sticky: true
+                    });
                 });
             });
     }

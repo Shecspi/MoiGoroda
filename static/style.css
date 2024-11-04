@@ -25,10 +25,20 @@ body.simple {
 }
 
 #map div.load {
-    padding: 6px 8px;
-    font: 14px/16px Arial, Helvetica, sans-serif;
-    background: rgba(255,255,255,0.8);
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    padding: 20px 20px;
+    font: 18px 'Roboto', sans-serif;
+    font-weight: 300;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+}
+
+#map div.error {
+    padding: 20px 20px;
+    font: 18px 'Roboto', sans-serif;
+    font-weight: 300;
+    background: rgba(253, 118, 118, 0.9);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
     border-radius: 5px;
 }
 

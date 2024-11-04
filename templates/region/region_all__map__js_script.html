@@ -34,6 +34,22 @@
 
         return load
     }
+    
+    function addErrorControl(map) {
+        const error = L.control();
+
+        error.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'error');
+            this.update();
+            return this._div;
+        };
+        error.update = function (props) {
+            this._div.innerHTML = '<div>Произошла ошибка при загрузке границ регионов</div>';
+        };
+        error.addTo(map);
+
+        return error
+    }
 
     function init() {
         const map = L.map('map', {attributionControl: false}).setView([60, 50], 4);
@@ -41,7 +57,7 @@
         const myAttrControl = L.control.attribution().addTo(map);
         myAttrControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
 
-        L.tileLayer({{ TILE_LAYER }}, {
+        L.tileLayer("{{ TILE_LAYER }}", {
             maxZoom: 19,
             attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
         }).addTo(map);
@@ -58,7 +74,7 @@
             .then(data => {
                 // Удаляем информацию о загрузке регионов
                 map.removeControl(load);
-                
+
                 // Добавляем полигоны на карту
                 data.forEach(region => {
                     const iso3166 = region.features[0].properties.iso3166;
@@ -95,6 +111,10 @@
                         sticky: true
                     });
                 });
+            })
+            .catch(error => {
+                map.removeControl(load);
+                addErrorControl(map);
             });
     }
 

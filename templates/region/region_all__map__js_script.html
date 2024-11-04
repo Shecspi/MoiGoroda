@@ -41,14 +41,14 @@
         const myAttrControl = L.control.attribution().addTo(map);
         myAttrControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer({{ TILE_LAYER }}, {
             maxZoom: 19,
             attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
         }).addTo(map);
 
         const load = addLoadControl(map);
 
-        fetch('http://127.0.0.1:8080/region/RU/all')
+        fetch('{{ URL_GEO_POLYGONS }}/region/RU/all')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(response.statusText)

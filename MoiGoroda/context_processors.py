@@ -27,6 +27,8 @@ def general_settings(request):
         'SUPPORT_EMAIL': os.getenv('DEFAULT_FROM_EMAIL'),
         'has_unread_news': has_unread_news,
         'DONATE_LINK': os.getenv('DONATE_LINK'),
+        'URL_GEO_POLYGONS': os.getenv('URL_GEO_POLYGONS'),
+        'TILE_LAYER': os.getenv('TILE_LAYER'),
     }
 
     return context

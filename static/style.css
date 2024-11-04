@@ -32,6 +32,11 @@ body.simple {
     border-radius: 5px;
 }
 
+/* Убирает баг leaflet.js, когда при клике на полигон появляется рамка вокруг него */
+.leaflet-container path.leaflet-interactive:focus:not(:focus-visible) {
+    outline: 0;
+}
+
 /*------------ Sidebar ------------*/
 
 #sidebar {

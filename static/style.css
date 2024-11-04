@@ -24,11 +24,11 @@ body.simple {
     min-height: 75dvh;
 }
 
-#map div.info {
+#map div.load {
     padding: 6px 8px;
-    font: 14px / 16px 'Roboto', sans-serif;
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
 }
 

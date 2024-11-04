@@ -17,6 +17,24 @@
     const strokeOpacity = 0.1;
     const strokeWidth = 2;
 
+    function addLoadControl(map) {
+        const load = L.control();
+
+        load.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'load');
+            this.update();
+            return this._div;
+        };
+        load.update = function (props) {
+            this._div.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2">'
+                                + '<div class="spinner-border spinner-border-sm" role="status">'
+                                + '<span class="visually-hidden">Загрузка...</span></div><div>Загружаю границы регионов...</div></div>';
+        };
+        load.addTo(map);
+
+        return load
+    }
+
     function init() {
         const map = L.map('map', {attributionControl: false}).setView([60, 50], 4);
 
@@ -28,6 +46,8 @@
             attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
         }).addTo(map);
 
+        const load = addLoadControl(map);
+
         fetch('http://127.0.0.1:8080/region/RU/all')
             .then(response => {
                 if (!response.ok) {
@@ -36,6 +56,10 @@
                 return response.json();
             })
             .then(data => {
+                // Удаляем информацию о загрузке регионов
+                map.removeControl(load);
+                
+                // Добавляем полигоны на карту
                 data.forEach(region => {
                     const iso3166 = region.features[0].properties.iso3166;
                     const title = regionList.get(iso3166).title;

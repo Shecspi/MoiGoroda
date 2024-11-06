@@ -16,47 +16,15 @@
     const strokeColor = '#646464';
     const strokeOpacity = 0.1;
     const strokeWidth = 2;
-
-    function addLoadControl(map) {
-        const load = L.control();
-
-        load.onAdd = function (map) {
-            this._div = L.DomUtil.create('div', 'load');
-            this.update();
-            return this._div;
-        };
-        load.update = function (props) {
-            this._div.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2">'
-                                + '<div class="spinner-border spinner-border-sm" role="status">'
-                                + '<span class="visually-hidden">Загрузка...</span></div><div>Загружаю границы регионов...</div></div>';
-        };
-        load.addTo(map);
-
-        return load
-    }
     
-    function addErrorControl(map) {
-        const error = L.control();
-
-        error.onAdd = function (map) {
-            this._div = L.DomUtil.create('div', 'error');
-            this.update();
-            return this._div;
-        };
-        error.update = function (props) {
-            this._div.innerHTML = '<div>Произошла ошибка при загрузке границ регионов</div>';
-        };
-        error.addTo(map);
-
-        return error
-    }
+    let map;
 
     function init() {
-        const map = L.map('map', {attributionControl: false}).setView([60, 50], 4);
+        map = L.map('map', {attributionControl: false}).setView([60, 50], 4);
 
+        // Этот код нужен для того, чтобы убрать ненужный флаг с копирайта.
         const myAttrControl = L.control.attribution().addTo(map);
         myAttrControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
-
         L.tileLayer("{{ TILE_LAYER }}", {
             maxZoom: 19,
             attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
@@ -64,7 +32,8 @@
 
         const load = addLoadControl(map);
 
-        fetch('{{ URL_GEO_POLYGONS }}/region/RU/all')
+        const url_all_geo_polygons = '{{ URL_GEO_POLYGONS }}/region/RU/all';
+        fetch(url_all_geo_polygons)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(response.statusText)
@@ -118,6 +87,9 @@
             });
     }
 
+    /**
+     * Меняет цвет и выделение полигона более акцентированными.
+     */
     function highlightFeature(e) {
         const layer = e.target;
 
@@ -131,6 +103,9 @@
         layer.bringToFront();
     }
 
+    /**
+     * Возвращает цвет и выделение региона в оригинальные.
+     */
     function resetHighlight(e) {
         e.target.setStyle({
             weight: strokeWidth,
@@ -144,10 +119,54 @@
         map.fitBounds(e.target.getBounds());
     }
 
+    /**
+     * Добавляет обработчики событий для полигонов.
+     */
     function onEachFeature(feature, layer) {
         layer.on({
             mouseover: highlightFeature,
-            mouseout: resetHighlight
+            mouseout: resetHighlight,
+            click: zoomToFeature
         });
+    }
+
+    /**
+     * Создаёт на карте map панель с информацией о том, что идёт загрузка полигонов.
+     */
+    function addLoadControl(map) {
+        const load = L.control();
+
+        load.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'load');
+            this.update();
+            return this._div;
+        };
+        load.update = function (props) {
+            this._div.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2">'
+                                + '<div class="spinner-border spinner-border-sm" role="status">'
+                                + '<span class="visually-hidden">Загрузка...</span></div><div>Загружаю границы регионов...</div></div>';
+        };
+        load.addTo(map);
+
+        return load
+    }
+
+    /**
+     * Создаёт на карте map панель с информацией о том, что произошла ошибка при загрузке полигонов.
+     */
+    function addErrorControl(map) {
+        const error = L.control();
+
+        error.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'error');
+            this.update();
+            return this._div;
+        };
+        error.update = function (props) {
+            this._div.innerHTML = '<div>Произошла ошибка при загрузке границ регионов</div>';
+        };
+        error.addTo(map);
+
+        return error
     }
 </script>

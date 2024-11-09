@@ -24,6 +24,29 @@ body.simple {
     min-height: 75dvh;
 }
 
+#map div.load {
+    padding: 20px 20px;
+    font: 18px 'Roboto', sans-serif;
+    font-weight: 300;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+}
+
+#map div.error {
+    padding: 20px 20px;
+    font: 18px 'Roboto', sans-serif;
+    font-weight: 300;
+    background: rgba(253, 118, 118, 0.9);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    border-radius: 5px;
+}
+
+/* Убирает баг leaflet.js, когда при клике на полигон появляется рамка вокруг него */
+.leaflet-container path.leaflet-interactive:focus:not(:focus-visible) {
+    outline: 0;
+}
+
 /*------------ Sidebar ------------*/
 
 #sidebar {

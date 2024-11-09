@@ -12,113 +12,164 @@
 
     const fillColorVisitedRegion = '#32b700';
     const fillColorNotVisitedRegion = '#9a9a9a';
-    const fillOpacity = 0.6;
-    const strokeColor = '#FFF';
-    const strokeOpacity = 0.5;
+    const fillOpacity = 0;
+    const strokeColor = '#646464';
+    const strokeOpacity = 0.2;
+    const strokeWidth = 2;
+    
+    let map;
 
     function init() {
-        let map = new ymaps.Map('map', {
-            center: [58.01, 56.22],
-            zoom: 4,
-            type: 'yandex#map',
-            controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
-        });
-        map.controls.get('zoomControl').options.set({size: 'small'});
+        map = L.map('map', {attributionControl: false}).setView([60, 50], 4);
 
-        {#fetch('http://127.0.0.1:8080/region/RU/all')#}
-        {#    .then(response => {#}
-        {#        if (!response.ok) {#}
-        {#            throw new Error(response.statusText)#}
-        {#        }#}
-        {#        return response.json();#}
-        {#    })#}
-        {#    .then(data => {#}
-        {#        data.forEach(region => {#}
-        {#            const obj = ymaps.geoQuery(region).addToMap(map);#}
-        {#            obj.each(item => {#}
-        {#                item.options.set({#}
-        {#                    fillColor: fillColorNotVisitedRegion,#}
-        {#                    fillOpacity: fillOpacity,#}
-        {#                    strokeColor: strokeColor,#}
-        {#                    strokeOpacity: strokeOpacity#}
-        {#                });#}
-        {#            });#}
-        {#        });#}
-        {#    })#}
-        
-        ymaps.borders.load('RU', {
-            lang: 'ru',
-            quality: 2
-        }).then(function (result) {
-            result.features.reduce(function (acc, feature) {
-                let iso = feature.properties.iso3166;
-                feature.id = iso;
-                id = 444;
-                feature.options = {
-                    fillColor: regionList.get(iso)['num_visited'] > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,
-                    fillOpacity: fillOpacity,
-                    strokeColor: strokeColor,
-                    strokeOpacity: strokeOpacity
-                };
-                const links = `<br>`
-                            + `<a href="/region/${regionList.get(iso)['id']}/map" `
-                               + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
-                                      + `link-underline-opacity-75 link-opacity-100-hover">Карта городов</a><br>`
-                            + `<a href="/region/${regionList.get(iso)['id']}/list" `
-                               + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
-                                      + `link-underline-opacity-75 link-opacity-100-hover">Список городов</a>`;
-                feature.properties = {
-                    hintContent: regionList.get(iso)['title'],
-                    balloonContentHeader: regionList.get(iso)['title'],
-                    balloonContent: links
+        // Этот код нужен для того, чтобы убрать ненужный флаг с копирайта.
+        const myAttrControl = L.control.attribution().addTo(map);
+        myAttrControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
+        L.tileLayer("{{ TILE_LAYER }}", {
+            maxZoom: 19,
+            attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
+        }).addTo(map);
+
+        const load = addLoadControl(map);
+
+        const url_all_geo_polygons = '{{ URL_GEO_POLYGONS }}/region/RU/all';
+        fetch(url_all_geo_polygons)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
                 }
-                acc[iso] = feature;
-                return acc;
-            }, {});
+                return response.json();
+            })
+            .then(data => {
+                // Удаляем информацию о загрузке регионов
+                map.removeControl(load);
 
-            let objectManager = new ymaps.ObjectManager();
-            objectManager.add(result);
-            map.geoObjects.add(objectManager);
-        });
+                // Добавляем полигоны на карту
+                data.forEach(region => {
+                    const iso3166 = region.features[0].properties.iso3166;
+                    const title = regionList.get(iso3166).title;
+                    const num_visited = regionList.get(iso3166).num_visited;
 
-        // Яндекс считает, что новые территории России находятся на Украине.
-        // Поэтому нужно загрузить регионы Украины и отфильтровать их, оставив только 4 российских региона.
-        ymaps.borders.load('UA', {
-            lang: 'ru',
-            quality: 2
-        }).then(function (result) {
-            let new_regions = [];
-
-            for (let region of result.features) {
-                let iso = region.properties.iso3166;
-
-                if (regionList.get(iso)) {
-                    region.id = iso;
-                    region.options = {
-                        fillColor: regionList.get(iso)['num_visited'] > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,
-                        fillOpacity: fillOpacity,
-                        strokeColor: strokeColor,
-                        strokeOpacity: strokeOpacity
+                    const myStyle = {
+                        "fillColor": num_visited > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,
+                        "fillOpacity": fillOpacity,
+                        "weight": strokeWidth,
+                        "color": strokeColor,
+                        "opacity": strokeOpacity
                     };
-                    const links = `<br>`
-                                + `<a href="/region/${regionList.get(iso)['id']}/map" `
-                                   + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
-                                          + `link-underline-opacity-75 link-opacity-100-hover">Карта городов</a><br>`
-                                + `<a href="/region/${regionList.get(iso)['id']}/list" `
-                                   + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
-                                          + `link-underline-opacity-75 link-opacity-100-hover">Список городов</a>`;
-                    region.properties = {
-                        hintContent: regionList.get(iso)['title'],
-                        balloonContentHeader: regionList.get(iso)['title'],
-                        balloonContent: links
-                    }
-                    new_regions.push(region);
-                }
-            }
+                    const geojson = L.geoJSON(region, {
+                        style: myStyle,
+                        onEachFeature: onEachFeature
+                    }).addTo(map);
 
-            let objectManager = new ymaps.ObjectManager();
-            objectManager.add(new_regions);
-            map.geoObjects.add(objectManager);
+                    let description = '';
+                    if (num_visited > 0) {
+                        description += `Посещено городов: ${num_visited}`;
+                    } else {
+                        description += 'Вы ещё не посетили ни одного города в этом регионе';
+                    }
+                    description += `<br><br><a href="/region/${regionList.get(iso3166)['id']}/map" `
+                                    + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
+                                           + `link-underline-opacity-75 link-opacity-100-hover">Карта городов</a><br>`
+                                 + `<a href="/region/${regionList.get(iso3166)['id']}/list" `
+                                    + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
+                                           + `link-underline-opacity-75 link-opacity-100-hover">Список городов</a>`
+                    geojson.bindPopup(`<h4>${title}</h4><br>${description}`);
+                    geojson.bindTooltip(title, {
+                        direction: 'top',
+                        sticky: true
+                    });
+                });
+            })
+            .catch(error => {
+                map.removeControl(load);
+                addErrorControl(map);
+            });
+    }
+
+    /**
+     * Меняет цвет и выделение полигона более акцентированными.
+     */
+    function highlightFeature(e) {
+        const layer = e.target;
+
+        layer.setStyle({
+            weight: 2,
+            color: '#000',
+            opacity: 0.3,
+            fillOpacity: 0.7
         });
+
+        layer.bringToFront();
+    }
+
+    /**
+     * Возвращает цвет и выделение региона в оригинальные.
+     */
+    function resetHighlight(e) {
+        e.target.setStyle({
+            weight: strokeWidth,
+            color: strokeColor,
+            opacity: strokeOpacity,
+            fillOpacity: fillOpacity
+        });
+    }
+
+    /**
+     * Увеличивает карту при клике на регион.
+     */
+    function zoomToFeature(e) {
+        map.fitBounds(e.target.getBounds());
+    }
+
+    /**
+     * Добавляет обработчики событий для полигонов.
+     */
+    function onEachFeature(feature, layer) {
+        layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight,
+            click: zoomToFeature
+        });
+    }
+
+    /**
+     * Создаёт на карте map панель с информацией о том, что идёт загрузка полигонов.
+     */
+    function addLoadControl(map) {
+        const load = L.control();
+
+        load.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'load');
+            this.update();
+            return this._div;
+        };
+        load.update = function (props) {
+            this._div.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2">'
+                                + '<div class="spinner-border spinner-border-sm" role="status">'
+                                + '<span class="visually-hidden">Загрузка...</span></div><div>Загружаю границы регионов...</div></div>';
+        };
+        load.addTo(map);
+
+        return load
+    }
+
+    /**
+     * Создаёт на карте map панель с информацией о том, что произошла ошибка при загрузке полигонов.
+     */
+    function addErrorControl(map) {
+        const error = L.control();
+
+        error.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'error');
+            this.update();
+            return this._div;
+        };
+        error.update = function (props) {
+            this._div.innerHTML = '<div>Произошла ошибка при загрузке границ регионов</div>';
+        };
+        error.addTo(map);
+
+        return error
     }
 </script>

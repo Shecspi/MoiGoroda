@@ -10,12 +10,24 @@
         });
     {% endfor %}
 
+<<<<<<< Updated upstream
     const fillColorVisitedRegion = '#32b700';
     const fillColorNotVisitedRegion = '#9a9a9a';
     const fillOpacity = 0;
     const strokeColor = '#646464';
     const strokeOpacity = 0.2;
     const strokeWidth = 2;
+=======
+    const fillColorVisitedRegion = '#30b200';
+    const fillColorNotVisitedRegion = '#adadad';
+    const fillOpacity = 0.7;
+    const fillOpacityHighlight = 0.9;
+    const strokeColor = '#000000';
+    const strokeOpacity = 0.1;
+    const strokeOpacityHighlight = 0.2;
+    const strokeWidth = 1;
+    const strokeWidthHighlight = 2;
+>>>>>>> Stashed changes
     
     let map;
 
@@ -94,10 +106,9 @@
         const layer = e.target;
 
         layer.setStyle({
-            weight: 2,
-            color: '#000',
-            opacity: 0.3,
-            fillOpacity: 0.7
+            weight: strokeWidthHighlight,
+            opacity: strokeOpacityHighlight,
+            fillOpacity: fillOpacityHighlight
         });
 
         layer.bringToFront();
@@ -109,7 +120,6 @@
     function resetHighlight(e) {
         e.target.setStyle({
             weight: strokeWidth,
-            color: strokeColor,
             opacity: strokeOpacity,
             fillOpacity: fillOpacity
         });

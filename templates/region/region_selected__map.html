@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-        <h1 class="display-5 text-center mt-3 mx-3" id="page-header">
+    <h1 class="display-5 text-center mt-3 mx-3" id="page-header">
         {{ region_name }}
     </h1>
 
@@ -25,8 +25,38 @@
         const country_code = iso3166_code.split('-')[0];
         const url_geo_polygons = document.getElementById('url-geo-polygons').dataset.url;
         
-            // Массив с городами региона
-            // ['latitude', 'longitude', 'city name', 'is_visited']
+        let map;
+
+        /**
+         * Добавляет кнопки приближения и отдаления карты, а также полноэкранного режима.
+         */
+        function addControlsToMap() {
+            const myAttrControl = L.control.attribution().addTo(map);
+            myAttrControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
+            L.tileLayer("{{ TILE_LAYER }}", {
+                maxZoom: 19,
+                attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
+            }).addTo(map);
+    
+            // Добавляем кнопки приближения и отдаления карты.
+            // Их пришлось удалить и вручную добавить, чтобы перевести текст подсказки на русский.
+            const zoomControl = L.control.zoom({
+              zoomInTitle: 'Нажмите, чтобы приблизить карту',
+              zoomOutTitle: 'Нажмите, чтобы отдалить карту'
+            });
+            zoomControl.addTo(map);
+            
+            // Добавляем кнопку полноэкранного режима
+            map.addControl(new L.Control.Fullscreen({
+                title: {
+                    'false': 'Полноэкранный режим',
+                    'true': 'Выйти из полноэкранного режима'
+                }
+            }));
+        }
+
+        // Массив с городами региона
+        // ['latitude', 'longitude', 'city name', 'is_visited']
         let all_cities = []
         {% for city in all_cities %}
             var is_visited = '{{ city.is_visited }}' === 'True';
@@ -71,14 +101,11 @@
             zoom = 5;
         }
 
-        map = L.map('map', {attributionControl: false}).setView([average_y, average_x], zoom);
-
-        const myAttrControl = L.control.attribution().addTo(map);
-        myAttrControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
-        L.tileLayer("{{ TILE_LAYER }}", {
-            maxZoom: 19,
-            attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
-        }).addTo(map);
+        map = L.map('map', {
+            attributionControl: false,
+            zoomControl: false
+        }).setView([average_y, average_x], zoom);
+        addControlsToMap();
 
         // Отображаем на карте все города,
         // меняя цвет иконки в зависимости от того, посещён город или нет

@@ -44,6 +44,7 @@
     <link rel="icon" type="image/svg+xml" href="{% static "image/favicon.svg" %}">
     {# Leaflet JS #}
     <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}">
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 
     {# ---------------------- #}
     {#   Загрузка JS-файлов   #}
@@ -59,6 +60,7 @@
     <script src="https://api-maps.yandex.ru/2.1/?apikey={{ API_YANDEX_MAP }}&lang=ru_RU" type="text/javascript"></script>
     {# Leaflet JS #}
     <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
     {# ChartJS для построения графиков #}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
     {# Вспомогательный файл, нужный для того, чтобы работала CSRF #}

@@ -75,14 +75,14 @@
                 zoom = 5;
             }
 
-            // Отображаем карту на странице
-            var myMap = new ymaps.Map("map", {
-                center: [average_y, average_x],
-                zoom: zoom,
-                controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
-            }, {
-                searchControlProvider: 'yandex#search'
-            });
+            map = L.map('map', {attributionControl: false}).setView([average_y, average_x], zoom);
+
+            const myAttrControl = L.control.attribution().addTo(map);
+            myAttrControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
+            L.tileLayer("{{ TILE_LAYER }}", {
+                maxZoom: 19,
+                attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
+            }).addTo(map);
 
             // Отображаем на карте все города,
             // меняя цвет иконки в зависимости от того, посещён город или нет
@@ -90,15 +90,22 @@
                 let coordinateWidth = all_cities[i][0];
                 let coordinateLongitude = all_cities[i][1];
                 let city = all_cities[i][2]
-                let color = (all_cities[i][3] === true) ? '#009d31' : '#a45555'
+                let pointer_style = (all_cities[i][3] === true) ? 'pointer-green' : 'pointer-red'
 
-                myMap.geoObjects.add(
-                    new ymaps.Placemark(
-                        [coordinateWidth, coordinateLongitude], {
-                            balloonContent: city
-                        }, {
-                            preset: 'islands#dotIcon', iconColor: color
-                        }));
+                const icon = L.divIcon({
+                    className: 'pointer-root',
+                    html: `<div class="pointer ${pointer_style}"></div>`,
+                    iconAnchor: [11, 22],
+                });
+                L.marker([coordinateWidth, coordinateLongitude], {icon: icon}).addTo(map);
+
+                {#myMap.geoObjects.add(#}
+                {#    new ymaps.Placemark(#}
+                {#        [coordinateWidth, coordinateLongitude], {#}
+                {#            balloonContent: city#}
+                {#        }, {#}
+                {#            preset: 'islands#dotIcon', iconColor: color#}
+                {#        }));#}
             }
 
             // Загружаем полигон региона
@@ -111,25 +118,15 @@
                     return response.json()
                 })
                 .then(geoJson => {
-                    // Координаты в geo-polygons не соответствуют координатам, с которыми работают Яндекс.карты.
-                    // Поэтому их нужно поменять местами друг с другом.
-                    geoJson.features.forEach(features => {
-                        features.geometry.coordinates.forEach(feature => {
-                            feature.forEach(coords => {
-                                coords.reverse();
-                            })
-                        })
-                    });
-
-                    const obj = ymaps.geoQuery(geoJson).addToMap(myMap);
-                    obj.each(item => {
-                        item.options.set({
-                            fillOpacity: fillOpacity,
-                            strokeColor: strokeColor,
-                            strokeOpacity: strokeOpacity,
-                            strokeWidth: strokeWidth
-                        });
-                    })
+                    const myStyle = {
+                        "fillOpacity": fillOpacity,
+                        "weight": strokeWidth,
+                        "color": strokeColor,
+                        "opacity": strokeOpacity
+                    };
+                    L.geoJSON(geoJson, {
+                        style: myStyle,
+                    }).addTo(map);
                 })
                 .catch(error => {
                     console.log('Произошла ошибка при загрузке границ региона:\n' + error);
@@ -137,6 +134,7 @@
         }
 
         // Дожидаемся загрузки API
-        ymaps.ready(displayCitiesOnMap);
+        displayCitiesOnMap();
+        {#ymaps.ready(displayCitiesOnMap);#}
     </script>
 {% endblock %}

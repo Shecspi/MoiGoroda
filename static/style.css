@@ -47,6 +47,20 @@ body.simple {
     outline: 0;
 }
 
+.pointer {
+    width: 22px;
+    height: 22px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+}
+.pointer-green {
+    border: 6px solid #097c00;
+}
+.pointer-red {
+    border: 6px solid red;
+}
+
+
 /*------------ Sidebar ------------*/
 
 #sidebar {

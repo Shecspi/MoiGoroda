@@ -6,7 +6,9 @@ services:
       PGDATA: /var/lib/postgresql/data/some/
       POSTGRES_PASSWORD: password
     volumes:
-       - ~/.moi-goroda/postgres_data:/var/lib/postgresql/data/
-       - ~/.moi-goroda/postgres_data/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+       - moi-goroda-psql:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
+
+volumes:
+  moi-goroda-psql:

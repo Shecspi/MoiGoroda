@@ -14,6 +14,8 @@
 
 - *(region)* Карта регионов переведена на использование OpenStreetMap ([fc74adf](https://github.com/Shecspi/MoiGoroda/commit/fc74adf9256163f00b69b719d245531bb6372196))
 
+- *(region)* Карта городов региона переведена на использование OpenStreetMap ([a063727](https://github.com/Shecspi/MoiGoroda/commit/a063727e770b4dd6725bf41b057dd8f939efee57))
+
 
 #### 🐛 Исправление ошибок
 

@@ -10,6 +10,8 @@ Licensed under the Apache License, Version 2.0
 from django.contrib.auth.models import User
 from django.db import models
 
+from city.models import City
+
 
 class PartOfTheWorld(models.Model):
     name = models.CharField(
@@ -42,14 +44,51 @@ class Location(models.Model):
 
 class Country(models.Model):
     name = models.CharField(
-        max_length=100, unique=True, blank=False, null=False, verbose_name='Название'
+        max_length=255, unique=True, blank=False, null=False, verbose_name='Название'
     )
     fullname = models.CharField(
-        max_length=100, unique=True, blank=True, null=True, verbose_name='Полное название'
+        max_length=255, unique=True, blank=True, null=True, verbose_name='Полное название'
     )
-    code = models.CharField(max_length=2, unique=True, blank=False, null=False, verbose_name='Код')
+    english_name = models.CharField(
+        max_length=255,
+        unique=False,
+        blank=True,
+        null=True,
+        verbose_name='Название на-английском языке',
+    )
+    english_fullname = models.CharField(
+        max_length=255,
+        unique=False,
+        blank=True,
+        null=True,
+        verbose_name='Полное название на-английском языке',
+    )
+    iso3166_1_alpha2 = models.CharField(
+        max_length=2,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name='Двухбуквенный код ISO 3166-1',
+    )
+    iso3166_1_alpha3 = models.CharField(
+        max_length=3,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name='Трёхбуквенный код ISO 3166-1',
+    )
+    iso3166_1_numeric = models.CharField(
+        max_length=3,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name='Цифровой код ISO 3166-1',
+    )
+    capital = models.OneToOneField(
+        City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Столица'
+    )
     location = models.ForeignKey(
-        Location, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Расположение'
+        Location, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Расположение'
     )
 
     class Meta:

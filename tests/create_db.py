@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from account.models import ShareSettings
 from city.models import City, VisitedCity
-from country.models import Country, Location, PartOfTheWorld, VisitedCountry
+from country.models__test import Country, Location, PartOfTheWorld, VisitedCountry
 from news.models import News
 from region.models import Area, Region
 from subscribe.models import Subscribe

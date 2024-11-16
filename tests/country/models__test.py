@@ -1,8 +1,48 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 import pytest
 from django.db import models
 
 from city.models import City
 from country.models import Country, Location, PartOfTheWorld
+
+
+@pytest.mark.django_db
+def test__can_create_model_part_of_the_world_instance_test():
+    assert PartOfTheWorld()
+
+
+@pytest.mark.django_db
+def test__model_part_of_the_world_has_valid_verbose_name():
+    assert PartOfTheWorld._meta.verbose_name == 'Часть света'
+    assert PartOfTheWorld._meta.verbose_name_plural == 'Части света'
+
+
+@pytest.mark.django_db
+def test__model_part_of_the_world_has_a_field_name():
+    field = PartOfTheWorld._meta.get_field('name')
+
+    assert field.verbose_name == 'Название'
+    assert field.max_length == 20
+    assert field.unique is True
+    assert field.blank is False
+    assert field.null is False
+    assert isinstance(field, models.CharField)
+
+
+@pytest.mark.django_db
+def test__model_part_of_the_world_returns_correct_str_representation():
+    part_name = 'Европа'
+    part = PartOfTheWorld.objects.create(name=part_name)
+
+    assert part_name == str(part)
 
 
 @pytest.mark.django_db
@@ -155,3 +195,11 @@ def test__model_country_has_a_field_location():
     assert Country._meta.get_field('location').remote_field.on_delete == models.SET_NULL
     assert isinstance(Country._meta.get_field('location'), models.ForeignKey)
     assert isinstance(Country._meta.get_field('location').remote_field.model(), Location)
+
+
+@pytest.mark.django_db
+def test__model_country_returns_correct_str_representation():
+    country_name = 'Восточная Европа'
+    country = Country.objects.create(name=country_name)
+
+    assert country_name == str(country)

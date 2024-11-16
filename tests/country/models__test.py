@@ -2,22 +2,64 @@ import pytest
 from django.db import models
 
 from city.models import City
-from country.models import Country, Location
+from country.models import Country, Location, PartOfTheWorld
 
 
 @pytest.mark.django_db
-def test__can_create_model_instance_test():
+def test__can_create_model_location_instance_test():
+    assert Location()
+
+
+@pytest.mark.django_db
+def test__model_location_has_valid_verbose_name():
+    assert Location._meta.verbose_name == 'Расположение'
+    assert Location._meta.verbose_name_plural == 'Расположения'
+
+
+@pytest.mark.django_db
+def test__model_location_has_a_field_name():
+    field = Location._meta.get_field('name')
+    assert field.verbose_name == 'Название'
+    assert field.max_length == 50
+    assert field.unique is True
+    assert field.blank is False
+    assert field.null is False
+    assert isinstance(field, models.CharField)
+
+
+@pytest.mark.django_db
+def test__model_location_has_a_field_location():
+    field = Location._meta.get_field('part_of_the_world')
+    assert field.verbose_name == 'Часть света'
+    assert field.blank is True
+    assert field.null is True
+    assert field.remote_field.on_delete == models.SET_NULL
+    assert isinstance(field, models.ForeignKey)
+    assert isinstance(field.remote_field.model(), PartOfTheWorld)
+
+
+@pytest.mark.django_db
+def test__model_location_returns_correct_str_representation():
+    location_name = 'Западная Европа'
+    part = PartOfTheWorld.objects.create(name='Европа')
+    location = Location.objects.create(name=location_name, part_of_the_world=part)
+
+    assert location_name == str(location)
+
+
+@pytest.mark.django_db
+def test__can_create_model_country_instance_test():
     assert Country()
 
 
 @pytest.mark.django_db
-def test__model_has_valid_verbose_name():
+def test__model_country_has_valid_verbose_name():
     assert Country._meta.verbose_name == 'Страна'
     assert Country._meta.verbose_name_plural == 'Страны'
 
 
 @pytest.mark.django_db
-def test__model_has_a_field_name():
+def test__model_country_has_a_field_name():
     assert Country._meta.get_field('name').verbose_name == 'Название'
     assert Country._meta.get_field('name').max_length == 255
     assert Country._meta.get_field('name').unique is True
@@ -27,7 +69,7 @@ def test__model_has_a_field_name():
 
 
 @pytest.mark.django_db
-def test__model_has_a_field_fullname():
+def test__model_country_has_a_field_fullname():
     assert Country._meta.get_field('fullname').verbose_name == 'Полное название'
     assert Country._meta.get_field('fullname').max_length == 255
     assert Country._meta.get_field('fullname').unique is True
@@ -37,7 +79,7 @@ def test__model_has_a_field_fullname():
 
 
 @pytest.mark.django_db
-def test__model_has_a_field_english_name():
+def test__model_country_has_a_field_english_name():
     assert Country._meta.get_field('english_name').verbose_name == 'Название на-английском языке'
     assert Country._meta.get_field('english_name').max_length == 255
     assert Country._meta.get_field('english_name').unique is False
@@ -47,7 +89,7 @@ def test__model_has_a_field_english_name():
 
 
 @pytest.mark.django_db
-def test__model_has_a_field_english_fullname():
+def test__model_country_has_a_field_english_fullname():
     assert (
         Country._meta.get_field('english_fullname').verbose_name
         == 'Полное название на-английском языке'
@@ -60,7 +102,7 @@ def test__model_has_a_field_english_fullname():
 
 
 @pytest.mark.django_db
-def test__model_has_a_field_iso3166_1_alpha2():
+def test__model_country_has_a_field_iso3166_1_alpha2():
     assert (
         Country._meta.get_field('iso3166_1_alpha2').verbose_name == 'Двухбуквенный код ISO 3166-1'
     )
@@ -72,7 +114,7 @@ def test__model_has_a_field_iso3166_1_alpha2():
 
 
 @pytest.mark.django_db
-def test__model_has_a_field_iso3166_1_alpha3():
+def test__model_country_has_a_field_iso3166_1_alpha3():
     assert (
         Country._meta.get_field('iso3166_1_alpha3').verbose_name == 'Трёхбуквенный код ISO 3166-1'
     )
@@ -84,7 +126,7 @@ def test__model_has_a_field_iso3166_1_alpha3():
 
 
 @pytest.mark.django_db
-def test__model_has_a_field_iso3166_1_numeric():
+def test__model_country_has_a_field_iso3166_1_numeric():
     assert Country._meta.get_field('iso3166_1_numeric').verbose_name == 'Цифровой код ISO 3166-1'
     assert Country._meta.get_field('iso3166_1_numeric').max_length == 3
     assert Country._meta.get_field('iso3166_1_numeric').unique is True
@@ -94,7 +136,7 @@ def test__model_has_a_field_iso3166_1_numeric():
 
 
 @pytest.mark.django_db
-def test__model_has_a_field_capital():
+def test__model_country_has_a_field_capital():
     assert Country._meta.get_field('capital').verbose_name == 'Столица'
     assert Country._meta.get_field('capital').unique is True
     assert Country._meta.get_field('capital').blank is True
@@ -105,7 +147,7 @@ def test__model_has_a_field_capital():
 
 
 @pytest.mark.django_db
-def test__model_has_a_field_location():
+def test__model_country_has_a_field_location():
     assert Country._meta.get_field('location').verbose_name == 'Расположение'
     assert Country._meta.get_field('location').unique is False
     assert Country._meta.get_field('location').blank is True

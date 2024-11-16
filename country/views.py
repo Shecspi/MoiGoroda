@@ -11,4 +11,7 @@ from django.shortcuts import render
 
 
 def country(request):
-    return render(request, 'country/map.html')
+    return render(request, 'country/map.html', context={
+        'page_title': 'Карта стран мира',
+        'page_description': 'Карта стран мира',
+    })

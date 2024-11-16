@@ -114,4 +114,4 @@ class VisitedCountry(models.Model):
         unique_together = ('country', 'user')
 
     def __str__(self):
-        return self.country
+        return self.country.name

@@ -77,6 +77,7 @@ class GetAddedVisitedCountriesByDay(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         queryset = (
             self.queryset.annotate(day=TruncDay('added_at', tzinfo=timezone.utc))
+            .order_by('day')
             .annotate(
                 # Форматирование даты в формат DD-MM-YYYY
                 date=Func(
@@ -87,8 +88,7 @@ class GetAddedVisitedCountriesByDay(generics.ListAPIView):
                 )
             )
             .values('date')
-            .annotate(qty=Count('id'))
-            .order_by('date')[:50]
+            .annotate(qty=Count('id'))[:50]
         )
 
         return Response(list(queryset))

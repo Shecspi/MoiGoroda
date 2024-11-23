@@ -125,7 +125,7 @@
         }
 
         // Загружаем полигон региона
-        const url = `${url_geo_polygons}/region/${country_code}/${region_code}`
+        const url = `${url_geo_polygons}/region/hq/${country_code}/${region_code}`
         fetch(url)
             .then(response => {
                 if (!response.ok) {

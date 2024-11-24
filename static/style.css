@@ -22,6 +22,7 @@ body.simple {
 /*------------ Map ------------*/
 #map {
     min-height: 75dvh;
+    z-index: 1;
 }
 
 #map div.load {
@@ -99,7 +100,7 @@ body.simple {
     #sidebar {
         margin-left: -300px;
         position: fixed;
-        z-index: 1;
+        z-index: 10;
         transition: all 0.3s;
     }
 

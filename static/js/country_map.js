@@ -120,6 +120,9 @@ function init() {
         visitedCountries,
     ]) => {
         // Множество с посещёнными странами пользователя
+        // Эта же информация есть в allCountryState (параметр is_visited), но там информация обновляется
+        // только в момент первоначальной загрузки. Если пользователь добавил новую страну, то нужно перерисовать полигоны.
+        // Поэтому здесь мы создаём ещё одно множество, которое будет хранить актуальную информацию о посещённых странах.
         if (isAuthenticated === true) {
             visitedCountryState = new Set(visitedCountries.map(country => {
                 return country.code
@@ -137,24 +140,29 @@ function init() {
                 is_visited: isAuthenticated === true ? visitedCountryState.has(country.code) : false
             }]
         }));
+        console.log(allCountryState);
 
         // Добавляем страны на карту, закрашивая по разному посещённые и не посещённые
         allPolygons.forEach((country) => {
+            // iso3166_1_alpha2 берём из geojson файла, всю остальную информацию - из БД сервиса
             const iso3166_1_alpha2 = country.features[0].properties['ISO3166-1:alpha2'];
-            const name_en = country.features[0].properties['name:en'];
-            const name_ru = country.features[0].properties['name:ru'];
-            const is_visited = visitedCountryState.has(iso3166_1_alpha2);
+            const country_data = allCountryState.get(iso3166_1_alpha2);
 
             // Немного криво сейчас это реализовано, что какая-то информация берется из geojson,
             // а какая-то из БД. Нужно будет определиться с единым местом хранения информации о странах.
-            if (!allCountryState.has(iso3166_1_alpha2)) {
-                console.log('Такой страны нет в БД: ', iso3166_1_alpha2, name_ru);
+            if (!country_data) {
+                console.log('Такой страны нет в БД: ', iso3166_1_alpha2);
                 return;
             }
 
-            const part_of_the_world = allCountryState.get(iso3166_1_alpha2).part_of_the_world;
-            const location = allCountryState.get(iso3166_1_alpha2).location;
-            const geoObject = addCountryOnMap(country, part_of_the_world, location)
+            const fullname_ru = country_data ? country_data.fullname : undefined;
+            const name_ru = country_data ? country_data.name : undefined;
+            const is_visited = country_data ? country_data.is_visited : undefined;
+            const link_to_delete = country_data ? country_data.to_delete : undefined;
+            const location = country_data ? country_data.location : undefined;
+            const part_of_the_world = country_data ? country_data.part_of_the_world : undefined;
+
+            const geoObject = addCountryOnMap(country, fullname_ru, part_of_the_world, location)
             allCountriesGeoObjects.set(iso3166_1_alpha2, geoObject);
         });
 
@@ -326,7 +334,7 @@ function compareCountriesWithYandexAndLocalBD(yandexCountries, localCountries) {
     }
 }
 
-function addCountryOnMap(geoJson, part_of_the_world, location) {
+function addCountryOnMap(geoJson, part_of_the_world, location, fullname_ru) {
     const iso3166_1_alpha2 = geoJson.features[0].properties['ISO3166-1:alpha2'];
     const name_en = geoJson.features[0].properties['name:en'];
     const name_ru = geoJson.features[0].properties['name:ru'];
@@ -352,6 +360,7 @@ function addCountryOnMap(geoJson, part_of_the_world, location) {
         generatePopupContent(
             iso3166_1_alpha2,
             name_ru,
+            fullname_ru,
             part_of_the_world,
             location
         )
@@ -360,8 +369,14 @@ function addCountryOnMap(geoJson, part_of_the_world, location) {
     return geoObject;
 }
 
-function generatePopupContent(iso3166, name_ru, partOfTheWorld, location, is_visited) {
-    let content =
+function generatePopupContent(iso3166, name_ru, fullname_ru, partOfTheWorld, location, is_visited) {
+    let content = "";
+
+    if (fullname_ru) {
+        content += `<div><span class="fw-semibold">Полное название:</span> ${fullname_ru}</div>`;
+    }
+
+    content +=
         `<div><span class="fw-semibold">Часть света:</span> ${partOfTheWorld}</div>` +
         `<div><span class="fw-semibold">Расположение:</span> ${location}</div>`;
 

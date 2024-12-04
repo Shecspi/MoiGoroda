@@ -36,6 +36,18 @@ let allLocations;
 // Множество, содержащее информацию обо всех посещённых пользователем странах.
 let visitedCountryState;
 
+class Country {
+    iso3166_1_alpha2;
+    name_ru;
+    name_en;
+    fullname_ru;
+    fullname_en;
+    location;
+    part_of_the_world;
+    to_delete;
+    is_visited;
+}
+
 // ----------------------------- Действия при загрузке страницы -----------------------------
 
 checkCalloutNewRegions();
@@ -140,29 +152,32 @@ function init() {
                 is_visited: isAuthenticated === true ? visitedCountryState.has(country.code) : false
             }]
         }));
-        console.log(allCountryState);
 
         // Добавляем страны на карту, закрашивая по разному посещённые и не посещённые
-        allPolygons.forEach((country) => {
+        allPolygons.forEach((polygon) => {
             // iso3166_1_alpha2 берём из geojson файла, всю остальную информацию - из БД сервиса
-            const iso3166_1_alpha2 = country.features[0].properties['ISO3166-1:alpha2'];
-            const country_data = allCountryState.get(iso3166_1_alpha2);
+            const iso3166_1_alpha2 = polygon.features[0].properties['ISO3166-1:alpha2'];
 
-            // Немного криво сейчас это реализовано, что какая-то информация берется из geojson,
-            // а какая-то из БД. Нужно будет определиться с единым местом хранения информации о странах.
+            const country_data = allCountryState.get(iso3166_1_alpha2);
             if (!country_data) {
                 console.log('Такой страны нет в БД: ', iso3166_1_alpha2);
                 return;
             }
 
-            const fullname_ru = country_data ? country_data.fullname : undefined;
-            const name_ru = country_data ? country_data.name : undefined;
-            const is_visited = country_data ? country_data.is_visited : undefined;
-            const link_to_delete = country_data ? country_data.to_delete : undefined;
-            const location = country_data ? country_data.location : undefined;
-            const part_of_the_world = country_data ? country_data.part_of_the_world : undefined;
+            const country = new Country();
+            country.iso3166_1_alpha2 = iso3166_1_alpha2;
+            country.name_ru = country_data.name ? country_data.name : "";
+            country.name_en = "";
+            country.fullname_ru = country_data.fullname ? country_data.fullname : "";
+            country.fullname_en = "";
+            country.location = country_data.location ? country_data.location : "";
+            country.part_of_the_world = country_data.part_of_the_world ? country_data.part_of_the_world : "";
+            country.to_delete = country_data.to_delete ? country_data.to_delete : "";
+            country.is_visited = country_data.is_visited ? country_data.is_visited : false;
 
-            const geoObject = addCountryOnMap(country, fullname_ru, part_of_the_world, location)
+            console.log(country);
+
+            const geoObject = addCountryOnMap(polygon, country)
             allCountriesGeoObjects.set(iso3166_1_alpha2, geoObject);
         });
 
@@ -334,60 +349,47 @@ function compareCountriesWithYandexAndLocalBD(yandexCountries, localCountries) {
     }
 }
 
-function addCountryOnMap(geoJson, part_of_the_world, location, fullname_ru) {
-    const iso3166_1_alpha2 = geoJson.features[0].properties['ISO3166-1:alpha2'];
-    const name_en = geoJson.features[0].properties['name:en'];
-    const name_ru = geoJson.features[0].properties['name:ru'];
-    const is_visited = visitedCountryState.has(iso3166_1_alpha2);
-
+function addCountryOnMap(polygon, country) {
     const myStyle = {
-        "fillColor": is_visited ? fillColorVisitedCountry : fillColorNotVisitedCountry,
+        "fillColor": country.is_visited ? fillColorVisitedCountry : fillColorNotVisitedCountry,
         "fillOpacity": fillOpacity,
         "weight": strokeWidth,
         "color": strokeColor,
         "opacity": strokeOpacity
     };
 
-    const geoObject = L.geoJSON(geoJson, {
+    const geoObject = L.geoJSON(polygon, {
         style: myStyle
     }).addTo(map);
 
-    geoObject.bindTooltip(name_ru, {
+    geoObject.bindTooltip(country.name_ru, {
         direction: 'top',
         sticky: true
     });
-    geoObject.bindPopup(
-        generatePopupContent(
-            iso3166_1_alpha2,
-            name_ru,
-            fullname_ru,
-            part_of_the_world,
-            location
-        )
-    );
+    geoObject.bindPopup(generatePopupContent(country));
 
     return geoObject;
 }
 
-function generatePopupContent(iso3166, name_ru, fullname_ru, partOfTheWorld, location, is_visited) {
+function generatePopupContent(country) {
     let content = "";
 
-    if (fullname_ru) {
-        content += `<div><span class="fw-semibold">Полное название:</span> ${fullname_ru}</div>`;
+    if (country.fullname_ru) {
+        content += `<div><span class="fw-semibold">Полное название:</span> ${country.fullname_ru}</div>`;
     }
 
     content +=
-        `<div><span class="fw-semibold">Часть света:</span> ${partOfTheWorld}</div>` +
-        `<div><span class="fw-semibold">Расположение:</span> ${location}</div>`;
+        `<div><span class="fw-semibold">Часть света:</span> ${country.part_of_the_world}</div>` +
+        `<div><span class="fw-semibold">Расположение:</span> ${country.location}</div>`;
 
     if (isAuthenticated === true) {
-        const linkToAdd = `<hr><a href="#" onclick="add_country('${iso3166}')">Отметить страну как посещённую</a>`
-        const linkToDelete = `<hr><a href="#" onclick="delete_country('${iso3166}')">Удалить страну</a>`
-        const link = is_visited ? linkToDelete : linkToAdd;
+        const linkToAdd = `<hr><a href="#" onclick="add_country('${country.iso3166_1_alpha2}')">Отметить страну как посещённую</a>`
+        const linkToDelete = `<hr><a href="#" onclick="delete_country('${country.iso3166_1_alpha2}')">Удалить страну</a>`
+        const link = country.is_visited ? linkToDelete : linkToAdd;
 
-        return `<h4>${name_ru}</h4><br>${content + link}`;
+        return `<h4>${country.name_ru}</h4><br>${content + link}`;
     } else {
-        return `<h4>${name_ru}</h4><br>${content}`;
+        return `<h4>${country.name_ru}</h4><br>${content}`;
     }
 }
 

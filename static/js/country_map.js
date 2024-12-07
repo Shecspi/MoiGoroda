@@ -1,3 +1,8 @@
+import { create_map } from './map.js';
+import { addCountryOnMap } from "./country/map_helpers.js";
+import { getAllCountries, getAllPolygons, getLocations, getPartsOfTheWorld, getVisitedCountries } from "./country/fetch.js";
+
+
 const fillColorVisitedCountry = '#32b700';
 const fillColorNotVisitedCountry = '#9a9a9a';
 const fillOpacity = 0.6;
@@ -6,7 +11,7 @@ const strokeOpacity = 0.8;
 const strokeWidth = 1;
 
 // Карта, на которой будут отрисовываться все объекты стран
-let myMap;
+let map;
 
 // Словарь, хранящий в себе все добавленные на карте объекты стран
 let allCountriesGeoObjects = new Map();
@@ -50,64 +55,14 @@ class Country {
 
 // ----------------------------- Действия при загрузке страницы -----------------------------
 
-checkCalloutNewRegions();
 init();
 
 // ----------------------------- Функции -----------------------------
 
-/**
- * Функция проверяет, отображается ли блок Callout с информацией о новых регионах.
- * Если пользователь уже читал эту информацию, то он блок удаляется из DOM-дерева.
- * Иначе он показывается на странице.
- */
-function checkCalloutNewRegions() {
-    const callout = document.getElementById('callout-new-regions');
-    if (JSON.parse(localStorage.getItem('callout-new-regions')) === true) {
-        callout.remove();
-    } else {
-        callout.hidden = false;
-    }
-}
-
-/**
- * Функция удаляет блок Callout с информацией о новых регионах из DOM-дерева.
- */
-function closeCalloutNewRegions() {
-    const callout = document.getElementById('callout-new-regions');
-    callout.remove();
-    localStorage.setItem('callout-new-regions', JSON.stringify(true));
-}
-
 function init() {
-    map = L.map('map', {
-        attributionControl: false,
-        zoomControl: false
-    }).setView([60, 50], 4);
+    map = create_map([50, 60], 4)
 
-    // Этот код нужен для того, чтобы убрать ненужный флаг с копирайта.
-    const myAttrControl = L.control.attribution().addTo(map);
-    myAttrControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
-    }).addTo(map);
-
-    // Добавляем кнопки приближения и отдаления карты.
-    // Их пришлось удалить и вручную добавить, чтобы перевести текст подсказки на русский.
-    const zoomControl = L.control.zoom({
-        zoomInTitle: 'Нажмите, чтобы приблизить карту',
-        zoomOutTitle: 'Нажмите, чтобы отдалить карту'
-    });
-    zoomControl.addTo(map);
-
-    // Добавляем кнопку полноэкранного режима
-    map.addControl(new L.Control.Fullscreen({
-        title: {
-            'false': 'Полноэкранный режим',
-            'true': 'Выйти из полноэкранного режима'
-        }
-    }));
-
+    // Загружаем всю необходимую информацию
     const allPromises = [];
     if (isAuthenticated === true) {
         allPromises.push(getAllPolygons());
@@ -122,8 +77,8 @@ function init() {
         allPromises.push(getAllCountries());
     }
 
-    // Если пользователь авторизован, то в allPromises будет храниться 5 массива,
-    // а в случае неавторизованного пользователя - только 4.
+    // Если пользователь авторизован, то в allPromises будет храниться 5 массивов,
+    // а в случае неавторизованного пользователя - только 4 (последнего visitedCountries не будет).
     Promise.all([...allPromises]).then(([
         allPolygons,
         partsOfTheWorld,
@@ -164,27 +119,37 @@ function init() {
                 return;
             }
 
-            const country = new Country();
-            country.iso3166_1_alpha2 = iso3166_1_alpha2;
-            country.name_ru = country_data.name ? country_data.name : "";
-            country.name_en = "";
-            country.fullname_ru = country_data.fullname ? country_data.fullname : "";
-            country.fullname_en = "";
-            country.location = country_data.location ? country_data.location : "";
-            country.part_of_the_world = country_data.part_of_the_world ? country_data.part_of_the_world : "";
-            country.to_delete = country_data.to_delete ? country_data.to_delete : "";
-            country.is_visited = country_data.is_visited ? country_data.is_visited : false;
-
-            console.log(country);
-
-            const geoObject = addCountryOnMap(polygon, country)
-            allCountriesGeoObjects.set(iso3166_1_alpha2, geoObject);
+            const country = create_country_object(iso3166_1_alpha2, country_data);
+            const geoJSON = addCountryOnMap(polygon, country, map);
+            allCountriesGeoObjects.set(iso3166_1_alpha2, geoJSON);
         });
 
         showQtyCountries(allCountryState.size, isAuthenticated ? visitedCountryState.size : null);
         enablePartOfTheWorldButton(partsOfTheWorld);
         enableLocationsButton(getLocations);
     });
+}
+
+/**
+ * Подготавливает объект типа Country со всей необходимой информацией о стране.
+ * @param iso3166_1_alpha2 Код страны, для которой подготавливается объект
+ * @param country_data {Map} Информация о стране
+ * @returns {Country}
+ */
+function create_country_object(iso3166_1_alpha2, country_data) {
+    const country = new Country();
+
+    country.iso3166_1_alpha2 = iso3166_1_alpha2;
+    country.name_ru = country_data.name ? country_data.name : "";
+    country.name_en = "";
+    country.fullname_ru = country_data.fullname ? country_data.fullname : "";
+    country.fullname_en = "";
+    country.location = country_data.location ? country_data.location : "";
+    country.part_of_the_world = country_data.part_of_the_world ? country_data.part_of_the_world : "";
+    country.to_delete = country_data.to_delete ? country_data.to_delete : "";
+    country.is_visited = country_data.is_visited ? country_data.is_visited : false;
+
+    return country
 }
 
 function enablePartOfTheWorldButton(array) {
@@ -241,162 +206,42 @@ function enableDropdownButton(array, button, menu, icon, type) {
 /**
  * Функция фильтрует страны на карте и оставляет только те, которые соответствуют переданным параметрам.
  * @param filterItem Элемент, по которому производится фильтрация.
- * @param type Тип филльтрации - по части света или по локации.
+ * @param type Тип фильтрации - по части света или по локации.
  */
 function filterCountriesOnTheMap(filterItem, type) {
     const allCountries = Array.from(allCountryState.values());
 
     // Фильтруем страны и оставляем в массиве filteredCountries только те, которые соответствуют фильтру
     const filteredCountries = allCountries.filter(country => {
-        if (type === 'part-of-the-world') {
+        if (filterItem === '__all__') {
+            return true;
+        }
+        else if (type === 'part-of-the-world') {
             return country.part_of_the_world === filterItem;
         } else if (type === 'locations') {
             return country.location === filterItem;
         }
     });
 
-    if (filterItem === '__all__') {
-        // Если фильтр - все страны, то показываем все страны на карте
-        allCountriesGeoObjects.forEach(geoObject => {
-            geoObject.options.set('visible', true);
-        });
-        return;
-    }
-
     // Скрываем все страны на карте
     allCountriesGeoObjects.forEach(geoObject => {
-        geoObject.options.set('visible', false);
+         map.removeLayer(geoObject);
     });
 
     // Показываем только те страны, которые соответствуют фильтру
     filteredCountries.forEach(country => {
-        allCountriesGeoObjects.get(country.code).options.set('visible', true);
-    });
-}
-
-function getDataFromServer(url) {
-    return fetch(url + '?' + new URLSearchParams({'from': 'country map'}))
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(response.statusText)
-            }
-            return response.json();
-        })
-        .then((data) => {
-            return data;
-        });
-}
-
-function getAllPolygons() {
-    const url = 'http://127.0.0.1:8080/country/all';
-    return getDataFromServer(url);
-}
-
-function getAllCountries() {
-    const url = document.getElementById('url_get_all_countries').dataset.url;
-    return getDataFromServer(url);
-}
-
-function getVisitedCountries() {
-    const url = document.getElementById('url_get_visited_countries').dataset.url;
-    return getDataFromServer(url);
-}
-
-function getPartsOfTheWorld() {
-    const url = document.getElementById('url_get_parts_of_the_world').dataset.url;
-    return getDataFromServer(url);
-}
-
-function getLocations() {
-    const url = document.getElementById('url_get_locations').dataset.url;
-    return getDataFromServer(url);
-}
-
-function compareCountriesWithYandexAndLocalBD(yandexCountries, localCountries) {
-    /**
-     * Сравнивает словари стран из БД сервиса и стран, которые предоставляет Яндекс.
-     * Если находятся расхождения, то они отправляются на специальный эндпоинт.
-     */
-    const url = document.getElementById('url_revieve_unknown_countries').dataset.url;
-    let unknownCountriesFromYandex = new Map();
-    let localCountriesCopy = new Map(localCountries);
-    yandexCountries.forEach(function (name, code) {
-        if (!localCountries.has(code)) {
-            unknownCountriesFromYandex.set(code, name);
-        } else {
-            localCountriesCopy.delete(code);
+        if (allCountriesGeoObjects.get(country.code) === undefined) {
+            return;
         }
+        map.addLayer(allCountriesGeoObjects.get(country.code));
     });
-
-    if (unknownCountriesFromYandex.size > 0 || localCountriesCopy.size > 0) {
-        const data = new FormData();
-        data.set('unknown_from_yandex', JSON.stringify(Object.fromEntries(unknownCountriesFromYandex)));
-        data.set('unknown_to_yandex', JSON.stringify(Object.fromEntries(localCountriesCopy)));
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie("csrftoken")
-            },
-            body: data
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(response.statusText)
-                }
-                return response
-            });
-    }
 }
 
-function addCountryOnMap(polygon, country) {
-    const myStyle = {
-        "fillColor": country.is_visited ? fillColorVisitedCountry : fillColorNotVisitedCountry,
-        "fillOpacity": fillOpacity,
-        "weight": strokeWidth,
-        "color": strokeColor,
-        "opacity": strokeOpacity
-    };
 
-    const geoObject = L.geoJSON(polygon, {
-        style: myStyle
-    }).addTo(map);
-
-    geoObject.bindTooltip(country.name_ru, {
-        direction: 'top',
-        sticky: true
-    });
-    geoObject.bindPopup(generatePopupContent(country));
-
-    return geoObject;
-}
-
-function generatePopupContent(country) {
-    let content = "";
-
-    if (country.fullname_ru) {
-        content += `<div><span class="fw-semibold">Полное название:</span> ${country.fullname_ru}</div>`;
-    }
-
-    content +=
-        `<div><span class="fw-semibold">Часть света:</span> ${country.part_of_the_world}</div>` +
-        `<div><span class="fw-semibold">Расположение:</span> ${country.location}</div>`;
-
-    if (isAuthenticated === true) {
-        const linkToAdd = `<hr><a href="#" onclick="add_country('${country.iso3166_1_alpha2}')">Отметить страну как посещённую</a>`
-        const linkToDelete = `<hr><a href="#" onclick="delete_country('${country.iso3166_1_alpha2}')">Удалить страну</a>`
-        const link = country.is_visited ? linkToDelete : linkToAdd;
-
-        return `<h4>${country.name_ru}</h4><br>${content + link}`;
-    } else {
-        return `<h4>${country.name_ru}</h4><br>${content}`;
-    }
-}
-
-function add_country(countryCode) {
+export function add_country(iso3166_1_alpha2) {
     const url = document.getElementById('url_add_visited_countries').dataset.url;
     const formData = new FormData();
-    formData.set('code', countryCode);
+    formData.set('code', iso3166_1_alpha2);
 
     let response = fetch(url, {
         method: 'POST',
@@ -411,8 +256,8 @@ function add_country(countryCode) {
             }
             return response.json()
         })
-        .then((data) => {
-            const country = allCountriesGeoObjects.get(countryCode);
+        .then(() => {
+            const country = allCountriesGeoObjects.get(iso3166_1_alpha2);
 
             // Меняем цвет заливки полигона на тот, который используется для посещённых стран
             country.eachLayer(layer => {

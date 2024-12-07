@@ -1,6 +1,12 @@
-import { create_map } from './map.js';
-import { addCountryOnMap } from "./country/map_helpers.js";
-import { getAllCountries, getAllPolygons, getLocations, getPartsOfTheWorld, getVisitedCountries } from "./country/fetch.js";
+import {create_map} from './map.js';
+import {addCountryOnMap} from "./country/map_helpers.js";
+import {
+    getAllCountries,
+    getAllPolygons,
+    getLocations,
+    getPartsOfTheWorld,
+    getVisitedCountries
+} from "./country/fetch.js";
 
 
 const fillColorVisitedCountry = '#32b700';
@@ -80,12 +86,12 @@ function init() {
     // Если пользователь авторизован, то в allPromises будет храниться 5 массивов,
     // а в случае неавторизованного пользователя - только 4 (последнего visitedCountries не будет).
     Promise.all([...allPromises]).then(([
-        allPolygons,
-        partsOfTheWorld,
-        getLocations,
-        allCountries,
-        visitedCountries,
-    ]) => {
+                                            polygons,
+                                            partsOfTheWorld,
+                                            getLocations,
+                                            allCountries,
+                                            visitedCountries,
+                                        ]) => {
         // Множество с посещёнными странами пользователя
         // Эта же информация есть в allCountryState (параметр is_visited), но там информация обновляется
         // только в момент первоначальной загрузки. Если пользователь добавил новую страну, то нужно перерисовать полигоны.
@@ -109,7 +115,7 @@ function init() {
         }));
 
         // Добавляем страны на карту, закрашивая по разному посещённые и не посещённые
-        allPolygons.forEach((polygon) => {
+        polygons.forEach((polygon) => {
             // iso3166_1_alpha2 берём из geojson файла, всю остальную информацию - из БД сервиса
             const iso3166_1_alpha2 = polygon.features[0].properties['ISO3166-1:alpha2'];
 
@@ -199,8 +205,8 @@ function enableDropdownButton(array, button, menu, icon, type) {
     all_countries.innerHTML = 'Показать все страны';
     menu.appendChild(document.createElement('li').appendChild(all_countries));
     all_countries.addEventListener('click', () => {
-            filterCountriesOnTheMap('__all__', type);
-        });
+        filterCountriesOnTheMap('__all__', type);
+    });
 }
 
 /**
@@ -209,36 +215,39 @@ function enableDropdownButton(array, button, menu, icon, type) {
  * @param type Тип фильтрации - по части света или по локации.
  */
 function filterCountriesOnTheMap(filterItem, type) {
-    const allCountries = Array.from(allCountryState.values());
+    const all_country_codes_on_map = Array.from(allCountriesGeoObjects.keys());
 
-    // Фильтруем страны и оставляем в массиве filteredCountries только те, которые соответствуют фильтру
-    const filteredCountries = allCountries.filter(country => {
-        if (filterItem === '__all__') {
-            return true;
+    const filtered_countries = new Map();
+
+    all_country_codes_on_map.forEach((country_code) => {
+        if (!allCountryState.has(country_code)) {
+            return;
         }
-        else if (type === 'part-of-the-world') {
-            return country.part_of_the_world === filterItem;
-        } else if (type === 'locations') {
-            return country.location === filterItem;
+
+        const country = allCountryState.get(country_code);
+
+        if (
+            (type === 'part-of-the-world' && country.part_of_the_world === filterItem)
+         || (type === 'locations' && country.location === filterItem)
+         || (type === '__all__')
+        ) {
+            filtered_countries.set(country_code, country);
         }
     });
 
     // Скрываем все страны на карте
     allCountriesGeoObjects.forEach(geoObject => {
-         map.removeLayer(geoObject);
+        map.removeLayer(geoObject);
     });
 
     // Показываем только те страны, которые соответствуют фильтру
-    filteredCountries.forEach(country => {
-        if (allCountriesGeoObjects.get(country.code) === undefined) {
-            return;
-        }
+    filtered_countries.forEach(country => {
         map.addLayer(allCountriesGeoObjects.get(country.code));
     });
 }
 
 
-export function add_country(iso3166_1_alpha2) {
+function add_country(iso3166_1_alpha2) {
     const url = document.getElementById('url_add_visited_countries').dataset.url;
     const formData = new FormData();
     formData.set('code', iso3166_1_alpha2);

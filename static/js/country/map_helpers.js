@@ -1,6 +1,3 @@
-import { add_country } from "../country_map.js";
-
-
 const fillColorVisitedCountry = '#32b700';
 const fillColorNotVisitedCountry = '#9a9a9a';
 const fillOpacity = 0.6;

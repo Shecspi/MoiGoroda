@@ -303,7 +303,26 @@ MARKDOWNIFY = {
             'ul',
         ],
         'WHITELIST_ATTRS': ['href', 'src', 'alt'],
-    }
+    },
+    'only_links': {
+        'WHITELIST_TAGS': [
+            'a',
+            'br',
+            'em',
+            'p',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'hr',
+            'strong',
+            'li',
+            'ol',
+            'ul',
+        ]
+    },
 }
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'unsafe-none'

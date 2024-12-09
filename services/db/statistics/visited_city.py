@@ -68,7 +68,10 @@ def get_number_of_visited_cities_in_several_month(user_id: int):
     # Для того чтобы первый и последний месяцы полностью попали в расчёт, нужно в первом месяце
     # указать началом 1 день, а в последнем - последний.
     now = datetime.datetime.now()
-    start_date = datetime.date(now.year - 2, now.month + 1, 1)
+    if now.month == 12:
+        start_date = datetime.date(now.year - 1, 1, 1)
+    else:
+        start_date = datetime.date(now.year - 2, now.month + 1, 1)
     last_day_of_end_month = calendar.monthrange(now.year, now.month)[1]
     end_date = datetime.date(now.year, now.month, last_day_of_end_month)
 

@@ -51,6 +51,8 @@ class Country(models.Model):
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Расположение'
     )
+    is_member_of_un = models.BooleanField('Является ли членом ООН', default=False)
+    owner = models.ForeignKey('self', blank=True, null=True, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = 'Страна'

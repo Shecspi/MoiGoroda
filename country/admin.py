@@ -11,11 +11,17 @@ from django.contrib import admin
 
 from country.models import PartOfTheWorld, Country, Location, VisitedCountry
 
-admin.site.register([PartOfTheWorld, Location, Country])
+admin.site.register([PartOfTheWorld, Location])
+
+
+@admin.register(Country)
+class CountryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'fullname', 'code', 'location', 'is_member_of_un', 'owner')
+    search_fields = ('name', 'fullname', 'code')
 
 
 @admin.register(VisitedCountry)
-class CountryAdmin(admin.ModelAdmin):
+class VisitedCountryAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'country',

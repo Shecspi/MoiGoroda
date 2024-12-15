@@ -89,7 +89,12 @@ class VisitedCity(models.Model):
         null=False,
         default=False,
     )
-    impression = models.TextField(verbose_name='Впечатления о городе', blank=True, null=True)
+    impression = models.TextField(
+        verbose_name='Впечатления о городе',
+        blank=True,
+        null=True,
+        help_text='В этом поле Вы можете использовать некоторые элементы разметки Markdown, для того, чтобы стилизовать текст.<br>Доступные элементы: заголовки, жирный и курсивный шрифты, ссылки, нумерованные и ненумерованные списки, разделительная линия.',
+    )
     rating = models.SmallIntegerField(
         verbose_name='Рейтинг',
         help_text='Поставьте оценку городу. 1 - плохо, 5 - отлично.',

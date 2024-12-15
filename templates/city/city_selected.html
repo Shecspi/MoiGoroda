@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load markdownify %}
 
 {% block content %}
     <!-- Заголовок страницы -->
@@ -142,7 +143,7 @@
                                 Впечатления:
                             </div>
                             <div class="col-12 col-md-8" id="subsection-impression_value">
-                                {{ object.impression }}
+                                {{ object.impression|markdownify:"only_links" }}
                             </div>
                         </div>
                         <!-- ^^^Впечатления -->

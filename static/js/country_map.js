@@ -172,7 +172,10 @@ function create_country_object(iso3166_1_alpha2, country_data) {
 function filterCountriesOnTheMap(filterItem, type) {
     const all_country_codes_on_map = Array.from(allGeoJsons.keys());
 
-    const filtered_countries = new Map();
+    // Скрываем все страны на карте
+    allGeoJsons.forEach(geoObject => {
+        map.removeLayer(geoObject);
+    });
 
     all_country_codes_on_map.forEach((country_code) => {
         if (!allCountriesFromDB.has(country_code)) {
@@ -182,22 +185,13 @@ function filterCountriesOnTheMap(filterItem, type) {
         const country = allCountriesFromDB.get(country_code);
 
         if (
-            (type === 'part-of-the-world' && country.part_of_the_world === filterItem)
+            (filterItem === '__all__')
+            || (type === 'part-of-the-world' && country.part_of_the_world === filterItem)
             || (type === 'locations' && country.location === filterItem)
-            || (type === '__all__')
         ) {
-            filtered_countries.set(country_code, country);
+            // Отображаем на карте только те страны, которые соответствуют фильтру
+            map.addLayer(allGeoJsons.get(country.code));
         }
-    });
-
-    // Скрываем все страны на карте
-    allGeoJsons.forEach(geoObject => {
-        map.removeLayer(geoObject);
-    });
-
-    // Показываем только те страны, которые соответствуют фильтру
-    filtered_countries.forEach(country => {
-        map.addLayer(allGeoJsons.get(country.code));
     });
 }
 
@@ -498,6 +492,7 @@ function enableDropdownButton(array, button, menu, icon, type) {
         const a = document.createElement('a');
         a.classList.add('dropdown-item');
         a.innerHTML = item.name;
+        a.style.cursor = 'pointer';
         a.addEventListener('click', () => {
             filterCountriesOnTheMap(item.name, type);
         });
@@ -512,6 +507,7 @@ function enableDropdownButton(array, button, menu, icon, type) {
     const all_countries = document.createElement('a');
     all_countries.classList.add('dropdown-item');
     all_countries.innerHTML = 'Показать все страны';
+    all_countries.style.cursor = 'pointer';
     menu.appendChild(document.createElement('li').appendChild(all_countries));
     all_countries.addEventListener('click', () => {
         filterCountriesOnTheMap('__all__', type);

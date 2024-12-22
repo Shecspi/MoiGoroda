@@ -58,7 +58,7 @@ jobs:
         run: poetry install --no-interaction --no-root && poetry install --no-interaction
 
       - name: Test with pytest
-        run: poetry run pytest
+        run: poetry run python manage.py migrate && poetry run pytest
   deploy:
     needs: test
     runs-on: [self-hosted, prod]

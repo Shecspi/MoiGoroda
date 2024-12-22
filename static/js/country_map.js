@@ -317,11 +317,23 @@ function addCountryOnMap(polygon, country, map) {
     }).addTo(map);
 
     const name = country.owner ? country.name_ru + ` (${country.owner})` : country.name_ru;
+    geoJSON.bindPopup(generatePopupContent(country));
     geoJSON.bindTooltip(name, {
         direction: 'top',
         sticky: true
     });
-    geoJSON.bindPopup(generatePopupContent(country));
+    geoJSON.on('mouseover', function () {
+        const tooltip = this.getTooltip();
+        if (this.isPopupOpen()) {
+            tooltip.setOpacity(0.0);
+        } else {
+            tooltip.setOpacity(0.9);
+        }
+    });
+    geoJSON.on('keydown', function () {
+        console.log(1);
+        this.getTooltip().setOpacity(0.0);
+    });
 
     return geoJSON;
 }

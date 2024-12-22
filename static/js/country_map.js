@@ -330,8 +330,7 @@ function addCountryOnMap(polygon, country, map) {
             tooltip.setOpacity(0.9);
         }
     });
-    geoJSON.on('keydown', function () {
-        console.log(1);
+    geoJSON.on('click', function () {
         this.getTooltip().setOpacity(0.0);
     });
 

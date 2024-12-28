@@ -53,6 +53,7 @@
         }).addTo(map);
 
         const load = addLoadControl(map);
+        L.simpleMapScreenshoter().addTo(map);
 
         const url_all_geo_polygons = '{{ URL_GEO_POLYGONS }}/region/lq/RU/all';
         fetch(url_all_geo_polygons)

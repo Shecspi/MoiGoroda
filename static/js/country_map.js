@@ -423,6 +423,7 @@ function create_map(center, zoom) {
     add_attribution(map);
     add_zoom_control(map);
     add_fullscreen_control(map);
+    L.simpleMapScreenshoter().addTo(map);
 
     return map
 }

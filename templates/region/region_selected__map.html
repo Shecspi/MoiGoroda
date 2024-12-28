@@ -15,6 +15,7 @@
     <div id="map" class="h-100 mt-3"></div>
     <!-- ^^^ Карта -->
 
+    <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
     <script>
         const fillOpacity = 0.2;
         const strokeColor = '#6b6b6b';
@@ -106,6 +107,7 @@
             zoomControl: false
         }).setView([average_y, average_x], zoom);
         addControlsToMap();
+        L.simpleMapScreenshoter().addTo(map);
 
         // Отображаем на карте все города,
         // меняя цвет иконки в зависимости от того, посещён город или нет

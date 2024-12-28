@@ -16,7 +16,7 @@
     <div id="map" class="h-100 mt-3"></div>
     <!-- ^^^ Карта -->
 
-    <script src="{% static 'js/map_city.js' %}"></script>
+    <script src="{% static 'js/map_city.js' %}?ver={{ PROJECT_VERSION }}"></script>
     <script src="{% static 'js/modal_for_add_city.js' %}"></script>
 
     {% include 'parts/toast/danger.html' with error_title="Ошибка соединения с сервером" error_message='Не получилось загрузить список Ваших посещённых городов.' error_id='toast_request_error' %}

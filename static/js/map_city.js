@@ -380,7 +380,7 @@ class ToolbarActions {
         } else if (placemarkStyle === this.PlacemarkStyle.TOGETHER) {
             content = `Пользователи, посетившие город:<br> ${users.join(', ')}`;
         } else if (placemarkStyle === this.PlacemarkStyle.NOT_VISITED) {
-            content = `Этот город не был посещён ни Вами, ни кем-то из выбранный пользователей<hr>${linkToAdd}`;
+            content = `Этот город не был посещён ни Вами,<br>ни кем-то из выбранный пользователей<hr>${linkToAdd}`;
         } else {
             content = "Этот город был посещён только Вами";
         }

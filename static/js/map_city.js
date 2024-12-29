@@ -585,6 +585,8 @@ class ToolbarActions {
                 'true': 'Выйти из полноэкранного режима'
             }
         }));
+
+        L.simpleMapScreenshoter().addTo(this.myMap);
     }
 
     async getVisitedCities() {

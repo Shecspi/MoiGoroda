@@ -4,6 +4,7 @@ const modal = new bootstrap.Modal(document.getElementById('modal_add_city'), {
 const form = document.getElementById('form-add-city');
 
 form.addEventListener('submit', event => {
+    console.log(1)
     event.preventDefault();
 
     const formData = new FormData(form);
@@ -35,6 +36,16 @@ form.addEventListener('submit', event => {
             form.reset();
 
             showSuccessToast('Успешно', `Город ${data.city.city_title} успешно добавлен как посещённый`);
+
+            const city = new City();
+
+            city.id = data.city.id;
+            city.name = data.city.city_title;
+            city.region = data.city.region_title;
+            city.lat = data.city.lat;
+            city.lon = data.city.lon;
+
+            console.log(city);
 
             actions.updatePlacemark(data.city.city);
             change_qty_of_visited_cities_in_toolbar();

@@ -58,6 +58,8 @@ class NotVisitedCitySerializer(serializers.ModelSerializer):
 class AddVisitedCitySerializer(serializers.ModelSerializer):
     city_title = serializers.CharField(source='city.title', read_only=True)
     region_title = serializers.CharField(source='city.region', read_only=True)
+    lat = serializers.CharField(source='city.coordinate_width', read_only=True)
+    lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
 
     class Meta:
         model = VisitedCity
@@ -70,6 +72,8 @@ class AddVisitedCitySerializer(serializers.ModelSerializer):
             'has_magnet',
             'impression',
             'rating',
+            'lat',
+            'lon',
         )
 
     def create(self, validated_data):

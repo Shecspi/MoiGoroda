@@ -426,7 +426,7 @@ class ToolbarActions {
         content += `<div><span class="fw-semibold fs-3">${city.name}</span></div>`;
         content += `<div><small class="text-secondary fw-medium fs-6">${city.region}</small></div>`;
         let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Отметить как посещённый</a>`
-        const date_of_visit = new Date(city.date_of_visit).toLocaleDateString();
+        const date_of_visit = city.date_of_visit ? new Date(city.date_of_visit).toLocaleDateString() : undefined;
 
         if (marker_style === MarkerStyle.SUBSCRIPTION) {
             content += '<p>Вы не были в этом городе</p>';
@@ -436,7 +436,7 @@ class ToolbarActions {
         } else if (marker_style === MarkerStyle.NOT_VISITED) {
             content += `<p>Вы не были в этом городе</p><hr>${linkToAdd}`;
         } else {
-            content += `<p><span class='fw-semibold'>Дата посещения:</span> ${date_of_visit}</p>`
+            content += `<p><span class='fw-semibold'>Дата посещения:</span> ${date_of_visit ? date_of_visit : 'Не указана'}</p>`
         }
         marker.bindPopup(content, {offset: [0, -7]});
 
@@ -462,10 +462,17 @@ class ToolbarActions {
     updatePlacemark(id) {
         if (this.stateNotVisitedCities.has(id)) {
             // Получаем данные города и удаляем его из списка не посещённых
-            let city = [];
+            let city;
             for (let i = this.notVisitedCities.length - 1; i >= 0; i--) {
                 if (this.notVisitedCities[i].id === id) {
-                    city = this.notVisitedCities[i];
+                    city = new City();
+
+                    city.id = this.notVisitedCities[i].id;
+                    city.name = this.notVisitedCities[i].title;
+                    city.region = this.notVisitedCities[i].region_title;
+                    city.lat = this.notVisitedCities[i].lat;
+                    city.lon = this.notVisitedCities[i].lon;
+
                     this.notVisitedCities.splice(i, 1);
                     break;
                 }
@@ -485,7 +492,13 @@ class ToolbarActions {
             let city = [];
             for (let i = this.subscriptionCities.length - 1; i >= 0; i--) {
                 if (this.subscriptionCities[i].id === id) {
-                    city = this.subscriptionCities[i];
+                    city = new City();
+
+                    city.id = this.subscriptionCities[i].id;
+                    city.name = this.subscriptionCities[i].title;
+                    city.region = this.subscriptionCities[i].region_title;
+                    city.lat = this.subscriptionCities[i].lat;
+                    city.lon = this.subscriptionCities[i].lon;
                     break;
                 }
             }

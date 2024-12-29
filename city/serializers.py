@@ -32,7 +32,17 @@ class VisitedCitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VisitedCity
-        fields = ('username', 'id', 'title', 'region_title', 'region_id', 'lat', 'lon', 'year')
+        fields = (
+            'username',
+            'id',
+            'title',
+            'region_title',
+            'region_id',
+            'lat',
+            'lon',
+            'year',
+            'date_of_visit',
+        )
 
 
 class NotVisitedCitySerializer(serializers.ModelSerializer):

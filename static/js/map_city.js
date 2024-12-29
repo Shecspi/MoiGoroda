@@ -10,6 +10,16 @@
  * ----------------------------------------------
  */
 
+class City {
+    id;
+    name;
+    region;
+    lat;
+    lon;
+    year_of_visit;
+    date_of_visit;
+}
+
 class ToolbarActions {
     constructor() {
         // Массив, содержащий в себе ID городов, посещённых пользователем.
@@ -323,22 +333,26 @@ class ToolbarActions {
     addOwnCitiesOnMap(year) {
         /**
          * Помещает на карту отметку посещённого города и сохраняет объект Placemark в глобальный словарь stateOwnCities.
-         * @param year Необязательный параметр, уазывающий за какой год нужно добавлять города на карту
+         * @param year Необязательный параметр, указывающий за какой год нужно добавлять города на карту
          */
         for (let i = 0; i < (this.ownCities.length); i++) {
-            let id = this.ownCities[i].id;
-            let city = this.ownCities[i].title;
-            let region_title = this.ownCities[i].region_title;
-            let lat = this.ownCities[i].lat;
-            let lon = this.ownCities[i].lon;
-            let year_city = this.ownCities[i].year;
+            const city = new City();
 
-            if (year !== undefined && year !== year_city) {
+            city.id = this.ownCities[i].id;
+            city.name = this.ownCities[i].title;
+            city.region = this.ownCities[i].region_title;
+            city.lat = this.ownCities[i].lat;
+            city.lon = this.ownCities[i].lon;
+            city.year_of_visit = this.ownCities[i].year;
+            city.date_of_visit = this.ownCities[i].date_of_visit;
+
+            // Если указан год, то добавляем на карту только города, которые были посещены в указанном году
+            if (year !== undefined && year !== city.year_of_visit) {
                 continue;
             }
 
-            let placemark = this.addPlacemarkToMap(city, id, region_title, lat, lon, this.PlacemarkStyle.OWN);
-            this.stateOwnCities.set(id, placemark);
+            let marker = this.addPlacemarkToMap(city, this.PlacemarkStyle.OWN);
+            this.stateOwnCities.set(city.id, marker);
         }
     }
 
@@ -361,43 +375,43 @@ class ToolbarActions {
         }
     }
 
-    addPlacemarkToMap(city, city_id, region_title, lat, lon, placemarkStyle, users) {
+    addPlacemarkToMap(city, placemarkStyle, users) {
         /**
-         * Добавляет на карту this.myMap отметку города 'city' по координатам 'lat' и 'lon'.
-         * Создаёт балун, открывающийся по нажатию на метку, в котором содержится
-         * информация о городе и регионе, кто его уже посетил, а также
-         * ссылка для того, чтобы отметить город как посещённый.
+         * Добавляет на карту this.myMap маркер города 'city.name' по координатам 'city.lat' и 'city.lon'.
+         * Добавляет к маркеру окно, открывающееся по клику на него, в котором содержится
+         * дополнительная информация о городе.
          *
-         * Возвращает созданный объект типа Placemark.
+         * Возвращает созданный маркер.
          */
-        let contentHeader =
-            '<span class="fw-semibold">' + city + '</span>, ' +
-            '<small class="text-secondary fw-medium">' + region_title + '</small>';
-        let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city}', '${city_id}', '${region_title}')">Отметить как посещённый</a>`
-        let content = "";
+        const marker = L.marker([city.lat,  city.lon]).addTo(this.myMap);
+
+        marker.bindTooltip(city.name, {
+            direction: 'top',
+            offset: [-15, -10]
+        });
+
+        let content = '';
+        content += `<div><span class="fw-semibold fs-3">${city.name}</span></div>`;
+        content += `<div><small class="text-secondary fw-medium fs-6">${city.region}</small></div>`;
+        let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Отметить как посещённый</a>`
+        const date_of_visit = new Date(city.date_of_visit).toLocaleDateString();
+
         if (placemarkStyle === this.PlacemarkStyle.SUBSCRIPTION) {
-            content = `Пользователи, посетившие город:<br> ${users.join(', ')}<hr>${linkToAdd}`;
+            content += `Пользователи, посетившие город:<br> ${users.join(', ')}<hr>${linkToAdd}`;
         } else if (placemarkStyle === this.PlacemarkStyle.TOGETHER) {
-            content = `Пользователи, посетившие город:<br> ${users.join(', ')}`;
+            content += `Пользователи, посетившие город:<br> ${users.join(', ')}`;
         } else if (placemarkStyle === this.PlacemarkStyle.NOT_VISITED) {
-            content = `Этот город не был посещён ни Вами,<br>ни кем-то из выбранный пользователей<hr>${linkToAdd}`;
+            content += `Этот город не был посещён ни Вами,<br>ни кем-то из выбранный пользователей<hr>${linkToAdd}`;
         } else {
-            content = "Этот город был посещён только Вами";
+            content += `<p><span class='fw-semibold'>Дата посещения:</span> ${date_of_visit}</p>`
         }
+        marker.bindPopup(content);
 
-        let placemark = new ymaps.Placemark(
-            [lat, lon],
-            {
-                balloonContentHeader: contentHeader,
-                balloonContent: content
-            }, {
-                preset: placemarkStyle.preset,
-                zIndex: placemarkStyle.zIndex
-            }
-        );
-        this.myMap.geoObjects.add(placemark);
+        return marker;
+    }
 
-        return placemark;
+    generatePopupContent(city, region, date_of_visit) {
+        return `<h4>${city}</h4>Дата посещения: ${date_of_visit}`;
     }
 
     updatePlacemark(id) {
@@ -501,13 +515,37 @@ class ToolbarActions {
         /**
          * Создаёт и возвращает карту с центром и зумом, указанными в аргументах.
          */
-        this.myMap = new ymaps.Map("map", {
-            center: [center_lat, center_lon],
-            zoom: zoom,
-            controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
-        }, {
-            searchControlProvider: 'yandex#search'
+        this.myMap = L.map('map', {
+            attributionControl: false,
+            zoomControl: false
+        }).setView([center_lat, center_lon], zoom);
+
+        const myAttrControl = L.control.attribution().addTo(this.myMap);
+        myAttrControl.setPrefix('');
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
+        }).addTo(this.myMap);
+
+        const zoomControl = L.control.zoom({
+            zoomInTitle: 'Нажмите, чтобы приблизить карту',
+            zoomOutTitle: 'Нажмите, чтобы отдалить карту'
         });
+        zoomControl.addTo(this.myMap);
+
+        this.myMap.addControl(new L.Control.Fullscreen({
+            title: {
+                'false': 'Полноэкранный режим',
+                'true': 'Выйти из полноэкранного режима'
+            }
+        }));
+        // this.myMap = new ymaps.Map("map", {
+        //     center: [center_lat, center_lon],
+        //     zoom: zoom,
+        //     controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
+        // }, {
+        //     searchControlProvider: 'yandex#search'
+        // });
     }
 
     async getVisitedCities() {
@@ -620,4 +658,8 @@ async function init() {
     actions.addOwnCitiesOnMap();
 }
 
-ymaps.ready(init);
+window.onload = () => {
+    init();
+}
+
+// ymaps.ready(init);

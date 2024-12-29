@@ -20,6 +20,45 @@ class City {
     date_of_visit;
 }
 
+const MarkerStyle = {
+    OWN: 'own',
+    TOGETHER: 'together',
+    SUBSCRIPTION: 'subscription',
+    NOT_VISITED: 'not_visited'
+}
+
+// Иконка для посещённого пользователем города
+const icon_visited_pin = L.divIcon({
+    className: 'custom-icon-visited-pin',
+    html: '<i class="fa-solid fa-location-dot fs-3 text-success" style="text-shadow: 0 0 2px #333333;"></i>',
+    iconSize: [21, 28],
+    anchor: [10.5, 28]
+});
+
+// Иконка для города, который не посетил ни пользователь, ни те, на кого он подписан
+const icon_not_visited_pin = L.divIcon({
+    className: 'custom-icon-not_visited-pin',
+    html: '<i class="fa-solid fa-location-dot fs-3 text-danger" style="text-shadow: 0 0 2px #333333;"></i>',
+    iconSize: [21, 28],
+    anchor: [10.5, 28]
+});
+
+// Иконка для города, который был посещён пользователем и кем-то из тех, на кого он подписан
+const icon_together_pin = L.divIcon({
+    className: 'custom-icon-together-pin',
+    html: '<i class="fa-solid fa-location-dot fs-3 text-primary" style="text-shadow: 0 0 2px #333333;"></i>',
+    iconSize: [21, 28],
+    anchor: [10.5, 28]
+});
+
+// Иконка для города, который не был посещён пользователя, но посещён кем-то из тех, на кого он подписан
+const icon_subscription_pin = L.divIcon({
+    className: 'custom-icon-together-pin',
+    html: '<i class="fa-solid fa-location-dot fs-3 text-secondary" style="text-shadow: 0 0 2px #333333;"></i>',
+    iconSize: [21, 28],
+    anchor: [10.5, 28]
+});
+
 class ToolbarActions {
     constructor() {
         // Массив, содержащий в себе ID городов, посещённых пользователем.
@@ -45,30 +84,6 @@ class ToolbarActions {
 
         // Словарь, хранящий в себе все отментки с непосещёнными городами пользователей, отображаемые в данный момент на карте
         this.stateNotVisitedCities = new Map();
-
-        /**
-         * Содержит типы отметок, которые можно использовать на карте.
-         * Полный список отметок, поддерживаемях API Яндекс.карт находится по ссылке
-         * https://yandex.ru/dev/jsapi-v2-1/doc/ru/v2-1/ref/reference/option.presetStorage
-         */
-        this.PlacemarkStyle = {
-            OWN: {
-                preset: 'islands#darkGreenDotIcon',
-                zIndex: 3
-            },
-            TOGETHER: {
-                preset: 'islands#darkBlueDotIcon',
-                zIndex: 2
-            },
-            SUBSCRIPTION: {
-                preset: 'islands#brownDotIcon',
-                zIndex: 4
-            },
-            NOT_VISITED: {
-                preset: 'islands#redDotIcon',
-                zIndex: 1
-            }
-        }
 
         // Ниже определяются кнопки. Для каждой из них есть 2 переменные:
         // - btn... - экземпляр класса Button для доступа к его методам.
@@ -178,9 +193,9 @@ class ToolbarActions {
             modal.hide();
 
             // Удаляем все отметки с карты и из stateMap
-            this.removeOwnPlacemarks();
-            this.removeSubscriptionPlacemarks();
-            this.removeNotVisitedPlacemarks();
+            this.removeOwnMarkers();
+            this.removeSubscriptionMarkers();
+            this.removeNotVisitedMarkers();
             this.stateOwnCities.clear();
             this.stateSubscriptionCities.clear();
             this.stateNotVisitedCities.clear();
@@ -230,9 +245,9 @@ class ToolbarActions {
     showVisitedCitiesPreviousYear() {
         const btn = document.getElementById('btn_show-visited-cities-previous-year');
 
-        this.removeOwnPlacemarks();
-        this.removeSubscriptionPlacemarks();
-        this.removeNotVisitedPlacemarks();
+        this.removeOwnMarkers();
+        this.removeSubscriptionMarkers();
+        this.removeNotVisitedMarkers();
         this.stateOwnCities.clear();
         this.stateSubscriptionCities.clear();
 
@@ -243,9 +258,9 @@ class ToolbarActions {
     showVisitedCitiesCurrentYear() {
         const btn = document.getElementById('btn_show-visited-cities-previous-year');
 
-        this.removeOwnPlacemarks();
-        this.removeSubscriptionPlacemarks();
-        this.removeNotVisitedPlacemarks();
+        this.removeOwnMarkers();
+        this.removeSubscriptionMarkers();
+        this.removeNotVisitedMarkers();
         this.stateOwnCities.clear();
         this.stateSubscriptionCities.clear();
 
@@ -256,9 +271,9 @@ class ToolbarActions {
     hideVisitedCitiesPreviousYear() {
         const btn = document.getElementById('btn_show-visited-cities-previous-year');
 
-        this.removeOwnPlacemarks();
-        this.removeSubscriptionPlacemarks();
-        this.removeNotVisitedPlacemarks();
+        this.removeOwnMarkers();
+        this.removeSubscriptionMarkers();
+        this.removeNotVisitedMarkers();
         this.stateOwnCities.clear();
         this.stateSubscriptionCities.clear();
 
@@ -269,9 +284,9 @@ class ToolbarActions {
     hideVisitedCitiesCurrentYear() {
         const btn = document.getElementById('btn_show-visited-cities-previous-year');
 
-        this.removeOwnPlacemarks();
-        this.removeSubscriptionPlacemarks();
-        this.removeNotVisitedPlacemarks();
+        this.removeOwnMarkers();
+        this.removeSubscriptionMarkers();
+        this.removeNotVisitedMarkers();
         this.stateOwnCities.clear();
         this.stateSubscriptionCities.clear();
 
@@ -280,7 +295,7 @@ class ToolbarActions {
     }
 
     hideNotVisitedCities() {
-        this.removeNotVisitedPlacemarks();
+        this.removeNotVisitedMarkers();
         this.stateNotVisitedCities.clear();
     }
 
@@ -295,38 +310,36 @@ class ToolbarActions {
         let usersWhoVisitedCity = this.getUsersWhoVisitedCity();
 
         for (let i = 0; i < this.subscriptionCities.length; i++) {
-            let placemark;
-            let placemarkStyle;
-            let id = this.subscriptionCities[i].id;
-            let city = this.subscriptionCities[i].title;
-            let region_title = this.subscriptionCities[i].region_title;
-            let lat = this.subscriptionCities[i].lat;
-            let lon = this.subscriptionCities[i].lon;
-            let year_city = this.subscriptionCities[i].year;
+            const city = new City();
 
-            if (year !== undefined && year !== year_city) {
+            city.id = this.subscriptionCities[i].id;
+            city.name = this.subscriptionCities[i].title;
+            city.region = this.subscriptionCities[i].region_title;
+            city.lat = this.subscriptionCities[i].lat;
+            city.lon = this.subscriptionCities[i].lon;
+            city.year_of_visit = this.subscriptionCities[i].year;
+
+            if (year !== undefined && year !== city.year_of_visit) {
                 continue;
             }
-            if (this.stateSubscriptionCities.has(id)) {
+            if (this.stateSubscriptionCities.has(city.id)) {
                 continue;
             }
 
-            if (this.stateOwnCities.has(id)) {
-                this.myMap.geoObjects.remove(this.stateOwnCities.get(id));
-                placemarkStyle = this.PlacemarkStyle.TOGETHER
+            let marker_style;
+            if (this.stateOwnCities.has(city.id)) {
+                this.myMap.removeLayer(this.stateOwnCities.get(city.id));
+                marker_style = MarkerStyle.TOGETHER
             } else {
-                placemarkStyle = this.PlacemarkStyle.SUBSCRIPTION;
+                marker_style = MarkerStyle.SUBSCRIPTION;
             }
-            placemark = this.addPlacemarkToMap(
+
+            const marker = this.addMarkerToMap(
                 city,
-                id,
-                region_title,
-                lat,
-                lon,
-                placemarkStyle,
-                usersWhoVisitedCity.get(id)
+                marker_style,
+                usersWhoVisitedCity.get(city.id)
             );
-            this.stateSubscriptionCities.set(id, placemark);
+            this.stateSubscriptionCities.set(city.id, marker);
         }
     }
 
@@ -351,31 +364,33 @@ class ToolbarActions {
                 continue;
             }
 
-            let marker = this.addPlacemarkToMap(city, this.PlacemarkStyle.OWN);
+            let marker = this.addMarkerToMap(city, MarkerStyle.OWN);
             this.stateOwnCities.set(city.id, marker);
         }
     }
 
+    /**
+     * Помещает на карту города, которые не были посещены ни пользователем, ни адресантом подписки.
+     */
     addNotVisitedCitiesOnMap() {
-        /**
-         * Помещает на карту города, которые не были посещены ни пользователем, ни адресантом подписки.
-         */
         for (let i = 0; i < (this.notVisitedCities.length); i++) {
-            let placemark;
-            let id = this.notVisitedCities[i].id;
-            let city = this.notVisitedCities[i].title;
-            let region_title = this.notVisitedCities[i].region_title;
-            let lat = this.notVisitedCities[i].lat;
-            let lon = this.notVisitedCities[i].lon;
+            const city = new City();
+            city.id = this.notVisitedCities[i].id;
+            city.name = this.notVisitedCities[i].title;
+            city.region = this.notVisitedCities[i].region_title;
+            city.lat = this.notVisitedCities[i].lat;
+            city.lon = this.notVisitedCities[i].lon;
 
-            if (!this.stateOwnCities.has(id) && !this.stateSubscriptionCities.has(id)) {
-                placemark = this.addPlacemarkToMap(city, id, region_title, lat, lon, this.PlacemarkStyle.NOT_VISITED);
-                this.stateNotVisitedCities.set(id, placemark);
+            // Добавляем не посещённый город только в том случае, если его не посетил ни сам пользователь,
+            // ни те, на кого он подписан. То есть этого города не должно быть в stateOwnCities и stateSubscriptionCities.
+            if (!this.stateOwnCities.has(city.id) && !this.stateSubscriptionCities.has(city.id)) {
+                const marker = this.addMarkerToMap(city, MarkerStyle.NOT_VISITED);
+                this.stateNotVisitedCities.set(city.id, marker);
             }
         }
     }
 
-    addPlacemarkToMap(city, placemarkStyle, users) {
+    addMarkerToMap(city, marker_style, users) {
         /**
          * Добавляет на карту this.myMap маркер города 'city.name' по координатам 'city.lat' и 'city.lon'.
          * Добавляет к маркеру окно, открывающееся по клику на него, в котором содержится
@@ -383,12 +398,22 @@ class ToolbarActions {
          *
          * Возвращает созданный маркер.
          */
-        const marker = L.marker([city.lat,  city.lon]).addTo(this.myMap);
-
-        marker.bindTooltip(city.name, {
-            direction: 'top',
-            offset: [-15, -10]
-        });
+        let icon;
+        switch (marker_style) {
+            case MarkerStyle.OWN:
+                icon = icon_visited_pin;
+                break;
+            case MarkerStyle.NOT_VISITED:
+                icon = icon_not_visited_pin;
+                break;
+            case MarkerStyle.SUBSCRIPTION:
+                icon = icon_subscription_pin;
+                break;
+            case MarkerStyle.TOGETHER:
+                icon = icon_together_pin;
+                break;
+        }
+        const marker = L.marker([city.lat, city.lon], {icon: icon}).addTo(this.myMap);
 
         let content = '';
         content += `<div><span class="fw-semibold fs-3">${city.name}</span></div>`;
@@ -396,27 +421,40 @@ class ToolbarActions {
         let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Отметить как посещённый</a>`
         const date_of_visit = new Date(city.date_of_visit).toLocaleDateString();
 
-        if (placemarkStyle === this.PlacemarkStyle.SUBSCRIPTION) {
-            content += `Пользователи, посетившие город:<br> ${users.join(', ')}<hr>${linkToAdd}`;
-        } else if (placemarkStyle === this.PlacemarkStyle.TOGETHER) {
-            content += `Пользователи, посетившие город:<br> ${users.join(', ')}`;
-        } else if (placemarkStyle === this.PlacemarkStyle.NOT_VISITED) {
-            content += `Этот город не был посещён ни Вами,<br>ни кем-то из выбранный пользователей<hr>${linkToAdd}`;
+        if (marker_style === MarkerStyle.SUBSCRIPTION) {
+            content += '<p>Вы не были в этом городе</p>';
+            content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p><hr>${linkToAdd}`;
+        } else if (marker_style === MarkerStyle.TOGETHER) {
+            content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p>`;
+        } else if (marker_style === MarkerStyle.NOT_VISITED) {
+            content += `<p>Вы не были в этом городе</p><hr>${linkToAdd}`;
         } else {
             content += `<p><span class='fw-semibold'>Дата посещения:</span> ${date_of_visit}</p>`
         }
-        marker.bindPopup(content);
+        marker.bindPopup(content, {offset: [0, -7]});
+
+        marker.bindTooltip(city.name, {
+            direction: 'top',
+            offset: [0, -14]
+        });
+        marker.on('mouseover', function () {
+            const tooltip = this.getTooltip();
+            if (this.isPopupOpen()) {
+                tooltip.setOpacity(0.0);
+            } else {
+                tooltip.setOpacity(0.9);
+            }
+        });
+        marker.on('click', function () {
+            this.getTooltip().setOpacity(0.0);
+        });
 
         return marker;
     }
 
-    generatePopupContent(city, region, date_of_visit) {
-        return `<h4>${city}</h4>Дата посещения: ${date_of_visit}`;
-    }
-
     updatePlacemark(id) {
         if (this.stateNotVisitedCities.has(id)) {
-            // Получаем данные города и удаляем его из списка непосещённых
+            // Получаем данные города и удаляем его из списка не посещённых
             let city = [];
             for (let i = this.notVisitedCities.length - 1; i >= 0; i--) {
                 if (this.notVisitedCities[i].id === id) {
@@ -427,21 +465,14 @@ class ToolbarActions {
             }
 
             // Удаляем метку на карте и в глобальном состоянии
-            let placemark = this.stateNotVisitedCities.get(id);
+            let marker = this.stateNotVisitedCities.get(id);
             this.stateNotVisitedCities.delete(id);
-            this.myMap.geoObjects.remove(placemark);
+            this.myMap.removeLayer(marker);
 
             // Добавляем новую метку на карту
             this.ownCities.push(city);
-            this.stateOwnCities.set(id, placemark);
-            this.addPlacemarkToMap(
-                city.title,
-                city.id,
-                city.region_title,
-                city.lat,
-                city.lon,
-                this.PlacemarkStyle.OWN
-            );
+            this.stateOwnCities.set(id, marker);
+            this.addMarkerToMap(city, MarkerStyle.OWN);
         } else if (this.stateSubscriptionCities.has(id)) {
             // Получаем данные города
             let city = [];
@@ -453,44 +484,39 @@ class ToolbarActions {
             }
 
             // Удаляем старую метку на карте и в глобальном состоянии
-            let old_placemark = this.stateSubscriptionCities.get(id);
+            let old_marker = this.stateSubscriptionCities.get(id);
             this.stateSubscriptionCities.delete(id);
-            this.myMap.geoObjects.remove(old_placemark);
+            this.myMap.removeLayer(old_marker);
 
             // Добавляем новую метку на карту
             this.ownCities.push(city);
-            // this.stateOwnCities.set(id, placemark);
             let usersWhoVisitedCity = this.getUsersWhoVisitedCity();
-            let new_placemark = this.addPlacemarkToMap(
-                city.title,
-                city.id,
-                city.region_title,
-                city.lat,
-                city.lon,
-                this.PlacemarkStyle.TOGETHER,
+            let new_marker = this.addMarkerToMap(
+                city,
+                MarkerStyle.TOGETHER,
                 usersWhoVisitedCity.get(id)
             );
-            this.stateSubscriptionCities.set(id, new_placemark);
+            this.stateSubscriptionCities.set(id, new_marker);
         } else {
             throw new Error(`Неизвестное состояние добавленного города с ID ${id}`);
         }
     }
 
-    removeOwnPlacemarks() {
-        for (let [id, placemark] of this.stateOwnCities.entries()) {
-            this.myMap.geoObjects.remove(placemark);
+    removeOwnMarkers() {
+        for (let [id, marker] of this.stateOwnCities.entries()) {
+            this.myMap.removeLayer(marker);
         }
     }
 
-    removeSubscriptionPlacemarks() {
-        for (let [id, placemark] of this.stateSubscriptionCities.entries()) {
-            this.myMap.geoObjects.remove(placemark);
+    removeSubscriptionMarkers() {
+        for (let [id, marker] of this.stateSubscriptionCities.entries()) {
+            this.myMap.removeLayer(marker);
         }
     }
 
-    removeNotVisitedPlacemarks() {
-        for (let [id, placemark] of this.stateNotVisitedCities.entries()) {
-            this.myMap.geoObjects.remove(placemark);
+    removeNotVisitedMarkers() {
+        for (let [id, marker] of this.stateNotVisitedCities.entries()) {
+            this.myMap.removeLayer(marker);
         }
     }
 
@@ -539,13 +565,6 @@ class ToolbarActions {
                 'true': 'Выйти из полноэкранного режима'
             }
         }));
-        // this.myMap = new ymaps.Map("map", {
-        //     center: [center_lat, center_lon],
-        //     zoom: zoom,
-        //     controls: ['fullscreenControl', 'zoomControl', 'rulerControl']
-        // }, {
-        //     searchControlProvider: 'yandex#search'
-        // });
     }
 
     async getVisitedCities() {

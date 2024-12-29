@@ -399,21 +399,28 @@ class ToolbarActions {
          * Возвращает созданный маркер.
          */
         let icon;
+        let zIndexOffset;
+
         switch (marker_style) {
             case MarkerStyle.OWN:
                 icon = icon_visited_pin;
+                zIndexOffset = 40000;
                 break;
             case MarkerStyle.NOT_VISITED:
                 icon = icon_not_visited_pin;
+                zIndexOffset = 0;
                 break;
             case MarkerStyle.SUBSCRIPTION:
                 icon = icon_subscription_pin;
+                zIndexOffset = 20000;
                 break;
             case MarkerStyle.TOGETHER:
                 icon = icon_together_pin;
+                zIndexOffset = 30000;
                 break;
         }
         const marker = L.marker([city.lat, city.lon], {icon: icon}).addTo(this.myMap);
+        marker.setZIndexOffset(zIndexOffset);
 
         let content = '';
         content += `<div><span class="fw-semibold fs-3">${city.name}</span></div>`;

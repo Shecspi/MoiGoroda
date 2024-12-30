@@ -1,71 +1,20 @@
-/**
- * Реализует отображение карты и меток на ней, запрос посещённых
- * и непосещённых городов с сервера и обновление меток на карте.
- *
- * ----------------------------------------------
- *
- * Copyright © Egor Vavilov (Shecspi)
- * Licensed under the Apache License, Version 2.0
- *
- * ----------------------------------------------
- */
+import {icon_not_visited_pin, icon_subscription_pin, icon_together_pin, icon_visited_pin} from "../icons.js";
+import {City, MarkerStyle} from "./schemas.js";
+import {open_modal_for_add_city} from './services.js';
+import {Button} from './button.js';
 
-class City {
-    id;
-    name;
-    region;
-    lat;
-    lon;
-    year_of_visit;
-    date_of_visit;
-}
+// Это нужно для того, чтобы open_modal_for_add_city можно было использовать в onclick.
+// Иначе из-за специфичной области видимости доступа к этой функции нет.
+window.open_modal_for_add_city = open_modal_for_add_city;
 
-const MarkerStyle = {
-    OWN: 'own',
-    TOGETHER: 'together',
-    SUBSCRIPTION: 'subscription',
-    NOT_VISITED: 'not_visited'
-}
-
-// Иконка для посещённого пользователем города
-const icon_visited_pin = L.divIcon({
-    className: 'custom-icon-visited-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3 text-success" style="text-shadow: 0 0 2px #333333;"></i>',
-    iconSize: [21, 28],
-    anchor: [10.5, 28]
-});
-
-// Иконка для города, который не посетил ни пользователь, ни те, на кого он подписан
-const icon_not_visited_pin = L.divIcon({
-    className: 'custom-icon-not_visited-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3 text-danger" style="text-shadow: 0 0 2px #333333;"></i>',
-    iconSize: [21, 28],
-    anchor: [10.5, 28]
-});
-
-// Иконка для города, который был посещён пользователем и кем-то из тех, на кого он подписан
-const icon_together_pin = L.divIcon({
-    className: 'custom-icon-together-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3 text-primary" style="text-shadow: 0 0 2px #333333;"></i>',
-    iconSize: [21, 28],
-    anchor: [10.5, 28]
-});
-
-// Иконка для города, который не был посещён пользователя, но посещён кем-то из тех, на кого он подписан
-const icon_subscription_pin = L.divIcon({
-    className: 'custom-icon-together-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3 text-secondary" style="text-shadow: 0 0 2px #333333;"></i>',
-    iconSize: [21, 28],
-    anchor: [10.5, 28]
-});
-
-class ToolbarActions {
-    constructor() {
+export class ToolbarActions {
+    constructor(map, own_cities) {
+        this.myMap = map;
         // Массив, содержащий в себе ID городов, посещённых пользователем.
         // Этот массив может быть использован для перерисовки карты, повторно с сервера он никогда не запрашивается.
         // Единственный момент, когда он может быть изменён - это добавление посещённого города с карты.
         // В этот момент город удаляется из this.notVisitedCities и помещается в this.ownCities.
-        this.ownCities = [];
+        this.ownCities = own_cities;
 
         // Массив, содержащий в себе ID городов, посещённых пользователями, на которых произведена подписка.
         // Этот массив обновляется каждый раз при отображении городов пользователей, на которых произведена подписка.
@@ -243,8 +192,6 @@ class ToolbarActions {
     }
 
     showVisitedCitiesPreviousYear() {
-        const btn = document.getElementById('btn_show-visited-cities-previous-year');
-
         this.removeOwnMarkers();
         this.removeSubscriptionMarkers();
         this.removeNotVisitedMarkers();
@@ -256,8 +203,6 @@ class ToolbarActions {
     }
 
     showVisitedCitiesCurrentYear() {
-        const btn = document.getElementById('btn_show-visited-cities-previous-year');
-
         this.removeOwnMarkers();
         this.removeSubscriptionMarkers();
         this.removeNotVisitedMarkers();
@@ -269,8 +214,6 @@ class ToolbarActions {
     }
 
     hideVisitedCitiesPreviousYear() {
-        const btn = document.getElementById('btn_show-visited-cities-previous-year');
-
         this.removeOwnMarkers();
         this.removeSubscriptionMarkers();
         this.removeNotVisitedMarkers();
@@ -282,8 +225,6 @@ class ToolbarActions {
     }
 
     hideVisitedCitiesCurrentYear() {
-        const btn = document.getElementById('btn_show-visited-cities-previous-year');
-
         this.removeOwnMarkers();
         this.removeSubscriptionMarkers();
         this.removeNotVisitedMarkers();
@@ -302,10 +243,10 @@ class ToolbarActions {
     addSubscriptionsCitiesOnMap(year) {
         /**
          * Помещает на карту отметку города, посещённого пользователем, на которого произведена подписка
-         * и сохраняет объект Placemark в глобальный словарь stateSubscriptionCities.
-         * В случае, если город был посещён и пользователем, и адресантом подписки, то соответствующая Placemark
+         * и сохраняет объект Marker в глобальный словарь stateSubscriptionCities.
+         * В случае, если город был посещён и пользователем, и адресантом подписки, то соответствующая Marker
          * удаляется из stateOwnCities и помещается в stateSubscriptionCities.
-         * @param year Необязательный параметр, уазывающий за какой год нужно добавлять города на карту
+         * @param year Необязательный параметр, указывающий за какой год нужно добавлять города на карту
          */
         let usersWhoVisitedCity = this.getUsersWhoVisitedCity();
 
@@ -459,7 +400,7 @@ class ToolbarActions {
         return marker;
     }
 
-    updatePlacemark(id) {
+    updateMarker(id) {
         if (this.stateNotVisitedCities.has(id)) {
             // Получаем данные города и удаляем его из списка не посещённых
             let city;
@@ -556,151 +497,4 @@ class ToolbarActions {
 
         return usersWhoVisitedCity
     }
-
-    createMap(center_lat, center_lon, zoom) {
-        /**
-         * Создаёт и возвращает карту с центром и зумом, указанными в аргументах.
-         */
-        this.myMap = L.map('map', {
-            attributionControl: false,
-            zoomControl: false
-        }).setView([center_lat, center_lon], zoom);
-
-        const myAttrControl = L.control.attribution().addTo(this.myMap);
-        myAttrControl.setPrefix('');
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
-        }).addTo(this.myMap);
-
-        const zoomControl = L.control.zoom({
-            zoomInTitle: 'Нажмите, чтобы приблизить карту',
-            zoomOutTitle: 'Нажмите, чтобы отдалить карту'
-        });
-        zoomControl.addTo(this.myMap);
-
-        this.myMap.addControl(new L.Control.Fullscreen({
-            title: {
-                'false': 'Полноэкранный режим',
-                'true': 'Выйти из полноэкранного режима'
-            }
-        }));
-
-        L.simpleMapScreenshoter().addTo(this.myMap);
-    }
-
-    async getVisitedCities() {
-        /**
-         * Делает запрос на сервер, получает список городов, посещённых пользователем,
-         * и помещает его в глобальную переменную usersVisitedCities, откуда можно получить
-         * данные из любого места скрипта.
-         */
-        let url = document.getElementById('url-api__get_visited_cities').dataset.url;
-        let response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': getCookie("csrftoken")
-            }
-        });
-        if (response.ok) {
-            this.ownCities = await response.json();
-        } else {
-            showDangerToast('Ошибка', 'Что-то пошло не так. Попробуйте ещё раз.')
-            this.ownCities = [];
-        }
-
-        return this.ownCities;
-    }
 }
-
-class Button {
-    constructor(element, style_on, style_off) {
-        this.button = document.getElementById(element);
-        this.style_on = style_on;
-        this.style_off = style_off;
-    }
-
-    get_element() {
-        return this.button;
-    }
-
-    off() {
-        this.button.dataset.type = 'show';
-        this.button.classList.remove(this.style_on);
-        this.button.classList.add(this.style_off);
-    }
-
-    on() {
-        this.button.dataset.type = 'hide';
-        this.button.classList.remove(this.style_off);
-        this.button.classList.add(this.style_on);
-    }
-
-    disable() {
-        this.button.classList.add('disabled');
-    }
-
-    enable() {
-        this.button.classList.remove('disabled')
-    }
-}
-
-function calculateCenterCoordinates(visited_cities) {
-    /**
-     * Рассчитывает координаты и зум карты в зависимости от городов, переданных в visited_cities.
-     */
-    if (visited_cities.length > 0) {
-        // Высчитываем центральную точку карты.
-        // Ей является средняя координата всех городов, отображённых на карте.
-        let array_lon = Array();
-        let array_lat = Array();
-        let zoom = 0;
-
-        // Добавляем все координаты в один массив и находим большее и меньшее значения из них,
-        // а затем вычисляем среднее, это и будет являться центром карты.
-        for (let i = 0; i < visited_cities.length; i++) {
-            array_lat.push(parseFloat(visited_cities[i].lat));
-            array_lon.push(parseFloat(visited_cities[i].lon));
-        }
-        let max_lon = Math.max(...array_lon);
-        let min_lon = Math.min(...array_lon);
-        let max_lat = Math.max(...array_lat);
-        let min_lat = Math.min(...array_lat);
-        average_lon = (max_lon + min_lon) / 2;
-        average_lat = (max_lat + min_lat) / 2;
-
-        // Меняем масштаб карты в зависимости от расположения городов
-        let diff = max_lat - min_lat;
-        if (diff <= 1) {
-            zoom = 8;
-        } else if (diff > 1 && diff <= 2) {
-            zoom = 7;
-        } else if (diff > 2 && diff <= 4) {
-            zoom = 6
-        } else if (diff > 4 && diff <= 6) {
-            zoom = 5;
-        } else {
-            zoom = 4;
-        }
-        return [average_lat, average_lon, zoom];
-    } else {
-        return [56.831534, 50.987919, 5];
-    }
-}
-
-let actions = new ToolbarActions();
-
-async function init() {
-    let ownCities = await actions.getVisitedCities();
-
-    const [center_lat, center_lon, zoom] = calculateCenterCoordinates(ownCities);
-    actions.createMap(center_lat, center_lon, zoom)
-
-    actions.addOwnCitiesOnMap();
-}
-
-window.onload = () => {
-    init();
-}
-
-// ymaps.ready(init);

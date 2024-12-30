@@ -17,9 +17,10 @@
 
     <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
     <script>
-        const fillOpacity = 0.2;
-        const strokeColor = '#6b6b6b';
-        const strokeOpacity = 0.5;
+        const fillOpacity = 0.1;
+        const fillColor = '#6382ff';
+        const strokeColor = '#0033ff';
+        const strokeOpacity = 0.3;
         const strokeWidth = 2;
         const iso3166_code = document.getElementById('iso3166_code').dataset.iso3166_code
         const region_code = iso3166_code.split('-')[1];
@@ -117,11 +118,22 @@
             let city = all_cities[i][2]
             let pointer_style = (all_cities[i][3] === true) ? 'pointer-green' : 'pointer-red'
 
-            const icon = L.divIcon({
-                className: 'pointer-root',
-                html: `<div class="pointer ${pointer_style}"></div>`,
-                iconAnchor: [11, 22],
+            // TODO: Использовать глобальные иконки без дублирования кода
+            // Иконка для посещённого пользователем города
+            const icon_visited_pin = L.divIcon({
+                className: 'custom-icon-visited-pin',
+                html: '<i class="fa-solid fa-location-dot fs-3 icon-visited-pin" style="color: rgb(90, 170, 90) !important; text-shadow: 0 0 2px #333333;"></i>',
+                iconSize: [21, 28],
+                anchor: [10.5, 28]
             });
+            // Иконка для города, который не посетил ни пользователь, ни те, на кого он подписан
+            const icon_not_visited_pin = L.divIcon({
+                className: 'custom-icon-not_visited-pin',
+                html: '<i class="fa-solid fa-location-dot fs-3 icon-not-visited-pin" style="color: rgb(210, 90, 90) !important; text-shadow: 0 0 2px #333333;"></i>',
+                iconSize: [21, 28],
+                anchor: [10.5, 28]
+            });
+            const icon = (all_cities[i][3] === true) ? icon_visited_pin : icon_not_visited_pin;
             const marker = L.marker([coordinateWidth, coordinateLongitude], {icon: icon}).addTo(map);
             marker.bindTooltip(city);
         }
@@ -137,10 +149,11 @@
             })
             .then(geoJson => {
                 const myStyle = {
-                    "fillOpacity": fillOpacity,
-                    "weight": strokeWidth,
-                    "color": strokeColor,
-                    "opacity": strokeOpacity
+                    fillOpacity: fillOpacity,
+                    fillColor: fillColor,
+                    weight: strokeWidth,
+                    color: strokeColor,
+                    opacity: strokeOpacity
                 };
                 L.geoJSON(geoJson, {
                     style: myStyle,

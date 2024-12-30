@@ -15,6 +15,7 @@ import {City} from "./schemas.js";
 import {change_qty_of_visited_cities_in_toolbar, modal} from './services.js';
 
 let actions;
+let map;
 
 window.onload = () => {
     // Карта отображается после того, как загрузятся посещённые города.
@@ -23,7 +24,7 @@ window.onload = () => {
     getVisitedCities()
         .then(own_cities => {
             const [center_lat, center_lon, zoom] = calculateCenterCoordinates(own_cities);
-            const map = create_map([center_lat, center_lon], zoom);
+            map = create_map([center_lat, center_lon], zoom);
             actions = new ToolbarActions(map, own_cities);
             actions.addOwnCitiesOnMap();
         });

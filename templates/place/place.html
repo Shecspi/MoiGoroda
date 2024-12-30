@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <h1 class="display-5 text-center mt-3 mx-3" id="section-page_header">
+        Карта интересных мест
+    </h1>
+
+    <!-- Карта -->
+    <div id="map" class="h-100 mt-3"></div>
+    <!-- ^^^ Карта -->
+
+    <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
+    <script src="{% static 'js/map_place.js' %}?ver={{ PROJECT_VERSION }}" type="module"></script>
+{% endblock %}

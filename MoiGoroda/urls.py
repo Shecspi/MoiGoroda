@@ -5,12 +5,15 @@ from django.contrib import admin
 from django.conf import settings
 from django.views.generic import TemplateView
 
+from city.place import place
+
 urlpatterns = [
     path('', include('main_page.urls'), name='main_page'),
     path('account/', include('account.urls')),
     path('city/', include('city.urls.views')),
     path('region/', include('region.urls')),
     path('country/', include('country.urls.views')),
+    path('place', place, name='places-map'),
     path('collection/', include('collection.urls')),
     path('news/', include('news.urls')),
     path('subscribe/', include('subscribe.urls')),

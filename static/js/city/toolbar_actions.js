@@ -379,11 +379,10 @@ export class ToolbarActions {
         } else {
             content += `<p><span class='fw-semibold'>Дата посещения:</span> ${date_of_visit ? date_of_visit : 'Не указана'}</p>`
         }
-        marker.bindPopup(content, {offset: [0, -7]});
+        marker.bindPopup(content);
 
         marker.bindTooltip(city.name, {
-            direction: 'top',
-            offset: [0, -14]
+            direction: 'top'
         });
         marker.on('mouseover', function () {
             const tooltip = this.getTooltip();

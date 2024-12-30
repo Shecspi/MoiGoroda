@@ -144,36 +144,40 @@ def auth_user_with_visited_cities_should_get_list_only_with_own_cities__test(
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_visited_cities'))
     content = json.loads(response.content.decode())
+    print(content)
     correct_content = [
         {
             'username': 'username1',
             'id': 3,
             'title': 'Город 3',
+            'region_title': 'Регион 1 область',
+            'region_id': 1,
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
-            'region_id': 1,
-            'region_title': 'Регион 1 область',
+            'date_of_visit': '2024-12-30',
         },
         {
             'username': 'username1',
             'id': 2,
             'title': 'Город 2',
+            'region_title': 'Регион 1 область',
+            'region_id': 1,
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
-            'region_id': 1,
-            'region_title': 'Регион 1 область',
+            'date_of_visit': '2024-12-30',
         },
         {
             'username': 'username1',
             'id': 1,
             'title': 'Город 1',
+            'region_title': 'Регион 1 область',
+            'region_id': 1,
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
-            'region_id': 1,
-            'region_title': 'Регион 1 область',
+            'date_of_visit': '2024-12-30',
         },
     ]
 

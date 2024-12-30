@@ -115,8 +115,7 @@
         for (let i = 0; i < (all_cities.length); i++) {
             let coordinateWidth = all_cities[i][0];
             let coordinateLongitude = all_cities[i][1];
-            let city = all_cities[i][2]
-            let pointer_style = (all_cities[i][3] === true) ? 'pointer-green' : 'pointer-red'
+            let city = all_cities[i][2];
 
             // TODO: Использовать глобальные иконки без дублирования кода
             // Иконка для посещённого пользователем города
@@ -141,7 +140,7 @@
             });
             const icon = (all_cities[i][3] === true) ? icon_visited_pin : icon_not_visited_pin;
             const marker = L.marker([coordinateWidth, coordinateLongitude], {icon: icon}).addTo(map);
-            marker.bindTooltip(city);
+            marker.bindTooltip(city, {direction: 'top'});
         }
 
         // Загружаем полигон региона

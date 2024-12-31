@@ -88,6 +88,7 @@ def access_by_GET_without_auth_is_allowed__test(setup_db, caplog, client):
             'code': '1',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 2,
@@ -97,6 +98,7 @@ def access_by_GET_without_auth_is_allowed__test(setup_db, caplog, client):
             'code': '2',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 3,
@@ -106,6 +108,7 @@ def access_by_GET_without_auth_is_allowed__test(setup_db, caplog, client):
             'code': '3',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 4,
@@ -115,6 +118,7 @@ def access_by_GET_without_auth_is_allowed__test(setup_db, caplog, client):
             'code': '4',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 5,
@@ -124,6 +128,7 @@ def access_by_GET_without_auth_is_allowed__test(setup_db, caplog, client):
             'code': '5',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
     ]
 
@@ -148,6 +153,7 @@ def access_by_GET_with_auth_is_allowed__test(setup_db, caplog, client):
             'code': '1',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 2,
@@ -157,6 +163,7 @@ def access_by_GET_with_auth_is_allowed__test(setup_db, caplog, client):
             'code': '2',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 3,
@@ -166,6 +173,7 @@ def access_by_GET_with_auth_is_allowed__test(setup_db, caplog, client):
             'code': '3',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 4,
@@ -175,6 +183,7 @@ def access_by_GET_with_auth_is_allowed__test(setup_db, caplog, client):
             'code': '4',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 5,
@@ -184,6 +193,7 @@ def access_by_GET_with_auth_is_allowed__test(setup_db, caplog, client):
             'code': '5',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
     ]
 
@@ -196,7 +206,7 @@ def access_by_GET_with_auth_is_allowed__test(setup_db, caplog, client):
     assert response.json() == expected_response
 
 
-def test_access_by_GET_with_auth_is_allowed__with_from_page__test(setup_db, caplog, client):
+def access_by_GET_with_auth_is_allowed__with_from_page__test(setup_db, caplog, client):
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_all_countries') + '?from=country+map')
     expected_response = [
@@ -208,6 +218,7 @@ def test_access_by_GET_with_auth_is_allowed__with_from_page__test(setup_db, capl
             'code': '1',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 2,
@@ -217,6 +228,7 @@ def test_access_by_GET_with_auth_is_allowed__with_from_page__test(setup_db, capl
             'code': '2',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 3,
@@ -226,6 +238,7 @@ def test_access_by_GET_with_auth_is_allowed__with_from_page__test(setup_db, capl
             'code': '3',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 4,
@@ -235,6 +248,7 @@ def test_access_by_GET_with_auth_is_allowed__with_from_page__test(setup_db, capl
             'code': '4',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
         {
             'id': 5,
@@ -244,6 +258,7 @@ def test_access_by_GET_with_auth_is_allowed__with_from_page__test(setup_db, capl
             'code': '5',
             'location': 'Локация 1',
             'part_of_the_world': 'Часть света 1',
+            'is_member_of_un': False,
         },
     ]
 

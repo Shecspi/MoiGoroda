@@ -170,11 +170,12 @@ def auth_user_can_get_visited_cities_for_1_subscription__test(
             'username': 'username2',
             'id': 4,
             'title': 'Город 4',
+            'region_title': 'Регион 1 область',
+            'region_id': 1,
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
-            'region_id': 1,
-            'region_title': 'Регион 1 область',
+            'date_of_visit': '2024-12-30',
         }
     ]
 
@@ -206,21 +207,23 @@ def auth_user_can_get_visited_cities_for_2_subscriptions__test(
             'username': 'superuser3',
             'id': 4,
             'title': 'Город 4',
+            'region_title': 'Регион 1 область',
+            'region_id': 1,
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
-            'region_id': 1,
-            'region_title': 'Регион 1 область',
+            'date_of_visit': '2024-12-30',
         },
         {
             'username': 'username2',
             'id': 4,
             'title': 'Город 4',
+            'region_title': 'Регион 1 область',
+            'region_id': 1,
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
-            'region_id': 1,
-            'region_title': 'Регион 1 область',
+            'date_of_visit': '2024-12-30',
         },
     ]
 
@@ -393,11 +396,12 @@ def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_2__test(
             'username': 'username2',
             'id': 4,
             'title': 'Город 4',
+            'region_title': 'Регион 1 область',
+            'region_id': 1,
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
-            'region_id': 1,
-            'region_title': 'Регион 1 область',
+            'date_of_visit': '2024-12-30',
         }
     ]
 
@@ -460,11 +464,12 @@ def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscri
             'username': 'username2',
             'id': 4,
             'title': 'Город 4',
+            'region_title': 'Регион 1 область',
+            'region_id': 1,
             'lat': '1.0',
             'lon': '1.0',
             'year': 2024,
-            'region_id': 1,
-            'region_title': 'Регион 1 область',
+            'date_of_visit': '2024-12-30',
         }
     ]
 

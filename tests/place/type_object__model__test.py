@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0
 
 from django.db import models
 
-from place.models import TypeObject
+from place.models import TypeObject, TagOSM
 
 
 def test__model_typeobject_can_create_model_instance():
@@ -28,3 +28,14 @@ def test__model_typeobject_has_a_field_name():
     assert field.unique is False
     assert field.max_length == 255
     assert isinstance(field, models.CharField)
+
+
+def test__model_typeobject_has_a_field_tags():
+    field = TypeObject._meta.get_field('tags')
+
+    assert field.verbose_name == 'Теги OpenStreetMap'
+    assert field.blank is True
+    assert field.null is True
+    assert field.unique is False
+    assert isinstance(field, models.ManyToManyField)
+    assert isinstance(field.remote_field.model(), TagOSM)

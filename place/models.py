@@ -1,10 +1,21 @@
 from django.db import models
 
 
+class TagOSM(models.Model):
+    name = models.CharField(
+        max_length=255, blank=False, null=False, unique=False, verbose_name='Название'
+    )
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
+
 class TypeObject(models.Model):
     name = models.CharField(
         max_length=255, blank=False, null=False, unique=False, verbose_name='Название'
     )
+    tags = models.ManyToManyField(TagOSM, blank=True, null=True, verbose_name='Теги OpenStreetMap')
 
     class Meta:
         verbose_name = 'Тип объекта'

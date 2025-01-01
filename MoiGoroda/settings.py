@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'subscribe',
     'rest_framework',
     'country',
+    'place',
 ]
 
 MIDDLEWARE = [

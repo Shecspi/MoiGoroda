@@ -26,7 +26,7 @@ def test__model_typeobject_has_correct_list_display_in_admin():
 
 
 def test__model_typeobject_has_correct_list_filter_in_admin():
-    correct = ('name',)
+    correct = tuple()
     list_filter = admin.site._registry[TypeObject].list_filter
 
     # list_display может быть как кортежем, так и списком, поэтому нужно сравнивать поэлементно

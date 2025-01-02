@@ -13,6 +13,9 @@ class TagOSM(models.Model):
         max_length=255, blank=False, null=False, unique=False, verbose_name='Название'
     )
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
@@ -23,6 +26,9 @@ class TypeObject(models.Model):
         max_length=255, blank=False, null=False, unique=False, verbose_name='Название'
     )
     tags = models.ManyToManyField(TagOSM, blank=True, null=True, verbose_name='Теги OpenStreetMap')
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = 'Тип объекта'

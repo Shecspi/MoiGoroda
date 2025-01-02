@@ -5,6 +5,7 @@ Licensed under the Apache License, Version 2.0
 
 """
 
+import pytest
 from django.db import models
 
 from place.models import TypeObject, TagOSM
@@ -39,3 +40,11 @@ def test__model_typeobject_has_a_field_tags():
     assert field.unique is False
     assert isinstance(field, models.ManyToManyField)
     assert isinstance(field.remote_field.model(), TagOSM)
+
+
+@pytest.mark.django_db
+def test__model_typepobject_has_str_representation():
+    obj = TypeObject(name='Природа')
+    obj.save()
+
+    assert str(obj) == 'Природа'

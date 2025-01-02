@@ -6,7 +6,6 @@ from place.models import TagOSM, TypeObject, Place
 @admin.register(TagOSM)
 class TagOSMAdmin(admin.ModelAdmin):
     list_display = ('name',)
-    list_filter = ('name',)
     search_fields = ('name',)
 
 

@@ -1,15 +1,21 @@
 from rest_framework import serializers
 
-from place.models import Place
+from place.models import Place, TagOSM, TypeObject
 
 
-class CreatePlaceSerializer(serializers.ModelSerializer):
-    name = serializers.CharField()
+class TagOSMSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TagOSM
+        fields = '__all__'
 
-    def create(self, validated_data):
-        print(f'\n\n\n\n\n{validated_data}\n\n\n\n\n')
-        return Place.objects.create(**validated_data)
 
+class TypeObjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TypeObject
+        fields = '__all__'
+
+
+class PlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Place
-        fields = ['name']
+        fields = ['name', 'latitude', 'longitude', 'type_object']

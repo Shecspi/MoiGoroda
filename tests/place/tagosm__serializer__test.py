@@ -42,3 +42,12 @@ def test__tagosm_serializer_can_insert_data_to_db():
     assert TagOSM.objects.count() == 1
     tag = TagOSM.objects.first()
     assert tag.name == 'river'
+
+
+@pytest.mark.django_db
+def test__tagosm_serializer_reading():
+    TagOSM.objects.create(name='river')
+    serializer = TagOSMSerializer(instance=TagOSM.objects.first())
+    assert len(serializer.data) == 2
+    assert serializer.data.get('id') == 1
+    assert serializer.data['name'] == 'river'

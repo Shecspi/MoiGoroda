@@ -88,3 +88,22 @@ def test__typeobject_serializer_can_insert_data_to_db_2():
     type_object = TypeObject.objects.first()
     assert type_object.name == 'Реки'
     assert len(type_object.tags.all()) == 2
+
+
+@pytest.mark.django_db
+def test__typeobject_serializer_reading():
+    tag1 = TagOSM.objects.create(name='river')
+    tag2 = TagOSM.objects.create(name='water')
+    type_object = TypeObject.objects.create(name='Реки')
+    type_object.tags.add(tag1)
+    type_object.tags.add(tag2)
+
+    serializer = TypeObjectSerializer(instance=TypeObject.objects.first())
+    assert len(serializer.data) == 3
+    assert serializer.data.get('id') == 1
+    assert serializer.data['name'] == 'Реки'
+    assert len(serializer.data.get('tags')) == 2
+    assert serializer.data.get('tags')[0].get('id') == tag1.id
+    assert serializer.data.get('tags')[0].get('name') == tag1.name
+    assert serializer.data.get('tags')[1].get('id') == tag2.id
+    assert serializer.data.get('tags')[1].get('name') == tag2.name

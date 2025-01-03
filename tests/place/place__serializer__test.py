@@ -1,6 +1,6 @@
 import pytest
 
-from place.models import TypeObject, Place
+from place.models import TypeObject, Place, TagOSM
 from place.serializers import PlaceSerializer
 
 
@@ -40,7 +40,7 @@ def test__place_serializer_cant_create_instance_without_required_field():
 
 
 @pytest.mark.django_db
-def test__place_serializer_can_insert_data_to_db_1():
+def test__place_serializer_can_insert_data_to_db():
     type_object = TypeObject.objects.create(name='Реки')
     data = {
         'name': 'Название места',
@@ -59,3 +59,26 @@ def test__place_serializer_can_insert_data_to_db_1():
     assert place.latitude == 55.63423
     assert place.longitude == 37.6176
     assert place.type_object == type_object
+
+
+@pytest.mark.django_db
+def test__place_serializer_reading():
+    tag = TagOSM.objects.create(name='river')
+    type_object = TypeObject.objects.create(name='Реки')
+    type_object.tags.add(tag)
+    place = Place.objects.create(
+        name='Название', latitude=55.63423, longitude=37.6176, type_object=type_object
+    )
+
+    serializer = PlaceSerializer(instance=Place.objects.first())
+    assert len(serializer.data) == 7
+    assert serializer.data.get('id') == 1
+    assert serializer.data.get('name') == 'Название'
+    assert serializer.data.get('latitude') == 55.63423
+    assert serializer.data.get('longitude') == 37.6176
+    assert len(serializer.data.get('type_object')) == 3
+    assert serializer.data.get('type_object').get('id') == 1
+    assert serializer.data.get('type_object').get('name') == 'Реки'
+    # Сериализатор возвращет дату с разделителем Т между датой и временем
+    assert serializer.data.get('created_at') == str(place.created_at).replace(' ', 'T')
+    assert serializer.data.get('updated_at') == str(place.updated_at).replace(' ', 'T')

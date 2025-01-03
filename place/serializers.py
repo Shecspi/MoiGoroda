@@ -13,9 +13,12 @@ class TypeObjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = TypeObject
         fields = '__all__'
+        depth = 1
 
 
 class PlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Place
-        fields = ['name', 'latitude', 'longitude', 'type_object']
+        fields = ['id', 'name', 'latitude', 'longitude', 'type_object', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+        depth = 1

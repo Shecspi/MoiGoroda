@@ -26,7 +26,7 @@ urlpatterns = [
     path('api/city/', include('city.urls.api')),
     path('api/country/', include('country.urls.api')),
     path('api/dashboard/', include('dashboard.urls.api')),
-    path('api/place', include('place.urls.api')),
+    path('api/place/', include('place.urls.api')),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

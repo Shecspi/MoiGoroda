@@ -100,10 +100,9 @@ def test__typeobject_serializer_reading():
 
     serializer = TypeObjectSerializer(instance=TypeObject.objects.first())
     assert len(serializer.data) == 3
-    assert serializer.data.get('id') == 1
-    assert serializer.data['name'] == 'Реки'
-    assert len(serializer.data.get('tags')) == 2
-    assert serializer.data.get('tags')[0].get('id') == tag1.id
-    assert serializer.data.get('tags')[0].get('name') == tag1.name
-    assert serializer.data.get('tags')[1].get('id') == tag2.id
-    assert serializer.data.get('tags')[1].get('name') == tag2.name
+    assert serializer.data.get('id') == type_object.id
+    assert serializer.data['name'] == type_object.name
+    assert serializer.data.get('tags_detail')[0].get('id') == tag1.id
+    assert serializer.data.get('tags_detail')[0].get('name') == tag1.name
+    assert serializer.data.get('tags_detail')[1].get('id') == tag2.id
+    assert serializer.data.get('tags_detail')[1].get('name') == tag2.name

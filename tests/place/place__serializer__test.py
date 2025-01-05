@@ -72,13 +72,14 @@ def test__place_serializer_reading():
 
     serializer = PlaceSerializer(instance=Place.objects.first())
     assert len(serializer.data) == 7
-    assert serializer.data.get('id') == 1
-    assert serializer.data.get('name') == 'Название'
-    assert serializer.data.get('latitude') == 55.63423
-    assert serializer.data.get('longitude') == 37.6176
-    assert len(serializer.data.get('type_object')) == 3
-    assert serializer.data.get('type_object').get('id') == 1
-    assert serializer.data.get('type_object').get('name') == 'Реки'
-    # Сериализатор возвращет дату с разделителем Т между датой и временем
+    assert serializer.data.get('id') == place.id
+    assert serializer.data.get('name') == place.name
+    assert serializer.data.get('latitude') == place.latitude
+    assert serializer.data.get('longitude') == place.longitude
+    print(serializer.data.get('type_object_detail'))
+    assert len(serializer.data.get('type_object_detail')) == 3
+    assert serializer.data.get('type_object_detail').get('id') == type_object.id
+    assert serializer.data.get('type_object_detail').get('name') == type_object.name
+    # Сериализатор возвращает дату с разделителем Т между датой и временем
     assert serializer.data.get('created_at') == str(place.created_at).replace(' ', 'T')
     assert serializer.data.get('updated_at') == str(place.updated_at).replace(' ', 'T')

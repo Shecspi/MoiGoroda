@@ -6,6 +6,7 @@ from account.models import ShareSettings
 from city.models import City, VisitedCity
 from country.models import Country, Location, PartOfTheWorld, VisitedCountry
 from news.models import News
+from place.models import TypeObject
 from region.models import Area, Region
 from subscribe.models import Subscribe
 
@@ -115,3 +116,7 @@ def create_subscription(subscribe_from_id: int, subscribe_to_id: int) -> Subscri
     return Subscribe.objects.create(
         subscribe_from_id=subscribe_from_id, subscribe_to_id=subscribe_to_id
     )
+
+
+def create_type_object_of_place():
+    return TypeObject.objects.create(name='Тип места 1')

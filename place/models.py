@@ -5,6 +5,7 @@ Licensed under the Apache License, Version 2.0
 
 """
 
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -52,6 +53,7 @@ class Place(models.Model):
         auto_now=True,
         verbose_name='Дата и время редактирования',
     )
+    user = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name='Пользователь')
 
     class Meta:
         verbose_name = 'Интересное место'

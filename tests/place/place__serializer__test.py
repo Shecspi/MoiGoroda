@@ -2,6 +2,7 @@ import pytest
 
 from place.models import TypeObject, Place, TagOSM
 from place.serializers import PlaceSerializer
+from tests.create_db import create_user
 
 
 def test__place_serializer_can_create_instance():
@@ -40,17 +41,19 @@ def test__place_serializer_cant_create_instance_without_required_field():
 
 
 @pytest.mark.django_db
-def test__place_serializer_can_insert_data_to_db():
+def test__place_serializer_can_insert_data_to_db(django_user_model):
+    user = create_user(django_user_model, 1)
     type_object = TypeObject.objects.create(name='Реки')
     data = {
         'name': 'Название места',
         'latitude': 55.63423,
         'longitude': 37.6176,
         'type_object': type_object.id,
+        'user': user.id,
     }
     serializer = PlaceSerializer(data=data)
     assert serializer.is_valid()
-
+    print(serializer.validated_data)
     serializer.save()
     assert Place.objects.count() == 1
 
@@ -62,12 +65,13 @@ def test__place_serializer_can_insert_data_to_db():
 
 
 @pytest.mark.django_db
-def test__place_serializer_reading():
+def test__place_serializer_reading(django_user_model):
+    user = create_user(django_user_model, 1)
     tag = TagOSM.objects.create(name='river')
     type_object = TypeObject.objects.create(name='Реки')
     type_object.tags.add(tag)
     place = Place.objects.create(
-        name='Название', latitude=55.63423, longitude=37.6176, type_object=type_object
+        name='Название', latitude=55.63423, longitude=37.6176, type_object=type_object, user=user
     )
 
     serializer = PlaceSerializer(instance=Place.objects.first())

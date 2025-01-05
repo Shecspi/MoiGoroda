@@ -36,14 +36,20 @@ def test__create_place_has_correct_serializer_class():
 
 
 def test__create_place_can_process_correct_data(django_user_model):
-    create_user(django_user_model, 1)
+    user = create_user(django_user_model, 1)
     typeobject = create_type_object_of_place()
-    data = {'name': 'Place name', 'latitude': 55.5, 'longitude': 66.6, 'type_object': typeobject.id}
+    data = {
+        'name': 'Place name',
+        'latitude': 55.5,
+        'longitude': 66.6,
+        'type_object': typeobject.id,
+    }
 
     client = APIClient()
     client.login(username='username1', password='password')
     response = client.post('/api/place/create/', data=data, format='json', charset='utf-8')
     response_json = json.loads(response.content.decode('utf-8'))
+    print(response_json)
 
     assert response.status_code == 201
     for key in ['name', 'latitude', 'longitude', 'type_object_detail', 'created_at', 'updated_at']:

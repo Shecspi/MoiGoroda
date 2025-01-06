@@ -1,7 +1,7 @@
 import json
 from itertools import zip_longest
 
-from django.urls import reverse, NoReverseMatch
+from django.urls import reverse, NoReverseMatch, resolve
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.test import APIClient
 
@@ -17,6 +17,14 @@ def test__url_path_to_create_place_exists():
         assert False
     else:
         assert True
+
+
+def test__correct_url_for_creation_place():
+    assert reverse('create_place') == '/api/place/create/'
+
+
+def test__correct_resolve_by_url():
+    assert resolve('/api/place/create/').func == CreatePlace.as_view()
 
 
 def test__create_place_has_correct_permission_classes():

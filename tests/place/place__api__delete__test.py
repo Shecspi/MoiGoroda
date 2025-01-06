@@ -1,6 +1,6 @@
 from itertools import zip_longest
 
-from django.urls import reverse, NoReverseMatch
+from django.urls import reverse, resolve
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.test import APIClient
 
@@ -9,13 +9,8 @@ from place.models import Place
 from tests.create_db import create_user, create_type_object_of_place, create_place
 
 
-def test__url_path_to_delete_place_exists():
-    try:
-        reverse('delete_place', kwargs={'pk': 1})
-    except NoReverseMatch:
-        assert False
-    else:
-        assert True
+def test__correct_resolve_by_url():
+    assert resolve('/api/place/delete/1').func.cls == DeletePlace
 
 
 def test__correct_url_for_deleting_place():

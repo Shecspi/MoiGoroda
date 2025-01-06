@@ -24,7 +24,7 @@ def test__correct_url_for_creation_place():
 
 
 def test__correct_resolve_by_url():
-    assert resolve('/api/place/create/').func == CreatePlace.as_view()
+    assert resolve('/api/place/create/').func.cls == CreatePlace
 
 
 def test__create_place_has_correct_permission_classes():

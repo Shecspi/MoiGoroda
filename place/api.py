@@ -5,6 +5,15 @@ from place.models import Place
 from place.serializers import PlaceSerializer
 
 
+class GetPlaces(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+    serializer_class = PlaceSerializer
+
+    def get_queryset(self):
+        return Place.objects.filter(user=self.request.user)
+
+
 class CreatePlace(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['post']

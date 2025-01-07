@@ -52,9 +52,19 @@ export const icon_subscripticon_visited_pinion_pin = L.divIcon({
     tooltipAnchor: [0, -28]
 });
 
-export const icon_place_pin = L.divIcon({
+export const icon_blue_pin = L.divIcon({
     className: 'custom-icon-place-pin',
     html: '<i class="fa-solid fa-location-dot fs-3  icon-subscription-pin" style="color: rgb(12,87,225) !important; text-shadow: 0 0 2px #333333;"></i>',
+    iconSize: [21, 28],
+    anchor: [10.5, 28],
+    iconAnchor: [10.5, 28],
+    popupAnchor: [0, -28],
+    tooltipAnchor: [0, -28]
+});
+
+export const icon_purple_pin = L.divIcon({
+    className: 'custom-icon-place-pin',
+    html: '<i class="fa-solid fa-location-dot fs-3  icon-subscription-pin" style="color: rgb(220,66,217) !important; text-shadow: 0 0 2px #333333;"></i>',
     iconSize: [21, 28],
     anchor: [10.5, 28],
     iconAnchor: [10.5, 28],

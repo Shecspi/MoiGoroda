@@ -60,7 +60,7 @@ function addExternalBorderControl(map) {
                 let container = L.DomUtil.create('div', 'custom-control-for-map')
 
                 container.title = 'Отобразить внешние границы России';
-                container.innerHTML = '<i class="fa-solid fa-border-none"></i>';
+                container.innerHTML = '<i class="fa-regular fa-square"></i>';
                 container.addEventListener('click', () => {
                     if (downloadedExternalBorder === undefined) {
                         fetch('http://127.0.0.1:8080/country/hq/RU')
@@ -100,7 +100,7 @@ function addInternalBorderControl(map) {
                 let container = L.DomUtil.create('div', 'custom-control-for-map')
 
                 container.title = 'Отобразить границы регионов России';
-                container.innerHTML = '<i class="fa-solid fa-border-none"></i>';
+                container.innerHTML = '<i class="fa-regular fa-square-plus"></i>';
                 container.addEventListener('click', () => {
                     if (downloadedInternalBorder === undefined) {
                         fetch('http://127.0.0.1:8080/region/lq/RU/all')

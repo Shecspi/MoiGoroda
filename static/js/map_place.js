@@ -39,43 +39,55 @@ map.addEventListener('click', function (ev) {
                 map.removeLayer(marker);
             }
 
+            let name;
+            let lat_marker;
+            let lon_marker;
+
             if (data.hasOwnProperty('error')) {
-                marker = L.marker(
-                    [lat, lon],
-                    {
-                        icon: icon_purple_pin,
-                        draggable: true,
-                        bounceOnAdd: true
-                    }
-                ).addTo(map);
-                marker.bindTooltip('Неизвестный объект', {permanent: true, direction: 'top'});
+                name = 'Неизвестный объект';
+                lat_marker = lat;
+                lon_marker = lon;
             } else {
-                marker = L.marker(
-                    [data.lat, data.lon],
-                    {
-                        icon: icon_purple_pin,
-                        draggable: true,
-                        bounceOnAdd: true
-                    }
-                ).addTo(map);
-                // marker.bindTooltip(data.name, {permanent: true, direction: 'top'});
-                let content = '';
                 if (data.name !== '') {
-                    content = `<h5>${data.name}</h5>`;
+                    name = data.name;
                 } else if (data.display_name !== '') {
-                    content = `<h5>${data.display_name}</h5>`;
+                    name = data.display_name;
                 } else {
-                    content = `<h5>Неизвестный объект</h5>`;
+                    name = 'Неизвестный объект';
                 }
-
-                content += `<button class="btn btn-success btn-sm" id="btn-add-place" onclick="add_place('${data.name}', ${lat}, ${lon}, 2);">Добавить</button>'`;
-                marker.bindPopup(content);
-                marker.openPopup();
-
-                marker.on("dragend", function (e) {
-                    console.log(e.target.getLatLng().toString());
-                });
+                lat_marker = data.lat;
+                lon_marker = data.lon;
             }
+
+            marker = L.marker(
+                [lat_marker, lon_marker],
+                {
+                    icon: icon_purple_pin,
+                    draggable: true,
+                    bounceOnAdd: true
+                }
+            ).addTo(map);
+            let content = `<h5>${name}</h5>`;
+
+            content += '<p>'
+            content += `<span class="fw-semibold">Широта:</span> ${lat_marker}<br>`;
+            content += `<span class="fw-semibold">Долгота:</span> ${lon_marker}`;
+            content += '</p>';
+
+            content += '<p>';
+            content += `<span class="fw-semibold">Категория:</span> ${data.type}`
+            content += '</p>';
+
+            content += '<p>';
+            content += `<button class="btn btn-success btn-sm" id="btn-add-place" onclick="add_place('${name}', ${lat_marker}, ${lon_marker}, 2);">Добавить</button>'`;
+            content += '</p>';
+
+            marker.bindPopup(content);
+            marker.openPopup();
+
+            marker.on("dragend", function (e) {
+                console.log(e.target.getLatLng().toString());
+            });
         });
 });
 

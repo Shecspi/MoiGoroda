@@ -63,7 +63,7 @@ function addExternalBorderControl(map) {
                 container.innerHTML = '<i class="fa-regular fa-square"></i>';
                 container.addEventListener('click', () => {
                     if (downloadedExternalBorder === undefined) {
-                        fetch('http://127.0.0.1:8080/country/hq/RU')
+                        fetch('https://geo-polygons.ru/country/hq/RU')
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Ошибка при получении полигонов страны')
@@ -104,7 +104,7 @@ function addInternalBorderControl(map) {
                 container.innerHTML = '<i class="fa-regular fa-square-plus"></i>';
                 container.addEventListener('click', () => {
                     if (downloadedInternalBorder === undefined) {
-                        fetch('http://127.0.0.1:8080/region/lq/RU/all')
+                        fetch('https://geo-polygons.ru/region/lq/RU/all')
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Ошибка при получении полигонов страны')

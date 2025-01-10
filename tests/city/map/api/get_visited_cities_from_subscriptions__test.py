@@ -49,7 +49,7 @@ def setup_db_with_visited_cities_for_1_user(client, django_user_model):
             region=region[0],
             user=user1,
             city=city[i],
-            date_of_visit=datetime.now(),
+            date_of_visit=datetime.strptime('2024-12-30', '%Y-%m-%d'),
             has_magnet=True,
             rating=5,
         )
@@ -57,7 +57,7 @@ def setup_db_with_visited_cities_for_1_user(client, django_user_model):
         region=region[0],
         user=user2,
         city=city[3],
-        date_of_visit=datetime.now(),
+        date_of_visit=datetime.strptime('2024-12-30', '%Y-%m-%d'),
         has_magnet=True,
         rating=5,
     )
@@ -76,7 +76,7 @@ def setup_db_with_visited_cities_for_2_users(client, django_user_model):
             region=region[0],
             user=user1,
             city=city[i],
-            date_of_visit=datetime.now(),
+            date_of_visit=datetime.strptime('2024-12-30', '%Y-%m-%d'),
             has_magnet=True,
             rating=5,
         )
@@ -84,7 +84,7 @@ def setup_db_with_visited_cities_for_2_users(client, django_user_model):
         region=region[0],
         user=user2,
         city=city[3],
-        date_of_visit=datetime.now(),
+        date_of_visit=datetime.strptime('2024-12-30', '%Y-%m-%d'),
         has_magnet=True,
         rating=5,
     )
@@ -92,7 +92,7 @@ def setup_db_with_visited_cities_for_2_users(client, django_user_model):
         region=region[0],
         user=user3,
         city=city[3],
-        date_of_visit=datetime.now(),
+        date_of_visit=datetime.strptime('2024-12-30', '%Y-%m-%d'),
         has_magnet=True,
         rating=5,
     )
@@ -154,7 +154,7 @@ def user_without_correct_account_data_can_not_get_visited_cities__test(
 
 
 @pytest.mark.django_db
-def auth_user_can_get_visited_cities_for_1_subscription__test(
+def test__auth_user_can_get_visited_cities_for_1_subscription__test(
     setup_db_with_visited_cities_for_1_user, caplog, client
 ):
     create_share_settings(2)

@@ -14,8 +14,26 @@ import {ToolbarActions} from "./toolbar_actions.js";
 import {City} from "./schemas.js";
 import {change_qty_of_visited_cities_in_toolbar, modal} from './services.js';
 
+const fillOpacity = 0.1;
+const fillColor = '#6382ff';
+const strokeColor = '#0033ff';
+const strokeOpacity = 0.3;
+const strokeWidth = 2;
+
+const myStyle = {
+    fillOpacity: fillOpacity,
+    fillColor: fillColor,
+    weight: strokeWidth,
+    color: strokeColor,
+    opacity: strokeOpacity
+};
+
 let actions;
 let map;
+let externalBorder = undefined;
+let internalBorder = [];
+let downloadedExternalBorder = undefined;
+let downloadedInternalBorder = undefined;
 
 window.onload = () => {
     // Карта отображается после того, как загрузятся посещённые города.
@@ -25,9 +43,110 @@ window.onload = () => {
         .then(own_cities => {
             const [center_lat, center_lon, zoom] = calculateCenterCoordinates(own_cities);
             map = create_map([center_lat, center_lon], zoom);
+
+            addExternalBorderControl(map);
+            addInternalBorderControl(map);
+
             actions = new ToolbarActions(map, own_cities);
             actions.addOwnCitiesOnMap();
         });
+}
+
+function addExternalBorderControl(map) {
+    const external_border = new L.Control({
+                position: 'topright'
+            });
+            external_border.onAdd = function (map) {
+                let container = L.DomUtil.create('div', 'custom-control-for-map')
+
+                container.title = 'Отобразить внешние границы России';
+                container.innerHTML = '<i class="fa-regular fa-square"></i>';
+                container.addEventListener('click', () => {
+                    if (downloadedExternalBorder === undefined) {
+                        fetch('https://geo-polygons.ru/country/hq/RU')
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Ошибка при получении полигонов страны')
+                                }
+                                return response.json();
+                            })
+                            .then(polygon => {
+                                removeBorderFromMap(externalBorder, internalBorder);
+
+                                externalBorder = L.geoJSON(polygon, {
+                                    style: myStyle,
+                                });
+                                externalBorder.addTo(map);
+                                downloadedExternalBorder = polygon;
+                            })
+                    } else {
+                        removeBorderFromMap(externalBorder, internalBorder);
+
+                        externalBorder = L.geoJSON(downloadedExternalBorder, {
+                            style: myStyle,
+                        });
+                        externalBorder.addTo(map);
+                    }
+                });
+	            return container;
+            }
+            external_border.addTo(map);
+}
+
+function addInternalBorderControl(map) {
+    const external_border = new L.Control({
+                position: 'topright'
+            });
+            external_border.onAdd = function (map) {
+                let container = L.DomUtil.create('div', 'custom-control-for-map')
+
+                container.title = 'Отобразить границы регионов России';
+                container.innerHTML = '<i class="fa-regular fa-square-plus"></i>';
+                container.addEventListener('click', () => {
+                    if (downloadedInternalBorder === undefined) {
+                        fetch('https://geo-polygons.ru/region/lq/RU/all')
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Ошибка при получении полигонов страны')
+                                }
+                                return response.json();
+                            })
+                            .then(polygons => {
+                                removeBorderFromMap(externalBorder, internalBorder);
+
+                                polygons.forEach(polygon => {
+                                    const layer = L.geoJSON(polygon, {
+                                        style: myStyle,
+                                    }).addTo(map);
+                                    internalBorder.push(layer);
+                                });
+                                downloadedInternalBorder = polygons;
+                            })
+                    } else {
+                        removeBorderFromMap(externalBorder, internalBorder);
+
+                        downloadedInternalBorder.forEach(polygon => {
+                            const layer = L.geoJSON(polygon, {
+                                style: myStyle,
+                            }).addTo(map);
+                            internalBorder.push(layer);
+                        });
+                    }
+                });
+	            return container;
+            }
+            external_border.addTo(map);
+}
+
+function removeBorderFromMap(externalBorder, internalBorder) {
+    if (externalBorder !== undefined) {
+        externalBorder.clearLayers();
+    }
+    if (internalBorder !== undefined) {
+        internalBorder.forEach(layer => {
+            layer.clearLayers();
+        });
+    }
 }
 
 /**

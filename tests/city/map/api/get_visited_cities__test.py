@@ -47,7 +47,7 @@ def setup_db_with_visited_cities(client, django_user_model):
             region=region[0],
             user=user1,
             city=city[i],
-            date_of_visit=datetime.now(),
+            date_of_visit=datetime.strptime('2024-12-30', '%Y-%m-%d'),
             has_magnet=True,
             rating=5,
         )
@@ -55,7 +55,7 @@ def setup_db_with_visited_cities(client, django_user_model):
         region=region[0],
         user=user2,
         city=city[3],
-        date_of_visit=datetime.now(),
+        date_of_visit=datetime.strptime('2024-12-30', '%Y-%m-%d'),
         has_magnet=True,
         rating=5,
     )
@@ -144,7 +144,6 @@ def auth_user_with_visited_cities_should_get_list_only_with_own_cities__test(
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_visited_cities'))
     content = json.loads(response.content.decode())
-    print(content)
     correct_content = [
         {
             'username': 'username1',

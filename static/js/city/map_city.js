@@ -82,9 +82,10 @@ function addExternalBorderControl(map) {
                     } else {
                         removeBorderFromMap(externalBorder, internalBorder);
 
-                        L.geoJSON(downloadedExternalBorder, {
+                        externalBorder = L.geoJSON(downloadedExternalBorder, {
                             style: myStyle,
-                        }).addTo(map);
+                        });
+                        externalBorder.addTo(map);
                     }
                 });
 	            return container;
@@ -122,6 +123,8 @@ function addInternalBorderControl(map) {
                                 downloadedInternalBorder = polygons;
                             })
                     } else {
+                        removeBorderFromMap(externalBorder, internalBorder);
+
                         downloadedInternalBorder.forEach(polygon => {
                             const layer = L.geoJSON(polygon, {
                                 style: myStyle,

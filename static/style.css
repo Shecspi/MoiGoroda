@@ -43,6 +43,24 @@ body.simple {
     border-radius: 5px;
 }
 
+.custom-control-for-map
+{
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    cursor: auto;
+    font-size: 20px;
+    background-color: #FFFFFF;
+}
+.custom-control-for-map:hover
+{
+    background-color: #F4F4F4;
+}
+
 /* Убирает баг leaflet.js, когда при клике на полигон появляется рамка вокруг него */
 .leaflet-container path.leaflet-interactive:focus:not(:focus-visible) {
     outline: 0;

@@ -119,7 +119,7 @@ def create_subscription(subscribe_from_id: int, subscribe_to_id: int) -> Subscri
 
 
 def create_type_object_of_place(id: int = 1) -> TypeObject:
-    return TypeObject.objects.create(name=f'Тип места {id}')
+    return TypeObject.objects.create(id=id, name=f'Тип места {id}')
 
 
 def create_place(name: str, lat: float, lon: float, type_object: TypeObject, user: User) -> Place:

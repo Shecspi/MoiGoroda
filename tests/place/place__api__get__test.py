@@ -77,9 +77,7 @@ def test__get_places__one_own_and_one_other_user_places(django_user_model):
     place1 = create_place(
         name='Place name 1', lat=55.5, lon=66.6, type_object=typeobject, user=user1
     )
-    create_place(
-        name='Place name 2', lat=55.5, lon=66.6, type_object=typeobject, user=user2
-    )
+    create_place(name='Place name 2', lat=55.5, lon=66.6, type_object=typeobject, user=user2)
 
     assert Place.objects.count() == 2
 
@@ -137,7 +135,7 @@ def test__get_places__two_own_places(django_user_model):
             'type_object_detail': {'id': 1, 'tags_detail': [], 'name': 'Тип места 1'},
             'created_at': place2.created_at.isoformat(),
             'updated_at': place2.updated_at.isoformat(),
-        }
+        },
     ]
 
     assert response.status_code == 200

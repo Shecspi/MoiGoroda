@@ -1,4 +1,4 @@
-function showSuccessToast(title, message) {
+export function showSuccessToast(title, message) {
     const toast_element = document.getElementById('toast-success');
     const toast = new bootstrap.Toast(toast_element);
     const title_element = document.getElementById('toast-success-title');

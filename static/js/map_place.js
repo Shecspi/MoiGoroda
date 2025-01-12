@@ -1,13 +1,27 @@
 import {create_map} from './map.js';
 import {icon_blue_pin, icon_purple_pin} from "./icons.js";
-import {showDangerToast} from './toast.js';
+import {showDangerToast, showSuccessToast} from './toast.js';
 
 window.add_place = add_place;
 window.switch_place_to_edit = switch_place_to_edit;
 
+// Карта, на которой будут отображаться все объекты
 const map = create_map([55.7520251, 37.61841444746334], 15);
+
+// Массив, хранящий в себе промисы, в которых загружаются необходимые данные с сервера
 const allPromises = [];
+
+// Массив, хранящий в себе информацию обо всех местах.
+// Может динамически меняться и хранит в себе всю самую актуальную информацию.
+// На основе этого массива можно отрисовывать маркера на карте.
+const allPlaces = new Map();
+
+// Массив, хранящий в себе все добавленные на карту маркеры.
+const allMarkers = [];
 const typePlaces = [];
+
+let moved_lat = undefined;
+let moved_lon = undefined;
 
 // Словарь, хранящий в себе все известные OSM теги и типы объектов, которые ссылаются на указанные теги
 const tags = new Map();
@@ -17,13 +31,9 @@ allPromises.push(loadPlacesFromServer());
 allPromises.push(loadTypePlacesFromServer());
 Promise.all([...allPromises]).then(([places, types]) => {
     places.forEach(place => {
-        const marker = L.marker(
-            [place.latitude, place.longitude],
-            {
-                icon: icon_blue_pin
-            }).addTo(map);
-        marker.bindTooltip(place.name, {direction: 'top'});
+        allPlaces.set(place.id, place);
     });
+    addMarkers();
 
     types.forEach(type_place => {
         typePlaces.push(type_place);
@@ -65,6 +75,8 @@ function handleClickOnMap(map) {
     map.addEventListener('click', function (ev) {
         const lat = ev.latlng.lat;
         const lon = ev.latlng.lng;
+        moved_lon = undefined;
+        moved_lat = undefined;
 
         let url = `https://nominatim.openstreetmap.org/reverse?email=shecspi@yandex.ru&format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=0&zoom=18&layer=natural,poi`;
 
@@ -111,6 +123,9 @@ function handleClickOnMap(map) {
                         bounceOnAdd: true
                     }
                 ).addTo(map);
+
+                allMarkers.push(marker);
+
                 let content = '<form>';
                 content += '<h5 id="place_name_from_osm" style="display: flex; justify-content: space-between;" onclick="switch_place_to_edit()">';
                 content += `${name}`;
@@ -161,7 +176,8 @@ function handleClickOnMap(map) {
                 marker.openPopup();
 
                 marker.on("dragend", function (e) {
-                    console.log(e.target.getLatLng().toString());
+                    moved_lat = e.target.getLatLng().lat;
+                    moved_lon = e.target.getLatLng().lng;
                 });
             });
     });
@@ -172,27 +188,25 @@ function add_place(event) {
 
     const data = {
         name: document.getElementById('form-name').value,
-        latitude: document.getElementById('form-latitude').value,
-        longitude: document.getElementById('form-longitude').value,
         type_object: document.getElementById('form-type-object').value
     };
 
-    // Немного странная логика с errors === false нужна для того, чтобы отображалось корректное окно с ошибкой.
-    // Без этой логики будет отображаться только последнее сообщение об ошибке, переписывая предыдущие.
-    let errors = false;
-    if (errors === false && data.name === "") {
-        showDangerToast('Ошибка', 'Не указано <strong>имя</strong> объекта.<br>Пожалуйста, заполните соответствующее поле перед добавлением.');
-        errors = true;
+    // В зависимости от того, был перемещён маркер или нет, используются разные источники для координат
+    if (moved_lat === undefined) {
+        data.latitude = document.getElementById('form-latitude').value;
+        data.longitude = document.getElementById('form-longitude').value;
+    } else {
+        data.latitude = moved_lat;
+        data.longitude = moved_lon;
     }
-    if (errors === false && data.type_object === "") {
-        showDangerToast('Ошибка', 'Не удалось автоматически определить <strong>категорию</strong> объекта.<br>Пожалуйста, укажите её вручную перед добавлением.');
-        errors = true;
-    }
-    if (errors === false && (data.latitude === "" || data.longitude === "")) {
+
+    if (data.latitude === "" || data.longitude === "") {
         showDangerToast('Ошибка', 'Не указаны <strong>координаты</strong> объекта.<br>Странно, это поле не доступно для редактирования пользователям. Признавайтесь, вы что-то замышляете? 🧐');
-        errors = true;
+        return false;
     }
-    if (errors === true) {
+
+    if (data.name === "" || data.type_object === "") {
+        showDangerToast('Ошибка', 'Для добавления места необходимо указать его <strong>имя</strong> и <strong>категорию</strong>.<br>Пожалуйста, заполните соответствующие поля перед добавлением.');
         return false;
     }
 
@@ -211,8 +225,37 @@ function add_place(event) {
             return response.json()
         })
         .then(data => {
-            console.log(data);
+            allPlaces.set(data.id, data);
+            updateMarkers();
+            showSuccessToast('Добавлено', 'Указанное Вами место успешно добавлено.')
         })
+}
+
+/**
+ * Удаляет все маркеры с карты и добавляет их заного.
+ */
+function updateMarkers() {
+    allMarkers.forEach(marker => {
+        map.removeLayer(marker);
+    });
+    addMarkers();
+}
+
+/**
+ * Добавляет маркеры на карту.
+ */
+function addMarkers() {
+    allMarkers.length = 0;
+    allPlaces.forEach(place => {
+        const marker = L.marker(
+            [place.latitude, place.longitude],
+            {
+                icon: icon_blue_pin
+            }).addTo(map);
+        marker.bindTooltip(place.name, {direction: 'top'});
+
+        allMarkers.push(marker);
+    });
 }
 
 function switch_place_to_edit() {

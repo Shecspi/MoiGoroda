@@ -1,5 +1,6 @@
 import {create_map} from './map.js';
 import {icon_blue_pin, icon_purple_pin} from "./icons.js";
+import {showDangerToast} from './toast.js';
 
 window.add_place = add_place;
 window.switch_place_to_edit = switch_place_to_edit;
@@ -117,12 +118,15 @@ function handleClickOnMap(map) {
                 content += '</h5>';
 
                 content += '<h5 id="place_name_input_form" style="display: flex; justify-content: space-between;" hidden>';
-                content += `<input type="text" value="${name_escaped}" class="form-control-sm" style="width: 100%; box-sizing: border-box"">`;
+                content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="form-control-sm" style="width: 100%; box-sizing: border-box">`;
                 content += '</h5>';
 
                 content += '<p>'
                 content += `<span class="fw-semibold">Широта:</span> ${lat_marker}<br>`;
+                content += `<input type="text" id="form-latitude" name="latitude" value="${lat_marker}" hidden>`;
+
                 content += `<span class="fw-semibold">Долгота:</span> ${lon_marker}`;
+                content += `<input type="text" id="form-longitude" name="longitude" value="${lon_marker}" hidden>`;
                 content += '</p>';
 
                 content += '<p id="type_place_from_osm">';
@@ -132,15 +136,15 @@ function handleClickOnMap(map) {
 
                 content += '<p id="type_place_select_form" hidden>'
                 content += '<span class="fw-semibold">Категория:</span> ';
-                content += '<select name="type_place" id="type_place" class="form-select form-select-sm">';
+                content += '<select name="type_object" id="form-type-object" class="form-select form-select-sm">';
                 if (type_marker === undefined) {
-                    content += `<option value="" selected>----</option>`;
+                    content += `<option value="" selected disabled>Выберите категорию...</option>`;
                 }
                 typePlaces.forEach(type_place => {
                     if (type_place.name === type_marker) {
-                        content += `<option value="petersburg" selected>${type_place.name}</option>`;
+                        content += `<option value="${type_place.id}" selected>${type_place.name}</option>`;
                     } else {
-                        content += `<option value="petersburg">${type_place.name}</option>`;
+                        content += `<option value="${type_place.id}">${type_place.name}</option>`;
                     }
                 })
                 content += `<option value="other">Другое</option>`;
@@ -148,7 +152,7 @@ function handleClickOnMap(map) {
                 content += '</p>';
 
                 content += '<p>';
-                content += `<button class="btn btn-success btn-sm" id="btn-add-place" onclick="add_place('${name}', ${lat_marker}, ${lon_marker}, 2);">Добавить</button>`;
+                content += `<button class="btn btn-success btn-sm" id="btn-add-place" onclick="add_place(event);">Добавить</button>`;
                 content += '</p>';
 
                 content += '</form>'
@@ -163,13 +167,35 @@ function handleClickOnMap(map) {
     });
 }
 
-function add_place(name, latitude, longitude) {
+function add_place(event) {
+    event.preventDefault();
+
     const data = {
-        name: name,
-        latitude: latitude,
-        longitude: longitude,
-        type_object: 2
+        name: document.getElementById('form-name').value,
+        latitude: document.getElementById('form-latitude').value,
+        longitude: document.getElementById('form-longitude').value,
+        type_object: document.getElementById('form-type-object').value
+    };
+
+    // Немного странная логика с errors === false нужна для того, чтобы отображалось корректное окно с ошибкой.
+    // Без этой логики будет отображаться только последнее сообщение об ошибке, переписывая предыдущие.
+    let errors = false;
+    if (errors === false && data.name === "") {
+        showDangerToast('Ошибка', 'Не указано <strong>имя</strong> объекта.<br>Пожалуйста, заполните соответствующее поле перед добавлением.');
+        errors = true;
     }
+    if (errors === false && data.type_object === "") {
+        showDangerToast('Ошибка', 'Не удалось автоматически определить <strong>категорию</strong> объекта.<br>Пожалуйста, укажите её вручную перед добавлением.');
+        errors = true;
+    }
+    if (errors === false && (data.latitude === "" || data.longitude === "")) {
+        showDangerToast('Ошибка', 'Не указаны <strong>координаты</strong> объекта.<br>Странно, это поле не доступно для редактирования пользователям. Признавайтесь, вы что-то замышляете? 🧐');
+        errors = true;
+    }
+    if (errors === true) {
+        return false;
+    }
+
     fetch('/api/place/create/', {
         method: 'POST',
         headers: {

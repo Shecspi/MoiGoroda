@@ -10,7 +10,7 @@ function showSuccessToast(title, message) {
     toast.show();
 }
 
-function showDangerToast(title, message) {
+export function showDangerToast(title, message) {
     const toast_element = document.getElementById('toast-danger');
     const toast = new bootstrap.Toast(toast_element);
     const title_element = document.getElementById('toast-danger-title');

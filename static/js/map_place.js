@@ -2,10 +2,14 @@ import {create_map} from './map.js';
 import {icon_blue_pin, icon_purple_pin} from "./icons.js";
 
 window.add_place = add_place;
+window.switch_place_to_edit = switch_place_to_edit;
 
 const map = create_map([55.7520251, 37.61841444746334], 15);
 const allPromises = [];
 const typePlaces = [];
+
+// Словарь, хранящий в себе все известные OSM теги и типы объектов, которые ссылаются на указанные теги
+const tags = new Map();
 let marker = undefined;
 
 allPromises.push(loadPlacesFromServer());
@@ -22,6 +26,9 @@ Promise.all([...allPromises]).then(([places, types]) => {
 
     types.forEach(type_place => {
         typePlaces.push(type_place);
+        type_place.tags_detail.forEach(tag => {
+            tags.set(tag.name, type_place.name);
+        })
     });
 
     handleClickOnMap(map);
@@ -87,19 +94,12 @@ function handleClickOnMap(map) {
                     lat_marker = data.lat;
                     lon_marker = data.lon;
                 }
+                let name_escaped = name.replaceAll('"', "'");
+
                 if (data.type !== undefined) {
-                    typePlaces.forEach(type_place => {
-                        if (type_place.tags_detail.length > 0) {
-                            console.log(1);
-                            type_place.tags_detail.forEach(tag => {
-                                console.log(2);
-                                console.log(tag, data.type);
-                                if (tag.name === data.type) {
-                                    type_marker = type_place.name;
-                                }
-                            })
-                        }
-                    });
+                    if (tags.has(data.type)) {
+                        type_marker = tags.get(data.type);
+                    }
                 }
 
                 marker = L.marker(
@@ -110,20 +110,48 @@ function handleClickOnMap(map) {
                         bounceOnAdd: true
                     }
                 ).addTo(map);
-                let content = `<h5>${name}</h5>`;
+                let content = '<form>';
+                content += '<h5 id="place_name_from_osm" style="display: flex; justify-content: space-between;" onclick="switch_place_to_edit()">';
+                content += `${name}`;
+                content += ` <a href="#"><i class="fa-solid fa-pencil"></i></a>`;
+                content += '</h5>';
+
+                content += '<h5 id="place_name_input_form" style="display: flex; justify-content: space-between;" hidden>';
+                content += `<input type="text" value="${name_escaped}" class="form-control-sm" style="width: 100%; box-sizing: border-box"">`;
+                content += '</h5>';
 
                 content += '<p>'
                 content += `<span class="fw-semibold">Широта:</span> ${lat_marker}<br>`;
                 content += `<span class="fw-semibold">Долгота:</span> ${lon_marker}`;
                 content += '</p>';
 
-                content += '<p>';
-                content += `<span class="fw-semibold">Категория:</span> ${type_marker !== undefined ? type_marker : data.type}`
+                content += '<p id="type_place_from_osm">';
+                content += '<span class="fw-semibold">Категория:</span> ';
+                content += ` ${type_marker !== undefined ? type_marker : 'Не известно'}`
+                content += '</p>';
+
+                content += '<p id="type_place_select_form" hidden>'
+                content += '<span class="fw-semibold">Категория:</span> ';
+                content += '<select name="type_place" id="type_place" class="form-select form-select-sm">';
+                if (type_marker === undefined) {
+                    content += `<option value="" selected>----</option>`;
+                }
+                typePlaces.forEach(type_place => {
+                    if (type_place.name === type_marker) {
+                        content += `<option value="petersburg" selected>${type_place.name}</option>`;
+                    } else {
+                        content += `<option value="petersburg">${type_place.name}</option>`;
+                    }
+                })
+                content += `<option value="other">Другое</option>`;
+                content += '</select>';
                 content += '</p>';
 
                 content += '<p>';
-                content += `<button class="btn btn-success btn-sm" id="btn-add-place" onclick="add_place('${name}', ${lat_marker}, ${lon_marker}, 2);">Добавить</button>'`;
+                content += `<button class="btn btn-success btn-sm" id="btn-add-place" onclick="add_place('${name}', ${lat_marker}, ${lon_marker}, 2);">Добавить</button>`;
                 content += '</p>';
+
+                content += '</form>'
 
                 marker.bindPopup(content);
                 marker.openPopup();
@@ -159,4 +187,12 @@ function add_place(name, latitude, longitude) {
         .then(data => {
             console.log(data);
         })
+}
+
+function switch_place_to_edit() {
+    document.getElementById('place_name_from_osm').hidden = true;
+    document.getElementById('place_name_input_form').hidden = false;
+
+    document.getElementById('type_place_from_osm').hidden = true;
+    document.getElementById('type_place_select_form').hidden = false;
 }

@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 
 from place.api import DeletePlace
 from place.models import Place
-from tests.create_db import create_user, create_type_object_of_place, create_place
+from tests.create_db import create_user, create_category_of_place, create_place
 
 
 def test__correct_resolve_by_url():
@@ -30,8 +30,8 @@ def test__delete_place_has_correct_http_methods():
 
 def test__can_delete_own_place(django_user_model):
     user = create_user(django_user_model, 1)
-    typeobject = create_type_object_of_place()
-    place = create_place(name='Place name', lat=55.5, lon=66.6, type_object=typeobject, user=user)
+    category = create_category_of_place()
+    place = create_place(name='Place name', lat=55.5, lon=66.6, category=category, user=user)
     assert Place.objects.count() == 1
 
     client = APIClient()
@@ -47,12 +47,10 @@ def test__can_delete_own_place(django_user_model):
 def test__can_not_delete_other_users_place(django_user_model):
     user1 = create_user(django_user_model, 1)
     create_user(django_user_model, 2)
-    typeobject = create_type_object_of_place()
+    category = create_category_of_place()
 
     # Запись создаётся от имени одного пользователя, а пытаемся удалить от другого
-    place = create_place(
-        name='Place name 1', lat=55.5, lon=66.6, type_object=typeobject, user=user1
-    )
+    place = create_place(name='Place name 1', lat=55.5, lon=66.6, category=category, user=user1)
     assert Place.objects.count() == 1
 
     client = APIClient()

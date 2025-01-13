@@ -1,15 +1,15 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from place.models import Place, TypeObject
-from place.serializers import PlaceSerializer, TypeObjectSerializer
+from place.models import Place, Category
+from place.serializers import PlaceSerializer, CategorySerializer
 
 
-class GetTypePlace(generics.ListAPIView):
+class GetCategory(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
-    serializer_class = TypeObjectSerializer
-    queryset = TypeObject.objects.all()
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
 
 
 class GetPlaces(generics.ListAPIView):

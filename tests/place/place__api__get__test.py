@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from place.api import GetPlaces
 from place.models import Place
 from place.serializers import PlaceSerializer
-from tests.create_db import create_user, create_type_object_of_place, create_place
+from tests.create_db import create_user, create_category_of_place, create_place
 
 
 def test__url_path_to_get_places_exists():
@@ -46,8 +46,8 @@ def test__get_places_has_correct_serializer_class():
 
 def test__get_places__one_own_place(django_user_model):
     user = create_user(django_user_model, 1)
-    typeobject = create_type_object_of_place()
-    place = create_place(name='Place name', lat=55.5, lon=66.6, type_object=typeobject, user=user)
+    category = create_category_of_place()
+    place = create_place(name='Place name', lat=55.5, lon=66.6, category=category, user=user)
     assert Place.objects.count() == 1
 
     client = APIClient()
@@ -60,7 +60,7 @@ def test__get_places__one_own_place(django_user_model):
             'name': place.name,
             'latitude': place.latitude,
             'longitude': place.longitude,
-            'type_object_detail': {'id': 1, 'tags_detail': [], 'name': 'Тип места 1'},
+            'category_detail': {'id': category.id, 'tags_detail': [], 'name': category.name},
             'created_at': place.created_at.isoformat(),
             'updated_at': place.updated_at.isoformat(),
         }
@@ -73,11 +73,9 @@ def test__get_places__one_own_place(django_user_model):
 def test__get_places__one_own_and_one_other_user_places(django_user_model):
     user1 = create_user(django_user_model, 1)
     user2 = create_user(django_user_model, 2)
-    typeobject = create_type_object_of_place()
-    place1 = create_place(
-        name='Place name 1', lat=55.5, lon=66.6, type_object=typeobject, user=user1
-    )
-    create_place(name='Place name 2', lat=55.5, lon=66.6, type_object=typeobject, user=user2)
+    category = create_category_of_place()
+    place1 = create_place(name='Place name 1', lat=55.5, lon=66.6, category=category, user=user1)
+    create_place(name='Place name 2', lat=55.5, lon=66.6, category=category, user=user2)
 
     assert Place.objects.count() == 2
 
@@ -91,7 +89,7 @@ def test__get_places__one_own_and_one_other_user_places(django_user_model):
             'name': place1.name,
             'latitude': place1.latitude,
             'longitude': place1.longitude,
-            'type_object_detail': {'id': 1, 'tags_detail': [], 'name': 'Тип места 1'},
+            'category_detail': {'id': category.id, 'tags_detail': [], 'name': category.name},
             'created_at': place1.created_at.isoformat(),
             'updated_at': place1.updated_at.isoformat(),
         }
@@ -103,13 +101,9 @@ def test__get_places__one_own_and_one_other_user_places(django_user_model):
 
 def test__get_places__two_own_places(django_user_model):
     user = create_user(django_user_model, 1)
-    typeobject = create_type_object_of_place()
-    place1 = create_place(
-        name='Place name 1', lat=55.5, lon=66.6, type_object=typeobject, user=user
-    )
-    place2 = create_place(
-        name='Place name 2', lat=55.5, lon=66.6, type_object=typeobject, user=user
-    )
+    category = create_category_of_place()
+    place1 = create_place(name='Place name 1', lat=55.5, lon=66.6, category=category, user=user)
+    place2 = create_place(name='Place name 2', lat=55.5, lon=66.6, category=category, user=user)
 
     assert Place.objects.count() == 2
 
@@ -123,7 +117,7 @@ def test__get_places__two_own_places(django_user_model):
             'name': place1.name,
             'latitude': place1.latitude,
             'longitude': place1.longitude,
-            'type_object_detail': {'id': 1, 'tags_detail': [], 'name': 'Тип места 1'},
+            'category_detail': {'id': category.id, 'tags_detail': [], 'name': category.name},
             'created_at': place1.created_at.isoformat(),
             'updated_at': place1.updated_at.isoformat(),
         },
@@ -132,7 +126,7 @@ def test__get_places__two_own_places(django_user_model):
             'name': place2.name,
             'latitude': place2.latitude,
             'longitude': place2.longitude,
-            'type_object_detail': {'id': 1, 'tags_detail': [], 'name': 'Тип места 1'},
+            'category_detail': {'id': category.id, 'tags_detail': [], 'name': category.name},
             'created_at': place2.created_at.isoformat(),
             'updated_at': place2.updated_at.isoformat(),
         },

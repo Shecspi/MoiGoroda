@@ -17,7 +17,7 @@ def test__model_place_is_registered_in_admin():
 
 
 def test__model_place_has_correct_list_display_in_admin():
-    correct = ('name', 'latitude', 'longitude', 'type_object', 'created_at', 'updated_at')
+    correct = ('name', 'latitude', 'longitude', 'category', 'created_at', 'updated_at')
     list_display = admin.site._registry[Place].list_display
 
     # list_display может быть как кортежем, так и списком, поэтому нужно сравнивать поэлементно

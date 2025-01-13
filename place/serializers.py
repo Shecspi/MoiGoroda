@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from place.models import Place, TagOSM, TypeObject
+from place.models import Place, TagOSM, Category
 
 
 class TagOSMSerializer(serializers.ModelSerializer):
@@ -9,11 +9,11 @@ class TagOSMSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TypeObjectSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     tags_detail = TagOSMSerializer(many=True, source='tags', read_only=True)
 
     class Meta:
-        model = TypeObject
+        model = Category
         fields = '__all__'
         extra_kwargs = {
             'tags': {
@@ -23,7 +23,7 @@ class TypeObjectSerializer(serializers.ModelSerializer):
 
 
 class PlaceSerializer(serializers.ModelSerializer):
-    type_object_detail = TypeObjectSerializer(source='type_object', read_only=True)
+    category_detail = CategorySerializer(source='category', read_only=True)
 
     def create(self, validated_data):
         """
@@ -50,15 +50,15 @@ class PlaceSerializer(serializers.ModelSerializer):
             'name',
             'latitude',
             'longitude',
-            'type_object',
-            'type_object_detail',
+            'category',
+            'category_detail',
             'created_at',
             'updated_at',
             'user',
         ]
         read_only_fields = ['created_at', 'updated_at']
         extra_kwargs = {
-            'type_object': {
+            'category': {
                 'write_only': True,
             },
             'user': {

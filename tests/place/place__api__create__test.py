@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 
 from place.api import CreatePlace
 from place.serializers import PlaceSerializer
-from tests.create_db import create_user, create_type_object_of_place
+from tests.create_db import create_user, create_category_of_place
 
 
 def test__url_path_to_create_place_exists():
@@ -44,25 +44,24 @@ def test__create_place_has_correct_serializer_class():
 
 
 def test__create_place_can_process_correct_data(django_user_model):
-    user = create_user(django_user_model, 1)
-    typeobject = create_type_object_of_place()
+    create_user(django_user_model, 1)
+    category = create_category_of_place()
     data = {
         'name': 'Place name',
         'latitude': 55.5,
         'longitude': 66.6,
-        'type_object': typeobject.id,
+        'category': category.id,
     }
 
     client = APIClient()
     client.login(username='username1', password='password')
     response = client.post('/api/place/create/', data=data, format='json', charset='utf-8')
     response_json = json.loads(response.content.decode('utf-8'))
-    print(response_json)
 
     assert response.status_code == 201
-    for key in ['name', 'latitude', 'longitude', 'type_object_detail', 'created_at', 'updated_at']:
+    for key in ['name', 'latitude', 'longitude', 'category_detail', 'created_at', 'updated_at']:
         assert key in response_json
     assert response_json.get('name') == 'Place name'
     assert response_json.get('latitude') == 55.5
     assert response_json.get('longitude') == 66.6
-    assert response_json.get('type_object_detail').get('id') == typeobject.id
+    assert response_json.get('category_detail').get('id') == category.id

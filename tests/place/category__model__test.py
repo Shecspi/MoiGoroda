@@ -8,20 +8,20 @@ Licensed under the Apache License, Version 2.0
 import pytest
 from django.db import models
 
-from place.models import TypeObject, TagOSM
+from place.models import Category, TagOSM
 
 
-def test__model_typeobject_can_create_model_instance():
-    assert TypeObject()
+def test__model_category_can_create_model_instance():
+    assert Category()
 
 
-def test__model_typeobject_has_valid_verbose_name():
-    assert TypeObject._meta.verbose_name == 'Тип объекта'
-    assert TypeObject._meta.verbose_name_plural == 'Типы объектов'
+def test__model_category_has_valid_verbose_name():
+    assert Category._meta.verbose_name == 'Категория'
+    assert Category._meta.verbose_name_plural == 'Категории'
 
 
-def test__model_typeobject_has_a_field_name():
-    field = TypeObject._meta.get_field('name')
+def test__model_category_has_a_field_name():
+    field = Category._meta.get_field('name')
 
     assert field.verbose_name == 'Название'
     assert field.blank is False
@@ -31,12 +31,11 @@ def test__model_typeobject_has_a_field_name():
     assert isinstance(field, models.CharField)
 
 
-def test__model_typeobject_has_a_field_tags():
-    field = TypeObject._meta.get_field('tags')
+def test__model_category_has_a_field_tags():
+    field = Category._meta.get_field('tags')
 
     assert field.verbose_name == 'Теги OpenStreetMap'
     assert field.blank is True
-    assert field.null is True
     assert field.unique is False
     assert isinstance(field, models.ManyToManyField)
     assert isinstance(field.remote_field.model(), TagOSM)
@@ -44,7 +43,7 @@ def test__model_typeobject_has_a_field_tags():
 
 @pytest.mark.django_db
 def test__model_typepobject_has_str_representation():
-    obj = TypeObject(name='Природа')
+    obj = Category(name='Природа')
     obj.save()
 
     assert str(obj) == 'Природа'

@@ -22,7 +22,7 @@ class TagOSM(models.Model):
         verbose_name_plural = 'Теги'
 
 
-class TypeObject(models.Model):
+class Category(models.Model):
     name = models.CharField(
         max_length=255, blank=False, null=False, unique=False, verbose_name='Название'
     )
@@ -32,8 +32,8 @@ class TypeObject(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Тип объекта'
-        verbose_name_plural = 'Типы объектов'
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
 
 class Place(models.Model):
@@ -42,9 +42,7 @@ class Place(models.Model):
     )
     latitude = models.FloatField(blank=False, null=False, unique=False, verbose_name='Широта')
     longitude = models.FloatField(blank=False, null=False, unique=False, verbose_name='Долгота')
-    type_object = models.ForeignKey(
-        TypeObject, on_delete=models.PROTECT, verbose_name='Тип объекта'
-    )
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, verbose_name='Категория')
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата и время создания',

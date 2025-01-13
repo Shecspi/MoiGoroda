@@ -18,7 +18,7 @@ const allPlaces = new Map();
 
 // Массив, хранящий в себе все добавленные на карту маркеры.
 const allMarkers = [];
-const typePlaces = [];
+const allCategories = [];
 
 let moved_lat = undefined;
 let moved_lon = undefined;
@@ -29,16 +29,16 @@ let marker = undefined;
 
 allPromises.push(loadPlacesFromServer());
 allPromises.push(loadTypePlacesFromServer());
-Promise.all([...allPromises]).then(([places, types]) => {
+Promise.all([...allPromises]).then(([places, categories]) => {
     places.forEach(place => {
         allPlaces.set(place.id, place);
     });
     addMarkers();
 
-    types.forEach(type_place => {
-        typePlaces.push(type_place);
-        type_place.tags_detail.forEach(tag => {
-            tags.set(tag.name, type_place.name);
+    categories.forEach(category => {
+        allCategories.push(category);
+        category.tags_detail.forEach(tag => {
+            tags.set(tag.name, category.name);
         })
     });
 
@@ -46,7 +46,7 @@ Promise.all([...allPromises]).then(([places, types]) => {
 });
 
 function loadTypePlacesFromServer() {
-    return fetch('/api/place/type_place/')
+    return fetch('/api/place/category/')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Произошла ошибка при получении данных с сервера');
@@ -144,22 +144,22 @@ function handleClickOnMap(map) {
                 content += `<input type="text" id="form-longitude" name="longitude" value="${lon_marker}" hidden>`;
                 content += '</p>';
 
-                content += '<p id="type_place_from_osm">';
+                content += '<p id="category_from_osm">';
                 content += '<span class="fw-semibold">Категория:</span> ';
                 content += ` ${type_marker !== undefined ? type_marker : 'Не известно'}`
                 content += '</p>';
 
-                content += '<p id="type_place_select_form" hidden>'
+                content += '<p id="category_select_form" hidden>'
                 content += '<span class="fw-semibold">Категория:</span> ';
-                content += '<select name="type_object" id="form-type-object" class="form-select form-select-sm">';
+                content += '<select name="category" id="form-type-object" class="form-select form-select-sm">';
                 if (type_marker === undefined) {
                     content += `<option value="" selected disabled>Выберите категорию...</option>`;
                 }
-                typePlaces.forEach(type_place => {
-                    if (type_place.name === type_marker) {
-                        content += `<option value="${type_place.id}" selected>${type_place.name}</option>`;
+                allCategories.forEach(category => {
+                    if (category.name === type_marker) {
+                        content += `<option value="${category.id}" selected>${category.name}</option>`;
                     } else {
-                        content += `<option value="${type_place.id}">${type_place.name}</option>`;
+                        content += `<option value="${category.id}">${category.name}</option>`;
                     }
                 })
                 content += `<option value="other">Другое</option>`;
@@ -188,7 +188,7 @@ function add_place(event) {
 
     const data = {
         name: document.getElementById('form-name').value,
-        type_object: document.getElementById('form-type-object').value
+        category: document.getElementById('form-type-object').value
     };
 
     // В зависимости от того, был перемещён маркер или нет, используются разные источники для координат
@@ -205,7 +205,7 @@ function add_place(event) {
         return false;
     }
 
-    if (data.name === "" || data.type_object === "") {
+    if (data.name === "" || data.category === "") {
         showDangerToast('Ошибка', 'Для добавления места необходимо указать его <strong>имя</strong> и <strong>категорию</strong>.<br>Пожалуйста, заполните соответствующие поля перед добавлением.');
         return false;
     }
@@ -262,6 +262,6 @@ function switch_place_to_edit() {
     document.getElementById('place_name_from_osm').hidden = true;
     document.getElementById('place_name_input_form').hidden = false;
 
-    document.getElementById('type_place_from_osm').hidden = true;
-    document.getElementById('type_place_select_form').hidden = false;
+    document.getElementById('category_from_osm').hidden = true;
+    document.getElementById('category_select_form').hidden = false;
 }

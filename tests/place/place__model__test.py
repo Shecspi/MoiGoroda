@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0
 
 from django.db import models
 
-from place.models import Place, TypeObject
+from place.models import Place, Category
 
 
 def test__model_place_can_create_model_instance():
@@ -54,16 +54,16 @@ def test__model_place_has_a_field_longitude():
     assert isinstance(field, models.FloatField)
 
 
-def test__model_place_has_a_field_type_object():
-    field = Place._meta.get_field('type_object')
+def test__model_place_has_a_field_category():
+    field = Place._meta.get_field('category')
 
-    assert field.verbose_name == 'Тип объекта'
+    assert field.verbose_name == 'Категория'
     assert field.blank is False
     assert field.null is False
     assert field.unique is False
     assert field.remote_field.on_delete == models.PROTECT
     assert isinstance(field, models.ForeignKey)
-    assert isinstance(field.remote_field.model(), TypeObject)
+    assert isinstance(field.remote_field.model(), Category)
 
 
 def test__model_place_has_a_field_created_at():

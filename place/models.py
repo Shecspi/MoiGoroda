@@ -26,7 +26,7 @@ class TypeObject(models.Model):
     name = models.CharField(
         max_length=255, blank=False, null=False, unique=False, verbose_name='Название'
     )
-    tags = models.ManyToManyField(TagOSM, blank=True, null=True, verbose_name='Теги OpenStreetMap')
+    tags = models.ManyToManyField(TagOSM, blank=True, verbose_name='Теги OpenStreetMap')
 
     def __str__(self):
         return self.name

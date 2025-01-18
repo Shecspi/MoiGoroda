@@ -42,7 +42,7 @@ export const icon_together_pin = L.divIcon({
 });
 
 // Иконка для города, который не был посещён пользователя, но посещён кем-то из тех, на кого он подписан
-export const icon_subscripticon_visited_pinion_pin = L.divIcon({
+export const icon_subscription_pin = L.divIcon({
     className: 'custom-icon-subscription-pin',
     html: '<i class="fa-solid fa-location-dot fs-3  icon-subscription-pin" style="color: rgb(230, 150, 30) !important; text-shadow: 0 0 2px #333333;"></i>',
     iconSize: [21, 28],

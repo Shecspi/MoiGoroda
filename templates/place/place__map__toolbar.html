@@ -1,0 +1,29 @@
+<div class="row mx-3 my-3 g-3 align-items-center" id="toolbar">
+    <!-- Статистика -->
+    <div class="col-xxl-3 col-xl-6 col-md-9">
+        <div class="card text-center shadow h-100">
+            <div class="card-body bg-warning-subtle d-grid placeholder-glow" id="block-statistic">
+                <div class="align-self-center placeholder placeholder-lg bg-secondary rounded" id="block-qty_countries">
+                    <button class="btn">Загружаю...</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ^^^ Статистика -->
+
+    <div class="col-xxl-9 col-xl-6 col-md-3 text-end g-3">
+        <!-- Фильтр по категории -->
+        <div class="btn-group">
+            <button class="align-self-center btn btn-outline-danger dropdown-toggle"
+                    id="btn-filter-category"
+                    data-bs-toggle="dropdown"
+                    disabled>
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span class="visually-hidden" role="status">Загрузка...</span>
+            </button>
+
+            <ul class="dropdown-menu" id="dropdown-menu-filter-category"></ul>
+        </div>
+        <!-- ^^^ Фильтр по категории -->
+    </div>
+</div>

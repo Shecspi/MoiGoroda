@@ -28,24 +28,53 @@ const tags = new Map();
 let marker = undefined;
 
 allPromises.push(loadPlacesFromServer());
-allPromises.push(loadTypePlacesFromServer());
+allPromises.push(loadCategoriesFromServer());
 Promise.all([...allPromises]).then(([places, categories]) => {
     places.forEach(place => {
         allPlaces.set(place.id, place);
     });
     addMarkers();
 
+    const button = document.getElementById('btn-filter-category');
+    const select_filter_by_category = document.getElementById('dropdown-menu-filter-category')
+
+    button.disabled = false;
+    button.innerHTML = '<i class="fa-solid fa-layer-group"></i>';
+
     categories.forEach(category => {
         allCategories.push(category);
         category.tags_detail.forEach(tag => {
             tags.set(tag.name, category.name);
-        })
+        });
+
+        const filter_by_category_item = document.createElement('a');
+        filter_by_category_item.classList.add('dropdown-item');
+        filter_by_category_item.innerHTML = category.name;
+        filter_by_category_item.style.cursor = 'pointer';
+        filter_by_category_item.addEventListener('click', () => {
+            updateMarkers(category.name);
+        });
+        select_filter_by_category.appendChild(document.createElement('li').appendChild(filter_by_category_item))
+    });
+
+    // Добавляем пункт "Все категории"
+    const divider = document.createElement('hr');
+    divider.classList.add('dropdown-divider')
+    select_filter_by_category.appendChild(document.createElement('li').appendChild(divider));
+
+    const all_categories = document.createElement('a');
+    all_categories.classList.add('dropdown-item');
+    all_categories.innerHTML = 'Показать все категории';
+    all_categories.style.cursor = 'pointer';
+    select_filter_by_category.appendChild(document.createElement('li').appendChild(all_categories));
+    all_categories.addEventListener('click', () => {
+        updateMarkers('__all__');
     });
 
     handleClickOnMap(map);
 });
 
-function loadTypePlacesFromServer() {
+function loadCategoriesFromServer() {
     return fetch('/api/place/category/')
         .then(response => {
             if (!response.ok) {
@@ -234,27 +263,30 @@ function add_place(event) {
 /**
  * Удаляет все маркеры с карты и добавляет их заного.
  */
-function updateMarkers() {
+function updateMarkers(categoryName) {
     allMarkers.forEach(marker => {
         map.removeLayer(marker);
     });
-    addMarkers();
+    addMarkers(categoryName);
 }
 
 /**
  * Добавляет маркеры на карту.
  */
-function addMarkers() {
+function addMarkers(categoryName) {
     allMarkers.length = 0;
     allPlaces.forEach(place => {
-        const marker = L.marker(
-            [place.latitude, place.longitude],
-            {
-                icon: icon_blue_pin
-            }).addTo(map);
-        marker.bindTooltip(place.name, {direction: 'top'});
+        if (categoryName === undefined || categoryName === '__all__' || categoryName === place.category_detail.name) {
+            console.log(categoryName);
+            const marker = L.marker(
+                [place.latitude, place.longitude],
+                {
+                    icon: icon_blue_pin
+                }).addTo(map);
+            marker.bindTooltip(place.name, {direction: 'top'});
 
-        allMarkers.push(marker);
+            allMarkers.push(marker);
+        }
     });
 }
 

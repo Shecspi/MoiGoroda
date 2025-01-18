@@ -238,6 +238,7 @@ export class ToolbarActions {
                                 icon: icon_blue_pin
                             }).addTo(this.myMap);
                         marker.bindTooltip(place.name, {direction: 'top'});
+                        marker.setZIndexOffset(50000);
 
                         this.allPlaceMarkers.push(marker);
                     });

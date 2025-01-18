@@ -74,6 +74,15 @@ Promise.all([...allPromises]).then(([places, categories]) => {
     handleClickOnMap(map);
 });
 
+function updateBlockQtyPlaces(qty_places) {
+    const block_qty_places = document.getElementById('block-qty_places');
+
+    block_qty_places.classList.remove('placeholder');
+    block_qty_places.classList.remove('placeholder-lg');
+    block_qty_places.classList.remove('bg-secondary');
+    block_qty_places.innerHTML = `Отмечено мест: <span class="fs-4 fw-medium">${qty_places}</span>`;
+}
+
 function loadCategoriesFromServer() {
     return fetch('/api/place/category/')
         .then(response => {
@@ -277,7 +286,6 @@ function addMarkers(categoryName) {
     allMarkers.length = 0;
     allPlaces.forEach(place => {
         if (categoryName === undefined || categoryName === '__all__' || categoryName === place.category_detail.name) {
-            console.log(categoryName);
             const marker = L.marker(
                 [place.latitude, place.longitude],
                 {
@@ -288,6 +296,8 @@ function addMarkers(categoryName) {
             allMarkers.push(marker);
         }
     });
+
+    updateBlockQtyPlaces(allPlaces.size);
 }
 
 function switch_place_to_edit() {

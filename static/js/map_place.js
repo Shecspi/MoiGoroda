@@ -200,7 +200,6 @@ function handleClickOnMap(map) {
                         content += `<option value="${category.id}">${category.name}</option>`;
                     }
                 })
-                content += `<option value="other">Другое</option>`;
                 content += '</select>';
                 content += '</p>';
 

@@ -1,4 +1,10 @@
-import {icon_not_visited_pin, icon_subscription_pin, icon_together_pin, icon_visited_pin} from "../icons.js";
+import {
+    icon_blue_pin,
+    icon_not_visited_pin,
+    icon_subscription_pin,
+    icon_together_pin,
+    icon_visited_pin
+} from "../icons.js";
 import {City, MarkerStyle} from "./schemas.js";
 import {open_modal_for_add_city} from './services.js';
 import {Button} from './button.js';
@@ -34,6 +40,9 @@ export class ToolbarActions {
         // Словарь, хранящий в себе все отментки с непосещёнными городами пользователей, отображаемые в данный момент на карте
         this.stateNotVisitedCities = new Map();
 
+        // Массив, хранящий в себе все маркеры посещённых мест
+        this.allPlaceMarkers = [];
+
         // Ниже определяются кнопки. Для каждой из них есть 2 переменные:
         // - btn... - экземпляр класса Button для доступа к его методам.
         // - element... - Непосредственно сам HTML-элемент, чтобы иметь доступ к его параметрам.
@@ -43,6 +52,13 @@ export class ToolbarActions {
             'btn-outline-success'
         )
         this.elementShowSubscriptionCities = this.btnShowSubscriptionCities.get_element();
+
+        this.btnShowPlaces = new Button(
+            'btn_show-places',
+            'btn-primary',
+            'btn-outline-primary'
+        );
+        this.elementShowPlaces = this.btnShowPlaces.get_element();
 
         this.btnShowNotVisitedCities = new Button(
             'btn_show-not-visited-cities',
@@ -74,6 +90,16 @@ export class ToolbarActions {
 
             this.btnShowVisitedCitiesPreviousYear.off()
             this.btnShowVisitedCitiesCurrentYear.off();
+        });
+
+        this.elementShowPlaces.addEventListener('click', () => {
+            if (this.elementShowPlaces.dataset.type === 'show') {
+                this.showPlaces();
+                this.btnShowPlaces.on();
+            } else {
+                this.hidePlaces();
+                this.btnShowPlaces.off();
+            }
         });
 
         this.elementShowNotVisitedCities.addEventListener('click', () => {
@@ -189,6 +215,40 @@ export class ToolbarActions {
         } else {
             this.addNotVisitedCitiesOnMap();
         }
+    }
+
+    showPlaces() {
+        if (this.allPlaceMarkers.length > 0) {
+            this.allPlaceMarkers.forEach(marker => {
+                marker.addTo(this.myMap);
+            });
+        } else {
+            fetch('/api/place/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Произошла ошибка при получении данных с сервера');
+                    }
+                    return response.json();
+                })
+                .then(places => {
+                    places.forEach(place => {
+                        const marker = L.marker(
+                            [place.latitude, place.longitude],
+                            {
+                                icon: icon_blue_pin
+                            }).addTo(this.myMap);
+                        marker.bindTooltip(place.name, {direction: 'top'});
+
+                        this.allPlaceMarkers.push(marker);
+                    });
+                });
+        }
+    }
+
+    hidePlaces() {
+        this.allPlaceMarkers.forEach(marker => {
+            this.myMap.removeLayer(marker);
+        });
     }
 
     showVisitedCitiesPreviousYear() {

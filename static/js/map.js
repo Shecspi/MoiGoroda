@@ -59,6 +59,7 @@ export function calculate_center_of_coordinates(coordinates) {
         // Меняем масштаб карты в зависимости от расположения городов
         const diff_lat = max_lat - min_lat;
         const diff_lon = max_lon - min_lon;
+        const diff = diff_lat > diff_lon ? diff_lat : diff_lon;
 
         if (diff_lat > diff_lon) {
             if (diff <= 0.01) {

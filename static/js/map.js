@@ -31,6 +31,97 @@ export function create_map(center, zoom) {
 }
 
 /**
+ * Рассчитывает координаты и зум карты в зависимости от набора координат, переданных в coordinates.
+ * @param coordinates {[[number, number]]} Массив массивов с координатами (широта и долгота)
+ * @returns {[number, number, number]} Широта, долгота и масштаб карты
+ */
+export function calculate_center_of_coordinates(coordinates) {
+    if (coordinates.length > 0) {
+        // Высчитываем центральную точку карты.
+        // Ей является средняя координата всех переданных координат.
+        let array_lon = Array();
+        let array_lat = Array();
+        let zoom = 0;
+
+        // Добавляем все координаты в один массив и находим большее и меньшее значения из них,
+        // а затем вычисляем среднее, это и будет являться центром карты.
+        for (let i = 0; i < coordinates.length; i++) {
+            array_lat.push(parseFloat(coordinates[i][0]));
+            array_lon.push(parseFloat(coordinates[i][1]));
+        }
+        let max_lon = Math.max(...array_lon);
+        let min_lon = Math.min(...array_lon);
+        let max_lat = Math.max(...array_lat);
+        let min_lat = Math.min(...array_lat);
+        const average_lon = (max_lon + min_lon) / 2;
+        const average_lat = (max_lat + min_lat) / 2;
+
+        // Меняем масштаб карты в зависимости от расположения городов
+        const diff_lat = max_lat - min_lat;
+        const diff_lon = max_lon - min_lon;
+
+        if (diff_lat > diff_lon) {
+            if (diff <= 0.01) {
+                zoom = 15;
+            } else if (diff <= 0.04) {
+                zoom = 14;
+            } else if (diff <= 0.05) {
+                zoom = 13;
+            } else if (diff <= 0.1) {
+                zoom = 12;
+            } else if (diff <= 0.25) {
+                zoom = 11;
+            } else if (diff <= 0.5) {
+                zoom = 10;
+            } else if (diff <= 1) {
+                zoom = 9;
+            } else if (diff <= 2) {
+                zoom = 8;
+            } else if (diff <= 3) {
+                zoom = 7;
+            } else if (diff <= 7) {
+                zoom = 6
+            } else if (diff <= 15) {
+                zoom = 5;
+            } else {
+                zoom = 4;
+            }
+        } else {
+            if (diff <= 0.05) {
+                zoom = 15;
+            } else if (diff <= 0.1) {
+                zoom = 14;
+            } else if (diff <= 0.2) {
+                zoom = 13;
+            } else if (diff <= 0.5) {
+                zoom = 12;
+            } else if (diff <= 1) {
+                zoom = 11;
+            } else if (diff <= 1.5) {
+                zoom = 10;
+            } else if (diff <= 3) {
+                zoom = 9;
+            } else if (diff <= 6) {
+                zoom = 8;
+            } else if (diff <= 15) {
+                zoom = 7;
+            } else if (diff <= 30) {
+                zoom = 6
+            } else if (diff <= 50) {
+                zoom = 5;
+            } else {
+                zoom = 4;
+            }
+        }
+
+        return [average_lat, average_lon, zoom];
+    } else {
+        // Стандартное значение - центр Москвы
+        return [55.751427, 37.618878, 12];
+    }
+}
+
+/**
  * Добавляет кнопку полноэкранного просмотра.
  * @param map Объект карты, на которую нужно добавить кнопки.
  */

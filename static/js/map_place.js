@@ -1,4 +1,4 @@
-import {calculate_center_of_coordinates, create_map} from './map.js';
+import {create_map} from './map.js';
 import {icon_blue_pin, icon_purple_pin} from "./icons.js";
 import {showDangerToast, showSuccessToast} from './toast.js';
 
@@ -7,7 +7,7 @@ window.switch_place_to_edit = switch_place_to_edit;
 
 // Карта, на которой будут отображаться все объекты
 // const [center_lat, center_lon, zoom] = calculate_center_of_coordinates()
-let map;
+let map = create_map([55, 37], 5);
 
 // Массив, хранящий в себе промисы, в которых загружаются необходимые данные с сервера
 const allPromises = [];
@@ -31,16 +31,17 @@ let marker = undefined;
 allPromises.push(loadPlacesFromServer());
 allPromises.push(loadCategoriesFromServer());
 Promise.all([...allPromises]).then(([places, categories]) => {
-    const allCoordinates = [];
-
     places.forEach(place => {
         allPlaces.set(place.id, place);
-        allCoordinates.push([place.latitude, place.longitude]);
     });
-    const [center_lat, center_lon, zoom] = calculate_center_of_coordinates(allCoordinates);
-    console.log(center_lat, center_lon, zoom);
-    map = create_map([center_lat, center_lon], zoom);
     addMarkers();
+
+    if (places.length === 0) {
+        map.setView([55.751426, 37.618879], 12);
+    } else {
+        const group = new L.featureGroup([...allMarkers]);
+        map.fitBounds(group.getBounds());
+    }
 
     const button = document.getElementById('btn-filter-category');
     const select_filter_by_category = document.getElementById('dropdown-menu-filter-category')

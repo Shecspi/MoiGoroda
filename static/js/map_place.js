@@ -3,6 +3,7 @@ import {icon_blue_pin, icon_purple_pin} from "./icons.js";
 import {showDangerToast, showSuccessToast} from './toast.js';
 
 window.add_place = add_place;
+window.delete_place = delete_place;
 window.switch_place_to_edit = switch_place_to_edit;
 
 // Карта, на которой будут отображаться все объекты
@@ -228,6 +229,51 @@ function handleClickOnMap(map) {
     });
 }
 
+function generatePopupContent(id, name, latitide, longitude, category) {
+    let content = '';
+    content += '<h5 id="users_place_name" style="display: flex; justify-content: space-between;">';
+    content += `${name}`;
+    content += '</h5>';
+
+    content += '<p>'
+    content += `<span class="fw-semibold">Широта:</span> ${latitide}<br>`;
+
+    content += `<span class="fw-semibold">Долгота:</span> ${longitude}`;
+    content += '</p>';
+
+    content += '<p id="category_place">';
+    content += '</p>';
+
+    content += '<p>';
+    content += `<button class="btn btn-danger btn-sm" id="btn-add-place" onclick="delete_place(${id})">Удалить</button>`;
+    content += '</p>';
+
+    return content;
+}
+
+function delete_place(id) {
+    fetch(`/api/place/delete/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie("csrftoken")
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Произошла ошибка при удалении');
+            }
+            if (response.status === 204) {
+                allPlaces.delete(id);
+                updateMarkers();
+                showSuccessToast('Удалено', 'Указанное Вами место успешно удалено')
+            } else {
+                showDangerToast('Ошибка', 'Произошла неизвестная ошибка и удалить место не получилось. Пожалуйста, обновите страницу и попробуйте ещё раз');
+                console.log(response);
+                throw new Error('Произошла неизвестная ошибка и удалить место не получилось');
+            }
+        })
+}
+
 function add_place(event) {
     event.preventDefault();
 
@@ -299,6 +345,7 @@ function addMarkers(categoryName) {
                     icon: icon_blue_pin
                 }).addTo(map);
             marker.bindTooltip(place.name, {direction: 'top'});
+            marker.bindPopup(generatePopupContent(place.id, place.name, place.latitude, place.longitude, place.category_detail.name));
 
             allMarkers.push(marker);
         }

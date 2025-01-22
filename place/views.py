@@ -5,9 +5,11 @@ Licensed under the Apache License, Version 2.0
 
 """
 
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 
+@login_required
 def place(request):
     return render(
         request,

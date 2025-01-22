@@ -62,6 +62,7 @@ Promise.all([...allPromises]).then(([places, categories]) => {
         filter_by_category_item.style.cursor = 'pointer';
         filter_by_category_item.addEventListener('click', () => {
             updateMarkers(category.name);
+            updateBlockQtyPlaces(allMarkers.length);
         });
         select_filter_by_category.appendChild(document.createElement('li').appendChild(filter_by_category_item))
     });
@@ -78,6 +79,7 @@ Promise.all([...allPromises]).then(([places, categories]) => {
     select_filter_by_category.appendChild(document.createElement('li').appendChild(all_categories));
     all_categories.addEventListener('click', () => {
         updateMarkers('__all__');
+        updateBlockQtyPlaces(allMarkers.length);
     });
 
     handleClickOnMap(map);

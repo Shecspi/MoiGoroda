@@ -176,9 +176,9 @@ function handleClickOnMap(map) {
                 allMarkers.push(marker);
 
                 let content = '<form>';
-                content += '<h5 id="place_name_from_osm" style="display: flex; justify-content: space-between;" onclick="switch_place_to_edit()">';
+                content += '<h5 id="place_name_from_osm" class="d-flex justify-content-between gap-3" onclick="switch_place_to_edit()">';
                 content += `${name}`;
-                content += ` <a href="#"><i class="fa-solid fa-pencil"></i></a>`;
+                content += ` <a href="#" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-100-hover link-opacity-50 link-opacity-100-hover"><i class="fa-solid fa-pencil"></i></a>`;
                 content += '</h5>';
 
                 content += '<h5 id="place_name_input_form" style="display: flex; justify-content: space-between;" hidden>';

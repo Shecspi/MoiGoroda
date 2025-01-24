@@ -19,7 +19,6 @@ def test__authorized_user_have_access_to_the_page(django_user_model):
     create_user(django_user_model, 1)
 
     client = Client()
-    response = client.get('/place/map')
 
     client.login(username='username1', password='password')
     response = client.get(reverse('place_map'), follow=True)

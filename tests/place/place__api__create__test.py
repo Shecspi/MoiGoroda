@@ -65,3 +65,25 @@ def test__create_place_can_process_correct_data(django_user_model):
     assert response_json.get('latitude') == 55.5
     assert response_json.get('longitude') == 66.6
     assert response_json.get('category_detail').get('id') == category.id
+
+
+def test__create_places_has_correct_log_records(django_user_model, caplog):
+    create_user(django_user_model, 1)
+    category = create_category_of_place()
+    data = {
+        'name': 'Place name',
+        'latitude': 55.5,
+        'longitude': 66.6,
+        'category': category.id,
+    }
+
+    client = APIClient()
+    client.login(username='username1', password='password')
+    response = client.post('/api/place/create/', data=data, format='json', charset='utf-8')
+    place_id = response.json().get('id')
+
+    assert caplog.records[0].levelname == 'INFO'
+    assert (
+        caplog.records[0].getMessage()
+        == f'(API: Place): Creation of the place #{place_id}   /api/place/create/'
+    )

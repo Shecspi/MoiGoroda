@@ -65,3 +65,23 @@ class DeletePlace(generics.DestroyAPIView):
             f'(API: Place): Deleting a place #{self.kwargs["pk"]}',
         )
         return super(DeletePlace, self).delete(*args, **kwargs)
+
+
+class UpdatePlace(generics.UpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['patch']
+    serializer_class = PlaceSerializer
+
+    def get_queryset(self):
+        return Place.objects.filter(user=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        old_place = Place.objects.get(id=self.kwargs['pk'])
+        response = super().update(request, *args, **kwargs)
+        new_place = Place.objects.get(id=self.kwargs['pk'])
+        logger.info(
+            self.request,
+            f'(API: Place): Updating a place #{old_place.id}. Name: "{old_place.name}" -> "{new_place.name}"',
+        )
+
+        return response

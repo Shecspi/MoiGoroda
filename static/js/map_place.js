@@ -176,7 +176,7 @@ function handleClickOnMap(map) {
                 allMarkers.push(marker);
 
                 let content = '<form>';
-                content += '<h5 id="place_name_from_osm" class="d-flex justify-content-between gap-3" onclick="switch_place_to_edit()">';
+                content += '<h5 id="place_name_text" class="d-flex justify-content-between gap-3" onclick="switch_place_to_edit()">';
                 content += `${name}`;
                 content += ` <a href="#" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-100-hover link-opacity-50 link-opacity-100-hover"><i class="fa-solid fa-pencil"></i></a>`;
                 content += '</h5>';
@@ -193,7 +193,7 @@ function handleClickOnMap(map) {
                 content += `<input type="text" id="form-longitude" name="longitude" value="${lon_marker}" hidden>`;
                 content += '</p>';
 
-                content += '<p id="category_from_osm">';
+                content += '<p id="category_place">';
                 content += '<span class="fw-semibold">Категория:</span> ';
                 content += ` ${type_marker !== undefined ? type_marker : 'Не известно'}`
                 content += '</p>';
@@ -233,8 +233,13 @@ function handleClickOnMap(map) {
 
 function generatePopupContent(id, name, latitide, longitude, category) {
     let content = '';
-    content += '<h5 id="users_place_name" style="display: flex; justify-content: space-between;">';
-    content += `${name}`;
+    content += '<div class="d-flex justify-content-between">';
+    content += `<h5 id="place_name_text">${name}</h5>`;
+    content += '<a href="#" onclick="switch_place_to_edit();"><i class="fa-solid fa-pencil"></i></a>';
+    content += '</div>';
+
+    content += '<h5 id="place_name_input_form" style="display: flex; justify-content: space-between;" hidden>';
+    content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="form-control-sm" style="width: 100%; box-sizing: border-box">`;
     content += '</h5>';
 
     content += '<p>'
@@ -244,6 +249,22 @@ function generatePopupContent(id, name, latitide, longitude, category) {
     content += '</p>';
 
     content += '<p id="category_place">';
+    content += '</p>';
+
+    content += '<p id="category_select_form" hidden>'
+    content += '<span class="fw-semibold">Категория:</span> ';
+    content += '<select name="category" id="form-type-object" class="form-select form-select-sm">';
+    if (type_marker === undefined) {
+        content += `<option value="" selected disabled>Выберите категорию...</option>`;
+    }
+    allCategories.forEach(category => {
+        if (category.name === type_marker) {
+            content += `<option value="${category.id}" selected>${category.name}</option>`;
+        } else {
+            content += `<option value="${category.id}">${category.name}</option>`;
+        }
+    })
+    content += '</select>';
     content += '</p>';
 
     content += '<p>';
@@ -357,9 +378,9 @@ function addMarkers(categoryName) {
 }
 
 function switch_place_to_edit() {
-    document.getElementById('place_name_from_osm').hidden = true;
+    document.getElementById('place_name_text').hidden = true;
     document.getElementById('place_name_input_form').hidden = false;
 
-    document.getElementById('category_from_osm').hidden = true;
+    document.getElementById('category_place').hidden = true;
     document.getElementById('category_select_form').hidden = false;
 }

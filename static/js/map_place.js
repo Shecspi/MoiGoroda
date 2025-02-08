@@ -4,6 +4,7 @@ import {showDangerToast, showSuccessToast} from './toast.js';
 
 window.add_place = add_place;
 window.delete_place = delete_place;
+window.update_place = update_place;
 window.switch_popup_elements = switch_popup_elements;
 
 // Карта, на которой будут отображаться все объекты
@@ -223,7 +224,6 @@ function generatePopupContent(name, latitide, longitude, place_category, id) {
             content += `<option value="" selected disabled>Выберите категорию...</option>`;
         }
         allCategories.forEach(category => {
-            console.log(category.name);
             if (category.name === place_category) {
                 content += `<option value="${category.id}" selected>${category.name}</option>`;
             } else {
@@ -239,6 +239,49 @@ function generatePopupContent(name, latitide, longitude, place_category, id) {
     content += '</p>';
 
     return content;
+}
+
+function update_place(id) {
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
+
+    const formData = new FormData();
+    let name = document.getElementById('form-name').value
+    let category_el = document.getElementById('form-type-object');
+    let category_id = category_el.value;
+    let category_name = category_el.options[category_el.selectedIndex].text;
+
+    formData.set('name', name);
+    formData.set('category', category_id)
+
+    fetch(`/api/place/update/${id}`, {
+        method: 'PATCH',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie("csrftoken")
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Произошла ошибка при редактировании места');
+            }
+            if (response.status === 200) {
+                let old_place = allPlaces.get(id);
+                old_place.name = name;
+                old_place.category_detail.id = category_id;
+                old_place.category_detail.name = category_name;
+
+                updateMarkers();
+                showSuccessToast('Изменено', 'Указанное Вами место успешно отредактировано')
+
+                return false;
+            } else {
+                showDangerToast('Ошибка', 'Произошла неизвестная ошибка и отредактировать место не получилось. Пожалуйста, обновите страницу и попробуйте ещё раз');
+                console.log(response);
+                throw new Error('Произошла неизвестная ошибка и отредактировать место не получилось');
+            }
+        })
 }
 
 function delete_place(id) {
@@ -327,7 +370,6 @@ function updateMarkers(categoryName) {
  */
 function addMarkers(categoryName) {
     allMarkers.length = 0;
-    console.log(allCategories);
     allPlaces.forEach(place => {
         if (categoryName === undefined || categoryName === '__all__' || categoryName === place.category_detail.name) {
             const marker = L.marker(
@@ -337,10 +379,10 @@ function addMarkers(categoryName) {
                 }).addTo(map);
             marker.bindTooltip(place.name, {direction: 'top'});
 
-            let content = '<form>';
-            content += generatePopupContent(place.name, place.latitude, place.longitude, place.category_detail.name, place.od);
+            let content = '<form id="place-form">';
+            content += generatePopupContent(place.name, place.latitude, place.longitude, place.category_detail.name, place.id);
             content += '<p>';
-            content += `<button class="btn btn-success btn-sm" id="btn-update-place" onclick="update_place();" hidden>Изменить</button>`;
+            content += `<button class="btn btn-success btn-sm" id="btn-update-place" onclick="update_place(${place.id});" hidden>Изменить</button>`;
             content += `<button class="btn btn-danger btn-sm" id="btn-delete-place" onclick="delete_place();">Удалить</button>`;
             content += '</p>';
             content += '</form>';

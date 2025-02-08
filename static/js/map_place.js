@@ -214,7 +214,9 @@ function generatePopupContent(name, latitide, longitude, place_category, id) {
 
     content += '<p>'
         content += `<span class="fw-semibold">Широта:</span> ${latitide}<br>`
+        content += `<input type="text" id="form-latitude" name="name" value="${latitide}" hidden>`;
         content += `<span class="fw-semibold">Долгота:</span> ${longitude}`;
+        content += `<input type="text" id="form-longitude" name="name" value="${longitude}" hidden>`;
     content += '</p>';
 
     content += '<p id="category_select_form" hidden>'
@@ -285,6 +287,10 @@ function update_place(id) {
 }
 
 function delete_place(id) {
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
+
     fetch(`/api/place/delete/${id}`, {
         method: 'DELETE',
         headers: {
@@ -307,13 +313,16 @@ function delete_place(id) {
         })
 }
 
-function add_place(event) {
-    event.preventDefault();
+function add_place() {
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
 
     const data = {
         name: document.getElementById('form-name').value,
         category: document.getElementById('form-type-object').value
     };
+    console.log(data);
 
     // В зависимости от того, был перемещён маркер или нет, используются разные источники для координат
     if (moved_lat === undefined) {
@@ -383,7 +392,7 @@ function addMarkers(categoryName) {
             content += generatePopupContent(place.name, place.latitude, place.longitude, place.category_detail.name, place.id);
             content += '<p>';
             content += `<button class="btn btn-success btn-sm" id="btn-update-place" onclick="update_place(${place.id});" hidden>Изменить</button>`;
-            content += `<button class="btn btn-danger btn-sm" id="btn-delete-place" onclick="delete_place();">Удалить</button>`;
+            content += `<button class="btn btn-danger btn-sm" id="btn-delete-place" onclick="delete_place(${place.id});">Удалить</button>`;
             content += '</p>';
             content += '</form>';
 

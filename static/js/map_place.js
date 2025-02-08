@@ -391,7 +391,7 @@ function switch_popup_elements() {
     }
 
     const btn_update_place = document.getElementById('btn-update-place');
-    if (btn_update_place && btn_update_place.hidden) {
+    if (btn_update_place) {
         btn_update_place.hidden = !btn_update_place.hidden;
     }
 }

@@ -15,7 +15,7 @@ def place(request):
         request,
         'place/map.html',
         context={
-            'page_title': 'Интересные места',
-            'page_description': 'Карта интересных мест',
+            'page_title': 'Мои места',
+            'page_description': 'Мои места, отмеченные на карте',
         },
     )

@@ -35,6 +35,12 @@
                             <i class="fa-solid fa-location-dot"></i>&nbsp;&nbsp;&nbsp;Карта городов
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'collection-list' %}"
+                           class="text-decoration-none px-3 py-2 ms-4 d-block{% if active_page == 'collection' %} active{% endif %}">
+                            <i class="fa-solid fa-list-check"></i>&nbsp;&nbsp;&nbsp;Коллекции городов
+                        </a>
+                    </li>
                 </ul>
             </li>
         <hr>
@@ -74,12 +80,6 @@
             <a href="{% url 'place_map' %}"
                class="text-decoration-none px-3 py-2 d-block{% if active_page == 'places' %} active{% endif %}">
                 <i class="fa-solid fa-globe"></i>&nbsp;&nbsp;&nbsp;Мои места
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'collection-list' %}"
-               class="text-decoration-none px-3 py-2 d-block{% if active_page == 'collection' %} active{% endif %}">
-                <i class="fa-solid fa-list-check"></i>&nbsp;&nbsp;&nbsp;Коллекции городов
             </a>
         </li>
         <li id="sidebar_news">

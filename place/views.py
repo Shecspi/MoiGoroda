@@ -17,5 +17,6 @@ def place(request):
         context={
             'page_title': 'Мои места',
             'page_description': 'Мои места, отмеченные на карте',
+            'active_page': 'places',
         },
     )

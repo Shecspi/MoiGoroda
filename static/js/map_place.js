@@ -3,10 +3,13 @@ import {icon_blue_pin, icon_purple_pin} from "./icons.js";
 import {showDangerToast, showSuccessToast} from './toast.js';
 
 window.add_place = add_place;
-window.switch_place_to_edit = switch_place_to_edit;
+window.delete_place = delete_place;
+window.update_place = update_place;
+window.switch_popup_elements = switch_popup_elements;
 
 // Карта, на которой будут отображаться все объекты
-const map = create_map([55.7520251, 37.61841444746334], 15);
+// const [center_lat, center_lon, zoom] = calculate_center_of_coordinates()
+let map = create_map([55, 37], 5);
 
 // Массив, хранящий в себе промисы, в которых загружаются необходимые данные с сервера
 const allPromises = [];
@@ -30,11 +33,7 @@ let marker = undefined;
 allPromises.push(loadPlacesFromServer());
 allPromises.push(loadCategoriesFromServer());
 Promise.all([...allPromises]).then(([places, categories]) => {
-    places.forEach(place => {
-        allPlaces.set(place.id, place);
-    });
-    addMarkers();
-
+    // Получаем все категории и заполняем фильтр по ним
     const button = document.getElementById('btn-filter-category');
     const select_filter_by_category = document.getElementById('dropdown-menu-filter-category')
 
@@ -53,6 +52,7 @@ Promise.all([...allPromises]).then(([places, categories]) => {
         filter_by_category_item.style.cursor = 'pointer';
         filter_by_category_item.addEventListener('click', () => {
             updateMarkers(category.name);
+            updateBlockQtyPlaces(allMarkers.length);
         });
         select_filter_by_category.appendChild(document.createElement('li').appendChild(filter_by_category_item))
     });
@@ -69,7 +69,21 @@ Promise.all([...allPromises]).then(([places, categories]) => {
     select_filter_by_category.appendChild(document.createElement('li').appendChild(all_categories));
     all_categories.addEventListener('click', () => {
         updateMarkers('__all__');
+        updateBlockQtyPlaces(allMarkers.length);
     });
+
+    // Расставляем метки
+    places.forEach(place => {
+        allPlaces.set(place.id, place);
+    });
+    addMarkers();
+
+    if (places.length === 0) {
+        map.setView([55.751426, 37.618879], 12);
+    } else {
+        const group = new L.featureGroup([...allMarkers]);
+        map.fitBounds(group.getBounds());
+    }
 
     handleClickOnMap(map);
 });
@@ -165,46 +179,9 @@ function handleClickOnMap(map) {
                 allMarkers.push(marker);
 
                 let content = '<form>';
-                content += '<h5 id="place_name_from_osm" style="display: flex; justify-content: space-between;" onclick="switch_place_to_edit()">';
-                content += `${name}`;
-                content += ` <a href="#"><i class="fa-solid fa-pencil"></i></a>`;
-                content += '</h5>';
-
-                content += '<h5 id="place_name_input_form" style="display: flex; justify-content: space-between;" hidden>';
-                content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="form-control-sm" style="width: 100%; box-sizing: border-box">`;
-                content += '</h5>';
-
-                content += '<p>'
-                content += `<span class="fw-semibold">Широта:</span> ${lat_marker}<br>`;
-                content += `<input type="text" id="form-latitude" name="latitude" value="${lat_marker}" hidden>`;
-
-                content += `<span class="fw-semibold">Долгота:</span> ${lon_marker}`;
-                content += `<input type="text" id="form-longitude" name="longitude" value="${lon_marker}" hidden>`;
-                content += '</p>';
-
-                content += '<p id="category_from_osm">';
-                content += '<span class="fw-semibold">Категория:</span> ';
-                content += ` ${type_marker !== undefined ? type_marker : 'Не известно'}`
-                content += '</p>';
-
-                content += '<p id="category_select_form" hidden>'
-                content += '<span class="fw-semibold">Категория:</span> ';
-                content += '<select name="category" id="form-type-object" class="form-select form-select-sm">';
-                if (type_marker === undefined) {
-                    content += `<option value="" selected disabled>Выберите категорию...</option>`;
-                }
-                allCategories.forEach(category => {
-                    if (category.name === type_marker) {
-                        content += `<option value="${category.id}" selected>${category.name}</option>`;
-                    } else {
-                        content += `<option value="${category.id}">${category.name}</option>`;
-                    }
-                })
-                content += '</select>';
-                content += '</p>';
-
+                content += generatePopupContent(name, lat_marker, lon_marker, type_marker);
                 content += '<p>';
-                content += `<button class="btn btn-success btn-sm" id="btn-add-place" onclick="add_place(event);">Добавить</button>`;
+                content += `<button class="btn btn-success btn-sm" id="btn-add-place" onclick="add_place();">Добавить</button>`;
                 content += '</p>';
 
                 content += '</form>'
@@ -220,8 +197,126 @@ function handleClickOnMap(map) {
     });
 }
 
-function add_place(event) {
-    event.preventDefault();
+function generatePopupContent(name, latitide, longitude, place_category, id) {
+    let name_escaped = name.replaceAll('"', "'");
+
+    let content = '';
+    content += '<div class="d-flex justify-content-between gap-3 align-middle fs-5">';
+        content += `<div id="place_name_text">${name}</div>`;
+        content += '<div id="place_name_input_form" hidden>';
+            content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="form-control-sm" style="width: 100%; box-sizing: border-box">`;
+        content += '</div>';
+        content += '<div class="d-flex align-middle">';
+            content += '<a href="#" id="link_to_edit_place" onclick="switch_popup_elements()" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-100-hover link-opacity-50 link-opacity-100-hover align-middle" title="Изменить место"><i class="fa-solid fa-pencil"></i></a>';
+            content += '<a href="#" id="lint_to_cancel_edit_place" onclick="switch_popup_elements()" class="link-offset-2 danger link-danger link-underline-opacity-100-hover link-opacity-50 link-opacity-100-hover align-middle" title="Отменить изменения" hidden><i class="fa-solid fa-ban"></i></a>';
+        content += '</div>';
+    content += '</div>';
+
+    content += '<p>'
+        content += `<span class="fw-semibold">Широта:</span> ${latitide}<br>`
+        content += `<input type="text" id="form-latitude" name="name" value="${latitide}" hidden>`;
+        content += `<span class="fw-semibold">Долгота:</span> ${longitude}`;
+        content += `<input type="text" id="form-longitude" name="name" value="${longitude}" hidden>`;
+    content += '</p>';
+
+    content += '<p id="category_select_form" hidden>'
+        content += '<span class="fw-semibold">Категория:</span> ';
+        content += '<select name="category" id="form-type-object" class="form-select form-select-sm">';
+        if (place_category === undefined) {
+            content += `<option value="" selected disabled>Выберите категорию...</option>`;
+        }
+        allCategories.forEach(category => {
+            if (category.name === place_category) {
+                content += `<option value="${category.id}" selected>${category.name}</option>`;
+            } else {
+                content += `<option value="${category.id}">${category.name}</option>`;
+            }
+        })
+        content += '</select>';
+    content += '</p>';
+
+    content += '<p id="category_place">';
+    content += '<span class="fw-semibold">Категория:</span> ';
+    content += ` ${place_category !== undefined ? place_category : 'Не известно'}`;
+    content += '</p>';
+
+    return content;
+}
+
+function update_place(id) {
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
+
+    const formData = new FormData();
+    let name = document.getElementById('form-name').value
+    let category_el = document.getElementById('form-type-object');
+    let category_id = category_el.value;
+    let category_name = category_el.options[category_el.selectedIndex].text;
+
+    formData.set('name', name);
+    formData.set('category', category_id)
+
+    fetch(`/api/place/update/${id}`, {
+        method: 'PATCH',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie("csrftoken")
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Произошла ошибка при редактировании места');
+            }
+            if (response.status === 200) {
+                let old_place = allPlaces.get(id);
+                old_place.name = name;
+                old_place.category_detail.id = category_id;
+                old_place.category_detail.name = category_name;
+
+                updateMarkers();
+                showSuccessToast('Изменено', 'Указанное Вами место успешно отредактировано')
+
+                return false;
+            } else {
+                showDangerToast('Ошибка', 'Произошла неизвестная ошибка и отредактировать место не получилось. Пожалуйста, обновите страницу и попробуйте ещё раз');
+                console.log(response);
+                throw new Error('Произошла неизвестная ошибка и отредактировать место не получилось');
+            }
+        })
+}
+
+function delete_place(id) {
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
+
+    fetch(`/api/place/delete/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie("csrftoken")
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Произошла ошибка при удалении');
+            }
+            if (response.status === 204) {
+                allPlaces.delete(id);
+                updateMarkers();
+                showSuccessToast('Удалено', 'Указанное Вами место успешно удалено')
+            } else {
+                showDangerToast('Ошибка', 'Произошла неизвестная ошибка и удалить место не получилось. Пожалуйста, обновите страницу и попробуйте ещё раз');
+                console.log(response);
+                throw new Error('Произошла неизвестная ошибка и удалить место не получилось');
+            }
+        })
+}
+
+function add_place() {
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
 
     const data = {
         name: document.getElementById('form-name').value,
@@ -292,6 +387,16 @@ function addMarkers(categoryName) {
                 }).addTo(map);
             marker.bindTooltip(place.name, {direction: 'top'});
 
+            let content = '<form id="place-form">';
+            content += generatePopupContent(place.name, place.latitude, place.longitude, place.category_detail.name, place.id);
+            content += '<p>';
+            content += `<button class="btn btn-success btn-sm" id="btn-update-place" onclick="update_place(${place.id});" hidden>Изменить</button>`;
+            content += `<button class="btn btn-danger btn-sm" id="btn-delete-place" onclick="delete_place(${place.id});">Удалить</button>`;
+            content += '</p>';
+            content += '</form>';
+
+            marker.bindPopup(content);
+
             allMarkers.push(marker);
         }
     });
@@ -299,10 +404,44 @@ function addMarkers(categoryName) {
     updateBlockQtyPlaces(allPlaces.size);
 }
 
-function switch_place_to_edit() {
-    document.getElementById('place_name_from_osm').hidden = true;
-    document.getElementById('place_name_input_form').hidden = false;
+function switch_popup_elements() {
+    const link_to_edit_place = document.getElementById('link_to_edit_place');
+    if (link_to_edit_place) {
+        link_to_edit_place.hidden = !link_to_edit_place.hidden;
+    }
 
-    document.getElementById('category_from_osm').hidden = true;
-    document.getElementById('category_select_form').hidden = false;
+    const link_to_cancel_edit_place = document.getElementById('lint_to_cancel_edit_place');
+    if (link_to_cancel_edit_place) {
+        link_to_cancel_edit_place.hidden = !link_to_cancel_edit_place.hidden;
+    }
+
+    const place_name_text = document.getElementById('place_name_text');
+    if (place_name_text) {
+        place_name_text.hidden = !place_name_text.hidden;
+    }
+
+    const place_name_input_form = document.getElementById('place_name_input_form');
+    if (place_name_input_form) {
+        place_name_input_form.hidden = !place_name_input_form.hidden
+    }
+
+    const category_place = document.getElementById('category_place');
+    if (category_place) {
+        category_place.hidden = !category_place.hidden;
+    }
+
+    const category_select_form = document.getElementById('category_select_form');
+    if (category_select_form) {
+        category_select_form.hidden = !category_select_form.hidden;
+    }
+
+    const btn_delete_place = document.getElementById('btn-delete-place');
+    if (btn_delete_place && btn_delete_place) {
+        btn_delete_place.hidden = !btn_delete_place.hidden;
+    }
+
+    const btn_update_place = document.getElementById('btn-update-place');
+    if (btn_update_place) {
+        btn_update_place.hidden = !btn_update_place.hidden;
+    }
 }

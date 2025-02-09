@@ -43,6 +43,18 @@ class PlaceSerializer(serializers.ModelSerializer):
             return Place.objects.create(user=self.context['request'].user, **validated_data)
         return super(PlaceSerializer, self).create(validated_data)
 
+    def update(self, instance, validated_data):
+        # Поля, доступные для редактирования
+        editable_fields = ['name', 'category']
+
+        filtered_data = {
+            key: value for key, value in validated_data.items() if key in editable_fields
+        }
+        for field, value in filtered_data.items():
+            setattr(instance, field, value)
+        instance.save()
+        return instance
+
     class Meta:
         model = Place
         fields = [

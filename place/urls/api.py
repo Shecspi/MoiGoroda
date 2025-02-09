@@ -9,11 +9,12 @@ Licensed under the Apache License, Version 2.0
 
 from django.urls import path
 
-from place.api import CreatePlace, DeletePlace, GetPlaces, GetCategory
+from place.api import CreatePlace, DeletePlace, GetPlaces, GetCategory, UpdatePlace
 
 urlpatterns = [
     path('', GetPlaces.as_view(), name='get_places'),
     path('create/', CreatePlace.as_view(), name='create_place'),
     path('delete/<int:pk>', DeletePlace.as_view(), name='delete_place'),
+    path('update/<int:pk>', UpdatePlace.as_view(), name='update_place'),
     path('category/', GetCategory.as_view(), name='category_of_place'),
 ]

@@ -1,6 +1,4 @@
 <script>
-    ymaps.ready(init);
-
     let regionList = new Map();
     {% for item in all_regions %}
         regionList.set('{{ item.iso3166 }}', {
@@ -102,6 +100,17 @@
                         direction: 'top',
                         sticky: true
                     });
+                    geojson.on('mouseover', function () {
+                        const tooltip = this.getTooltip();
+                        if (this.isPopupOpen()) {
+                            tooltip.setOpacity(0.0);
+                        } else {
+                            tooltip.setOpacity(0.9);
+                        }
+                    });
+                    geojson.on('click', function () {
+                        this.getTooltip().setOpacity(0.0);
+                    });
                 });
             })
             .catch(error => {
@@ -193,4 +202,6 @@
 
         return error
     }
+
+    init();
 </script>

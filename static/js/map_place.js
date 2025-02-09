@@ -322,7 +322,6 @@ function add_place() {
         name: document.getElementById('form-name').value,
         category: document.getElementById('form-type-object').value
     };
-    console.log(data);
 
     // В зависимости от того, был перемещён маркер или нет, используются разные источники для координат
     if (moved_lat === undefined) {

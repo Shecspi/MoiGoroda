@@ -102,12 +102,18 @@ class VisitedCity(models.Model):
         null=False,
         validators=[MinValueValidator(1), MaxValueValidator(5)],
     )
+    is_first_time = models.BooleanField(
+        verbose_name='Первый раз в городе?',
+        blank=True,
+        null=True,
+        default=True,
+    )
 
     class Meta:
         ordering = ['-id']
         verbose_name = 'Посещённый город'
         verbose_name_plural = 'Посещённые города'
-        unique_together = ['user', 'city']
+        unique_together = ['user', 'city', 'date_of_visit']
 
     def __str__(self) -> str:
         return self.city.title

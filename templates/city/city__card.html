@@ -5,25 +5,34 @@
     <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
         <div class="card-body">
             <!-- Название города -->
-            <h4 id="subsection-city-title_{{ forloop.counter }}">
-                <a href="{{ city.get_absolute_url }}"
-                   class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
-                    {{ city }}
-                </a>
-            </h4>
+            <div class="d-flex align-items-center justify-content-between">
+                <i class="fa-regular fa-square-check text-success fs-4"></i>
+
+                <h4 id="subsection-city-title_{{ forloop.counter }}">
+                    <a href="{{ city.get_absolute_url }}"
+                       class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover">
+                        {{ city }}
+                    </a>
+                </h4>
+
+                <span class="badge bg-secondary-subtle text-secondary-emphasis"
+                      title="Количество посещений города {{ city }}">
+                    {{ city.number_of_visits }}
+                </span>
+            </div>
             <!-- ^^^ Название города -->
 
-            <!-- Дата посещения -->
-            <div id="subsection-city-date_of_visit_{{ forloop.counter }}">
+            <!-- Дата первого посещения -->
+            <div id="subsection-city-date_of_visit_{{ forloop.counter }}" class="mt-2">
                 <small class="text-muted">
-                    {% if city.date_of_visit %}
-                        {{ city.date_of_visit }}
+                    {% if city.first_date_of_visit %}
+                        {{ city.first_date_of_visit }}
                     {% else %}
                         Дата посещения не указана
                     {% endif %}
                 </small>
             </div>
-            <!-- ^^^ Дата посещения -->
+            <!-- ^^^ Дата первого посещения -->
 
             <!-- Регион -->
             <div id="subsection-city-region_{{ forloop.counter }}">
@@ -38,40 +47,22 @@
         </div>
 
         <div class="card-footer my-2" style="background: none; border-top: none;">
-            <!-- Население -->
-            <div id="subsection-city-population_{{ forloop.counter }}">
-                <small class="card-subtitle text-muted">
-                    {% if city.city.population %}
-                        Население <strong>{{ city.city.population|intcomma }}</strong> чел.
-                    {% else %}
-                        Население города неизвестно
-                    {% endif %}
-                </small>
-            </div>
-            <!-- ^^^ Население -->
-
-            <!-- Год основания -->
-            <div id="subsection-city-date_of_foundation_{{ forloop.counter }}">
-                <small class="card-subtitle text-muted">
-                    {% if city.city.date_of_foundation %}
-                        Основан в <strong>{{ city.city.date_of_foundation }}</strong> году
-                    {% else %}
-                        Год основания неизвестен
-                    {% endif %}
-                </small>
-            </div>
-            <!-- ^^^ Год основания -->
-
             <div class="d-flex justify-content-between">
                 <!-- Рейтинг -->
-                <div id="subsection-city-rating_{{ forloop.counter }}">
+                <div id="subsection-city-rating_{{ forloop.counter }}" title="Средний рейтинг {{ city.average_rating }} на основе Ваших оценок города {{ city }}">
                     <small>
-                        {% for i in '12345'|make_list %}
-                            {% if forloop.counter <= city.rating %}
-                                <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                            {% else %}
-                                <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
-                            {% endif %}
+                        {% for i in "12345"|make_list %}
+                            {% with index=forloop.counter %}
+                                {% if city.average_rating >= index %}
+                                    <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                {% else %}
+                                    {% if city.average_rating >= index|sub:0.5 %}
+                                        <i class="fa-solid fa-star-half-stroke" style="color: #ffc43c;"></i>
+                                    {% else %}
+                                        <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                    {% endif %}
+                                {% endif %}
+                            {% endwith %}
                         {% endfor %}
                     </small>
                 </div>

@@ -13,7 +13,8 @@ from datetime import datetime
 from typing import Literal, Sequence
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet, F, Case, When, Value
+from django.db.models import QuerySet, F, Case, When, Value, Subquery, OuterRef, Count, Min, Avg
+from django.db.models.functions import Round
 
 from city.models import VisitedCity, City
 
@@ -68,10 +69,36 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
         * `region.id` - ID региона, в котором расположен город
         * `region.title` - название региона, в котором расположен город
         * `region.type` - тип региона, в котором расположен город
+        * `number_of_visits` - количество посещений городп
         (для отображение названия региона лучше использовать просто `region`,
         а не `region.title` и `region.type`, так как `region` через __str__()
         отображает корректное обработанное название)
     """
+
+    # Подзапрос для количества посещений города пользователем
+    city_visits_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        .values('city_id')  # Группировка по городу
+        .annotate(count=Count('*'))  # Подсчет записей (число посещений)
+        .values('count')  # Передаем только поле count
+    )
+
+    # Подзапрос для получения даты первого посещения города пользователем
+    first_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        .values('city_id')  # Группировка по городу
+        .annotate(first_date=Min('date_of_visit'))  # Минимальная дата посещения
+        .values('first_date')  # Передаем только дату
+    )
+
+    # Подзапрос для вычисления среднего рейтинга посещений города пользователем
+    average_rating_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        .values('city_id')  # Группировка по городу
+        .annotate(avg_rating=Avg('rating'))  # Вычисление среднего рейтинга
+        .values('avg_rating')  # Передаем только рейтинг
+    )
+
     return (
         VisitedCity.objects.filter(user_id=user_id)
         .select_related('city', 'region')
@@ -90,6 +117,13 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
             'region__title',
             'region__type',
         )
+        .annotate(
+            number_of_visits=Subquery(city_visits_subquery),
+            first_date_of_visit=Subquery(first_visit_date_subquery),
+            average_rating=Round((Subquery(average_rating_subquery) * 2), 0)
+            / 2,  # Округление до 0.5
+        )
+        .filter(is_first_visit=True)
     )
 
 

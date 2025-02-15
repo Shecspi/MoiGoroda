@@ -64,6 +64,14 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
         Добавляет в данные формы ID авторизованного пользователя.
         """
         form.instance.user = self.request.user
+
+        # Проверяем, есть ли записи с таким же user_id и city_id.
+        # Если есть, то поле is_first_visit должно быть False, иначе True.
+        city = form.cleaned_data.get('city')
+        user = self.request.user
+        is_first_visit = not VisitedCity.objects.filter(user=user, city=city).exists()
+        form.instance.is_first_visit = is_first_visit
+
         logger.info(self.request, '(Visited city) Adding a visited city')
         return super().form_valid(form)
 

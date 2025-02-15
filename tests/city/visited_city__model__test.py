@@ -110,8 +110,8 @@ def test__model_visited_city_has_field_rating():
     )
 
 
-def test__model_visited_city_has_field_is_first_time():
-    field = VisitedCity._meta.get_field('is_first_time')
+def test__model_visited_city_has_field_is_first_visit():
+    field = VisitedCity._meta.get_field('is_first_visit')
 
     assert field.verbose_name == 'Первый раз в городе?'
     assert field.blank is True

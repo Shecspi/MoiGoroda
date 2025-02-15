@@ -102,7 +102,7 @@ class VisitedCity(models.Model):
         null=False,
         validators=[MinValueValidator(1), MaxValueValidator(5)],
     )
-    is_first_time = models.BooleanField(
+    is_first_visit = models.BooleanField(
         verbose_name='Первый раз в городе?',
         blank=True,
         null=True,

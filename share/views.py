@@ -230,7 +230,7 @@ def additional_context_for_city_map(user_id: int) -> dict[str, QuerySet[VisitedC
     """
     Получает из БД все города, которые посетил пользователь с ID user_id и возвращает их в виде словаря.
     """
-    return {'all_cities': get_all_visited_cities(user_id)}
+    return {'all_cities': get_all_visited_cities([user_id])}
 
 
 def additional_context_for_region_map(user_id: int) -> dict[str, QuerySet[Region]]:

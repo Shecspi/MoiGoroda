@@ -274,7 +274,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet[VisitedCity]:
         self.user_id = self.request.user.pk
-        self.all_visited_cities = get_all_visited_cities(self.user_id)
+        self.all_visited_cities = get_all_visited_cities([self.user_id])
 
         logger.info(self.request, '(Visited city) Viewing the list of visited cities')
 

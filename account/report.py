@@ -28,7 +28,7 @@ class CityReport(Report):
         self.user_id = user_id
 
     def get_report(self) -> list[tuple]:
-        all_visited_cities = get_all_visited_cities(self.user_id)
+        all_visited_cities = get_all_visited_cities([self.user_id])
         sorted_visited_cities = order_by_date_of_visit_desc(all_visited_cities)
         result = [
             ('Город', 'Регион', 'Дата посещения', 'Наличие сувенира', 'Оценка'),

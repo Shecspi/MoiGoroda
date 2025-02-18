@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Literal, Sequence
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet, F, Case, When, Value, Subquery, OuterRef, Count, Min, Avg
+from django.db.models import QuerySet, F, Case, When, Value, Count, Min, OuterRef, Avg, Subquery
 from django.db.models.functions import Round
 
 from city.models import VisitedCity, City
@@ -52,7 +52,7 @@ def get_visited_city(user_id: int, city_id: int) -> VisitedCity | Literal[False]
         return False
 
 
-def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
+def get_all_visited_cities(user_ids: Sequence[int]) -> QuerySet[VisitedCity]:
     """
     Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.
     Возвращает Queryset, состоящий из полей:
@@ -74,10 +74,9 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
         а не `region.title` и `region.type`, так как `region` через __str__()
         отображает корректное обработанное название)
     """
-
     # Подзапрос для количества посещений города пользователем
     city_visits_subquery = (
-        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        VisitedCity.objects.filter(user_id__in=user_ids, city_id=OuterRef('city_id'))
         .values('city_id')  # Группировка по городу
         .annotate(count=Count('*'))  # Подсчет записей (число посещений)
         .values('count')  # Передаем только поле count
@@ -85,7 +84,7 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
 
     # Подзапрос для получения даты первого посещения города пользователем
     first_visit_date_subquery = (
-        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        VisitedCity.objects.filter(user_id__in=user_ids, city_id=OuterRef('city_id'))
         .values('city_id')  # Группировка по городу
         .annotate(first_date=Min('date_of_visit'))  # Минимальная дата посещения
         .values('first_date')  # Передаем только дату
@@ -93,48 +92,24 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
 
     # Подзапрос для вычисления среднего рейтинга посещений города пользователем
     average_rating_subquery = (
-        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        VisitedCity.objects.filter(user_id__in=user_ids, city_id=OuterRef('city_id'))
         .values('city_id')  # Группировка по городу
         .annotate(avg_rating=Avg('rating'))  # Вычисление среднего рейтинга
         .values('avg_rating')  # Передаем только рейтинг
     )
 
-    return (
-        VisitedCity.objects.filter(user_id=user_id)
-        .select_related('city', 'region')
-        .only(
-            'id',
-            'date_of_visit',
-            'rating',
-            'has_magnet',
-            'city__id',
-            'city__title',
-            'city__population',
-            'city__date_of_foundation',
-            'city__coordinate_width',
-            'city__coordinate_longitude',
-            'region__id',
-            'region__title',
-            'region__type',
-        )
+    queryset = (
+        VisitedCity.objects.select_related('city', 'city__region', 'user')
         .annotate(
             number_of_visits=Subquery(city_visits_subquery),
             first_date_of_visit=Subquery(first_visit_date_subquery),
             average_rating=Round((Subquery(average_rating_subquery) * 2), 0)
             / 2,  # Округление до 0.5
         )
-        .filter(is_first_visit=True)
+        .filter(user_id__in=user_ids, is_first_visit=True)
     )
 
-
-def get_visited_cities_many_users(
-    user_ids: Sequence[int], select_related_fields: Sequence[str], fields: Sequence[str]
-) -> QuerySet[VisitedCity]:
-    return (
-        VisitedCity.objects.filter(user_id__in=user_ids)
-        .select_related(*select_related_fields)
-        .only(*fields)
-    )
+    return queryset
 
 
 def get_not_visited_cities(user_id: int, regions: dict[int, str]) -> QuerySet[City]:
@@ -144,7 +119,7 @@ def get_not_visited_cities(user_id: int, regions: dict[int, str]) -> QuerySet[Ci
     При этом для каждого объекта City добавляется дополнительное поле 'region_title',
     в котором сохраняется человекочитаемое название.
     """
-    visited_cities = [city.city.id for city in get_all_visited_cities(user_id)]
+    visited_cities = [city.city.id for city in get_all_visited_cities([user_id])]
 
     # Для получения человекочитаемого формата используется сложная конструкция с Case, When и дополнительным словарём
     # регионов, так как прямое обращение к полю 'region' возвращает int, а не объект 'Region', из-за чего
@@ -165,14 +140,14 @@ def get_number_of_visited_cities(user_id: int) -> int:
     """
     Возвращает количество городов, посещённых пользователем с user_id.
     """
-    return get_all_visited_cities(user_id).count()
+    return get_all_visited_cities([user_id]).count()
 
 
 def get_number_of_visited_cities_current_year(user_id: int) -> int:
     """
     Возвращает количество городов, посещённых пользователем с user_id в текущем году.
     """
-    return get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year).count()
+    return get_all_visited_cities([user_id]).filter(date_of_visit__year=datetime.now().year).count()
 
 
 def get_number_of_visited_cities_previous_year(user_id: int) -> int:
@@ -180,5 +155,7 @@ def get_number_of_visited_cities_previous_year(user_id: int) -> int:
     Возвращает количество городов, посещённых пользователем с user_id в прошлом году.
     """
     return (
-        get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year - 1).count()
+        get_all_visited_cities([user_id])
+        .filter(date_of_visit__year=datetime.now().year - 1)
+        .count()
     )

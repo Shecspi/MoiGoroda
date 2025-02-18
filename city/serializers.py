@@ -24,6 +24,9 @@ class VisitedCitySerializer(serializers.ModelSerializer):
     lat = serializers.CharField(source='city.coordinate_width', read_only=True)
     lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
     year = serializers.SerializerMethodField()
+    number_of_visits = serializers.IntegerField(read_only=True)
+    first_date_of_visit = serializers.CharField(read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
 
     def get_year(self, obj) -> int | None:
         if obj.date_of_visit:
@@ -41,7 +44,9 @@ class VisitedCitySerializer(serializers.ModelSerializer):
             'lat',
             'lon',
             'year',
-            'date_of_visit',
+            'number_of_visits',
+            'first_date_of_visit',
+            'average_rating',
         )
 
 

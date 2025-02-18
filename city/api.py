@@ -29,7 +29,10 @@ from city.serializers import (
 from city.structs import UserID
 from region.models import Region
 from services import logger
-from services.db.visited_city_repo import get_visited_cities_many_users, get_not_visited_cities
+from services.db.visited_city_repo import (
+    get_not_visited_cities,
+    get_all_visited_cities,
+)
 from subscribe.repository import is_subscribed
 
 
@@ -48,21 +51,7 @@ class GetVisitedCities(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.request.user.pk
-
-        return get_visited_cities_many_users(
-            [user_id],
-            ('city', 'user'),
-            [
-                'user__username',
-                'id',
-                'city__title',
-                'city__region',
-                'city__region_id',
-                'city__coordinate_width',
-                'city__coordinate_longitude',
-                'date_of_visit',
-            ],
-        )
+        return get_all_visited_cities([user_id])
 
 
 class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
@@ -164,19 +153,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        return get_visited_cities_many_users(
-            self.user_id,
-            ('city', 'user'),
-            [
-                'user__username',
-                'city__id',
-                'city__title',
-                'city__region',
-                'city__region_id',
-                'city__coordinate_width',
-                'city__coordinate_longitude',
-            ],
-        )
+        return get_all_visited_cities(self.user_id)
 
 
 class GetNotVisitedCities(generics.ListAPIView):

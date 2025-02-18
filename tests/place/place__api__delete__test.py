@@ -75,3 +75,19 @@ def test__can_not_delete_non_existent_place(django_user_model):
 
     assert response.status_code == 404
     assert Place.objects.count() == 0
+
+
+def test__delete_places_has_correct_log_records(django_user_model, caplog):
+    user = create_user(django_user_model, 1)
+    category = create_category_of_place()
+    place = create_place(name='Place name', lat=55.5, lon=66.6, category=category, user=user)
+
+    client = APIClient()
+    client.login(username='username1', password='password')
+    client.delete(reverse('delete_place', kwargs={'pk': place.id}), format='json', charset='utf-8')
+
+    assert caplog.records[0].levelname == 'INFO'
+    assert (
+        caplog.records[0].getMessage()
+        == f'(API: Place): Deleting a place #{place.id}   /api/place/delete/{place.id}'
+    )

@@ -285,3 +285,9 @@ div#main-background {
         color: #d9534f;
     }
 }
+
+/*------------ Другое ------------*/
+
+.small-btn-for-toolbar {
+    width: 45px;
+}

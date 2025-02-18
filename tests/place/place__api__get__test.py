@@ -134,3 +134,13 @@ def test__get_places__two_own_places(django_user_model):
 
     assert response.status_code == 200
     assert json.loads(response.content.decode('utf-8')) == correct_response
+
+
+def test__get_places_has_correct_log_records(django_user_model, caplog):
+    create_user(django_user_model, 1)
+    client = APIClient()
+    client.login(username='username1', password='password')
+    client.get(reverse('get_places'), format='json', charset='utf-8')
+
+    assert caplog.records[0].levelname == 'INFO'
+    assert caplog.records[0].getMessage() == '(API: Place): Getting a list of places   /api/place/'

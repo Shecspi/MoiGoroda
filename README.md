@@ -20,7 +20,7 @@ git clone https://github.com/Shecspi/MoiGoroda.git && cd MoiGoroda
  ```shell
  if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
  ```
-3. Удалить текущее виртуальное окружение (если оно есть), создать новое и устанавить все зависимости. В случае установки для разработки необходимо из последней команды убрать опцию `--only main`.
+3. Удалить текущее виртуальное окружение (если оно есть), создать новое и установить все зависимости. В случае установки для разработки необходимо из последней команды убрать опцию `--only main`.
 ```shell
 if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi;
 poetry env use $(cat .python-version);

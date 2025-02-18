@@ -28,7 +28,7 @@
 
     <div class="col-xxl-6 col-md-12 text-end g-3" id="section-small-buttons">
         <!-- Помощь -->
-        <button class="align-self-center btn btn-outline-dark"
+        <button class="align-self-center btn btn-outline-dark small-btn-for-toolbar me-3"
                 id="btn_help"
                 data-bs-toggle="modal"
                 data-bs-target="#modal_help"
@@ -39,7 +39,7 @@
         <!-- ^^^ Помощь -->
 
         <!-- В прошлом году -->
-        <button class="align-self-center btn btn-outline-secondary
+        <button class="align-self-center btn btn-outline-primary small-btn-for-toolbar
                        {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
                 id="btn_show-visited-cities-previous-year"
                 data-type="show"
@@ -50,7 +50,7 @@
         <!-- ^^^ В прошлом году -->
 
         <!-- В этом году -->
-        <button  class="align-self-center btn btn-outline-primary
+        <button  class="align-self-center btn btn-outline-success small-btn-for-toolbar me-3
                   {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
                 id="btn_show-visited-cities-current-year"
                 data-type="show"
@@ -60,8 +60,18 @@
         </button>
         <!-- ^^^ В этом году -->
 
+        <!-- Показать маркеры посещённых мест -->
+        <button class="align-self-center btn btn-outline-primary small-btn-for-toolbar"
+                id="btn_show-places"
+                data-type="show"
+                data-bs-toggle="tooltip"
+                data-bs-title="Показать маркеры посещённых мест">
+            <i class="fa-solid fa-location-dot"></i>
+        </button>
+        <!-- ^^^ Показать маркеры посещённых мест -->
+
         <!-- Показать непосещённые города -->
-        <button class="align-self-center btn btn-outline-danger"
+        <button class="align-self-center btn btn-outline-danger small-btn-for-toolbar"
                 id="btn_show-not-visited-cities"
                 data-url="{% url 'api__get_not_visited_cities' %}"
                 data-type="show"
@@ -72,7 +82,7 @@
         <!-- ^^^ Показать непосещённые города -->
 
         <!-- Подписки -->
-        <button class="align-self-center btn btn-outline-success{% if not is_user_has_subscriptions %} disabled{% endif %}"
+        <button class="align-self-center btn btn-outline-success small-btn-for-toolbar{% if not is_user_has_subscriptions %} disabled{% endif %}"
                 id="btn_open_modal_with_subscriptions"
                 data-bs-toggle="modal"
                 data-bs-target="#subscriptions_modal_window"

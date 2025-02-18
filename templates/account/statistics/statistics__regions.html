@@ -9,44 +9,50 @@
                data-bs-title="Отображается количество посещённых городов и общее количество городов в каждом из регионов"></i>
         </div>
 
-        {###   Список самых посещённых регионов   ###}
-        <ul class="list-group list-group-flush mt-3">
-            {% for region in regions.most_visited_regions %}
-                <li class="list-group-item border-bottom-0">
-                    <div class="d-flex justify-content-between small">
-                        {% if fake_statistics %}
-                            {{ region.title }}
-                        {% else %}
-                            <a href="{% url 'region-selected-list' region.pk %}"
-                               class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                                {{ region }}
-                            </a>
-                        {% endif %}
-                        <span class="float-right">
-                            {{ region.visited_cities }} из {{ region.total_cities }}
-                        </span>
-                    </div>
+        {% if regions.most_visited_regions %}
+            {###   Список самых посещённых регионов   ###}
+            <ul class="list-group list-group-flush mt-3">
+                {% for region in regions.most_visited_regions %}
+                    <li class="list-group-item border-bottom-0">
+                        <div class="d-flex justify-content-between small">
+                            {% if fake_statistics %}
+                                {{ region.title }}
+                            {% else %}
+                                <a href="{% url 'region-selected-list' region.pk %}"
+                                   class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                                    {{ region }}
+                                </a>
+                            {% endif %}
+                            <span class="float-right">
+                                {{ region.visited_cities }} из {{ region.total_cities }}
+                            </span>
+                        </div>
 
-                    <div class="progress mt-1" style="height: 10px">
-                        <div class="progress-bar bg-success" role="progressbar"
-                             style="width: {{ region.ratio_visited|floatformat:0 }}%"
-                             aria-valuenow="{{ region.ratio_visited|floatformat:0 }}"
-                             aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
+                        <div class="progress mt-1" style="height: 10px">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: {{ region.ratio_visited|floatformat:0 }}%"
+                                 aria-valuenow="{{ region.ratio_visited|floatformat:0 }}"
+                                 aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            {### ^^^ Список самых посещённых регионов ^^^ ###}
+
+            {###   Ссылка "Посмотреть все"   ###}
+            <ul class="list-group list-group-flush mt-3">
+                <li class="list-group-item small d-flex justify-content-end">
+                    <a href="{% url 'region-all-list' %}"
+                       class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
+                        Посмотреть все
+                    </a>
                 </li>
-            {% endfor %}
-        </ul>
-        {### ^^^ Список самых посещённых регионов ^^^ ###}
-
-        {###   Ссылка "Посмотреть все"   ###}
-        <ul class="list-group list-group-flush mt-3">
-            <li class="list-group-item small d-flex justify-content-end">
-                <a href="{% url 'region-all-list' %}"
-                   class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                    Посмотреть все
-                </a>
-            </li>
-        </ul>
-        {### ^^^ Ссылка "Посмотреть все" ^^^ ###}
+            </ul>
+            {### ^^^ Ссылка "Посмотреть все" ^^^ ###}
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
+                Не добавлено ни одного посещённого города
+            </div>
+        {% endif %}
     </div>
 </div>

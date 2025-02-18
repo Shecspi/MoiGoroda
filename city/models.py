@@ -80,6 +80,7 @@ class VisitedCity(models.Model):
         'а также это влияет на отображаемую статистику посещённых городов за год.',
         blank=True,
         null=True,
+        db_index=True,
     )
     has_magnet = models.BooleanField(
         verbose_name='Наличие сувенира из города',
@@ -101,12 +102,14 @@ class VisitedCity(models.Model):
         blank=False,
         null=False,
         validators=[MinValueValidator(1), MaxValueValidator(5)],
+        db_index=True,
     )
     is_first_visit = models.BooleanField(
         verbose_name='Первый раз в городе?',
         blank=True,
         null=True,
         default=True,
+        db_index=True,
     )
 
     class Meta:

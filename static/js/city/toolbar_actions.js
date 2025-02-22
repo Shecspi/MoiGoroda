@@ -321,6 +321,14 @@ export class ToolbarActions {
             city.lon = this.subscriptionCities[i].lon;
             city.year_of_visit = this.subscriptionCities[i].year;
 
+            // ToDo: очень неэффективно - на каждый город подписчика проходимся по всем моим городам
+            this.ownCities.forEach(own_city => {
+                if (city.id === own_city.id) {
+                    city.date_of_first_visit = own_city.date_of_first_visit;
+                    city.number_of_visits = own_city.number_of_visits;
+                }
+            });
+
             if (year !== undefined && year !== city.year_of_visit) {
                 continue;
             }
@@ -359,7 +367,8 @@ export class ToolbarActions {
             city.lat = this.ownCities[i].lat;
             city.lon = this.ownCities[i].lon;
             city.year_of_visit = this.ownCities[i].year;
-            city.date_of_visit = this.ownCities[i].date_of_visit;
+            city.date_of_first_visit = this.ownCities[i].date_of_first_visit;
+            city.number_of_visits = this.ownCities[i].number_of_visits;
 
             // Если указан год, то добавляем на карту только города, которые были посещены в указанном году
             if (year !== undefined && year !== city.year_of_visit) {
@@ -428,17 +437,22 @@ export class ToolbarActions {
         content += `<div><span class="fw-semibold fs-3">${city.name}</span></div>`;
         content += `<div><small class="text-secondary fw-medium fs-6">${city.region}</small></div>`;
         let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Отметить как посещённый</a>`
-        const date_of_visit = city.date_of_visit ? new Date(city.date_of_visit).toLocaleDateString() : undefined;
+        let linkToAddAgain = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Добавить ещё одно посещение</a>`
+        const date_of_first_visit = city.date_of_first_visit ? new Date(city.date_of_first_visit).toLocaleDateString() : undefined;
+        const number_of_visits = city.number_of_visits;
 
         if (marker_style === MarkerStyle.SUBSCRIPTION) {
             content += '<p>Вы не были в этом городе</p>';
             content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p><hr>${linkToAdd}`;
         } else if (marker_style === MarkerStyle.TOGETHER) {
             content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p>`;
+            content += `<p><span class='fw-semibold'>Дата первого посещения:</span> ${date_of_first_visit ? date_of_first_visit : 'Не указана'}</p>`
+            content += `<p><span class='fw-semibold'>Всего посещений: ${number_of_visits}</span></p><hr>${linkToAddAgain}`;
         } else if (marker_style === MarkerStyle.NOT_VISITED) {
             content += `<p>Вы не были в этом городе</p><hr>${linkToAdd}`;
         } else {
-            content += `<p><span class='fw-semibold'>Дата посещения:</span> ${date_of_visit ? date_of_visit : 'Не указана'}</p>`
+            content += `<p><span class='fw-semibold'>Дата первого посещения:</span> ${date_of_first_visit ? date_of_first_visit : 'Не указана'}</p>`;
+            content += `<p><span class='fw-semibold'>Всего посещений:</span> ${number_of_visits}</p><hr>${linkToAddAgain}`;
         }
         marker.bindPopup(content);
 

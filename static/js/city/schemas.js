@@ -5,7 +5,8 @@ export class City {
     lat;
     lon;
     year_of_visit;
-    date_of_visit;
+    date_of_first_visit;
+    number_of_visits;
 }
 
 export const MarkerStyle = {

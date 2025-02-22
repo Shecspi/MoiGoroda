@@ -83,7 +83,7 @@ def get_all_visited_cities(user_ids: Sequence[int]) -> QuerySet[VisitedCity]:
     )
 
     # Подзапрос для получения даты первого посещения города пользователем
-    first_visit_date_subquery = (
+    date_of_first_visit_subquery = (
         VisitedCity.objects.filter(user_id__in=user_ids, city_id=OuterRef('city_id'))
         .values('city_id')  # Группировка по городу
         .annotate(first_date=Min('date_of_visit'))  # Минимальная дата посещения
@@ -102,7 +102,7 @@ def get_all_visited_cities(user_ids: Sequence[int]) -> QuerySet[VisitedCity]:
         VisitedCity.objects.select_related('city', 'city__region', 'user')
         .annotate(
             number_of_visits=Subquery(city_visits_subquery),
-            first_date_of_visit=Subquery(first_visit_date_subquery),
+            date_of_first_visit=Subquery(date_of_first_visit_subquery),
             average_rating=Round((Subquery(average_rating_subquery) * 2), 0)
             / 2,  # Округление до 0.5
         )

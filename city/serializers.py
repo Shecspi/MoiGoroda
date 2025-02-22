@@ -12,7 +12,6 @@ Licensed under the Apache License, Version 2.0
 from rest_framework import serializers
 
 from city.models import VisitedCity, City
-from services import logger
 
 
 class VisitedCitySerializer(serializers.ModelSerializer):
@@ -25,7 +24,7 @@ class VisitedCitySerializer(serializers.ModelSerializer):
     lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
     year = serializers.SerializerMethodField()
     number_of_visits = serializers.IntegerField(read_only=True)
-    first_date_of_visit = serializers.CharField(read_only=True)
+    date_of_first_visit = serializers.CharField(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
 
     def get_year(self, obj) -> int | None:
@@ -45,7 +44,7 @@ class VisitedCitySerializer(serializers.ModelSerializer):
             'lon',
             'year',
             'number_of_visits',
-            'first_date_of_visit',
+            'date_of_first_visit',
             'average_rating',
         )
 
@@ -82,13 +81,12 @@ class AddVisitedCitySerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        return VisitedCity.objects.create(**validated_data)
+        user = self.context['request'].user
+        city = validated_data['city']
 
-    def validate_city(self, city):
-        if VisitedCity.objects.filter(city=city, user=self.context['request'].user.pk).exists():
-            logger.info(
-                self.context['request'],
-                '(API: Add visited city) An attempt to add a visited city that is already in the DB',
-            )
-            raise serializers.ValidationError(f'Город {city} уже добавлен.')
-        return city
+        # Проверяем, существует ли запись с этим пользователем и городом
+        exists = VisitedCity.objects.filter(city=city, user=user).exists()
+
+        validated_data['is_first_visit'] = not exists  # Если запись есть, ставим False, иначе True
+
+        return VisitedCity.objects.create(**validated_data)

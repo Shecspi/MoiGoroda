@@ -29,18 +29,22 @@
             <!-- ^^^ Название города -->
         </div>
 
-        <div class="card-footer my-2" style="background: none; border-top: none;">
-            <!-- Дата посещения -->
+        <div class="card-footer" style="background: none; border-top: none;">
+            <!-- Дата первого посещения -->
             <div id="subsection-city-date_of_visit_{{ forloop.counter }}">
-                <small class="text-muted">
-                    {% if city.date_of_visit %}
-                        {{ city.date_of_visit }}
-                    {% else %}
+                {% if city.date_of_first_visit %}
+                    <small class="text-muted"
+                           data-bs-toggle="tooltip"
+                           data-bs-title="Дата первого посещения города {{ city.title }}">
+                        {{ city.date_of_first_visit }}
+                    </small>
+                {% else %}
+                    <small class="text-muted">
                         Дата посещения не указана
-                    {% endif %}
-                </small>
+                    </small>
+                {% endif %}
             </div>
-            <!-- ^^^ Дата посещения -->
+            <!-- ^^^ Дата первого посещения -->
 
             <!-- Население -->
             <div id="subsection-city-population_{{ forloop.counter }}">
@@ -67,10 +71,11 @@
             <!-- ^^^ Год основания -->
 
             {% if city.is_visited %}
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between mt-2">
                     <!-- Рейтинг -->
                     <div id="subsection-city-rating_{{ forloop.counter }}">
-                        <small>
+                        <small data-bs-toggle="tooltip"
+                               data-bs-title="Средний рейтинг на основе всех Ваших оценок для города {{ city.title }}">
                             {% for i in '12345'|make_list %}
                                 {% if forloop.counter <= city.rating %}
                                     <i class="fa-solid fa-star" style="color: #ffc43c;"></i>

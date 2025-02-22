@@ -75,9 +75,9 @@ class CitiesByRegionMixin:
             case 'magnet':
                 queryset = queryset.filter(has_magnet=False)
             case 'current_year':
-                queryset = queryset.filter(date_of_visit__year=datetime.now().year)
+                queryset = queryset.filter(date_of_first_visit__year=datetime.now().year)
             case 'last_year':
-                queryset = queryset.filter(date_of_visit__year=datetime.now().year - 1)
+                queryset = queryset.filter(date_of_first_visit__year=datetime.now().year - 1)
             case _:
                 raise KeyError
 
@@ -106,15 +106,15 @@ class CitiesByRegionMixin:
                 queryset = queryset.order_by('-title')
             case 'date_down':
                 queryset = queryset.order_by(
-                    '-is_visited', F('date_of_visit').asc(nulls_first=True)
+                    '-is_visited', F('date_of_first_visit').asc(nulls_first=True)
                 )
             case 'date_up':
                 queryset = queryset.order_by(
-                    '-is_visited', F('date_of_visit').desc(nulls_last=True)
+                    '-is_visited', F('date_of_first_visit').desc(nulls_last=True)
                 )
             case 'default_auth':
                 queryset = queryset.order_by(
-                    '-is_visited', F('date_of_visit').desc(nulls_last=True), 'title'
+                    '-is_visited', F('date_of_first_visit').desc(nulls_last=True), 'title'
                 )
             case 'default_guest':
                 queryset = queryset.order_by('title')

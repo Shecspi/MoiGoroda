@@ -18,7 +18,7 @@ from datetime import datetime
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Exists, OuterRef, Subquery, Value
+from django.db.models import Count, Exists, OuterRef, Subquery, Value, Avg, Min
 from django.db.models import QuerySet, BooleanField, DateField, IntegerField
 
 from MoiGoroda import settings
@@ -127,7 +127,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
     Фильтрация городов передаётся через GET-параметр `filter` и может принимать одно из следующих значений:
         * `magnet` - наличие сувенира из города
         * `current_year` - посещённые в текущем году
-        * `last_yesr` - посещённые в прошлом году
+        * `last_year` - посещённые в прошлом году
 
     Фильтрация городов передаётся через GET-параметр `sort` и может принимать одно из следующих значений:
         * `name_down` - по возрастанию имени
@@ -191,7 +191,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             * `date_of_foundation` - дата основания города
             * `coordinate_width` - широта
             * `coordinate_longitude` - долгота
-            * `is_visited` - True,если город посещён
+            * `is_visited` - True, если город посещён
             * `date_of_visit` - дата посещения
 
             Для авторизованных пользователей доступны дополнительные поля:
@@ -200,34 +200,53 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             * `rating` - рейтинг от 1 до 5
         """
         if self.request.user.is_authenticated:
+            # Подзапрос для вычисления среднего рейтинга посещений города пользователем
+            average_rating_subquery = (
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+                .values('city_id')  # Группировка по городу
+                .annotate(avg_rating=Avg('rating'))  # Вычисление среднего рейтинга
+                .values('avg_rating')  # Передаем только рейтинг,
+            )
+
+            # Подзапрос для получения даты первого посещения города пользователем
+            date_of_first_visit_subquery = (
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+                .values('city_id')  # Группировка по городу
+                .annotate(first_date=Min('date_of_visit'))  # Минимальная дата посещения
+                .values('first_date')  # Передаем только дату
+            )
+
             queryset = (
                 City.objects.filter(region=self.region_id)
                 .annotate(
                     is_visited=Exists(
                         VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
                     ),
+                    visit_count=Subquery(
+                        VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+                        .values('city')
+                        .annotate(count=Count('id'))
+                        .values('count'),
+                        output_field=IntegerField(),
+                    ),
                     visited_id=Subquery(
                         VisitedCity.objects.filter(
                             city_id=OuterRef('pk'), user=self.request.user
-                        ).values('id'),
+                        ).values('id')[:1],
                         output_field=IntegerField(),
                     ),
-                    date_of_visit=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('date_of_visit'),
+                    date_of_first_visit=Subquery(
+                        date_of_first_visit_subquery,
                         output_field=DateField(),
                     ),
-                    has_magnet=Subquery(
+                    has_magnet=Exists(
                         VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('has_magnet'),
+                            city_id=OuterRef('pk'), user=self.request.user, has_magnet=True
+                        ),
                         output_field=BooleanField(),
                     ),
                     rating=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('rating'),
+                        average_rating_subquery,
                         output_field=IntegerField(),
                     ),
                 )
@@ -239,8 +258,9 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
                     'coordinate_width',
                     'coordinate_longitude',
                     'is_visited',
+                    'visit_count',
                     'visited_id',
-                    'date_of_visit',
+                    'date_of_first_visit',
                     'has_magnet',
                     'rating',
                 )
@@ -248,16 +268,16 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             self.total_qty_of_cities = queryset.count()
             self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
             self.qty_of_visited_cities_current_year = queryset.filter(
-                is_visited=True, date_of_visit__year=datetime.now().year
+                is_visited=True, date_of_first_visit__year=datetime.now().year
             ).count()
         else:
-            # Если пользователь не авторизован, то поля `is_visited` и `date_of_visit` всё-равно нужны.
+            # Если пользователь не авторизован, то поля `is_visited` и `date_of_first_visit` всё-равно нужны.
             # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
-            # `date_of_visit` для сортировки. В данном случае сортировка по этому полю не принесёт никакого эффекта,
+            # `date_of_first_visit` для сортировки. В данном случае сортировка по этому полю не принесёт никакого эффекта,
             # но в коде это заложено, поэтому поле нужно.
             queryset = (
                 City.objects.filter(region=self.region_id)
-                .annotate(is_visited=Value(False), date_of_visit=Value(0))
+                .annotate(is_visited=Value(False), date_of_first_visit=Value(0))
                 .values(
                     'id',
                     'title',

@@ -84,13 +84,18 @@ def get_all_cities_in_region(
     )
 
     queryset = City.objects.filter(region_id=region_id).annotate(
+        # Все даты посещения города (или только за указанный год).
+        # Сортируются по возрастанию. Поэтому для получения первого посещения
+        # в шаблоне можно использовать фильтр |first, а для последнего - |last.
         visit_dates=ArrayAgg(
             'visitedcity__date_of_visit',
             filter=Q(visitedcity__user=user),
             distinct=True,
             ordering='visitedcity__date_of_visit',
         ),
+        # Посещён ли город. True или False
         is_visited=is_visited,
+        # Имеется ли сувенир из города. True или False
         has_magnet=has_magnet,
     )
 
@@ -99,8 +104,6 @@ def get_all_cities_in_region(
             queryset = apply_filter_to_queryset(queryset, user, filter)
         except KeyError:
             logger.warning(request, f"(Region) Unexpected value of the filter '{filter}'")
-
-    print(queryset[0].visit_dates)
 
     queryset = (
         # Достаём все города региона, в том числе не посещённые
@@ -132,7 +135,6 @@ def get_all_cities_in_region(
             'rating',
         )
     )
-    print(queryset[0])
 
     return queryset
 
@@ -140,6 +142,19 @@ def get_all_cities_in_region(
 def apply_filter_to_queryset(
     queryset: QuerySet[City], user: AbstractBaseUser, filter: str
 ) -> QuerySet[City]:
+    """
+    Оставляет в queryset только значения, удовлетворяющие фильтру filter.
+
+    На данный момент поддерживается 3 фильтра:
+        - magnet - оставляет только города, из которых нет сувенира
+        - current_year - оставляет только города, посещённые в текущем году
+          (если есть хотя бы одна дата посещения в текущем году)
+        - last_year - оставляет только города, посещённые в прошлом году
+          (если есть хотя бы одна дата посещения в прошлом году)
+
+    Фильтры current_year и last_year модифицируют поле visit_dates,
+    оставляя в нём только даты посещения за указанный год.
+    """
     current_year = datetime.today().year
     previous_year = current_year - 1
 

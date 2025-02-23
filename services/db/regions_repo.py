@@ -130,7 +130,7 @@ def get_all_cities_in_region(
             'coordinate_width',
             'coordinate_longitude',
             'is_visited',
-            'visit_count',
+            'number_of_visits',
             'visited_id',
             'visit_dates',
             'has_magnet',

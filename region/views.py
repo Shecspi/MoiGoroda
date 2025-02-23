@@ -206,7 +206,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
                 filter=self.filter,
             )
 
-            self.total_qty_of_cities = queryset.count()
+            self.total_qty_of_cities = City.objects.filter(region_id=self.region_id).count()
             self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
         else:
             # Если пользователь не авторизован, то поля `is_visited` и `date_of_first_visit` всё-равно нужны.

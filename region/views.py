@@ -13,19 +13,17 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from datetime import datetime
-
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Exists, OuterRef, Subquery, Value, Avg, Min
-from django.db.models import QuerySet, BooleanField, DateField, IntegerField
+from django.db.models import Count, Value
+from django.db.models import QuerySet
 
 from MoiGoroda import settings
 from region.models import Region
 from city.models import VisitedCity, City
 from services import logger
-from services.db.regions_repo import get_all_visited_regions
+from services.db.regions_repo import get_all_visited_regions, get_all_cities_in_region
 from utils.RegionListMixin import RegionListMixin
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
 
@@ -157,7 +155,6 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         self.filter: str = ''
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
-        self.qty_of_visited_cities_current_year: int = 0
 
         self.list_or_map = list_or_map
 
@@ -200,76 +197,17 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             * `rating` - рейтинг от 1 до 5
         """
         if self.request.user.is_authenticated:
-            # Подзапрос для вычисления среднего рейтинга посещений города пользователем
-            average_rating_subquery = (
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-                .values('city_id')  # Группировка по городу
-                .annotate(avg_rating=Avg('rating'))  # Вычисление среднего рейтинга
-                .values('avg_rating')  # Передаем только рейтинг,
+            self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
+
+            queryset = get_all_cities_in_region(
+                request=self.request,
+                user=self.request.user,
+                region_id=self.region_id,
+                filter=self.filter,
             )
 
-            # Подзапрос для получения даты первого посещения города пользователем
-            date_of_first_visit_subquery = (
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-                .values('city_id')  # Группировка по городу
-                .annotate(first_date=Min('date_of_visit'))  # Минимальная дата посещения
-                .values('first_date')  # Передаем только дату
-            )
-
-            queryset = (
-                City.objects.filter(region=self.region_id)
-                .annotate(
-                    is_visited=Exists(
-                        VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-                    ),
-                    visit_count=Subquery(
-                        VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-                        .values('city')
-                        .annotate(count=Count('id'))
-                        .values('count'),
-                        output_field=IntegerField(),
-                    ),
-                    visited_id=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('id')[:1],
-                        output_field=IntegerField(),
-                    ),
-                    date_of_first_visit=Subquery(
-                        date_of_first_visit_subquery,
-                        output_field=DateField(),
-                    ),
-                    has_magnet=Exists(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user, has_magnet=True
-                        ),
-                        output_field=BooleanField(),
-                    ),
-                    rating=Subquery(
-                        average_rating_subquery,
-                        output_field=IntegerField(),
-                    ),
-                )
-                .values(
-                    'id',
-                    'title',
-                    'population',
-                    'date_of_foundation',
-                    'coordinate_width',
-                    'coordinate_longitude',
-                    'is_visited',
-                    'visit_count',
-                    'visited_id',
-                    'date_of_first_visit',
-                    'has_magnet',
-                    'rating',
-                )
-            )
             self.total_qty_of_cities = queryset.count()
             self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
-            self.qty_of_visited_cities_current_year = queryset.filter(
-                is_visited=True, date_of_first_visit__year=datetime.now().year
-            ).count()
         else:
             # Если пользователь не авторизован, то поля `is_visited` и `date_of_first_visit` всё-равно нужны.
             # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
@@ -277,7 +215,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             # но в коде это заложено, поэтому поле нужно.
             queryset = (
                 City.objects.filter(region=self.region_id)
-                .annotate(is_visited=Value(False), date_of_first_visit=Value(0))
+                .annotate(is_visited=Value(False))
                 .values(
                     'id',
                     'title',
@@ -311,17 +249,17 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         self.all_cities = queryset
 
         # Определяем фильтрацию
-        if self.request.user.is_authenticated:
-            self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
-            if self.filter:
-                try:
-                    queryset = self.apply_filter_to_queryset(queryset, self.filter)
-                except KeyError:
-                    logger.warning(
-                        self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
-                    )
-                else:
-                    logger.info(self.request, f"(Region) Using the filter '{self.filter}'")
+        # if self.request.user.is_authenticated:
+        #     self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
+        #     if self.filter:
+        #         try:
+        #             queryset = self.apply_filter_to_queryset(queryset, self.filter)
+        #         except KeyError:
+        #             logger.warning(
+        #                 self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
+        #             )
+        #         else:
+        #             logger.info(self.request, f"(Region) Using the filter '{self.filter}'")
 
         # Для авторизованных пользователей определяем тип сортировки.
         # Сортировка для неавторизованного пользователя недоступна - она выставляется в значение `default_guest`.
@@ -358,7 +296,6 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
 
         context['total_qty_of_cities'] = self.total_qty_of_cities
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
-        context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
         context['declension_of_visited_cities'] = self.declension_of_city(
             self.qty_of_visited_cities
         )

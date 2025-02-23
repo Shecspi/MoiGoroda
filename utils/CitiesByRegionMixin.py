@@ -9,9 +9,9 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from datetime import datetime
-
-from django.db.models import QuerySet, F
+from django.db.models import (
+    QuerySet,
+)
 
 
 class CitiesByRegionMixin:
@@ -48,7 +48,7 @@ class CitiesByRegionMixin:
     def get_url_params(filter_value: str | None, sort_value: str | None) -> str | None:
         """
         Возвращает строку, пригодную для использования в URL-адресе после знака '?' с параметрами 'filter' и 'sort'
-        @param filter_value: Значение фльтра, может быть пустой строкой.
+        @param filter_value: Значение фильтра, может быть пустой строкой.
         @param sort_value: Значение сортировки, может быть пустой строкой
         """
         url_params = []
@@ -70,20 +70,6 @@ class CitiesByRegionMixin:
         return '&'.join(url_params)
 
     @staticmethod
-    def apply_filter_to_queryset(queryset: QuerySet, filter_value: str) -> QuerySet:
-        match filter_value:
-            case 'magnet':
-                queryset = queryset.filter(has_magnet=False)
-            case 'current_year':
-                queryset = queryset.filter(date_of_first_visit__year=datetime.now().year)
-            case 'last_year':
-                queryset = queryset.filter(date_of_first_visit__year=datetime.now().year - 1)
-            case _:
-                raise KeyError
-
-        return queryset
-
-    @staticmethod
     def apply_sort_to_queryset(queryset: QuerySet, sort_value: str) -> QuerySet:
         """
         Производит сортировку QuerySet на основе данных в 'sort_value'.
@@ -99,26 +85,26 @@ class CitiesByRegionMixin:
                 - 'default_guest' - по-умолчанию для неавторизованного пользователя на странице "Города региона"
         @return: Отсортированный QuerySet или KeyError, если передан некорректный параметр `sort_value`.
         """
-        match sort_value:
-            case 'name_down':
-                queryset = queryset.order_by('title')
-            case 'name_up':
-                queryset = queryset.order_by('-title')
-            case 'date_down':
-                queryset = queryset.order_by(
-                    '-is_visited', F('date_of_first_visit').asc(nulls_first=True)
-                )
-            case 'date_up':
-                queryset = queryset.order_by(
-                    '-is_visited', F('date_of_first_visit').desc(nulls_last=True)
-                )
-            case 'default_auth':
-                queryset = queryset.order_by(
-                    '-is_visited', F('date_of_first_visit').desc(nulls_last=True), 'title'
-                )
-            case 'default_guest':
-                queryset = queryset.order_by('title')
-            case _:
-                raise KeyError
+        # match sort_value:
+        #     case 'name_down':
+        #         queryset = queryset.order_by('title')
+        #     case 'name_up':
+        #         queryset = queryset.order_by('-title')
+        #     case 'date_down':
+        #         queryset = queryset.order_by(
+        #             '-is_visited', F('date_of_first_visit').asc(nulls_first=True)
+        #         )
+        #     case 'date_up':
+        #         queryset = queryset.order_by(
+        #             '-is_visited', F('date_of_first_visit').desc(nulls_last=True)
+        #         )
+        #     case 'default_auth':
+        #         queryset = queryset.order_by(
+        #             '-is_visited', F('date_of_first_visit').desc(nulls_last=True), 'title'
+        #         )
+        #     case 'default_guest':
+        #         queryset = queryset.order_by('title')
+        #     case _:
+        #         raise KeyError
 
         return queryset

@@ -32,11 +32,11 @@
         <div class="card-footer" style="background: none; border-top: none;">
             <!-- Дата первого посещения -->
             <div id="subsection-city-date_of_visit_{{ forloop.counter }}">
-                {% if city.date_of_first_visit %}
+                {% if city.visit_dates %}
                     <small class="text-muted"
                            data-bs-toggle="tooltip"
                            data-bs-title="Дата первого посещения города {{ city.title }}">
-                        {{ city.date_of_first_visit }}
+                        {{ city.visit_dates|first }}
                     </small>
                 {% else %}
                     <small class="text-muted">

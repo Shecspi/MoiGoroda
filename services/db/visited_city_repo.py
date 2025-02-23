@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Literal, Sequence
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet, F, Case, When, Value, Count, Min, OuterRef, Avg, Subquery
+from django.db.models import QuerySet, F, Case, When, Value, Count, OuterRef, Avg, Subquery
 from django.db.models.functions import Round
 
 from city.models import VisitedCity, City
@@ -80,14 +80,6 @@ def get_all_visited_cities(user_ids: Sequence[int]) -> QuerySet[VisitedCity]:
         .values('city_id')  # Группировка по городу
         .annotate(count=Count('*'))  # Подсчет записей (число посещений)
         .values('count')  # Передаем только поле count
-    )
-
-    # Подзапрос для получения даты первого посещения города пользователем
-    date_of_first_visit_subquery = (
-        VisitedCity.objects.filter(user_id__in=user_ids, city_id=OuterRef('city_id'))
-        .values('city_id')  # Группировка по городу
-        .annotate(first_date=Min('date_of_visit'))  # Минимальная дата посещения
-        .values('first_date')  # Передаем только дату
     )
 
     # Подзапрос для вычисления среднего рейтинга посещений города пользователем

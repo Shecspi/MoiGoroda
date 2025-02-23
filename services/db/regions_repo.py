@@ -22,12 +22,20 @@ from django.db.models import (
     Exists,
     Subquery,
     IntegerField,
+    Func,
 )
 from django.http import HttpRequest
 
 from city.models import City, VisitedCity
 from region.models import Region
 from services import logger
+
+
+class ArrayLength(Func):
+    """Функция для подсчёта количества элементов в массив PostgreSQL"""
+
+    function = 'CARDINALITY'
+    output_field = IntegerField()
 
 
 def get_all_visited_regions(user_id: int) -> QuerySet[Region]:
@@ -58,15 +66,6 @@ def get_all_cities_in_region(
         .values('avg_rating')  # Передаем только рейтинг,
     )
 
-    date_of_visit = VisitedCity.objects.filter(city_id=OuterRef('pk'), user=user)
-
-    # Подзапрос для получения всех дат посещения города (нужно для фильтрации по годам)
-    all_visit_dates = ArrayAgg(
-        'visitedcity__date_of_visit',
-        filter=Q(visitedcity__user=user),
-        distinct=True,
-    )
-
     # Посещён ли город?
     is_visited = Exists(VisitedCity.objects.filter(city_id=OuterRef('pk'), user=user))
 
@@ -93,6 +92,13 @@ def get_all_cities_in_region(
             distinct=True,
             ordering='visitedcity__date_of_visit',
         ),
+        # Количество посещений
+        # Необходимо считать отдельно, так как может быть не указана дата посещения,
+        # а, значит, просто посмотреть количество элементов в visit_dates не получится.
+        number_of_visits=Subquery(
+            visit_count,
+            output_field=IntegerField(),
+        ),
         # Посещён ли город. True или False
         is_visited=is_visited,
         # Имеется ли сувенир из города. True или False
@@ -108,10 +114,6 @@ def get_all_cities_in_region(
     queryset = (
         # Достаём все города региона, в том числе не посещённые
         queryset.annotate(
-            visit_count=Subquery(
-                visit_count,
-                output_field=IntegerField(),
-            ),
             visited_id=Subquery(
                 VisitedCity.objects.filter(city_id=OuterRef('pk'), user=user).values('id')[:1],
                 output_field=IntegerField(),
@@ -154,6 +156,7 @@ def apply_filter_to_queryset(
 
     Фильтры current_year и last_year модифицируют поле visit_dates,
     оставляя в нём только даты посещения за указанный год.
+    Также обновляет значение поля number_of_visits, учитывая только посещения за указанный год.
     """
     current_year = datetime.today().year
     previous_year = current_year - 1
@@ -162,25 +165,35 @@ def apply_filter_to_queryset(
         case 'magnet':
             queryset = queryset.filter(has_magnet=False, is_visited=True)
         case 'current_year':
-            queryset = queryset.annotate(
-                visit_dates=ArrayAgg(
-                    'visitedcity__date_of_visit',
-                    filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=current_year),
-                    distinct=True,
-                    ordering='visitedcity__date_of_visit',
-                ),
-            ).exclude(Q(visit_dates=[]))
-        case 'last_year':
-            queryset = queryset.annotate(
-                visit_dates=ArrayAgg(
-                    'visitedcity__date_of_visit',
-                    filter=Q(
-                        visitedcity__user=user, visitedcity__date_of_visit__year=previous_year
+            queryset = (
+                queryset.annotate(
+                    visit_dates=ArrayAgg(
+                        'visitedcity__date_of_visit',
+                        filter=Q(
+                            visitedcity__user=user, visitedcity__date_of_visit__year=current_year
+                        ),
+                        distinct=True,
+                        ordering='visitedcity__date_of_visit',
                     ),
-                    distinct=True,
-                    ordering='visitedcity__date_of_visit',
-                ),
-            ).exclude(Q(visit_dates=[]))
+                )
+                .exclude(Q(visit_dates=[]))
+                .annotate(number_of_visits=ArrayLength('visit_dates'))
+            )
+        case 'last_year':
+            queryset = (
+                queryset.annotate(
+                    visit_dates=ArrayAgg(
+                        'visitedcity__date_of_visit',
+                        filter=Q(
+                            visitedcity__user=user, visitedcity__date_of_visit__year=previous_year
+                        ),
+                        distinct=True,
+                        ordering='visitedcity__date_of_visit',
+                    ),
+                )
+                .exclude(Q(visit_dates=[]))
+                .annotate(number_of_visits=ArrayLength('visit_dates'))
+            )
         case _:
             raise KeyError
 

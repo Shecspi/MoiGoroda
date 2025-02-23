@@ -5,7 +5,7 @@
     <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
         <div class="card-body">
             <!-- Название города -->
-            <div class="d-flex justify-content-between">
+            <div class="d-flex align-items-center justify-content-between">
                 <div class="align-self-center" data-bs-toggle="tooltip"
                      data-bs-title="Город {{ city.title }} {% if city.is_visited %}посещён{% else %}ещё не посещён{% endif %}">
                     {% if city.is_visited %}
@@ -14,6 +14,7 @@
                         <i class="fa-regular fa-circle-xmark text-danger fs-4"></i>
                     {% endif %}
                 </div>
+
                 <h4 id="subsection-city-title_{{ forloop.counter }}">
                     {% if city.is_visited %}
                         <a href="{% url 'city-selected' city.visited_id %}"
@@ -24,7 +25,16 @@
                         {{ city.title }}
                     {% endif %}
                 </h4>
-                <div></div>
+
+                <span class="badge bg-secondary-subtle text-secondary-emphasis"
+                      data-bs-toggle="tooltip"
+                      data-bs-title="Количество посещений города {{ city.title }}">
+                    {% if city.number_of_visits %}
+                        {{ city.number_of_visits }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </span>
             </div>
             <!-- ^^^ Название города -->
         </div>

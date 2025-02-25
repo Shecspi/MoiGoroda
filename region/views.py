@@ -23,7 +23,11 @@ from MoiGoroda import settings
 from region.models import Region
 from city.models import VisitedCity, City
 from services import logger
-from services.db.regions_repo import get_all_visited_regions, get_all_cities_in_region
+from services.db.regions_repo import (
+    get_all_visited_regions,
+    get_all_cities_in_region,
+    apply_sort_to_queryset,
+)
 from utils.RegionListMixin import RegionListMixin
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
 
@@ -197,7 +201,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             * `rating` - рейтинг от 1 до 5
         """
         if self.request.user.is_authenticated:
-            self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
+            self.filter = self.request.GET.get('filter')
 
             queryset = get_all_cities_in_region(
                 request=self.request,
@@ -248,19 +252,6 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
-        # Определяем фильтрацию
-        # if self.request.user.is_authenticated:
-        #     self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
-        #     if self.filter:
-        #         try:
-        #             queryset = self.apply_filter_to_queryset(queryset, self.filter)
-        #         except KeyError:
-        #             logger.warning(
-        #                 self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
-        #             )
-        #         else:
-        #             logger.info(self.request, f"(Region) Using the filter '{self.filter}'")
-
         # Для авторизованных пользователей определяем тип сортировки.
         # Сортировка для неавторизованного пользователя недоступна - она выставляется в значение `default_guest`.
         sort_default = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
@@ -269,12 +260,12 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
                 self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
             )
             try:
-                queryset = self.apply_sort_to_queryset(queryset, self.sort)
+                queryset = apply_sort_to_queryset(queryset, self.sort)
             except KeyError:
                 logger.warning(
                     self.request, f"(Region) Unexpected value of the sorting '{self.filter}'"
                 )
-                queryset = self.apply_sort_to_queryset(queryset, sort_default)
+                queryset = apply_sort_to_queryset(queryset, sort_default)
                 self.sort = ''
             else:
                 if self.sort != 'default_auth' and self.sort != 'default_guest':

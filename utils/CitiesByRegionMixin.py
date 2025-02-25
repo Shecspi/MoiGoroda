@@ -11,6 +11,7 @@ Licensed under the Apache License, Version 2.0
 
 from django.db.models import (
     QuerySet,
+    F,
 )
 
 
@@ -85,26 +86,26 @@ class CitiesByRegionMixin:
                 - 'default_guest' - по-умолчанию для неавторизованного пользователя на странице "Города региона"
         @return: Отсортированный QuerySet или KeyError, если передан некорректный параметр `sort_value`.
         """
-        # match sort_value:
-        #     case 'name_down':
-        #         queryset = queryset.order_by('title')
-        #     case 'name_up':
-        #         queryset = queryset.order_by('-title')
-        #     case 'date_down':
-        #         queryset = queryset.order_by(
-        #             '-is_visited', F('date_of_first_visit').asc(nulls_first=True)
-        #         )
-        #     case 'date_up':
-        #         queryset = queryset.order_by(
-        #             '-is_visited', F('date_of_first_visit').desc(nulls_last=True)
-        #         )
-        #     case 'default_auth':
-        #         queryset = queryset.order_by(
-        #             '-is_visited', F('date_of_first_visit').desc(nulls_last=True), 'title'
-        #         )
-        #     case 'default_guest':
-        #         queryset = queryset.order_by('title')
-        #     case _:
-        #         raise KeyError
+        match sort_value:
+            case 'name_down':
+                queryset = queryset.order_by('title')
+            case 'name_up':
+                queryset = queryset.order_by('-title')
+            case 'date_down':
+                queryset = queryset.order_by(
+                    '-is_visited', F('date_of_first_visit').asc(nulls_first=True)
+                )
+            case 'date_up':
+                queryset = queryset.order_by(
+                    '-is_visited', F('date_of_first_visit').desc(nulls_last=True)
+                )
+            case 'default_auth':
+                queryset = queryset.order_by(
+                    '-is_visited', F('date_of_first_visit').desc(nulls_last=True), 'title'
+                )
+            case 'default_guest':
+                queryset = queryset.order_by('title')
+            case _:
+                raise KeyError
 
         return queryset

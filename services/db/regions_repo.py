@@ -13,6 +13,7 @@ from datetime import datetime
 
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.contrib.postgres.fields import ArrayField
 from django.db.models import (
     QuerySet,
     Count,
@@ -23,7 +24,13 @@ from django.db.models import (
     Subquery,
     IntegerField,
     Func,
+    F,
+    DateField,
+    Value,
+    Min,
+    Max,
 )
+from django.db.models.functions import Coalesce
 from django.http import HttpRequest
 
 from city.models import City, VisitedCity
@@ -36,6 +43,11 @@ class ArrayLength(Func):
 
     function = 'CARDINALITY'
     output_field = IntegerField()
+
+
+class ArrayLastElement(Func):
+    function = 'ARRAY'
+    template = 'array(%(expressions)s)[array_length(%(expressions)s, 1) - 1]'
 
 
 def get_all_visited_regions(user_id: int) -> QuerySet[Region]:
@@ -86,12 +98,16 @@ def get_all_cities_in_region(
         # Все даты посещения города (или только за указанный год).
         # Сортируются по возрастанию. Поэтому для получения первого посещения
         # в шаблоне можно использовать фильтр |first, а для последнего - |last.
-        visit_dates=ArrayAgg(
-            'visitedcity__date_of_visit',
-            filter=Q(visitedcity__user=user),
-            distinct=True,
-            ordering='visitedcity__date_of_visit',
+        visit_dates=Coalesce(
+            ArrayAgg(
+                'visitedcity__date_of_visit',
+                filter=Q(visitedcity__user=user),
+                ordering=['visitedcity__date_of_visit'],
+            ),
+            Value([], output_field=ArrayField(DateField())),
         ),
+        first_visit_date=Min('visitedcity__date_of_visit', filter=Q(visitedcity__user=user)),
+        last_visit_date=Max('visitedcity__date_of_visit', filter=Q(visitedcity__user=user)),
         # Количество посещений
         # Необходимо считать отдельно, так как может быть не указана дата посещения,
         # а, значит, просто посмотреть количество элементов в visit_dates не получится.
@@ -133,10 +149,53 @@ def get_all_cities_in_region(
             'number_of_visits',
             'visited_id',
             'visit_dates',
+            'first_visit_date',
+            'last_visit_date',
             'has_magnet',
             'rating',
         )
     )
+
+    return queryset
+
+
+def apply_sort_to_queryset(queryset: QuerySet, sort_value: str) -> QuerySet:
+    """
+    Производит сортировку QuerySet на основе данных в 'sort_value'.
+
+    @param queryset: QuerySet, который необходимо отсортировать.
+    @param sort_value: Параметр, на основе которого происходит сортировка.
+        Может принимать одно из 6 значений:
+            - 'name_down' - по названию по возрастанию
+            - 'name_up' - по названию по убыванию
+            - 'date_down' - сначала недавно посещённые
+            - 'date_up'. - сначала давно посещённые
+            - 'default_auth' - по-умолчанию для авторизованного пользователя на странице "Города региона"
+            - 'default_guest' - по-умолчанию для неавторизованного пользователя на странице "Города региона"
+    @return: Отсортированный QuerySet или KeyError, если передан некорректный параметр `sort_value`.
+    """
+    match sort_value:
+        case 'name_down':
+            queryset = queryset.order_by('title')
+        case 'name_up':
+            queryset = queryset.order_by('-title')
+        case 'date_down':
+            queryset = queryset.order_by(
+                '-is_visited', F('date_of_first_visit').asc(nulls_first=True)
+            )
+        case 'date_up':
+            queryset = queryset.order_by(
+                '-is_visited', F('date_of_first_visit').desc(nulls_last=True)
+            )
+        case 'default_auth':
+            # queryset = queryset.order_by(
+            #     '-is_visited', F('date_of_first_visit').desc(nulls_last=True), 'title'
+            # )
+            ...
+        case 'default_guest':
+            queryset = queryset.order_by('title')
+        case _:
+            raise KeyError
 
     return queryset
 
@@ -156,7 +215,8 @@ def apply_filter_to_queryset(
 
     Фильтры current_year и last_year модифицируют поле visit_dates,
     оставляя в нём только даты посещения за указанный год.
-    Также обновляет значение поля number_of_visits, учитывая только посещения за указанный год.
+    Также обновляет значение полей number_of_visits, first_visit_date и last_visit_date
+    учитывая только посещения за указанный год.
     """
     current_year = datetime.today().year
     previous_year = current_year - 1
@@ -175,6 +235,18 @@ def apply_filter_to_queryset(
                         distinct=True,
                         ordering='visitedcity__date_of_visit',
                     ),
+                    first_visit_date=Min(
+                        'visitedcity__date_of_visit',
+                        filter=Q(
+                            visitedcity__user=user, visitedcity__date_of_visit__year=current_year
+                        ),
+                    ),
+                    last_visit_date=Max(
+                        'visitedcity__date_of_visit',
+                        filter=Q(
+                            visitedcity__user=user, visitedcity__date_of_visit__year=current_year
+                        ),
+                    ),
                 )
                 .exclude(Q(visit_dates=[]))
                 .annotate(number_of_visits=ArrayLength('visit_dates'))
@@ -189,6 +261,12 @@ def apply_filter_to_queryset(
                         ),
                         distinct=True,
                         ordering='visitedcity__date_of_visit',
+                    ),
+                    first_visit_date=Min(
+                        'visitedcity__date_of_visit', filter=Q(visitedcity__user=user)
+                    ),
+                    last_visit_date=Max(
+                        'visitedcity__date_of_visit', filter=Q(visitedcity__user=user)
                     ),
                 )
                 .exclude(Q(visit_dates=[]))

@@ -213,7 +213,7 @@ def apply_filter_to_queryset(
         - last_year - оставляет только города, посещённые в прошлом году
           (если есть хотя бы одна дата посещения в прошлом году)
 
-    Фильтры current_year и last_year модифицируют поле visit_dates,
+    Фильтры current_year и last_year модифицируют поле visit_dates оригинального queryset,
     оставляя в нём только даты посещения за указанный год.
     Также обновляет значение полей number_of_visits, first_visit_date и last_visit_date
     учитывая только посещения за указанный год.

@@ -5,15 +5,18 @@
     <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
         <div class="card-body">
             <!-- Название города -->
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="align-self-center" data-bs-toggle="tooltip"
-                     data-bs-title="Город {{ city.title }} {% if city.is_visited %}посещён{% else %}ещё не посещён{% endif %}">
+            <div class="d-flex align-items-center {% if user.is_authenticated %}justify-content-between{% else %}justify-content-center{% endif %}">
+                {% if user.is_authenticated %}
                     {% if city.is_visited %}
-                        <i class="fa-regular fa-square-check text-success fs-4"></i>
+                        <i class="fa-regular fa-square-check text-success fs-4"
+                           data-bs-toggle="tooltip"
+                           data-bs-title="Город {{ city.title }} посещён"></i>
                     {% else %}
-                        <i class="fa-regular fa-circle-xmark text-danger fs-4"></i>
+                        <i class="fa-regular fa-circle-xmark text-danger fs-4"
+                           data-bs-toggle="tooltip"
+                           data-bs-title="Город }ещё не посещён"></i>
                     {% endif %}
-                </div>
+                {% endif %}
 
                 <h4 id="subsection-city-title_{{ forloop.counter }}">
                     {% if city.is_visited %}
@@ -26,63 +29,67 @@
                     {% endif %}
                 </h4>
 
-                <span class="badge bg-secondary-subtle text-secondary-emphasis"
-                      data-bs-toggle="tooltip"
-                      data-bs-title="Количество посещений города {{ city.title }}">
-                    {% if city.number_of_visits %}
-                        {{ city.number_of_visits }}
-                    {% else %}
-                        0
-                    {% endif %}
-                </span>
+                {% if user.is_authenticated %}
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis"
+                          data-bs-toggle="tooltip"
+                          data-bs-title="Количество посещений города {{ city.title }}">
+                        {% if city.number_of_visits %}
+                            {{ city.number_of_visits }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </span>
+                {% endif %}
             </div>
             <!-- ^^^ Название города -->
 
-            <!-- Дата посещения -->
-            <div id="subsection-city-date_of_visit_{{ forloop.counter }}"
-                 class="d-flex flex-column justify-content-center align-items-center h-100">
-                {% if city.visit_dates %}
-                    {% if city.visit_dates|length == 1 %}
-                        <small class="text-muted"
-                               data-bs-toggle="tooltip"
-                               data-bs-title="Дата посещения города {{ city.title }}">
-                            {{ city.first_visit_date }}
-                        </small>
-                    {% elif city.visit_dates|length == 2 %}
-                        <small class="text-muted"
-                               data-bs-toggle="tooltip"
-                               data-bs-title="Дата первого посещения города {{ city.title }}">
-                            {{ city.first_visit_date }}
-                        </small>
-                        <small class="text-muted"
-                               data-bs-toggle="tooltip"
-                               data-bs-title="Дата последнего посещения города {{ city.title }}">
-                            {{ city.last_visit_date }}
-                        </small>
+            {% if user.is_authenticated %}
+                <!-- Дата посещения -->
+                <div id="subsection-city-date_of_visit_{{ forloop.counter }}"
+                     class="d-flex flex-column justify-content-center align-items-center h-100">
+                    {% if city.visit_dates %}
+                        {% if city.visit_dates|length == 1 %}
+                            <small class="text-muted"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-title="Дата посещения города {{ city.title }}">
+                                {{ city.first_visit_date }}
+                            </small>
+                        {% elif city.visit_dates|length == 2 %}
+                            <small class="text-muted"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-title="Дата первого посещения города {{ city.title }}">
+                                {{ city.first_visit_date }}
+                            </small>
+                            <small class="text-muted"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-title="Дата последнего посещения города {{ city.title }}">
+                                {{ city.last_visit_date }}
+                            </small>
+                        {% else %}
+                            <small class="text-muted"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-title="Дата первого посещения города {{ city.title }}">
+                                {{ city.first_visit_date }}
+                            </small>
+                            <small class="text-muted"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-title="Отображаются только даты первого и последнего посещений города {{ city.title }}. Остальные даты опущены.">
+                                …
+                            </small>
+                            <small class="text-muted"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-title="Дата последнего посещения города {{ city.title }}">
+                                {{ city.last_visit_date }}
+                            </small>
+                        {% endif %}
                     {% else %}
-                        <small class="text-muted"
-                               data-bs-toggle="tooltip"
-                               data-bs-title="Дата первого посещения города {{ city.title }}">
-                            {{ city.first_visit_date }}
-                        </small>
-                        <small class="text-muted"
-                               data-bs-toggle="tooltip"
-                               data-bs-title="Отображаются только даты первого и последнего посещений города {{ city.title }}. Остальные даты опущены.">
-                            …
-                        </small>
-                        <small class="text-muted"
-                               data-bs-toggle="tooltip"
-                               data-bs-title="Дата последнего посещения города {{ city.title }}">
-                            {{ city.last_visit_date }}
+                        <small class="text-muted">
+                            Дата посещения не указана
                         </small>
                     {% endif %}
-                {% else %}
-                    <small class="text-muted">
-                        Дата посещения не указана
-                    </small>
-                {% endif %}
-            </div>
-            <!-- ^^^ Дата посещения -->
+                </div>
+                <!-- ^^^ Дата посещения -->
+            {% endif %}
         </div>
 
         <div class="card-footer" style="background: none; border-top: none;">

@@ -26,8 +26,8 @@ from services import logger
 from services.db.regions_repo import (
     get_all_visited_regions,
     get_all_cities_in_region,
-    apply_sort_to_queryset,
 )
+from services.db.selected_region.sort import apply_sort_to_queryset
 from utils.RegionListMixin import RegionListMixin
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
 
@@ -253,12 +253,13 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         self.all_cities = queryset
 
         # Для авторизованных пользователей определяем тип сортировки.
-        # Сортировка для неавторизованного пользователя недоступна - она выставляется в значение `default_guest`.
-        sort_default = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
+        # Сортировка для неавторизованного пользователя недоступна - она выставляется в значение `name_down`.
+        sort_default = 'default_auth' if self.request.user.is_authenticated else 'name_down'
         if self.request.user.is_authenticated:
             self.sort = (
                 self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
             )
+
             try:
                 queryset = apply_sort_to_queryset(queryset, self.sort)
             except KeyError:
@@ -266,9 +267,9 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
                     self.request, f"(Region) Unexpected value of the sorting '{self.filter}'"
                 )
                 queryset = apply_sort_to_queryset(queryset, sort_default)
-                self.sort = ''
+                self.sort = 'name_down'
             else:
-                if self.sort != 'default_auth' and self.sort != 'default_guest':
+                if self.sort != 'default_auth' and self.sort != 'name_down':
                     logger.info(self.request, f"(Region) Using the sorting '{self.sort}'")
 
         return queryset
@@ -304,10 +305,18 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         context['url_for_filter_last_year'] = self.get_url_params(
             'last_year' if self.filter != 'last_year' else '', self.sort
         )
-        context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
-        context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
-        context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')
-        context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
+        context['url_for_sort_name_down'] = self.get_url_params(
+            self.filter, 'name_down' if self.sort != 'name_down' else ''
+        )
+        context['url_for_sort_name_up'] = self.get_url_params(
+            self.filter, 'name_up' if self.sort != 'name_up' else ''
+        )
+        context['url_for_sort_date_down'] = self.get_url_params(
+            self.filter, 'first_visit_date_down' if self.sort != 'first_visit_date_down' else ''
+        )
+        context['url_for_sort_date_up'] = self.get_url_params(
+            self.filter, 'first_visit_date_up' if self.sort != 'first_visit_date_up' else ''
+        )
 
         if self.list_or_map == 'list':
             context['page_title'] = f'{self.region_name} - Список городов региона'

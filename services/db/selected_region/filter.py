@@ -43,7 +43,7 @@ from city.models import City
 
 
 class ArrayLength(Func):
-    """Функция для подсчёта количества элементов в массив PostgreSQL"""
+    """Функция для подсчёта количества элементов в массиве PostgreSQL"""
 
     function = 'CARDINALITY'
     output_field = IntegerField()

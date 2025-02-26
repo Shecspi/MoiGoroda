@@ -21,7 +21,6 @@ from django.db.models import (
     Exists,
     Subquery,
     IntegerField,
-    F,
     DateField,
     Value,
     Min,
@@ -73,6 +72,8 @@ def get_all_cities_in_region(
     )
 
     # Подзапрос для вычисления количества посещений города
+    # Здесь это считается на основе количества записей в VisitedCity, так как они могут быть без даты посещения.
+    # А в фильтрах по годам считается на основе дат, так как посещение без даты не попадёт в этот фильтр.
     visit_count = (
         VisitedCity.objects.filter(city_id=OuterRef('pk'), user=user)
         .values('city')
@@ -141,46 +142,5 @@ def get_all_cities_in_region(
             'rating',
         )
     )
-
-    return queryset
-
-
-def apply_sort_to_queryset(queryset: QuerySet, sort_value: str) -> QuerySet:
-    """
-    Производит сортировку QuerySet на основе данных в 'sort_value'.
-
-    @param queryset: QuerySet, который необходимо отсортировать.
-    @param sort_value: Параметр, на основе которого происходит сортировка.
-        Может принимать одно из 6 значений:
-            - 'name_down' - по названию по возрастанию
-            - 'name_up' - по названию по убыванию
-            - 'date_down' - сначала недавно посещённые
-            - 'date_up'. - сначала давно посещённые
-            - 'default_auth' - по-умолчанию для авторизованного пользователя на странице "Города региона"
-            - 'default_guest' - по-умолчанию для неавторизованного пользователя на странице "Города региона"
-    @return: Отсортированный QuerySet или KeyError, если передан некорректный параметр `sort_value`.
-    """
-    match sort_value:
-        case 'name_down':
-            queryset = queryset.order_by('title')
-        case 'name_up':
-            queryset = queryset.order_by('-title')
-        case 'date_down':
-            queryset = queryset.order_by(
-                '-is_visited', F('date_of_first_visit').asc(nulls_first=True)
-            )
-        case 'date_up':
-            queryset = queryset.order_by(
-                '-is_visited', F('date_of_first_visit').desc(nulls_last=True)
-            )
-        case 'default_auth':
-            # queryset = queryset.order_by(
-            #     '-is_visited', F('date_of_first_visit').desc(nulls_last=True), 'title'
-            # )
-            ...
-        case 'default_guest':
-            queryset = queryset.order_by('title')
-        case _:
-            raise KeyError
 
     return queryset

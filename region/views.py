@@ -207,7 +207,7 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
                 request=self.request,
                 user=self.request.user,
                 region_id=self.region_id,
-                filter=self.filter,
+                filter_name=self.filter,
             )
 
             self.total_qty_of_cities = City.objects.filter(region_id=self.region_id).count()
@@ -292,8 +292,11 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         )
         context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_cities)
 
-        context['url_for_filter_magnet'] = self.get_url_params(
-            'magnet' if self.filter != 'magnet' else '', self.sort
+        context['url_for_filter_has_no_magnet'] = self.get_url_params(
+            'has_no_magnet' if self.filter != 'has_no_magnet' else '', self.sort
+        )
+        context['url_for_filter_has_magnet'] = self.get_url_params(
+            'has_magnet' if self.filter != 'has_magnet' else '', self.sort
         )
         context['url_for_filter_current_year'] = self.get_url_params(
             'current_year' if self.filter != 'current_year' else '', self.sort

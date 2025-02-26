@@ -9,8 +9,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from datetime import datetime
-
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
@@ -23,7 +21,6 @@ from django.db.models import (
     Exists,
     Subquery,
     IntegerField,
-    Func,
     F,
     DateField,
     Value,
@@ -36,18 +33,7 @@ from django.http import HttpRequest
 from city.models import City, VisitedCity
 from region.models import Region
 from services import logger
-
-
-class ArrayLength(Func):
-    """Функция для подсчёта количества элементов в массив PostgreSQL"""
-
-    function = 'CARDINALITY'
-    output_field = IntegerField()
-
-
-class ArrayLastElement(Func):
-    function = 'ARRAY'
-    template = 'array(%(expressions)s)[array_length(%(expressions)s, 1) - 1]'
+from services.db.selected_region.filter import apply_filter_to_queryset
 
 
 def get_all_visited_regions(user_id: int) -> QuerySet[Region]:
@@ -68,7 +54,7 @@ def get_all_cities_in_region(
     request: HttpRequest,
     user: AbstractBaseUser,
     region_id: int,
-    filter: str | None = None,
+    filter_name: str | None = None,
 ) -> QuerySet[City]:
     # Подзапрос для вычисления среднего рейтинга посещений города пользователем
     average_rating_subquery = (
@@ -121,11 +107,11 @@ def get_all_cities_in_region(
         has_magnet=has_magnet,
     )
 
-    if filter:
+    if filter_name:
         try:
-            queryset = apply_filter_to_queryset(queryset, user, filter)
+            queryset = apply_filter_to_queryset(queryset, user, filter_name)
         except KeyError:
-            logger.warning(request, f"(Region) Unexpected value of the filter '{filter}'")
+            logger.warning(request, f"(Region) Unexpected value of the filter '{filter_name}'")
 
     queryset = (
         # Достаём все города региона, в том числе не посещённые
@@ -194,84 +180,6 @@ def apply_sort_to_queryset(queryset: QuerySet, sort_value: str) -> QuerySet:
             ...
         case 'default_guest':
             queryset = queryset.order_by('title')
-        case _:
-            raise KeyError
-
-    return queryset
-
-
-def apply_filter_to_queryset(
-    queryset: QuerySet[City], user: AbstractBaseUser, filter: str
-) -> QuerySet[City]:
-    """
-    Оставляет в queryset только значения, удовлетворяющие фильтру filter.
-
-    На данный момент поддерживается 3 фильтра:
-        - magnet - оставляет только города, из которых нет сувенира
-        - current_year - оставляет только города, посещённые в текущем году
-          (если есть хотя бы одна дата посещения в текущем году)
-        - last_year - оставляет только города, посещённые в прошлом году
-          (если есть хотя бы одна дата посещения в прошлом году)
-
-    Фильтры current_year и last_year модифицируют поле visit_dates оригинального queryset,
-    оставляя в нём только даты посещения за указанный год.
-    Также обновляет значение полей number_of_visits, first_visit_date и last_visit_date
-    учитывая только посещения за указанный год.
-    """
-    current_year = datetime.today().year
-    previous_year = current_year - 1
-
-    match filter:
-        case 'magnet':
-            queryset = queryset.filter(has_magnet=False, is_visited=True)
-        case 'current_year':
-            queryset = (
-                queryset.annotate(
-                    visit_dates=ArrayAgg(
-                        'visitedcity__date_of_visit',
-                        filter=Q(
-                            visitedcity__user=user, visitedcity__date_of_visit__year=current_year
-                        ),
-                        distinct=True,
-                        ordering='visitedcity__date_of_visit',
-                    ),
-                    first_visit_date=Min(
-                        'visitedcity__date_of_visit',
-                        filter=Q(
-                            visitedcity__user=user, visitedcity__date_of_visit__year=current_year
-                        ),
-                    ),
-                    last_visit_date=Max(
-                        'visitedcity__date_of_visit',
-                        filter=Q(
-                            visitedcity__user=user, visitedcity__date_of_visit__year=current_year
-                        ),
-                    ),
-                )
-                .exclude(Q(visit_dates=[]))
-                .annotate(number_of_visits=ArrayLength('visit_dates'))
-            )
-        case 'last_year':
-            queryset = (
-                queryset.annotate(
-                    visit_dates=ArrayAgg(
-                        'visitedcity__date_of_visit',
-                        filter=Q(
-                            visitedcity__user=user, visitedcity__date_of_visit__year=previous_year
-                        ),
-                        distinct=True,
-                        ordering='visitedcity__date_of_visit',
-                    ),
-                    first_visit_date=Min(
-                        'visitedcity__date_of_visit', filter=Q(visitedcity__user=user)
-                    ),
-                    last_visit_date=Max(
-                        'visitedcity__date_of_visit', filter=Q(visitedcity__user=user)
-                    ),
-                )
-                .exclude(Q(visit_dates=[]))
-                .annotate(number_of_visits=ArrayLength('visit_dates'))
-            )
         case _:
             raise KeyError
 

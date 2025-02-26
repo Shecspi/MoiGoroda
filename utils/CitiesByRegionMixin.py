@@ -53,7 +53,7 @@ class CitiesByRegionMixin:
         @param sort_value: Значение сортировки, может быть пустой строкой
         """
         url_params = []
-        valid_filters = ['magnet', 'current_year', 'last_year']
+        valid_filters = ['has_magnet', 'has_no_magnet', 'current_year', 'last_year']
         valid_sorts = [
             'name_down',
             'name_up',

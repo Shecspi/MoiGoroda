@@ -29,8 +29,10 @@ from services.db.regions_repo import (
 )
 from services.db.selected_region.filter import apply_filter_to_queryset
 from services.db.selected_region.sort import apply_sort_to_queryset
+from services.url_params import make_url_params
+from services.word_modifications.city import modification__city
+from services.word_modifications.visited import modification__visited
 from utils.RegionListMixin import RegionListMixin
-from utils.CitiesByRegionMixin import CitiesByRegionMixin
 
 
 class RegionList(RegionListMixin, ListView):
@@ -123,7 +125,7 @@ class RegionList(RegionListMixin, ListView):
             ]
 
 
-class CitiesByRegionList(ListView, CitiesByRegionMixin):
+class CitiesByRegionList(ListView):
     """
     Представление для вывода списка или карты городов в конкретном регионе.
     Поддерживает фильтрацию, сортировку и переключение между картой и списком.
@@ -280,38 +282,38 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
                 'url_geo_polygons': settings.URL_GEO_POLYGONS,
                 'total_qty_of_cities': self.total_qty_of_cities,
                 'qty_of_visited_cities': self.qty_of_visited_cities,
-                'declension_of_visited_cities': self.declension_of_city(self.qty_of_visited_cities),
-                'declension_of_visited': self.declension_of_visited(self.qty_of_visited_cities),
-                'url_for_filter_has_no_magnet': self.get_url_params(
+                'declension_of_visited_cities': modification__city(self.qty_of_visited_cities),
+                'declension_of_visited': modification__visited(self.qty_of_visited_cities),
+                'url_for_filter_has_no_magnet': make_url_params(
                     'has_no_magnet' if self.filter != 'has_no_magnet' else '', self.sort
                 ),
-                'url_for_filter_has_magnet': self.get_url_params(
+                'url_for_filter_has_magnet': make_url_params(
                     'has_magnet' if self.filter != 'has_magnet' else '', self.sort
                 ),
-                'url_for_filter_current_year': self.get_url_params(
+                'url_for_filter_current_year': make_url_params(
                     'current_year' if self.filter != 'current_year' else '', self.sort
                 ),
-                'url_for_filter_last_year': self.get_url_params(
+                'url_for_filter_last_year': make_url_params(
                     'last_year' if self.filter != 'last_year' else '', self.sort
                 ),
-                'url_for_sort_name_down': self.get_url_params(
+                'url_for_sort_name_down': make_url_params(
                     self.filter, 'name_down' if self.sort != 'name_down' else ''
                 ),
-                'url_for_sort_name_up': self.get_url_params(
+                'url_for_sort_name_up': make_url_params(
                     self.filter, 'name_up' if self.sort != 'name_up' else ''
                 ),
-                'url_for_sort_date_down': self.get_url_params(
+                'url_for_sort_date_down': make_url_params(
                     self.filter,
                     'first_visit_date_down' if self.sort != 'first_visit_date_down' else '',
                 ),
-                'url_for_sort_date_up': self.get_url_params(
+                'url_for_sort_date_up': make_url_params(
                     self.filter, 'first_visit_date_up' if self.sort != 'first_visit_date_up' else ''
                 ),
-                'url_for_sort_last_visit_date_down': self.get_url_params(
+                'url_for_sort_last_visit_date_down': make_url_params(
                     self.filter,
                     'last_visit_date_down' if self.sort != 'last_visit_date_down' else '',
                 ),
-                'url_for_sort_last_visit_date_up': self.get_url_params(
+                'url_for_sort_last_visit_date_up': make_url_params(
                     self.filter, 'last_visit_date_up' if self.sort != 'last_visit_date_up' else ''
                 ),
             }

@@ -16,7 +16,7 @@ Licensed under the Apache License, Version 2.0
 from django.http import Http404
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Value
+from django.db.models import Count
 from django.db.models import QuerySet
 
 from MoiGoroda import settings
@@ -27,6 +27,7 @@ from services.db.regions_repo import (
     get_all_visited_regions,
     get_all_cities_in_region,
 )
+from services.db.selected_region.filter import apply_filter_to_queryset
 from services.db.selected_region.sort import apply_sort_to_queryset
 from utils.RegionListMixin import RegionListMixin
 from utils.CitiesByRegionMixin import CitiesByRegionMixin
@@ -201,34 +202,44 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
             * `rating` - рейтинг от 1 до 5
         """
         if self.request.user.is_authenticated:
-            self.filter = self.request.GET.get('filter')
+            queryset = get_all_cities_in_region(self.request.user, self.region_id)
 
-            queryset = get_all_cities_in_region(
-                request=self.request,
-                user=self.request.user,
-                region_id=self.region_id,
-                filter_name=self.filter,
+            self.filter = self.request.GET.get('filter')
+            if self.filter:
+                try:
+                    queryset = apply_filter_to_queryset(queryset, self.request.user, self.filter)
+                except KeyError:
+                    logger.warning(
+                        self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
+                    )
+
+            queryset = queryset.values(
+                'id',
+                'title',
+                'population',
+                'date_of_foundation',
+                'coordinate_width',
+                'coordinate_longitude',
+                'is_visited',
+                'number_of_visits',
+                'visited_id',
+                'visit_dates',
+                'first_visit_date',
+                'last_visit_date',
+                'has_magnet',
+                'rating',
             )
 
             self.total_qty_of_cities = City.objects.filter(region_id=self.region_id).count()
             self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
         else:
-            # Если пользователь не авторизован, то поля `is_visited` и `date_of_first_visit` всё-равно нужны.
-            # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
-            # `date_of_first_visit` для сортировки. В данном случае сортировка по этому полю не принесёт никакого эффекта,
-            # но в коде это заложено, поэтому поле нужно.
-            queryset = (
-                City.objects.filter(region=self.region_id)
-                .annotate(is_visited=Value(False))
-                .values(
-                    'id',
-                    'title',
-                    'population',
-                    'date_of_foundation',
-                    'coordinate_width',
-                    'coordinate_longitude',
-                    'is_visited',
-                )
+            queryset = City.objects.filter(region=self.region_id).values(
+                'id',
+                'title',
+                'population',
+                'date_of_foundation',
+                'coordinate_width',
+                'coordinate_longitude',
             )
             self.total_qty_of_cities = queryset.count()
 

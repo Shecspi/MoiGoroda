@@ -27,12 +27,9 @@ from django.db.models import (
     Max,
 )
 from django.db.models.functions import Coalesce
-from django.http import HttpRequest
 
 from city.models import City, VisitedCity
 from region.models import Region
-from services import logger
-from services.db.selected_region.filter import apply_filter_to_queryset
 
 
 def get_all_visited_regions(user_id: int) -> QuerySet[Region]:
@@ -50,10 +47,8 @@ def get_all_visited_regions(user_id: int) -> QuerySet[Region]:
 
 
 def get_all_cities_in_region(
-    request: HttpRequest,
     user: AbstractBaseUser,
     region_id: int,
-    filter_name: str | None = None,
 ) -> QuerySet[City]:
     # Подзапрос для вычисления среднего рейтинга посещений города пользователем
     average_rating_subquery = (
@@ -108,12 +103,6 @@ def get_all_cities_in_region(
         has_magnet=has_magnet,
     )
 
-    if filter_name:
-        try:
-            queryset = apply_filter_to_queryset(queryset, user, filter_name)
-        except KeyError:
-            logger.warning(request, f"(Region) Unexpected value of the filter '{filter_name}'")
-
     queryset = (
         # Достаём все города региона, в том числе не посещённые
         queryset.annotate(
@@ -125,21 +114,6 @@ def get_all_cities_in_region(
                 average_rating_subquery,
                 output_field=IntegerField(),
             ),
-        ).values(
-            'id',
-            'title',
-            'population',
-            'date_of_foundation',
-            'coordinate_width',
-            'coordinate_longitude',
-            'is_visited',
-            'number_of_visits',
-            'visited_id',
-            'visit_dates',
-            'first_visit_date',
-            'last_visit_date',
-            'has_magnet',
-            'rating',
         )
     )
 

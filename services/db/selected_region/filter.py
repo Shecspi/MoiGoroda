@@ -89,7 +89,7 @@ def filter_has_no_magnet(queryset: QuerySet[City], user: AbstractBaseUser) -> Qu
 def filter_current_year(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
     """
     Фильтр оставляет только города, посещённые в текущем году.
-    Также обновляет поля visit_dates, first_visit_date и last_visit_date,
+    Также обновляет поля visit_dates, first_visit_date, last_visit_date и number_of_visits,
     учитывая только посещения за текущий год.
     """
     current_year = datetime.today().year

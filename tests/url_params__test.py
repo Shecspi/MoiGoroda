@@ -25,6 +25,22 @@ def url_params_sort_is_none__test():
     assert make_url_params(sort_value=sort_value) == ''
 
 
+def url_params_filter_is_empty_string__test():
+    filter_value = ''
+    assert make_url_params(filter_value=filter_value) == ''
+
+
+def url_params_sort_is_empty_string__test():
+    sort_value = ''
+    assert make_url_params(sort_value=sort_value) == ''
+
+
+def url_params_filter_is_empty_string_and_sort_is_empty_string__test():
+    filter_value = ''
+    sort_value = ''
+    assert make_url_params(filter_value=filter_value, sort_value=sort_value) == ''
+
+
 def url_params_only_filter__test():
     filter_value = 'new'
     assert make_url_params(filter_value=filter_value) == f'filter={filter_value}'

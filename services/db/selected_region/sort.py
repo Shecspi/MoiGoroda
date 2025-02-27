@@ -15,6 +15,8 @@ def apply_sort_to_queryset(queryset: QuerySet[City], sort_name: str) -> QuerySet
         - 'name_up' — сортировка по названию от А до Я
         - 'first_visit_date_down' — сначала города с более поздней датой первого посещения
         - 'first_visit_date_up' — сначала города без указания даты, далее давно посещённые и в конце недавно посещённые
+        - 'last_visit_date_down' — сначала города с более поздней датой последнего посещения
+        - 'last_visit_date_up' — сначала города без указания даты, далее давно посещённые и в конце недавно посещённые
         - 'default_auth' — сортировка по умолчанию для авторизованных пользователей
     :return: Отсортированный QuerySet или KeyError, если передан некорректный параметр `sort_name`.
     """
@@ -36,13 +38,23 @@ def sort_by_name_down(queryset: QuerySet) -> QuerySet:
 
 
 def sort_by_first_visit_date_down(queryset: QuerySet) -> QuerySet:
-    """Cначала города с более поздней датой первого посещения"""
+    """Сначала города с более поздней датой первого посещения"""
     return queryset.order_by('-is_visited', F('first_visit_date').desc(nulls_last=True))
 
 
 def sort_by_first_visit_date_up(queryset: QuerySet) -> QuerySet:
-    """Cначала города без указания даты, далее давно посещённые и в конце недавно посещённые"""
+    """Сначала города без указания даты, далее давно посещённые и в конце недавно посещённые"""
     return queryset.order_by('-is_visited', F('first_visit_date').asc(nulls_first=True))
+
+
+def sort_by_last_visit_date_down(queryset: QuerySet) -> QuerySet:
+    """Сначала города с более поздней датой последнего посещения"""
+    return queryset.order_by('-is_visited', F('last_visit_date').desc(nulls_last=True))
+
+
+def sort_by_last_visit_date_up(queryset: QuerySet) -> QuerySet:
+    """Сначала города без указания даты, далее давно посещённые и в конце недавно посещённые"""
+    return queryset.order_by('-is_visited', F('last_visit_date').asc(nulls_first=True))
 
 
 def sort_default_auth(queryset: QuerySet) -> QuerySet:
@@ -55,5 +67,7 @@ SORT_FUNCTIONS: dict[str, Callable[[QuerySet[City]], QuerySet[City]]] = {
     'name_up': sort_by_name_up,
     'first_visit_date_down': sort_by_first_visit_date_down,
     'first_visit_date_up': sort_by_first_visit_date_up,
+    'last_visit_date_down': sort_by_last_visit_date_down,
+    'last_visit_date_up': sort_by_last_visit_date_up,
     'default_auth': sort_default_auth,
 }

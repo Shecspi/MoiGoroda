@@ -48,19 +48,10 @@ class CitiesByRegionMixin:
         @param sort_value: Значение сортировки, может быть пустой строкой
         """
         url_params = []
-        valid_filters = ['has_magnet', 'has_no_magnet', 'current_year', 'last_year']
-        valid_sorts = [
-            'name_down',
-            'name_up',
-            'first_visit_date_down',
-            'first_visit_date_up',
-            'default_auth',
-            'default_guest',
-        ]
 
-        if filter_value and filter_value in valid_filters:
+        if filter_value:
             url_params.append(f'filter={filter_value}')
-        if sort_value and sort_value in valid_sorts:
+        if sort_value:
             url_params.append(f'sort={sort_value}')
 
         return '&'.join(url_params)

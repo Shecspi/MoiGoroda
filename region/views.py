@@ -307,6 +307,13 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
                 'url_for_sort_date_up': self.get_url_params(
                     self.filter, 'first_visit_date_up' if self.sort != 'first_visit_date_up' else ''
                 ),
+                'url_for_sort_last_visit_date_down': self.get_url_params(
+                    self.filter,
+                    'last_visit_date_down' if self.sort != 'last_visit_date_down' else '',
+                ),
+                'url_for_sort_last_visit_date_up': self.get_url_params(
+                    self.filter, 'last_visit_date_up' if self.sort != 'last_visit_date_up' else ''
+                ),
             }
         )
 

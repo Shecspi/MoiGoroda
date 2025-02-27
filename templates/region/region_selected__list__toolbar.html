@@ -124,8 +124,8 @@
 
 {% if user.is_authenticated and qty_of_visited_cities > 0 %}
     <!-- Меню сортировки -->
-    <div         class="row mx-3 my-3 g-3 collapse" id="collapse-sorting">
-        <div class="col-xl-3" id="section-name_down">
+    <div class="row mx-3 my-3 g-3 collapse" id="collapse-sorting">
+        <div class="col-xl-2" id="section-name_down">
             <div class="card text-center shadow h-100">
                 <div class="card-body d-grid">
                     <a href="{% url 'region-selected-list' region_id %}?{{ url_for_sort_name_up }}"
@@ -136,7 +136,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3" id="section-name_up">
+        <div class="col-xl-2" id="section-name_up">
             <div class="card text-center shadow h-100">
                 <div class="card-body d-grid">
                     <a href="{% url 'region-selected-list' region_id %}?{{ url_for_sort_name_down }}"
@@ -147,7 +147,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3" id="section-date_down">
+        <div class="col-xl-2" id="section-date_down">
             <div class="card text-center shadow h-100">
                 <div class="card-body d-grid">
                     <a href="{% url 'region-selected-list' region_id %}?{{ url_for_sort_date_up }}"
@@ -158,13 +158,35 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3" id="section-date_up">
+        <div class="col-xl-2" id="section-date_up">
             <div class="card text-center shadow h-100">
                 <div class="card-body d-grid">
                     <a href="{% url 'region-selected-list' region_id %}?{{ url_for_sort_date_down }}"
                        class="d-block btn {% if sort == 'first_visit_date_down' %}btn-danger{% else %}btn-outline-danger{% endif %} align-self-center"
                        title="Сначала показать недавно посещённые">
                         <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;По дате первого посещения (убывание)
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2" id="section-date_down">
+            <div class="card text-center shadow h-100">
+                <div class="card-body d-grid">
+                    <a href="{% url 'region-selected-list' region_id %}?{{ url_for_sort_last_visit_date_up }}"
+                       class="d-block btn {% if sort == 'last_visit_date_up' %}btn-primary{% else %}btn-outline-primary{% endif %} align-self-center"
+                       title="Сначала показать давно посещённые">
+                        <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;По дате последнего посещения (возрастание)
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2" id="section-date_up">
+            <div class="card text-center shadow h-100">
+                <div class="card-body d-grid">
+                    <a href="{% url 'region-selected-list' region_id %}?{{ url_for_sort_last_visit_date_down }}"
+                       class="d-block btn {% if sort == 'last_visit_date_down' %}btn-danger{% else %}btn-outline-danger{% endif %} align-self-center"
+                       title="Сначала показать недавно посещённые">
+                        <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;По дате последнего посещения (убывание)
                     </a>
                 </div>
             </div>

@@ -7,6 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import pytest
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import QuerySet, Q, Min, Max
@@ -17,6 +18,8 @@ from services.db.selected_region.filter import (
     filter_current_year,
     ArrayLength,
     filter_last_year,
+    apply_filter_to_queryset,
+    FILTER_FUNCTIONS,
 )
 
 
@@ -246,3 +249,57 @@ def test__last_year_logic(mocker):
     mock_queryset.annotate.assert_called_once()
     call_kwargs = mock_queryset.annotate.call_args.kwargs
     assert call_kwargs['visit_dates'].filter == expected_filter_2024
+
+
+def test__apply_filter_calls_correct_function(mocker):
+    """
+    Проверяет вызов правильной функции фильтрации через apply_filter_to_queryset
+    """
+    mock_filter = mocker.Mock(return_value=QuerySet())
+    mock_queryset = mocker.Mock(spec=QuerySet)
+    mock_user = mocker.Mock(spec=AbstractBaseUser)
+
+    # Подменяем словарь фильтров
+    mocker.patch.dict(
+        'services.db.selected_region.filter.FILTER_FUNCTIONS',
+        {'test_filter': mock_filter},
+        clear=False,
+    )
+
+    result = apply_filter_to_queryset(mock_queryset, mock_user, 'test_filter')
+
+    mock_filter.assert_called_once_with(mock_queryset, mock_user)
+    assert result == mock_filter.return_value
+
+
+def test__apply_filter_raises_error_for_unknown_filter(mocker):
+    """
+    Проверяет вызов исключения для неизвестного фильтра
+    """
+    mock_filter = mocker.Mock(return_value=QuerySet())
+    mock_queryset = mocker.Mock(spec=QuerySet)
+    mock_user = mocker.Mock(spec=AbstractBaseUser)
+
+    with pytest.raises(KeyError) as exc:
+        apply_filter_to_queryset(mock_queryset, mock_user, 'invalid_filter')
+
+    assert 'Неизвестный фильтр: invalid_filter' in str(exc.value)
+
+
+@pytest.mark.parametrize('filter_name', FILTER_FUNCTIONS.keys())
+def test__all_registered_filters_are_called(mocker, filter_name):
+    """
+    Параметризованный тест для всех зарегистрированных фильтров
+    """
+    mock_filter = mocker.Mock(return_value=QuerySet())
+    mock_queryset = mocker.Mock(spec=QuerySet)
+    mock_user = mocker.Mock(spec=AbstractBaseUser)
+    mocker.patch.dict(
+        'services.db.selected_region.filter.FILTER_FUNCTIONS',
+        {filter_name: mock_filter},
+        clear=False,
+    )
+
+    apply_filter_to_queryset(mock_queryset, mock_user, filter_name)
+
+    mock_filter.assert_called_once()

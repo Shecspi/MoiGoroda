@@ -10,10 +10,25 @@ Licensed under the Apache License, Version 2.0
 """
 
 from datetime import datetime
-from typing import Literal, Sequence
+from typing import Literal
 
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet, F, Case, When, Value, Count, OuterRef, Avg, Subquery
+from django.db.models import (
+    QuerySet,
+    F,
+    Case,
+    When,
+    Value,
+    Count,
+    OuterRef,
+    Avg,
+    Exists,
+    Subquery,
+    IntegerField,
+    Min,
+    Max,
+)
 from django.db.models.functions import Round
 
 from city.models import VisitedCity, City
@@ -52,7 +67,7 @@ def get_visited_city(user_id: int, city_id: int) -> VisitedCity | Literal[False]
         return False
 
 
-def get_all_visited_cities(user_ids: Sequence[int]) -> QuerySet[VisitedCity]:
+def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     """
     Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.
     Возвращает Queryset, состоящий из полей:
@@ -76,7 +91,7 @@ def get_all_visited_cities(user_ids: Sequence[int]) -> QuerySet[VisitedCity]:
     """
     # Подзапрос для количества посещений города пользователем
     city_visits_subquery = (
-        VisitedCity.objects.filter(user_id__in=user_ids, city_id=OuterRef('city_id'))
+        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
         .values('city_id')  # Группировка по городу
         .annotate(count=Count('*'))  # Подсчет записей (число посещений)
         .values('count')  # Передаем только поле count
@@ -84,21 +99,53 @@ def get_all_visited_cities(user_ids: Sequence[int]) -> QuerySet[VisitedCity]:
 
     # Подзапрос для вычисления среднего рейтинга посещений города пользователем
     average_rating_subquery = (
-        VisitedCity.objects.filter(user_id__in=user_ids, city_id=OuterRef('city_id'))
+        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
         .values('city_id')  # Группировка по городу
         .annotate(avg_rating=Avg('rating'))  # Вычисление среднего рейтинга
         .values('avg_rating')  # Передаем только рейтинг
     )
 
+    # Есть ли сувенир из города?
+    has_magnet = Exists(
+        VisitedCity.objects.filter(city_id=OuterRef('pk'), user_id=user_id, has_magnet=True)
+    )
+
+    # Подзапрос для сбора всех дат посещений города
+    visit_dates_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(visit_dates=ArrayAgg('date_of_visit', distinct=False))
+        .values('visit_dates')
+    )
+
+    # Подзапрос для даты первого посещения (first_visit_date)
+    first_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(first_visit_date=Min('date_of_visit'))
+        .values('first_visit_date')
+    )
+
+    # Подзапрос для даты последнего посещения (first_visit_date)
+    last_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(first_visit_date=Max('date_of_visit'))
+        .values('first_visit_date')
+    )
+
     queryset = (
-        VisitedCity.objects.select_related('city', 'city__region', 'user')
+        VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
+        .select_related('city', 'city__region', 'user')
         .annotate(
-            number_of_visits=Subquery(city_visits_subquery),
-            date_of_first_visit=Subquery(date_of_first_visit_subquery),
-            average_rating=Round((Subquery(average_rating_subquery) * 2), 0)
-            / 2,  # Округление до 0.5
+            number_of_visits=Subquery(city_visits_subquery, output_field=IntegerField()),
+            average_rating=(
+                Round((Subquery(average_rating_subquery) * 2), 0) / 2
+            ),  # Округление до 0.5
+            visit_dates=Subquery(visit_dates_subquery),
+            first_visit_date=Subquery(first_visit_date_subquery),
+            last_visit_date=Subquery(last_visit_date_subquery),
         )
-        .filter(user_id__in=user_ids, is_first_visit=True)
     )
 
     return queryset
@@ -132,14 +179,14 @@ def get_number_of_visited_cities(user_id: int) -> int:
     """
     Возвращает количество городов, посещённых пользователем с user_id.
     """
-    return get_all_visited_cities([user_id]).count()
+    return get_all_visited_cities(user_id).count()
 
 
 def get_number_of_visited_cities_current_year(user_id: int) -> int:
     """
     Возвращает количество городов, посещённых пользователем с user_id в текущем году.
     """
-    return get_all_visited_cities([user_id]).filter(date_of_visit__year=datetime.now().year).count()
+    return get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year).count()
 
 
 def get_number_of_visited_cities_previous_year(user_id: int) -> int:
@@ -147,7 +194,5 @@ def get_number_of_visited_cities_previous_year(user_id: int) -> int:
     Возвращает количество городов, посещённых пользователем с user_id в прошлом году.
     """
     return (
-        get_all_visited_cities([user_id])
-        .filter(date_of_visit__year=datetime.now().year - 1)
-        .count()
+        get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year - 1).count()
     )

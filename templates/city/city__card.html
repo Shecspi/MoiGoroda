@@ -24,14 +24,48 @@
             <!-- ^^^ Название города -->
 
             <!-- Дата первого посещения -->
-            <div id="subsection-city-date_of_visit_{{ forloop.counter }}" class="mt-2">
-                <small class="text-muted">
-                    {% if city.first_date_of_visit %}
-                        {{ city.first_date_of_visit }}
+            <div id="subsection-city-date_of_visit_{{ forloop.counter }}"
+                 class="d-flex flex-column justify-content-center align-items-center h-100">
+                {% if city.visit_dates %}
+                    {% if city.visit_dates|length == 1 %}
+                        <small class="text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-title="Дата посещения города {{ city.title }}">
+                            {{ city.first_visit_date }}
+                        </small>
+                    {% elif city.visit_dates|length == 2 %}
+                        <small class="text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-title="Дата первого посещения города {{ city.title }}">
+                            {{ city.first_visit_date }}
+                        </small>
+                        <small class="text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-title="Дата последнего посещения города {{ city.title }}">
+                            {{ city.last_visit_date }}
+                        </small>
                     {% else %}
-                        Дата посещения не указана
+                        <small class="text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-title="Дата первого посещения города {{ city.title }}">
+                            {{ city.first_visit_date }}
+                        </small>
+                        <small class="text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-title="Отображаются только даты первого и последнего посещений города {{ city.title }}. Остальные даты опущены.">
+                            …
+                        </small>
+                        <small class="text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-title="Дата последнего посещения города {{ city.title }}">
+                            {{ city.last_visit_date }}
+                        </small>
                     {% endif %}
-                </small>
+                {% else %}
+                    <small class="text-muted">
+                        Дата посещения не указана
+                    </small>
+                {% endif %}
             </div>
             <!-- ^^^ Дата первого посещения -->
 

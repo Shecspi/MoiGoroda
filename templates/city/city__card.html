@@ -106,7 +106,9 @@
                 <!-- ^^^ Рейтинг -->
 
                 <!-- Наличие сувенира -->
-                <div id="subsection-city-magnet_{{ forloop.counter }}">
+                <div id="subsection-city-magnet_{{ forloop.counter }}"
+                     data-bs-toggle="tooltip"
+                     data-bs-title="У Вас {% if city.has_magnet %}есть сувенир{% else %}нет сувенира{% endif %} из города {{ city.city.title }}">
                     {% if city.has_magnet %}
                         <small>
                             <span class="text-success">

@@ -84,7 +84,9 @@
         <div class="card-footer my-2" style="background: none; border-top: none;">
             <div class="d-flex justify-content-between">
                 <!-- Рейтинг -->
-                <div id="subsection-city-rating_{{ forloop.counter }}" title="Средний рейтинг {{ city.average_rating }} на основе Ваших оценок города {{ city }}">
+                <div id="subsection-city-rating_{{ forloop.counter }}"
+                     data-bs-toggle="tooltip"
+                     data-bs-title="Средний рейтинг на основе всех Ваших оценок для города {{ city.title }}">
                     <small>
                         {% for i in "12345"|make_list %}
                             {% with index=forloop.counter %}

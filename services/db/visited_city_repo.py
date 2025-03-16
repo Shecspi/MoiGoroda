@@ -106,8 +106,8 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     )
 
     # Есть ли сувенир из города?
-    has_magnet = Exists(
-        VisitedCity.objects.filter(city_id=OuterRef('pk'), user_id=user_id, has_magnet=True)
+    has_souvenir = Exists(
+        VisitedCity.objects.filter(city_id=OuterRef('city_id'), user_id=user_id, has_magnet=True)
     )
 
     # Подзапрос для сбора всех дат посещений города
@@ -145,6 +145,7 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
             visit_dates=Subquery(visit_dates_subquery),
             first_visit_date=Subquery(first_visit_date_subquery),
             last_visit_date=Subquery(last_visit_date_subquery),
+            has_souvenir=has_souvenir,
         )
     )
 

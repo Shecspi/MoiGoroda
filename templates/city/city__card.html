@@ -108,8 +108,8 @@
                 <!-- Наличие сувенира -->
                 <div id="subsection-city-magnet_{{ forloop.counter }}"
                      data-bs-toggle="tooltip"
-                     data-bs-title="У Вас {% if city.has_magnet %}есть сувенир{% else %}нет сувенира{% endif %} из города {{ city.city.title }}">
-                    {% if city.has_magnet %}
+                     data-bs-title="У Вас {% if city.has_souvenir %}есть сувенир{% else %}нет сувенира{% endif %} из города {{ city.city.title }}">
+                    {% if city.has_souvenir %}
                         <small>
                             <span class="text-success">
                                 Сувенир <i class="fa-regular fa-square-check"></i>

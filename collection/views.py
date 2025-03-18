@@ -78,41 +78,6 @@ class CollectionList(CollectionListMixin, ListView):
                 if collection.qty_of_visited_cities == collection.qty_of_cities:
                     self.qty_of_finished_colelctions += 1
 
-        # Фильтры работают только для авторизованного пользователя
-        if self.request.GET.get('filter') and self.request.user.is_authenticated:
-            try:
-                queryset = self.apply_filter_to_queryset(queryset, self.request.GET.get('filter'))
-            except KeyError:
-                logger.warning(
-                    self.request,
-                    f"(Collections) Unexpected value of the filter - {self.request.GET.get('filter')}",
-                )
-            else:
-                self.filter = self.request.GET.get('filter')
-                logger.info(
-                    self.request,
-                    f"(Collections) Using the filter '{self.filter}'",
-                )
-
-        # Определяем сортировку
-        sort_default = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
-        self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
-        try:
-            queryset = self.apply_sort_to_queryset(queryset, self.sort)
-        except KeyError:
-            logger.warning(
-                self.request,
-                f"(Collections) Unexpected value of the sort - '{self.sort}'",
-            )
-            queryset = self.apply_sort_to_queryset(queryset, sort_default)
-            self.sort = ''
-        else:
-            if self.sort != 'default_auth' and self.sort != 'default_guest':
-                logger.info(
-                    self.request,
-                    f"(Collections) Using the sorting '{self.sort}'",
-                )
-
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):

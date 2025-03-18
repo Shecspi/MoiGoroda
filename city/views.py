@@ -274,22 +274,13 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet[VisitedCity]:
         self.user_id = self.request.user.pk
-        self.all_visited_cities = get_all_visited_cities(self.user_id)
+        self.filter = self.request.GET.get('filter')
+
+        queryset = get_all_visited_cities(self.user_id)
+        queryset = self.apply_filter(queryset)
+        self.all_visited_cities = queryset
 
         logger.info(self.request, '(Visited city) Viewing the list of visited cities')
-
-        # Обработка фильтрации
-        self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
-        if self.filter:
-            try:
-                self.all_visited_cities = self.apply_filter_to_queryset(
-                    self.all_visited_cities, self.filter
-                )
-                logger.info(self.request, f"(Visited city) Using the filter '{self.filter}'")
-            except KeyError:
-                logger.warning(
-                    self.request, f"(Visited city) Unexpected value of the filter - '{self.filter}'"
-                )
 
         # Обработка сортировки
         sort_default = 'default'
@@ -316,6 +307,19 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.all_cities = self.all_visited_cities
 
         return self.all_visited_cities
+
+    def apply_filter(self, queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
+        """
+        Применяет фильтр к набору данных, если параметр `filter` указан.
+        """
+        if self.filter:
+            try:
+                queryset = apply_filter_to_queryset(queryset, self.request.user, self.filter)
+            except KeyError:
+                logger.warning(
+                    self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
+                )
+        return queryset
 
     def get_context_data(
         self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any

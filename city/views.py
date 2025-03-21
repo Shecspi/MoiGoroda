@@ -30,6 +30,7 @@ from city.models import VisitedCity, City
 from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities, get_list_of_collections
+from services.db.visited_city.filter import apply_filter_to_queryset
 from services.db.visited_city_repo import (
     get_all_visited_cities,
     get_visited_city,
@@ -314,7 +315,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         """
         if self.filter:
             try:
-                queryset = apply_filter_to_queryset(queryset, self.request.user, self.filter)
+                queryset = apply_filter_to_queryset(queryset, self.user_id, self.filter)
             except KeyError:
                 logger.warning(
                     self.request, f"(Region) Unexpected value of the filter '{self.filter}'"

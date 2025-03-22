@@ -40,10 +40,23 @@ def filter_has_magnet(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet
 
 
 def filter_has_no_magnet(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet[VisitedCity]:
+    """
+    Фильтр оставляет только посещённые города, из которых нет сувенира.
+    В модели VisitedCity поле, содержащее информацию о сувенире, называется 'has_magnet',
+    но в итоговом QuerySet оно меняется на 'has_souvenir'
+    (которое является обобщённым для всех одинаковых посещённых городов),
+    поэтому именно по нему происходит фильтрация.
+    """
     return queryset.filter(has_magnet=False)
 
 
 def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet[VisitedCity]:
+    """
+    Фильтр оставляет только города, посещённые в текущем году.
+    В поле visit_dates отображаются только даты посещений в текущем году.
+    Аналогично с полями first_visit_date и last_visit_date.
+    В поле number_of_visits хранится количество посещений города в текущем году.
+    """
     current_year = datetime.today().year
 
     visit_dates_subquery = (

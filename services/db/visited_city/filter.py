@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import Callable
 
 from django.contrib.postgres.aggregates import ArrayAgg
@@ -50,22 +50,30 @@ def filter_has_no_magnet(queryset: QuerySet[VisitedCity], user_id: int) -> Query
     return queryset.filter(has_magnet=False)
 
 
-def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet[VisitedCity]:
-    """
-    Фильтр оставляет только города, посещённые в текущем году.
-    В поле visit_dates отображаются только даты посещений в текущем году.
-    Аналогично с полями first_visit_date и last_visit_date.
-    В поле number_of_visits хранится количество посещений города в текущем году.
-    """
-    current_year = datetime.today().year
+def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int):
+    return filter_by_year(queryset, user_id, date.today().year)
 
+
+def filter_last_year(queryset: QuerySet[VisitedCity], user_id: int):
+    return filter_by_year(queryset, user_id, date.today().year - 1)
+
+
+def filter_by_year(
+    queryset: QuerySet[VisitedCity], user_id: int, year: int
+) -> QuerySet[VisitedCity]:
+    """
+    Фильтр оставляет только города, посещённые в указанном году.
+    В поле visit_dates отображаются только даты посещений в указанном году.
+    Аналогично с полями first_visit_date и last_visit_date.
+    В поле number_of_visits хранится количество посещений города в указанном году.
+    """
     visit_dates_subquery = (
         VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
         .values('city_id')
         .annotate(
             visit_dates=ArrayAgg(
                 'date_of_visit',
-                filter=Q(date_of_visit__year=current_year),
+                filter=Q(date_of_visit__year=year),
                 distinct=True,
                 ordering='date_of_visit',
             )
@@ -77,10 +85,10 @@ def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int) -> QueryS
         VisitedCity.objects.filter(
             user_id=user_id,
             city_id=OuterRef('city_id'),
-            date_of_visit__year=current_year,  # Фильтр по году
+            date_of_visit__year=year,
         )
         .values('city_id')
-        .annotate(first_date=Min('date_of_visit'))  # Минимальная дата
+        .annotate(first_date=Min('date_of_visit'))
         .values('first_date')
     )
 
@@ -88,7 +96,7 @@ def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int) -> QueryS
         VisitedCity.objects.filter(
             user_id=user_id,
             city_id=OuterRef('city_id'),
-            date_of_visit__year=current_year,  # Фильтр по году
+            date_of_visit__year=year,
         )
         .values('city_id')
         .annotate(last_date=Max('date_of_visit'))  # Максимальная дата
@@ -97,7 +105,7 @@ def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int) -> QueryS
 
     number_of_visits_subquery = (
         VisitedCity.objects.filter(
-            user_id=user_id, city_id=OuterRef('city_id'), date_of_visit__year=current_year
+            user_id=user_id, city_id=OuterRef('city_id'), date_of_visit__year=year
         )
         .values('city_id')
         .annotate(count=Count('id'))
@@ -124,10 +132,6 @@ def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int) -> QueryS
             )
         )
     )
-
-
-def filter_last_year(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet[VisitedCity]:
-    return queryset
 
 
 FILTER_FUNCTIONS: dict[str, Callable[[QuerySet[VisitedCity]], QuerySet[VisitedCity]]] = {

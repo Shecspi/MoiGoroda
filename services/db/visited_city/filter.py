@@ -2,7 +2,17 @@ from datetime import datetime
 from typing import Callable
 
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import QuerySet, Q, Min, Max, Subquery, OuterRef, DateField
+from django.db.models import (
+    QuerySet,
+    Q,
+    Min,
+    Max,
+    Subquery,
+    OuterRef,
+    DateField,
+    Count,
+    IntegerField,
+)
 from mypy_extensions import NoReturn
 
 from city.models import VisitedCity
@@ -72,19 +82,34 @@ def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int) -> QueryS
         .values('last_date')
     )
 
+    number_of_visits_subquery = (
+        VisitedCity.objects.filter(
+            user_id=user_id, city_id=OuterRef('city_id'), date_of_visit__year=current_year
+        )
+        .values('city_id')
+        .annotate(count=Count('id'))
+        .values('count')
+    )
+
     return (
         queryset.annotate(
             visit_dates=Subquery(visit_dates_subquery),
             first_visit_date=Subquery(
                 first_visit_dates_subquery,
-                output_field=DateField(),  # Указываем тип поля
+                output_field=DateField(),
             ),
             last_visit_date=Subquery(
                 last_visit_dates_subquery,
-                output_field=DateField(),  # Указываем тип поля
+                output_field=DateField(),
             ),
-        ).exclude(Q(visit_dates=[]))
-        # .annotate(number_of_visits=ArrayLength('visit_dates'))
+        )
+        .exclude(Q(visit_dates=[]))
+        .annotate(
+            number_of_visits=Subquery(
+                number_of_visits_subquery,
+                output_field=IntegerField(),
+            )
+        )
     )
 
 

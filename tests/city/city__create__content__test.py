@@ -80,8 +80,8 @@ def test__form_date_of_visit(setup_db, client):
     form = content.find('form')
     block = form.find('div', {'id': 'div_id_date_of_visit'})
     label = block.find('label')
-    input_text = block.find('input', {'type': 'text', 'id': 'id_date_of_visit'})
-    hint = block.find('div', {'id': 'hint_id_date_of_visit'})
+    input_text = form.find('input', {'type': 'date', 'id': 'id_date_of_visit'})
+    hint = form.find('div', {'id': 'hint_id_date_of_visit'})
 
     assert form
     assert block

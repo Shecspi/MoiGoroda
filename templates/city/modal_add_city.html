@@ -27,11 +27,15 @@
 
                     <div class="mt-4">
                         <label for="date-of-visit" class="form-label">Дата посещения</label>
-                        <input type="date"
-                               class="form-control"
-                               name="date_of_visit"
-                               id="date-of-visit"
-                               aria-describedby="date-of-visit-help">
+                        <div class="input-group">
+                            <input type="date"
+                                   class="form-control"
+                                   name="date_of_visit"
+                                   id="date-of-visit"
+                                   aria-describedby="date-of-visit-help">
+                            <button class="input-group-text" id="yesterday-button" type="button">Вчера</button>
+                            <button class="input-group-text" id="today-button" type="button">Сегодня</button>
+                        </div>
                         <div id="date-of-visit-help" class="form-text">
                             Укажите дату посещения города в формате ДД.ММ.ГГГГ.
                             На основе этой даты будет происходить сортировка городов, а также это влияет на
@@ -101,3 +105,32 @@
         </div>
     </div>
 </form>
+
+<script>
+    function setTodayDate() {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const formattedDate = `${year}-${month}-${day}`;
+
+        // Устанавливаем текущую дату в поле ввода
+        document.getElementById('date-of-visit').value = formattedDate;
+    }
+
+    function setYesterdayDate() {
+        const today = new Date();
+        today.setDate(today.getDate() - 1);  // Уменьшаем на 1 день, чтобы получить вчерашнюю дату
+
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const formattedDate = `${year}-${month}-${day}`;
+
+        // Устанавливаем вчерашнюю дату в поле ввода
+        document.getElementById('date-of-visit').value = formattedDate;
+    }
+
+    document.getElementById('today-button').addEventListener('click', setTodayDate);
+    document.getElementById('yesterday-button').addEventListener('click', setYesterdayDate);
+</script>

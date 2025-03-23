@@ -13,7 +13,7 @@ import {create_map} from "../map.js";
 import {ToolbarActions} from "./toolbar_actions.js";
 import {City} from "./schemas.js";
 import {change_qty_of_visited_cities_in_toolbar, modal} from './services.js';
-import {showDangerToast, showSuccessToast} from "../toast.js";
+import {showSuccessToast, showDangerToast} from "../toast.js";
 
 const fillOpacity = 0.1;
 const fillColor = '#6382ff';
@@ -264,7 +264,7 @@ form.addEventListener('submit', event => {
             city.lat = data.city.lat;
             city.lon = data.city.lon;
 
-            // actions.updateMarker(data.city.city);
+            actions.updateMarker(data.city.city);
             change_qty_of_visited_cities_in_toolbar();
         })
         .catch((err) => {

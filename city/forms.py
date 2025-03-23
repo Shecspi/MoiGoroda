@@ -11,7 +11,7 @@ from typing import Any
 
 from crispy_forms.bootstrap import InlineRadios
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Submit, Field
+from crispy_forms.layout import Layout, Row, Column, Submit, HTML
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
@@ -45,7 +45,7 @@ class VisitedCity_Create_Form(ModelForm):
             Row(
                 Column('region', css_class='col-xl-4'),
                 Column('city', css_class='col-xl-4'),
-                Column(Field('date_of_visit', placeholder='ДД.ММ.ГГГГ'), css_class='col-xl-4'),
+                HTML("{% include 'city/select_date_input.html' %}"),
                 css_class='g-3',
             ),
             Row(

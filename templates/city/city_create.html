@@ -45,5 +45,33 @@
             });
             selectCity.removeAttribute('disabled');
         });
+
+        function setTodayDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const formattedDate = `${year}-${month}-${day}`;
+
+            // Устанавливаем текущую дату в поле ввода
+            document.getElementById('id_date_of_visit').value = formattedDate;
+        }
+
+        function setYesterdayDate() {
+            const today = new Date();
+            today.setDate(today.getDate() - 1);  // Уменьшаем на 1 день, чтобы получить вчерашнюю дату
+
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const formattedDate = `${year}-${month}-${day}`;
+
+            // Устанавливаем вчерашнюю дату в поле ввода
+            document.getElementById('id_date_of_visit').value = formattedDate;
+        }
+
+        document.getElementById('today-button').addEventListener('click', setTodayDate);
+        document.getElementById('yesterday-button').addEventListener('click', setYesterdayDate);
+
     </script>
 {% endblock %}

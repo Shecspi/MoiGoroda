@@ -1,0 +1,20 @@
+<div class="col-xl-4">
+    <div id="div_id_date_of_visit">
+        <label for="id_date_of_visit" class="form-label">
+            Дата посещения
+        </label>
+    </div>
+    <div class="input-group">
+        <input type="date"
+               name="date_of_visit"
+               class="form-control dateinput"
+               placeholder="ДД.ММ.ГГГГ"
+               id="id_date_of_visit"
+               value="{{ form.date_of_visit.value|date:'Y-m-d' }}">
+        <button class="input-group-text" id="yesterday-button" type="button">Вчера</button>
+        <button class="input-group-text" id="today-button" type="button">Сегодня</button>
+    </div>
+    <div id="hint_id_date_of_visit" class="form-text">
+        Укажите дату посещения города в формате ДД.ММ.ГГГГ. На основе этой даты будет происходить сортировка городов, а также это влияет на отображаемую статистику посещённых городов за год.
+    </div>
+</div>

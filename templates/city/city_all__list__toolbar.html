@@ -112,7 +112,7 @@
         <div class="col-xl-3">
             <div class="card text-center shadow h-100">
                 <div class="card-body d-grid">
-                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_name_down }}"
+                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_name_up }}"
                        class="d-block btn btn-outline-secondary align-self-center" title="Сортировать по возрастанию названия">
                         <i class="fa-solid fa-arrow-down-a-z"></i>&nbsp;&nbsp;По названию (возрастание)
                     </a>
@@ -122,7 +122,7 @@
         <div class="col-xl-3">
             <div class="card text-center shadow h-100">
                 <div class="card-body d-grid">
-                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_name_up }}"
+                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_name_down }}"
                        class="d-block btn btn-outline-success align-self-center" title="Сортировать по уменьшению названия">
                         <i class="fa-solid fa-arrow-down-z-a"></i>&nbsp;&nbsp;По названию (убывание)
                     </a>
@@ -132,9 +132,9 @@
         <div class="col-xl-3">
             <div class="card text-center shadow h-100">
                 <div class="card-body d-grid">
-                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_date_down }}"
+                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_date_up }}"
                        class="d-block btn btn-outline-primary align-self-center" title="Сначала показать давно посещённые">
-                        <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;По дате посещения (возрастание)
+                        <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;По дате первого посещения (возрастание)
                     </a>
                 </div>
             </div>
@@ -142,9 +142,29 @@
         <div class="col-xl-3">
             <div class="card text-center shadow h-100">
                 <div class="card-body d-grid">
-                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_date_up }}"
+                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_date_down }}"
                        class="d-block btn btn-outline-danger align-self-center" title="Сначала показать недавно посещённые">
-                        <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;По дате посещения (убывание)
+                        <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;По дате первого посещения (убывание)
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3">
+            <div class="card text-center shadow h-100">
+                <div class="card-body d-grid">
+                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_last_date_up }}"
+                       class="d-block btn btn-outline-primary align-self-center" title="Сначала показать давно посещённые">
+                        <i class="fa-solid fa-arrow-down-1-9"></i>&nbsp;&nbsp;По дате последнего посещения (возрастание)
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3">
+            <div class="card text-center shadow h-100">
+                <div class="card-body d-grid">
+                    <a href="{% url 'city-all-list' %}?{{ url_for_sort_last_date_down }}"
+                       class="d-block btn btn-outline-danger align-self-center" title="Сначала показать недавно посещённые">
+                        <i class="fa-solid fa-arrow-down-9-1"></i>&nbsp;&nbsp;По дате последнего посещения (убывание)
                     </a>
                 </div>
             </div>

@@ -31,6 +31,7 @@ from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities, get_list_of_collections
 from services.db.visited_city.filter import apply_filter_to_queryset
+from services.db.visited_city.sort import apply_sort_to_queryset
 from services.db.visited_city_repo import (
     get_all_visited_cities,
     get_visited_city,
@@ -277,50 +278,49 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.user_id = self.request.user.pk
         self.filter = self.request.GET.get('filter')
 
-        queryset = get_all_visited_cities(self.user_id)
-        queryset = self.apply_filter(queryset)
-        self.all_visited_cities = queryset
+        self.queryset = get_all_visited_cities(self.user_id)
+        self.apply_filter()
+        self.apply_sort()
 
         logger.info(self.request, '(Visited city) Viewing the list of visited cities')
-
-        # Обработка сортировки
-        sort_default = 'default'
-        self.sort = self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
-        try:
-            self.all_visited_cities = self.apply_sort_to_queryset(
-                self.all_visited_cities, self.sort
-            )
-            if self.sort != 'default':
-                logger.info(self.request, f"(Visited city) Using sorting '{self.sort}'")
-        except KeyError:
-            logger.info(
-                self.request, f"(Visited city) Unexpected value of the sorting - '{self.sort}'"
-            )
-            self.all_visited_cities = self.apply_sort_to_queryset(
-                self.all_visited_cities, sort_default
-            )
-            self.sort = ''
 
         # Дополнительная переменная нужна, так как используется пагинация и Django на уровне SQL-запроса
         # устанавливает лимит на выборку, равный `paginate_by`.
         # Из-за этого на карте отображается только `paginate_by` городов.
         # Чтобы отображались все города - используем доп. переменную без лимита.
-        self.all_cities = self.all_visited_cities
+        self.all_cities = self.queryset
 
-        return self.all_visited_cities
+        return self.queryset
 
-    def apply_filter(self, queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
+    def apply_filter(self) -> None:
         """
         Применяет фильтр к набору данных, если параметр `filter` указан.
         """
         if self.filter:
             try:
-                queryset = apply_filter_to_queryset(queryset, self.user_id, self.filter)
+                self.queryset = apply_filter_to_queryset(self.queryset, self.user_id, self.filter)
             except KeyError:
                 logger.warning(
                     self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
                 )
-        return queryset
+
+    def apply_sort(self) -> None:
+        if self.request.user.is_authenticated:
+            self.sort = (
+                self.request.GET.get('sort') if self.request.GET.get('sort') else 'default_auth'
+            )
+            try:
+                self.queryset = apply_sort_to_queryset(self.queryset, self.sort)
+            except KeyError:
+                logger.warning(
+                    self.request, f"(Region) Unexpected value of the sorting '{self.sort}'"
+                )
+            else:
+                if self.sort != 'default_auth':
+                    logger.info(self.request, f"(Visited city) Using sorting '{self.sort}'")
+        else:
+            self.sort = 'default_guest'
+            self.queryset = apply_sort_to_queryset(self.queryset, self.sort)
 
     def get_context_data(
         self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any
@@ -358,8 +358,16 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         )
         context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
         context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
-        context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')
-        context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
+        context['url_for_sort_date_down'] = self.get_url_params(
+            self.filter, 'first_visit_date_down'
+        )
+        context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'first_visit_date_up')
+        context['url_for_sort_last_date_down'] = self.get_url_params(
+            self.filter, 'last_visit_date_down'
+        )
+        context['url_for_sort_last_date_up'] = self.get_url_params(
+            self.filter, 'last_visit_date_up'
+        )
 
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(self.user_id)
         context['subscriptions'] = get_all_subscriptions(self.user_id)

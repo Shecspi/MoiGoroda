@@ -159,7 +159,7 @@ def get_not_visited_cities(user_id: int, regions: dict[int, str]) -> QuerySet[Ci
     При этом для каждого объекта City добавляется дополнительное поле 'region_title',
     в котором сохраняется человекочитаемое название.
     """
-    visited_cities = [city.city.id for city in get_all_visited_cities([user_id])]
+    visited_cities = [city.city.id for city in get_all_visited_cities(user_id)]
 
     # Для получения человекочитаемого формата используется сложная конструкция с Case, When и дополнительным словарём
     # регионов, так как прямое обращение к полю 'region' возвращает int, а не объект 'Region', из-за чего

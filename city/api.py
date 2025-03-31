@@ -51,7 +51,7 @@ class GetVisitedCities(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.request.user.pk
-        return get_all_visited_cities([user_id])
+        return get_all_visited_cities(user_id)
 
 
 class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):

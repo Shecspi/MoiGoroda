@@ -29,7 +29,7 @@ from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 from collection.models import Collection
 from services import logger
-from services.db.city_repo import get_number_of_cities, get_list_of_collections
+from services.db.city_repo import get_number_of_cities
 from services.db.visited_city.filter import apply_filter_to_queryset
 from services.db.visited_city.sort import apply_sort_to_queryset
 from services.db.visited_city_repo import (
@@ -160,16 +160,12 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         return context
 
 
-class VisitedCity_Detail(LoginRequiredMixin, DetailView):
+class VisitedCity_Detail(DetailView):
     """
-    Отображает страницу с информацией о посещённом городе.
-
-     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
-     > Доступ только к тем городам, которые пользователь уже посетил (обрабатывается в методе get).
-       При попытке получить доступ к непосещённому городу - редирект на страницу со списком посещённых городов.
+    Отображает страницу с информацией о городе.
     """
 
-    model = VisitedCity
+    model = City
     template_name = 'city/city_selected.html'
 
     def __init__(self) -> None:
@@ -179,20 +175,19 @@ class VisitedCity_Detail(LoginRequiredMixin, DetailView):
         self.collections_list: QuerySet[Collection] | None = None
         self.city_title: str = ''
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        if queryset := get_visited_city(self.request.user.pk, self.kwargs['pk']):
-            self.collections_list = get_list_of_collections(queryset.city.id)
-        else:
+    def get_object(self, queryset: QuerySet[City] = None) -> City:
+        try:
+            city = super().get_object(queryset)
+        except City.DoesNotExist:
             logger.warning(
                 self.request,
-                f'(Visited city) Attempt to access a non-existent visited city #{self.kwargs["pk"]}',
+                f'(Visited city) Attempt to access a non-existent city #{self.kwargs["pk"]}',
             )
             raise Http404
 
-        logger.info(self.request, f'(Visited city) Viewing the visited city #{self.kwargs["pk"]}')
-        self.city_title = queryset.city.title
-
-        return super().get(request, *args, **kwargs)
+        self.city_title = city.title
+        logger.info(self.request, f'(Visited city) Viewing the visited city #{city.pk}')
+        return city
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

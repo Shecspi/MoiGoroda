@@ -9,11 +9,12 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any, NoReturn
 
+from django.db.models.functions import Round
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Avg, Count, F, OuterRef, Subquery
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.views.generic import (
@@ -167,6 +168,7 @@ class VisitedCity_Detail(DetailView):
 
     model = City
     template_name = 'city/city_selected.html'
+    context_object_name = 'city'
 
     def __init__(self) -> None:
         super().__init__()
@@ -176,14 +178,57 @@ class VisitedCity_Detail(DetailView):
         self.city_title: str = ''
 
     def get_object(self, queryset: QuerySet[City] = None) -> City:
+        popular_month = (
+            VisitedCity.objects.filter(city_id=self.kwargs['pk'], date_of_visit__isnull=False)
+            .annotate(month=F('date_of_visit__month'))
+            .values('month')
+            .annotate(visits=Count('id'))
+            .order_by('-visits')
+        )
+        month_names = [
+            '',
+            'Январь',
+            'Февраль',
+            'Март',
+            'Апрель',
+            'Май',
+            'Июнь',
+            'Июль',
+            'Август',
+            'Сентябрь',
+            'Октябрь',
+            'Ноябрь',
+            'Декабрь',
+        ]
+        popular_months = [month_names[month.get('month')] for month in popular_month[:3]]
+
         try:
-            city = super().get_object(queryset)
+            city = City.objects.annotate(
+                average_rating=Round((Avg('visitedcity__rating') * 2), 0) / 2,
+            )
         except City.DoesNotExist:
             logger.warning(
                 self.request,
                 f'(Visited city) Attempt to access a non-existent city #{self.kwargs["pk"]}',
             )
             raise Http404
+
+        if self.request.user.is_authenticated:
+            number_of_visits = (
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+                .values('city')
+                .annotate(count=Count('id'))
+                .values('count')
+            )
+            city = city.annotate(number_of_visits=Subquery(number_of_visits))
+
+        city = city.get(id=self.kwargs['pk'])
+        city.popular_months = popular_months
+
+        if self.request.user.is_authenticated:
+            city.visits = VisitedCity.objects.filter(user=self.request.user, city=city).values(
+                'id', 'date_of_visit', 'rating', 'impression'
+            )
 
         self.city_title = city.title
         logger.info(self.request, f'(Visited city) Viewing the visited city #{city.pk}')

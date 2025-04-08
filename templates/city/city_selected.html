@@ -23,7 +23,7 @@
                         </div>
 
                         <div class="col-12 col-lg-6">
-                            <div class="row gy-3">
+                            <div class="row gy-2">
                                 {% include "partials/info_row.html" with title="Регион:" value=city.region id="region" %}
                                 {% include "partials/info_row.html" with title="Федеральный округ:" value=city.region.area id="area" %}
 
@@ -40,10 +40,13 @@
 
                                 <div class="col-12">
                                     <h6 class="fw-semibold mb-1">Коллекции:</h6>
-                                    <div>
-                                        {% if collections_list %}
-                                            {% for collection in collections_list %}
-                                                <span class="badge rounded-pill bg-success me-1">{{ collection }}</span>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% if city.collections %}
+                                            {% for collection in city.collections %}
+                                                <a href="{% url 'collection-detail-list' collection.id %}"
+                                                   class="btn btn-sm bg-light text-success border border-success-subtle">
+                                                    {{ collection }}
+                                                </a>
                                             {% endfor %}
                                         {% else %}
                                             <span class="text-muted">Город не состоит ни в каких коллекциях</span>

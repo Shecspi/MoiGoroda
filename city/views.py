@@ -178,6 +178,19 @@ class VisitedCity_Detail(DetailView):
         self.city_title: str = ''
 
     def get_object(self, queryset: QuerySet[City] = None) -> City:
+        city = City.objects.annotate(
+            average_rating=Round((Avg('visitedcity__rating') * 2), 0) / 2,
+        )
+
+        if self.request.user.is_authenticated:
+            number_of_visits = (
+                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
+                .values('city')
+                .annotate(count=Count('id'))
+                .values('count')
+            )
+            city = city.annotate(number_of_visits=Subquery(number_of_visits))
+
         popular_month = (
             VisitedCity.objects.filter(city_id=self.kwargs['pk'], date_of_visit__isnull=False)
             .annotate(month=F('date_of_visit__month'))
@@ -201,11 +214,10 @@ class VisitedCity_Detail(DetailView):
             'Декабрь',
         ]
         popular_months = [month_names[month.get('month')] for month in popular_month[:3]]
+        city.popular_months = popular_months
 
         try:
-            city = City.objects.annotate(
-                average_rating=Round((Avg('visitedcity__rating') * 2), 0) / 2,
-            )
+            city = city.get(id=self.kwargs['pk'])
         except City.DoesNotExist:
             logger.warning(
                 self.request,
@@ -214,21 +226,11 @@ class VisitedCity_Detail(DetailView):
             raise Http404
 
         if self.request.user.is_authenticated:
-            number_of_visits = (
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-                .values('city')
-                .annotate(count=Count('id'))
-                .values('count')
-            )
-            city = city.annotate(number_of_visits=Subquery(number_of_visits))
-
-        city = city.get(id=self.kwargs['pk'])
-        city.popular_months = popular_months
-
-        if self.request.user.is_authenticated:
             city.visits = VisitedCity.objects.filter(user=self.request.user, city=city).values(
                 'id', 'date_of_visit', 'rating', 'impression'
             )
+
+        city.collections = Collection.objects.filter(city=city)
 
         self.city_title = city.title
         logger.info(self.request, f'(Visited city) Viewing the visited city #{city.pk}')

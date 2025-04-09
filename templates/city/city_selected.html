@@ -125,13 +125,16 @@
                                     <div class="col-6">
                                         {{ visit.impression }}
                                     </div>
-                                    <div class="col-2">
-                                        <button class="btn btn-outline-danger" type="button"
-                                                onclick="openDeleteModal('{{ object.id }}', '{{ object }}')">
-                                            <i class="fa-solid fa-trash-can me-2"></i>
-                                        </button>
-                                        <a href="{% url 'city-update' object.id %}" class="btn btn-outline-success">
-                                            <i class="fa-regular fa-pen-to-square me-2"></i>
+
+                                    <div class="col-2 d-grid grid-col-1 text-center gap-2">
+                                        <a class="text-sm link-offset-2 link-underline-danger link-danger link-opacity-50 link-opacity-100-hover link-underline-opacity-50 link-underline-opacity-100-hover"
+                                           href="#"
+                                           onclick="event.preventDefault(); openDeleteModal('{{ visit.id }}', '{{ visit.title }}')">
+                                            <i class="fa-solid fa-trash-can me-2"></i> Удалить
+                                        </a>
+                                        <a href="{% url 'city-update' visit.id %}"
+                                           class="link-offset-2 link-underline-success link-success link-opacity-50 link-opacity-100-hover link-underline-opacity-50 link-underline-opacity-100-hover">
+                                            <i class="fa-regular fa-pen-to-square me-2"></i> Изменить
                                         </a>
                                     </div>
                                 </div>

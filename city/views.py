@@ -146,7 +146,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self) -> str:
         logger.info(self.request, f'(Visited city) Updating the visited city #{self.kwargs["pk"]}')
-        return reverse('city-selected', kwargs={'pk': self.kwargs['pk']})
+        return reverse('city-selected', kwargs={'pk': self.object.city.id})
 
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         return super().form_valid(form)

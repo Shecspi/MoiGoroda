@@ -88,6 +88,16 @@
                                         {{ city.popular_months|join:", " }}
                                     </div>
                                 </div>
+
+                                <div class="col-12 d-flex justify-content-end">
+                                    {% if city.wiki %}
+                                        <a href="{{ city.wiki }}"
+                                           class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover"
+                                           target="_blank">
+                                            <i class="fa-brands fa-wikipedia-w me-2"></i>Больше информации о городе на Wikipedia
+                                        </a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -147,22 +157,6 @@
                             Вы ещё не посетили город {{ city.title }}
                         {% endif %}
                     {% endif %}
-
-                    <div class="row mt-4">
-                        <div class="col-sm-4 d-grid">
-                            {% if object.city.wiki %}
-                                <a href="{{ object.city.wiki }}" class="btn btn-outline-dark" target="_blank">
-                                    <i class="fa-brands fa-wikipedia-w me-2"></i>Wikipedia
-                                </a>
-                            {% else %}
-                                <button class="btn btn-outline-dark disabled" data-bs-toggle="tooltip"
-                                        data-bs-title="Ссылка на статью в Wikipedia про город '{{ object.city.title }}' не указана">
-                                    <i class="fa-brands fa-wikipedia-w me-2"></i>Wikipedia
-                                </button>
-                            {% endif %}
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>

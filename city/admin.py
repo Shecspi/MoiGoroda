@@ -26,7 +26,10 @@ class CityAdmin(admin.ModelAdmin):
     )
     search_fields = ('title',)
     fieldsets = [
-        (None, {'fields': ['title', 'region', 'population', 'date_of_foundation', 'wiki']}),
+        (
+            None,
+            {'fields': ['title', 'region', 'population', 'date_of_foundation', 'wiki', 'image']},
+        ),
         ('Координаты', {'fields': ['coordinate_width', 'coordinate_longitude']}),
     ]
 

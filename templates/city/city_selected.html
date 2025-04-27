@@ -90,7 +90,11 @@
                                 <div class="col-6">
                                     <h6 class="fw-semibold mb-1">Популярные месяцы для посещения:</h6>
                                     <div>
-                                        {{ city.popular_months|join:", " }}
+                                        {% if city.popular_months %}
+                                            {{ city.popular_months|join:", " }}
+                                        {% else %}
+                                            <span class="small text-secondary">Статистика ещё не собрана</span>
+                                        {% endif %}
                                     </div>
                                 </div>
 

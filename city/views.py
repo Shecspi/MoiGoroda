@@ -170,18 +170,32 @@ class VisitedCity_Detail(DetailView):
     template_name = 'city/city_selected.html'
     context_object_name = 'city'
 
-    def __init__(self) -> None:
-        super().__init__()
+    MONTH_NAMES = [
+        '',
+        'Январь',
+        'Февраль',
+        'Март',
+        'Апрель',
+        'Май',
+        'Июнь',
+        'Июль',
+        'Август',
+        'Сентябрь',
+        'Октябрь',
+        'Ноябрь',
+        'Декабрь',
+    ]
 
-        # Список коллекций, в которых состоит запрошенный город
-        self.collections_list: QuerySet[Collection] | None = None
-        self.city_title: str = ''
+    def __init__(self, **kwargs: Any):
+        super().__init__(**kwargs)
+        self.city = None
 
     def get_object(self, queryset: QuerySet[City] = None) -> City:
-        city = City.objects.annotate(
+        self.city = City.objects.annotate(
             average_rating=Round((Avg('visitedcity__rating') * 2), 0) / 2,
         )
 
+        # Если пользователь залогинен — добавляем number_of_visits
         if self.request.user.is_authenticated:
             number_of_visits = (
                 VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
@@ -189,35 +203,11 @@ class VisitedCity_Detail(DetailView):
                 .annotate(count=Count('id'))
                 .values('count')
             )
-            city = city.annotate(number_of_visits=Subquery(number_of_visits))
+            self.city = self.city.annotate(number_of_visits=Subquery(number_of_visits))
 
-        popular_month = (
-            VisitedCity.objects.filter(city_id=self.kwargs['pk'], date_of_visit__isnull=False)
-            .annotate(month=F('date_of_visit__month'))
-            .values('month')
-            .annotate(visits=Count('id'))
-            .order_by('-visits')
-        )
-        month_names = [
-            '',
-            'Январь',
-            'Февраль',
-            'Март',
-            'Апрель',
-            'Май',
-            'Июнь',
-            'Июль',
-            'Август',
-            'Сентябрь',
-            'Октябрь',
-            'Ноябрь',
-            'Декабрь',
-        ]
-        popular_months = [month_names[month.get('month')] for month in popular_month[:3]]
-        city.popular_months = popular_months
-
+        # Получаем сам объект города из QuerySet
         try:
-            city = city.get(id=self.kwargs['pk'])
+            self.city = self.city.get(id=self.kwargs['pk'])
         except City.DoesNotExist:
             logger.warning(
                 self.request,
@@ -225,23 +215,32 @@ class VisitedCity_Detail(DetailView):
             )
             raise Http404
 
+        popular_month = (
+            VisitedCity.objects.filter(city=self.city, date_of_visit__isnull=False)
+            .annotate(month=F('date_of_visit__month'))
+            .values('month')
+            .annotate(visits=Count('id'))
+            .order_by('-visits')
+        )
+        self.city.popular_months = [
+            self.MONTH_NAMES[month.get('month')] for month in popular_month[:3]
+        ]
+
         if self.request.user.is_authenticated:
-            city.visits = VisitedCity.objects.filter(user=self.request.user, city=city).values(
-                'id', 'date_of_visit', 'rating', 'impression', 'city__title'
-            )
+            self.city.visits = VisitedCity.objects.filter(
+                user=self.request.user, city=self.city
+            ).values('id', 'date_of_visit', 'rating', 'impression', 'city__title')
 
-        city.collections = Collection.objects.filter(city=city)
+        self.city.collections = Collection.objects.filter(city=self.city)
 
-        self.city_title = city.title
-        logger.info(self.request, f'(Visited city) Viewing the visited city #{city.pk}')
-        return city
+        logger.info(self.request, f'(Visited city) Viewing the visited city #{self.city.pk}')
+        return self.city
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        context['collections_list'] = self.collections_list
-        context['page_title'] = self.city_title
-        context['page_description'] = f'Информация про посещённый город - {self.city_title}'
+        context['page_title'] = self.city.title
+        context['page_description'] = f'Информация про посещённый город - {self.city.title}'
 
         return context
 

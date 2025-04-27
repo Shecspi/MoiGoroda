@@ -297,3 +297,8 @@ div#main-background {
     border-color: var(--bs-success) !important;
     color: white !important;
 }
+
+.city-image {
+    object-fit: cover;
+    max-height: 500px;
+}

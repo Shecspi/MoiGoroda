@@ -20,6 +20,28 @@
                 </a>
             </li>
             <hr>
+        {% endif %}
+
+        <li>
+            <a href="{{ DONATE_LINK }}" class="text-decoration-none px-3 py-2 d-block text-danger">
+                <i class="fa-solid fa-ruble-sign"></i>&nbsp;&nbsp;&nbsp;Поддержать разработчика
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ SIDEBAR_LINK_URL }}"
+               target="_blank"
+               class="marker-line-link text-decoration-none px-3 py-2 d-block text-success">
+                <i class="fa-solid fa-plane-departure"></i>&nbsp;&nbsp;&nbsp;{{ SIDEBAR_LINK_TEXT }}
+            </a>
+            <div class="d-flex justify-content-center text-secondary"
+                 style="font-size: 0.6em">
+                {{ SIDEBAR_LINK_ADV_INFO }}
+            </div>
+        </li>
+        <hr>
+
+        {% if user.is_authenticated %}
             <li>
                 <span class="text-muted px-3 py-2 d-block">
                     Посещённые города
@@ -97,11 +119,6 @@
 
         <hr>
 
-        <li>
-            <a href="{{ DONATE_LINK }}" class="text-decoration-none px-3 py-2 d-block text-danger">
-                <i class="fa-solid fa-ruble-sign"></i>&nbsp;&nbsp;&nbsp;Поддержать разработчика
-            </a>
-        </li>
         <li>
             <a href="https://t.me/moi_goroda" class="text-decoration-none px-3 py-2 d-block">
                 <i class="fa-brands fa-telegram"></i>&nbsp;&nbsp;&nbsp;Телеграм-группа проекта

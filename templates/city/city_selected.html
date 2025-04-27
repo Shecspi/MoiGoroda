@@ -124,7 +124,11 @@
 
                                 <div class="row align-items-center">
                                     <div class="col-lg-2 mt-2">
-                                        {{ visit.date_of_visit }}
+                                        {% if visit.date_of_visit %}
+                                            {{ visit.date_of_visit }}
+                                        {% else %}
+                                            <span class="small text-secondary">Дата посещения не указана</span>
+                                        {% endif %}
                                     </div>
 
                                     <div class="col-lg-2 mt-2">
@@ -141,7 +145,7 @@
                                         {% if visit.impression %}
                                             {{ visit.impression }}
                                         {% else %}
-                                            <span class="text-secondary">Вы не добавили описание Вашей поездки в город {{ visit.city__title }}</span>
+                                            <span class="small text-secondary">Вы не добавили описание Вашей поездки в город {{ visit.city__title }}</span>
                                         {% endif %}
                                     </div>
 

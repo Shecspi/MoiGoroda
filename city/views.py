@@ -99,7 +99,12 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):  # type: ignore
     """
 
     model = VisitedCity
-    success_url = reverse_lazy('city-all-list')
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            'city-selected',
+            kwargs={'pk': VisitedCity.objects.get(pk=self.kwargs['pk']).city.pk},
+        )
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         if not get_visited_city(self.request.user.pk, self.kwargs['pk']):

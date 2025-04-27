@@ -54,7 +54,7 @@
                                                 </a>
                                             {% endfor %}
                                         {% else %}
-                                            <span class="text-muted">Город не состоит ни в каких коллекциях</span>
+                                            <span class="small text-muted">Город не состоит ни в каких коллекциях</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -93,7 +93,7 @@
                                         {% if city.popular_months %}
                                             {{ city.popular_months|join:", " }}
                                         {% else %}
-                                            <span class="small text-secondary">Статистика ещё не собрана</span>
+                                            <span class="small text-muted">Статистика ещё не собрана</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -131,7 +131,7 @@
                                         {% if visit.date_of_visit %}
                                             {{ visit.date_of_visit }}
                                         {% else %}
-                                            <span class="small text-secondary">Дата посещения не указана</span>
+                                            <span class="small text-muted">Дата посещения не указана</span>
                                         {% endif %}
                                     </div>
 
@@ -149,19 +149,23 @@
                                         {% if visit.impression %}
                                             {{ visit.impression }}
                                         {% else %}
-                                            <span class="small text-secondary">Вы не добавили описание Вашей поездки в город {{ visit.city__title }}</span>
+                                            <span class="small text-muted">Вы не добавили описание Вашей поездки в город {{ visit.city__title }}</span>
                                         {% endif %}
                                     </div>
 
-                                    <div class="col-lg-2 d-flex flex-row flex-lg-column text-center justify-content-end gap-3 mt-2">
-                                        <a class="text-sm link-danger link-underline-opacity-0 link-opacity-50 link-opacity-100-hover"
+                                    <div class="col-lg-2 d-flex text-center justify-content-end gap-3 mt-2">
+                                        <a class="text-sm btn btn-outline-danger btn-sm"
                                            href="#"
+                                           data-bs-tooltip="tooltip"
+                                           data-bs-title="Удалить город {{ city.title }} из списка посещённых"
                                            onclick="event.preventDefault(); openDeleteModal('{{ visit.id }}', '{{ visit.title }}')">
-                                            <i class="fa-solid fa-trash-can me-2"></i> Удалить
+                                            <i class="fa-solid fa-trash-can"></i>
                                         </a>
                                         <a href="{% url 'city-update' visit.id %}"
-                                           class="link-offset-2 link-underline-opacity-0 link-success link-opacity-50 link-opacity-100-hover">
-                                            <i class="fa-regular fa-pen-to-square me-2"></i> Изменить
+                                           data-bs-tooltip="tooltip"
+                                           data-bs-title="Изменить параметры посещения города {{ city.title }}"
+                                           class="text-sm btn btn-outline-success btn-sm">
+                                            <i class="fa-regular fa-pen-to-square"></i>
                                         </a>
                                     </div>
                                 </div>

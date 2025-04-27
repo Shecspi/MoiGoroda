@@ -16,7 +16,7 @@
                 <div class="card-body p-4">
                     <div class="row">
                          <div class="col-12 col-lg-6 text-center mb-3" id="section-city_image">
-                            <img src="{% static 'image/1.jpg' %}"
+                            <img src="{% static 'image/2.jpg' %}"
                                  alt="Фото города {{ city.title }}"
                                  class="img-fluid rounded-3 shadow"
                                  style="object-fit: cover; max-height: 500px;">
@@ -44,7 +44,7 @@
                                         {% if city.collections %}
                                             {% for collection in city.collections %}
                                                 <a href="{% url 'collection-detail-list' collection.id %}"
-                                                   class="btn btn-sm bg-light text-success border border-success-subtle">
+                                                   class="btn btn-sm bg-light text-success border border-success-subtle badge-hover-success">
                                                     {{ collection }}
                                                 </a>
                                             {% endfor %}
@@ -118,11 +118,11 @@
                                 {% endif %}
 
                                 <div class="row align-items-center">
-                                    <div class="col-2">
+                                    <div class="col-lg-2 mt-2">
                                         {{ visit.date_of_visit }}
                                     </div>
 
-                                    <div class="col-2">
+                                    <div class="col-lg-2 mt-2">
                                         {% for i in '12345'|make_list %}
                                             {% if forloop.counter <= visit.rating %}
                                                 <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
@@ -132,15 +132,15 @@
                                         {% endfor %}
                                     </div>
 
-                                    <div class="col-6">
+                                    <div class="col-lg-6 mt-2">
                                         {% if visit.impression %}
                                             {{ visit.impression }}
                                         {% else %}
-                                            <span class="text-secondary">Вы не добавили описание Вашей поездки в город {{ visit.city.title }}</span>
+                                            <span class="text-secondary">Вы не добавили описание Вашей поездки в город {{ visit.city__title }}</span>
                                         {% endif %}
                                     </div>
 
-                                    <div class="col-2 d-grid grid-col-1 text-center gap-2">
+                                    <div class="col-lg-2 d-flex flex-row flex-lg-column text-center justify-content-end gap-3 mt-2">
                                         <a class="text-sm link-danger link-underline-opacity-0 link-opacity-50 link-opacity-100-hover"
                                            href="#"
                                            onclick="event.preventDefault(); openDeleteModal('{{ visit.id }}', '{{ visit.title }}')">

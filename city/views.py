@@ -227,7 +227,7 @@ class VisitedCity_Detail(DetailView):
 
         if self.request.user.is_authenticated:
             city.visits = VisitedCity.objects.filter(user=self.request.user, city=city).values(
-                'id', 'date_of_visit', 'rating', 'impression'
+                'id', 'date_of_visit', 'rating', 'impression', 'city__title'
             )
 
         city.collections = Collection.objects.filter(city=city)

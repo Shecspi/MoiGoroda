@@ -291,3 +291,9 @@ div#main-background {
 .small-btn-for-toolbar {
     width: 45px;
 }
+
+.badge-hover-success:hover {
+    background-color: var(--bs-success) !important;
+    border-color: var(--bs-success) !important;
+    color: white !important;
+}

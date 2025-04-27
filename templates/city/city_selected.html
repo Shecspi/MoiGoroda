@@ -173,6 +173,12 @@
                         {% else %}
                             Вы ещё не посетили город {{ city.title }}
                         {% endif %}
+
+                        <div class="d-flex justify-content-end mt-3">
+                            <a href="{% url 'city-create' %}" class="btn btn-sm btn-outline-success d-flex align-items-center">
+                                <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;&nbsp;Добавить город как посещённый
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             </div>

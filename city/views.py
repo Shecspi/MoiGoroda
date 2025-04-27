@@ -57,6 +57,26 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
     template_name = 'city/city_create.html'
     success_url = reverse_lazy('city-all-list')
 
+    def get_initial(self) -> dict[str, Any]:
+        """
+        В случае, когда в URL передан city_id, необходимо определить город и автоматически выбрать его в форме
+        """
+        initial = super().get_initial()
+
+        city_id = self.request.GET.get('city_id')
+        if city_id:
+            try:
+                city_id = int(city_id)
+                if City.objects.filter(id=city_id).exists():
+                    initial['city'] = city_id
+                else:
+                    logger.warning(
+                        self.request, f'(Visited city) City with id={city_id} does not exist'
+                    )
+            except (ValueError, TypeError):
+                logger.warning(self.request, f'(Visited city) Invalid city_id passed: {city_id}')
+        return initial
+
     def get_form_kwargs(self) -> dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
         form_kwargs['request'] = self.request

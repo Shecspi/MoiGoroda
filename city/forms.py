@@ -70,6 +70,18 @@ class VisitedCity_Create_Form(ModelForm):
             self.fields['city'].queryset = City.objects.filter(region_id=region_id).order_by(
                 'title'
             )
+            # Если форма не отправлена (GET) и есть выбранный город через initial
+        elif self.initial.get('city'):
+            try:
+                selected_city = City.objects.get(pk=self.initial['city'])
+                self.fields['city'].queryset = City.objects.filter(
+                    region=selected_city.region
+                ).order_by('title')
+                self.initial['region'] = (
+                    selected_city.region_id
+                )  # также заполняем initial значение для поля "region"
+            except City.DoesNotExist:
+                pass
         elif self.instance.pk:
             self.fields['city'].queryset = self.instance.region.city_set.order_by('title')
 

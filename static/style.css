@@ -138,6 +138,22 @@ body.simple {
     background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 15' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 18 Q50 14 100 18 T200 17 T300 18 T400 16' stroke='%23ccf5e7' stroke-width='45' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center bottom;
     background-size: 100% 55px;
 }
+.marker-line-link-bi-green {
+    position: relative;
+    font-weight: bold;
+    color: #198754;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q150 10 300 20 T600 20 T900 20 T1200 20' stroke='%23ccf5e7' stroke-width='60' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center bottom;
+    background-size: 100% 45px;
+    border-radius: 15px;
+}
+.marker-line-link-bi-blue {
+    position: relative;
+    font-weight: bold;
+    color: #195987;
+    padding-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
 
 /*------------ Sign In and Sign Up pages ------------*/
 

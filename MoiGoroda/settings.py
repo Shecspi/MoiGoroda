@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'crispy_forms',
     'crispy_bootstrap5',
+    'colorfield',
     'main_page',
     'account.apps.AuthConfig',
     'city',
@@ -59,6 +60,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'country',
     'place',
+    'advertisement',
 ]
 
 MIDDLEWARE = [

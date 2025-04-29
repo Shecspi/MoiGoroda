@@ -1,25 +1,19 @@
-<div class="row justify-content-center mx-3">
-    <div class="col-xl-6 text-center">
-        <a href="https://ostrovok.tp.st/SRAkdSKB?erid=2Vtzqx6m9hD"
-           target="_blank"
-           class="text-decoration-none px-3 py-2 d-block text-primary fw-bold">
-            <i class="fa-solid fa-bed"></i>&nbsp;&nbsp;&nbsp;Забронируйте идеальный отель на Островке
-        </a>
-        <div class="d-flex justify-content-center text-secondary"
-             style="font-size: 0.6em">
-            Реклама. ООО «Бронирование гостиниц». ИНН 7703389880
-        </div>
-    </div>
+{% load random_advertisement %}
 
-    <div class="col-xl-6 text-center">
-        <a href="https://yandex.tp.st/z18D5do5?erid=2VtzqxJaNUb"
-           target="_blank"
-           class="text-decoration-none px-3 py-2 d-block text-danger fw-bold">
-            <i class="fa-solid fa-map-pin"></i>&nbsp;&nbsp;&nbsp;Планируйте поездки с Яндекс Путешествиями!
-        </a>
-        <div class="d-flex justify-content-center text-secondary"
-             style="font-size: 0.6em">
-            Реклама. ООО «Яндекс Вертикали». ИНН 7736207543
+<div class="row justify-content-center">
+    {% for i in '01'|make_list %}
+        <div class="col-xl-6 text-center mt-3">
+            {% random_advertisement as advertisement %}
+            <a href="{{ advertisement.url }}"
+               target="_blank"
+               style="color: {{ advertisement.color }}"
+               class="text-decoration-none d-block fw-bold">
+                <i class="{{ advertisement.icon_class }}"></i>&nbsp;&nbsp;&nbsp;{{ advertisement.title }}
+            </a>
+            <div class="d-flex justify-content-center text-secondary"
+                 style="font-size: 0.6em">
+                {{ advertisement.legal_marking }}
+            </div>
         </div>
-    </div>
+    {% endfor%}
 </div>

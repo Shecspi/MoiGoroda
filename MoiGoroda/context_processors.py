@@ -29,6 +29,9 @@ def general_settings(request):
         'DONATE_LINK': os.getenv('DONATE_LINK'),
         'URL_GEO_POLYGONS': os.getenv('URL_GEO_POLYGONS'),
         'TILE_LAYER': os.getenv('TILE_LAYER'),
+        'SIDEBAR_LINK_URL': os.getenv('SIDEBAR_LINK_URL'),
+        'SIDEBAR_LINK_TEXT': os.getenv('SIDEBAR_LINK_TEXT'),
+        'SIDEBAR_LINK_ADV_INFO': os.getenv('SIDEBAR_LINK_ADV_INFO'),
     }
 
     return context

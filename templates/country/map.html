@@ -6,6 +6,8 @@
         Карта стран мира
     </h1>
 
+    {% include 'advertisement/toolbar.html' %}
+
     {% include 'country/country__map__toolbar.html' %}
 
     <div id="url_get_all_countries" data-url="{% url 'api__get_all_countries' %}" hidden></div>

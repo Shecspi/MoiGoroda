@@ -176,9 +176,19 @@
                         {% endif %}
 
                         <div class="d-flex justify-content-end mt-3">
-                            <a href="{% url 'city-create' %}" class="btn btn-sm btn-outline-success d-flex align-items-center">
-                                <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;&nbsp;Добавить город как посещённый
-                            </a>
+                            {% if city.number_of_visits > 0 %}
+                                <a href="{% url 'city-create' %}"
+                                   class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-plus"></i>
+                                    Добавить ещё одно посещение города
+                                </a>
+                            {% else %}
+                                <a href="{% url 'city-create' %}"
+                                   class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-plus"></i>
+                                    Добавить город как посещённый
+                                </a>
+                            {% endif %}
                         </div>
                     {% endif %}
                 </div>

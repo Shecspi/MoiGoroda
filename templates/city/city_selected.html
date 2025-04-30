@@ -177,13 +177,13 @@
 
                         <div class="d-flex justify-content-end mt-3">
                             {% if city.number_of_visits > 0 %}
-                                <a href="{% url 'city-create' %}"
+                                <a href="{% url 'city-create' %}?city_id={{ city.id }}"
                                    class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
                                     <i class="fa-solid fa-plus"></i>
                                     Добавить ещё одно посещение города
                                 </a>
                             {% else %}
-                                <a href="{% url 'city-create' %}"
+                                <a href="{% url 'city-create' %}?city_id={{ city.id }}"
                                    class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
                                     <i class="fa-solid fa-plus"></i>
                                     Добавить город как посещённый

@@ -29,7 +29,8 @@
 
                         <div class="col-12 col-lg-6">
                             <div class="row gy-2">
-                                {% include "partials/info_row.html" with title="Регион:" value=city.region id="region" %}
+                                {% url 'region-selected-list' city.region.id as region_url %}
+                                {% include "partials/info_row.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
                                 {% include "partials/info_row.html" with title="Федеральный округ:" value=city.region.area id="area" %}
 
                                 <div class="col-12">

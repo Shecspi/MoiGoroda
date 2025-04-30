@@ -23,11 +23,13 @@
     <script>
         {% if action == 'create' %}
             let selectCity = document.getElementById('id_city');
-            {% if not form.errors %}
-                {# Поле "City" делаем неактивным только при первой загрузке страницы. #}
-                {# Если страница загружается с ошибками, то поле должно быть активно. #}
+            const hasErrors = {{ form.errors|yesno:"true,false" }};
+
+            if (!hasErrors && !selectCity.value) {
+                 // Поле "City" делаем неактивным только при первой загрузке страницы.
+                 // Если страница загружается с ошибками, то поле должно быть активно.
                 selectCity.setAttribute('disabled', "disabled");
-            {% endif %}
+            }
         {% endif %}
 
         $('#id_region').change(function() {

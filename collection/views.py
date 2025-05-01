@@ -13,20 +13,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import (
     Count,
     Q,
-    Exists,
-    OuterRef,
-    Subquery,
-    DateField,
-    IntegerField,
     QuerySet,
-    BooleanField,
-    Value,
 )
 from django.http import Http404
 from django.views.generic import ListView
 
-from city.models import VisitedCity, City
+from city.models import VisitedCity
 from collection.models import Collection
+from collection.services import get_all_cities_from_collection
 from services import logger
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
@@ -167,67 +161,10 @@ class CollectionSelected_List(ListView):
             * `has_magnet` - True, если имеется сувенир из города
             * `rating` - рейтинг от 1 до 5
         """
-        # В связи с тем, что модель Collections - это связь Many To Many, я не нашёл способа,
-        # как из неё получить список городов и иметь возможность аннотировать этот список дополнительными полями.
-        # Поэтому я вручную выбираю из таблицы City все города, находящиеся в указанной коллекции,
-        # и уже их аннотирую доп. полями.
-        # Но для этого нужен список ID городов, которые есть в коллекции. Для этого и создаётся следующая переменная.
-        cities_id = [city.id for city in Collection.objects.get(id=self.pk).city.all()]
-
-        if self.request.user.is_authenticated:
-            self.cities = (
-                City.objects.filter(id__in=cities_id)
-                .annotate(
-                    is_visited=Exists(
-                        VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-                    ),
-                    visited_id=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('id'),
-                        output_field=IntegerField(),
-                    ),
-                    date_of_visit=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('date_of_visit'),
-                        output_field=DateField(),
-                    ),
-                    has_magnet=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('has_magnet'),
-                        output_field=BooleanField(),
-                    ),
-                    rating=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('rating'),
-                        output_field=IntegerField(),
-                    ),
-                )
-                .values(
-                    'id',
-                    'title',
-                    'is_visited',
-                    'population',
-                    'date_of_foundation',
-                    'coordinate_width',
-                    'coordinate_longitude',
-                    'visited_id',
-                    'date_of_visit',
-                    'has_magnet',
-                    'rating',
-                )
-            )
-            self.qty_of_visited_cities = sum(
-                [1 if city['is_visited'] else 0 for city in self.cities]
-            )
-        else:
-            self.cities = self.cities = City.objects.filter(id__in=cities_id).annotate(
-                is_visited=Value(False)
-            )
-
+        self.cities = get_all_cities_from_collection(
+            self.pk, self.request.user if self.request.user.is_authenticated else None
+        )
+        self.qty_of_visited_cities = sum([1 if city.is_visited else 0 for city in self.cities])  # type: ignore[attr-defined]
         self.qty_of_cities = len(self.cities)
 
         # Определяем фильтрацию

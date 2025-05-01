@@ -3,45 +3,100 @@
 
 <div class="col" id="city_card_{{ forloop.counter }}">
     <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-        <div class="card-body">
+        <div class="card-body d-flex flex-column">
             <!-- Название города -->
-            <div class="d-flex justify-content-between">
-                <div class="align-self-center" data-bs-toggle="tooltip"
-                     data-bs-title="Город {{ city.title }} {% if city.is_visited %}посещён{% else %}ещё не посещён{% endif %}">
-                    {% if city.is_visited %}
-                        <i class="fa-regular fa-square-check text-success fs-4"></i>
-                    {% else %}
-                        <i class="fa-regular fa-circle-xmark text-danger fs-4"></i>
-                    {% endif %}
-                </div>
+            <div class="d-flex align-items-center justify-content-between">
+                {% if user.is_authenticated %}
+                    <div class="align-self-center" data-bs-toggle="tooltip"
+                         data-bs-title="Город {{ city.title }} {% if city.is_visited %}посещён{% else %}ещё не посещён{% endif %}">
+                        {% if city.is_visited %}
+                            <i class="fa-regular fa-square-check text-success fs-4"></i>
+                        {% else %}
+                            <i class="fa-regular fa-circle-xmark text-danger fs-4"></i>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div></div>
+                {% endif %}
+
                 <h4 id="subsection-city-title_{{ forloop.counter }}">
-                    {% if city.is_visited %}
-                        <a href="{% url 'city-selected' city.visited_id %}"
-                           class="link_to link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                            {{ city.title }}
-                        </a>
-                    {% else %}
+                    <a href="{% url 'city-selected' city.id %}"
+                       class="link_to link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
                         {{ city.title }}
-                    {% endif %}
+                    </a>
                 </h4>
-                <div></div>
+
+                {% if user.is_authenticated %}
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis"
+                          data-bs-toggle="tooltip"
+                          data-bs-title="Количество посещений города {{ city.title }}">
+                        {% if city.number_of_visits %}
+                            {{ city.number_of_visits }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </span>
+                {% else %}
+                    <div></div>
+                {% endif %}
             </div>
             <!-- ^^^ Название города -->
+
+            <!-- Даты посещений -->
+            {% if user.is_authenticated %}
+                <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 mt-3">
+                    {% if city.is_visited %}
+                        {% if city.visit_dates %}
+                            {% if city.visit_dates|length == 1 %}
+                                <small class="text-muted"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-title="Дата посещения города {{ city.title }}">
+                                    {{ city.first_visit_date }}
+                                </small>
+                            {% elif city.visit_dates|length == 2 %}
+                                <small class="text-muted"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-title="Дата первого посещения города {{ city.title }}">
+                                    {{ city.first_visit_date }}
+                                </small>
+                                <small class="text-muted"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-title="Дата последнего посещения города {{ city.title }}">
+                                    {{ city.last_visit_date }}
+                                </small>
+                            {% else %}
+                                <small class="text-muted"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-title="Дата первого посещения города {{ city.title }}">
+                                    {{ city.first_visit_date }}
+                                </small>
+                                <small class="text-muted"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-title="Отображаются только даты первого и последнего посещений города {{ city.title }}. Остальные даты опущены.">
+                                    …
+                                </small>
+                                <small class="text-muted"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-title="Дата последнего посещения города {{ city.title }}">
+                                    {{ city.last_visit_date }}
+                                </small>
+                            {% endif %}
+                        {% else %}
+                            <small class="text-muted">
+                                Дата посещения не указана
+                            </small>
+                        {% endif %}
+                    {% else %}
+                        <small class="text-muted">
+                            Вы не были в городе {{ city.title }}
+                        </small>
+                    {% endif %}
+                </div>
+            {% endif %}
+            <!-- ^^^ Даты посещений -->
         </div>
 
         <div class="card-footer my-2" style="background: none; border-top: none;">
-            <!-- Дата посещения -->
-            <div id="subsection-city-date_of_visit_{{ forloop.counter }}">
-                <small class="text-muted">
-                    {% if city.date_of_visit %}
-                        {{ city.date_of_visit }}
-                    {% else %}
-                        Дата посещения не указана
-                    {% endif %}
-                </small>
-            </div>
-            <!-- ^^^ Дата посещения -->
-
             <!-- Население -->
             <div id="subsection-city-population_{{ forloop.counter }}">
                 <small class="card-subtitle text-muted">
@@ -69,23 +124,31 @@
             {% if city.is_visited %}
                 <div class="d-flex justify-content-between">
                     <!-- Рейтинг -->
-                    <div id="subsection-city-rating_{{ forloop.counter }}">
+                    <div id="subsection-city-rating_{{ forloop.counter }}"
+                         data-bs-toggle="tooltip"
+                         data-bs-title="Средний рейтинг на основе всех Ваших оценок для города {{ city.title }}">
                         <small>
-                            {% for i in '12345'|make_list %}
-                                {% if forloop.counter <= city.rating %}
-                                    <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                {% else %}
-                                    <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
-                                {% endif %}
+                            {% for i in "12345"|make_list %}
+                                {% with index=forloop.counter %}
+                                    {% if city.average_rating >= index %}
+                                        <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                    {% else %}
+                                        {% if city.average_rating >= index|sub:0.5 %}
+                                            <i class="fa-solid fa-star-half-stroke" style="color: #ffc43c;"></i>
+                                        {% else %}
+                                            <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
                             {% endfor %}
                         </small>
                     </div>
                     <!-- ^^^ Рейтинг -->
 
                     <!-- Наличие сувенира -->
-                    <div id="subsection-city-magnet_{{ forloop.counter }}" data-bs-toggle="tooltip"
-                         data-bs-title="У Вас {% if city.has_magnet %}есть сувенир{% else %}нет сувенира{% endif %} из города {{ city.title }}">
-                        {% if city.has_magnet %}
+                    <div data-bs-toggle="tooltip"
+                         data-bs-title="У Вас {% if city.has_souvenir %}есть сувенир{% else %}нет сувенира{% endif %} из города {{ city.city.title }}">
+                        {% if city.has_souvenir %}
                             <small>
                                 <span class="text-success">
                                     Сувенир <i class="fa-regular fa-square-check"></i>

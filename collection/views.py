@@ -13,12 +13,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import (
     Count,
     Q,
-    QuerySet,
 )
 from django.http import Http404
 from django.views.generic import ListView
 
 from city.models import VisitedCity
+from collection.filter import apply_filter_to_queryset
 from collection.models import Collection
 from collection.services import get_all_cities_from_collection
 from services import logger
@@ -172,7 +172,7 @@ class CollectionSelected_List(ListView):
             self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
             if self.filter:
                 try:
-                    self.cities = apply_filter(self.cities, self.filter)
+                    self.cities = apply_filter_to_queryset(self.cities, self.filter)
                 except KeyError:
                     logger.warning(
                         self.request,
@@ -223,28 +223,6 @@ class CollectionSelected_List(ListView):
             return [
                 'collection/collection_selected__map.html',
             ]
-
-
-def apply_filter(queryset: QuerySet, filter_value: str) -> QuerySet:
-    """
-    Производит фильтрацию 'queryset' на основе значения 'filter'.
-
-    @param queryset: QuerySet, к которому необходимо применить фильтр.
-    @param filter_value: Параметр, на основе которого производится фильтрация.
-        Может принимать одно из 2 значение:
-            - 'not_started' - коллекции, в которых нет ни одного опсещённого города;
-            - 'finished' - коллекции, в которых посещены все города.
-    @return: Отфильтрованный QuerySet или KeyError, если передан некорректный параметр `filter_value`.
-    """
-    match filter_value:
-        case 'visited':
-            queryset = queryset.filter(is_visited=True)
-        case 'not_visited':
-            queryset = queryset.filter(is_visited=False)
-        case _:
-            raise KeyError
-
-    return queryset
 
 
 def get_url_params(filter_value: str | None) -> str:

@@ -7,6 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import json
 from typing import Any
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -15,6 +16,7 @@ from django.db.models import (
     Q,
 )
 from django.http import Http404
+from django.utils.safestring import mark_safe
 from django.views.generic import ListView
 
 from city.models import VisitedCity
@@ -189,11 +191,21 @@ class CollectionSelected_List(ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        cities_data = [
+            {
+                'name': city.title,
+                'lat': float(str(city.coordinate_width).replace(',', '.')),
+                'lon': float(str(city.coordinate_longitude).replace(',', '.')),
+                'is_visited': city.is_visited,
+            }
+            for city in self.cities
+        ]
+        context['cities'] = mark_safe(json.dumps(cities_data))
+
         context['filter'] = self.filter
 
         context['qty_of_cities'] = self.qty_of_cities
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
-        context['cities'] = self.cities
 
         if self.request.user.is_authenticated:
             context['change__city'] = modification__city(self.qty_of_visited_cities)

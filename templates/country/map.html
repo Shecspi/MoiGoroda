@@ -6,7 +6,11 @@
         Карта стран мира
     </h1>
 
-    {% include 'advertisement/toolbar.html' %}
+    {% if user.is_authenticated %}
+        {% include 'advertisement/rtb_banner.html' %}
+    {% else %}
+        {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+    {% endif %}
 
     {% include 'country/country__map__toolbar.html' %}
 
@@ -20,6 +24,12 @@
 
     <div id="map" class="h-100 mt-3 d-flex justify-content-center">
     </div>
+
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+        {% include 'advertisement/rtb_feed.html' %}
+    {% endif %}
     
     <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
     <script src="{% static 'js/country_map.js'%}?ver={{ PROJECT_VERSION }}"></script>

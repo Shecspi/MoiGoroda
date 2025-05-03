@@ -6,7 +6,11 @@
         {{ region_name }}
     </h1>
 
-    {% include 'advertisement/toolbar.html' %}
+    {% if user.is_authenticated %}
+        {% include 'advertisement/toolbar.html' %}
+    {% else %}
+        {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+    {% endif %}
 
     {% include 'region/region_selected__list__toolbar.html' %}
 
@@ -42,4 +46,11 @@
     <!-- Пагинация -->
     {% include 'parts/pagination.html' %}
     <!-- ^^^ Пагинация -->
+
+    {% include 'advertisement/rtb_feed.html' %}
+
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+    {% endif %}
 {% endblock %}

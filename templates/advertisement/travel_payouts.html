@@ -1,0 +1,26 @@
+{% load random_advertisement %}
+{% load excluded_users %}
+
+{% get_excluded_users as excluded_users %}
+
+{% if user.id not in excluded_users %}
+    <div class="container">
+        <div class="row justify-content-center">
+            {% for i in '01'|make_list %}
+                <div class="col-xl-6 text-center mt-3">
+                    {% random_advertisement as advertisement %}
+                    <a href="{{ advertisement.url }}"
+                       target="_blank"
+                       style="color: {{ advertisement.color }}"
+                       class="text-decoration-none d-block fw-bold">
+                        <i class="{{ advertisement.icon_class }}"></i>&nbsp;&nbsp;&nbsp;{{ advertisement.title }}
+                    </a>
+                    <div class="d-flex justify-content-center text-secondary"
+                         style="font-size: 0.6em">
+                        {{ advertisement.legal_marking }}
+                    </div>
+                </div>
+            {% endfor%}
+        </div>
+    </div>
+{% endif %}

@@ -6,9 +6,9 @@
         Список регионов России
     </h1>
 
-    {% if user.is_authenticated %}
-        {% include 'advertisement/toolbar.html' %}
-    {% else %}
+    {% include 'advertisement/toolbar.html' %}
+
+    {% if not user.is_authenticated %}
         {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
     {% endif %}
 

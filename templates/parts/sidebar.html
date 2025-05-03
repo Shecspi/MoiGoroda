@@ -98,12 +98,15 @@
             </ul>
         </li>
         <hr>
+        {% if user.is_authenticated %}
         <li>
             <a href="{% url 'place_map' %}"
                class="text-decoration-none px-3 py-2 d-block{% if active_page == 'places' %} active{% endif %}">
                 <i class="fa-solid fa-globe"></i>&nbsp;&nbsp;&nbsp;Мои места
             </a>
         </li>
+        <hr>
+        {% endif %}
         <li id="sidebar_news">
             <a href="{% url 'news-list' %}"
                id="sidebar_news_link"

@@ -64,3 +64,25 @@ offcanvasElement.addEventListener('hidden.bs.offcanvas', () => {
         }, 50);
     }
 });
+
+// Этот костыль нужен для того, чтобы отображение и скрытие tooltip правильно
+// отрабатывало при открытии и скрытии панели offcanvas
+btn.addEventListener('mouseenter', () => {
+    const tooltip = bootstrap.Tooltip.getInstance(btn);
+
+    if (tooltip) {
+        tooltip.hide();
+        tooltip.disable();
+        tooltip.enable();
+        tooltip.show();
+    }
+});
+btn.addEventListener('mouseleave', () => {
+    const tooltip = bootstrap.Tooltip.getInstance(btn);
+
+    if (tooltip) {
+        tooltip.hide();
+        tooltip.disable();
+        tooltip.enable();
+    }
+});

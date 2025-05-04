@@ -14,6 +14,12 @@
     <div id="map" class="h-100 mt-3"></div>
     <!-- ^^^ Карта -->
 
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+        {% include 'advertisement/rtb_feed.html' %}
+    {% endif %}
+
     {# Прокидываем переменные из Django в JS скрипт #}
     <script>
         window.CITIES_DATA = {{ cities|safe }};

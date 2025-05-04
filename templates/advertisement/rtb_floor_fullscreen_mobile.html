@@ -1,0 +1,16 @@
+{% load excluded_users %}
+
+{% get_excluded_users as excluded_users %}
+
+{% if user.id not in excluded_users %}
+    <!-- Yandex.RTB R-A-8433502-9 -->
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-8433502-9",
+            "type": "fullscreen",
+            "platform": "touch"
+        })
+    })
+    </script>
+{% endif %}

@@ -6,7 +6,7 @@
         Карта посещённых городов
     </h1>
 
-    {% include 'advertisement/toolbar.html' %}
+    {% include 'advertisement/travel_payouts.html' %}
 
     {% include 'city/city_all__map__toolbar.html' %}
 
@@ -17,6 +17,8 @@
     <!-- Карта -->
     <div id="map" class="h-100 mt-3"></div>
     <!-- ^^^ Карта -->
+
+    {% include 'advertisement/rtb_feed.html' %}
 
     <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
     <script src="{% static 'js/city/map_city.js' %}?ver={{ PROJECT_VERSION }}" type="module"></script>

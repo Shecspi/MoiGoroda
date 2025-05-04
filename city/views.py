@@ -371,22 +371,19 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
                 )
 
     def apply_sort(self) -> None:
-        if self.request.user.is_authenticated:
-            self.sort = (
-                self.request.GET.get('sort') if self.request.GET.get('sort') else 'default_auth'
-            )
-            try:
-                self.queryset = apply_sort_to_queryset(self.queryset, self.sort)
-            except KeyError:
-                logger.warning(
-                    self.request, f"(Region) Unexpected value of the sorting '{self.sort}'"
-                )
-            else:
-                if self.sort != 'default_auth':
-                    logger.info(self.request, f"(Visited city) Using sorting '{self.sort}'")
-        else:
-            self.sort = 'default_guest'
+        self.sort = (
+            self.request.GET.get('sort') if self.request.GET.get('sort') else 'last_visit_date_down'
+        )
+        try:
             self.queryset = apply_sort_to_queryset(self.queryset, self.sort)
+        except KeyError:
+            logger.warning(
+                self.request, f"(Visited city) Unexpected value of the sorting '{self.sort}'"
+            )
+            self.sort = 'last_visit_date_down'
+        else:
+            if self.sort != 'last_visit_date_down':
+                logger.info(self.request, f"(Visited city) Using sorting '{self.sort}'")
 
     def get_context_data(
         self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any

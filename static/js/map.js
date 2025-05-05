@@ -16,11 +16,11 @@
  * @param zoom Масштаб карты (от 1 до 19)
  * @returns Объект карты
  */
-export function create_map(center, zoom) {
+export function create_map() {
     const map = L.map('map', {
         attributionControl: false,
         zoomControl: false
-        }).setView(center, zoom);
+    });
 
     add_attribution(map);
     add_zoom_control(map);

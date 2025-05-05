@@ -371,6 +371,8 @@ export class ToolbarActions {
          * Помещает на карту отметку посещённого города и сохраняет объект Placemark в глобальный словарь stateOwnCities.
          * @param year Необязательный параметр, указывающий за какой год нужно добавлять города на карту
          */
+        const allMarkers = [];
+
         for (let i = 0; i < (this.ownCities.length); i++) {
             const city = new City();
 
@@ -390,8 +392,11 @@ export class ToolbarActions {
             }
 
             let marker = this.addMarkerToMap(city, MarkerStyle.OWN);
+            allMarkers.push(marker);
             this.stateOwnCities.set(city.id, marker);
         }
+
+        return allMarkers;
     }
 
     /**

@@ -42,14 +42,15 @@ window.onload = () => {
     // Иначе после загрузки городов пришлось бы перемещать центр карты, что мне не нравится.
     getVisitedCities()
         .then(own_cities => {
-            const [center_lat, center_lon, zoom] = calculateCenterCoordinates(own_cities);
-            map = create_map([center_lat, center_lon], zoom);
+            map = create_map();
 
             addExternalBorderControl(map);
             addInternalBorderControl(map);
 
             actions = new ToolbarActions(map, own_cities);
-            actions.addOwnCitiesOnMap();
+            const allMarkers = actions.addOwnCitiesOnMap();
+            const group = new L.featureGroup([...allMarkers]);
+            map.fitBounds(group.getBounds());
         });
 }
 
@@ -170,49 +171,6 @@ async function getVisitedCities() {
         .then(data => {
             return data;
         });
-}
-
-function calculateCenterCoordinates(visited_cities) {
-    /**
-     * Рассчитывает координаты и зум карты в зависимости от городов, переданных в visited_cities.
-     */
-    if (visited_cities.length > 0) {
-        // Высчитываем центральную точку карты.
-        // Ей является средняя координата всех городов, отображённых на карте.
-        let array_lon = Array();
-        let array_lat = Array();
-        let zoom = 0;
-
-        // Добавляем все координаты в один массив и находим большее и меньшее значения из них,
-        // а затем вычисляем среднее, это и будет являться центром карты.
-        for (let i = 0; i < visited_cities.length; i++) {
-            array_lat.push(parseFloat(visited_cities[i].lat));
-            array_lon.push(parseFloat(visited_cities[i].lon));
-        }
-        let max_lon = Math.max(...array_lon);
-        let min_lon = Math.min(...array_lon);
-        let max_lat = Math.max(...array_lat);
-        let min_lat = Math.min(...array_lat);
-        const average_lon = (max_lon + min_lon) / 2;
-        const average_lat = (max_lat + min_lat) / 2;
-
-        // Меняем масштаб карты в зависимости от расположения городов
-        let diff = max_lat - min_lat;
-        if (diff <= 1) {
-            zoom = 8;
-        } else if (diff > 1 && diff <= 2) {
-            zoom = 7;
-        } else if (diff > 2 && diff <= 4) {
-            zoom = 6
-        } else if (diff > 4 && diff <= 6) {
-            zoom = 5;
-        } else {
-            zoom = 4;
-        }
-        return [average_lat, average_lon, zoom];
-    } else {
-        return [56.831534, 50.987919, 5];
-    }
 }
 
 

@@ -81,8 +81,8 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     last_visit_date_subquery = (
         VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
         .values('city')
-        .annotate(first_visit_date=Max('date_of_visit'))
-        .values('first_visit_date')
+        .annotate(last_visit_date=Max('date_of_visit'))
+        .values('last_visit_date')
     )
 
     queryset = (

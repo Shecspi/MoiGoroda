@@ -22,14 +22,20 @@ class VisitedCitySerializer(serializers.ModelSerializer):
     region_id = serializers.IntegerField(source='city.region_id', read_only=True)
     lat = serializers.CharField(source='city.coordinate_width', read_only=True)
     lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
-    year = serializers.SerializerMethodField()
     number_of_visits = serializers.IntegerField(read_only=True)
-    date_of_first_visit = serializers.CharField(read_only=True)
+    first_visit_date = serializers.CharField(read_only=True)
+    last_visit_date = serializers.CharField(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
+    visit_years = serializers.SerializerMethodField()
 
     def get_year(self, obj) -> int | None:
         if obj.date_of_visit:
             return obj.date_of_visit.year
+        return None
+
+    def get_visit_years(self, obj) -> list[int] | None:
+        if obj.visit_dates:
+            return [visit_date.year for visit_date in obj.visit_dates]
         return None
 
     class Meta:
@@ -42,10 +48,11 @@ class VisitedCitySerializer(serializers.ModelSerializer):
             'region_id',
             'lat',
             'lon',
-            'year',
             'number_of_visits',
-            'date_of_first_visit',
+            'first_visit_date',
+            'last_visit_date',
             'average_rating',
+            'visit_years',
         )
 
 

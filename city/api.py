@@ -59,7 +59,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
 
     def __init__(self) -> None:
         # Список ID пользователей, у которых необходимо вернуть посещённые города
-        self.user_id: list = []
+        self.user_ids: list = []
 
         super().__init__()
 
@@ -124,24 +124,24 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
         # но на всякий случай обрабатываю эту ситуацию.
         json_data = self._load_json(input_data)
 
-        user_id = json_data.get('id')
+        user_ids = json_data.get('id')
 
         if not self.request.user.is_superuser:
             # Убираем из списка ID тех пользователей, которые не разрешили подписываться на себя.
             # Вообще это нештатная ситуация, но теоритически возможная, когда пользователь запретил
             # подписываться после того, как была открыта страница с картой, но до того, как запрос пришёл на сервер.
-            for id in user_id:
+            for user_id in user_ids:
                 if self._user_has_allowed_to_subscribe_to_himself(
-                    id
-                ) and self._is_subscription_exists(id):
-                    self.user_id.append(id)
+                    user_id
+                ) and self._is_subscription_exists(user_id):
+                    self.user_ids.append(user_id)
                     logger.info(
                         self.request,
                         f'(API) Successful request for a list of visited cities from subscriptions '
-                        f'(from #{self.request.user.id}, to #{id})',
+                        f'(from #{self.request.user.id}, to #{user_id})',
                     )
         else:
-            self.user_id = user_id
+            self.user_ids = user_ids
 
             logger.info(
                 self.request,
@@ -151,7 +151,13 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        return get_all_visited_cities(self.user_id)
+        # get_all_visited_cities работает с одним user_id, поэтому она вызывается
+        # несколько раз и результаты собираются в один QuerySet.
+        querysets = [get_all_visited_cities(user_id) for user_id in self.user_ids]
+        combined_queryset = querysets[0]
+        for qs in querysets[1:]:
+            combined_queryset = combined_queryset.union(qs)
+        return combined_queryset
 
 
 class GetNotVisitedCities(generics.ListAPIView):

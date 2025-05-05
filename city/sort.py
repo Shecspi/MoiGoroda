@@ -2,10 +2,12 @@ from typing import Callable, NoReturn
 
 from django.db.models import QuerySet, F
 
-from city.models import City
+from city.models import VisitedCity
 
 
-def apply_sort_to_queryset(queryset: QuerySet[City], sort_name: str) -> QuerySet[City] | NoReturn:
+def apply_sort_to_queryset(
+    queryset: QuerySet[VisitedCity], sort_name: str
+) -> QuerySet[VisitedCity] | NoReturn:
     """
     Производит сортировку QuerySet на основе параметра 'sort_name'.
 
@@ -27,47 +29,47 @@ def apply_sort_to_queryset(queryset: QuerySet[City], sort_name: str) -> QuerySet
     return func(queryset)
 
 
-def sort_by_name_up(queryset: QuerySet) -> QuerySet:
+def sort_by_name_up(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
     """Сортирует по названию (А → Я)."""
     return queryset.order_by('city__title')
 
 
-def sort_by_name_down(queryset: QuerySet) -> QuerySet:
+def sort_by_name_down(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
     """Сортирует по названию (Я → А)."""
     return queryset.order_by('-city__title')
 
 
-def sort_by_first_visit_date_down(queryset: QuerySet) -> QuerySet:
+def sort_by_first_visit_date_down(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
     """Сначала города с более поздней датой первого посещения"""
     return queryset.order_by(F('first_visit_date').desc(nulls_last=True), 'city__title')
 
 
-def sort_by_first_visit_date_up(queryset: QuerySet) -> QuerySet:
+def sort_by_first_visit_date_up(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
     """Сначала города без указания даты, далее давно посещённые и в конце недавно посещённые"""
     return queryset.order_by(F('first_visit_date').asc(nulls_first=True), 'city__title')
 
 
-def sort_by_last_visit_date_down(queryset: QuerySet) -> QuerySet:
+def sort_by_last_visit_date_down(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
     """Сначала города с более поздней датой последнего посещения"""
     return queryset.order_by(F('last_visit_date').desc(nulls_last=True), 'city__title')
 
 
-def sort_by_last_visit_date_up(queryset: QuerySet) -> QuerySet:
+def sort_by_last_visit_date_up(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
     """Сначала города без указания даты, далее давно посещённые и в конце недавно посещённые"""
     return queryset.order_by(F('last_visit_date').asc(nulls_first=True), 'city__title')
 
 
-def sort_number_of_visits_down(queryset: QuerySet) -> QuerySet:
+def sort_number_of_visits_down(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
     """Сначала города с большим количеством посещений"""
     return queryset.order_by(F('number_of_visits').desc(nulls_last=True), 'city__title')
 
 
-def sort_number_of_visits_up(queryset: QuerySet) -> QuerySet:
+def sort_number_of_visits_up(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
     """Сначала города с меньшим количеством посещений"""
     return queryset.order_by(F('number_of_visits').asc(nulls_first=True), 'city__title')
 
 
-SORT_FUNCTIONS: dict[str, Callable[[QuerySet[City]], QuerySet[City]]] = {
+SORT_FUNCTIONS: dict[str, Callable[[QuerySet[VisitedCity]], QuerySet[VisitedCity]]] = {
     'name_down': sort_by_name_down,
     'name_up': sort_by_name_up,
     'first_visit_date_down': sort_by_first_visit_date_down,

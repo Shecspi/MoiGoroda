@@ -342,7 +342,7 @@ export class ToolbarActions {
                 }
             });
 
-            if (year !== undefined && year !== city.year_of_visit) {
+            if (year !== undefined && (!this.subscriptionCities[i].visit_years || !this.subscriptionCities[i].visit_years.includes(year))) {
                 continue;
             }
             if (this.stateSubscriptionCities.has(city.id)) {
@@ -385,7 +385,7 @@ export class ToolbarActions {
             city.number_of_visits = this.ownCities[i].number_of_visits;
 
             // Если указан год, то добавляем на карту только города, которые были посещены в указанном году
-            if (year !== undefined && year !== city.year_of_visit) {
+            if (year !== undefined && (!city.visit_years || !city.visit_years.includes(year))) {
                 continue;
             }
 

@@ -13,7 +13,7 @@ from django.db.models import (
     Count,
     IntegerField,
 )
-from mypy_extensions import NoReturn
+from typing import NoReturn
 
 from city.models import VisitedCity
 

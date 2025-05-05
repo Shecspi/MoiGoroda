@@ -29,10 +29,10 @@ from django.views.generic import (
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 from city.sort import apply_sort_to_queryset
+from city.filter import apply_filter_to_queryset
 from collection.models import Collection
 from services import logger
 from services.db.city_repo import get_number_of_cities
-from services.db.visited_city.filter import apply_filter_to_queryset
 from services.db.visited_city_repo import (
     get_all_visited_cities,
     get_visited_city,

@@ -14,13 +14,13 @@ from json import JSONDecodeError
 from typing import NoReturn
 
 from pydantic import ValidationError
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 import rest_framework.exceptions as drf_exc
 from rest_framework.response import Response
 
 from account.models import ShareSettings
-from city.models import City
+from city.models import City, VisitedCity
 from city.serializers import (
     VisitedCitySerializer,
     NotVisitedCitySerializer,
@@ -197,7 +197,19 @@ class AddVisitedCity(generics.CreateAPIView):
             raise drf_exc.ValidationError(serializer.errors)
 
         user = request.user
-        region = City.objects.get(id=serializer.validated_data['city'].id).region
+        city = City.objects.get(id=serializer.validated_data['city'].id)
+        date_of_visit = serializer.validated_data['date_of_visit']
+
+        if VisitedCity.objects.filter(user=user, city=city, date_of_visit=date_of_visit).exists():
+            return Response(
+                {
+                    'status': 'success',
+                    'message': f'Вы уже сохранили посещение города {city} {date_of_visit}',
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        region = city.region
         serializer.save(user=user, region=region)
 
         logger.info(

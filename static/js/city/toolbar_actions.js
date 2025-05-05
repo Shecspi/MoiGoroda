@@ -563,7 +563,7 @@ export class ToolbarActions {
                 usersWhoVisitedCity.get(id)
             );
             this.stateSubscriptionCities.set(id, new_marker);
-        } else {
+        } else if (!this.stateOwnCities.has(id)) {
             throw new Error(`Неизвестное состояние добавленного города с ID ${id}`);
         }
     }

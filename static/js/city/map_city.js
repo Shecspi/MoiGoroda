@@ -200,7 +200,9 @@ form.addEventListener('submit', event => {
     })
         .then((response) => {
             if (!response.ok) {
-                throw new Error(response.statusText)
+                const error = new Error(`HTTP error! status: ${response.status}`);
+                error.status = response.status;
+                throw error;
             }
             return response.json()
         })
@@ -227,7 +229,11 @@ form.addEventListener('submit', event => {
         })
         .catch((err) => {
             console.log(err);
-            showDangerToast('Ошибка', 'Что-то пошло не так. Попробуйте ещё раз.');
+            if (err.status === 409) {
+                showDangerToast('Ошибка', 'Вы уже посещали город в указанную дату');
+            } else {
+                showDangerToast('Ошибка', 'Что-то пошло не так. Попробуйте ещё раз.');
+            }
 
             button.disabled = false;
             button.innerText = 'Добавить';

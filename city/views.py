@@ -28,22 +28,18 @@ from django.views.generic import (
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
-from city.sort import apply_sort_to_queryset
-from city.filter import apply_filter_to_queryset
+from city.services.db import get_all_visited_cities
+from city.services.sort import apply_sort_to_queryset
+from city.services.filter import apply_filter_to_queryset
 from collection.models import Collection
 from services import logger
-from services.db.city_repo import get_number_of_cities
+from city.services.db import get_number_of_cities, get_number_of_visited_cities
 from services.db.visited_city_repo import (
-    get_all_visited_cities,
     get_visited_city,
-    get_number_of_visited_cities,
-    get_number_of_visited_cities_current_year,
-    get_number_of_visited_cities_previous_year,
 )
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
 from subscribe.repository import is_user_has_subscriptions, get_all_subscriptions
-from utils.VisitedCityMixin import VisitedCityMixin
 
 
 class VisitedCity_Create(LoginRequiredMixin, CreateView):
@@ -303,7 +299,7 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
         return context
 
 
-class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
+class VisitedCity_List(LoginRequiredMixin, ListView):
     """
     Отображает список всех посещённых городов пользователя.
 
@@ -336,8 +332,6 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.has_subscriptions: bool = False
-        self.qty_of_visited_cities_last_year: int = 0
-        self.qty_of_visited_cities_current_year: int = 0
         self.all_visited_cities: QuerySet[VisitedCity] | None = None
 
     def get_queryset(self) -> QuerySet[VisitedCity]:
@@ -396,12 +390,7 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['all_cities'] = self.all_cities
         context['total_qty_of_cities'] = number_of_cities
         context['qty_of_visited_cities'] = number_of_visited_cities
-        context['qty_of_visited_cities_current_year'] = get_number_of_visited_cities_current_year(
-            self.user_id
-        )
-        context['qty_of_visited_cities_last_year'] = get_number_of_visited_cities_previous_year(
-            self.user_id
-        )
+
         context['declension_of_total_cities'] = modification__city(number_of_cities)
         context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
         context['declension_of_visited'] = modification__visited(number_of_visited_cities)
@@ -410,27 +399,6 @@ class VisitedCity_List(VisitedCityMixin, LoginRequiredMixin, ListView):
         context['sort'] = self.sort
 
         context['active_page'] = 'city_list'
-        context['url_for_filter_magnet'] = self.get_url_params(
-            'magnet' if self.filter != 'magnet' else '', self.sort
-        )
-        context['url_for_filter_current_year'] = self.get_url_params(
-            'current_year' if self.filter != 'current_year' else '', self.sort
-        )
-        context['url_for_filter_last_year'] = self.get_url_params(
-            'last_year' if self.filter != 'last_year' else '', self.sort
-        )
-        context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
-        context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
-        context['url_for_sort_date_down'] = self.get_url_params(
-            self.filter, 'first_visit_date_down'
-        )
-        context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'first_visit_date_up')
-        context['url_for_sort_last_date_down'] = self.get_url_params(
-            self.filter, 'last_visit_date_down'
-        )
-        context['url_for_sort_last_date_up'] = self.get_url_params(
-            self.filter, 'last_visit_date_up'
-        )
 
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(self.user_id)
         context['subscriptions'] = get_all_subscriptions(self.user_id)

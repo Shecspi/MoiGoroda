@@ -29,10 +29,8 @@ from city.serializers import (
 from city.structs import UserID
 from region.models import Region
 from services import logger
-from services.db.visited_city_repo import (
-    get_not_visited_cities,
-    get_all_visited_cities,
-)
+from services.db.visited_city_repo import get_not_visited_cities
+from city.services.db import get_all_visited_cities
 from subscribe.repository import is_subscribed
 
 

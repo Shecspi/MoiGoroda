@@ -211,6 +211,32 @@
             </label>
         </div>
 
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="sort"
+                   value="number_of_visits_down"
+                   {% if sort == 'number_of_visits_down' %}checked{% endif %}
+                   id="sortNumberOfVisitsDown">
+            <label class="form-check-label"
+                   for="sortNumberOfVisitsDown">
+                По количеству посещений (убывание)
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="sort"
+                   value="number_of_visits_up"
+                   {% if sort == 'number_of_visits_up' %}checked{% endif %}
+                   id="sortNumberOfVisitsUp">
+            <label class="form-check-label"
+                   for="sortNumberOfVisitsUp">
+                По количеству посещений (возрастание)
+            </label>
+        </div>
+
         <hr>
 
         <div class="d-grid gap-2">

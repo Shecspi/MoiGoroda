@@ -83,7 +83,7 @@ def get_all_cities_in_region(
         visit_dates=Coalesce(
             ArrayAgg(
                 'visitedcity__date_of_visit',
-                filter=Q(visitedcity__user=user),
+                filter=Q(visitedcity__user=user) & ~Q(visitedcity__date_of_visit=None),
                 ordering=['visitedcity__date_of_visit'],
             ),
             Value([], output_field=ArrayField(DateField())),

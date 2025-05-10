@@ -31,7 +31,7 @@
     <div class="col-xxl-6 col-md-12 d-flex justify-content-end" id="section-small-buttons">
         <button class="align-self-center btn {% if filter is not None %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 justify-content-start align-items-center position-relative"
                 type="button"
-                id="btnOpenFilterPanel"
+                id="btnOpenFilterSortPanel"
                 data-bs-tooltip="tooltip"
                 data-bs-title="Открыть панель фильтрации и сортировки городов"
                 data-bs-toggle="offcanvas"
@@ -171,7 +171,9 @@
             </button>
             <button type="button"
                     class="btn btn-secondary"
-                    id="resetFilters">
+                    id="resetFilters"
+                    data-filter="{% if filter %}{{ filter }}{% endif %}"
+                    data-sort="{{ sort }}">
                 Сбросить
             </button>
         </div>

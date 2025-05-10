@@ -6,11 +6,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const resetBtn = document.getElementById('resetFilters');
 
     resetBtn.addEventListener('click', function () {
-        const filter = "";
-        const sort = "";
+        const filter = this.dataset.filter;
+        const sort = this.dataset.sort;
 
         // Сброс фильтра
-        if (filter) {
+        if (filter || filter === "") {
             const filterInput = document.querySelector(`input[name="filter"][value="${filter}"]`);
             if (filterInput) filterInput.checked = true;
         }

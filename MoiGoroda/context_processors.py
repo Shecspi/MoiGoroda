@@ -32,6 +32,7 @@ def general_settings(request):
         'SIDEBAR_LINK_URL': os.getenv('SIDEBAR_LINK_URL'),
         'SIDEBAR_LINK_TEXT': os.getenv('SIDEBAR_LINK_TEXT'),
         'SIDEBAR_LINK_ADV_INFO': os.getenv('SIDEBAR_LINK_ADV_INFO'),
+        'DEBUG': os.getenv('DEBUG'),
     }
 
     return context

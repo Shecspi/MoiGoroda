@@ -31,6 +31,7 @@
     </div>
     <!-- ^^^ Посмотреть на карте -->
 
+    {% if user.is_authenticated %}
      <!-- Фильтры и сортировка -->
     <div class="col-xxl-6 col-md-12 d-flex justify-content-end" id="section-small-buttons">
         <button class="align-self-center btn {% if filter is not None %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 justify-content-start align-items-center position-relative"
@@ -43,7 +44,7 @@
                 aria-controls="offcanvasRight">
             <i class="fa-solid fa-sliders"></i>
             <span>Фильтрация и сортировка</span>
-            {% if filter is not None %}
+            {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
                 <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
                     <span class="visually-hidden">Применена фильтрация или сортировка</span>
                 </span>
@@ -51,9 +52,11 @@
         </button>
     </div>
     <!-- ^^^ Фильтры и сортировка -->
+    {% endif %}
 </div>
 <!-- ^^^ Панель инструментов -->
 
+{% if user.is_authenticated %}
 <div class="offcanvas offcanvas-end"
      tabindex="-1"
      id="offcanvasRight"
@@ -171,19 +174,6 @@
             <input class="form-check-input"
                    type="radio"
                    name="sort"
-                   value="name_down"
-                   {% if sort == 'name_down' or not sort|in_list:"name_down,name_up,first_visit_date_down,first_visit_date_up,last_visit_date_down,last_visit_date_up" %}checked{% endif %}
-                   id="sortNameDown">
-            <label class="form-check-label"
-                   for="sortNameDown">
-                По названию (убывание)
-            </label>
-        </div>
-
-        <div class="form-check mt-2">
-            <input class="form-check-input"
-                   type="radio"
-                   name="sort"
                    value="name_up"
                    {% if sort == 'name_up' %}checked{% endif %}
                    id="sortNameUp">
@@ -197,12 +187,12 @@
             <input class="form-check-input"
                    type="radio"
                    name="sort"
-                   value="first_visit_date_down"
-                   {% if sort == 'first_visit_date_down' %}checked{% endif %}
-                   id="sortFirstVisitDateDown">
+                   value="name_down"
+                   {% if sort == 'name_down' %}checked{% endif %}
+                   id="sortNameDown">
             <label class="form-check-label"
-                   for="sortFirstVisitDateDown">
-                По дате первого посещения (убывание)
+                   for="sortNameDown">
+                По названию (убывание)
             </label>
         </div>
 
@@ -223,12 +213,12 @@
             <input class="form-check-input"
                    type="radio"
                    name="sort"
-                   value="last_visit_date_down"
-                   {% if sort == 'last_visit_date_down' %}checked{% endif %}
-                   id="sortLastVisitDateDown">
+                   value="first_visit_date_down"
+                   {% if sort == 'first_visit_date_down' %}checked{% endif %}
+                   id="sortFirstVisitDateDown">
             <label class="form-check-label"
-                   for="sortLastVisitDateDown">
-                По дате последнего посещения (убывание)
+                   for="sortFirstVisitDateDown">
+                По дате первого посещения (убывание)
             </label>
         </div>
 
@@ -249,12 +239,12 @@
             <input class="form-check-input"
                    type="radio"
                    name="sort"
-                   value="number_of_visits_down"
-                   {% if sort == 'number_of_visits_down' %}checked{% endif %}
-                   id="sortNumberOfVisitsDown">
+                   value="last_visit_date_down"
+                   {% if sort == 'last_visit_date_down' %}checked{% endif %}
+                   id="sortLastVisitDateDown">
             <label class="form-check-label"
-                   for="sortNumberOfVisitsDown">
-                По количеству посещений (убывание)
+                   for="sortLastVisitDateDown">
+                По дате последнего посещения (убывание)
             </label>
         </div>
 
@@ -268,6 +258,19 @@
             <label class="form-check-label"
                    for="sortNumberOfVisitsUp">
                 По количеству посещений (возрастание)
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="sort"
+                   value="number_of_visits_down"
+                   {% if sort == 'number_of_visits_down' %}checked{% endif %}
+                   id="sortNumberOfVisitsDown">
+            <label class="form-check-label"
+                   for="sortNumberOfVisitsDown">
+                По количеству посещений (убывание)
             </label>
         </div>
 
@@ -289,3 +292,4 @@
 </div>
 
 <script src="{% static 'js/region/filter.js' %}"></script>
+{% endif %}

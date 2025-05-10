@@ -28,7 +28,7 @@ from services.db.regions_repo import (
     get_all_cities_in_region,
 )
 from region.services.filter import apply_filter_to_queryset
-from services.db.selected_region.sort import apply_sort_to_queryset
+from region.services.sort import apply_sort_to_queryset
 from services.url_params import make_url_params
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
@@ -133,6 +133,10 @@ class CitiesByRegionList(ListView):
     Допустимые параметры фильтрации указываются в region.services.filter.FILTER_FUNCTIONS.
     Если в URL передан недопустимый параметр, то self.filter будет иметь значение None.
     На это можно ориентироваться в шаблонах, есть ли сейчас активная фильтрация или нет.
+
+    Допустимые параметры сортировки указываются в region.services.sort.SORT_FUNCTIONS.
+    Если в URL не передан параметр sort или он имеет недопустимое значение, то будет использоваться сортировка по умолчанию - name_up.
+    На это можно ориентироваться в шаблонах, есть ли сейчас активная фильтрация или нет.
     """
 
     model = VisitedCity
@@ -172,6 +176,7 @@ class CitiesByRegionList(ListView):
         Фильтрует и сортирует данные в зависимости от параметров запроса.
         """
         self.filter = self.request.GET.get('filter') or None
+        self.sort = self.request.GET.get('sort', None)
 
         if self.request.user.is_authenticated:
             queryset = get_all_cities_in_region(self.request.user, self.region_id)
@@ -228,8 +233,6 @@ class CitiesByRegionList(ListView):
         # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
-        # Для авторизованных пользователей определяем тип сортировки.
-        # Сортировка для неавторизованного пользователя недоступна - она выставляется в значение `name_down`.
         queryset = self.apply_sort(queryset)
 
         return queryset
@@ -253,22 +256,21 @@ class CitiesByRegionList(ListView):
         Применяет сортировку к набору данных. Если параметр `sort` отсутствует,
         используется сортировка по умолчанию.
         """
-        sort_default = 'default_auth' if self.request.user.is_authenticated else 'name_down'
+        sort_default = 'last_visit_date_down'
 
-        if self.request.user.is_authenticated:
-            self.sort = self.request.GET.get('sort', sort_default)
-
-            try:
-                queryset = apply_sort_to_queryset(queryset, self.sort)
-            except KeyError:
-                logger.warning(
-                    self.request, f"(Region) Unexpected value of the sorting '{self.sort}'"
-                )
-                queryset = apply_sort_to_queryset(queryset, sort_default)
-                self.sort = 'name_down'
-            else:
-                if self.sort != 'default_auth' and self.sort != 'name_down':
-                    logger.info(self.request, f"(Region) Using the sorting '{self.sort}'")
+        try:
+            queryset = apply_sort_to_queryset(
+                queryset, self.sort, self.request.user.is_authenticated
+            )
+        except KeyError:
+            logger.warning(self.request, f"(Region) Unexpected value of the sorting '{self.sort}'")
+            queryset = apply_sort_to_queryset(
+                queryset, sort_default, self.request.user.is_authenticated
+            )
+            self.sort = sort_default
+        else:
+            if self.sort is not None and self.sort != sort_default:
+                logger.info(self.request, f"(Region) Using the sorting '{self.sort}'")
 
         return queryset
 

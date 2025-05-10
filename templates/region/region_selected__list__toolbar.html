@@ -32,8 +32,8 @@
     <!-- ^^^ Посмотреть на карте -->
 
      <!-- Фильтры и сортировка -->
-    <div class="col-xxl-6 col-md-12 text-end g-3" id="section-small-buttons">
-        <button class="align-self-center btn btn-outline-primary small-btn-for-toolbar me-3"
+    <div class="col-xxl-6 col-md-12 d-flex justify-content-end" id="section-small-buttons">
+        <button class="align-self-center btn {% if filter is not None %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 justify-content-start align-items-center position-relative"
                 type="button"
                 id="btnOpenFilterSortPanel"
                 data-bs-tooltip="tooltip"
@@ -42,13 +42,18 @@
                 data-bs-target="#offcanvasRight"
                 aria-controls="offcanvasRight">
             <i class="fa-solid fa-sliders"></i>
+            <span>Фильтрация и сортировка</span>
+            {% if filter is not None %}
+                <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                    <span class="visually-hidden">Применена фильтрация или сортировка</span>
+                </span>
+            {% endif %}
         </button>
     </div>
     <!-- ^^^ Фильтры и сортировка -->
 </div>
 <!-- ^^^ Панель инструментов -->
 
-{% with defaultFilter='no_filter' defaultSort='last_visit_date_down' %}
 <div class="offcanvas offcanvas-end"
      tabindex="-1"
      id="offcanvasRight"
@@ -71,8 +76,8 @@
             <input class="form-check-input"
                    type="radio"
                    name="filter"
-                   value="no_filter"
-                   {% if filter is None or not filter|in_list:"no_magnet,magnet,current_year,last_year" %}checked{% endif %}
+                   value=""
+                   {% if filter is None %}checked{% endif %}
                    id="filterNoFilter">
             <label class="form-check-label"
                    for="filterNoFilter">
@@ -129,6 +134,32 @@
             <label class="form-check-label"
                    for="filterLastYear">
                 В прошлом году
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="filter"
+                   value="visited"
+                   {% if filter == 'visited' %}checked{% endif %}
+                   id="filterVisited">
+            <label class="form-check-label"
+                   for="filterVisited">
+                Посещённые
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="filter"
+                   value="not_visited"
+                   {% if filter == 'not_visited' %}checked{% endif %}
+                   id="filterNotVisited">
+            <label class="form-check-label"
+                   for="filterNotVisited">
+                Не посещённые
             </label>
         </div>
 
@@ -245,19 +276,16 @@
         <div class="d-grid gap-2">
             <button type="submit"
                     class="btn btn-primary"
-                    id="applyFilters"
-                    data-filter="{{ filter|default:defaultFilter }}"
-                    data-sort="{{ sort|default:defaultSort }}">Применить</button>
+                    id="applyFilters">
+                Применить
+            </button>
             <button type="button"
                     class="btn btn-secondary"
-                    id="resetFilters"
-                    data-filter="{{ filter|default:defaultFilter }}"
-                    data-sort="{{ sort|default:defaultSort }}">
+                    id="resetFilters">
                 Сбросить
             </button>
         </div>
     </div>
 </div>
-{% endwith %}
 
 <script src="{% static 'js/region/filter.js' %}"></script>

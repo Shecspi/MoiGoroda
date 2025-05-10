@@ -86,6 +86,47 @@ def filter_has_no_magnet(queryset: QuerySet[City], user: AbstractBaseUser) -> Qu
     return queryset.filter(has_magnet=False, is_visited=True)
 
 
+def filter_visited(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
+    """
+    Фильтр оставляет только посещённые города.
+
+    Аргумент user не используется и нужен только для унификации функций фильтрации.
+    """
+    return queryset.filter(is_visited=True)
+
+
+def filter_not_visited(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
+    """
+    Фильтр оставляет только не посещённые города.
+
+    Аргумент user не используется и нужен только для унификации функций фильтрации.
+    """
+    return queryset.filter(is_visited=False)
+
+
+def filter_by_year(queryset: QuerySet[City], user: AbstractBaseUser, year: int) -> QuerySet[City]:
+    return (
+        queryset.annotate(
+            visit_dates=ArrayAgg(
+                'visitedcity__date_of_visit',
+                filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=year),
+                distinct=True,
+                ordering='visitedcity__date_of_visit',
+            ),
+            first_visit_date=Min(
+                'visitedcity__date_of_visit',
+                filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=year),
+            ),
+            last_visit_date=Max(
+                'visitedcity__date_of_visit',
+                filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=year),
+            ),
+        )
+        .exclude(Q(visit_dates=[]))
+        .annotate(number_of_visits=ArrayLength('visit_dates'))
+    )
+
+
 def filter_current_year(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
     """
     Фильтр оставляет только города, посещённые в текущем году.
@@ -93,26 +134,7 @@ def filter_current_year(queryset: QuerySet[City], user: AbstractBaseUser) -> Que
     учитывая только посещения за текущий год.
     """
     current_year = datetime.today().year
-    return (
-        queryset.annotate(
-            visit_dates=ArrayAgg(
-                'visitedcity__date_of_visit',
-                filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=current_year),
-                distinct=True,
-                ordering='visitedcity__date_of_visit',
-            ),
-            first_visit_date=Min(
-                'visitedcity__date_of_visit',
-                filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=current_year),
-            ),
-            last_visit_date=Max(
-                'visitedcity__date_of_visit',
-                filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=current_year),
-            ),
-        )
-        .exclude(Q(visit_dates=[]))
-        .annotate(number_of_visits=ArrayLength('visit_dates'))
-    )
+    return filter_by_year(queryset, user, current_year)
 
 
 def filter_last_year(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
@@ -122,31 +144,14 @@ def filter_last_year(queryset: QuerySet[City], user: AbstractBaseUser) -> QueryS
     учитывая только посещения за прошлый год.
     """
     previous_year = datetime.today().year - 1
-    return (
-        queryset.annotate(
-            visit_dates=ArrayAgg(
-                'visitedcity__date_of_visit',
-                filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=previous_year),
-                distinct=True,
-                ordering='visitedcity__date_of_visit',
-            ),
-            first_visit_date=Min(
-                'visitedcity__date_of_visit',
-                filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=previous_year),
-            ),
-            last_visit_date=Max(
-                'visitedcity__date_of_visit',
-                filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=previous_year),
-            ),
-        )
-        .exclude(Q(visit_dates=[]))
-        .annotate(number_of_visits=ArrayLength('visit_dates'))
-    )
+    return filter_by_year(queryset, user, previous_year)
 
 
 FILTER_FUNCTIONS: dict[str, Callable[[QuerySet[City], AbstractBaseUser], QuerySet[City]]] = {
-    'has_magnet': filter_has_magnet,
-    'has_no_magnet': filter_has_no_magnet,
+    'magnet': filter_has_magnet,
+    'no_magnet': filter_has_no_magnet,
     'current_year': filter_current_year,
     'last_year': filter_last_year,
+    'visited': filter_visited,
+    'not_visited': filter_not_visited,
 }

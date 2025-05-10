@@ -27,7 +27,7 @@ from services.db.regions_repo import (
     get_all_visited_regions,
     get_all_cities_in_region,
 )
-from services.db.selected_region.filter import apply_filter_to_queryset
+from region.services.filter import apply_filter_to_queryset
 from services.db.selected_region.sort import apply_sort_to_queryset
 from services.url_params import make_url_params
 from services.word_modifications.city import modification__city
@@ -129,13 +129,17 @@ class CitiesByRegionList(ListView):
     """
     Представление для вывода списка или карты городов в конкретном регионе.
     Поддерживает фильтрацию, сортировку и переключение между картой и списком.
+
+    Допустимые параметры фильтрации указываются в region.services.filter.FILTER_FUNCTIONS.
+    Если в URL передан недопустимый параметр, то self.filter будет иметь значение None.
+    На это можно ориентироваться в шаблонах, есть ли сейчас активная фильтрация или нет.
     """
 
     model = VisitedCity
     paginate_by = 16
 
     sort: str = ''
-    filter: str = ''
+    filter: str | None = None
     region_id = None
     all_cities = None
     region_name = None
@@ -167,10 +171,15 @@ class CitiesByRegionList(ListView):
         Формирование списка городов в регионе.
         Фильтрует и сортирует данные в зависимости от параметров запроса.
         """
-        self.filter = self.request.GET.get('filter')
+        self.filter = self.request.GET.get('filter') or None
 
         if self.request.user.is_authenticated:
             queryset = get_all_cities_in_region(self.request.user, self.region_id)
+
+            # Количество городов считаем до фильтрации, чтобы всегда было указано, сколько городов посещено
+            self.total_qty_of_cities = City.objects.filter(region_id=self.region_id).count()
+            self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
+
             queryset = self.apply_filter(queryset)
             queryset = queryset.values(
                 'id',
@@ -188,9 +197,6 @@ class CitiesByRegionList(ListView):
                 'has_magnet',
                 'rating',
             )
-
-            self.total_qty_of_cities = City.objects.filter(region_id=self.region_id).count()
-            self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
         else:
             queryset = City.objects.filter(region=self.region_id).values(
                 'id',
@@ -236,6 +242,7 @@ class CitiesByRegionList(ListView):
             try:
                 queryset = apply_filter_to_queryset(queryset, self.request.user, self.filter)
             except KeyError:
+                self.filter = None
                 logger.warning(
                     self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
                 )

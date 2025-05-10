@@ -12,7 +12,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import QuerySet, Q, Min, Max
 
-from services.db.selected_region.filter import (
+from region.services.filter import (
     filter_has_magnet,
     filter_has_no_magnet,
     filter_current_year,
@@ -23,7 +23,7 @@ from services.db.selected_region.filter import (
 )
 
 
-def test__filter_has_magnet_correctly_filters_queryset(mocker):
+def test_filter_has_magnet_correctly_filters_queryset(mocker):
     # Создаём мок-объект для queryset и user
     mock_queryset = mocker.Mock(spec=QuerySet)
     mock_user = mocker.Mock(spec=AbstractBaseUser)
@@ -39,7 +39,7 @@ def test__filter_has_magnet_correctly_filters_queryset(mocker):
     assert result == mock_queryset.filter.return_value
 
 
-def test__filter_has_magnet_does_not_use_user(mocker):
+def test_filter_has_magnet_does_not_use_user(mocker):
     """
     Проверяет, что параметр `user` не используется при фильтрации.
     """
@@ -52,7 +52,7 @@ def test__filter_has_magnet_does_not_use_user(mocker):
     mock_user.assert_not_called()
 
 
-def test__filter_has_no_magnet_correctly_filters_queryset(mocker):
+def test_filter_has_no_magnet_correctly_filters_queryset(mocker):
     # Создаём мок-объект для queryset и user
     mock_queryset = mocker.Mock(spec=QuerySet)
     mock_user = mocker.Mock(spec=AbstractBaseUser)
@@ -68,7 +68,7 @@ def test__filter_has_no_magnet_correctly_filters_queryset(mocker):
     assert result == mock_queryset.filter.return_value
 
 
-def test__filter_has_no_magnet_does_not_use_user(mocker):
+def test_filter_has_no_magnet_does_not_use_user(mocker):
     """
     Проверяет, что параметр `user` не используется при фильтрации.
     """
@@ -81,7 +81,7 @@ def test__filter_has_no_magnet_does_not_use_user(mocker):
     mock_user.assert_not_called()
 
 
-def test__filter_current_year(mocker):
+def test_filter_current_year(mocker):
     """
     Проверяет корректность построения QuerySet для фильтрации городов текущего года.
 
@@ -98,7 +98,7 @@ def test__filter_current_year(mocker):
     """
 
     # Мокаем datetime.today().year, чтобы контролировать текущий год
-    mock_datetime = mocker.patch('services.db.selected_region.filter.datetime')
+    mock_datetime = mocker.patch('region.services.filter.datetime')
     mock_datetime.today.return_value.year = 2025
 
     # Создаем мок QuerySet и пользователя
@@ -135,7 +135,7 @@ def test__filter_current_year(mocker):
     assert result == excluded_queryset.annotate.return_value
 
 
-def test__current_year_logic(mocker):
+def test_current_year_logic(mocker):
     """
     Проверяет динамическое использование текущего года в фильтрах.
 
@@ -151,7 +151,7 @@ def test__current_year_logic(mocker):
     """
 
     # Проверяем что используется текущий год
-    mock_datetime = mocker.patch('services.db.selected_region.filter.datetime')
+    mock_datetime = mocker.patch('region.services.filter.datetime')
     mock_datetime.today.return_value.year = 2026  # Меняем год
 
     mock_queryset = mocker.Mock(spec=QuerySet)
@@ -166,7 +166,7 @@ def test__current_year_logic(mocker):
     assert call_args['visit_dates'].filter == expected_filter
 
 
-def test__filter_last_year(mocker):
+def test_filter_last_year(mocker):
     """
     Проверяет корректность построения QuerySet для фильтрации городов прошлого года.
 
@@ -182,7 +182,7 @@ def test__filter_last_year(mocker):
     Тест проверяет структуру запроса без подключения к БД.
     """
     # Мокаем datetime для контроля года
-    mock_datetime = mocker.patch('services.db.selected_region.filter.datetime')
+    mock_datetime = mocker.patch('region.services.filter.datetime')
     mock_datetime.today.return_value.year = 2023  # Текущий год для теста
 
     mock_queryset = mocker.Mock(spec=QuerySet)
@@ -208,7 +208,7 @@ def test__filter_last_year(mocker):
     )
 
 
-def test__last_year_logic(mocker):
+def test_last_year_logic(mocker):
     """
     Проверяет динамическое вычисление предыдущего года в фильтрах.
 
@@ -225,7 +225,7 @@ def test__last_year_logic(mocker):
     )
 
     # Мокаем datetime
-    mock_datetime = mocker.patch('services.db.selected_region.filter.datetime')
+    mock_datetime = mocker.patch('region.services.filter.datetime')
 
     # Тест кейс 1: текущий 2024 → предыдущий 2023
     mock_datetime.today.return_value.year = 2024
@@ -251,7 +251,7 @@ def test__last_year_logic(mocker):
     assert call_kwargs['visit_dates'].filter == expected_filter_2024
 
 
-def test__apply_filter_calls_correct_function(mocker):
+def test_apply_filter_calls_correct_function(mocker):
     """
     Проверяет вызов правильной функции фильтрации через apply_filter_to_queryset
     """
@@ -261,7 +261,7 @@ def test__apply_filter_calls_correct_function(mocker):
 
     # Подменяем словарь фильтров
     mocker.patch.dict(
-        'services.db.selected_region.filter.FILTER_FUNCTIONS',
+        'region.services.filter.FILTER_FUNCTIONS',
         {'test_filter': mock_filter},
         clear=False,
     )
@@ -272,11 +272,10 @@ def test__apply_filter_calls_correct_function(mocker):
     assert result == mock_filter.return_value
 
 
-def test__apply_filter_raises_error_for_unknown_filter(mocker):
+def test_apply_filter_raises_error_for_unknown_filter(mocker):
     """
     Проверяет вызов исключения для неизвестного фильтра
     """
-    mock_filter = mocker.Mock(return_value=QuerySet())
     mock_queryset = mocker.Mock(spec=QuerySet)
     mock_user = mocker.Mock(spec=AbstractBaseUser)
 
@@ -287,7 +286,7 @@ def test__apply_filter_raises_error_for_unknown_filter(mocker):
 
 
 @pytest.mark.parametrize('filter_name', FILTER_FUNCTIONS.keys())
-def test__all_registered_filters_are_called(mocker, filter_name):
+def test_all_registered_filters_are_called(mocker, filter_name):
     """
     Параметризованный тест для всех зарегистрированных фильтров
     """
@@ -295,7 +294,7 @@ def test__all_registered_filters_are_called(mocker, filter_name):
     mock_queryset = mocker.Mock(spec=QuerySet)
     mock_user = mocker.Mock(spec=AbstractBaseUser)
     mocker.patch.dict(
-        'services.db.selected_region.filter.FILTER_FUNCTIONS',
+        'region.services.filter.FILTER_FUNCTIONS',
         {filter_name: mock_filter},
         clear=False,
     )

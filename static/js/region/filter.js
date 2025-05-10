@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const resetBtn = document.getElementById('resetFilters');
 
     resetBtn.addEventListener('click', function () {
-        const filter = this.dataset.filter;
-        const sort = this.dataset.sort;
+        const filter = "";
+        const sort = "";
 
         // Сброс фильтра
         if (filter) {
@@ -27,10 +27,10 @@ document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('applyFilters').addEventListener('click', function () {
     const filter = document.querySelector('input[name="filter"]:checked')?.value || '';
     const sort = document.querySelector('input[name="sort"]:checked')?.value || '';
-    const defaultFilter = this.dataset.filter;
-    const defaultSort = this.dataset.sort;
+    const defaultFilter = "";
+    const defaultSort = "";
 
-    // Устанавливаем filter и sort как undefined, если они совпадают с дефолтными значениями,
+    // Устанавливаем filter и sort как undefined, если они совпадают с дефолтными значениями (пустая строка),
     // чтобы не помещать их в URL параметры
     const filterValue = (filter === defaultFilter) ? undefined : filter;
     const sortValue = (sort === defaultSort) ? undefined : sort;

@@ -45,17 +45,6 @@ def order_by_date_of_visit_desc(cities: QuerySet[VisitedCity]):
         return cities
 
 
-def order_by_date_of_visit_asc(cities: QuerySet[VisitedCity]):
-    """
-    Производит сортировку QuerySet по столбцу 'date_of_visit', если такой имеется, в увеличивающемся порядке.
-    Если QuerySet пуст или столбца 'date_of_visit' не существует - возвращается оригинальный QuerySet без изменений.
-    """
-    if cities and hasattr(cities[0], 'date_of_visit'):
-        return cities.order_by(F('date_of_visit').asc(nulls_last=True))
-    else:
-        return cities
-
-
 def get_visited_city(user_id: int, city_id: int) -> VisitedCity | Literal[False]:
     """
     Возвращает экземпляр класса VisitedCity с информацией о посещённом городе, если запись,

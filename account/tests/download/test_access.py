@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from tests.account.download.create_db import create_user
+from account.tests.download.create_db import create_user
 
 
 @pytest.mark.django_db

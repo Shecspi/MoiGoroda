@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 from django.urls import reverse
 
-from tests.account.download.create_db import (
+from account.tests.download.create_db import (
     create_user,
     create_area,
     create_region,

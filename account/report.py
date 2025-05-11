@@ -9,10 +9,10 @@ Licensed under the Apache License, Version 2.0
 
 from abc import ABC, abstractmethod
 
-
+from city.services.db import get_all_visited_cities
+from city.services.sort import apply_sort_to_queryset
 from services.db.area_repo import get_visited_areas
 from region.services.db import get_all_region_with_visited_cities
-from services.db.visited_city_repo import get_all_visited_cities, order_by_date_of_visit_desc
 
 
 class Report(ABC):
@@ -28,19 +28,29 @@ class CityReport(Report):
         self.user_id = user_id
 
     def get_report(self) -> list[tuple]:
-        all_visited_cities = get_all_visited_cities([self.user_id])
-        sorted_visited_cities = order_by_date_of_visit_desc(all_visited_cities)
+        all_visited_cities = get_all_visited_cities(self.user_id)
+        sorted_visited_cities = apply_sort_to_queryset(all_visited_cities, 'last_visit_date_down')
         result = [
-            ('Город', 'Регион', 'Дата посещения', 'Наличие сувенира', 'Оценка'),
+            (
+                'Город',
+                'Регион',
+                'Количество посещений',
+                'Дата первого посещения',
+                'Дата последнего посещения',
+                'Наличие сувенира',
+                'Средняя оценка',
+            ),
         ]
         for city in sorted_visited_cities:
             result.append(
                 (
                     city.city.title,
                     str(city.region),
-                    str(city.date_of_visit) if city.date_of_visit else 'Не указана',
-                    '+' if city.has_magnet else '-',
-                    '*' * city.rating if city.rating else '',
+                    city.number_of_visits,
+                    str(city.first_visit_date) if city.first_visit_date else 'Не указана',
+                    str(city.last_visit_date) if city.last_visit_date else 'Не указана',
+                    '+' if city.has_souvenir else '-',
+                    city.average_rating if city.average_rating else '',
                 ),
             )
         return result
@@ -65,15 +75,18 @@ class RegionReport(Report):
             title = region
             num_total_cities = region.num_total
             num_visited_cities = region.num_visited
-            ratio_visited_cities = f'{(num_visited_cities / num_total_cities):.0%}'
+            try:
+                ratio_visited_cities = f'{(num_visited_cities / num_total_cities):.0%}'
+            except ZeroDivisionError:
+                ratio_visited_cities = '0%'
             num_not_visited_cities = num_total_cities - num_visited_cities
             result.append(
                 (
                     str(title),
-                    str(num_total_cities),
-                    str(num_visited_cities),
+                    num_total_cities,
+                    num_visited_cities,
                     ratio_visited_cities,
-                    str(num_not_visited_cities),
+                    num_not_visited_cities,
                 ),
             )
         return result
@@ -98,15 +111,18 @@ class AreaReport(Report):
             title = area.title
             num_total_regions = area.total_regions
             num_visited_regions = area.visited_regions
-            ratio_visited_regions = f'{(num_visited_regions / num_total_regions):.0%}'
+            try:
+                ratio_visited_regions = f'{(num_visited_regions / num_total_regions):.0%}'
+            except ZeroDivisionError:
+                ratio_visited_regions = '0%'
             num_not_visited_regions = num_total_regions - num_visited_regions
             result.append(
                 (
                     str(title),
-                    str(num_total_regions),
-                    str(num_visited_regions),
-                    str(ratio_visited_regions),
-                    str(num_not_visited_regions),
+                    num_total_regions,
+                    num_visited_regions,
+                    ratio_visited_regions,
+                    num_not_visited_regions,
                 ),
             )
         return result

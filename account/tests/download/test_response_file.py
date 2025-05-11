@@ -7,7 +7,7 @@ import openpyxl
 import pytest
 from django.urls import reverse
 
-from tests.account.download.create_db import (
+from account.tests.download.create_db import (
     create_user,
     create_area,
     create_region,

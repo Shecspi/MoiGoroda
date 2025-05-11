@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0
 from django.http import Http404, HttpResponse
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
 from django.db.models import QuerySet
 
 from MoiGoroda import settings
@@ -24,8 +23,9 @@ from region.models import Region
 from city.models import VisitedCity, City
 from services import logger
 from region.services.db import (
-    get_all_visited_regions,
+    get_all_region_with_visited_cities,
     get_all_cities_in_region,
+    get_all_regions,
 )
 from region.services.filter import apply_filter_to_queryset
 from region.services.sort import apply_sort_to_queryset
@@ -62,19 +62,15 @@ class RegionList(RegionListMixin, ListView):
         """
         Достаёт из базы данных все регионы, добавляя дополнительные поля:
             * num_total - общее количество городов в регионе
-            * num_visited - количество посещённых пользователем городов в регионе
+            * num_visited - количество посещённых пользователем городов в регионе (для авторизованных пользователей)
         """
         self.qty_of_regions = Region.objects.count()
 
         if self.request.user.is_authenticated:
-            queryset = get_all_visited_regions(self.request.user.pk)
+            queryset = get_all_region_with_visited_cities(self.request.user.pk)
             self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
         else:
-            queryset = (
-                Region.objects.select_related('area')
-                .annotate(num_total=Count('city', distinct=True))
-                .order_by('title')
-            )
+            queryset = get_all_regions()
 
         if self.list_or_map == 'list':
             logger.info(self.request, '(Region) Viewing the list of regions')
@@ -115,13 +111,13 @@ class RegionList(RegionListMixin, ListView):
         return context
 
     def get_template_names(self) -> list[str]:
-        if self.list_or_map == 'list':
-            return [
-                'region/region_all__list.html',
-            ]
-        elif self.list_or_map == 'map':
+        if self.list_or_map == 'map':
             return [
                 'region/region_all__map.html',
+            ]
+        else:
+            return [
+                'region/region_all__list.html',
             ]
 
 

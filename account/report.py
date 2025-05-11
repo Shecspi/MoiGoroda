@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 
 
 from services.db.area_repo import get_visited_areas
-from region.services.db import get_all_visited_regions
+from region.services.db import get_all_region_with_visited_cities
 from services.db.visited_city_repo import get_all_visited_cities, order_by_date_of_visit_desc
 
 
@@ -51,7 +51,7 @@ class RegionReport(Report):
         self.user_id = user_id
 
     def get_report(self) -> list[tuple[str, ...]]:
-        regions = get_all_visited_regions(self.user_id)
+        regions = get_all_region_with_visited_cities(self.user_id)
         result = [
             (
                 'Регион',

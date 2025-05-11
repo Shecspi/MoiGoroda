@@ -24,7 +24,7 @@ from services.db.statistics.get_info_for_statistic_cards_and_charts import (
     get_info_for_statistic_cards_and_charts,
 )
 from services.db.visited_city_repo import get_all_visited_cities
-from region.services.db import get_all_visited_regions
+from region.services.db import get_all_region_with_visited_cities
 import subscribe.repository as repo
 
 
@@ -237,4 +237,4 @@ def additional_context_for_region_map(user_id: int) -> dict[str, QuerySet[Region
     """
     Получает из БД все регионы, которые посетил пользователь с ID user_id и возвращает их в виде словаря.
     """
-    return {'all_regions': get_all_visited_regions(user_id)}
+    return {'all_regions': get_all_region_with_visited_cities(user_id)}

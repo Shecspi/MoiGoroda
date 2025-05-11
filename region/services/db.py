@@ -32,9 +32,21 @@ from city.models import City, VisitedCity
 from region.models import Region
 
 
-def get_all_visited_regions(user_id: int) -> QuerySet[Region]:
+def get_all_regions() -> QuerySet[Region]:
     """
-    Получает из базы данных все посещённые регионы пользователя с ID, указанным в user_id.
+    Возвращает QuerySet со всеми регионами и количеством городов в каждом из них.
+    """
+    return (
+        Region.objects.select_related('area')
+        .annotate(num_total=Count('city', distinct=True))
+        .order_by('title')
+    )
+
+
+def get_all_region_with_visited_cities(user_id: int) -> QuerySet[Region]:
+    """
+    Возвращает QuerySet со всеми регионами, количеством городов в каждом из них и
+    количеством посещённых городов пользователем с ID равным user_id.
     """
     return (
         Region.objects.select_related('area')

@@ -24,7 +24,7 @@ from services.db.statistics.get_info_for_statistic_cards_and_charts import (
     get_info_for_statistic_cards_and_charts,
 )
 from services.db.visited_city_repo import get_all_visited_cities
-from services.db.regions_repo import get_all_visited_regions
+from region.services.db import get_all_visited_regions
 import subscribe.repository as repo
 
 

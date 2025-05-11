@@ -23,7 +23,7 @@ from MoiGoroda import settings
 from region.models import Region
 from city.models import VisitedCity, City
 from services import logger
-from services.db.regions_repo import (
+from region.services.db import (
     get_all_visited_regions,
     get_all_cities_in_region,
 )

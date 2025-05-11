@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 
 
 from services.db.area_repo import get_visited_areas
-from services.db.regions_repo import get_all_visited_regions
+from region.services.db import get_all_visited_regions
 from services.db.visited_city_repo import get_all_visited_cities, order_by_date_of_visit_desc
 
 

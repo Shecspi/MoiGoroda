@@ -19,14 +19,10 @@
                 {% endif %}
 
                 <h4 id="subsection-city-title_{{ forloop.counter }}">
-                    {% if city.is_visited %}
-                        <a href="{% url 'city-selected' city.id %}"
-                           class="link_to link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                            {{ city.title }}
-                        </a>
-                    {% else %}
+                    <a href="{% url 'city-selected' city.id %}"
+                       class="link_to link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
                         {{ city.title }}
-                    {% endif %}
+                    </a>
                 </h4>
 
                 {% if user.is_authenticated %}

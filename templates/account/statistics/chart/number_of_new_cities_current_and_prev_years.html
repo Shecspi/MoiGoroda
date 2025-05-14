@@ -1,0 +1,30 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <h6 class="text-muted mb-3">Новых городов по годам</h6>
+
+        {% if cities.number_of_new_visited_cities_current_year or cities.number_of_new_visited_cities_previous_year %}
+            <canvas class="vert" id="chart__number_of_new_cities_current_and_prev_years"></canvas>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert">
+                Не сохранено ни одного нового города, посещённого в текущем или прошлом годах
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const ctx__new_cities_current_and_prev_years = document.getElementById('chart__number_of_new_cities_current_and_prev_years').getContext('2d');
+    const myChart_cities_current_and_prev_years = new Chart(ctx__new_cities_current_and_prev_years, {
+        type: 'pie',
+        data: {
+            labels: ['В этом году', 'В прошлом году'],
+            datasets: [
+                {
+                    data: ['{{ cities.number_of_new_visited_cities_current_year }}', '{{ cities.number_of_new_visited_cities_previous_year }}'],
+                    borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                    backgroundColor: ['rgba(51,171,255,0.6)', 'rgba(51,171,255,0.3)']
+                },
+            ]
+        },
+    });
+</script>

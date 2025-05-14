@@ -8,11 +8,11 @@
     {% include 'advertisement/travel_payouts.html' %}
 
     {% if fake_statistics %}
-        {% include 'account/statistics/info_about_fake_statistics.html' %}
+        {% include 'account/statistics/parts/info_about_fake_statistics.html' %}
     {% else %}
-        {% include 'account/statistics/toolbar.html' %}
-        {% include 'account/statistics/share_modal.html' %}
-        {% include 'account/statistics/download_modal.html' %}
+        {% include 'account/statistics/parts/toolbar.html' %}
+        {% include 'account/statistics/parts/share_modal.html' %}
+        {% include 'account/statistics/parts/download_modal.html' %}
     {% endif %}
 
     {% include 'account/statistics/all_cards_and_charts.html' %}

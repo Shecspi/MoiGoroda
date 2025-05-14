@@ -1,0 +1,30 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <h6 class="text-muted mb-3">Все посещённые города</h6>
+
+        {% if cities.number_of_visited_cities and cities.number_of_not_visited_cities %}
+            <canvas class="vert" id="chart__qty_of_cities"></canvas>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert">
+                Не сохранено ни одного города, посещённого в текущем или прошлом годах
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const ctx_cities = document.getElementById('chart__qty_of_cities').getContext('2d');
+    const myChart_cities = new Chart(ctx_cities, {
+            type: 'pie',
+            data: {
+                labels: ['Посещённые', 'Не посещённые'],
+                datasets: [
+                    {
+                        data: ['{{ cities.number_of_visited_cities }}', '{{ cities.number_of_not_visited_cities }}'],
+                        borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                        backgroundColor: ['rgba(66, 189, 53, 0.6)', 'rgba(66, 189, 53, 0.3)']
+                    },
+                ]
+            },
+        });
+</script>

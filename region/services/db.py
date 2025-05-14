@@ -25,11 +25,13 @@ from django.db.models import (
     Value,
     Min,
     Max,
+    F,
+    FloatField,
 )
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Cast
 
 from city.models import City, VisitedCity
-from region.models import Region
+from region.models import Region, Area
 
 
 def get_all_regions() -> QuerySet[Region]:
@@ -41,6 +43,13 @@ def get_all_regions() -> QuerySet[Region]:
         .annotate(num_total=Count('city', distinct=True))
         .order_by('title')
     )
+
+
+def get_number_of_regions() -> int:
+    """
+    Возвращает количество регионов, сохранённых в БД.
+    """
+    return Region.objects.count()
 
 
 def get_all_region_with_visited_cities(user_id: int) -> QuerySet[Region]:
@@ -130,3 +139,49 @@ def get_all_cities_in_region(
     )
 
     return queryset
+
+
+def get_number_of_visited_regions(user_id: int) -> int:
+    """
+    Возвращает количество посещённых регионов пользователя с ID user_id.
+    """
+    return get_all_region_with_visited_cities(user_id).filter(num_visited__gt=0).count()
+
+
+def get_number_of_finished_regions(user_id: int) -> int:
+    """
+    Возвращает количество регионов, в которых пользователь с ID == user_id посетил все города.
+    Эта функция расширяет функцию get_all_visited_regions(), добавляя одно условие фильтрации.
+    """
+    return get_all_region_with_visited_cities(user_id).filter(num_total=F('num_visited')).count()
+
+
+def get_visited_areas(user_id: int) -> QuerySet:
+    """
+    Возвращает последовательность федеральных округов из БД, которая имеет дополнительные поля:
+     - total_regions: количество регионов в федеральном округе;
+     - visited_regions: количество посещённых регионов в федеральном округе;
+     - ratio_visited: процентное соотношение количества посещённых регионов к общему количеству.
+
+     Записи сортируются сначала по полю ratio_visited (от большего к меньшему), а потом по полю title.
+    """
+    return (
+        Area.objects.all()
+        .annotate(
+            # Добавляем в QuerySet общее количество регионов в округе
+            total_regions=Count('region', distinct=True),
+            # Добавляем в QuerySet количество посещённых регионов в округе
+            visited_regions=Count(
+                'region', filter=Q(region__visitedcity__user__id=user_id), distinct=True
+            ),
+            # Добавляем в QuerySet процентное соотношение посещённых регионов.
+            # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.
+            # Например, 76 / 54 получается 1.
+            ratio_visited=(
+                Cast(F('visited_regions'), output_field=FloatField())
+                / Cast(F('total_regions'), output_field=FloatField())
+            )
+            * 100,
+        )
+        .order_by('-ratio_visited', 'title')
+    )

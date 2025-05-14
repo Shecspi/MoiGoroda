@@ -1,7 +1,14 @@
 <div class="card text-center shadow h-100">
     <div class="card-body">
-        <p class="fs-4">Посещённые регионы</p>
-        <canvas id="chart__number_of_regions"></canvas>
+        <h6 class="text-muted mb-3">Все посещённые регионы</h6>
+
+        {% if regions.number_of_visited_regions and regions.number_of_not_visited_regions %}
+            <canvas class="vert" id="chart__number_of_regions"></canvas>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert">
+                В этом и прошлых годах Вы не посетили ни одного города
+            </div>
+        {% endif %}
     </div>
 </div>
 

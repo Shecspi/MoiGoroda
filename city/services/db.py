@@ -10,10 +10,20 @@ from django.db.models import (
     Subquery,
     IntegerField,
     QuerySet,
+    Func,
 )
 from django.db.models.functions import Round
 
 from city.models import VisitedCity, City
+
+
+class ExtractYearFromArray(Func):
+    function = 'EXTRACT'
+    template = '%(function)s(YEAR FROM unnest(%(expressions)s))'
+
+    def __init__(self, expression, **extra):
+        expressions = [expression]
+        super().__init__(*expressions, **extra)
 
 
 def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
@@ -115,3 +125,36 @@ def get_number_of_visited_cities(user_id: int) -> int:
     Возвращает количество городов, посещённых пользователем с user_id.
     """
     return get_all_visited_cities(user_id).count()
+
+
+def get_number_of_not_visited_cities(user_id: int) -> int:
+    """
+    Возвращает количество непосещённых городов пользователем с ID, указанном в user_id.
+    """
+    return City.objects.count() - get_number_of_visited_cities(user_id)
+
+
+def get_number_of_total_visited_cities_by_year(user_id: int, year: int) -> int:
+    """
+    Возвращает количество посещённых городов пользователем с ID, указанном в user_id, за один год, указанный в year.
+    Учитываются все посещённые города, а не только уникальные.
+    """
+    result = 0
+    for city in get_all_visited_cities(user_id):
+        if city.visit_dates:
+            for visit_date in city.visit_dates:
+                if visit_date.year == year:
+                    result += 1
+    return result
+
+
+def get_number_of_new_visited_cities_by_year(user_id: int, year: int) -> int:
+    """
+    Возвращает количество посещённых городов пользователем с ID, указанном в user_id, за один год, указанный в year.
+    Учитываются только новые посещённые города.
+    """
+    result = 0
+    for city in get_all_visited_cities(user_id):
+        if city.visit_dates and min(city.visit_dates).year == year:
+            result += 1
+    return result

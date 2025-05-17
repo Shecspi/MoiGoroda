@@ -306,7 +306,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
     Фильтрация городов передаётся через GET-параметр `filter` и может принимать одно из следующих значений:
         * `magnet` - наличие сувенира из города
         * `current_year` - посещённые в текущем году
-        * `last_yesr` - посещённые в прошлом году
+        * `last_year` - посещённые в прошлом году
 
     Фильтрация городов передаётся через GET-параметр `sort` и может принимать одно из следующих значений:
         * `name_down` - по возрастанию имени
@@ -318,7 +318,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
     """
 
     model = VisitedCity
-    paginate_by = 16
+    paginate_by = 24
     template_name = 'city/city_all__list.html'
 
     all_cities = None

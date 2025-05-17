@@ -23,16 +23,24 @@
             </div>
             <!-- ^^^ Название города -->
 
-            <!-- Регион -->
+            <!-- Регион и год основания -->
             <div id="subsection-city-region_{{ forloop.counter }}" class="mt-2">
                 <small class="card-subtitle text-muted">
                     <a href="{{ city.region.get_absolute_url }}"
                        class="text-underline-dashed text-reset">
                         {{ city.region }}
                     </a>
+                </small><br>
+
+                <small class="card-subtitle text-muted">
+                    {% if city.city.date_of_foundation %}
+                        Год основания: {{ city.city.date_of_foundation }}
+                    {% else %}
+                        Год основания не известен
+                    {% endif %}
                 </small>
             </div>
-            <!-- ^^^ Регион -->
+            <!-- ^^^ Регион и год основания -->
 
             <!-- Даты посещений -->
             <div id="subsection-city-date_of_visit_{{ forloop.counter }}"

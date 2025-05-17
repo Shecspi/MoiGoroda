@@ -237,6 +237,32 @@
             </label>
         </div>
 
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="sort"
+                   value="date_of_foundation_down"
+                   {% if sort == 'date_of_foundation_down' %}checked{% endif %}
+                   id="sortDateOfFoundationDown">
+            <label class="form-check-label"
+                   for="sortDateOfFoundationDown">
+                По дате основания (убывание)
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="sort"
+                   value="date_of_foundation_up"
+                   {% if sort == 'date_of_foundation_up' %}checked{% endif %}
+                   id="sortDateOfFoundationUp">
+            <label class="form-check-label"
+                   for="sortDateOfFoundationUp">
+                По дате основания (возрастание)
+            </label>
+        </div>
+
         <hr>
 
         <div class="d-grid gap-2">

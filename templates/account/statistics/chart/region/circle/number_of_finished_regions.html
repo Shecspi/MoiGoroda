@@ -6,15 +6,14 @@
             <canvas class="vert" id="canvas__chart__number_of_finished_regions"></canvas>
         {% else %}
             <div class="alert alert-danger text-center mt-3" role="alert">
-                В этом и прошлых годах Вы не посетили ни одного города
+                Нет данных для отображения графика
             </div>
         {% endif %}
     </div>
 </div>
 
 <script>
-    const ctx_number_of_finished_regions = document.getElementById('canvas__chart__number_of_finished_regions').getContext('2d');
-    const myChart_finished_regions = new Chart(ctx_number_of_finished_regions, {
+    new Chart(document.getElementById('canvas__chart__number_of_finished_regions').getContext('2d'), {
         type: 'pie',
         data: {
             labels: ['Завершённые', 'Не заавершённые'],

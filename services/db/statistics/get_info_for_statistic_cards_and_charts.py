@@ -1,13 +1,19 @@
+import datetime
+
 from services.word_modifications.city import *
 from services.calculate import calculate_ratio
 from services.word_modifications.region import *
 from services.word_modifications.visited import *
-from services.db.statistics.visited_city import *
 from city.services.db import (
     get_number_of_visited_cities,
     get_number_of_not_visited_cities,
     get_number_of_total_visited_cities_by_year,
     get_number_of_new_visited_cities_by_year,
+    get_number_of_total_visited_cities_in_several_years,
+    get_number_of_total_visited_cities_in_several_month,
+    get_last_10_new_visited_cities,
+    get_number_of_new_visited_cities_in_several_month,
+    get_number_of_new_visited_cities_in_several_years,
 )
 from region.services.db import (
     get_number_of_visited_regions,
@@ -15,6 +21,8 @@ from region.services.db import (
     get_all_region_with_visited_cities,
     get_number_of_regions,
     get_visited_areas,
+    get_number_all_areas,
+    get_number_visited_areas,
 )
 
 
@@ -49,25 +57,33 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
     )
     ratio_cities_prev_year = 100 - ratio_cities_this_year
 
-    number_of_visited_cities_in_several_years = get_number_of_visited_cities_in_several_years(
-        user_id
+    number_of_total_visited_cities_in_several_years = (
+        get_number_of_total_visited_cities_in_several_years(user_id)
     )
-    number_of_visited_cities_in_several_month = get_number_of_visited_cities_in_several_month(
-        user_id
+    number_of_new_visited_cities_in_several_years = (
+        get_number_of_new_visited_cities_in_several_years(user_id)
+    )
+    number_of_total_visited_cities_in_several_month = (
+        get_number_of_total_visited_cities_in_several_month(user_id)
+    )
+    number_of_new_visited_cities_in_several_month = (
+        get_number_of_new_visited_cities_in_several_month(user_id)
     )
 
     context['cities'] = {
         'number_of_visited_cities': number_of_visited_cities,
         'number_of_not_visited_cities': number_of_not_visited_cities,
-        'last_10_visited_cities': get_last_10_visited_cities(user_id),
+        'last_10_visited_cities': get_last_10_new_visited_cities(user_id),
         'number_of_total_visited_cities_current_year': number_of_total_visited_cities_current_year,
         'number_of_new_visited_cities_current_year': number_of_new_visited_cities_current_year,
         'number_of_total_visited_cities_previous_year': number_of_total_visited_cities_previous_year,
         'number_of_new_visited_cities_previous_year': number_of_new_visited_cities_previous_year,
         'ratio_cities_this_year': ratio_cities_this_year,
         'ratio_cities_prev_year': ratio_cities_prev_year,
-        'number_of_visited_cities_in_several_years': number_of_visited_cities_in_several_years,
-        'number_of_visited_cities_in_several_month': number_of_visited_cities_in_several_month,
+        'number_of_total_visited_cities_in_several_years': number_of_total_visited_cities_in_several_years,
+        'number_of_new_visited_cities_in_several_years': number_of_new_visited_cities_in_several_years,
+        'number_of_total_visited_cities_in_several_month': number_of_total_visited_cities_in_several_month,
+        'number_of_new_visited_cities_in_several_month': number_of_new_visited_cities_in_several_month,
     }
 
     ##################################
@@ -105,8 +121,15 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
     # --- Статистика по федеральным округам --- #
     #############################################
     areas = get_visited_areas(user_id)
+    number_all_areas = get_number_all_areas()
+    number_visited_areas = get_number_visited_areas(user_id)
 
-    context['areas'] = areas
+    context['areas'] = {
+        'list_of_areas': areas,
+        'number_all_areas': number_all_areas,
+        'number_visited_areas': number_visited_areas,
+        'number_not_visited_areas': number_all_areas - number_visited_areas,
+    }
 
     ####################
     # Изменённые слова #

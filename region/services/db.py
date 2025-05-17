@@ -185,3 +185,11 @@ def get_visited_areas(user_id: int) -> QuerySet:
         )
         .order_by('-ratio_visited', 'title')
     )
+
+
+def get_number_all_areas() -> int:
+    return Area.objects.count()
+
+
+def get_number_visited_areas(user_id: int) -> int:
+    return get_visited_areas(user_id).filter(visited_regions__gt=0).count()

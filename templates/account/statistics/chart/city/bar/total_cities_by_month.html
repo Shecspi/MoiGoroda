@@ -1,7 +1,7 @@
 <div class="card text-center shadow h-100">
     <div class="card-body">
-        <p class="fs-4">Количество посещённых городов по месяцам</p>
-        {% if cities.number_of_visited_cities_in_several_month %}
+        <p class="fs-4">Общее количество посещённых городов по месяцам</p>
+        {% if cities.number_of_total_visited_cities_in_several_month %}
             <canvas id="chart__cities_by_month"></canvas>
         {% else %}
             <div class="alert alert-danger text-center mt-3" role="alert">
@@ -14,7 +14,7 @@
 <script>
     const ctx_cities_by_month = document.getElementById('chart__cities_by_month').getContext('2d');
     let data_month = {}
-        {% for month in cities.number_of_visited_cities_in_several_month reversed %}
+        {% for month in cities.number_of_total_visited_cities_in_several_month reversed %}
             data_month['{{ month.month_year|date:'m Y' }}'] = '{{ month.qty }}'
         {% endfor %}
 

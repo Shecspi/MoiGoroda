@@ -12,7 +12,7 @@
         {% if regions.most_visited_regions %}
             {###   Список федеральных округов   ###}
             <ul class="list-group list-group-flush mt-3">
-                {% for area in areas %}
+                {% for area in areas.list_of_areas %}
                     <li class="list-group-item border-bottom-0">
                         <div class="d-flex justify-content-between small">
                             <span>{{ area.title }}</span>

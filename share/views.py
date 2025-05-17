@@ -7,18 +7,17 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import json
 from enum import auto, StrEnum
 from typing import Any, Literal
 
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
+from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 
 from account.models import ShareSettings
-from city.models import VisitedCity
-from region.models import Region
 from services import logger
 from services.db.statistics.get_info_for_statistic_cards_and_charts import (
     get_info_for_statistic_cards_and_charts,
@@ -176,9 +175,18 @@ class Share(TemplateView):
         if self.displayed_page == TypeOfSharedPage.dashboard:
             context = context | get_info_for_statistic_cards_and_charts(self.user_id)
         elif self.displayed_page == TypeOfSharedPage.city_map:
-            context = context | additional_context_for_city_map(self.user_id)
+            all_cities = get_all_visited_cities(self.user_id)
+            cities_data = [
+                {
+                    'name': city.city.title,
+                    'lat': float(str(city.city.coordinate_width).replace(',', '.')),
+                    'lon': float(str(city.city.coordinate_longitude).replace(',', '.')),
+                }
+                for city in all_cities
+            ]
+            context['all_cities'] = mark_safe(json.dumps(cities_data))
         elif self.displayed_page == TypeOfSharedPage.region_map:
-            context = context | additional_context_for_region_map(self.user_id)
+            context['all_regions'] = get_all_region_with_visited_cities(self.user_id)
         else:
             logger.info(
                 self.request,
@@ -224,17 +232,3 @@ def get_displayed_page(requested_page: str, settings: ShareSettings) -> TypeOfSh
             displayed_page = TypeOfSharedPage.city_map
 
     return displayed_page
-
-
-def additional_context_for_city_map(user_id: int) -> dict[str, QuerySet[VisitedCity]]:
-    """
-    Получает из БД все города, которые посетил пользователь с ID user_id и возвращает их в виде словаря.
-    """
-    return {'all_cities': get_all_visited_cities([user_id])}
-
-
-def additional_context_for_region_map(user_id: int) -> dict[str, QuerySet[Region]]:
-    """
-    Получает из БД все регионы, которые посетил пользователь с ID user_id и возвращает их в виде словаря.
-    """
-    return {'all_regions': get_all_region_with_visited_cities(user_id)}

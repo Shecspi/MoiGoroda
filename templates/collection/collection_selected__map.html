@@ -6,7 +6,7 @@
         {{ page_title }}
     </h1>
 
-    {% include 'advertisement/toolbar.html' %}
+    {% include 'advertisement/travel_payouts.html' %}
 
     {% include 'collection/collection_selected__map__toolbar.html' %}
 
@@ -26,6 +26,5 @@
         window.TILE_LAYER = "{{ TILE_LAYER }}";
     </script>
 
-    <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
     <script src="{% static 'js/collection/map.js' %}?ver={{ PROJECT_VERSION }}" type="module"></script>
 {% endblock %}

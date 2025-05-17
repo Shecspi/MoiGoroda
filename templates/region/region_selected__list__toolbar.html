@@ -34,7 +34,7 @@
     {% if user.is_authenticated %}
      <!-- Фильтры и сортировка -->
     <div class="col-xxl-6 col-md-12 d-flex justify-content-end" id="section-small-buttons">
-        <button class="align-self-center btn {% if filter is not None %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 justify-content-start align-items-center position-relative"
+        <button class="align-self-center btn {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 justify-content-start align-items-center position-relative"
                 type="button"
                 id="btnOpenFilterSortPanel"
                 data-bs-tooltip="tooltip"

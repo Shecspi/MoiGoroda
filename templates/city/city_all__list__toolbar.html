@@ -29,8 +29,8 @@
     <!-- ^^^ Посмотреть на карте -->
 
     <!-- Фильтры -->
-    <div class="col-xxl-6 col-md-12 text-end g-3" id="section-small-buttons">
-        <button class="align-self-center btn btn-outline-primary small-btn-for-toolbar me-3"
+    <div class="col-xxl-6 col-md-12 text-end g-3 d-flex justify-content-end" id="section-small-buttons">
+        <button class="align-self-center btn {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 justify-content-start align-items-center position-relative"
                 type="button"
                 id="btnOpenFilterSortPanel"
                 data-bs-tooltip="tooltip"
@@ -39,6 +39,12 @@
                 data-bs-target="#offcanvasRight"
                 aria-controls="offcanvasRight">
             <i class="fa-solid fa-sliders"></i>
+            Фильтры и сортировка
+            {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
+                <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                    <span class="visually-hidden">Применена фильтрация или сортировка</span>
+                </span>
+            {% endif %}
         </button>
     </div>
     <!-- ^^^ Фильтры -->

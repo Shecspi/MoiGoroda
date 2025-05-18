@@ -99,7 +99,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 d-flex justify-content-end">
+                                <div class="col-12 d-flex justify-content-end mt-3">
                                     {% if city.wiki %}
                                         <a href="{{ city.wiki }}"
                                            class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover"
@@ -172,10 +172,12 @@
                                 </div>
                             {% endfor %}
                         {% else %}
-                            Вы ещё не посетили город {{ city.title }}
+                            <div class="mt-5 display-4 text-center">
+                                Вы ещё не посетили город {{ city.title }}
+                            </div>
                         {% endif %}
 
-                        <div class="d-flex justify-content-end mt-3">
+                        <div class="d-flex justify-content-end mt-5">
                             {% if city.number_of_visits > 0 %}
                                 <a href="{% url 'city-create' %}?city_id={{ city.id }}"
                                    class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">

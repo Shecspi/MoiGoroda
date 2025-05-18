@@ -5,7 +5,9 @@
         Список посещённых городов
     </h1>
 
+    {% if not DEBUG %}
     {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
 
     {% include 'city/city_all__list__toolbar.html' %}
 
@@ -32,5 +34,7 @@
     {% include 'parts/pagination.html' %}
     <!-- ^^^ Пагинация -->
 
+    {% if not DEBUG %}
     {% include 'advertisement/travel_payouts.html' %}
+    {% endif %}
 {% endblock %}

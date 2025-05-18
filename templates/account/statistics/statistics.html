@@ -5,7 +5,9 @@
         Личная статистика
     </h1>
 
+    {% if not DEBUG %}
     {% include 'advertisement/travel_payouts.html' %}
+    {% endif %}
 
     {% if fake_statistics %}
         {% include 'account/statistics/parts/info_about_fake_statistics.html' %}

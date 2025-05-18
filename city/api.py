@@ -30,7 +30,12 @@ from city.structs import UserID
 from region.models import Region
 from services import logger
 from services.db.visited_city_repo import get_not_visited_cities
-from city.services.db import get_all_visited_cities
+from city.services.db import (
+    get_all_visited_cities,
+    get_number_of_visits_by_city,
+    get_first_visit_date_by_city,
+    get_last_visit_date_by_city,
+)
 from subscribe.repository import is_subscribed
 
 
@@ -216,5 +221,15 @@ class AddVisitedCity(generics.CreateAPIView):
             self.request,
             f'(API: Add visited city) The visited city has been successfully added from {from_page}',
         )
+        return_data = dict(serializer.data)
+        return_data['number_of_visits'] = get_number_of_visits_by_city(
+            city_id=city.id, user_id=user.id
+        )
+        return_data['first_visit_date'] = get_first_visit_date_by_city(
+            city_id=city.id, user_id=user.id
+        )
+        return_data['last_visit_date'] = get_last_visit_date_by_city(
+            city_id=city.id, user_id=user.id
+        )
 
-        return Response({'status': 'success', 'city': serializer.data})
+        return Response({'status': 'success', 'city': return_data})

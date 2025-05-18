@@ -14,5 +14,8 @@
     <div id="map" class="h-100 mt-3"></div>
     <!-- ^^^ Карта -->
 
+    <script>
+        window.TILE_LAYER = "{{ TILE_LAYER }}";
+    </script>
     <script src="{% static 'js/map_place.js' %}?ver={{ PROJECT_VERSION }}" type="module"></script>
 {% endblock %}

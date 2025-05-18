@@ -6,7 +6,9 @@
         Карта посещённых городов
     </h1>
 
+    {% if not DEBUG %}
     {% include 'advertisement/travel_payouts.html' %}
+    {% endif %}
 
     {% include 'city/city_all__map__toolbar.html' %}
 
@@ -18,15 +20,18 @@
     <div id="map" class="h-100 mt-3"></div>
     <!-- ^^^ Карта -->
 
+    {% if not DEBUG %}
     {% include 'advertisement/rtb_feed.html' %}
+    {% endif %}
 
+    <script>
+        window.URL_GET_VISITED_CITIES = "{% url 'api__get_visited_cities' %}";
+        window.TILE_LAYER = "{{ TILE_LAYER }}";
+        window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
+    </script>
     <script src="{% static 'js/city/map_city.js' %}?ver={{ PROJECT_VERSION }}" type="module"></script>
 {#    <script src="{% static 'js/modal_for_add_city.js' %}" type="module"></script>#}
 
     {% include 'parts/toast/danger.html' with error_title="Ошибка соединения с сервером" error_message='Не получилось загрузить список Ваших посещённых городов.' error_id='toast_request_error' %}
     {% include 'parts/toast/success.html' with title="Успешно" message="Город <span id='city-title-in-toast' class='fw-medium'></span> успешно отмечен как посещённый" %}
-
-    {# URL для получения списка посещённых пользователем городов #}
-    {# Нужно передавать через data-аргумент, так как нельзя вставить переменную Django Template напрямую в JS код #}
-    <div id="url-api__get_visited_cities" data-url="{% url 'api__get_visited_cities' %}" hidden></div>
 {% endblock %}

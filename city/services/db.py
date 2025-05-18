@@ -248,3 +248,39 @@ def get_number_of_new_visited_cities_in_several_month(user_id: int):
         .annotate(qty=Count('id', distinct=True))
         .values('month_year', 'qty')
     )
+
+
+def get_number_of_visits_by_city(city_id: int, user_id: int) -> int:
+    return VisitedCity.objects.filter(city_id=city_id, user=user_id).count()
+
+
+def get_first_visit_date_by_city(city_id: int, user_id: int) -> datetime.date:
+    first_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(first_visit_date=Min('date_of_visit'))
+        .values('first_visit_date')
+    )
+
+    return (
+        VisitedCity.objects.filter(city_id=city_id, user=user_id)
+        .annotate(first_visit_date=Subquery(first_visit_date_subquery))
+        .first()
+        .first_visit_date
+    )
+
+
+def get_last_visit_date_by_city(city_id: int, user_id: int) -> datetime.date:
+    first_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(last_visit_date=Max('date_of_visit'))
+        .values('last_visit_date')
+    )
+
+    return (
+        VisitedCity.objects.filter(city_id=city_id, user=user_id)
+        .annotate(last_visit_date=Subquery(first_visit_date_subquery))
+        .first()
+        .last_visit_date
+    )

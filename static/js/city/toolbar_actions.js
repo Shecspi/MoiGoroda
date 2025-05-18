@@ -467,9 +467,9 @@ export class ToolbarActions {
             content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p><hr>${linkToAdd}`;
         } else if (marker_style === MarkerStyle.TOGETHER) {
             content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p>`;
-            if (visit_years !== undefined && visit_years.length === 1) {
+            if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
                 content += `<p><span class='fw-semibold'>Дата посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
-            } else if (visit_years !== undefined && visit_years.length >= 2) {
+            } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
                 content += `<p><span class='fw-semibold'>Дата первого посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
                 content += `<p><span class='fw-semibold'>Дата последнего посещения:</span> ${last_visit_date ? last_visit_date : 'Не указана'}</p>`
             }
@@ -477,9 +477,9 @@ export class ToolbarActions {
         } else if (marker_style === MarkerStyle.NOT_VISITED) {
             content += `<p>Вы не были в этом городе</p><hr>${linkToAdd}`;
         } else {
-            if (visit_years !== undefined && visit_years.length === 1) {
+            if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
                 content += `<p><span class='fw-semibold'>Дата посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
-            } else if (visit_years !== undefined && visit_years.length >= 2) {
+            } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
                 content += `<p><span class='fw-semibold'>Дата первого посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
                 content += `<p><span class='fw-semibold'>Дата последнего посещения:</span> ${last_visit_date ? last_visit_date : 'Не указана'}</p>`
             }
@@ -505,25 +505,10 @@ export class ToolbarActions {
         return marker;
     }
 
-    updateMarker(id) {
+    updateMarker(city) {
+        const id = city.id;
+
         if (this.stateNotVisitedCities.has(id)) {
-            // Получаем данные города и удаляем его из списка не посещённых
-            let city;
-            for (let i = this.notVisitedCities.length - 1; i >= 0; i--) {
-                if (this.notVisitedCities[i].id === id) {
-                    city = new City();
-
-                    city.id = this.notVisitedCities[i].id;
-                    city.name = this.notVisitedCities[i].title;
-                    city.region = this.notVisitedCities[i].region_title;
-                    city.lat = this.notVisitedCities[i].lat;
-                    city.lon = this.notVisitedCities[i].lon;
-
-                    this.notVisitedCities.splice(i, 1);
-                    break;
-                }
-            }
-
             // Удаляем метку на карте и в глобальном состоянии
             let marker = this.stateNotVisitedCities.get(id);
             this.stateNotVisitedCities.delete(id);
@@ -534,21 +519,6 @@ export class ToolbarActions {
             this.stateOwnCities.set(id, marker);
             this.addMarkerToMap(city, MarkerStyle.OWN);
         } else if (this.stateSubscriptionCities.has(id)) {
-            // Получаем данные города
-            let city = [];
-            for (let i = this.subscriptionCities.length - 1; i >= 0; i--) {
-                if (this.subscriptionCities[i].id === id) {
-                    city = new City();
-
-                    city.id = this.subscriptionCities[i].id;
-                    city.name = this.subscriptionCities[i].title;
-                    city.region = this.subscriptionCities[i].region_title;
-                    city.lat = this.subscriptionCities[i].lat;
-                    city.lon = this.subscriptionCities[i].lon;
-                    break;
-                }
-            }
-
             // Удаляем старую метку на карте и в глобальном состоянии
             let old_marker = this.stateSubscriptionCities.get(id);
             this.stateSubscriptionCities.delete(id);
@@ -563,7 +533,27 @@ export class ToolbarActions {
                 usersWhoVisitedCity.get(id)
             );
             this.stateSubscriptionCities.set(id, new_marker);
-        } else if (!this.stateOwnCities.has(id)) {
+        } else if (this.stateOwnCities.has(id)) {
+            // Удаление старого маркера
+            let old_marker = this.stateOwnCities.get(city.id);
+            this.stateOwnCities.delete(city.id);
+            this.myMap.removeLayer(old_marker);
+
+            // Обновление информации о городе в this.ownCities
+            for (let i = 0; i < this.ownCities.length; i++) {
+                if (this.ownCities[i].id === id) {
+                    this.ownCities[i].number_of_visits = city.number_of_visits;
+                    this.ownCities[i].first_visit_date = city.first_visit_date;
+                    this.ownCities[i].last_visit_date = city.last_visit_date;
+                    this.ownCities[i].visit_dates = city.visit_dates;
+                    break;
+                }
+            }
+
+            // Создание нового маркета
+            const new_marker = this.addMarkerToMap(city, MarkerStyle.OWN);
+            this.stateOwnCities.set(id, new_marker);
+        } else {
             throw new Error(`Неизвестное состояние добавленного города с ID ${id}`);
         }
     }

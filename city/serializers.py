@@ -35,7 +35,7 @@ class VisitedCitySerializer(serializers.ModelSerializer):
 
     def get_visit_years(self, obj) -> list[int] | None:
         if obj.visit_dates:
-            return [visit_date.year for visit_date in obj.visit_dates]
+            return list(set(visit_date.year for visit_date in obj.visit_dates))
         return None
 
     class Meta:

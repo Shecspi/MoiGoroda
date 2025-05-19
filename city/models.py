@@ -37,7 +37,12 @@ class City(models.Model):
     wiki = models.URLField(
         max_length=256, verbose_name='Ссылка на Wikipedia', blank=True, null=True
     )
-    image = models.URLField(verbose_name='Ссылка на изображение', blank=True, null=False)
+    image = models.URLField(
+        verbose_name='Ссылка на изображение',
+        blank=True,
+        null=False,
+        max_length=2048,
+    )
 
     class Meta:
         ordering = ['title']

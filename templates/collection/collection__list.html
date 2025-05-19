@@ -5,7 +5,9 @@
         Коллекции городов
     </h1>
 
+    {% if not DEBUG %}
     {% include 'advertisement/travel_payouts.html' %}
+    {% endif %}
 
     <!-- Карточки с коллекциями -->
     {% if object_list %}
@@ -25,7 +27,9 @@
     {% endif %}
     <!-- ^^^ Карточки с коллекциями -->
 
+    {% if not DEBUG %}
     {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
 
     <!-- Пагинация -->
     {% include 'parts/pagination_without_sort_and_filter.html' %}

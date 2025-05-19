@@ -1,0 +1,17 @@
+<div class="col-12 col-md-6" id="section-{{ id }}">
+    <h6 class="fw-semibold mb-1" id="subsection-{{ id }}_title">{{ title }}</h6>
+    <p class="mb-0" id="subsection-{{ id }}_value">
+        {% if value %}
+            {% if link %}
+                <a href="{{ link_url }}"
+                   class="link-dark link-underline-dark link-offset-2 link-opacity-100 link-opacity-75-hover link-underline-opacity-100 link-underline-opacity-75-hover">
+                    {{ value }}
+                </a>
+            {% else %}
+                {{ value }}
+            {% endif %}
+        {% else %}
+            <span class="text-muted">Не указано</span>
+        {% endif %}
+    </p>
+</div>

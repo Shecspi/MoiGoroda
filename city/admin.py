@@ -26,7 +26,10 @@ class CityAdmin(admin.ModelAdmin):
     )
     search_fields = ('title',)
     fieldsets = [
-        (None, {'fields': ['title', 'region', 'population', 'date_of_foundation', 'wiki']}),
+        (
+            None,
+            {'fields': ['title', 'region', 'population', 'date_of_foundation', 'wiki', 'image']},
+        ),
         ('Координаты', {'fields': ['coordinate_width', 'coordinate_longitude']}),
     ]
 
@@ -48,6 +51,15 @@ class CityAdmin(admin.ModelAdmin):
 
 @admin.register(VisitedCity)
 class VisitedCityAdmin(admin.ModelAdmin):
-    list_display = ('id', 'city', 'region', 'user', 'date_of_visit', 'has_magnet', 'rating')
+    list_display = (
+        'id',
+        'city',
+        'region',
+        'user',
+        'date_of_visit',
+        'is_first_visit',
+        'has_magnet',
+        'rating',
+    )
     list_filter = ('user',)
     search_fields = ('user__username', 'city__title', 'region__title')

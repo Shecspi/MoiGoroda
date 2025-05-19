@@ -9,11 +9,27 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from datetime import datetime
-from typing import Literal, Sequence
+from typing import Literal
 
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet, F, Case, When, Value
+from django.db.models import (
+    QuerySet,
+    F,
+    Case,
+    When,
+    Value,
+    Count,
+    OuterRef,
+    Avg,
+    Exists,
+    Subquery,
+    IntegerField,
+    Min,
+    Max,
+    Q,
+)
+from django.db.models.functions import Round
 
 from city.models import VisitedCity, City
 
@@ -25,17 +41,6 @@ def order_by_date_of_visit_desc(cities: QuerySet[VisitedCity]):
     """
     if cities and hasattr(cities[0], 'date_of_visit'):
         return cities.order_by(F('date_of_visit').desc(nulls_last=True))
-    else:
-        return cities
-
-
-def order_by_date_of_visit_asc(cities: QuerySet[VisitedCity]):
-    """
-    Производит сортировку QuerySet по столбцу 'date_of_visit', если такой имеется, в увеличивающемся порядке.
-    Если QuerySet пуст или столбца 'date_of_visit' не существует - возвращается оригинальный QuerySet без изменений.
-    """
-    if cities and hasattr(cities[0], 'date_of_visit'):
-        return cities.order_by(F('date_of_visit').asc(nulls_last=True))
     else:
         return cities
 
@@ -68,39 +73,74 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
         * `region.id` - ID региона, в котором расположен город
         * `region.title` - название региона, в котором расположен город
         * `region.type` - тип региона, в котором расположен город
+        * `number_of_visits` - количество посещений городп
         (для отображение названия региона лучше использовать просто `region`,
         а не `region.title` и `region.type`, так как `region` через __str__()
         отображает корректное обработанное название)
     """
-    return (
-        VisitedCity.objects.filter(user_id=user_id)
-        .select_related('city', 'region')
-        .only(
-            'id',
-            'date_of_visit',
-            'rating',
-            'has_magnet',
-            'city__id',
-            'city__title',
-            'city__population',
-            'city__date_of_foundation',
-            'city__coordinate_width',
-            'city__coordinate_longitude',
-            'region__id',
-            'region__title',
-            'region__type',
+    # Подзапрос для количества посещений города пользователем
+    city_visits_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        .values('city_id')  # Группировка по городу
+        .annotate(count=Count('*'))  # Подсчет записей (число посещений)
+        .values('count')  # Передаем только поле count
+    )
+
+    # Подзапрос для вычисления среднего рейтинга посещений города пользователем
+    average_rating_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        .values('city_id')  # Группировка по городу
+        .annotate(avg_rating=Avg('rating'))  # Вычисление среднего рейтинга
+        .values('avg_rating')  # Передаем только рейтинг
+    )
+
+    # Есть ли сувенир из города?
+    has_souvenir = Exists(
+        VisitedCity.objects.filter(city_id=OuterRef('city_id'), user_id=user_id, has_magnet=True)
+    )
+
+    # Подзапрос для сбора всех дат посещений города
+    visit_dates_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(
+            visit_dates=ArrayAgg('date_of_visit', distinct=False, filter=~Q(date_of_visit=None))
+        )
+        .values('visit_dates')
+    )
+
+    # Подзапрос для даты первого посещения (first_visit_date)
+    first_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(first_visit_date=Min('date_of_visit'))
+        .values('first_visit_date')
+    )
+
+    # Подзапрос для даты последнего посещения (first_visit_date)
+    last_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(first_visit_date=Max('date_of_visit'))
+        .values('first_visit_date')
+    )
+
+    queryset = (
+        VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
+        .select_related('city', 'city__region', 'user')
+        .annotate(
+            number_of_visits=Subquery(city_visits_subquery, output_field=IntegerField()),
+            average_rating=(
+                Round((Subquery(average_rating_subquery) * 2), 0) / 2
+            ),  # Округление до 0.5
+            visit_dates=Subquery(visit_dates_subquery),
+            first_visit_date=Subquery(first_visit_date_subquery),
+            last_visit_date=Subquery(last_visit_date_subquery),
+            has_souvenir=has_souvenir,
         )
     )
 
-
-def get_visited_cities_many_users(
-    user_ids: Sequence[int], select_related_fields: Sequence[str], fields: Sequence[str]
-) -> QuerySet[VisitedCity]:
-    return (
-        VisitedCity.objects.filter(user_id__in=user_ids)
-        .select_related(*select_related_fields)
-        .only(*fields)
-    )
+    return queryset
 
 
 def get_not_visited_cities(user_id: int, regions: dict[int, str]) -> QuerySet[City]:
@@ -132,19 +172,3 @@ def get_number_of_visited_cities(user_id: int) -> int:
     Возвращает количество городов, посещённых пользователем с user_id.
     """
     return get_all_visited_cities(user_id).count()
-
-
-def get_number_of_visited_cities_current_year(user_id: int) -> int:
-    """
-    Возвращает количество городов, посещённых пользователем с user_id в текущем году.
-    """
-    return get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year).count()
-
-
-def get_number_of_visited_cities_previous_year(user_id: int) -> int:
-    """
-    Возвращает количество городов, посещённых пользователем с user_id в прошлом году.
-    """
-    return (
-        get_all_visited_cities(user_id).filter(date_of_visit__year=datetime.now().year - 1).count()
-    )

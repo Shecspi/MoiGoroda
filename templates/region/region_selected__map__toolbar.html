@@ -1,12 +1,17 @@
+{% load static %}
 <!-- Панель инструментов -->
-<div class="row row-cols-md-2 row-cols-xxl-4 mx-3 my-3 g-3" id="toolbar">
+<div class="row mx-3 my-3 g-3 align-items-center" id="toolbar">
     <!-- Статистика посещёния -->
-    <div class="order-xl-1" id="section-statistic">
+    <div class="col-xxl-3 col-md-6 col-xs-12" id="section-statistic">
         <div class="card text-center shadow h-100">
             <div class="card-body d-grid bg-warning-subtle">
                 <div class="align-self-center">
-                    {{ declension_of_visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
-                    {{ declension_of_visited_cities }} из {{ total_qty_of_cities }}
+                    {% if user.is_authenticated %}
+                        {{ declension_of_visited|title }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
+                        {{ declension_of_visited_cities }} из {{ total_qty_of_cities }}
+                    {% else %}
+                        Всего городов: <span class="fs-4 fw-medium">{{ total_qty_of_cities }}</span>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -14,10 +19,10 @@
     <!-- ^^^ Статистика посещёния -->
 
     <!-- Посмотреть на карте -->
-    <div class="order-xl-4" id="section-show_map">
+    <div class="col-xxl-3 col-md-6 col-xs-12" id="section-show_map">
         <div class="card text-center shadow h-100">
             <div class="card-body d-grid bg-success-subtle">
-                <a href="{% url 'region-selected-list' region_id %}" class="btn btn-outline-success align-self-center">
+                <a href="{% url 'region-selected-list' region_id %}{% if filter or sort and sort != 'last_visit_date_down' %}?{% endif %}{% if filter %}filter={{ filter }}{% if sort and sort != 'last_visit_date_down' %}&{% endif %}{% endif %}{% if sort and sort != 'last_visit_date_down' %}sort={{ sort }}{% endif %}" class="btn btn-outline-success align-self-center">
                     <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
                 </a>
             </div>
@@ -25,28 +30,171 @@
     </div>
     <!-- ^^^ Посмотреть на карте -->
 
-    <!-- Фильтры -->
-    <div class="order-xl-2">
-        <div class="card text-center shadow h-100" id="section-filter">
-            <div class="card-body d-grid bg-primary-subtle">
-                <div class="align-self-center">
-                    Города, которые Вы уже посетили, выделены <span class="text-success fw-medium">зелёными</span> отметками
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ^^^ Фильтры -->
+    <div class="col-xxl-6 col-md-12 d-flex flex-wrap justify-content-end gap-2" id="section-small-buttons">
+        <!-- Помощь -->
+        <button class="btn btn-outline-secondary d-flex gap-2 justify-content-start align-items-center"
+                id="btn_help"
+                data-bs-toggle="modal"
+                data-bs-target="#modal_help"
+                data-bs-tooltip="tooltip"
+                data-bs-title="Подробнее о функционале этой страницы">
+            <i class="fa-regular fa-circle-question"></i>
+            Помощь
+        </button>
+        <!-- ^^^ Помощь -->
 
-    <!-- Сортировка -->
-    <div class="order-xl-3">
-        <div class="card text-center shadow h-100" id="section-sorting">
-            <div class="card-body d-grid bg-secondary-subtle">
-                <div class="align-self-center">
-                    Города, в которых Вы ещё не были, выделены <span class="text-danger fw-medium">красными</span> отметками
-                </div>
-            </div>
-        </div>
+        {% if user.is_authenticated %}
+        <!-- Фильтры -->
+        <button class="btn {% if filter is not None %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 justify-content-start align-items-center position-relative"
+                type="button"
+                id="btnOpenFilterSortPanel"
+                data-bs-tooltip="tooltip"
+                data-bs-title="Открыть панель фильтрации и сортировки городов"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasRight"
+                aria-controls="offcanvasRight">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Фильтры</span>
+            {% if filter is not None %}
+                <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                    <span class="visually-hidden">Применена фильтрация</span>
+                </span>
+            {% endif %}
+        </button>
+        <!-- ^^^ Фильтры -->
+        {% endif %}
     </div>
-    <!-- ^^^ Сортировка -->
 </div>
 <!-- ^^^ Панель инструментов -->
+
+{% if user.is_authenticated %}
+<div class="offcanvas offcanvas-end"
+     tabindex="-1"
+     id="offcanvasRight"
+     aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title"
+            id="offcanvasRightLabel">
+            Фильтрация и сортировка
+        </h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="Закрыть">
+        </button>
+    </div>
+    <div class="offcanvas-body">
+        <h6>Фильтры</h6>
+
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="radio"
+                   name="filter"
+                   value=""
+                   {% if filter is None %}checked{% endif %}
+                   id="filterNoFilter">
+            <label class="form-check-label"
+                   for="filterNoFilter">
+                Без фильтрации
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="filter"
+                   value="no_magnet"
+                   {% if filter == 'no_magnet' %}checked{% endif %}
+                   id="filterNoMagnet">
+            <label class="form-check-label"
+                   for="filterNoMagnet">
+                Без сувенира
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="filter"
+                   value="magnet"
+                   {% if filter == 'magnet' %}checked{% endif %}
+                   id="filterMagnet">
+            <label class="form-check-label"
+                   for="filterMagnet">
+                С сувениром
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="filter"
+                   value="current_year"
+                   {% if filter == 'current_year' %}checked{% endif %}
+                   id="filterCurrentYear">
+            <label class="form-check-label"
+                   for="filterCurrentYear">
+                В этом году
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="filter"
+                   value="last_year"
+                   {% if filter == 'last_year' %}checked{% endif %}
+                   id="filterLastYear">
+            <label class="form-check-label"
+                   for="filterLastYear">
+                В прошлом году
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="filter"
+                   value="visited"
+                   {% if filter == 'visited' %}checked{% endif %}
+                   id="filterVisited">
+            <label class="form-check-label"
+                   for="filterVisited">
+                Посещённые
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="filter"
+                   value="not_visited"
+                   {% if filter == 'not_visited' %}checked{% endif %}
+                   id="filterNotVisited">
+            <label class="form-check-label"
+                   for="filterNotVisited">
+                Не посещённые
+            </label>
+        </div>
+
+        <hr>
+
+        <div class="d-grid gap-2">
+            <button type="submit"
+                    class="btn btn-primary"
+                    id="applyFilters">
+                Применить
+            </button>
+            <button type="button"
+                    class="btn btn-secondary"
+                    id="resetFilters"
+                    data-filter="{% if filter %}{{ filter }}{% endif %}"
+                    data-sort="{{ sort }}">
+                Сбросить
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/region/filter.js' %}"></script>
+{% endif %}

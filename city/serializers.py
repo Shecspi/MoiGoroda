@@ -12,7 +12,6 @@ Licensed under the Apache License, Version 2.0
 from rest_framework import serializers
 
 from city.models import VisitedCity, City
-from services import logger
 
 
 class VisitedCitySerializer(serializers.ModelSerializer):
@@ -23,11 +22,20 @@ class VisitedCitySerializer(serializers.ModelSerializer):
     region_id = serializers.IntegerField(source='city.region_id', read_only=True)
     lat = serializers.CharField(source='city.coordinate_width', read_only=True)
     lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
-    year = serializers.SerializerMethodField()
+    number_of_visits = serializers.IntegerField(read_only=True)
+    first_visit_date = serializers.CharField(read_only=True)
+    last_visit_date = serializers.CharField(read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+    visit_years = serializers.SerializerMethodField()
 
     def get_year(self, obj) -> int | None:
         if obj.date_of_visit:
             return obj.date_of_visit.year
+        return None
+
+    def get_visit_years(self, obj) -> list[int] | None:
+        if obj.visit_dates:
+            return list(set(visit_date.year for visit_date in obj.visit_dates))
         return None
 
     class Meta:
@@ -40,8 +48,11 @@ class VisitedCitySerializer(serializers.ModelSerializer):
             'region_id',
             'lat',
             'lon',
-            'year',
-            'date_of_visit',
+            'number_of_visits',
+            'first_visit_date',
+            'last_visit_date',
+            'average_rating',
+            'visit_years',
         )
 
 
@@ -77,13 +88,12 @@ class AddVisitedCitySerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        return VisitedCity.objects.create(**validated_data)
+        user = self.context['request'].user
+        city = validated_data['city']
 
-    def validate_city(self, city):
-        if VisitedCity.objects.filter(city=city, user=self.context['request'].user.pk).exists():
-            logger.info(
-                self.context['request'],
-                '(API: Add visited city) An attempt to add a visited city that is already in the DB',
-            )
-            raise serializers.ValidationError(f'Город {city} уже добавлен.')
-        return city
+        # Проверяем, существует ли запись с этим пользователем и городом
+        exists = VisitedCity.objects.filter(city=city, user=user).exists()
+
+        validated_data['is_first_visit'] = not exists  # Если запись есть, ставим False, иначе True
+
+        return VisitedCity.objects.create(**validated_data)

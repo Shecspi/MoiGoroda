@@ -6,10 +6,14 @@
         {{ region_name }}
     </h1>
 
-    {% include 'advertisement/travel_payouts.html' %}
+    {% if not DEBUG %}
+        {% include 'advertisement/travel_payouts.html' %}
+    {% endif %}
 
-    {% if not user.is_authenticated %}
-        {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+    {% if not DEBUG %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+        {% endif %}
     {% endif %}
 
     {% include 'region/region_selected__list__toolbar.html' %}
@@ -47,10 +51,14 @@
     {% include 'parts/pagination.html' %}
     <!-- ^^^ Пагинация -->
 
-    {% include 'advertisement/rtb_feed.html' %}
+    {% if not DEBUG %}
+        {% include 'advertisement/rtb_feed.html' %}
+    {% endif %}
 
-    {% if not user.is_authenticated %}
-        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
-        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+    {% if not DEBUG %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+            {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+        {% endif %}
     {% endif %}
 {% endblock %}

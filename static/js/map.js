@@ -12,15 +12,32 @@
 /**
  * Создаёт и возвращает объект карты с подложкой в виде карты OpenStreetMap
  * и кнопками увеличения/уменьшения масштаба, полноэкранного режима и создания скриншота.
- * @param center Координаты центра карты в виде массива из двух цифр с плавающей запятой
- * @param zoom Масштаб карты (от 1 до 19)
- * @returns Объект карты
  */
-export function create_map(center, zoom) {
+
+let downloadedExternalBorder = undefined;
+let downloadedInternalBorder = undefined;
+let externalBorder = undefined;
+let internalBorder = [];
+
+const fillOpacity = 0.1;
+const fillColor = '#6382ff';
+const strokeColor = '#0033ff';
+const strokeOpacity = 0.3;
+const strokeWidth = 2;
+
+const myStyle = {
+    fillOpacity: fillOpacity,
+    fillColor: fillColor,
+    weight: strokeWidth,
+    color: strokeColor,
+    opacity: strokeOpacity
+};
+
+export function create_map() {
     const map = L.map('map', {
         attributionControl: false,
         zoomControl: false
-        }).setView(center, zoom);
+    });
 
     add_attribution(map);
     add_zoom_control(map);
@@ -63,7 +80,7 @@ function add_zoom_control(map) {
 function add_attribution(map) {
     const myAttrControl = L.control.attribution().addTo(map);
     myAttrControl.setPrefix('');
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer(window.TILE_LAYER, {
         maxZoom: 19,
         attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
     }).addTo(map);
@@ -75,4 +92,101 @@ function add_attribution(map) {
  */
 function add_screenshot_control(map) {
     L.simpleMapScreenshoter().addTo(map);
+}
+
+export function addExternalBorderControl(map) {
+    const external_border = new L.Control({
+                position: 'topright'
+            });
+            external_border.onAdd = function (map) {
+                let container = L.DomUtil.create('div', 'custom-control-for-map')
+
+                container.title = 'Отобразить внешние границы России';
+                container.innerHTML = '<i class="fa-regular fa-square"></i>';
+                container.addEventListener('click', () => {
+                    if (downloadedExternalBorder === undefined) {
+                        fetch('https://geo-polygons.ru/country/hq/RU')
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Ошибка при получении полигонов страны')
+                                }
+                                return response.json();
+                            })
+                            .then(polygon => {
+                                removeBorderFromMap(externalBorder, internalBorder);
+
+                                externalBorder = L.geoJSON(polygon, {
+                                    style: myStyle,
+                                });
+                                externalBorder.addTo(map);
+                                downloadedExternalBorder = polygon;
+                            })
+                    } else {
+                        removeBorderFromMap(externalBorder, internalBorder);
+
+                        externalBorder = L.geoJSON(downloadedExternalBorder, {
+                            style: myStyle,
+                        });
+                        externalBorder.addTo(map);
+                    }
+                });
+	            return container;
+            }
+            external_border.addTo(map);
+}
+
+export function addInternalBorderControl(map) {
+    const external_border = new L.Control({
+        position: 'topright'
+    });
+    external_border.onAdd = function (map) {
+        let container = L.DomUtil.create('div', 'custom-control-for-map')
+
+        container.title = 'Отобразить границы регионов России';
+        container.innerHTML = '<i class="fa-regular fa-square-plus"></i>';
+        container.addEventListener('click', () => {
+            if (downloadedInternalBorder === undefined) {
+                fetch(`${URL_GEO_POLYGONS}/region/lq/RU/all`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Ошибка при получении полигонов страны')
+                        }
+                        return response.json();
+                    })
+                    .then(polygons => {
+                        removeBorderFromMap(externalBorder, internalBorder);
+
+                        polygons.forEach(polygon => {
+                            const layer = L.geoJSON(polygon, {
+                                style: myStyle,
+                            }).addTo(map);
+                            internalBorder.push(layer);
+                        });
+                        downloadedInternalBorder = polygons;
+                    })
+            } else {
+                removeBorderFromMap(externalBorder, internalBorder);
+
+                downloadedInternalBorder.forEach(polygon => {
+                    const layer = L.geoJSON(polygon, {
+                        style: myStyle,
+                    }).addTo(map);
+                    internalBorder.push(layer);
+                });
+            }
+        });
+        return container;
+    }
+    external_border.addTo(map);
+}
+
+function removeBorderFromMap(externalBorder, internalBorder) {
+    if (externalBorder !== undefined) {
+        externalBorder.clearLayers();
+    }
+    if (internalBorder !== undefined) {
+        internalBorder.forEach(layer => {
+            layer.clearLayers();
+        });
+    }
 }

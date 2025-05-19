@@ -1,0 +1,39 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <p class="fs-4">Общее количество посещённых городов по годам</p>
+        {% if cities.number_of_total_visited_cities_in_several_years %}
+            <canvas id="chart__total_cities_by_year"></canvas>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert">
+                Не сохранено ни одного города с указанием даты посещения
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const ctx_total_cities_by_year = document.getElementById('chart__total_cities_by_year').getContext('2d');
+
+    let data_year_total_cities_by_year = {}
+    {% for year in cities.number_of_total_visited_cities_in_several_years %}
+        data_year_total_cities_by_year['{{ year.year|date:'Y' }}'] = '{{ year.qty }}'
+    {% endfor %}
+
+    new Chart(ctx_total_cities_by_year, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(data_year_total_cities_by_year),
+            datasets: [
+                {
+                    label: 'Всего посещено городов в этом году',
+                    data: Object.values(data_year_total_cities_by_year),
+                    borderColor: 'rgba(193,70,255,0.5)',
+                    backgroundColor: 'rgba(193,70,255,0.2)',
+                    borderWidth: 2,
+                    borderRadius: 5,
+                    borderSkipped: false
+                },
+            ],
+        }
+    });
+</script>

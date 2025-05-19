@@ -6,29 +6,33 @@
         {{ region_name }}
     </h1>
 
-    {% if user.is_authenticated %}
-        {% include 'advertisement/rtb_banner.html' %}
-    {% else %}
-        {% include 'advertisement/travel_payouts.html' %}
-        {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+    {% if not DEBUG %}
+        {% if user.is_authenticated %}
+            {% include 'advertisement/rtb_banner.html' %}
+        {% else %}
+            {% include 'advertisement/travel_payouts.html' %}
+            {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+        {% endif %}
     {% endif %}
 
     <div id="iso3166_code" data-iso3166_code="{{ iso3166_code }}" hidden></div>
     <div id="url-geo-polygons" data-url="{{ url_geo_polygons }}" hidden></div>
 
     {% include 'region/region_selected__map__toolbar.html' %}
+    {% include 'region/region_selected__modal_help.html' %}
 
     <!-- Карта -->
     <div id="map" class="h-100 mt-3"></div>
     <!-- ^^^ Карта -->
 
-    {% if not user.is_authenticated %}
-        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
-        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
-        {% include 'advertisement/rtb_feed.html' %}
+    {% if not DEBUG %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+            {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+            {% include 'advertisement/rtb_feed.html' %}
+        {% endif %}
     {% endif %}
 
-    <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
     <script>
         const fillOpacity = 0.1;
         const fillColor = '#6382ff';

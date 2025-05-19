@@ -1,249 +1,232 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% load markdownify %}
+{% load static %}
+{% load mathfilters %}
 
 {% block content %}
-    <!-- Заголовок страницы -->
-    <h1 class="display-5 text-center mt-3 mx-3" id="section-page_header">
-        {{ object.city.title }}
-    </h1>
-    <!-- ^^^ Заголовок страницы -->
+<h1 class="display-5 text-center mt-4 mb-4 fw-bold" id="section-page_header">
+    {{ city.title }}
+</h1>
 
-    <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto" id="city-selected-content">
-        <div class="col-xxl-7 col-xl-9">
-            <div class="card shadow p-3" id="block-main_content">
-                <div class="card-body">
-                    <div class="mt-3">
-                        <!-- Регион -->
-                        <div class="row" id="section-region">
-                            <div class="col-12 col-md-4 fw-medium" id="subsection-region_title">
-                                Регион:
-                            </div>
-                            <div class="col-12 col-md-8" id="subsection-region_value">
-                                {{ object.region }}
-                            </div>
+<div class="container mb-5">
+    <div class="row justify-content-center " id="city-selected-content">
+        <div class="col-12">
+            <div class="card shadow-lg rounded-4 border-0">
+                <div class="card-body p-4">
+                    <div class="row">
+                         <div class="col-12 col-lg-6 text-center mb-3" id="section-city_image">
+                             {% if city.image %}
+                                <img src="{{ city.image }}"
+                                     alt="Фото города {{ city.title }}"
+                                     class="img-fluid rounded-3 shadow city-image">
+                             {% else %}
+                                <img src="{% static 'image/city_placeholder.png' %}"
+                                     alt="Фото города {{ city.title }}"
+                                     class="img-fluid rounded-3 shadow city-image">
+                             {% endif %}
                         </div>
-                        <!-- ^^^ Регион -->
 
-                        <hr>
+                        <div class="col-12 col-lg-6">
+                            <div class="row gy-2">
+                                {% url 'region-selected-list' city.region.id as region_url %}
+                                {% include "partials/info_row.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
+                                {% include "partials/info_row.html" with title="Федеральный округ:" value=city.region.area id="area" %}
 
-                        <!-- Федеральный округ -->
-                        <div class="row" id="section-area">
-                            <div class="col-12 col-md-4 fw-medium" id="subsection-area_title">
-                                Федеральный округ:
-                            </div>
-                            <div class="col-12 col-md-8" id="subsection-area_value">
-                                {{ object.region.area }}
-                            </div>
-                        </div>
-                        <!-- ^^^ Федеральный округ -->
+                                <div class="col-12">
+                                    <hr>
+                                </div>
 
-                        <hr>
+                                {% include "partials/info_row.html" with title="Год основания:" value=city.date_of_foundation|stringformat:"s"|default:"Год основания не известен" id="date_of_foundation" %}
+                                {% include "partials/info_row.html" with title="Население:" value=city.population|intcomma|stringformat:"s"|default:"Численность населения не известна" id="population" %}
 
-                        <!-- Год основания -->
-                        <div class="row" id="section-date_of_foundation">
-                            <div class="col-12 col-md-4 fw-medium" id="subsection-date_of_foundation_title">
-                                Год основания:
-                            </div>
-                            <div class="col-12 col-md-8" id="subsection-date_of_foundation_value">
-                                {% if object.city.date_of_foundation %}
-                                    {{ object.city.date_of_foundation }} г.
-                                {% else %}
-                                    <span class="text-muted">
-                                    Год основания не известен
-                                    </span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <!-- ^^^ Год основания -->
+                                <div class="col-12">
+                                    <hr>
+                                </div>
 
-                        <hr>
+                                <div class="col-12">
+                                    <h6 class="fw-semibold mb-1">Коллекции:</h6>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% if city.collections %}
+                                            {% for collection in city.collections %}
+                                                <a href="{% url 'collection-detail-list' collection.id %}"
+                                                   class="btn btn-sm bg-light text-success border border-success-subtle badge-hover-success">
+                                                    {{ collection }}
+                                                </a>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="small text-muted">Город не состоит ни в каких коллекциях</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-                        <!-- Население -->
-                        <div class="row" id="section-population">
-                            <div class="col-12 col-md-4 fw-medium" id="subsection-population_title">
-                                Население:
-                            </div>
-                            <div class="col-12 col-md-8" id="subsection-population_value">
-                                {% if object.city.population %}
-                                    {{ object.city.population|intcomma }} чел.
-                                {% else %}
-                                    <span class="text-muted">
-                                        Численность населения не известна
-                                    </span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <!-- ^^^Население -->
+                                <div class="col-12">
+                                    <hr>
+                                </div>
 
-                        <hr>
-
-                        <!-- Коллекции -->
-                        <div class="row" id="section-collections">
-                            <div class="col-12 col-md-4 fw-medium" id="subsection-collections_title">
-                                Коллекции:
-                            </div>
-                            <div class="col-12 col-md-8" id="subsection-collections_value">
-                                {% if collections_list %}
-                                    {% for collection in collections_list %}
-                                        <span class="badge text-bg-success">
-                                            {{ collection }}
+                                <div class="col-6">
+                                    <h6 class="fw-semibold mb-1">Средняя оценка среди всех пользователей:</h6>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span>
+                                            {{ city.average_rating }}
                                         </span>
-                                    {% endfor %}
-                                {% else %}
-                                    <span class="text-muted">
-                                        Город не состоит ни в каких коллекциях
-                                    </span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <!-- ^^^ Коллекции -->
+                                        <span>
+                                            {% for i in "12345"|make_list %}
+                                                {% with index=forloop.counter %}
+                                                    {% if city.average_rating >= index %}
+                                                        <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                                    {% else %}
+                                                        {% if city.average_rating >= index|sub:0.5 %}
+                                                            <i class="fa-solid fa-star-half-stroke" style="color: #ffc43c;"></i>
+                                                        {% else %}
+                                                            <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endfor %}
+                                        </span>
+                                    </div>
+                                </div>
 
-                        <hr>
+                                <div class="col-6">
+                                    <h6 class="fw-semibold mb-1">Популярные месяцы для посещения:</h6>
+                                    <div>
+                                        {% if city.popular_months %}
+                                            {{ city.popular_months|join:", " }}
+                                        {% else %}
+                                            <span class="small text-muted">Статистика ещё не собрана</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-                        <!-- Дата посещения -->
-                        <div class="row" id="section-date_of_visit">
-                            <div class="col-12 col-md-4 fw-medium" id="subsection-date_of_visit_title">
-                                Дата посещения:
-                            </div>
-                            <div class="col-12 col-md-8" id="subsection-date_of_visit_value">
-                                {% if object.date_of_visit %}
-                                    {{ object.date_of_visit }}
-                                {% else %}
-                                    <span class="text-muted">
-                                        Дата посещения не указана
-                                    </span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <!-- ^^^Дата посещения -->
-
-                        <hr>
-
-                        <!-- Сувенир -->
-                        <div class="row" id="section-has_magnet">
-                            <div class="col-12 col-md-4 fw-medium" id="subsection-has_magnet_title">
-                                Сувенир из города:
-                            </div>
-                            <div class="col-12 col-md-8" id="subsection-has_magnet_value">
-                                {% if object.has_magnet %}
-                                    <span class="badge bg-success">имеется</span>
-                                {% else %}
-                                    <span class="badge bg-danger">отсутствует</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <!-- ^^^ Сувенир -->
-
-                        <hr>
-
-                        <!-- Впечатления -->
-                        <div class="row" id="section-impression">
-                            <div class="col-12 col-md-4 fw-medium" id="subsection-impression_title">
-                                Впечатления:
-                            </div>
-                            <div class="col-12 col-md-8" id="subsection-impression_value">
-                                {{ object.impression|markdownify:"only_links" }}
-                            </div>
-                        </div>
-                        <!-- ^^^Впечатления -->
-
-                        <hr>
-
-                        <!-- Оценка -->
-                        <div class="row" id="section-rating">
-                            <div class="col-12 col-md-4 fw-medium" id="subsection-rating_title">
-                                Ваша оценка:
-                            </div>
-                            <div class="col-12 col-md-8" id="subsection-rating_value">
-                                {% for i in '12345'|make_list %}
-                                    {% if forloop.counter <= object.rating %}
-                                        <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                    {% else %}
-                                        <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                <div class="col-12 d-flex justify-content-end mt-3">
+                                    {% if city.wiki %}
+                                        <a href="{{ city.wiki }}"
+                                           class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover"
+                                           target="_blank">
+                                            <i class="fa-brands fa-wikipedia-w me-2"></i>Больше информации о городе на Wikipedia
+                                        </a>
                                     {% endif %}
-                                {% endfor %}
+                                </div>
                             </div>
                         </div>
-                        <!-- ^^^ Оценка -->
-
-                        <!-- Кнопки -->
-                        <div class="row mt-3 g-2">
-                            <div class="col-sm-4 d-grid">
-                                {% if object.city.wiki %}
-                                    <a href="{{ object.city.wiki }}" id="link-wiki"
-                                       class="btn btn-outline-dark d-block align-self-center h-100" target="_blank">
-                                        <i class="fa-brands fa-wikipedia-w"></i>&nbsp;&nbsp;&nbsp;Wikipedia
-                                    </a>
-                                {% else %}
-                                    <button class="btn btn-outline-dark disabled d-block align-self-center"
-                                            data-bs-toggle="tooltip" data-bs-title="Ссылка на статью в Wikipedia про город '{{ object.city.title }}' не указана">
-                                        <i class="fa-brands fa-wikipedia-w"></i>&nbsp;&nbsp;&nbsp;Wikipedia
-                                    </button>
-                                {% endif %}
-                            </div>
-                            <div class="col-sm-4 d-grid">
-                                <button class="btn btn-outline-danger d-block align-self-center h-100" type="button" id="link-delete"
-                                        onclick="openDeleteModal('{{ object.id }}', '{{ object }}')">
-                                    <i class="fa-solid fa-trash-can"></i>&nbsp;&nbsp;&nbsp;Удалить
-                                </button>
-                            </div>
-                            <div class="col-sm-4 d-grid">
-                                <a href="{% url 'city-update' object.id %}"
-                                   class="btn btn-outline-success d-block align-self-center align-items-center h-100" id="link-update">
-                                    <i class="fa-regular fa-pen-to-square"></i>&nbsp;&nbsp;&nbsp;Изменить
-                                </a>
-                            </div>
-                        </div>
-                        <!-- Кнопки -->
                     </div>
+
+                    {% if user.is_authenticated %}
+                        {% if city.number_of_visits > 0 %}
+                            <div class="row align-items-center mt-3 mb-3">
+                                <div class="col-12 fs-3 fw-semibold">Ваши посещения города {{ city.title }} ({{ city.number_of_visits }})</div>
+                            </div>
+
+                            {% for visit in city.visits %}
+                                {% if not forloop.first %}
+                                    <div class="row align-items-center">
+                                        <div class="col-12">
+                                            <hr>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <div class="row align-items-center">
+                                    <div class="col-lg-2 mt-2">
+                                        {% if visit.date_of_visit %}
+                                            {{ visit.date_of_visit }}
+                                        {% else %}
+                                            <span class="small text-muted">Дата посещения не указана</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-lg-2 mt-2">
+                                        {% for i in '12345'|make_list %}
+                                            {% if forloop.counter <= visit.rating %}
+                                                <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
+                                            {% else %}
+                                                <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="col-lg-6 mt-2">
+                                        {% if visit.impression %}
+                                            {{ visit.impression }}
+                                        {% else %}
+                                            <span class="small text-muted">Вы не добавили описание Вашей поездки в город {{ visit.city__title }}</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-lg-2 d-flex text-center justify-content-end gap-3 mt-2">
+                                        <a class="text-sm btn btn-outline-danger btn-sm"
+                                           href="#"
+                                           data-bs-tooltip="tooltip"
+                                           data-bs-title="Удалить город {{ city.title }} из списка посещённых"
+                                           onclick="event.preventDefault(); openDeleteModal('{{ visit.id }}', '{{ visit.title }}')">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                        <a href="{% url 'city-update' visit.id %}"
+                                           data-bs-tooltip="tooltip"
+                                           data-bs-title="Изменить параметры посещения города {{ city.title }}"
+                                           class="text-sm btn btn-outline-success btn-sm">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="mt-5 display-4 text-center">
+                                Вы ещё не посетили город {{ city.title }}
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-end mt-5">
+                            {% if city.number_of_visits > 0 %}
+                                <a href="{% url 'city-create' %}?city_id={{ city.id }}"
+                                   class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-plus"></i>
+                                    Добавить ещё одно посещение города
+                                </a>
+                            {% else %}
+                                <a href="{% url 'city-create' %}?city_id={{ city.id }}"
+                                   class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-plus"></i>
+                                    Добавить город как посещённый
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-
-    <!-- Модальное окно про удаление элемента -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">
-                        Удаление
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                </div>
-
-                <div class="modal-body">
-                    Вы уверены, что хотите удалить город <b><span id="cityTitleOnModal"></span></b> из списка посещённых?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                    <form id="deleteCityForm" method="post" action="">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Удалить</button>
-                    </form>
-                </div>
+<!-- Модальное окно удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title">Удаление</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить город <strong><span id="cityTitleOnModal"></span></strong> из списка посещённых?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form id="deleteCityForm" method="post" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
             </div>
         </div>
     </div>
-    <!-- ^^^ Модальное окно про удаление элемента -->
+</div>
 
-    <script>
-        function openDeleteModal(city_id, city_title) {
-            /**
-             * Открывает модальное окно с подтверждением удаления посещённого города,
-             * получая необходимые данные из HTML-страницы.
-             */
-            let cityTitle = document.getElementById('cityTitleOnModal');
-            cityTitle.innerHTML = city_title;
-
-            let cityUrl = "{% url 'city-delete' pk=1 %}".replace(/1/, city_id.toString());
-
-            let actionForm = document.getElementById('deleteCityForm');
-            actionForm.action = cityUrl;
-
-            $('#deleteModal').modal('show');
-        }
-    </script>
+<script>
+    function openDeleteModal(city_id, city_title) {
+        document.getElementById('cityTitleOnModal').textContent = city_title;
+        let url = "{% url 'city-delete' 0 %}".replace('0', city_id);
+        document.getElementById('deleteCityForm').action = url;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+</script>
 {% endblock %}

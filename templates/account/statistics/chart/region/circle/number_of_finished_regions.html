@@ -1,0 +1,29 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <h6 class="text-muted mb-3">Завершённые регионы</h6>
+
+        {% if regions.number_of_finished_regions and regions.number_of_not_finished_regions %}
+            <canvas class="vert" id="canvas__chart__number_of_finished_regions"></canvas>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert">
+                Нет данных для отображения графика
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    new Chart(document.getElementById('canvas__chart__number_of_finished_regions').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Завершённые', 'Не заавершённые'],
+            datasets: [
+                {
+                    data: ['{{ regions.number_of_finished_regions }}', '{{ regions.number_of_not_finished_regions }}'],
+                    borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                    backgroundColor: ['rgb(193,70,255,0.6)', 'rgba(193,70,255,0.3)']
+                },
+            ],
+        }
+    });
+</script>

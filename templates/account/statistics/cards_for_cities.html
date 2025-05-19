@@ -1,5 +1,4 @@
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 row-cols-xl-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5"
-     id="row-city-stats">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 row-cols-xl-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5" id="row-city-stats">
     <div class="col" id="card_number_of_visited_cities">
         <div class="card text-center shadow h-100">
             <div class="card-body">
@@ -24,8 +23,8 @@
         <div class="card text-center shadow h-100">
             <div class="card-body">
                 <p class="fs-4">В этом году {{ word_modifications.visited.number_of_visited_cities }}</p>
-                <h1>{{ cities.number_of_visited_cities_current_year }}</h1>
-                <p class="fs-4">{{ word_modifications.city.number_of_visited_cities_current_year }}</p>
+                <h1>{{ cities.number_of_total_visited_cities_current_year }}</h1>
+                <span class="text-muted fs-5">Новых: <span class="fw-bold">{{ cities.number_of_new_visited_cities_current_year }}</span></span>
             </div>
         </div>
     </div>
@@ -34,8 +33,8 @@
         <div class="card text-center shadow h-100">
             <div class="card-body">
                 <p class="fs-4">В прошлом году {{ word_modifications.visited.number_of_visited_cities_previous_year }}</p>
-                <h1>{{ cities.number_of_visited_cities_previous_year }}</h1>
-                <p class="fs-4">{{ word_modifications.city.number_of_visited_cities_previous_year }}</p>
+                <h1>{{ cities.number_of_total_visited_cities_previous_year }}</h1>
+                <p class="text-muted fs-5">Новых: <span class="fw-bold">{{ cities.number_of_new_visited_cities_previous_year }}</span></p>
             </div>
         </div>
     </div>

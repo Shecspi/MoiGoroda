@@ -37,6 +37,7 @@ class City(models.Model):
     wiki = models.URLField(
         max_length=256, verbose_name='Ссылка на Wikipedia', blank=True, null=True
     )
+    image = models.URLField(verbose_name='Ссылка на изображение', blank=True, null=False)
 
     class Meta:
         ordering = ['title']
@@ -45,6 +46,9 @@ class City(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+    def get_absolute_url(self) -> str:
+        return reverse('city-selected', kwargs={'pk': self.pk})
 
 
 class VisitedCity(models.Model):
@@ -80,6 +84,7 @@ class VisitedCity(models.Model):
         'а также это влияет на отображаемую статистику посещённых городов за год.',
         blank=True,
         null=True,
+        db_index=True,
     )
     has_magnet = models.BooleanField(
         verbose_name='Наличие сувенира из города',
@@ -101,13 +106,21 @@ class VisitedCity(models.Model):
         blank=False,
         null=False,
         validators=[MinValueValidator(1), MaxValueValidator(5)],
+        db_index=True,
+    )
+    is_first_visit = models.BooleanField(
+        verbose_name='Первый раз в городе?',
+        blank=True,
+        null=True,
+        default=True,
+        db_index=True,
     )
 
     class Meta:
         ordering = ['-id']
         verbose_name = 'Посещённый город'
         verbose_name_plural = 'Посещённые города'
-        unique_together = ['user', 'city']
+        unique_together = ['user', 'city', 'date_of_visit']
 
     def __str__(self) -> str:
         return self.city.title

@@ -1,0 +1,38 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <p class="fs-4">Количество новых городов по месяцам</p>
+        {% if cities.number_of_new_visited_cities_in_several_month %}
+            <canvas id="chart__new_cities_by_month"></canvas>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert">
+                Не сохранено ни одного города, посещённого за последние 24 месяца
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const ctx_new_cities_by_month = document.getElementById('chart__new_cities_by_month').getContext('2d');
+    let data_month_new_cities_by_month = {}
+        {% for month in cities.number_of_new_visited_cities_in_several_month reversed %}
+            data_month_new_cities_by_month['{{ month.month_year|date:'m Y' }}'] = '{{ month.qty }}'
+        {% endfor %}
+
+        new Chart(ctx_new_cities_by_month, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data_month_new_cities_by_month),
+                datasets: [
+                    {
+                        label: 'Посещено новых городов в этом месяце',
+                        data: Object.values(data_month_new_cities_by_month),
+                        borderColor: 'rgba(255,143,51,0.5)',
+                        backgroundColor: 'rgba(255,143,51,0.2)',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderSkipped: false
+                    },
+                ],
+            }
+        });
+</script>

@@ -8,13 +8,18 @@
     <meta name="description" content="{{ page_description }}">
     <title>{{ page_title }} | {{ SITE_NAME }}</title>
 
+    {% if not DEBUG %}
     <!-- Travel PayOuts -->
     <script src="{% static 'js/travelpayouts-verify.js' %}" data-noptimize="1" data-cfasync="false" data-wpfc-render="false"></script>
+    {% endif %}
 
+    {% if not DEBUG %}
     <!-- Yandex.RTB -->
     <script>window.yaContextCb=window.yaContextCb||[]</script>
     <script src="https://yandex.ru/ads/system/context.js" async></script>
+    {% endif %}
 
+    {% if not DEBUG %}
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -35,6 +40,7 @@
             <img src="https://mc.yandex.ru/watch/91503998" style="position:absolute; left:-9999px;" alt="" />
         </div>
     </noscript>
+    {% endif %}
 
     {# ----------------------- #}
     {#   Загрузка CSS-стилей   #}
@@ -62,10 +68,9 @@
             crossorigin="anonymous"></script>
     {# jQuery JS #}
     <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
-    {# API Яндекс-карт #}
-    <script src="https://api-maps.yandex.ru/2.1/?apikey={{ API_YANDEX_MAP }}&lang=ru_RU" type="text/javascript"></script>
     {# Leaflet JS #}
     <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
     <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
     {# ChartJS для построения графиков #}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>

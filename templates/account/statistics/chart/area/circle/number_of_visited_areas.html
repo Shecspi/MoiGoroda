@@ -1,0 +1,29 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <h6 class="text-muted mb-3">Посещённые федеральные округа</h6>
+
+        {% if not areas.number_all_areas %}
+            <div class="alert alert-danger text-center mt-3" role="alert">
+                Нет данных для отображения графика
+            </div>
+        {% else %}
+            <canvas class="vert" id="chart__number_of_areas"></canvas>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    new Chart(document.getElementById('chart__number_of_areas').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Посещённые', 'Не посещённые'],
+            datasets: [
+                {
+                    data: ['{{ areas.number_visited_areas }}', '{{ areas.number_not_visited_areas }}'],
+                    borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                    backgroundColor: ['rgba(51,171,255,0.6)', 'rgba(51,171,255,0.3)']
+                },
+            ],
+        }
+    });
+</script>

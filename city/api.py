@@ -14,13 +14,13 @@ from json import JSONDecodeError
 from typing import NoReturn
 
 from pydantic import ValidationError
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 import rest_framework.exceptions as drf_exc
 from rest_framework.response import Response
 
 from account.models import ShareSettings
-from city.models import City
+from city.models import City, VisitedCity
 from city.serializers import (
     VisitedCitySerializer,
     NotVisitedCitySerializer,
@@ -29,7 +29,13 @@ from city.serializers import (
 from city.structs import UserID
 from region.models import Region
 from services import logger
-from services.db.visited_city_repo import get_visited_cities_many_users, get_not_visited_cities
+from services.db.visited_city_repo import get_not_visited_cities
+from city.services.db import (
+    get_all_visited_cities,
+    get_number_of_visits_by_city,
+    get_first_visit_date_by_city,
+    get_last_visit_date_by_city,
+)
 from subscribe.repository import is_subscribed
 
 
@@ -48,21 +54,7 @@ class GetVisitedCities(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.request.user.pk
-
-        return get_visited_cities_many_users(
-            [user_id],
-            ('city', 'user'),
-            [
-                'user__username',
-                'id',
-                'city__title',
-                'city__region',
-                'city__region_id',
-                'city__coordinate_width',
-                'city__coordinate_longitude',
-                'date_of_visit',
-            ],
-        )
+        return get_all_visited_cities(user_id)
 
 
 class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
@@ -72,7 +64,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
 
     def __init__(self) -> None:
         # Список ID пользователей, у которых необходимо вернуть посещённые города
-        self.user_id: list = []
+        self.user_ids: list = []
 
         super().__init__()
 
@@ -137,24 +129,24 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
         # но на всякий случай обрабатываю эту ситуацию.
         json_data = self._load_json(input_data)
 
-        user_id = json_data.get('id')
+        user_ids = json_data.get('id')
 
         if not self.request.user.is_superuser:
             # Убираем из списка ID тех пользователей, которые не разрешили подписываться на себя.
             # Вообще это нештатная ситуация, но теоритически возможная, когда пользователь запретил
             # подписываться после того, как была открыта страница с картой, но до того, как запрос пришёл на сервер.
-            for id in user_id:
+            for user_id in user_ids:
                 if self._user_has_allowed_to_subscribe_to_himself(
-                    id
-                ) and self._is_subscription_exists(id):
-                    self.user_id.append(id)
+                    user_id
+                ) and self._is_subscription_exists(user_id):
+                    self.user_ids.append(user_id)
                     logger.info(
                         self.request,
                         f'(API) Successful request for a list of visited cities from subscriptions '
-                        f'(from #{self.request.user.id}, to #{id})',
+                        f'(from #{self.request.user.id}, to #{user_id})',
                     )
         else:
-            self.user_id = user_id
+            self.user_ids = user_ids
 
             logger.info(
                 self.request,
@@ -164,19 +156,16 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        return get_visited_cities_many_users(
-            self.user_id,
-            ('city', 'user'),
-            [
-                'user__username',
-                'city__id',
-                'city__title',
-                'city__region',
-                'city__region_id',
-                'city__coordinate_width',
-                'city__coordinate_longitude',
-            ],
-        )
+        if not self.user_ids:
+            return []
+
+        # get_all_visited_cities работает с одним user_id, поэтому она вызывается
+        # несколько раз и результаты собираются в один QuerySet.
+        querysets = [get_all_visited_cities(user_id) for user_id in self.user_ids]
+        combined_queryset = querysets[0]
+        for qs in querysets[1:]:
+            combined_queryset = combined_queryset.union(qs)
+        return combined_queryset
 
 
 class GetNotVisitedCities(generics.ListAPIView):
@@ -213,12 +202,34 @@ class AddVisitedCity(generics.CreateAPIView):
             raise drf_exc.ValidationError(serializer.errors)
 
         user = request.user
-        region = City.objects.get(id=serializer.validated_data['city'].id).region
+        city = City.objects.get(id=serializer.validated_data['city'].id)
+        date_of_visit = serializer.validated_data['date_of_visit']
+
+        if VisitedCity.objects.filter(user=user, city=city, date_of_visit=date_of_visit).exists():
+            return Response(
+                {
+                    'status': 'success',
+                    'message': f'Вы уже сохранили посещение города {city} {date_of_visit}',
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        region = city.region
         serializer.save(user=user, region=region)
 
         logger.info(
             self.request,
             f'(API: Add visited city) The visited city has been successfully added from {from_page}',
         )
+        return_data = dict(serializer.data)
+        return_data['number_of_visits'] = get_number_of_visits_by_city(
+            city_id=city.id, user_id=user.id
+        )
+        return_data['first_visit_date'] = get_first_visit_date_by_city(
+            city_id=city.id, user_id=user.id
+        )
+        return_data['last_visit_date'] = get_last_visit_date_by_city(
+            city_id=city.id, user_id=user.id
+        )
 
-        return Response({'status': 'success', 'city': serializer.data})
+        return Response({'status': 'success', 'city': return_data})

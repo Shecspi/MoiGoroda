@@ -13,21 +13,26 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from datetime import datetime
-
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Exists, OuterRef, Subquery, Value
-from django.db.models import QuerySet, BooleanField, DateField, IntegerField
+from django.db.models import QuerySet
 
 from MoiGoroda import settings
 from region.models import Region
 from city.models import VisitedCity, City
 from services import logger
-from services.db.regions_repo import get_all_visited_regions
+from region.services.db import (
+    get_all_region_with_visited_cities,
+    get_all_cities_in_region,
+    get_all_regions,
+)
+from region.services.filter import apply_filter_to_queryset
+from region.services.sort import apply_sort_to_queryset
+from services.url_params import make_url_params
+from services.word_modifications.city import modification__city
+from services.word_modifications.visited import modification__visited
 from utils.RegionListMixin import RegionListMixin
-from utils.CitiesByRegionMixin import CitiesByRegionMixin
 
 
 class RegionList(RegionListMixin, ListView):
@@ -57,19 +62,15 @@ class RegionList(RegionListMixin, ListView):
         """
         Достаёт из базы данных все регионы, добавляя дополнительные поля:
             * num_total - общее количество городов в регионе
-            * num_visited - количество посещённых пользователем городов в регионе
+            * num_visited - количество посещённых пользователем городов в регионе (для авторизованных пользователей)
         """
         self.qty_of_regions = Region.objects.count()
 
         if self.request.user.is_authenticated:
-            queryset = get_all_visited_regions(self.request.user.pk)
+            queryset = get_all_region_with_visited_cities(self.request.user.pk)
             self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
         else:
-            queryset = (
-                Region.objects.select_related('area')
-                .annotate(num_total=Count('city', distinct=True))
-                .order_by('title')
-            )
+            queryset = get_all_regions()
 
         if self.list_or_map == 'list':
             logger.info(self.request, '(Region) Viewing the list of regions')
@@ -110,67 +111,51 @@ class RegionList(RegionListMixin, ListView):
         return context
 
     def get_template_names(self) -> list[str]:
-        if self.list_or_map == 'list':
-            return [
-                'region/region_all__list.html',
-            ]
-        elif self.list_or_map == 'map':
+        if self.list_or_map == 'map':
             return [
                 'region/region_all__map.html',
             ]
+        else:
+            return [
+                'region/region_all__list.html',
+            ]
 
 
-class CitiesByRegionList(ListView, CitiesByRegionMixin):
+class CitiesByRegionList(ListView):
     """
-    Отображает список всех городов в указанном регионе, как посещённых, так и нет.
+    Представление для вывода списка или карты городов в конкретном регионе.
+    Поддерживает фильтрацию, сортировку и переключение между картой и списком.
 
-    Фильтрация городов передаётся через GET-параметр `filter` и может принимать одно из следующих значений:
-        * `magnet` - наличие сувенира из города
-        * `current_year` - посещённые в текущем году
-        * `last_yesr` - посещённые в прошлом году
+    Допустимые параметры фильтрации указываются в region.services.filter.FILTER_FUNCTIONS.
+    Если в URL передан недопустимый параметр, то self.filter будет иметь значение None.
+    На это можно ориентироваться в шаблонах, есть ли сейчас активная фильтрация или нет.
 
-    Фильтрация городов передаётся через GET-параметр `sort` и может принимать одно из следующих значений:
-        * `name_down` - по возрастанию имени
-        * `name_up` - по убыванию имени
-        * `date_down` - по возрастанию даты посещений
-        * `date_up` - по убыванию даты посещения
+    Допустимые параметры сортировки указываются в region.services.sort.SORT_FUNCTIONS.
+    Если в URL не передан параметр sort или он имеет недопустимое значение, то будет использоваться сортировка по умолчанию - name_up.
+    На это можно ориентироваться в шаблонах, есть ли сейчас активная фильтрация или нет.
     """
 
     model = VisitedCity
     paginate_by = 16
-    list_or_map: str = ''
 
-    all_cities = None
+    sort: str = ''
+    filter: str | None = None
     region_id = None
+    all_cities = None
     region_name = None
-
-    filter = None
-    sort = None
-
+    list_or_map: str = ''
+    total_qty_of_cities: int = 0
+    qty_of_visited_cities: int = 0
     valid_filters = ('magnet', 'current_year', 'last_year')
     valid_sorts = ('name_down', 'name_up', 'date_down', 'date_up')
 
-    def __init__(self, list_or_map: str):
-        super().__init__()
-
-        self.sort: str = ''
-        self.filter: str = ''
-        self.total_qty_of_cities: int = 0
-        self.qty_of_visited_cities: int = 0
-        self.qty_of_visited_cities_current_year: int = 0
-
-        self.list_or_map = list_or_map
-
-    def get(self, *args, **kwargs):
+    def get(self, *args, **kwargs) -> HttpResponse:
         """
         Проверяет, существует ли указанный в URL регион в базе данных.
         В случае, если региона нет - возвращает ошибку 404.
         """
-        # Проверка этого параметра не нужна, так как это реализовано на уровне Django
         self.region_id = self.kwargs['pk']
 
-        # При обращении к несуществующему региону выдаём 404
-        # При этом в указанном регионе может не быть посещённых городов, это ок
         try:
             self.region_name = Region.objects.get(id=self.region_id)
         except ObjectDoesNotExist as exc:
@@ -183,90 +168,44 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
 
     def get_queryset(self) -> QuerySet[dict]:
         """
-        Получает из базы данных все города в указанном регионе, как посещённые, так и нет.
-        Возвращает Queryset, состоящий из полей:
-            * `id` - ID города
-            * `title` - название города
-            * `population` - население города
-            * `date_of_foundation` - дата основания города
-            * `coordinate_width` - широта
-            * `coordinate_longitude` - долгота
-            * `is_visited` - True,если город посещён
-            * `date_of_visit` - дата посещения
-
-            Для авторизованных пользователей доступны дополнительные поля:
-            * `visited_id` - ID посещённого города
-            * `has_magnet` - True, если имеется сувенир из города
-            * `rating` - рейтинг от 1 до 5
+        Формирование списка городов в регионе.
+        Фильтрует и сортирует данные в зависимости от параметров запроса.
         """
+        self.filter = self.request.GET.get('filter') or None
+        self.sort = self.request.GET.get('sort', None)
+
         if self.request.user.is_authenticated:
-            queryset = (
-                City.objects.filter(region=self.region_id)
-                .annotate(
-                    is_visited=Exists(
-                        VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-                    ),
-                    visited_id=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('id'),
-                        output_field=IntegerField(),
-                    ),
-                    date_of_visit=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('date_of_visit'),
-                        output_field=DateField(),
-                    ),
-                    has_magnet=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('has_magnet'),
-                        output_field=BooleanField(),
-                    ),
-                    rating=Subquery(
-                        VisitedCity.objects.filter(
-                            city_id=OuterRef('pk'), user=self.request.user
-                        ).values('rating'),
-                        output_field=IntegerField(),
-                    ),
-                )
-                .values(
-                    'id',
-                    'title',
-                    'population',
-                    'date_of_foundation',
-                    'coordinate_width',
-                    'coordinate_longitude',
-                    'is_visited',
-                    'visited_id',
-                    'date_of_visit',
-                    'has_magnet',
-                    'rating',
-                )
-            )
-            self.total_qty_of_cities = queryset.count()
+            queryset = get_all_cities_in_region(self.request.user, self.region_id)
+
+            # Количество городов считаем до фильтрации, чтобы всегда было указано, сколько городов посещено
+            self.total_qty_of_cities = City.objects.filter(region_id=self.region_id).count()
             self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
-            self.qty_of_visited_cities_current_year = queryset.filter(
-                is_visited=True, date_of_visit__year=datetime.now().year
-            ).count()
+
+            queryset = self.apply_filter(queryset)
+            queryset = queryset.values(
+                'id',
+                'title',
+                'population',
+                'date_of_foundation',
+                'coordinate_width',
+                'coordinate_longitude',
+                'is_visited',
+                'number_of_visits',
+                'visited_id',
+                'visit_dates',
+                'first_visit_date',
+                'last_visit_date',
+                'has_magnet',
+                'rating',
+            )
         else:
-            # Если пользователь не авторизован, то поля `is_visited` и `date_of_visit` всё-равно нужны.
-            # `is_visited` для шаблона, чтобы он отображал все города как непосещённые.
-            # `date_of_visit` для сортировки. В данном случае сортировка по этому полю не принесёт никакого эффекта,
-            # но в коде это заложено, поэтому поле нужно.
-            queryset = (
-                City.objects.filter(region=self.region_id)
-                .annotate(is_visited=Value(False), date_of_visit=Value(0))
-                .values(
-                    'id',
-                    'title',
-                    'population',
-                    'date_of_foundation',
-                    'coordinate_width',
-                    'coordinate_longitude',
-                    'is_visited',
-                )
+            queryset = City.objects.filter(region=self.region_id).values(
+                'id',
+                'title',
+                'population',
+                'date_of_foundation',
+                'coordinate_width',
+                'coordinate_longitude',
             )
             self.total_qty_of_cities = queryset.count()
 
@@ -290,91 +229,119 @@ class CitiesByRegionList(ListView, CitiesByRegionMixin):
         # Чтобы отображались все города - используем доп. переменную без лимита.
         self.all_cities = queryset
 
-        # Определяем фильтрацию
-        if self.request.user.is_authenticated:
-            self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
-            if self.filter:
-                try:
-                    queryset = self.apply_filter_to_queryset(queryset, self.filter)
-                except KeyError:
-                    logger.warning(
-                        self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
-                    )
-                else:
-                    logger.info(self.request, f"(Region) Using the filter '{self.filter}'")
+        queryset = self.apply_sort(queryset)
 
-        # Для авторизованных пользователей определяем тип сортировки.
-        # Сортировка для неавторизованного пользователя недоступна - она выставляется в значение `default_guest`.
-        sort_default = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
-        if self.request.user.is_authenticated:
-            self.sort = (
-                self.request.GET.get('sort') if self.request.GET.get('sort') else sort_default
-            )
+        return queryset
+
+    def apply_filter(self, queryset: QuerySet[City]):
+        """
+        Применяет фильтр к набору данных, если параметр `filter` указан.
+        """
+        if self.filter:
             try:
-                queryset = self.apply_sort_to_queryset(queryset, self.sort)
+                queryset = apply_filter_to_queryset(queryset, self.request.user, self.filter)
             except KeyError:
+                self.filter = None
                 logger.warning(
-                    self.request, f"(Region) Unexpected value of the sorting '{self.filter}'"
+                    self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
                 )
-                queryset = self.apply_sort_to_queryset(queryset, sort_default)
-                self.sort = ''
-            else:
-                if self.sort != 'default_auth' and self.sort != 'default_guest':
-                    logger.info(self.request, f"(Region) Using the sorting '{self.sort}'")
+        return queryset
+
+    def apply_sort(self, queryset: QuerySet[City]):
+        """
+        Применяет сортировку к набору данных. Если параметр `sort` отсутствует,
+        используется сортировка по умолчанию.
+        """
+        sort_default = 'last_visit_date_down'
+
+        try:
+            queryset = apply_sort_to_queryset(
+                queryset, self.sort, self.request.user.is_authenticated
+            )
+        except KeyError:
+            logger.warning(self.request, f"(Region) Unexpected value of the sorting '{self.sort}'")
+            queryset = apply_sort_to_queryset(
+                queryset, sort_default, self.request.user.is_authenticated
+            )
+            self.sort = sort_default
+        else:
+            if self.sort is not None and self.sort != sort_default:
+                logger.info(self.request, f"(Region) Using the sorting '{self.sort}'")
 
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
+        """
+        Добавляет дополнительные параметры в контекст шаблона.
+        """
         context = super().get_context_data(**kwargs)
-
-        context['sort'] = self.sort
-        context['type'] = 'by_region'
-        context['filter'] = self.filter
-        context['region_id'] = self.region_id
-        context['all_cities'] = self.all_cities
-        context['region_name'] = self.region_name
-        context['iso3166_code'] = self.region_name.iso3166
-        context['url_geo_polygons'] = settings.URL_GEO_POLYGONS
-
-        context['total_qty_of_cities'] = self.total_qty_of_cities
-        context['qty_of_visited_cities'] = self.qty_of_visited_cities
-        context['qty_of_visited_cities_current_year'] = self.qty_of_visited_cities_current_year
-        context['declension_of_visited_cities'] = self.declension_of_city(
-            self.qty_of_visited_cities
+        context.update(
+            {
+                'sort': self.sort,
+                'type': 'by_region',
+                'filter': self.filter,
+                'region_id': self.region_id,
+                'all_cities': self.all_cities,
+                'region_name': self.region_name,
+                'iso3166_code': self.region_name.iso3166,
+                'url_geo_polygons': settings.URL_GEO_POLYGONS,
+                'total_qty_of_cities': self.total_qty_of_cities,
+                'qty_of_visited_cities': self.qty_of_visited_cities,
+                'declension_of_visited_cities': modification__city(self.qty_of_visited_cities),
+                'declension_of_visited': modification__visited(self.qty_of_visited_cities),
+                'url_for_filter_has_no_magnet': make_url_params(
+                    'has_no_magnet' if self.filter != 'has_no_magnet' else '', self.sort
+                ),
+                'url_for_filter_has_magnet': make_url_params(
+                    'has_magnet' if self.filter != 'has_magnet' else '', self.sort
+                ),
+                'url_for_filter_current_year': make_url_params(
+                    'current_year' if self.filter != 'current_year' else '', self.sort
+                ),
+                'url_for_filter_last_year': make_url_params(
+                    'last_year' if self.filter != 'last_year' else '', self.sort
+                ),
+                'url_for_sort_name_down': make_url_params(
+                    self.filter, 'name_down' if self.sort != 'name_down' else ''
+                ),
+                'url_for_sort_name_up': make_url_params(
+                    self.filter, 'name_up' if self.sort != 'name_up' else ''
+                ),
+                'url_for_sort_date_down': make_url_params(
+                    self.filter,
+                    'first_visit_date_down' if self.sort != 'first_visit_date_down' else '',
+                ),
+                'url_for_sort_date_up': make_url_params(
+                    self.filter, 'first_visit_date_up' if self.sort != 'first_visit_date_up' else ''
+                ),
+                'url_for_sort_last_visit_date_down': make_url_params(
+                    self.filter,
+                    'last_visit_date_down' if self.sort != 'last_visit_date_down' else '',
+                ),
+                'url_for_sort_last_visit_date_up': make_url_params(
+                    self.filter, 'last_visit_date_up' if self.sort != 'last_visit_date_up' else ''
+                ),
+            }
         )
-        context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_cities)
 
-        context['url_for_filter_magnet'] = self.get_url_params(
-            'magnet' if self.filter != 'magnet' else '', self.sort
+        # Настройка заголовков страницы в зависимости от типа отображения
+        page_type = 'Список городов' if self.list_or_map == 'list' else 'Города на карте'
+        context.update(
+            {
+                'page_title': f'{self.region_name} - {page_type} региона',
+                'page_description': f"{page_type} региона '{self.region_name}'",
+            }
         )
-        context['url_for_filter_current_year'] = self.get_url_params(
-            'current_year' if self.filter != 'current_year' else '', self.sort
-        )
-        context['url_for_filter_last_year'] = self.get_url_params(
-            'last_year' if self.filter != 'last_year' else '', self.sort
-        )
-        context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
-        context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
-        context['url_for_sort_date_down'] = self.get_url_params(self.filter, 'date_down')
-        context['url_for_sort_date_up'] = self.get_url_params(self.filter, 'date_up')
-
-        if self.list_or_map == 'list':
-            context['page_title'] = f'{self.region_name} - Список городов региона'
-            context['page_description'] = f"Список городов региона '{self.region_name}'"
-        else:
-            context['page_title'] = f'{self.region_name} - Города региона на карте'
-            context['page_description'] = (
-                f"Карта с отмеченными городами региона '{self.region_name}'"
-            )
 
         return context
 
     def get_template_names(self) -> list[str]:
-        if self.list_or_map == 'list':
-            return [
-                'region/region_selected__list.html',
-            ]
-        elif self.list_or_map == 'map':
-            return [
-                'region/region_selected__map.html',
-            ]
+        """
+        Определяет шаблон в зависимости от режима отображения (список или карта).
+        """
+        template_name = (
+            'region/region_selected__map.html'
+            if self.list_or_map == 'map'
+            else 'region/region_selected__list.html'
+        )
+        return [template_name]

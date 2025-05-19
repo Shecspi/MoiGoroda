@@ -1,0 +1,286 @@
+import calendar
+import datetime
+
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import (
+    OuterRef,
+    Count,
+    Avg,
+    Exists,
+    Q,
+    Min,
+    Max,
+    Subquery,
+    IntegerField,
+    QuerySet,
+    Func,
+)
+from django.db.models.functions import Round, TruncYear, TruncMonth
+
+from city.models import VisitedCity, City
+
+
+class ExtractYearFromArray(Func):
+    function = 'EXTRACT'
+    template = '%(function)s(YEAR FROM unnest(%(expressions)s))'
+
+    def __init__(self, expression, **extra):
+        expressions = [expression]
+        super().__init__(*expressions, **extra)
+
+
+def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
+    """
+    Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.
+    Возвращает Queryset, состоящий из полей:
+        * `id` - ID посещённого города
+        * `date_of_visit` - дата посещения города
+        * `rating` - рейтинг посещённого города
+        * `has_magnet` - наличие сувенира из города
+        * `city.id` - ID города
+        * `city.title` - Название города
+        * `city.population` - население города
+        * `city.date_of_foundation` - дата основания города
+        * `city.coordinate_width` - широта
+        * `city.coordinate_longitude` - долгота
+        * `region.id` - ID региона, в котором расположен город
+        * `region.title` - название региона, в котором расположен город
+        * `region.type` - тип региона, в котором расположен город
+        * `number_of_visits` - количество посещений городп
+        (для отображения названия региона лучше использовать просто `region`,
+        а не `region.title` и `region.type`, так как `region` через __str__()
+        отображает корректное обработанное название)
+    """
+    # Подзапрос для количества посещений города пользователем
+    city_visits_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        .values('city_id')  # Группировка по городу
+        .annotate(count=Count('*'))  # Подсчет записей (число посещений)
+        .values('count')  # Передаем только поле count
+    )
+
+    # Подзапрос для вычисления среднего рейтинга посещений города пользователем
+    average_rating_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city_id=OuterRef('city_id'))
+        .values('city_id')  # Группировка по городу
+        .annotate(avg_rating=Avg('rating'))  # Вычисление среднего рейтинга
+        .values('avg_rating')  # Передаем только рейтинг
+    )
+
+    # Есть ли сувенир из города?
+    has_souvenir = Exists(
+        VisitedCity.objects.filter(city_id=OuterRef('city_id'), user_id=user_id, has_magnet=True)
+    )
+
+    # Подзапрос для сбора всех дат посещений города
+    visit_dates_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(
+            visit_dates=ArrayAgg('date_of_visit', distinct=False, filter=~Q(date_of_visit=None))
+        )
+        .values('visit_dates')
+    )
+
+    # Подзапрос для даты первого посещения (first_visit_date)
+    first_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(first_visit_date=Min('date_of_visit'))
+        .values('first_visit_date')
+    )
+
+    # Подзапрос для даты последнего посещения (first_visit_date)
+    last_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(last_visit_date=Max('date_of_visit'))
+        .values('last_visit_date')
+    )
+
+    queryset = (
+        VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
+        .select_related('city', 'city__region', 'user')
+        .annotate(
+            number_of_visits=Subquery(city_visits_subquery, output_field=IntegerField()),
+            average_rating=(
+                Round((Subquery(average_rating_subquery) * 2), 0) / 2
+            ),  # Округление до 0.5
+            visit_dates=Subquery(visit_dates_subquery),
+            first_visit_date=Subquery(first_visit_date_subquery),
+            last_visit_date=Subquery(last_visit_date_subquery),
+            has_souvenir=has_souvenir,
+        )
+    )
+
+    return queryset
+
+
+def get_number_of_cities() -> int:
+    """
+    Возвращает количество городов, сохранённых в базе данных.
+    """
+    return City.objects.count()
+
+
+def get_number_of_visited_cities(user_id: int) -> int:
+    """
+    Возвращает количество городов, посещённых пользователем с user_id.
+    """
+    return get_all_visited_cities(user_id).count()
+
+
+def get_number_of_not_visited_cities(user_id: int) -> int:
+    """
+    Возвращает количество непосещённых городов пользователем с ID, указанном в user_id.
+    """
+    return City.objects.count() - get_number_of_visited_cities(user_id)
+
+
+def get_number_of_total_visited_cities_by_year(user_id: int, year: int) -> int:
+    """
+    Возвращает количество посещённых городов пользователем с ID, указанном в user_id, за один год, указанный в year.
+    Учитываются все посещённые города, а не только уникальные.
+    """
+    result = 0
+    for city in get_all_visited_cities(user_id):
+        if city.visit_dates:
+            for visit_date in city.visit_dates:
+                if visit_date.year == year:
+                    result += 1
+    return result
+
+
+def get_number_of_new_visited_cities_by_year(user_id: int, year: int) -> int:
+    """
+    Возвращает количество посещённых городов пользователем с ID, указанном в user_id, за один год, указанный в year.
+    Учитываются только новые посещённые города.
+    """
+    result = 0
+    for city in get_all_visited_cities(user_id):
+        if city.visit_dates and min(city.visit_dates).year == year:
+            result += 1
+    return result
+
+
+def get_last_10_new_visited_cities(user_id: int) -> QuerySet:
+    """
+    Возвращает последние 10 посещённых городов пользователя с ID, указанным в user_id.
+    """
+    return (
+        get_all_visited_cities(user_id)
+        .exclude(first_visit_date=None)
+        .order_by('-first_visit_date')[:10]
+    )
+
+
+def get_number_of_total_visited_cities_in_several_years(user_id: int):
+    """
+    Возвращает общее количество посещённых городов за каждый год.
+    """
+    return (
+        VisitedCity.objects.filter(user=user_id)
+        .annotate(year=TruncYear('date_of_visit'))
+        .values('year')
+        .exclude(year=None)
+        .annotate(qty=Count('id', distinct=True))
+        .values('year', 'qty')
+    )
+
+
+def get_number_of_new_visited_cities_in_several_years(user_id: int):
+    """
+    Возвращает количество новых посещённых городов за каждый год.
+    """
+    return (
+        VisitedCity.objects.filter(user=user_id)
+        .filter(is_first_visit=True)
+        .annotate(year=TruncYear('date_of_visit'))
+        .values('year')
+        .exclude(year=None)
+        .annotate(qty=Count('id', distinct=True))
+        .values('year', 'qty')
+    )
+
+
+def _get_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
+    now = datetime.datetime.now()
+    if now.month == 12:
+        start_date = datetime.date(now.year - 1, 1, 1)
+    else:
+        start_date = datetime.date(now.year - 2, now.month + 1, 1)
+    last_day_of_end_month = calendar.monthrange(now.year, now.month)[1]
+    end_date = datetime.date(now.year, now.month, last_day_of_end_month)
+
+    return VisitedCity.objects.filter(user=user_id).filter(
+        date_of_visit__range=(start_date, end_date)
+    )
+
+
+def get_number_of_total_visited_cities_in_several_month(user_id: int):
+    """
+    Возвращает статистику по количеству посещённых городов за каждый месяц (последние 24 месяца).
+    """
+
+    # В график идут последние 24 месяца, для этого вычисляется месяц отсчёта и месяц завершения графика.
+    # Для того чтобы первый и последний месяцы полностью попали в расчёт, нужно в первом месяце
+    # указать началом 1 день, а в последнем - последний.
+
+    return (
+        _get_visited_cities(user_id)
+        .annotate(month_year=TruncMonth('date_of_visit'))
+        .values('month_year')
+        .order_by('-month_year')
+        .exclude(month_year=None)
+        .annotate(qty=Count('id', distinct=True))
+        .values('month_year', 'qty')
+    )
+
+
+def get_number_of_new_visited_cities_in_several_month(user_id: int):
+    return (
+        _get_visited_cities(user_id)
+        .filter(is_first_visit=True)
+        .annotate(month_year=TruncMonth('date_of_visit'))
+        .values('month_year')
+        .order_by('-month_year')
+        .exclude(month_year=None)
+        .annotate(qty=Count('id', distinct=True))
+        .values('month_year', 'qty')
+    )
+
+
+def get_number_of_visits_by_city(city_id: int, user_id: int) -> int:
+    return VisitedCity.objects.filter(city_id=city_id, user=user_id).count()
+
+
+def get_first_visit_date_by_city(city_id: int, user_id: int) -> datetime.date:
+    first_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(first_visit_date=Min('date_of_visit'))
+        .values('first_visit_date')
+    )
+
+    return (
+        VisitedCity.objects.filter(city_id=city_id, user=user_id)
+        .annotate(first_visit_date=Subquery(first_visit_date_subquery))
+        .first()
+        .first_visit_date
+    )
+
+
+def get_last_visit_date_by_city(city_id: int, user_id: int) -> datetime.date:
+    first_visit_date_subquery = (
+        VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
+        .values('city')
+        .annotate(last_visit_date=Max('date_of_visit'))
+        .values('last_visit_date')
+    )
+
+    return (
+        VisitedCity.objects.filter(city_id=city_id, user=user_id)
+        .annotate(last_visit_date=Subquery(first_visit_date_subquery))
+        .first()
+        .last_visit_date
+    )

@@ -1,0 +1,30 @@
+<div class="card text-center shadow h-100">
+    <div class="card-body">
+        <h6 class="text-muted mb-3">Все посещённые регионы</h6>
+
+        {% if regions.number_of_visited_regions %}
+            <canvas class="vert" id="chart__number_of_regions"></canvas>
+        {% else %}
+            <div class="alert alert-danger text-center mt-3" role="alert">
+                Нет данных для отображения графика
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const ctx_number_of_regions = document.getElementById('chart__number_of_regions').getContext('2d');
+    const myChart_number_of_regions = new Chart(ctx_number_of_regions, {
+            type: 'pie',
+            data: {
+                labels: ['Посещённые', 'Не посещённые'],
+                datasets: [
+                    {
+                        data: ['{{ regions.number_of_visited_regions }}', '{{ regions.number_of_not_visited_regions }}'],
+                        borderColor: ['rgba(255, 255, 255)', 'rgba(255, 255, 255)'],
+                        backgroundColor: ['rgba(66, 189, 53, 0.6)', 'rgba(66, 189, 53, 0.3)']
+                    },
+                ],
+            }
+        });
+</script>

@@ -311,6 +311,17 @@ export class ToolbarActions {
          */
         let usersWhoVisitedCity = this.getUsersWhoVisitedCity();
 
+        // Объект, содержащий даты посещения городов пользователя, который просматривает страницу.
+        // Нужен для того, чтобы в балун вставлять корректные даты, а не даты посещения того, на кого подписан.
+        const ownCities = this.ownCities.reduce((acc, { title, first_visit_date, last_visit_date, visit_years }) => {
+            acc[title] = {
+                visit_years,
+                first_visit_date,
+                last_visit_date
+            };
+            return acc;
+        }, {});
+
         for (let i = 0; i < this.subscriptionCities.length; i++) {
             const city = new City();
 
@@ -319,9 +330,19 @@ export class ToolbarActions {
             city.region = this.subscriptionCities[i].region_title;
             city.lat = this.subscriptionCities[i].lat;
             city.lon = this.subscriptionCities[i].lon;
-            city.year_of_visit = this.subscriptionCities[i].year;
+            city.visit_years = ownCities[city.name] ? ownCities[city.name].visit_years : undefined;
+            city.first_visit_date = ownCities[city.name] ? ownCities[city.name].first_visit_date : undefined;
+            city.last_visit_date = ownCities[city.name] ? ownCities[city.name].last_visit_date : undefined;
 
-            if (year !== undefined && year !== city.year_of_visit) {
+            // ToDo: очень неэффективно - на каждый город подписчика проходимся по всем моим городам
+            this.ownCities.forEach(own_city => {
+                if (city.id === own_city.id) {
+                    city.date_of_first_visit = own_city.date_of_first_visit;
+                    city.number_of_visits = own_city.number_of_visits;
+                }
+            });
+
+            if (year !== undefined && (!this.subscriptionCities[i].visit_years || !this.subscriptionCities[i].visit_years.includes(year))) {
                 continue;
             }
             if (this.stateSubscriptionCities.has(city.id)) {
@@ -350,6 +371,8 @@ export class ToolbarActions {
          * Помещает на карту отметку посещённого города и сохраняет объект Placemark в глобальный словарь stateOwnCities.
          * @param year Необязательный параметр, указывающий за какой год нужно добавлять города на карту
          */
+        const allMarkers = [];
+
         for (let i = 0; i < (this.ownCities.length); i++) {
             const city = new City();
 
@@ -358,17 +381,22 @@ export class ToolbarActions {
             city.region = this.ownCities[i].region_title;
             city.lat = this.ownCities[i].lat;
             city.lon = this.ownCities[i].lon;
-            city.year_of_visit = this.ownCities[i].year;
-            city.date_of_visit = this.ownCities[i].date_of_visit;
+            city.visit_years = this.ownCities[i].visit_years;
+            city.first_visit_date = this.ownCities[i].first_visit_date;
+            city.last_visit_date = this.ownCities[i].last_visit_date;
+            city.number_of_visits = this.ownCities[i].number_of_visits;
 
             // Если указан год, то добавляем на карту только города, которые были посещены в указанном году
-            if (year !== undefined && year !== city.year_of_visit) {
+            if (year !== undefined && (!city.visit_years || !city.visit_years.includes(year))) {
                 continue;
             }
 
             let marker = this.addMarkerToMap(city, MarkerStyle.OWN);
+            allMarkers.push(marker);
             this.stateOwnCities.set(city.id, marker);
         }
+
+        return allMarkers;
     }
 
     /**
@@ -428,17 +456,34 @@ export class ToolbarActions {
         content += `<div><span class="fw-semibold fs-3">${city.name}</span></div>`;
         content += `<div><small class="text-secondary fw-medium fs-6">${city.region}</small></div>`;
         let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Отметить как посещённый</a>`
-        const date_of_visit = city.date_of_visit ? new Date(city.date_of_visit).toLocaleDateString() : undefined;
+        let linkToAddAgain = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Добавить ещё одно посещение</a>`
+        const first_visit_date = city.first_visit_date ? new Date(city.first_visit_date).toLocaleDateString() : undefined;
+        const last_visit_date = city.last_visit_date ? new Date(city.last_visit_date).toLocaleDateString() : undefined;
+        const visit_years = city.visit_years ? city.visit_years : undefined;
+        const number_of_visits = city.number_of_visits;
 
         if (marker_style === MarkerStyle.SUBSCRIPTION) {
             content += '<p>Вы не были в этом городе</p>';
             content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p><hr>${linkToAdd}`;
         } else if (marker_style === MarkerStyle.TOGETHER) {
             content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p>`;
+            if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
+                content += `<p><span class='fw-semibold'>Дата посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
+            } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
+                content += `<p><span class='fw-semibold'>Дата первого посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
+                content += `<p><span class='fw-semibold'>Дата последнего посещения:</span> ${last_visit_date ? last_visit_date : 'Не указана'}</p>`
+            }
+            content += `<p><span class='fw-semibold'>Всего посещений: ${number_of_visits}</span></p><hr>${linkToAddAgain}`;
         } else if (marker_style === MarkerStyle.NOT_VISITED) {
             content += `<p>Вы не были в этом городе</p><hr>${linkToAdd}`;
         } else {
-            content += `<p><span class='fw-semibold'>Дата посещения:</span> ${date_of_visit ? date_of_visit : 'Не указана'}</p>`
+            if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
+                content += `<p><span class='fw-semibold'>Дата посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
+            } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
+                content += `<p><span class='fw-semibold'>Дата первого посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
+                content += `<p><span class='fw-semibold'>Дата последнего посещения:</span> ${last_visit_date ? last_visit_date : 'Не указана'}</p>`
+            }
+            content += `<p><span class='fw-semibold'>Всего посещений:</span> ${number_of_visits}</p><hr>${linkToAddAgain}`;
         }
         marker.bindPopup(content);
 
@@ -460,25 +505,10 @@ export class ToolbarActions {
         return marker;
     }
 
-    updateMarker(id) {
+    updateMarker(city) {
+        const id = city.id;
+
         if (this.stateNotVisitedCities.has(id)) {
-            // Получаем данные города и удаляем его из списка не посещённых
-            let city;
-            for (let i = this.notVisitedCities.length - 1; i >= 0; i--) {
-                if (this.notVisitedCities[i].id === id) {
-                    city = new City();
-
-                    city.id = this.notVisitedCities[i].id;
-                    city.name = this.notVisitedCities[i].title;
-                    city.region = this.notVisitedCities[i].region_title;
-                    city.lat = this.notVisitedCities[i].lat;
-                    city.lon = this.notVisitedCities[i].lon;
-
-                    this.notVisitedCities.splice(i, 1);
-                    break;
-                }
-            }
-
             // Удаляем метку на карте и в глобальном состоянии
             let marker = this.stateNotVisitedCities.get(id);
             this.stateNotVisitedCities.delete(id);
@@ -489,21 +519,6 @@ export class ToolbarActions {
             this.stateOwnCities.set(id, marker);
             this.addMarkerToMap(city, MarkerStyle.OWN);
         } else if (this.stateSubscriptionCities.has(id)) {
-            // Получаем данные города
-            let city = [];
-            for (let i = this.subscriptionCities.length - 1; i >= 0; i--) {
-                if (this.subscriptionCities[i].id === id) {
-                    city = new City();
-
-                    city.id = this.subscriptionCities[i].id;
-                    city.name = this.subscriptionCities[i].title;
-                    city.region = this.subscriptionCities[i].region_title;
-                    city.lat = this.subscriptionCities[i].lat;
-                    city.lon = this.subscriptionCities[i].lon;
-                    break;
-                }
-            }
-
             // Удаляем старую метку на карте и в глобальном состоянии
             let old_marker = this.stateSubscriptionCities.get(id);
             this.stateSubscriptionCities.delete(id);
@@ -518,6 +533,26 @@ export class ToolbarActions {
                 usersWhoVisitedCity.get(id)
             );
             this.stateSubscriptionCities.set(id, new_marker);
+        } else if (this.stateOwnCities.has(id)) {
+            // Удаление старого маркера
+            let old_marker = this.stateOwnCities.get(city.id);
+            this.stateOwnCities.delete(city.id);
+            this.myMap.removeLayer(old_marker);
+
+            // Обновление информации о городе в this.ownCities
+            for (let i = 0; i < this.ownCities.length; i++) {
+                if (this.ownCities[i].id === id) {
+                    this.ownCities[i].number_of_visits = city.number_of_visits;
+                    this.ownCities[i].first_visit_date = city.first_visit_date;
+                    this.ownCities[i].last_visit_date = city.last_visit_date;
+                    this.ownCities[i].visit_dates = city.visit_dates;
+                    break;
+                }
+            }
+
+            // Создание нового маркета
+            const new_marker = this.addMarkerToMap(city, MarkerStyle.OWN);
+            this.stateOwnCities.set(id, new_marker);
         } else {
             throw new Error(`Неизвестное состояние добавленного города с ID ${id}`);
         }

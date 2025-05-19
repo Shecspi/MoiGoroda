@@ -30,7 +30,8 @@ class VisitedCity_Create_Form(ModelForm):
 
     class Meta:
         model = VisitedCity
-        fields = ['region', 'city', 'date_of_visit', 'has_magnet', 'impression', 'rating']
+        # date_of_visit указан первым, чтобы во время проверки city параметр date_of_visit был доступен
+        fields = ['date_of_visit', 'region', 'city', 'has_magnet', 'impression', 'rating']
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.request = kwargs.pop('request', None)
@@ -69,23 +70,43 @@ class VisitedCity_Create_Form(ModelForm):
             self.fields['city'].queryset = City.objects.filter(region_id=region_id).order_by(
                 'title'
             )
+            # Если форма не отправлена (GET) и есть выбранный город через initial
+        elif self.initial.get('city'):
+            try:
+                selected_city = City.objects.get(pk=self.initial['city'])
+                self.fields['city'].queryset = City.objects.filter(
+                    region=selected_city.region
+                ).order_by('title')
+                self.initial['region'] = (
+                    selected_city.region_id
+                )  # также заполняем initial значение для поля "region"
+            except City.DoesNotExist:
+                pass
         elif self.instance.pk:
             self.fields['city'].queryset = self.instance.region.city_set.order_by('title')
+
+        print(self.fields['date_of_visit'])
 
     def clean_city(self) -> City:
         """
         Проверка корректности заполнения поля 'City'.
-        Не допускается создание записей с одинаковыми 'user', 'region' и 'city'.
+        Не допускается создание записей с одинаковыми 'user', 'region', 'city' и 'date_of_visit'.
         """
         city = self.cleaned_data['city']
+        date_of_visit = self.cleaned_data['date_of_visit']
 
         # Для того чтобы во время редактирования не проверялось существование аналогичной записи,
         # удаляем её из результатов запроса.
         db_city = VisitedCity.objects.filter(
-            user_id=self.request.user, region=self.cleaned_data['region'], city=city
+            user_id=self.request.user,
+            region=self.cleaned_data['region'],
+            city=city,
+            date_of_visit=date_of_visit,
         ).exclude(id=self.instance.id)
         if db_city.exists():
-            raise ValidationError(f'Город "{city}" уже был отмечен Вами как посещённый.')
+            raise ValidationError(
+                f'Город "{city}" уже был отмечен Вами как посещённый {date_of_visit.strftime('%d.%m.%Y')}.'
+            )
 
         return city
 

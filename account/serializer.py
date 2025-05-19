@@ -44,7 +44,7 @@ class TxtSerializer(Serializer):
         """
         number_of_symbols = []
         for index, value in enumerate(row[0]):
-            number_of_symbols.append(len(max((x[index] for x in row), key=len)))
+            number_of_symbols.append(len(max((str(x[index]) for x in row), key=len)))
         return number_of_symbols
 
     @staticmethod

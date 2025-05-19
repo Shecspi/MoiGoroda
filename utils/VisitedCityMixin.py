@@ -24,7 +24,14 @@ class VisitedCityMixin:
         """
         url_params = []
         valid_filters = ['magnet', 'current_year', 'last_year']
-        valid_sorts = ['name_down', 'name_up', 'date_down', 'date_up']
+        valid_sorts = [
+            'name_down',
+            'name_up',
+            'first_visit_date_down',
+            'first_visit_date_up',
+            'last_visit_date_down',
+            'last_visit_date_up',
+        ]
 
         if filter_value and filter_value in valid_filters:
             url_params.append(f'filter={filter_value}')

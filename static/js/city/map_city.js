@@ -108,8 +108,10 @@ form.addEventListener('submit', event => {
             city.first_visit_date = data.city.first_visit_date;
             city.last_visit_date = data.city.last_visit_date;
 
+            const is_added_new_city = city.number_of_visits === 1;
+
             actions.updateMarker(city);
-            change_qty_of_visited_cities_in_toolbar();
+            change_qty_of_visited_cities_in_toolbar(is_added_new_city);
         })
         .catch((err) => {
             console.log(err);

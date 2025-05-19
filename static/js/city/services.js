@@ -13,7 +13,7 @@ export function open_modal_for_add_city(city, city_id, region_title) {
     modal.toggle();
 }
 
-export function change_qty_of_visited_cities_in_toolbar() {
+export function change_qty_of_visited_cities_in_toolbar(is_added_new_city) {
     /**
      * Производит замену текста, сообщающего о количестве посещённых городов, в информационной карточке тулбара.
      */
@@ -22,7 +22,7 @@ export function change_qty_of_visited_cities_in_toolbar() {
     const declensionVisitedCityElement = document.getElementById('declension-visited-city');
 
     const oldQty = declensionQtyVisitedElement.textContent;
-    const newQty = Number(oldQty) + 1;
+    const newQty = is_added_new_city === true ? Number(oldQty) + 1 : oldQty;
     declensionQtyVisitedElement.innerText = newQty.toString();
 
     declensionVisitedElement.innerText = toTitleCase(declensionVisited(newQty))

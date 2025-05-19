@@ -248,9 +248,11 @@ class VisitedCity_Detail(DetailView):
         ]
 
         if self.request.user.is_authenticated:
-            self.city.visits = VisitedCity.objects.filter(
-                user=self.request.user, city=self.city
-            ).values('id', 'date_of_visit', 'rating', 'impression', 'city__title')
+            self.city.visits = (
+                VisitedCity.objects.filter(user=self.request.user, city=self.city)
+                .order_by(F('date_of_visit').desc(nulls_last=True))
+                .values('id', 'date_of_visit', 'rating', 'impression', 'city__title')
+            )
 
         self.city.collections = Collection.objects.filter(city=self.city)
 

@@ -3,6 +3,7 @@ import os
 from django.db.models import Q
 from dotenv import load_dotenv
 
+from MoiGoroda import settings
 from news.models import News
 
 load_dotenv()
@@ -32,7 +33,7 @@ def general_settings(request):
         'SIDEBAR_LINK_URL': os.getenv('SIDEBAR_LINK_URL'),
         'SIDEBAR_LINK_TEXT': os.getenv('SIDEBAR_LINK_TEXT'),
         'SIDEBAR_LINK_ADV_INFO': os.getenv('SIDEBAR_LINK_ADV_INFO'),
-        'DEBUG': os.getenv('DEBUG'),
+        'DEBUG': settings.DEBUG,
     }
 
     return context

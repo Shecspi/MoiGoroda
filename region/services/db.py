@@ -27,8 +27,9 @@ from django.db.models import (
     Max,
     F,
     FloatField,
+    ExpressionWrapper,
 )
-from django.db.models.functions import Coalesce, Cast
+from django.db.models.functions import Coalesce, Cast, Round
 
 from city.models import City, VisitedCity
 from region.models import Region, Area
@@ -62,6 +63,14 @@ def get_all_region_with_visited_cities(user_id: int) -> QuerySet[Region]:
         .annotate(
             num_total=Count('city', distinct=True),
             num_visited=Count('city', filter=Q(city__visitedcity__user_id=user_id), distinct=True),
+        )
+        .annotate(
+            ratio_visited=Round(
+                ExpressionWrapper(
+                    100 * F('num_visited') / Coalesce(F('num_total'), 1),  # чтобы не делить на 0
+                    output_field=FloatField(),
+                )
+            ),
         )
         .order_by('-num_visited', 'title')
     )

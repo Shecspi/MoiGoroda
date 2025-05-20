@@ -8,6 +8,8 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import datetime
+
 from services.calculate import calculate_ratio
 from services.db.statistics.visited_city import *
 from services.db.statistics.visited_region import get_number_of_regions
@@ -26,8 +28,10 @@ def get_fake_statistics() -> dict:
     context = {}
 
     tmp_number_of_visited_cities = 345
-    tmp_number_of_visited_cities_current_year = 35
-    tmp_number_of_visited_cities_previous_year = 59
+    tmp_number_of_total_visited_cities_current_year = 35
+    tmp_number_of_new_visited_cities_current_year = 14
+    tmp_number_of_total_visited_cities_previous_year = 59
+    tmp_number_of_new_visited_cities_previous_year = 25
     tmp_number_of_visited_regions = 46
     tmp_number_of_finished_regions = 13
     tmp_number_of_half_finished_regions = 18
@@ -48,23 +52,27 @@ def get_fake_statistics() -> dict:
             {'title': 'Керчь', 'date_of_visit': '8 октября 2022 г.'},
             {'title': 'Голицыно', 'date_of_visit': '20 августа 2022 г.'},
         ),
-        'number_of_visited_cities_current_year': tmp_number_of_visited_cities_current_year,
-        'number_of_visited_cities_previous_year': tmp_number_of_visited_cities_previous_year,
+        'number_of_total_visited_cities_current_year': tmp_number_of_total_visited_cities_current_year,
+        'number_of_new_visited_cities_current_year': tmp_number_of_new_visited_cities_current_year,
+        'number_of_total_visited_cities_previous_year': tmp_number_of_total_visited_cities_previous_year,
+        'number_of_new_visited_cities_previous_year': tmp_number_of_new_visited_cities_previous_year,
         'ratio_cities_this_year': calculate_ratio(
-            tmp_number_of_visited_cities_current_year, tmp_number_of_visited_cities_previous_year
+            tmp_number_of_total_visited_cities_current_year,
+            tmp_number_of_total_visited_cities_previous_year,
         ),
         'ratio_cities_prev_year': 100
         - calculate_ratio(
-            tmp_number_of_visited_cities_current_year, tmp_number_of_visited_cities_previous_year
+            tmp_number_of_total_visited_cities_current_year,
+            tmp_number_of_total_visited_cities_previous_year,
         ),
         'number_of_visited_cities_in_several_years': (
             {
                 'year': datetime.datetime.strptime('2024', '%Y'),
-                'qty': tmp_number_of_visited_cities_current_year,
+                'qty': tmp_number_of_total_visited_cities_current_year,
             },
             {
                 'year': datetime.datetime.strptime('2023', '%Y'),
-                'qty': tmp_number_of_visited_cities_previous_year,
+                'qty': tmp_number_of_total_visited_cities_previous_year,
             },
             {'year': datetime.datetime.strptime('2022', '%Y'), 'qty': 47},
             {'year': datetime.datetime.strptime('2021', '%Y'), 'qty': 30},
@@ -111,62 +119,62 @@ def get_fake_statistics() -> dict:
         'most_visited_regions': (
             {
                 'title': 'Тверская область',
-                'visited_cities': 21,
-                'total_cities': 23,
+                'num_visited': 21,
+                'num_total': 23,
                 'ratio_visited': int((21 / 23) * 100),
             },
             {
                 'title': 'Чеченская республика',
-                'visited_cities': 7,
-                'total_cities': 8,
+                'num_visited': 7,
+                'num_total': 8,
                 'ratio_visited': int((7 / 8) * 100),
             },
             {
                 'title': 'Москва',
-                'visited_cities': 4,
-                'total_cities': 5,
+                'num_visited': 4,
+                'num_total': 5,
                 'ratio_visited': int((4 / 5) * 100),
             },
             {
                 'title': 'Московская область',
-                'visited_cities': 59,
-                'total_cities': 74,
+                'num_visited': 59,
+                'num_total': 74,
                 'ratio_visited': int((59 / 74) * 100),
             },
             {
                 'title': 'Адыгея',
-                'visited_cities': 1,
-                'total_cities': 2,
+                'num_visited': 1,
+                'num_total': 2,
                 'ratio_visited': int((1 / 2) * 100),
             },
             {
                 'title': 'Ярославская область',
-                'visited_cities': 4,
-                'total_cities': 11,
+                'num_visited': 4,
+                'num_total': 11,
                 'ratio_visited': int((4 / 11) * 100),
             },
             {
                 'title': 'Севастополь',
-                'visited_cities': 1,
-                'total_cities': 3,
+                'num_visited': 1,
+                'num_total': 3,
                 'ratio_visited': int((1 / 3) * 100),
             },
             {
                 'title': 'Волгоградская область',
-                'visited_cities': 4,
-                'total_cities': 15,
+                'num_visited': 4,
+                'num_total': 15,
                 'ratio_visited': int((4 / 15) * 100),
             },
             {
                 'title': 'Краснодарский край',
-                'visited_cities': 6,
-                'total_cities': 26,
+                'num_visited': 6,
+                'num_total': 26,
                 'ratio_visited': int((6 / 26) * 100),
             },
             {
                 'title': 'Владимирская область',
-                'visited_cities': 5,
-                'total_cities': 23,
+                'num_visited': 5,
+                'num_total': 23,
                 'ratio_visited': int((5 / 23) * 100),
             },
         ),
@@ -187,7 +195,8 @@ def get_fake_statistics() -> dict:
         'number_of_half_finished_regions': tmp_number_of_half_finished_regions,
     }
 
-    context['areas'] = (
+    context['areas'] = {}
+    context['areas']['list_of_areas'] = (
         {
             'title': 'Южный',
             'visited_regions': 7,
@@ -245,14 +254,14 @@ def get_fake_statistics() -> dict:
                 get_number_of_cities() - tmp_number_of_visited_cities
             ),
             'number_of_visited_cities_current_year': modification__city(
-                tmp_number_of_visited_cities_current_year
+                tmp_number_of_total_visited_cities_current_year
             ),
             'number_of_visited_cities_previous_year': modification__city(
-                tmp_number_of_visited_cities_previous_year
+                tmp_number_of_total_visited_cities_previous_year
             ),
         },
         'region': {
-            'number_of_visited_regions': modification__region__prepositional_case(
+            'number_of_visited_regions': modification__region__accusative_case(
                 tmp_number_of_visited_regions
             ),
             'number_of_not_visited_regions': modification__region__accusative_case(
@@ -266,10 +275,14 @@ def get_fake_statistics() -> dict:
             ),
         },
         'visited': {
+            'number_of_visited_cities': modification__visited(tmp_number_of_visited_cities),
+            'number_of_visited_regions': modification__visited(tmp_number_of_visited_regions),
             'number_of_visited_cities_previous_year': modification__visited(
-                tmp_number_of_visited_cities_previous_year
-            )
+                tmp_number_of_total_visited_cities_previous_year
+            ),
         },
     }
+
+    print(context['word_modifications']['city'])
 
     return context

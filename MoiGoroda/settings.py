@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'country',
     'place',
     'advertisement',
+    'admin_auto_filters',
 ]
 
 MIDDLEWARE = [

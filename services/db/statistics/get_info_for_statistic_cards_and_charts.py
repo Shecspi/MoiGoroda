@@ -49,7 +49,7 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
     number_of_total_visited_cities_previous_year = get_number_of_total_visited_cities_by_year(
         user_id, current_year - 1
     )
-    number_of_new_visited_cities_previous_year = get_number_of_total_visited_cities_by_year(
+    number_of_new_visited_cities_previous_year = get_number_of_new_visited_cities_by_year(
         user_id, current_year - 1
     )
     ratio_cities_this_year = calculate_ratio(

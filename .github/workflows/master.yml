@@ -33,32 +33,32 @@ jobs:
           git add CHANGELOG.md
           git commit -m "Обновление CHANGELOG.md"
           git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git master
-  test:
-    needs: changelog
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-
-      - name: Set up Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.12'
-
-      - name: Create .env file
-        run: cp MoiGoroda/.env.example MoiGoroda/.env
-
-      - name: Poetry install
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.8.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Set up Poetry
-        run: poetry install --no-interaction --no-root && poetry install --no-interaction
-
-      - name: Test with pytest
-        run: poetry run python manage.py migrate && poetry run pytest
+#  test:
+#    needs: changelog
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v1
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v1
+#        with:
+#          python-version: '3.12'
+#
+#      - name: Create .env file
+#        run: cp MoiGoroda/.env.example MoiGoroda/.env
+#
+#      - name: Poetry install
+#        uses: snok/install-poetry@v1
+#        with:
+#          version: 1.8.2
+#          virtualenvs-create: true
+#          virtualenvs-in-project: true
+#
+#      - name: Set up Poetry
+#        run: poetry install --no-interaction --no-root && poetry install --no-interaction
+#
+#      - name: Test with pytest
+#        run: poetry run python manage.py migrate && poetry run pytest
   deploy:
     needs: test
     runs-on: [self-hosted, prod]

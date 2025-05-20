@@ -103,9 +103,10 @@ class VisitedCity_Create_Form(ModelForm):
             city=city,
             date_of_visit=date_of_visit,
         ).exclude(id=self.instance.id)
+
         if db_city.exists():
             raise ValidationError(
-                f'Город "{city}" уже был отмечен Вами как посещённый {date_of_visit.strftime('%d.%m.%Y')}.'
+                f'Город "{city}" уже был отмечен Вами как посещённый {date_of_visit.strftime('%d.%m.%Y') if date_of_visit else "без указания даты"}'
             )
 
         return city

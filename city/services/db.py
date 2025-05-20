@@ -116,6 +116,10 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     return queryset
 
 
+def get_all_new_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
+    return VisitedCity.objects.filter(is_first_visit=True, user_id=user_id)
+
+
 def get_number_of_cities() -> int:
     """
     Возвращает количество городов, сохранённых в базе данных.
@@ -157,8 +161,8 @@ def get_number_of_new_visited_cities_by_year(user_id: int, year: int) -> int:
     Учитываются только новые посещённые города.
     """
     result = 0
-    for city in get_all_visited_cities(user_id):
-        if city.visit_dates and min(city.visit_dates).year == year:
+    for city in get_all_new_visited_cities(user_id):
+        if city.date_of_visit and city.date_of_visit.year == year:
             result += 1
     return result
 

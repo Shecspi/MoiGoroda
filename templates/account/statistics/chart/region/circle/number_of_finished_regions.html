@@ -2,7 +2,7 @@
     <div class="card-body">
         <h6 class="text-muted mb-3">Завершённые регионы</h6>
 
-        {% if regions.number_of_finished_regions and regions.number_of_not_finished_regions %}
+        {% if regions.number_of_finished_regions or regions.number_of_not_finished_regions %}
             <canvas class="vert" id="canvas__chart__number_of_finished_regions"></canvas>
         {% else %}
             <div class="alert alert-danger text-center mt-3" role="alert">

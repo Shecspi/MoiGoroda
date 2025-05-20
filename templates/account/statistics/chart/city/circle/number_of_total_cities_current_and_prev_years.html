@@ -2,7 +2,7 @@
     <div class="card-body">
         <h6 class="text-muted mb-3">Всего городов по годам</h6>
 
-        {% if cities.number_of_total_visited_cities_current_year and cities.number_of_total_visited_cities_previous_year %}
+        {% if cities.number_of_total_visited_cities_current_year or cities.number_of_total_visited_cities_previous_year %}
             <canvas class="vert" id="chart__number_of_total_cities_current_and_prev_years"></canvas>
         {% else %}
             <div class="alert alert-danger text-center mt-3" role="alert">

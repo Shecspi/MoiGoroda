@@ -14,8 +14,8 @@
     {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
 {% endif %}
 
-<div class="container mb-5">
-    <div class="row justify-content-center " id="city-selected-content">
+<div class="container mb-5 mt-3">
+    <div class="row justify-content-center" id="city-selected-content">
         <div class="col-12">
             <div class="card shadow-lg rounded-4 border-0">
                 <div class="card-body p-4">
@@ -203,12 +203,6 @@
         </div>
     </div>
 </div>
-
-{% if not user.is_authenticated %}
-    {% include 'advertisement/rtb_floor_ad_mobile.html' %}
-    {% include 'advertisement/rtb_floor_ad_desktop.html' %}
-    {% include 'advertisement/rtb_feed.html' %}
-{% endif %}
 
 <!-- Модальное окно удаления -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">

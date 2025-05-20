@@ -9,6 +9,11 @@
     {{ city.title }}
 </h1>
 
+{% if not user.is_authenticated %}
+    {% include 'advertisement/travel_payouts.html' %}
+    {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+{% endif %}
+
 <div class="container mb-5">
     <div class="row justify-content-center " id="city-selected-content">
         <div class="col-12">
@@ -198,6 +203,12 @@
         </div>
     </div>
 </div>
+
+{% if not user.is_authenticated %}
+    {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+    {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+    {% include 'advertisement/rtb_feed.html' %}
+{% endif %}
 
 <!-- Модальное окно удаления -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">

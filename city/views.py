@@ -262,8 +262,35 @@ class VisitedCity_Detail(DetailView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        context['page_title'] = self.city.title
-        context['page_description'] = f'Информация про посещённый город - {self.city.title}'
+        context['page_title'] = (
+            f'{self.city.title} ({self.city.region}) - информация о городе, карта'
+        )
+
+        context['page_description'] = (
+            f'{self.city.title} ({self.city.region}, {self.city.region.area} федеральный округ). '
+        )
+
+        if len(self.city.collections) == 1:
+            context['page_description'] += f"Входит в коллекцию '{self.city.collections[0]}'"
+        elif len(self.city.collections) >= 2:
+            context['page_description'] += (
+                f"Входит в коллекции {', '.join(["«" + str(collection) + "»" for collection in self.city.collections])} "
+            )
+
+        if self.city.average_rating:
+            context['page_description'] += (
+                f'Средняя оценка путешественников — {self.city.average_rating}. '
+            )
+
+        if self.city.popular_months:
+            context['page_description'] += (
+                f"Лучшее время для поездки: {', '.join(sorted(self.city.popular_months, key=lambda m: self.MONTH_NAMES.index(m)))}. "
+            )
+
+        context['page_description'] += (
+            'Смотрите информацию о городе и карту на сайте «Мои Города». '
+            'Зарегистрируйтесь, чтобы отмечать посещённые города.'
+        )
 
         return context
 

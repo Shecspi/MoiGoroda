@@ -60,7 +60,7 @@ jobs:
 #      - name: Test with pytest
 #        run: poetry run python manage.py migrate && poetry run pytest
   deploy:
-    needs: test
+#    needs: test
     runs-on: [self-hosted, prod]
     steps:
       - uses: actions/checkout@v4

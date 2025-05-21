@@ -51,7 +51,10 @@ class CollectionList(CollectionListMixin, ListView):
                 qty_of_cities=Count('city', distinct=True),
                 qty_of_visited_cities=Count(
                     'city__visitedcity',
-                    filter=Q(city__visitedcity__user=self.request.user),
+                    filter=Q(
+                        city__visitedcity__user=self.request.user,
+                        city__visitedcity__is_first_visit=True,
+                    ),
                 ),
             )
 

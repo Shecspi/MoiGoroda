@@ -175,11 +175,11 @@
                                     </div>
 
                                     <div class="col-lg-2 d-flex text-center justify-content-end gap-3 mt-2">
-                                        <a class="text-sm btn btn-outline-danger btn-sm"
+                                        <a class="text-sm btn btn-outline-danger btn-sm delete_city"
                                            href="#"
                                            data-bs-tooltip="tooltip"
                                            data-bs-title="Удалить город {{ city.title }} из списка посещённых"
-                                           onclick="event.preventDefault(); openDeleteModal('{{ visit.id }}', '{{ visit.title }}')">
+                                           data-delete_url="{% url 'city-delete' visit.id %}">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </a>
                                         <a href="{% url 'city-update' visit.id %}"
@@ -235,7 +235,7 @@
 </div>
 
 <!-- Модальное окно удаления -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4">
             <div class="modal-header">

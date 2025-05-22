@@ -1,13 +1,13 @@
-import {addExternalBorderControl, addInternalBorderControl, create_map} from "../map.js";
+import {create_map} from "../map.js";
 import {icon_visited_pin} from "../icons.js";
 
-function openDeleteModal(city_id, city_title) {
-    document.getElementById('cityTitleOnModal').textContent = city_title;
-    let url = "{% url 'city-delete' 0 %}".replace('0', city_id);
+let map;
+
+function openDeleteModal(url) {
+    document.getElementById('cityTitleOnModal').textContent = window.CITY_TITLE;
     document.getElementById('deleteCityForm').action = url;
     new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
-let map;
 
 function initMap() {
     const lat = parseFloat(window.LAT.replace(',', '.'));
@@ -58,3 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+document.querySelectorAll('.delete_city').forEach(item => {
+    item.addEventListener('click', () => {
+        event.preventDefault();
+        openDeleteModal(item.dataset.delete_url);
+    })
+})

@@ -33,7 +33,20 @@
                         </div>
 
                         <div class="col-12 col-lg-6">
-                            <div class="row gy-2">
+                            <div class="row gy-3">
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button id="show_on_map"
+                                          class="btn btn-outline-secondary d-flex gap-2 align-items-center"
+                                          role="button"
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#mapModal">
+                                        <i class="fa-solid fa-map-location-dot"></i>
+                                        Посмотреть на карте
+                                    </button>
+                                </div>
+
+                                <hr>
+
                                 {% url 'region-selected-list' city.region.id as region_url %}
                                 {% include "partials/info_row.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
                                 {% include "partials/info_row.html" with title="Федеральный округ:" value=city.region.area id="area" %}
@@ -103,6 +116,8 @@
                                         {% endif %}
                                     </div>
                                 </div>
+
+                                <hr>
 
                                 <div class="col-12 d-flex justify-content-end mt-3">
                                     {% if city.wiki %}
@@ -204,6 +219,21 @@
     </div>
 </div>
 
+<!-- Модальное окно с картой -->
+<div class="modal fade" id="mapModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title">Город {{city.title}} на карте</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div id="map" class="h-100 mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Модальное окно удаления -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -227,11 +257,12 @@
 </div>
 
 <script>
-    function openDeleteModal(city_id, city_title) {
-        document.getElementById('cityTitleOnModal').textContent = city_title;
-        let url = "{% url 'city-delete' 0 %}".replace('0', city_id);
-        document.getElementById('deleteCityForm').action = url;
-        new bootstrap.Modal(document.getElementById('deleteModal')).show();
-    }
+    window.CITY_TITLE = "{{ city.title }}";
+    window.LAT = "{{ city.coordinate_width }}";
+    window.LON = "{{ city.coordinate_longitude }}";
+    window.ISO3166 = "{{ city.region.iso3166 }}"
+    window.TILE_LAYER = "{{ TILE_LAYER }}";
+    window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}"
 </script>
+<script src="{% static 'js/city/map_selected_city.js' %}" type="module"></script>
 {% endblock %}

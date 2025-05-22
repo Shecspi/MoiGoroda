@@ -453,7 +453,7 @@ export class ToolbarActions {
         marker.setZIndexOffset(zIndexOffset);
 
         let content = '';
-        content += `<div><span class="fw-semibold fs-3"><a href="/city/${city.id}" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">${city.name}</a></span></div>`;
+        content += `<div><span class="fw-semibold fs-3"><a href="/city/${city.id}" target="_blank" rel="noopener noreferrer" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">${city.name}</a></span></div>`;
         content += `<div class="mt-2"><small class="text-secondary fw-medium fs-6">${city.region}</small></div>`;
         let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Отметить как посещённый</a>`
         let linkToAddAgain = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Добавить ещё одно посещение</a>`

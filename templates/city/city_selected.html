@@ -264,5 +264,5 @@
     window.TILE_LAYER = "{{ TILE_LAYER }}";
     window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}"
 </script>
-<script src="{% static 'js/city/map_selected_city.js' %}" type="module"></script>
+<script src="{% static 'js/city/map_selected_city.js' %}?ver={{ PROJECT_VERSION }}" type="module"></script>
 {% endblock %}

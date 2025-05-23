@@ -9,11 +9,11 @@
  *
  * ----------------------------------------------
  */
-import {addExternalBorderControl, addInternalBorderControl, create_map} from "../map.js";
-import {ToolbarActions} from "./toolbar_actions.js";
-import {City} from "./schemas.js";
-import {change_qty_of_visited_cities_in_toolbar, modal} from './services.js';
-import {showSuccessToast, showDangerToast} from "../toast.js";
+import {addExternalBorderControl, addInternalBorderControl, create_map} from "../components/map.js";
+import {ToolbarActions} from "../components/toolbar_actions.js";
+import {City} from "../components/schemas.js";
+import {change_qty_of_visited_cities_in_toolbar, modal} from '../components/services.js';
+import {showSuccessToast, showDangerToast} from "../components/toast.js";
 
 let actions;
 let map;

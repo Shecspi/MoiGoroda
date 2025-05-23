@@ -4,7 +4,7 @@ import {
     icon_subscription_pin,
     icon_together_pin,
     icon_visited_pin
-} from "../icons.js";
+} from "./icons.js";
 import {City, MarkerStyle} from "./schemas.js";
 import {open_modal_for_add_city} from './services.js';
 import {Button} from './button.js';

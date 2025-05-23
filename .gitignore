@@ -166,3 +166,4 @@ cython_debug/
 
 poetry.lock
 .vscode/
+*/node_modules/

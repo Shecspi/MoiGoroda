@@ -17,6 +17,8 @@ import {change_qty_of_visited_cities_in_toolbar, modal} from '../components/serv
 import {showSuccessToast, showDangerToast} from "../components/toast.js";
 import {getCookie} from '../components/get_cookie.js';
 
+import 'leaflet/dist/leaflet.css';
+
 let actions;
 let map;
 

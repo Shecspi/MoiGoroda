@@ -8,6 +8,7 @@ import {
 import {City, MarkerStyle} from "./schemas.js";
 import {open_modal_for_add_city} from './services.js';
 import {Button} from './button.js';
+import {getCookie} from './get_cookie.js';
 
 // Это нужно для того, чтобы open_modal_for_add_city можно было использовать в onclick.
 // Иначе из-за специфичной области видимости доступа к этой функции нет.

@@ -6,6 +6,8 @@ import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
+import {getCookie} from '../components/get_cookie.js';
+
 const fillColorVisitedCountry = '#32b700';
 const fillColorNotVisitedCountry = '#9a9a9a';
 const fillOpacity = 0.6;

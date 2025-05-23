@@ -1,3 +1,5 @@
+import {getCookie} from '../components/get_cookie.js';
+
 const request_url_ids = [
     ['url_get_total_visited_countries', 'number-total_visited_countries'],
     ['url_get_users_with_visited_countries', 'number-user_with_visited_countries'],

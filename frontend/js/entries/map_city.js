@@ -15,6 +15,7 @@ import {ToolbarActions} from "../components/toolbar_actions.js";
 import {City} from "../components/schemas.js";
 import {change_qty_of_visited_cities_in_toolbar, modal} from '../components/services.js';
 import {showSuccessToast, showDangerToast} from "../components/toast.js";
+import {getCookie} from '../components/get_cookie.js';
 
 let actions;
 let map;

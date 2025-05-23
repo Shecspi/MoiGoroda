@@ -31,8 +31,6 @@
         window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
     </script>
     <script type="module" src="{% vite_asset 'js/entries/map_city.js' %}"></script>
-{#    <script src="{% static 'js/city/map_city.js' %}?ver={{ PROJECT_VERSION }}" type="module"></script>#}
-{#    <script src="{% static 'js/modal_for_add_city.js' %}" type="module"></script>#}
 
     {% include 'parts/toast/danger.html' with error_title="Ошибка соединения с сервером" error_message='Не получилось загрузить список Ваших посещённых городов.' error_id='toast_request_error' %}
     {% include 'parts/toast/success.html' with title="Успешно" message="Город <span id='city-title-in-toast' class='fw-medium'></span> успешно отмечен как посещённый" %}

@@ -1,3 +1,4 @@
+{% load vite %}
 {% load static %}
 <!-- Панель инструментов -->
 <div class="row mx-3 my-3 g-3 align-items-center" id="toolbar">
@@ -196,5 +197,5 @@
     </div>
 </div>
 
-<script src="{% static 'js/region/filter.js' %}"></script>
+<script src="{% vite_asset 'js/entries/filter_region.js' %}"></script>
 {% endif %}

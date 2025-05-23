@@ -9,6 +9,7 @@
  *
  * ----------------------------------------------
  */
+import L from 'leaflet';
 import {addExternalBorderControl, addInternalBorderControl, create_map} from "../components/map.js";
 import {ToolbarActions} from "../components/toolbar_actions.js";
 import {City} from "../components/schemas.js";

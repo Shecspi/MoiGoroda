@@ -1,3 +1,4 @@
+{% load vite %}
 {% load static %}
 {% load filters %}
 
@@ -289,4 +290,4 @@
 </div>
 {% endwith %}
 
-<script src="{% static 'js/city/filter.js' %}"></script>
+<script src="{% vite_asset 'js/entries/filter_city.js' %}"></script>

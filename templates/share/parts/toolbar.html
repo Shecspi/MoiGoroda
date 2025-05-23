@@ -1,3 +1,4 @@
+{% load vite %}
 {% load static %}
 
 {% if can_subscribe and user.is_authenticated %}
@@ -67,6 +68,6 @@
             </div>
         </div>
 
-        <script src="{% static 'js/subscribe_api.js' %}"></script>
+        <script src="{% vite_asset 'js/entries/subscribe_api.js' %}"></script>
     {% endif %}
 {% endif %}

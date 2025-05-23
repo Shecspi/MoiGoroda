@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load vite %}
 {% load static %}
 
 {% block content %}
@@ -26,5 +27,17 @@
         {% include 'advertisement/rtb_feed.html' %}
     {% endif %}
 
-    {% include 'region/region_all__map__js_script.html' %}
+    <script>
+        window.TILE_LAYER = "{{ TILE_LAYER }}";
+        window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}"
+        window.REGION_LIST = new Map();
+        {% for item in all_regions %}
+            window.REGION_LIST.set('{{ item.iso3166 }}', {
+                'num_visited': '{{ item.num_visited }}',
+                'title': '{{ item }}',
+                'id': {{ item.id }}
+            });
+        {% endfor %}
+    </script>
+    <script src="{% vite_asset 'js/entries/map_region.js' %}" type="module"></script>
 {% endblock %}

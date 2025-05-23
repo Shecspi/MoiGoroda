@@ -23,7 +23,7 @@ def get_manifest():
 @register.simple_tag
 def vite_asset(name):
     if settings.DEBUG:
-        return f'http://localhost:5173/js/entries/{name}'
+        return f'http://localhost:5173/{name}'
     manifest = get_manifest()
     entry = manifest.get(name)
     if not entry:

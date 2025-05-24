@@ -90,8 +90,9 @@ class CityAdmin(admin.ModelAdmin):
     fieldsets = [
         (
             None,
-            {'fields': ['title', 'region', 'population', 'date_of_foundation', 'wiki', 'image']},
+            {'fields': ['title', 'region', 'population', 'date_of_foundation', 'wiki']},
         ),
+        ('Изображение', {'fields': ['image', 'image_source_text', 'image_source_link']}),
         ('Координаты', {'fields': ['coordinate_width', 'coordinate_longitude']}),
     ]
 

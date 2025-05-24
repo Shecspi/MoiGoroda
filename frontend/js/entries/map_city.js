@@ -17,8 +17,6 @@ import {change_qty_of_visited_cities_in_toolbar, modal} from '../components/serv
 import {showSuccessToast, showDangerToast} from "../components/toast.js";
 import {getCookie} from '../components/get_cookie.js';
 
-import 'leaflet/dist/leaflet.css';
-
 let actions;
 let map;
 
@@ -35,8 +33,6 @@ window.onload = () => {
             map.fitBounds(group.getBounds());
         });
 }
-
-
 
 /**
  * Делает запрос на сервер и возвращает список городов, посещённых пользователем.
@@ -57,7 +53,6 @@ async function getVisitedCities() {
             return data;
         });
 }
-
 
 // -------------------------------------------------- //
 //                                                    //

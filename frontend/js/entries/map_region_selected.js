@@ -1,5 +1,4 @@
 import * as L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';

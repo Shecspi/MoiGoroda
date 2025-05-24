@@ -1,8 +1,6 @@
 import {create_map} from "../components/map";
 import {icon_visited_pin} from "../components/icons";
 
-import 'leaflet/dist/leaflet.css';
-
 let map;
 
 function openDeleteModal(url) {

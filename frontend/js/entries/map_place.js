@@ -1,12 +1,9 @@
 import * as L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 
 import {create_map} from '../components/map';
 import {icon_blue_pin, icon_purple_pin} from "../components/icons";
 import {showDangerToast, showSuccessToast} from '../components/toast';
 import {getCookie} from '../components/get_cookie.js';
-
-import 'leaflet/dist/leaflet.css';
 
 window.add_place = add_place;
 window.delete_place = delete_place;

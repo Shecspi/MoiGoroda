@@ -9,9 +9,6 @@
  *
  * ----------------------------------------------
  */
-import 'leaflet/dist/leaflet.css';
-import '../components/force_leaflet_css/map_city';
-
 import L from 'leaflet';
 
 import {addExternalBorderControl, addInternalBorderControl, create_map} from "../components/map.js";

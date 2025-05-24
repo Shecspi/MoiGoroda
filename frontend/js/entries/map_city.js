@@ -10,7 +10,7 @@
  * ----------------------------------------------
  */
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
+import '../components/force_leaflet_css/map_city';
 
 import L from 'leaflet';
 

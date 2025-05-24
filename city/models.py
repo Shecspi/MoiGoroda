@@ -43,6 +43,12 @@ class City(models.Model):
         null=False,
         max_length=2048,
     )
+    image_source_text = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name='Название источника изображения'
+    )
+    image_source_link = models.URLField(
+        blank=True, null=True, verbose_name='Ссылка на источник изображения'
+    )
 
     class Meta:
         ordering = ['title']

@@ -1,5 +1,5 @@
 import * as L from 'leaflet';
-
+import 'leaflet-fullscreen';
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
 // Массив, хранящий в себе все созданные маркеры.

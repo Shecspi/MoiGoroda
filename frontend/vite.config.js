@@ -30,6 +30,7 @@ export default defineConfig({
         enable_tooltips: path.resolve(entriesDir, 'enable_tooltips.js'),
         filter_city: path.resolve(entriesDir, 'filter_city.js'),
         filter_region: path.resolve(entriesDir, 'filter_region.js'),
+        leaflet_css: path.resolve(entriesDir, 'leaflet_css.js'),
         map_city: path.resolve(entriesDir, 'map_city.js'),
         map_city_selected: path.resolve(entriesDir, 'map_city_selected.js'),
         map_collection: path.resolve(entriesDir, 'map_collection.js'),

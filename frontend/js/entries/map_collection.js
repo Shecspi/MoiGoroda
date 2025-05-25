@@ -1,3 +1,7 @@
+import * as L from 'leaflet';
+
+import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
+
 // Массив, хранящий в себе все созданные маркеры.
 // Нужен для того, чтобы отцентрировать и отмасштабировать карту.
 const allMarkers = [];
@@ -52,7 +56,7 @@ function addControlsToMap() {
     }));
 
     // Добавляем кнопку создания скриншота
-    L.simpleMapScreenshoter().addTo(map);
+    new SimpleMapScreenshoter().addTo(map);
 }
 
 // Массив с городами региона

@@ -1,3 +1,4 @@
+{% load vite %}
 {% load static %}
 
 <!DOCTYPE html>
@@ -10,7 +11,7 @@
 
     {% if not DEBUG %}
     <!-- Travel PayOuts -->
-    <script src="{% static 'js/travelpayouts-verify.js' %}" data-noptimize="1" data-cfasync="false" data-wpfc-render="false"></script>
+    {% vite_asset 'js/entries/travelpayouts_verify.js' %}
     {% endif %}
 
     {% if not DEBUG %}
@@ -54,9 +55,6 @@
     <link rel="stylesheet" href="{% static 'style.css' %}?ver={{ PROJECT_VERSION }}">
     {# Иконка сайта #}
     <link rel="icon" type="image/svg+xml" href="{% static "image/favicon.svg" %}">
-    {# Leaflet JS #}
-    <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}">
-    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 
     {# ---------------------- #}
     {#   Загрузка JS-файлов   #}
@@ -68,14 +66,8 @@
             crossorigin="anonymous"></script>
     {# jQuery JS #}
     <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
-    {# Leaflet JS #}
-    <script src="{% static 'leaflet/leaflet.js' %}"></script>
-    <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
-    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
     {# ChartJS для построения графиков #}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-    {# Вспомогательный файл, нужный для того, чтобы работала CSRF #}
-    <script src="{% static 'js/get_cookie.js' %}"></script>
 </head>
 <body>
     {% include 'parts/toast/success.html' %}
@@ -83,8 +75,7 @@
 
     {% block base %}
     {% endblock %}
-    <script src="{% static 'js/enable_tooltips.js' %}"></script>
-    {# Функции для отображения информационных сообщений #}
-    <script src="{% static 'js/toast.js' %}" type="module"></script>
+
+    {% vite_asset 'js/entries/enable_tooltips.js' %}
 </body>
 </html>

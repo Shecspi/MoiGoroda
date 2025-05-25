@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load vite %}
 {% load static %}
 
 {% block content %}
@@ -16,6 +17,6 @@
         window.ALL_CITIES = {{ all_cities|safe }};
         window.TILE_LAYER = "{{ TILE_LAYER }}";
     </script>
-
-    <script src="{% static 'js/share/map.js' %}?ver={{ PROJECT_VERSION }}" type="module"></script>
+    {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/map_share.js' %}
 {% endblock %}

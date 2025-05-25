@@ -9,11 +9,14 @@
  * ----------------------------------------------
  */
 
+import * as L from 'leaflet';
+import 'leaflet-fullscreen';
+import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
+
 /**
  * Создаёт и возвращает объект карты с подложкой в виде карты OpenStreetMap
  * и кнопками увеличения/уменьшения масштаба, полноэкранного режима и создания скриншота.
  */
-
 let downloadedExternalBorder = undefined;
 let downloadedInternalBorder = undefined;
 let externalBorder = undefined;
@@ -91,7 +94,15 @@ function add_attribution(map) {
  * @param map Объект карты, на которую нужно добавить кнопку.
  */
 function add_screenshot_control(map) {
-    L.simpleMapScreenshoter().addTo(map);
+    new SimpleMapScreenshoter({
+        hideElementsWithSelectors: ['.leaflet-control-container'],
+        preventDownload: false,
+        hidden: false,
+        mimeType: 'image/png',
+        caption: null,
+        position: 'topleft',
+        screenName: 'MoiGoroda',
+    }).addTo(map);
 }
 
 export function addExternalBorderControl(map) {

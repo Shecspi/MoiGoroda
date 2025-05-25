@@ -1,0 +1,16 @@
+{
+  "name": "moi-goroda",
+  "version": "2.4",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "leaflet-fullscreen": "^1.0.2",
+    "leaflet-simple-map-screenshoter": "^0.5.0"
+  }
+}

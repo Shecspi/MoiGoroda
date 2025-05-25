@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load vite %}
 {% load static %}
 
 {% block content %}
@@ -355,7 +356,7 @@
     <div id="url_get_qty_of_added_visited_countries_week" data-url="{% url 'api__get_qty_of_added_visited_countries' 7 %}" hidden></div>
     <div id="url_get_qty_of_added_visited_countries_month" data-url="{% url 'api__get_qty_of_added_visited_countries' 30 %}" hidden></div>
     <div id="url_get_qty_of_added_visited_countries_year" data-url="{% url 'api__get_qty_of_added_visited_countries' 365 %}" hidden></div>
-    <div id="url_get_added_visited_countries_by_day" data-url="{% url 'api__get_added_visited_countries_by_day' %}" hidden>
+    <div id="url_get_added_visited_countries_by_day" data-url="{% url 'api__get_added_visited_countries_by_day' %}" hidden></div>
     
-    <script src="{% static 'js/load_dashboard_data.js' %}"></script>
+    <script src="{% vite_asset 'js/entries/dashboard.js' %}"></script>
 {% endblock %}

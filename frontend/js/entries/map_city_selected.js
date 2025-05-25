@@ -1,5 +1,5 @@
-import {create_map} from "../map.js";
-import {icon_visited_pin} from "../icons.js";
+import {create_map} from "../components/map";
+import {icon_visited_pin} from "../components/icons";
 
 let map;
 

@@ -1,3 +1,4 @@
+{% load vite %}
 {% load static %}
 {% load filters %}
 <!-- Панель инструментов -->
@@ -293,7 +294,7 @@
                    name="sort"
                    value="date_of_foundation_up"
                    {% if sort == 'date_of_foundation_up' %}checked{% endif %}
-                   id="sortDateOfFoundationUp">
+                   id="sortDateOfFoundatio``nUp">
             <label class="form-check-label"
                    for="sortDateOfFoundationUp">
                 По дате основания (возрастание)
@@ -319,5 +320,5 @@
     </div>
 </div>
 
-<script src="{% static 'js/region/filter.js' %}"></script>
+{% vite_asset 'js/entries/filter_region.js' %}
 {% endif %}

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load vite %}
 {% load static %}
 
 {% block content %}
@@ -17,5 +18,6 @@
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
     </script>
-    <script src="{% static 'js/map_place.js' %}?ver={{ PROJECT_VERSION }}" type="module"></script>
+    {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/map_place.js' %}
 {% endblock %}

@@ -18,5 +18,6 @@
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
     </script>
-    <script src="{% vite_asset 'js/entries/map_place.js' %}" type="module"></script>
+    {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/map_place.js' %}
 {% endblock %}

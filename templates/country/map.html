@@ -33,5 +33,6 @@
         {% include 'advertisement/rtb_feed.html' %}
     {% endif %}
 
-    <script src="{% vite_asset 'js/entries/map_country.js'%}" type="module"></script>
+    {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/map_country.js'%}
 {% endblock %}

@@ -48,5 +48,6 @@
             ])
         {% endfor %}
     </script>
-    <script src="{% vite_asset 'js/entries/map_region_selected.js' %}" type="module"></script>
+    {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/map_region_selected.js' %}
 {% endblock %}

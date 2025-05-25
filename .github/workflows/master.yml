@@ -94,7 +94,9 @@ jobs:
           poetry run python3 manage.py migrate
           
           # Собираем JS файлы
+          cd frontend
           npm run build
+          cd ../
           
           : # Производим сборку статичных файлов
           chmod +x ./scripts/collectstatic.sh

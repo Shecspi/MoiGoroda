@@ -1,5 +1,5 @@
 import * as L from 'leaflet';
-
+import 'leaflet-fullscreen';
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
 const fillColorVisitedRegion = '#30b200';

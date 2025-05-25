@@ -10,11 +10,7 @@
  */
 
 import * as L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
 import 'leaflet-fullscreen';
-import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
-
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
 /**

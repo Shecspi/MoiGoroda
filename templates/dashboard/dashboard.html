@@ -358,5 +358,5 @@
     <div id="url_get_qty_of_added_visited_countries_year" data-url="{% url 'api__get_qty_of_added_visited_countries' 365 %}" hidden></div>
     <div id="url_get_added_visited_countries_by_day" data-url="{% url 'api__get_added_visited_countries_by_day' %}" hidden></div>
     
-    <script src="{% vite_asset 'js/entries/dashboard.js' %}"></script>
+    {% vite_asset 'js/entries/dashboard.js' %}
 {% endblock %}

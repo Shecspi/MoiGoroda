@@ -64,6 +64,7 @@ function init() {
                 const iso3166 = region.features[0].properties.iso3166;
                 const title = window.REGION_LIST.get(iso3166).title;
                 const num_visited = window.REGION_LIST.get(iso3166).num_visited;
+                console.log(window.REGION_LIST.get('ratio_visited'))
 
                 const myStyle = {
                     "fillColor": num_visited > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,

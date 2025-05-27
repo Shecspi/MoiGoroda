@@ -24,7 +24,7 @@ def get_manifest():
 @register.simple_tag
 def vite_asset(name):
     if settings.DEBUG:
-        return f'<script type="module" src="http://localhost:5173/{name}"></script>'
+        return mark_safe(f'<script type="module" src="http://localhost:5173/{name}"></script>')
 
     manifest = get_manifest()
     entry = manifest.get(name)

@@ -68,17 +68,19 @@ function init() {
 
                 let color;
                 if (ratio_visited === undefined || ratio_visited === 0) {
-                    color = '#bbbbbb'; // серый, чуть темнее
+                    color = '#bbbbbb';
                 } else if (ratio_visited > 0 && ratio_visited <= 20) {
-                    color = '#b8e2b8'; // мягкий светло-зелёный
+                    color = '#b8e2b8';
                 } else if (ratio_visited > 20 && ratio_visited <= 40) {
-                    color = '#7fd07f'; // травяной зелёный
+                    color = '#7fd07f';
                 } else if (ratio_visited > 40 && ratio_visited <= 60) {
-                    color = '#4fbf4f'; // насыщенный зелёный
+                    color = '#4fbf4f';
                 } else if (ratio_visited > 60 && ratio_visited <= 80) {
-                    color = '#30b200'; // тёмно-зелёный
+                    color = '#30b200';
+                } else if (ratio_visited > 80 && ratio_visited < 100) {
+                    color = '#228000';
                 } else {
-                    color = '#228000'; // глубокий насыщенный зелёный
+                    color = '#006400';
                 }
 
                 const myStyle = {
@@ -224,12 +226,13 @@ function createLegendControl(map) {
       <div class="legend-title">Посещённость городов (%) 
         <button id="toggle-legend-btn" title="Скрыть легенду" style="float:right; cursor:pointer; background:none; border:none; font-weight:bold;">×</button>
       </div>
-      <div class="legend-item"><span class="color-box" style="background:#bbbbbb"></span>0% — не посещено</div>
+      <div class="legend-item"><span class="color-box" style="background:#bbbbbb"></span>Регион не посещён</div>
       <div class="legend-item"><span class="color-box" style="background:#b8e2b8"></span>1% – 20%</div>
       <div class="legend-item"><span class="color-box" style="background:#7fd07f"></span>21% – 40%</div>
       <div class="legend-item"><span class="color-box" style="background:#4fbf4f"></span>41% – 60%</div>
       <div class="legend-item"><span class="color-box" style="background:#30b200"></span>61% – 80%</div>
-      <div class="legend-item"><span class="color-box" style="background:#228000"></span>81% – 100%</div>
+      <div class="legend-item"><span class="color-box" style="background:#228000"></span>81% – 99%</div>
+      <div class="legend-item"><span class="color-box" style="background:#006400"></span>100% - посещены все города</div>
     `;
     L.DomEvent.disableClickPropagation(div);
     return div;

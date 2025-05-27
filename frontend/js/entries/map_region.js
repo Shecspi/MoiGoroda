@@ -65,7 +65,6 @@ function init() {
                 const title = window.REGION_LIST.get(iso3166).title;
                 const num_visited = window.REGION_LIST.get(iso3166).num_visited;
                 const ratio_visited = window.REGION_LIST.get(iso3166).ratio_visited;
-                console.log(ratio_visited);
 
                 let color;
                 if (ratio_visited === undefined || ratio_visited === 0) {

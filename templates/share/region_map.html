@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load l10n %}
 {% load vite %}
 
 {% block content %}
@@ -18,6 +19,7 @@
         {% for item in all_regions %}
             window.REGION_LIST.set('{{ item.iso3166 }}', {
                 'num_visited': '{{ item.num_visited }}',
+                'ratio_visited': {% if item.ratio_visited %}{{ item.ratio_visited|unlocalize }}{% else %}0{% endif %},
                 'title': '{{ item }}',
                 'id': {{ item.id }}
             });

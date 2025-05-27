@@ -2,10 +2,8 @@ import * as L from 'leaflet';
 import 'leaflet-fullscreen';
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
-const fillColorVisitedRegion = '#30b200';
-const fillColorNotVisitedRegion = '#adadad';
-const fillOpacity = 0.6;
-const fillOpacityHighlight = 0.8;
+const fillOpacity = 0.7;
+const fillOpacityHighlight = 0.9;
 const strokeColor = '#444444';
 const strokeOpacity = 0.2;
 const strokeOpacityHighlight = 0.2;
@@ -73,15 +71,15 @@ function init() {
                 if (ratio_visited === undefined || ratio_visited === 0) {
                     color = '#bbbbbb'; // серый, чуть темнее
                 } else if (ratio_visited > 0 && ratio_visited <= 20) {
-                    color = '#b9dca8'; // мягкий светло-зелёный
+                    color = '#b8e2b8'; // мягкий светло-зелёный
                 } else if (ratio_visited > 20 && ratio_visited <= 40) {
-                    color = '#8cc07b'; // травяной зелёный
+                    color = '#7fd07f'; // травяной зелёный
                 } else if (ratio_visited > 40 && ratio_visited <= 60) {
-                    color = '#61a35a'; // насыщенный зелёный
+                    color = '#4fbf4f'; // насыщенный зелёный
                 } else if (ratio_visited > 60 && ratio_visited <= 80) {
-                    color = '#40843f'; // тёмно-зелёный
+                    color = '#30b200'; // тёмно-зелёный
                 } else {
-                    color = '#2b5726'; // глубокий насыщенный зелёный
+                    color = '#228000'; // глубокий насыщенный зелёный
                 }
 
                 const myStyle = {
@@ -228,11 +226,11 @@ function createLegendControl(map) {
         <button id="toggle-legend-btn" title="Скрыть легенду" style="float:right; cursor:pointer; background:none; border:none; font-weight:bold;">×</button>
       </div>
       <div class="legend-item"><span class="color-box" style="background:#bbbbbb"></span>0% — не посещено</div>
-      <div class="legend-item"><span class="color-box" style="background:#b9dca8"></span>1% – 20%</div>
-      <div class="legend-item"><span class="color-box" style="background:#8cc07b"></span>21% – 40%</div>
-      <div class="legend-item"><span class="color-box" style="background:#61a35a"></span>41% – 60%</div>
-      <div class="legend-item"><span class="color-box" style="background:#40843f"></span>61% – 80%</div>
-      <div class="legend-item"><span class="color-box" style="background:#2b5726"></span>81% – 100%</div>
+      <div class="legend-item"><span class="color-box" style="background:#b8e2b8"></span>1% – 20%</div>
+      <div class="legend-item"><span class="color-box" style="background:#7fd07f"></span>21% – 40%</div>
+      <div class="legend-item"><span class="color-box" style="background:#4fbf4f"></span>41% – 60%</div>
+      <div class="legend-item"><span class="color-box" style="background:#30b200"></span>61% – 80%</div>
+      <div class="legend-item"><span class="color-box" style="background:#228000"></span>81% – 100%</div>
     `;
     L.DomEvent.disableClickPropagation(div);
     return div;

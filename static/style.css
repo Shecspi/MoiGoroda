@@ -80,6 +80,50 @@ body.simple {
     border: 6px solid #af2626;
 }
 
+.legend {
+  background: white;
+  padding: 10px;
+  line-height: 1.4;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  width: 250px;
+}
+
+.legend-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.color-box {
+  width: 25px;
+  height: 20px;
+  margin-right: 8px;
+  border: 1px solid #444444;
+  flex-shrink: 0;
+}
+
+.show-legend-btn button {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  background: white;
+  border: 1px solid #444444;
+  border-radius: 4px;
+  padding: 5px 10px;
+  color: #333;
+}
+
 
 /*------------ Sidebar ------------*/
 

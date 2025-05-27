@@ -4,10 +4,10 @@ import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
 const fillColorVisitedRegion = '#30b200';
 const fillColorNotVisitedRegion = '#adadad';
-const fillOpacity = 0.7;
-const fillOpacityHighlight = 0.9;
-const strokeColor = '#000000';
-const strokeOpacity = 0.1;
+const fillOpacity = 0.6;
+const fillOpacityHighlight = 0.8;
+const strokeColor = '#444444';
+const strokeOpacity = 0.2;
 const strokeOpacityHighlight = 0.2;
 const strokeWidth = 1;
 const strokeWidthHighlight = 2;
@@ -47,6 +47,8 @@ function init() {
     const load = addLoadControl(map);
     new SimpleMapScreenshoter().addTo(map);
 
+    createLegendControl(map);
+
     const url_all_geo_polygons = `${window.URL_GEO_POLYGONS}/region/lq/RU/all`;
     fetch(url_all_geo_polygons)
         .then(response => {
@@ -64,10 +66,26 @@ function init() {
                 const iso3166 = region.features[0].properties.iso3166;
                 const title = window.REGION_LIST.get(iso3166).title;
                 const num_visited = window.REGION_LIST.get(iso3166).num_visited;
-                console.log(window.REGION_LIST.get('ratio_visited'))
+                const ratio_visited = window.REGION_LIST.get(iso3166).ratio_visited;
+                console.log(ratio_visited);
+
+                let color;
+                if (ratio_visited === undefined || ratio_visited === 0) {
+                    color = '#bbbbbb'; // серый, чуть темнее
+                } else if (ratio_visited > 0 && ratio_visited <= 20) {
+                    color = '#b9dca8'; // мягкий светло-зелёный
+                } else if (ratio_visited > 20 && ratio_visited <= 40) {
+                    color = '#8cc07b'; // травяной зелёный
+                } else if (ratio_visited > 40 && ratio_visited <= 60) {
+                    color = '#61a35a'; // насыщенный зелёный
+                } else if (ratio_visited > 60 && ratio_visited <= 80) {
+                    color = '#40843f'; // тёмно-зелёный
+                } else {
+                    color = '#2b5726'; // глубокий насыщенный зелёный
+                }
 
                 const myStyle = {
-                    "fillColor": num_visited > 0 ? fillColorVisitedRegion : fillColorNotVisitedRegion,
+                    "fillColor": color,
                     "fillOpacity": fillOpacity,
                     "weight": strokeWidth,
                     "color": strokeColor,
@@ -197,5 +215,64 @@ function addErrorControl(map) {
 
     return error
 }
+
+function createLegendControl(map) {
+  // Контрол легенды
+  const legend = L.control({ position: 'bottomright' });
+
+  legend.onAdd = function () {
+    const div = L.DomUtil.create('div', 'legend');
+    div.style.display = 'none'; // скрываем по умолчанию
+    div.innerHTML = `
+      <div class="legend-title">Посещённость городов (%) 
+        <button id="toggle-legend-btn" title="Скрыть легенду" style="float:right; cursor:pointer; background:none; border:none; font-weight:bold;">×</button>
+      </div>
+      <div class="legend-item"><span class="color-box" style="background:#bbbbbb"></span>0% — не посещено</div>
+      <div class="legend-item"><span class="color-box" style="background:#b9dca8"></span>1% – 20%</div>
+      <div class="legend-item"><span class="color-box" style="background:#8cc07b"></span>21% – 40%</div>
+      <div class="legend-item"><span class="color-box" style="background:#61a35a"></span>41% – 60%</div>
+      <div class="legend-item"><span class="color-box" style="background:#40843f"></span>61% – 80%</div>
+      <div class="legend-item"><span class="color-box" style="background:#2b5726"></span>81% – 100%</div>
+    `;
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+  };
+
+  legend.addTo(map);
+
+  // Контрол кнопки показа легенды
+  const showBtn = L.control({ position: 'bottomright' });
+
+  showBtn.onAdd = function () {
+    const div = L.DomUtil.create('div', 'show-legend-btn');
+    div.innerHTML = `<button title="Показать легенду" style="cursor:pointer; padding: 5px 10px;">Показать легенду</button>`;
+    L.DomEvent.disableClickPropagation(div);
+
+    div.querySelector('button').addEventListener('click', () => {
+      const legendDiv = document.querySelector('.legend');
+      if (legendDiv) {
+        legendDiv.style.display = 'block';
+      }
+      div.style.display = 'none';
+    });
+
+    return div;
+  };
+
+  showBtn.addTo(map);
+
+  // Делегируем обработчик клика на кнопку закрытия легенды
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'toggle-legend-btn') {
+      const legendDiv = document.querySelector('.legend');
+      const showBtnDiv = document.querySelector('.show-legend-btn');
+      if (legendDiv && showBtnDiv) {
+        legendDiv.style.display = 'none';
+        showBtnDiv.style.display = 'block';
+      }
+    }
+  });
+}
+
 
 init();

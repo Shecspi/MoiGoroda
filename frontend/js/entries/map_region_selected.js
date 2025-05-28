@@ -43,45 +43,16 @@ function addControlsToMap() {
 
 let all_cities = window.ALL_CITIES;
 
-// Высчитываем центральную точку карты.
-// Ей является средняя координата всех городов, отображённых на карте.
-let array_x = Array();
-let array_y = Array();
-
-// Добавляем все координаты в один массив и находим большее и меньшее значения из них,
-// а затем вычисляем среднее, это и будет являться центром карты.
-for (let i = 0; i < all_cities.length; i++) {
-    array_y.push(parseFloat(all_cities[i][0]));
-    array_x.push(parseFloat(all_cities[i][1]));
-}
-let max_x = Math.max(...array_x);
-let min_x = Math.min(...array_x);
-let max_y = Math.max(...array_y);
-let min_y = Math.min(...array_y);
-let average_x = (max_x + min_x) / 2;
-let average_y = (max_y + min_y) / 2;
-
-// Меняем масштаб карты в зависимости от расположения городов
-let zoom;
-let diff = max_y - min_y;
-if (diff <= 1) {
-    zoom = 9;
-} else if (diff > 1 && diff <= 2) {
-    zoom = 8;
-} else if (diff > 2 && diff <= 5) {
-    zoom = 7;
-} else if (diff > 5 && diff <= 6) {
-    zoom = 6;
-} else {
-    zoom = 5;
-}
-
 map = L.map('map', {
     attributionControl: false,
-    zoomControl: false
-}).setView([average_y, average_x], zoom);
+    zoomControl: false,
+    center: [55.751244, 37.618423],
+    zoom: 3
+});
 addControlsToMap();
 new SimpleMapScreenshoter().addTo(map);
+
+const allMarkers = [];
 
 // Отображаем на карте все города,
 // меняя цвет иконки в зависимости от того, посещён город или нет
@@ -114,6 +85,8 @@ for (let i = 0; i < (all_cities.length); i++) {
     const icon = (all_cities[i][3] === true) ? icon_visited_pin : icon_not_visited_pin;
     const marker = L.marker([coordinateWidth, coordinateLongitude], {icon: icon}).addTo(map);
     marker.bindTooltip(city, {direction: 'top'});
+
+    allMarkers.push(marker);
 }
 
 // Загружаем полигон региона
@@ -133,10 +106,19 @@ fetch(url)
             color: strokeColor,
             opacity: strokeOpacity
         };
-        L.geoJSON(geoJson, {
+        const geojson = L.geoJSON(geoJson, {
             style: myStyle,
         }).addTo(map);
+        if (allMarkers.length === 0) {
+            map.fitBounds(geojson.getBounds());
+        }
     })
     .catch(error => {
         console.log('Произошла ошибка при загрузке границ региона:\n' + error);
     });
+
+// Центрируем и масштабируем карту
+if (allMarkers.length > 0) {
+    const group = new L.featureGroup([...allMarkers]);
+    map.fitBounds(group.getBounds());
+}

@@ -189,7 +189,28 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         return reverse('city-selected', kwargs={'pk': self.object.city.id})
 
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # После сохранения изменений обновляем "is_first_visit" на True для посещения с самой ранней датой или без даты вообще.
+        # Для всех остальных посещений "is_first_visit" устанавливаем в False.
+        cities = VisitedCity.objects.filter(
+            city_id=self.object.city_id, user=self.request.user
+        ).order_by(F('date_of_visit').asc(nulls_first=True))
+
+        if not cities:
+            return response
+
+        first_id = cities[0].id
+
+        # Массовое обновление всех is_first_visit = False
+        VisitedCity.objects.filter(city_id=self.object.city_id, user=self.request.user).exclude(
+            id=first_id
+        ).update(is_first_visit=False)
+
+        # Обновляем только первую запись
+        VisitedCity.objects.filter(id=first_id).update(is_first_visit=True)
+
+        return response
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

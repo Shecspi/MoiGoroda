@@ -129,8 +129,27 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):  # type: ignore
                 f'(Visited city) Attempt to delete a non-existent visited city #{self.kwargs["pk"]}',
             )
             raise Http404
+
+        self.object = self.get_object()
+        self.city_id = self.object.city.id
+
         logger.info(self.request, f'(Visited city) Deleting the visited city #{self.kwargs["pk"]}')
-        return super().post(request, *args, **kwargs)
+        return self.delete(request, *args, **kwargs)
+
+    def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        # Удаляем объект
+        response = super().delete(request, *args, **kwargs)
+
+        # После удаления: обновляем "is_first_visit" для следующего города
+        cities = VisitedCity.objects.filter(city_id=self.city_id, user=self.request.user).order_by(
+            F('date_of_visit').asc(nulls_first=True)
+        )
+        if cities.exists():
+            city = cities.first()
+            city.is_first_visit = True
+            city.save()
+
+        return response
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> NoReturn:
         """Метод GET запрещён для данного класса."""

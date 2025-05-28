@@ -85,8 +85,6 @@ class VisitedCity_Create_Form(ModelForm):
         elif self.instance.pk:
             self.fields['city'].queryset = self.instance.region.city_set.order_by('title')
 
-        print(self.fields['date_of_visit'])
-
     def clean_city(self) -> City:
         """
         Проверка корректности заполнения поля 'City'.

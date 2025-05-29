@@ -1,6 +1,7 @@
 import calendar
 import datetime
 
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import (
     OuterRef,
@@ -14,6 +15,7 @@ from django.db.models import (
     IntegerField,
     QuerySet,
     Func,
+    F,
 )
 from django.db.models.functions import Round, TruncYear, TruncMonth
 
@@ -288,3 +290,26 @@ def get_last_visit_date_by_city(city_id: int, user_id: int) -> datetime.date:
         .first()
         .last_visit_date
     )
+
+
+def set_is_visit_first_for_all_visited_cities(city_id: int, user: AbstractBaseUser):
+    """
+    Обновляет "is_first_visit" на True для посещения с самой ранней датой или без даты вообще.
+    Для всех остальных посещений "is_first_visit" устанавливаем в False.
+    """
+    cities = VisitedCity.objects.filter(city_id=city_id, user=user).order_by(
+        F('date_of_visit').asc(nulls_first=True)
+    )
+
+    if not cities:
+        return
+
+    first_id = cities[0].id
+
+    # Массовое обновление всех is_first_visit = False
+    VisitedCity.objects.filter(city_id=city_id, user=user).exclude(id=first_id).update(
+        is_first_visit=False
+    )
+
+    # Обновляем только первую запись
+    VisitedCity.objects.filter(id=first_id).update(is_first_visit=True)

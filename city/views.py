@@ -28,7 +28,7 @@ from django.views.generic import (
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
-from city.services.db import get_all_visited_cities
+from city.services.db import get_all_visited_cities, set_is_visit_first_for_all_visited_cities
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
 from collection.models import Collection
@@ -83,16 +83,12 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
         Добавляет в данные формы ID авторизованного пользователя.
         """
         form.instance.user = self.request.user
+        response = super().form_valid(form)
 
-        # Проверяем, есть ли записи с таким же user_id и city_id.
-        # Если есть, то поле is_first_visit должно быть False, иначе True.
-        city = form.cleaned_data.get('city')
-        user = self.request.user
-        is_first_visit = not VisitedCity.objects.filter(user=user, city=city).exists()
-        form.instance.is_first_visit = is_first_visit
+        set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
 
         logger.info(self.request, '(Visited city) Adding a visited city')
-        return super().form_valid(form)
+        return response
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

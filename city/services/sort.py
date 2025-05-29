@@ -77,6 +77,26 @@ def date_of_foundation_up(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCi
     return queryset.order_by(F('city__date_of_foundation').asc(nulls_last=True), 'city__title')
 
 
+def number_of_users_who_visit_city_down(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
+    return queryset.order_by(
+        F('number_of_users_who_visit_city').desc(nulls_last=True), 'city__title'
+    )
+
+
+def number_of_users_who_visit_city_up(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
+    return queryset.order_by(
+        F('number_of_users_who_visit_city').asc(nulls_last=True), 'city__title'
+    )
+
+
+def number_of_visits_all_users_down(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
+    return queryset.order_by(F('number_of_visits_all_users').desc(nulls_last=True), 'city__title')
+
+
+def number_of_visits_all_users_up(queryset: QuerySet[VisitedCity]) -> QuerySet[VisitedCity]:
+    return queryset.order_by(F('number_of_visits_all_users').asc(nulls_last=True), 'city__title')
+
+
 SORT_FUNCTIONS: dict[str, Callable[[QuerySet[VisitedCity]], QuerySet[VisitedCity]]] = {
     'name_down': sort_by_name_down,
     'name_up': sort_by_name_up,
@@ -88,4 +108,8 @@ SORT_FUNCTIONS: dict[str, Callable[[QuerySet[VisitedCity]], QuerySet[VisitedCity
     'number_of_visits_up': sort_number_of_visits_up,
     'date_of_foundation_down': date_of_foundation_down,
     'date_of_foundation_up': date_of_foundation_up,
+    'number_of_users_who_visit_city_down': number_of_users_who_visit_city_down,
+    'number_of_users_who_visit_city_up': number_of_users_who_visit_city_up,
+    'number_of_visits_all_users_down': number_of_visits_all_users_down,
+    'number_of_visits_all_users_up': number_of_visits_all_users_up,
 }

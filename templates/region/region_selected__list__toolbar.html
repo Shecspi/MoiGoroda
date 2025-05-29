@@ -301,6 +301,58 @@
             </label>
         </div>
 
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="sort"
+                   value="number_of_users_who_visit_city_down"
+                   {% if sort == 'number_of_users_who_visit_city_down' %}checked{% endif %}
+                   id="sortNumberOfUsersWhoVisitCityDown">
+            <label class="form-check-label"
+                   for="sortNumberOfUsersWhoVisitCityDown">
+                По количеству посетивших пользователей (убывание)
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="sort"
+                   value="number_of_users_who_visit_city_up"
+                   {% if sort == 'number_of_users_who_visit_city_up' %}checked{% endif %}
+                   id="sortNumberOfUsersWhoVisitCityUp">
+            <label class="form-check-label"
+                   for="sortNumberOfUsersWhoVisitCityUp">
+                По количеству посетивших пользователей (возрастание)
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="sort"
+                   value="number_of_visits_all_users_down"
+                   {% if sort == 'number_of_visits_all_users_down' %}checked{% endif %}
+                   id="sortNumberOfVisitsAllUsersDown">
+            <label class="form-check-label"
+                   for="sortNumberOfVisitsAllUsersDown">
+                По общему количеству посещений (убывание)
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input"
+                   type="radio"
+                   name="sort"
+                   value="number_of_visits_all_users_up"
+                   {% if sort == 'number_of_visits_all_users_up' %}checked{% endif %}
+                   id="sortNumberOfVisitsAllUsersUp">
+            <label class="form-check-label"
+                   for="sortNumberOfVisitsAllUsersUp">
+                По общему количеству посещений (возрастание)
+            </label>
+        </div>
+
         <hr>
 
         <div class="d-grid gap-2">

@@ -133,17 +133,8 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):  # type: ignore
         return self.delete(request, *args, **kwargs)
 
     def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        # Удаляем объект
         response = super().delete(request, *args, **kwargs)
-
-        # После удаления: обновляем "is_first_visit" для следующего города
-        cities = VisitedCity.objects.filter(city_id=self.city_id, user=self.request.user).order_by(
-            F('date_of_visit').asc(nulls_first=True)
-        )
-        if cities.exists():
-            city = cities.first()
-            city.is_first_visit = True
-            city.save()
+        set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
 
         return response
 
@@ -186,25 +177,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         response = super().form_valid(form)
-
-        # После сохранения изменений обновляем "is_first_visit" на True для посещения с самой ранней датой или без даты вообще.
-        # Для всех остальных посещений "is_first_visit" устанавливаем в False.
-        cities = VisitedCity.objects.filter(
-            city_id=self.object.city_id, user=self.request.user
-        ).order_by(F('date_of_visit').asc(nulls_first=True))
-
-        if not cities:
-            return response
-
-        first_id = cities[0].id
-
-        # Массовое обновление всех is_first_visit = False
-        VisitedCity.objects.filter(city_id=self.object.city_id, user=self.request.user).exclude(
-            id=first_id
-        ).update(is_first_visit=False)
-
-        # Обновляем только первую запись
-        VisitedCity.objects.filter(id=first_id).update(is_first_visit=True)
+        set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
 
         return response
 

@@ -106,6 +106,22 @@ def get_all_cities_in_region(
         .values('count')
     )
 
+    # Подзапрос для получения количество пользователей, посетивших город
+    number_of_users_who_visit_city = (
+        VisitedCity.objects.filter(city=OuterRef('pk'), is_first_visit=True)
+        .values('city')
+        .annotate(count=Count('*'))
+        .values('count')[:1]
+    )
+
+    # Подзапрос для получения общего количества посещений города
+    number_of_visits_all_users = (
+        VisitedCity.objects.filter(city=OuterRef('pk'))
+        .values('city')
+        .annotate(count=Count('*'))
+        .values('count')[:1]
+    )
+
     queryset = City.objects.filter(region_id=region_id).annotate(
         # Все даты посещения города (или только за указанный год).
         # Сортируются по возрастанию. Поэтому для получения первого посещения
@@ -131,6 +147,10 @@ def get_all_cities_in_region(
         is_visited=is_visited,
         # Имеется ли сувенир из города. True или False
         has_magnet=has_magnet,
+        number_of_users_who_visit_city=Subquery(
+            number_of_users_who_visit_city, output_field=IntegerField()
+        ),
+        number_of_visits_all_users=Subquery(number_of_visits_all_users),
     )
 
     queryset = (

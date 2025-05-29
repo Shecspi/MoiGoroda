@@ -69,6 +69,22 @@ def get_all_cities_from_collection(collection_id: int, user: User | None = None)
             .values('count')  # Передаем только поле count
         )
 
+        # Подзапрос для получения количество пользователей, посетивших город
+        number_of_users_who_visit_city = (
+            VisitedCity.objects.filter(city=OuterRef('pk'), is_first_visit=True)
+            .values('city')
+            .annotate(count=Count('*'))
+            .values('count')[:1]
+        )
+
+        # Подзапрос для получения общего количества посещений города
+        number_of_visits_all_users = (
+            VisitedCity.objects.filter(city=OuterRef('pk'))
+            .values('city')
+            .annotate(count=Count('*'))
+            .values('count')[:1]
+        )
+
         return City.objects.filter(id__in=cities_id).annotate(
             is_visited=Exists(VisitedCity.objects.filter(city_id=OuterRef('pk'), user=user)),
             visit_dates=Subquery(visit_dates_subquery),
@@ -79,6 +95,10 @@ def get_all_cities_from_collection(collection_id: int, user: User | None = None)
             ),  # Округление до 0.5
             has_souvenir=has_souvenir,
             number_of_visits=Subquery(city_visits_subquery, output_field=IntegerField()),
+            number_of_users_who_visit_city=Subquery(
+                number_of_users_who_visit_city, output_field=IntegerField()
+            ),
+            number_of_visits_all_users=Subquery(number_of_visits_all_users),
         )
     else:
         return City.objects.filter(id__in=cities_id).annotate(is_visited=Value(False))

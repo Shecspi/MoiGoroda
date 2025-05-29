@@ -121,6 +121,23 @@
             </div>
             <!-- ^^^ Год основания -->
 
+            <!-- Количество посещений -->
+            <div class="d-flex gap-5 justify-content-center mt-3">
+                <div class="d-flex gap-2 align-items-center"
+                     data-bs-toggle="tooltip"
+                     data-bs-title="Количество пользователей, посетивших город {{ city }}">
+                    <i class="fa-solid fa-users"></i>
+                    {{ city.number_of_users_who_visit_city }}
+                </div>
+                <div class="d-flex gap-2 align-items-center"
+                     data-bs-toggle="tooltip"
+                     data-bs-title="Общее количество посещений города {{ city }}">
+                    <i class="fa-solid fa-shoe-prints"></i>
+                    {{ city.number_of_visits_all_users }}
+                </div>
+            </div>
+            <!-- ^^^ Количество посещений -->
+
             {% if city.is_visited %}
                 <div class="d-flex justify-content-between">
                     <!-- Рейтинг -->

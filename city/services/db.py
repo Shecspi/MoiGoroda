@@ -100,9 +100,25 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
         .values('last_visit_date')
     )
 
+    # Подзапрос для получения количество пользователей, посетивших город
+    number_of_users_who_visit_city = (
+        VisitedCity.objects.filter(city=OuterRef('city'), is_first_visit=True)
+        .values('city_id')
+        .annotate(count=Count('*'))
+        .values('count')[:1]
+    )
+
+    # Подзапрос для получения общего количества посещений города
+    number_of_visits_all_users = (
+        VisitedCity.objects.filter(city=OuterRef('city__id'))
+        .values('city_id')
+        .annotate(count=Count('*'))
+        .values('count')[:1]
+    )
+
     queryset = (
         VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
-        .select_related('city', 'city__region', 'user')
+        .select_related('city', 'city__region', 'user', 'region')
         .annotate(
             number_of_visits=Subquery(city_visits_subquery, output_field=IntegerField()),
             average_rating=(
@@ -112,6 +128,10 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
             first_visit_date=Subquery(first_visit_date_subquery),
             last_visit_date=Subquery(last_visit_date_subquery),
             has_souvenir=has_souvenir,
+            number_of_users_who_visit_city=Subquery(
+                number_of_users_who_visit_city, output_field=IntegerField()
+            ),
+            number_of_visits_all_users=Subquery(number_of_visits_all_users),
         )
     )
 

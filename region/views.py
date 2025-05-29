@@ -197,6 +197,8 @@ class CitiesByRegionList(ListView):
                 'last_visit_date',
                 'has_magnet',
                 'rating',
+                'number_of_users_who_visit_city',
+                'number_of_visits_all_users',
             )
         else:
             queryset = City.objects.filter(region=self.region_id).values(

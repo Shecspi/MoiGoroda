@@ -47,15 +47,25 @@
 
                         <div class="col-12 col-lg-6">
                             <div class="row gy-3">
-                                <div class="col-12 d-flex justify-content-end">
-                                    <button id="show_on_map"
-                                          class="btn btn-outline-secondary d-flex gap-2 align-items-center"
-                                          role="button"
-                                          data-bs-toggle="modal"
-                                          data-bs-target="#mapModal">
-                                        <i class="fa-solid fa-map-location-dot"></i>
-                                        Посмотреть на карте
-                                    </button>
+                                <div class="col">
+                                    <div class="row">
+                                         <div class="col d-flex align-items-center"
+                                              data-bs-toggle="modal"
+                                              data-bs-target="#cityStatisticModal">
+                                            Статистика города
+                                        </div>
+
+                                        <div class="col d-flex justify-content-end">
+                                            <button id="show_on_map"
+                                                  class="btn btn-outline-secondary d-flex gap-2 align-items-center"
+                                                  role="button"
+                                                  data-bs-toggle="modal"
+                                                  data-bs-target="#mapModal">
+                                                <i class="fa-solid fa-map-location-dot"></i>
+                                                Посмотреть на карте
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <hr>
@@ -231,6 +241,8 @@
         </div>
     </div>
 </div>
+
+{% include 'city/modal_city_statistic.html' %}
 
 <!-- Модальное окно с картой -->
 <div class="modal fade" id="mapModal" tabindex="-1">

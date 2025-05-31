@@ -1,0 +1,52 @@
+{% load vite %}
+<!-- Модальное окно с картой -->
+<div class="modal fade" id="cityStatisticModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title">Статистика города {{ city.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between">
+                            <span>Пользователей, посетивших город:</span>
+                            <span>{{ number_of_users_who_visit_city }}</span>
+                        </div>
+                        <canvas id="userProgressChart" height="30" style="width: 100%"></canvas>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between">
+                            <span>Всего посещений города:</span>
+                            <span>{{ number_of_visits }}</span>
+                        </div>
+                        <canvas id="numberOfVisitsChart" height="30" style="width: 100%"></canvas>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between">
+                            <span>Популярность города</span>
+                            <span>{{ rank }} из {{ number_of_cities }}</span>
+                        </div>
+                        <canvas id="rankBarChart" style="width: 100%"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ neighboring_cities_by_rank|json_script:"neighboringCitiesData" }}
+<script>
+    window.CITY_ID = {{ city.id }};
+    window.NUMBER_OF_USERS_WHO_VISIT_CITY = {{ number_of_users_who_visit_city }};
+    window.NUMBER_OF_USERS = {{ number_of_users }};
+    window.NUMBER_OF_VISITS = {{ number_of_visits }};
+    window.TOTAL_NUMBER_OF_CITIES = {{ total_number_of_visits }};
+</script>
+{% vite_asset 'js/entries/city_statistics.js' %}

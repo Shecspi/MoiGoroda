@@ -16,8 +16,9 @@ from django.db.models import (
     QuerySet,
     Func,
     F,
+    Window,
 )
-from django.db.models.functions import Round, TruncYear, TruncMonth
+from django.db.models.functions import Round, TruncYear, TruncMonth, Rank
 
 from city.models import VisitedCity, City
 
@@ -333,3 +334,46 @@ def set_is_visit_first_for_all_visited_cities(city_id: int, user: AbstractBaseUs
 
     # Обновляем только первую запись
     VisitedCity.objects.filter(id=first_id).update(is_first_visit=True)
+
+
+def get_number_of_users_who_visit_city(city_id: int) -> int:
+    return VisitedCity.objects.filter(city=city_id, is_first_visit=True).count()
+
+
+def get_total_number_of_visits() -> int:
+    """
+    Возвращает общее количество посещённых городов всеми пользователями
+    """
+    return VisitedCity.objects.count()
+
+
+def get_rank_of_city(city_id: int) -> int:
+    return (
+        City.objects.annotate(visits=Count('visitedcity'))
+        .annotate(rank=Window(expression=Rank(), order_by=F('visits').desc()))
+        .filter(id=city_id)
+        .values_list('rank', flat=True)
+        .first()
+    )
+
+
+def get_neighboring_cities_by_rank(city_id: int):
+    # Аннотируем города количеством посещений и рангом
+    ranked_cities = City.objects.annotate(
+        visits=Count('visitedcity'), rank=Window(expression=Rank(), order_by=F('visits').desc())
+    )
+
+    # Получаем ранг запрашиваемого города
+    target_rank = ranked_cities.filter(id=city_id).values_list('rank', flat=True).first()
+
+    if target_rank is None:
+        return []  # Город с таким ID не найден
+
+    # Выбираем города с рангами в диапазоне [target_rank - 5, target_rank + 4]
+    neighboring_cities = (
+        ranked_cities.filter(rank__gte=target_rank - 5, rank__lte=target_rank + 4)
+        .values('id', 'title', 'visits', 'rank')
+        .order_by('rank')[:10]
+    )
+
+    return list(neighboring_cities)

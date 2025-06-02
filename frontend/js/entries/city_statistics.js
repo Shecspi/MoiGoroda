@@ -1,6 +1,7 @@
 const ctx = document.getElementById('userProgressChart').getContext('2d');
 const ctxNumberOfVisits = document.getElementById('numberOfVisitsChart').getContext('2d');
-const neighboringCities = JSON.parse(document.getElementById('neighboringCitiesData').textContent);
+const neighboringCitiesByUsers = JSON.parse(document.getElementById('neighboringCitiesDataByUsers').textContent);
+const neighboringCitiesByVisits = JSON.parse(document.getElementById('neighboringCitiesDataByVisits').textContent);
 console.log(window.CITY_ID);
 
 new Chart(ctx, {
@@ -95,30 +96,57 @@ new Chart(ctxNumberOfVisits, {
   }
 });
 
-const ctx1 = document.getElementById('rankBarChart').getContext('2d');
+function createMultiBarChart(dataObj) {
+  const ctx = document.getElementById(dataObj.elementId).getContext('2d');
 
-  const labels = neighboringCities.map(c => c.title);
-  const data = neighboringCities.map(c => c.visits);
-
-  new Chart(ctx1, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Количество посещений',
-        data: data,
-        backgroundColor: neighboringCities.map(c => c.id === window.CITY_ID ? '#2eaf30' : '#00b894')
-      }]
+  new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: dataObj.labels,
+    datasets: [{
+      label: dataObj.label,
+      data: dataObj.data,
+      backgroundColor: dataObj.backgroundColors,
+      borderColor: dataObj.borderColors,
+      borderWidth: 1,
+      borderRadius: 5,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    scales: {
+      x: {
+        beginAtZero: true,
+      }
     },
-    options: {
-      indexAxis: 'y',
-      scales: {
-        x: {
-          beginAtZero: true,
-        }
-      },
-      plugins: {
-        legend: { display: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        position: 'nearest',
+        yAlign: 'center',
+        xAlign: 'left',
       }
     }
-  });
+  }
+});
+}
+
+const chartRankByUsers = {
+  elementId: 'rankBarChartByUsers',
+  data: neighboringCitiesByUsers.map(city => city.visits),
+  labels: neighboringCitiesByUsers.map(city => city.title),
+  label: 'Количество пользователей',
+  backgroundColors: neighboringCitiesByUsers.map(city => city.id === window.CITY_ID ? '#FF6B6B' : '#A0C4FF'),
+  borderColor: neighboringCitiesByUsers.map(city => city.id === window.CITY_ID ? '#C73636' : '#5C9EFF')
+}
+const chartRankByVisits = {
+  elementId: 'rankBarChartByVisits',
+  data: neighboringCitiesByVisits.map(city => city.visits),
+  labels: neighboringCitiesByVisits.map(city => city.title),
+  label: 'Количество посещений',
+  backgroundColors: neighboringCitiesByVisits.map(city => city.id === window.CITY_ID ? '#FF6B6B' : '#A0C4FF'),
+  borderColor: neighboringCitiesByVisits.map(city => city.id === window.CITY_ID ? '#C73636' : '#5C9EFF')
+}
+
+createMultiBarChart(chartRankByUsers);
+createMultiBarChart(chartRankByVisits);

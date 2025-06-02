@@ -35,7 +35,8 @@ from city.services.db import (
     get_number_of_users_who_visit_city,
     get_total_number_of_visits,
     get_rank_of_city,
-    get_neighboring_cities_by_rank,
+    get_neighboring_cities_by_users_rank,
+    get_neighboring_cities_by_visits_rank,
 )
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
@@ -321,7 +322,12 @@ class VisitedCity_Detail(DetailView):
         context['total_number_of_visits'] = get_total_number_of_visits()
         context['number_of_cities'] = get_number_of_cities()
         context['rank'] = get_rank_of_city(self.city.id)
-        context['neighboring_cities_by_rank'] = get_neighboring_cities_by_rank(self.city.id)
+        context['neighboring_cities_by_users_rank'] = get_neighboring_cities_by_users_rank(
+            self.city.id
+        )
+        context['neighboring_cities_by_visits_rank'] = get_neighboring_cities_by_visits_rank(
+            self.city.id
+        )
 
         return context
 

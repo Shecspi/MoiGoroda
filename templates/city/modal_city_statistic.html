@@ -8,31 +8,39 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="d-flex justify-content-between">
+                <div class="row row-cols-lg-2">
+                    <div class="col">
+                        <div class="d-flex justify-content-between align-items-center">
                             <span>Пользователей, посетивших город:</span>
-                            <span>{{ number_of_users_who_visit_city }}</span>
+                            <span class="px-2 py-1 rounded bg-light text-dark fw-bold border border-secondary">{{ number_of_users_who_visit_city }}</span>
                         </div>
                         <canvas id="userProgressChart" height="30" style="width: 100%"></canvas>
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="d-flex justify-content-between">
+                    <div class="col">
+                        <div class="d-flex justify-content-between align-items-center">
                             <span>Всего посещений города:</span>
-                            <span>{{ number_of_visits }}</span>
+                            <span class="px-2 py-1 rounded bg-light text-dark fw-bold border border-secondary">{{ number_of_visits }}</span>
                         </div>
                         <canvas id="numberOfVisitsChart" height="30" style="width: 100%"></canvas>
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="d-flex justify-content-between">
-                            <span>Популярность города</span>
-                            <span>{{ rank }} из {{ number_of_cities }}</span>
+                <div class="row row-cols-lg-2 mt-5">
+                    <div class="col">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Популярность города (по пользователям)</span>
+                            <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #FF6B6B;">{{ rank }} из {{ number_of_cities }}</span>
                         </div>
-                        <canvas id="rankBarChart" style="width: 100%"></canvas>
+                        <canvas id="rankBarChartByUsers" style="width: 100%"></canvas>
+                    </div>
+
+                    <div class="col">
+                        <div class="d-flex justify-content-between">
+                            <span>Популярность города (по посещениям)</span>
+                            <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #FF6B6B;">{{ rank }} из {{ number_of_cities }}</span>
+                        </div>
+                        <canvas id="rankBarChartByVisits" style="width: 100%"></canvas>
                     </div>
                 </div>
 
@@ -41,7 +49,8 @@
     </div>
 </div>
 
-{{ neighboring_cities_by_rank|json_script:"neighboringCitiesData" }}
+{{ neighboring_cities_by_users_rank|json_script:"neighboringCitiesDataByUsers" }}
+{{ neighboring_cities_by_visits_rank|json_script:"neighboringCitiesDataByVisits" }}
 <script>
     window.CITY_ID = {{ city.id }};
     window.NUMBER_OF_USERS_WHO_VISIT_CITY = {{ number_of_users_who_visit_city }};

@@ -348,32 +348,64 @@ def get_total_number_of_visits() -> int:
 
 
 def get_rank_of_city(city_id: int) -> int:
-    return (
-        City.objects.annotate(visits=Count('visitedcity'))
-        .annotate(rank=Window(expression=Rank(), order_by=F('visits').desc()))
-        .filter(id=city_id)
-        .values_list('rank', flat=True)
-        .first()
-    )
-
-
-def get_neighboring_cities_by_rank(city_id: int):
-    # Аннотируем города количеством посещений и рангом
-    ranked_cities = City.objects.annotate(
-        visits=Count('visitedcity'), rank=Window(expression=Rank(), order_by=F('visits').desc())
-    )
-
-    # Получаем ранг запрашиваемого города
-    target_rank = ranked_cities.filter(id=city_id).values_list('rank', flat=True).first()
-
-    if target_rank is None:
-        return []  # Город с таким ID не найден
-
-    # Выбираем города с рангами в диапазоне [target_rank - 5, target_rank + 4]
-    neighboring_cities = (
-        ranked_cities.filter(rank__gte=target_rank - 5, rank__lte=target_rank + 4)
+    ranked_cities = list(
+        City.objects.annotate(
+            visits=Count('visitedcity'), rank=Window(expression=Rank(), order_by=F('visits').desc())
+        )
         .values('id', 'title', 'visits', 'rank')
-        .order_by('rank')[:10]
+        .order_by('rank')
     )
 
-    return list(neighboring_cities)
+    for city in ranked_cities:
+        if city['id'] == city_id:
+            return city['rank']
+
+    return 0
+
+
+def _get_cities_near_index(items: list, city_id: int, window_size: int = 10) -> list:
+    # Ищем индекс нужного города
+    index = next((i for i, city in enumerate(items) if city['id'] == city_id), None)
+    if index is None:
+        return []
+
+    # Выбираем 10 соседних городов
+    start = max(index - 4, 0)
+    end = start + 10
+    if end > len(items):
+        end = len(items)
+        start = max(0, end - 10)
+
+    return items[start:end]
+
+
+def get_neighboring_cities_by_visits_rank(city_id: int):
+    """
+    Возвращает список 10 городов, которые располагаются близко к искомому городу.
+    Выборка происходит по общему количеству посещений города всеми пользователями.
+    """
+    ranked_cities = list(
+        City.objects.annotate(
+            visits=Count('visitedcity__user', distinct=True),
+            rank=Window(expression=Rank(), order_by=F('visits').desc()),
+        )
+        .values('id', 'title', 'visits', 'rank')
+        .order_by('rank')
+    )
+    return _get_cities_near_index(ranked_cities, city_id)
+
+
+def get_neighboring_cities_by_users_rank(city_id: int):
+    """
+    Возвращает список 10 городов, которые располагаются близко к искомому городу.
+    Выборка происходит по общему количеству посещений города всеми пользователями.
+    """
+    ranked_cities = list(
+        City.objects.annotate(
+            visits=Count('visitedcity'),
+            rank=Window(expression=Rank(), order_by=F('visits').desc()),
+        )
+        .values('id', 'title', 'visits', 'rank')
+        .order_by('rank')
+    )
+    return _get_cities_near_index(ranked_cities, city_id)

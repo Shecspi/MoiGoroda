@@ -9,6 +9,7 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any, NoReturn
 
+from django.contrib.auth.models import User
 from django.db.models.functions import Round
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest
@@ -28,7 +29,20 @@ from django.views.generic import (
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
-from city.services.db import get_all_visited_cities, set_is_visit_first_for_all_visited_cities
+from city.services.db import (
+    get_all_visited_cities,
+    set_is_visit_first_for_all_visited_cities,
+    get_number_of_users_who_visit_city,
+    get_total_number_of_visits,
+    get_rank_vy_visits_of_city,
+    get_neighboring_cities_by_users_rank,
+    get_neighboring_cities_by_visits_rank,
+    get_neighboring_cities_in_region_by_visits_rank,
+    get_neighboring_cities_in_region_by_users_rank,
+    get_rank_by_visits_of_city_in_region,
+    get_rank_by_users_of_city_in_region,
+    get_number_of_cities_in_region_by_city,
+)
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
 from collection.models import Collection
@@ -265,6 +279,12 @@ class VisitedCity_Detail(DetailView):
 
         self.city.collections = Collection.objects.filter(city=self.city)
 
+        self.city.number_of_visits = (
+            VisitedCity.objects.filter(city=self.city.id)
+            .aggregate(count=Count('*'))
+            .get('count', 0)
+        )
+
         logger.info(self.request, f'(Visited city) Viewing the visited city #{self.city.pk}')
         return self.city
 
@@ -300,6 +320,30 @@ class VisitedCity_Detail(DetailView):
             'Смотрите информацию о городе и карту на сайте «Мои Города». '
             'Зарегистрируйтесь, чтобы отмечать посещённые города.'
         )
+
+        context['number_of_users_who_visit_city'] = get_number_of_users_who_visit_city(self.city.id)
+        context['number_of_users'] = User.objects.count()
+        context['number_of_visits'] = self.city.number_of_visits
+        context['total_number_of_visits'] = get_total_number_of_visits()
+        context = {
+            **context,
+            'number_of_cities': get_number_of_cities(),
+            'total_number_of_visits': get_total_number_of_visits(),
+            'number_of_cities_in_region': get_number_of_cities_in_region_by_city(self.city.id),
+            'rank': get_rank_vy_visits_of_city(self.city.id),
+            'rank_by_visits_of_city_in_region': get_rank_by_visits_of_city_in_region(self.city.id),
+            'rank_by_users_of_city_in_region': get_rank_by_users_of_city_in_region(self.city.id),
+            'neighboring_cities_by_users_rank': get_neighboring_cities_by_users_rank(self.city.id),
+            'neighboring_cities_by_visits_rank': get_neighboring_cities_by_visits_rank(
+                self.city.id
+            ),
+            'neighboring_cities_in_region_by_users_rank': (
+                get_neighboring_cities_in_region_by_users_rank(self.city.id)
+            ),
+            'neighboring_cities_in_region_by_visits_rank': get_neighboring_cities_in_region_by_visits_rank(
+                self.city.id
+            ),
+        }
 
         return context
 

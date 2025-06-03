@@ -47,7 +47,16 @@
 
                         <div class="col-12 col-lg-6">
                             <div class="row gy-3">
-                                <div class="col-12 d-flex justify-content-end">
+                                <div class="col d-flex flex-wrap gap-2 justify-content-end">
+                                    <button id="show_on_map"
+                                            class="btn btn-outline-success d-flex gap-2 align-items-center"
+                                            role="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#cityStatisticModal">
+                                        <i class="fa-solid fa-map-location-dot"></i>
+                                        Статистика города
+                                    </button>
+
                                     <button id="show_on_map"
                                           class="btn btn-outline-secondary d-flex gap-2 align-items-center"
                                           role="button"
@@ -231,6 +240,8 @@
         </div>
     </div>
 </div>
+
+{% include 'city/modal_city_statistic.html' %}
 
 <!-- Модальное окно с картой -->
 <div class="modal fade" id="mapModal" tabindex="-1">

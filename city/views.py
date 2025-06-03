@@ -34,9 +34,14 @@ from city.services.db import (
     set_is_visit_first_for_all_visited_cities,
     get_number_of_users_who_visit_city,
     get_total_number_of_visits,
-    get_rank_of_city,
+    get_rank_vy_visits_of_city,
     get_neighboring_cities_by_users_rank,
     get_neighboring_cities_by_visits_rank,
+    get_neighboring_cities_in_region_by_visits_rank,
+    get_neighboring_cities_in_region_by_users_rank,
+    get_rank_by_visits_of_city_in_region,
+    get_rank_by_users_of_city_in_region,
+    get_number_of_cities_in_region_by_city,
 )
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
@@ -320,14 +325,25 @@ class VisitedCity_Detail(DetailView):
         context['number_of_users'] = User.objects.count()
         context['number_of_visits'] = self.city.number_of_visits
         context['total_number_of_visits'] = get_total_number_of_visits()
-        context['number_of_cities'] = get_number_of_cities()
-        context['rank'] = get_rank_of_city(self.city.id)
-        context['neighboring_cities_by_users_rank'] = get_neighboring_cities_by_users_rank(
-            self.city.id
-        )
-        context['neighboring_cities_by_visits_rank'] = get_neighboring_cities_by_visits_rank(
-            self.city.id
-        )
+        context = {
+            **context,
+            'number_of_cities': get_number_of_cities(),
+            'total_number_of_visits': get_total_number_of_visits(),
+            'number_of_cities_in_region': get_number_of_cities_in_region_by_city(self.city.id),
+            'rank': get_rank_vy_visits_of_city(self.city.id),
+            'rank_by_visits_of_city_in_region': get_rank_by_visits_of_city_in_region(self.city.id),
+            'rank_by_users_of_city_in_region': get_rank_by_users_of_city_in_region(self.city.id),
+            'neighboring_cities_by_users_rank': get_neighboring_cities_by_users_rank(self.city.id),
+            'neighboring_cities_by_visits_rank': get_neighboring_cities_by_visits_rank(
+                self.city.id
+            ),
+            'neighboring_cities_in_region_by_users_rank': (
+                get_neighboring_cities_in_region_by_users_rank(self.city.id)
+            ),
+            'neighboring_cities_in_region_by_visits_rank': get_neighboring_cities_in_region_by_visits_rank(
+                self.city.id
+            ),
+        }
 
         return context
 

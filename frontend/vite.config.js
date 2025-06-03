@@ -43,6 +43,7 @@ export default defineConfig({
         sidebar: path.resolve(entriesDir, 'sidebar.js'),
         subscribe_api: path.resolve(entriesDir, 'subscribe_api.js'),
         travelpayouts_verify: path.resolve(entriesDir, 'travelpayouts_verify.js'),
+        city_statistics: path.resolve(entriesDir, 'city_statistics.js'),
       }
     }
   }

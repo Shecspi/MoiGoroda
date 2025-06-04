@@ -17,7 +17,9 @@ from django.shortcuts import render, redirect
 from django.views.generic import CreateView
 from django.contrib.auth.views import LoginView, PasswordResetDoneView, PasswordChangeView
 
+from MoiGoroda.settings import PRIVACY_POLICY_VERSION
 from account.forms import SignUpForm, SignInForm
+from account.models import UserConsent
 
 logger_email = logging.getLogger(__name__)
 
@@ -46,6 +48,14 @@ class SignUp(CreateView):
             email=self.request.POST['email'],
         )
         user.save()
+
+        UserConsent.objects.create(
+            user=user,
+            consent_given=form.cleaned_data['personal_data_consent'],
+            ip_address=self.request.META.get('REMOTE_ADDR'),
+            policy_version=PRIVACY_POLICY_VERSION,
+        )
+
         logger_email.info(
             f"Registration of a new user: {self.request.POST['username']} ({self.request.POST['email']}). "
             f"Total numbers of users: {User.objects.count()}"

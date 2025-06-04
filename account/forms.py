@@ -32,6 +32,7 @@ class SignUpForm(UserCreationForm):
         required=False,
         widget=forms.CheckboxInput(attrs={'id': 'personal-data-consent'}),
     )
+    personal_data_version = forms.CharField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,11 +46,19 @@ class SignUpForm(UserCreationForm):
             Field('password1'),
             Field('password2'),
             Field('personal_data_consent'),
+            Field('personal_data_version'),
         )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2', 'personal_data_consent')
+        fields = (
+            'username',
+            'email',
+            'password1',
+            'password2',
+            'personal_data_consent',
+            'personal_data_version',
+        )
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

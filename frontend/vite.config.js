@@ -44,6 +44,7 @@ export default defineConfig({
         subscribe_api: path.resolve(entriesDir, 'subscribe_api.js'),
         travelpayouts_verify: path.resolve(entriesDir, 'travelpayouts_verify.js'),
         city_statistics: path.resolve(entriesDir, 'city_statistics.js'),
+        signup: path.resolve(entriesDir, 'signup.js'),
       }
     }
   }

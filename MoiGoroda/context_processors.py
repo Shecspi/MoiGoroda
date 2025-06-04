@@ -34,6 +34,7 @@ def general_settings(request):
         'SIDEBAR_LINK_TEXT': os.getenv('SIDEBAR_LINK_TEXT'),
         'SIDEBAR_LINK_ADV_INFO': os.getenv('SIDEBAR_LINK_ADV_INFO'),
         'DEBUG': settings.DEBUG,
+        'PRIVACY_POLICY_VERSION': os.getenv('PRIVACY_POLICY_VERSION'),
     }
 
     return context

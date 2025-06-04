@@ -3,6 +3,11 @@ import 'leaflet-fullscreen';
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
 import {getCookie} from '../components/get_cookie.js';
+import {showSuccessToast} from "../components/toast";
+
+window.add_country = add_country;
+window.delete_country = delete_country;
+window.showSuccessToast = showSuccessToast;
 
 const fillColorVisitedCountry = '#32b700';
 const fillColorNotVisitedCountry = '#9a9a9a';

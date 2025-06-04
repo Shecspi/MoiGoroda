@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from crispy_forms.layout import Layout, Field, Submit, Row, Column, HTML
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.utils.safestring import mark_safe
 
 
 class SignUpForm(UserCreationForm):
@@ -23,6 +24,14 @@ class SignUpForm(UserCreationForm):
     password2 = forms.CharField(
         label='Повторите пароль', widget=forms.PasswordInput(), required=True
     )
+    personal_data_consent = forms.BooleanField(
+        label=mark_safe(
+            'Я даю согласие на обработку моих персональных данных в соответствии с '
+            '<a href="/privacy-policy" target="_blank">Политикой конфиденциальности</a>'
+        ),
+        required=False,
+        widget=forms.CheckboxInput(attrs={'id': 'personal-data-consent'}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -31,12 +40,16 @@ class SignUpForm(UserCreationForm):
         self.helper.form_tag = False
 
         self.helper.layout = Layout(
-            Field('username'), Field('email'), Field('password1'), Field('password2')
+            Field('username'),
+            Field('email'),
+            Field('password1'),
+            Field('password2'),
+            Field('personal_data_consent'),
         )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username', 'email', 'password1', 'password2', 'personal_data_consent')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

@@ -35,3 +35,11 @@ class ShareSettings(models.Model):
 
     def get_absolute_url(self):
         return reverse('share', kwargs={'pk': self.pk})
+
+
+class UserConsent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    consent_given = models.BooleanField(default=True)
+    consent_timestamp = models.DateTimeField(auto_now_add=True)
+    policy_version = models.CharField(max_length=10)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)

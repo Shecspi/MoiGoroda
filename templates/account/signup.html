@@ -31,14 +31,6 @@
 
                         {% crispy form %}
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="agree-personal-data">
-                            <label class="form-check-label" for="agree-personal-data">
-                                Я даю согласие на обработку моих персональных данных в соответствии с <a href="/privacy-policy" target="_blank">Политикой конфиденциальности</a>.
-                            </label>
-                            <input type="hidden" name="privacy_policy_version" value="{{ PRIVACY_POLICY_VERSION }}">
-                        </div>
-
                         <div class="input-group mt-4">
                             <button class="btn btn-lg btn-primary w-100 fs-6 mt-3">Зарегистрироваться</button>
                         </div>

@@ -49,10 +49,16 @@ class SignUp(CreateView):
         )
         user.save()
 
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = self.request.META.get('REMOTE_ADDR')
+
         UserConsent.objects.create(
             user=user,
-            consent_given=form.cleaned_data['personal_data_consent'],
-            ip_address=self.request.META.get('REMOTE_ADDR'),
+            consent_given=True,
+            ip_address=ip,
             policy_version=PRIVACY_POLICY_VERSION,
         )
 

@@ -3,6 +3,7 @@ import 'leaflet-fullscreen';
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
 import {getCookie} from '../components/get_cookie.js';
+import {showSuccessToast} from "../components/toast";
 
 const fillColorVisitedCountry = '#32b700';
 const fillColorNotVisitedCountry = '#9a9a9a';
@@ -361,8 +362,8 @@ function generatePopupContent(country) {
         `<div><span class="fw-semibold">Расположение:</span> ${country.location}</div>`;
 
     if (isAuthenticated === true) {
-        const linkToAdd = `<hr><a href="#" onclick="add_country('${country.iso3166_1_alpha2}');">Отметить страну как посещённую</a>`
-        const linkToDelete = `<hr><a href="#" onclick="delete_country('${country.iso3166_1_alpha2}')">Удалить страну</a>`
+        const linkToAdd = `<hr><a class="country-action" href="#" data-action="add" data-code="${country.iso3166_1_alpha2}">Отметить страну как посещённую</a>`
+        const linkToDelete = `<hr><a class="country-action" href="#" data-action="delete" data-code="${country.iso3166_1_alpha2}">Удалить страну</a>`
         const link = country.is_visited ? linkToDelete : linkToAdd;
         const name = country.owner ? country.name_ru + ` (${country.owner})` : country.name_ru;
 
@@ -611,3 +612,17 @@ function declensionVisited(qtyOfCountries) {
         return 'Посещено';
     }
 }
+
+document.addEventListener('click', (e) => {
+    if (e.target.matches('.country-action')) {
+        e.preventDefault();
+        const code = e.target.dataset.code;
+        const action = e.target.dataset.action;
+
+        if (action === 'add') {
+            add_country(code);
+        } else if (action === 'delete') {
+            delete_country(code);
+        }
+    }
+});

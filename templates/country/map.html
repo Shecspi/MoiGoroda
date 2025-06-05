@@ -7,11 +7,13 @@
         Карта стран мира
     </h1>
 
-    {% if user.is_authenticated %}
-        {% include 'advertisement/rtb_banner.html' %}
-    {% else %}
-        {% include 'advertisement/travel_payouts.html' %}
-        {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+    {% if not DEBUG %}
+        {% if user.is_authenticated %}
+            {% include 'advertisement/rtb_banner.html' %}
+        {% else %}
+            {% include 'advertisement/travel_payouts.html' %}
+            {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+        {% endif %}
     {% endif %}
 
     {% include 'country/country__map__toolbar.html' %}

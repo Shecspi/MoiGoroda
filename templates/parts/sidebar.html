@@ -1,3 +1,7 @@
+{% load excluded_users %}
+
+{% get_excluded_users as excluded_users %}
+
 <!-- Сайдбар -->
 <div class="sidebar shadow overflow-y-auto" id="sidebar">
     <!-- Шапка сайдбара -->
@@ -28,7 +32,7 @@
             </a>
         </li>
 
-        {% if not DEBUG %}
+        {% if user.id not in excluded_users %}
         <li>
             <a href="{{ SIDEBAR_LINK_URL }}"
                target="_blank"

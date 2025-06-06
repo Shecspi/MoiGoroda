@@ -8,8 +8,10 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.db import models
-from django.db.models import CASCADE
+from django.db.models import CASCADE, PROTECT
 from django.urls import reverse
+
+from country.models import Country
 
 TYPES_OF_REGIONS = [
     ('R', 'республика'),
@@ -22,6 +24,9 @@ TYPES_OF_REGIONS = [
 
 
 class Area(models.Model):
+    country = models.ForeignKey(
+        Country, on_delete=PROTECT, verbose_name='Страна', blank=False, null=False
+    )
     title = models.CharField(
         max_length=100, verbose_name='Название', blank=False, null=False, unique=True
     )
@@ -37,6 +42,9 @@ class Area(models.Model):
 class Region(models.Model):
     area = models.ForeignKey(
         Area, on_delete=CASCADE, verbose_name='Федеральный округ', blank=False, null=False
+    )
+    country = models.ForeignKey(
+        Country, on_delete=PROTECT, verbose_name='Страна', blank=False, null=False
     )
     title = models.CharField(max_length=100, verbose_name='Название', blank=False, null=False)
     type = models.CharField(

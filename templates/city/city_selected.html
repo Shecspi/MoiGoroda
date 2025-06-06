@@ -70,8 +70,9 @@
                                 <hr>
 
                                 {% url 'region-selected-list' city.region.id as region_url %}
-                                {% include "partials/info_row.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
-                                {% include "partials/info_row.html" with title="Федеральный округ:" value=city.region.area id="area" %}
+                                {% include "partials/info_row_4.html" with title="Страна:" link=False value=city.country id="country" %}
+                                {% include "partials/info_row_4.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
+                                {% include "partials/info_row_4.html" with title="Федеральный округ:" value=city.region.area id="area" %}
 
                                 <div class="col-12">
                                     <hr>
@@ -107,32 +108,36 @@
                                 <div class="col-6">
                                     <h6 class="fw-semibold mb-1">Средняя оценка среди всех пользователей:</h6>
                                     <div class="d-flex align-items-center gap-3">
-                                        <span>
-                                            {{ city.average_rating }}
-                                        </span>
-                                        <span>
-                                            {% for i in "12345"|make_list %}
-                                                {% with index=forloop.counter %}
-                                                    {% if city.average_rating >= index %}
-                                                        <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                                    {% else %}
-                                                        {% if city.average_rating >= index|sub:0.5 %}
-                                                            <i class="fa-solid fa-star-half-stroke" style="color: #ffc43c;"></i>
+                                        {% if city.average_rating %}
+                                            <span>
+                                                {{ city.average_rating }}
+                                            </span>
+                                            <span>
+                                                {% for i in "12345"|make_list %}
+                                                    {% with index=forloop.counter %}
+                                                        {% if city.average_rating >= index %}
+                                                            <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
                                                         {% else %}
-                                                            <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                                            {% if city.average_rating >= index|sub:0.5 %}
+                                                                <i class="fa-solid fa-star-half-stroke" style="color: #ffc43c;"></i>
+                                                            {% else %}
+                                                                <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                                                            {% endif %}
                                                         {% endif %}
-                                                    {% endif %}
-                                                {% endwith %}
-                                            {% endfor %}
-                                        </span>
+                                                    {% endwith %}
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            <span class="small text-muted">Статистика ещё не собрана</span>
+                                        {% endif %}
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <h6 class="fw-semibold mb-1">Популярные месяцы для посещения:</h6>
                                     <div>
-                                        {% if city.popular_months %}
-                                            {{ city.popular_months|join:", " }}
+                                        {% if popular_months %}
+                                            {{ popular_months }}
                                         {% else %}
                                             <span class="small text-muted">Статистика ещё не собрана</span>
                                         {% endif %}
@@ -285,6 +290,7 @@
     window.LAT = "{{ city.coordinate_width }}";
     window.LON = "{{ city.coordinate_longitude }}";
     window.ISO3166 = "{{ city.region.iso3166 }}"
+    window.COUNTRY_CODE = "{{ city.country.code }}"
     window.TILE_LAYER = "{{ TILE_LAYER }}";
     window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}"
 </script>

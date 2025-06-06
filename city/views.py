@@ -34,7 +34,7 @@ from city.services.db import (
     set_is_visit_first_for_all_visited_cities,
     get_number_of_users_who_visit_city,
     get_total_number_of_visits,
-    get_rank_vy_visits_of_city,
+    get_rank_by_visits_of_city,
     get_neighboring_cities_by_users_rank,
     get_neighboring_cities_by_visits_rank,
     get_neighboring_cities_in_region_by_visits_rank,
@@ -42,6 +42,7 @@ from city.services.db import (
     get_rank_by_visits_of_city_in_region,
     get_rank_by_users_of_city_in_region,
     get_number_of_cities_in_region_by_city,
+    get_rank_by_users_of_city,
 )
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
@@ -291,12 +292,18 @@ class VisitedCity_Detail(DetailView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        country_id = self.city.country_id
+
         context['page_title'] = (
-            f'{self.city.title} ({self.city.region}) - информация о городе, карта'
+            f'{self.city.title}, {self.city.region}, {self.city.country} - информация о городе, карта'
+            if self.city.region
+            else f'{self.city.title}, {self.city.country} - информация о городе, карта'
         )
 
         context['page_description'] = (
-            f'{self.city.title} ({self.city.region}, {self.city.region.area} федеральный округ). '
+            f'{self.city.title}, {self.city.country}, {self.city.region}. '
+            if self.city.region
+            else f'{self.city.title}, {self.city.country}. '
         )
 
         if len(self.city.collections) == 1:
@@ -327,21 +334,28 @@ class VisitedCity_Detail(DetailView):
         context['total_number_of_visits'] = get_total_number_of_visits()
         context = {
             **context,
-            'number_of_cities': get_number_of_cities(),
-            'total_number_of_visits': get_total_number_of_visits(),
-            'number_of_cities_in_region': get_number_of_cities_in_region_by_city(self.city.id),
-            'rank': get_rank_vy_visits_of_city(self.city.id),
-            'rank_by_visits_of_city_in_region': get_rank_by_visits_of_city_in_region(self.city.id),
-            'rank_by_users_of_city_in_region': get_rank_by_users_of_city_in_region(self.city.id),
-            'neighboring_cities_by_users_rank': get_neighboring_cities_by_users_rank(self.city.id),
-            'neighboring_cities_by_visits_rank': get_neighboring_cities_by_visits_rank(
-                self.city.id
+            'popular_months': ', '.join(
+                sorted(self.city.popular_months, key=lambda m: self.MONTH_NAMES.index(m))
             ),
-            'neighboring_cities_in_region_by_users_rank': (
-                get_neighboring_cities_in_region_by_users_rank(self.city.id)
+            'all_cities_qty': get_number_of_cities(country_id),
+            'region_cities_qty': get_number_of_cities_in_region_by_city(self.city.id),
+            'visits_rank_in_country': get_rank_by_visits_of_city(
+                self.city.id, self.city.country_id
             ),
-            'neighboring_cities_in_region_by_visits_rank': get_neighboring_cities_in_region_by_visits_rank(
-                self.city.id
+            'users_rank_in_country': get_rank_by_users_of_city(self.city.id, self.city.country_id),
+            'visits_rank_in_region': get_rank_by_visits_of_city_in_region(self.city.id, True),
+            'users_rank_in_region': get_rank_by_users_of_city_in_region(self.city.id, True),
+            'users_rank_in_country_neighboring_cities': get_neighboring_cities_by_users_rank(
+                self.city.id, country_id
+            ),
+            'visits_rank_in_country_neighboring_cities': get_neighboring_cities_by_visits_rank(
+                self.city.id, country_id
+            ),
+            'users_rank_neighboring_cities_in_region': (
+                get_neighboring_cities_in_region_by_users_rank(self.city.id, country_id)
+            ),
+            'visits_rank_neighboring_cities_in_region': get_neighboring_cities_in_region_by_visits_rank(
+                self.city.id, country_id
             ),
         }
 

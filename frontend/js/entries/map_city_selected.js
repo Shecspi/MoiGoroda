@@ -21,9 +21,15 @@ function initMap() {
         permanent: true,
     });
 
-    // Загружаем полигон региона
-    const [country, region] = window.ISO3166.split('-')
-    const url = `${URL_GEO_POLYGONS}/region/hq/${country}/${region}`;
+    // Загружаем полигон региона или страны
+    let url;
+    if (window.ISO3166) {
+        const [country, region] = window.ISO3166.split('-');
+        url = `${URL_GEO_POLYGONS}/region/hq/${country}/${region}`;
+    } else {
+        url = `${URL_GEO_POLYGONS}/country/hq/${window.COUNTRY_CODE}`;
+    }
+
     fetch(url)
         .then(response => {
             if (!response.ok) {

@@ -147,11 +147,14 @@ def get_all_new_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     return VisitedCity.objects.filter(is_first_visit=True, user_id=user_id)
 
 
-def get_number_of_cities() -> int:
+def get_number_of_cities(country_id: int | None = None) -> int:
     """
     Возвращает количество городов, сохранённых в базе данных.
     """
-    return City.objects.count()
+    queryset = City.objects.all()
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+    return queryset.count()
 
 
 def get_number_of_cities_in_region_by_city(city_id: int) -> int:
@@ -353,16 +356,23 @@ def get_number_of_users_who_visit_city(city_id: int) -> int:
     return VisitedCity.objects.filter(city=city_id, is_first_visit=True).count()
 
 
-def get_total_number_of_visits() -> int:
+def get_total_number_of_visits(country_id: int | None = False) -> int:
     """
     Возвращает общее количество посещённых городов всеми пользователями
     """
-    return VisitedCity.objects.count()
+    queryset = VisitedCity.objects.select_related('city')
+    if country_id:
+        queryset = queryset.filter(city__country_id=country_id)
+    return queryset.count()
 
 
-def get_rank_vy_visits_of_city(city_id: int) -> int:
+def get_rank_by_visits_of_city(city_id: int, country_id: int | None = False) -> int:
+    queryset = City.objects.all()
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+
     ranked_cities = list(
-        City.objects.annotate(
+        queryset.annotate(
             visits=Count('visitedcity'), rank=Window(expression=Rank(), order_by=F('visits').desc())
         )
         .values('id', 'title', 'visits', 'rank')
@@ -376,18 +386,46 @@ def get_rank_vy_visits_of_city(city_id: int) -> int:
     return 0
 
 
-def get_rank_by_visits_of_city_in_region(city_id: int) -> int:
+def get_rank_by_users_of_city(city_id: int, country_id: int | None = False) -> int:
+    queryset = City.objects.all()
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+
+    ranked_cities = list(
+        queryset.annotate(
+            visits=Count('visitedcity__user', distinct=True),
+            rank=Window(expression=Rank(), order_by=F('visits').desc()),
+        )
+        .values('id', 'title', 'visits', 'rank')
+        .order_by('rank')
+    )
+
+    for city in ranked_cities:
+        if city['id'] == city_id:
+            return city['rank']
+
+    return 0
+
+
+def get_rank_by_visits_of_city_in_region(city_id: int, is_country_filter: bool = False) -> int:
     """
     Возвращает местоположение города в рейтинге городов региона на основе количества посещений.
+    По-умолчанию сравнивает со всеми городами, но можно ограничить выборку одной страной.
+    Если в стране есть разбивка на регионы, то показывает рейтинг в этом регионе.
+    Если такой разбивки нет, то в рейтинг пойдут все города страны.
     """
     try:
         city = City.objects.get(id=city_id)
     except (City.DoesNotExist, City.MultipleObjectsReturned):
         return 0
 
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
+    if city.region:
+        queryset = queryset.filter(region=city.region)
     ranked_cities = list(
-        City.objects.filter(region=city.region)
-        .annotate(
+        queryset.annotate(
             visits=Count('visitedcity'), rank=Window(expression=Rank(), order_by=F('visits').desc())
         )
         .values('id', 'title', 'visits', 'rank')
@@ -401,18 +439,25 @@ def get_rank_by_visits_of_city_in_region(city_id: int) -> int:
     return 0
 
 
-def get_rank_by_users_of_city_in_region(city_id: int) -> int:
+def get_rank_by_users_of_city_in_region(city_id: int, is_country_filter: bool = False) -> int:
     """
     Возвращает местоположение города в рейтинге городов региона на основе количества пользователей, посетивших город.
+    По-умолчанию сравнивает со всеми городами, но можно ограничить выборку одной страной.
+    Если в стране есть разбивка на регионы, то показывает рейтинг в этом регионе.
+    Если такой разбивки нет, то в рейтинг пойдут все города страны.
     """
     try:
         city = City.objects.get(id=city_id)
     except (City.DoesNotExist, City.MultipleObjectsReturned):
         return 0
 
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
+    if city.region:
+        queryset = queryset.filter(region=city.region)
     ranked_cities = list(
-        City.objects.filter(region=city.region)
-        .annotate(
+        queryset.annotate(
             visits=Count('visitedcity__user', distinct=True),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),
         )
@@ -443,13 +488,21 @@ def _get_cities_near_index(items: list, city_id: int, window_size: int = 10) -> 
     return items[start:end]
 
 
-def get_neighboring_cities_by_visits_rank(city_id: int):
+def get_neighboring_cities_by_visits_rank(city_id: int, is_country_filter: bool = False):
     """
     Возвращает список 10 городов, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
     """
+    try:
+        city = City.objects.get(id=city_id)
+    except (City.DoesNotExist, City.MultipleObjectsReturned):
+        return []
+
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
     ranked_cities = list(
-        City.objects.annotate(
+        queryset.annotate(
             visits=Count('visitedcity__user', distinct=True),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),
         )
@@ -459,7 +512,7 @@ def get_neighboring_cities_by_visits_rank(city_id: int):
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_neighboring_cities_in_region_by_visits_rank(city_id: int):
+def get_neighboring_cities_in_region_by_visits_rank(city_id: int, is_country_filter: bool = False):
     """
     Возвращает список 10 городов конкретного региона, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
@@ -469,8 +522,11 @@ def get_neighboring_cities_in_region_by_visits_rank(city_id: int):
     except (City.DoesNotExist, City.MultipleObjectsReturned):
         return []
 
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
     ranked_cities = list(
-        City.objects.filter(region=city.region)
+        queryset.filter(region=city.region)
         .annotate(
             visits=Count('visitedcity__user', distinct=True),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),
@@ -481,13 +537,21 @@ def get_neighboring_cities_in_region_by_visits_rank(city_id: int):
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_neighboring_cities_by_users_rank(city_id: int):
+def get_neighboring_cities_by_users_rank(city_id: int, is_country_filter: bool = False):
     """
     Возвращает список 10 городов, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
     """
+    try:
+        city = City.objects.get(id=city_id)
+    except (City.DoesNotExist, City.MultipleObjectsReturned):
+        return []
+
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
     ranked_cities = list(
-        City.objects.annotate(
+        queryset.annotate(
             visits=Count('visitedcity'),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),
         )
@@ -497,7 +561,7 @@ def get_neighboring_cities_by_users_rank(city_id: int):
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_neighboring_cities_in_region_by_users_rank(city_id: int):
+def get_neighboring_cities_in_region_by_users_rank(city_id: int, is_country_filter: bool = False):
     """
     Возвращает список 10 городов конкретного региона, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
@@ -507,8 +571,11 @@ def get_neighboring_cities_in_region_by_users_rank(city_id: int):
     except (City.DoesNotExist, City.MultipleObjectsReturned):
         return []
 
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
     ranked_cities = list(
-        City.objects.filter(region=city.region)
+        queryset.filter(region=city.region)
         .annotate(
             visits=Count('visitedcity'),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),

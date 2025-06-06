@@ -73,7 +73,6 @@ def test_city_fields_required(fake_country, fake_region):
 
     assert 'title' in errors
     assert 'country' in errors
-    assert 'region' in errors
     assert 'coordinate_width' in errors
     assert 'coordinate_longitude' in errors
 

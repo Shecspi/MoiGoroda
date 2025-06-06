@@ -119,7 +119,11 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
 
     queryset = (
         VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
-        .select_related('city', 'city__region', 'user', 'region')
+        .select_related(
+            'city',
+            'city__region',
+            'user',
+        )
         .annotate(
             number_of_visits=Subquery(city_visits_subquery, output_field=IntegerField()),
             average_rating=(

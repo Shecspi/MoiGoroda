@@ -15,6 +15,7 @@ from typing import NoReturn
 
 from pydantic import ValidationError
 from rest_framework import generics, status
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 import rest_framework.exceptions as drf_exc
 from rest_framework.response import Response
@@ -25,6 +26,7 @@ from city.serializers import (
     VisitedCitySerializer,
     NotVisitedCitySerializer,
     AddVisitedCitySerializer,
+    CitySerializer,
 )
 from city.structs import UserID
 from region.models import Region
@@ -233,3 +235,33 @@ class AddVisitedCity(generics.CreateAPIView):
         )
 
         return Response({'status': 'success', 'city': return_data})
+
+
+@api_view(['GET'])
+def city_list_by_region(request):
+    region_id = request.GET.get('region_id')
+    if not region_id:
+        return Response(
+            {'detail': 'Параметр region_id является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    cities = City.objects.filter(region_id=region_id).order_by('title')
+    serializer = CitySerializer(cities, many=True)
+
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def city_list_by_country(request):
+    country_id = request.GET.get('country_id')
+    if not country_id:
+        return Response(
+            {'detail': 'Параметр country_id является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    cities = City.objects.filter(country_id=country_id).order_by('title')
+    serializer = CitySerializer(cities, many=True)
+
+    return Response(serializer.data)

@@ -10,7 +10,7 @@ urlpatterns = [
     path('', include('main_page.urls'), name='main_page'),
     path('account/', include('account.urls')),
     path('city/', include('city.urls.views')),
-    path('region/', include('region.urls')),
+    path('region/', include('region.urls.views')),
     path('country/', include('country.urls.views')),
     path('place/', include('place.urls.views')),
     path('collection/', include('collection.urls')),
@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/country/', include('country.urls.api')),
     path('api/dashboard/', include('dashboard.urls.api')),
     path('api/place/', include('place.urls.api')),
+    path('api/region/', include('region.urls.api')),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

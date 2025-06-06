@@ -97,3 +97,9 @@ class AddVisitedCitySerializer(serializers.ModelSerializer):
         validated_data['is_first_visit'] = not exists  # Если запись есть, ставим False, иначе True
 
         return VisitedCity.objects.create(**validated_data)
+
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id', 'title']

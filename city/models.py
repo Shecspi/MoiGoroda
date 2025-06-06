@@ -28,7 +28,7 @@ class City(models.Model):
         Country, on_delete=PROTECT, verbose_name='Страна', blank=False, null=False
     )
     region = models.ForeignKey(
-        Region, on_delete=CASCADE, verbose_name='Регион', blank=False, null=False
+        Region, on_delete=CASCADE, verbose_name='Регион', blank=True, null=True
     )
     population = models.PositiveIntegerField(
         verbose_name='Численность населения', blank=True, null=True
@@ -73,15 +73,6 @@ class VisitedCity(models.Model):
 
     user = models.ForeignKey(
         User, on_delete=CASCADE, verbose_name='Пользователь', blank=False, null=False
-    )
-    region = models.ForeignKey(
-        Region,
-        on_delete=CASCADE,
-        verbose_name='Регион',
-        help_text='Выберите регион, в котором находится посещённый город. '
-        'Список городов выбранного региона подгрузится автоматически в поле "Город".',
-        blank=False,
-        null=False,
     )
     city = models.ForeignKey(
         City,

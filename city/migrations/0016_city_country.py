@@ -8,7 +8,10 @@ from country.models import Country
 
 
 def set_country(apps, schema_editor):
-    City.objects.all().update(country=Country.objects.get(pk=171))
+    try:
+        City.objects.all().update(country=Country.objects.get(pk=171))
+    except:
+        ...
 
 
 class Migration(migrations.Migration):

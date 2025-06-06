@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.urls import path
-from . import views
+from region import views
 
 urlpatterns = [
     path('all/list', views.RegionList.as_view(list_or_map='list'), name='region-all-list'),

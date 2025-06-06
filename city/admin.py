@@ -77,6 +77,7 @@ class CityAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'title',
+        'country',
         'region',
         'number_visits',
         'population',
@@ -90,7 +91,7 @@ class CityAdmin(admin.ModelAdmin):
     fieldsets = [
         (
             None,
-            {'fields': ['title', 'region', 'population', 'date_of_foundation', 'wiki']},
+            {'fields': ['title', 'country', 'region', 'population', 'date_of_foundation', 'wiki']},
         ),
         ('Изображение', {'fields': ['image', 'image_source_text', 'image_source_link']}),
         ('Координаты', {'fields': ['coordinate_width', 'coordinate_longitude']}),
@@ -133,7 +134,6 @@ class VisitedCityAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'city',
-        'region',
         'user',
         'date_of_visit',
         'is_first_visit',
@@ -141,4 +141,4 @@ class VisitedCityAdmin(admin.ModelAdmin):
         'rating',
     )
     list_filter = (UserFilter,)
-    search_fields = ('user__username', 'city__title', 'region__title')
+    search_fields = ('user__username', 'city__title')

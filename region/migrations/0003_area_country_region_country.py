@@ -8,8 +8,11 @@ from region.models import Region, Area
 
 
 def set_country(apps, schema_editor):
-    Region.objects.all().update(country=Country.objects.get(pk=171))
-    Area.objects.all().update(country=Country.objects.get(pk=171))
+    try:
+        Region.objects.all().update(country=Country.objects.get(pk=171))
+        Area.objects.all().update(country=Country.objects.get(pk=171))
+    except:
+        ...
 
 
 class Migration(migrations.Migration):

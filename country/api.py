@@ -9,6 +9,7 @@ Licensed under the Apache License, Version 2.0
 
 from rest_framework import generics
 import rest_framework.exceptions as drf_exc
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -18,6 +19,7 @@ from country.serializers import (
     VisitedCountrySerializer,
     PartOfTheWorldSerializer,
     LocationSerializer,
+    CountrySimpleSerializer,
 )
 from services import logger
 
@@ -140,3 +142,12 @@ class RecieveUnknownCountries(generics.GenericAPIView):
         )
 
         return Response(status=200)
+
+
+@api_view(['GET'])
+def country_list_with_visited_cities(request):
+    queryset = (
+        Country.objects.filter(city__visitedcity__user=request.user).distinct().order_by('name')
+    )
+    serializer = CountrySimpleSerializer(queryset, many=True)
+    return Response(serializer.data)

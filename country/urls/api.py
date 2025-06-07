@@ -31,4 +31,9 @@ urlpatterns = [
         name='api__get_parts_of_the_world',
     ),
     path('get_locations', api.GetLocations.as_view(), name='api__get_locations'),
+    path(
+        'list_by_cities',
+        api.country_list_with_visited_cities,
+        name='api__country_list_with_visited_cities',
+    ),
 ]

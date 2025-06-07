@@ -433,8 +433,9 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
     def get_queryset(self) -> QuerySet[VisitedCity]:
         self.user_id = self.request.user.pk
         self.filter = self.request.GET.get('filter')
+        country_id = self.request.GET.get('country')
 
-        self.queryset = get_all_visited_cities(self.user_id)
+        self.queryset = get_all_visited_cities(self.user_id, country_id)
         self.apply_filter()
         self.apply_sort()
 

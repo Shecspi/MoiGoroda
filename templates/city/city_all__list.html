@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load vite %}
 
 {% block content %}
     <h1 class="display-5 text-center mt-3 mx-3" id="section-page_header">
@@ -37,4 +38,6 @@
     {% if not DEBUG %}
     {% include 'advertisement/travel_payouts.html' %}
     {% endif %}
+
+    {% vite_asset 'js/entries/city_all.js' %}
 {% endblock %}

@@ -32,7 +32,7 @@ class ExtractYearFromArray(Func):
         super().__init__(*expressions, **extra)
 
 
-def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
+def get_all_visited_cities(user_id: int, country_id: int | None = None) -> QuerySet[VisitedCity]:
     """
     Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.
     Возвращает Queryset, состоящий из полей:
@@ -117,8 +117,13 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
         .values('count')[:1]
     )
 
+    if country_id:
+        queryset = VisitedCity.objects.filter(city__country_id=country_id)
+    else:
+        queryset = VisitedCity.objects.all()
+
     queryset = (
-        VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
+        queryset.filter(user_id=user_id, is_first_visit=True)
         .select_related(
             'city',
             'city__region',

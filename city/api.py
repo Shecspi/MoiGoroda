@@ -28,6 +28,7 @@ from city.serializers import (
     AddVisitedCitySerializer,
     CitySerializer,
 )
+from city.services.filter import apply_filter_to_queryset
 from city.structs import UserID
 from region.models import Region
 from services import logger
@@ -56,7 +57,15 @@ class GetVisitedCities(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.request.user.pk
-        return get_all_visited_cities(user_id)
+        country_id = self.request.GET.get('country')
+        filter = self.request.GET.get('filter')
+
+        queryset = get_all_visited_cities(user_id, country_id)
+
+        if filter:
+            queryset = apply_filter_to_queryset(queryset, user_id, filter)
+
+        return queryset
 
 
 class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):

@@ -15,7 +15,7 @@ import {addExternalBorderControl, addInternalBorderControl, create_map} from "..
 import {ToolbarActions} from "../components/toolbar_actions.js";
 import {City} from "../components/schemas.js";
 import {change_qty_of_visited_cities_in_toolbar, modal} from '../components/services.js';
-import {showSuccessToast, showDangerToast} from "../components/toast.js";
+import {showDangerToast, showSuccessToast} from "../components/toast.js";
 import {getCookie} from '../components/get_cookie.js';
 
 let actions;
@@ -28,18 +28,26 @@ window.onload = () => {
 
     getVisitedCities()
         .then(own_cities => {
-            actions = new ToolbarActions(map, own_cities);
-            const allMarkers = actions.addOwnCitiesOnMap();
-            const group = new L.featureGroup([...allMarkers]);
-            map.fitBounds(group.getBounds());
-        });
+                if (own_cities.length === 0) {
+                    map.setView([55.7522, 37.6156], 6);
+                } else {
+                    actions = new ToolbarActions(map, own_cities);
+                    const allMarkers = actions.addOwnCitiesOnMap();
+                    const group = new L.featureGroup([...allMarkers]);
+                    map.fitBounds(group.getBounds());
+                }
+            }
+        )
 }
 
 /**
  * Делает запрос на сервер и возвращает список городов, посещённых пользователем.
  */
 async function getVisitedCities() {
-    let url = window.URL_GET_VISITED_CITIES;
+    let baseUrl = window.URL_GET_VISITED_CITIES;
+    let queryParams = window.location.search;
+
+    let url = baseUrl + queryParams;
 
     return fetch(url, {
         method: 'GET',

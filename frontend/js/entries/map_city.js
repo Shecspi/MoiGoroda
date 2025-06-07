@@ -17,11 +17,12 @@ import {City} from "../components/schemas.js";
 import {change_qty_of_visited_cities_in_toolbar, modal} from '../components/services.js';
 import {showDangerToast, showSuccessToast} from "../components/toast.js";
 import {getCookie} from '../components/get_cookie.js';
+import {initCountrySelect} from "../components/initCountrySelect";
 
 let actions;
 let map;
 
-window.onload = () => {
+window.onload = async () => {
     map = create_map();
     addExternalBorderControl(map);
     addInternalBorderControl(map);
@@ -38,6 +39,7 @@ window.onload = () => {
                 }
             }
         )
+    await initCountrySelect();
 }
 
 /**

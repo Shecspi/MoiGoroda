@@ -136,7 +136,6 @@ class CitiesByRegionList(ListView):
     """
 
     model = VisitedCity
-    paginate_by = 16
 
     sort: str = ''
     filter: str | None = None

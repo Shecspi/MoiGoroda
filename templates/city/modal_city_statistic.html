@@ -23,7 +23,7 @@
                         <div class="card w-100 shadow-sm mb-3">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <span>Всего посещений города:</span>
-                                <span class="px-2 py-1 rounded bg-light text-dark fw-bold border border-secondary">{{ number_of_visits }}</span>
+                                <span class="px-2 py-1 rounded bg-light text-dark fw-bold border border-secondary">{{ number_of_visits_all_users }}</span>
                             </div>
                         </div>
                     </div>
@@ -95,9 +95,5 @@
 {{ neighboring_cities_in_region_by_users_rank|json_script:"neighboringCitiesInRegionDataByUsers" }}
 <script>
     window.CITY_ID = {{ city.id }};
-    window.NUMBER_OF_USERS_WHO_VISIT_CITY = {{ number_of_users_who_visit_city }};
-    window.NUMBER_OF_USERS = {{ number_of_users }};
-    window.NUMBER_OF_VISITS = {{ number_of_visits }};
-    window.TOTAL_NUMBER_OF_CITIES = {{ total_number_of_visits }};
 </script>
 {% vite_asset 'js/entries/city_statistics.js' %}

@@ -224,8 +224,7 @@ class AddVisitedCity(generics.CreateAPIView):
                 status=status.HTTP_409_CONFLICT,
             )
 
-        region = city.region
-        serializer.save(user=user, region=region)
+        serializer.save(user=user)
 
         logger.info(
             self.request,

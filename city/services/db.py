@@ -127,6 +127,7 @@ def get_all_visited_cities(user_id: int, country_id: int | None = None) -> Query
         .select_related(
             'city',
             'city__region',
+            'city__country',
             'user',
         )
         .annotate(

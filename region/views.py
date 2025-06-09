@@ -14,6 +14,8 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.http import Http404, HttpResponse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
@@ -63,17 +65,18 @@ class RegionList(RegionListMixin, ListView):
         self.qty_of_regions: int = 0
         self.qty_of_visited_regions: int = 0
 
+    def dispatch(self, request, *args, **kwargs):
+        self.country_id = self.request.GET.get('country')
+        if not self.country_id:
+            return redirect(reverse('region-all-list') + f'?country={171}')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         """
         Достаёт из базы данных все регионы, добавляя дополнительные поля:
             * num_total - общее количество городов в регионе
             * num_visited - количество посещённых пользователем городов в регионе (для авторизованных пользователей)
         """
-        # По умолчанию отображаются регионы России
-        self.country_id = (
-            self.request.GET.get('country') if self.request.GET.get('country') else 171
-        )
-
         try:
             country = Country.objects.get(id=self.country_id)
         except (Country.DoesNotExist, ValueError):

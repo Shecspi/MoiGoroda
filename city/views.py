@@ -47,6 +47,7 @@ from city.services.db import (
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
 from collection.models import Collection
+from country.models import Country
 from services import logger
 from city.services.db import get_number_of_cities, get_number_of_visited_cities
 from services.db.visited_city_repo import (
@@ -434,6 +435,11 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         self.user_id = self.request.user.pk
         self.filter = self.request.GET.get('filter')
         country_id = self.request.GET.get('country')
+        try:
+            self.country = Country.objects.get(id=country_id)
+        except (Country.DoesNotExist, ValueError):
+            self.country = 'все страны'
+            country_id = None
 
         self.queryset = get_all_visited_cities(self.user_id, country_id)
         self.apply_filter()
@@ -500,7 +506,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(self.user_id)
         context['subscriptions'] = get_all_subscriptions(self.user_id)
 
-        context['page_title'] = 'Список посещённых городов'
+        context['page_title'] = f'Список посещённых городов ({self.country})'
         context['page_description'] = (
             'Список всех посещённых городов, отсортированный в порядке посещения'
         )

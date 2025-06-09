@@ -1,12 +1,18 @@
-<div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 justify-content-between align-items-center" id="toolbar">
+<div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 justify-content-between align-items-center" id="toolbar" style="z-index: 1001; position: relative;">
     <!-- Статистика посещёния -->
     <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
         <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
             Городов: {{ qty_of_visited_cities }}
         </span>
-        <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
-            Стран: 2
-        </span>
+        {% if country_id %}
+            <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
+                {{ country_name }}: {{ number_of_visited_cities_in_country }} из {{ number_of_cities_in_country }}
+            </span>
+        {% else %}
+            <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
+                Стран: 2
+            </span>
+        {% endif %}
     </div>
 
     <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-small-buttons">
@@ -15,90 +21,77 @@
         </div>
 
         <!-- Помощь -->
-        <button class="align-self-center btn btn-outline-dark small-btn-for-toolbar me-3"
+        <button class="btn btn-outline-secondary d-flex gap-2 justify-content-start align-items-center"
                 id="btn_help"
                 data-bs-toggle="modal"
                 data-bs-target="#modal_help"
                 data-bs-tooltip="tooltip"
-                data-bs-title="Посмотреть описание меток, использованных на карте">
+                data-bs-title="Подробнее о функционале этой страницы">
             <i class="fa-regular fa-circle-question"></i>
+            Помощь
         </button>
         <!-- ^^^ Помощь -->
 
-        <!-- В прошлом году -->
-        <button class="align-self-center btn btn-outline-primary small-btn-for-toolbar
-                       {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
-                id="btn_show-visited-cities-previous-year"
-                data-type="show"
-                data-bs-toggle="tooltip"
-                data-bs-title="Показать города, посещённые Вами в прошлом году">
-            <i class="fa-solid fa-calendar-week"></i>
-        </button>
-        <!-- ^^^ В прошлом году -->
+        <div class="d-flex gap-1 justify-content-center align-items-center">
+            <!-- В прошлом году -->
+            <button class="align-self-center btn btn-outline-primary small-btn-for-toolbar
+                           {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
+                    id="btn_show-visited-cities-previous-year"
+                    data-type="show"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="Показать города, посещённые Вами в прошлом году">
+                <i class="fa-solid fa-calendar-week"></i>
+            </button>
+            <!-- ^^^ В прошлом году -->
 
-        <!-- В этом году -->
-        <button  class="align-self-center btn btn-outline-success small-btn-for-toolbar me-3
-                  {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
-                id="btn_show-visited-cities-current-year"
-                data-type="show"
-                data-bs-toggle="tooltip"
-                data-bs-title="Показать города, посещённые Вами в текущем году">
-            <i class="fa-solid fa-calendar-days"></i>
-        </button>
-        <!-- ^^^ В этом году -->
+            <!-- В этом году -->
+            <button  class="align-self-center btn btn-outline-success small-btn-for-toolbar me-3
+                      {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
+                    id="btn_show-visited-cities-current-year"
+                    data-type="show"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="Показать города, посещённые Вами в текущем году">
+                <i class="fa-solid fa-calendar-days"></i>
+            </button>
+            <!-- ^^^ В этом году -->
+        </div>
 
-        <!-- Показать маркеры посещённых мест -->
-        <button class="align-self-center btn btn-outline-primary small-btn-for-toolbar"
-                id="btn_show-places"
-                data-type="show"
-                data-bs-toggle="tooltip"
-                data-bs-title="Показать маркеры посещённых мест">
-            <i class="fa-solid fa-location-dot"></i>
-        </button>
-        <!-- ^^^ Показать маркеры посещённых мест -->
+        <div class="d-flex gap-1 justify-content-center align-items-center">
+            <!-- Показать маркеры посещённых мест -->
+            <button class="align-self-center btn btn-outline-primary small-btn-for-toolbar"
+                    id="btn_show-places"
+                    data-type="show"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="Показать маркеры посещённых мест">
+                <i class="fa-solid fa-location-dot"></i>
+            </button>
+            <!-- ^^^ Показать маркеры посещённых мест -->
 
-        <!-- Показать непосещённые города -->
-        <button class="align-self-center btn btn-outline-danger small-btn-for-toolbar"
-                id="btn_show-not-visited-cities"
-                data-url="{% url 'api__get_not_visited_cities' %}"
-                data-type="show"
-                data-bs-toggle="tooltip"
-                data-bs-title="Показать непосещённые города">
-            <i class="fa-solid fa-eye"></i>
-        </button>
-        <!-- ^^^ Показать непосещённые города -->
+            <!-- Показать непосещённые города -->
+            <button class="align-self-center btn btn-outline-danger small-btn-for-toolbar"
+                    id="btn_show-not-visited-cities"
+                    data-url="{% url 'api__get_not_visited_cities' %}{% if country_id %}?country={{ country_id }}{% endif %}"
+                    data-type="show"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="Показать непосещённые города">
+                <i class="fa-solid fa-eye"></i>
+            </button>
+            <!-- ^^^ Показать непосещённые города -->
 
-        <!-- Подписки -->
-        <button class="align-self-center btn btn-outline-success small-btn-for-toolbar{% if not is_user_has_subscriptions %} disabled{% endif %}"
-                id="btn_open_modal_with_subscriptions"
-                data-bs-toggle="modal"
-                data-bs-target="#subscriptions_modal_window"
-                data-bs-tooltip="tooltip"
-                data-bs-title="Показать города, посещённые пользователями, на которых Вы подписаны">
-                <i class="fa-solid fa-bell"></i>
-        </button>
-        <!-- ^^^ Подписки -->
+            <!-- Подписки -->
+            <button class="align-self-center btn btn-outline-success small-btn-for-toolbar{% if not is_user_has_subscriptions %} disabled{% endif %}"
+                    id="btn_open_modal_with_subscriptions"
+                    data-bs-toggle="modal"
+                    data-bs-target="#subscriptions_modal_window"
+                    data-bs-tooltip="tooltip"
+                    data-bs-title="Показать города, посещённые пользователями, на которых Вы подписаны">
+                    <i class="fa-solid fa-bell"></i>
+            </button>
+            <!-- ^^^ Подписки -->
+        </div>
 
-        <a href="{% url 'city-all-list' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success align-self-center">
+        <a href="{% url 'city-all-list' %}{% if country_id %}?country={{ country_id }}{% endif %}" class="btn btn-outline-success align-self-center">
             <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
         </a>
-
-        <button class="align-self-center btn {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 justify-content-start align-items-center position-relative"
-                type="button"
-                id="btnOpenFilterSortPanel"
-                data-bs-tooltip="tooltip"
-                data-bs-title="Открыть панель фильтрации и сортировки городов"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvasRight"
-                aria-controls="offcanvasRight">
-            <i class="fa-solid fa-sliders"></i>
-            Фильтры и сортировка
-            {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
-                <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                    <span class="visually-hidden">Применена фильтрация или сортировка</span>
-                </span>
-            {% endif %}
-        </button>
-        <!-- ^^^ Фильтры -->
     </div>
 </div>

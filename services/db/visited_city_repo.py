@@ -16,9 +16,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import (
     QuerySet,
     F,
-    Case,
-    When,
-    Value,
     Count,
     OuterRef,
     Avg,
@@ -157,14 +154,7 @@ def get_not_visited_cities(user_id: int, regions: dict[int, str]) -> QuerySet[Ci
     # становится невозмоным получить название региона. Точнее его получить можно, но только в том виде, в котором
     # оно хранится в БД, а не в человекочитаемом.
     # ToDo: Удалить эту доп. логику, когда будет выполнена задача #3.
-    return City.objects.exclude(id__in=visited_cities).annotate(
-        region_title=Case(
-            *[
-                When(region__pk=region_id, then=Value(region_title))
-                for region_id, region_title in regions.items()
-            ]
-        )
-    )
+    return City.objects.exclude(id__in=visited_cities)
 
 
 def get_number_of_visited_cities(user_id: int) -> int:

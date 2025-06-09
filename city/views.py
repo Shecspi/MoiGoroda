@@ -371,15 +371,26 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
     ) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        country_id = self.request.GET.get('country')
+        try:
+            country = Country.objects.get(id=country_id)
+        except (Country.DoesNotExist, ValueError):
+            country = 'все страны'
+            country_id = None
+
         logger.info(self.request, '(Visited city) Viewing the map of visited cities')
 
         user_id = self.request.user.pk
 
         number_of_cities = get_number_of_cities()
         number_of_visited_cities = get_number_of_visited_cities(user_id)
+        number_of_cities_in_country = get_number_of_cities(country_id)
+        number_of_visited_cities_in_country = get_number_of_visited_cities(user_id, country_id)
 
         context['total_qty_of_cities'] = number_of_cities
         context['qty_of_visited_cities'] = number_of_visited_cities
+        context['number_of_cities_in_country'] = number_of_cities_in_country
+        context['number_of_visited_cities_in_country'] = number_of_visited_cities_in_country
 
         context['declension_of_total_cities'] = modification__city(number_of_cities)
         context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
@@ -390,7 +401,9 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(user_id)
         context['subscriptions'] = get_all_subscriptions(user_id)
 
-        context['page_title'] = 'Карта посещённых городов'
+        context['country_name'] = country
+        context['country_id'] = country_id
+        context['page_title'] = f'Карта посещённых городов ({country})'
         context['page_description'] = 'Карта с отмеченными посещёнными городами'
 
         return context

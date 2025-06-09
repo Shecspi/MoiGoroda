@@ -26,7 +26,7 @@
             <select class="form-select w-100" id="id_country"></select>
         </div>
 
-        <a href="{% url 'city-all-map' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success align-self-center">
+        <a href="{% url 'city-all-map' %}{% if country_id %}?country={{ country_id }}{% endif %}" class="btn btn-outline-success align-self-center">
             <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
         </a>
 

@@ -57,13 +57,13 @@ class VisitedCitySerializer(serializers.ModelSerializer):
 
 
 class NotVisitedCitySerializer(serializers.ModelSerializer):
-    region_title = serializers.CharField()
     lat = serializers.CharField(source='coordinate_width', read_only=True)
     lon = serializers.CharField(source='coordinate_longitude', read_only=True)
+    region = serializers.StringRelatedField()
 
     class Meta:
         model = City
-        fields = ('id', 'title', 'region', 'region_title', 'lat', 'lon')
+        fields = ('id', 'title', 'region', 'lat', 'lon')
 
 
 class AddVisitedCitySerializer(serializers.ModelSerializer):

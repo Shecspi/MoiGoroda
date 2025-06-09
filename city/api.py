@@ -30,14 +30,13 @@ from city.serializers import (
 )
 from city.services.filter import apply_filter_to_queryset
 from city.structs import UserID
-from region.models import Region
 from services import logger
-from services.db.visited_city_repo import get_not_visited_cities
 from city.services.db import (
     get_all_visited_cities,
     get_number_of_visits_by_city,
     get_first_visit_date_by_city,
     get_last_visit_date_by_city,
+    get_not_visited_cities,
 )
 from subscribe.repository import is_subscribed
 
@@ -193,8 +192,8 @@ class GetNotVisitedCities(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        regions = {region.id: str(region) for region in Region.objects.all()}
-        return get_not_visited_cities(self.request.user.pk, regions)
+        country_id = self.request.GET.get('country')
+        return get_not_visited_cities(self.request.user.pk, country_id)
 
 
 class AddVisitedCity(generics.CreateAPIView):

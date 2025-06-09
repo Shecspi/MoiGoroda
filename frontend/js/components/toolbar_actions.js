@@ -408,7 +408,7 @@ export class ToolbarActions {
             const city = new City();
             city.id = this.notVisitedCities[i].id;
             city.name = this.notVisitedCities[i].title;
-            city.region = this.notVisitedCities[i].region_title;
+            city.region = this.notVisitedCities[i].region;
             city.lat = this.notVisitedCities[i].lat;
             city.lon = this.notVisitedCities[i].lon;
 

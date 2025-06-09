@@ -42,6 +42,18 @@
             </div>
             <!-- ^^^ Название города -->
 
+            <!-- Регион, страна и год основания -->
+            <div id="subsection-city-region_{{ forloop.counter }}" class="mt-2">
+                <small class="card-subtitle text-muted">
+                    {% if city.region %}
+                        <a href="{{ city.region.get_absolute_url }}"
+                           class="text-underline-dashed text-reset">{{ city.region }}</a><br>
+                    {% endif %}
+                    {{ city.country }}
+                </small>
+            </div>
+            <!-- ^^^ Регион, страна и год основания -->
+
             <!-- Даты посещений -->
             {% if user.is_authenticated %}
                 <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 mt-3">
@@ -96,33 +108,9 @@
             <!-- ^^^ Даты посещений -->
         </div>
 
-        <div class="card-footer my-2" style="background: none; border-top: none;">
-            <!-- Население -->
-            <div id="subsection-city-population_{{ forloop.counter }}">
-                <small class="card-subtitle text-muted">
-                    {% if city.population %}
-                        Население <strong>{{ city.population|intcomma }}</strong> чел.
-                    {% else %}
-                        Население города неизвестно
-                    {% endif %}
-                </small>
-            </div>
-            <!-- ^^^ Население -->
-
-            <!-- Год основания -->
-            <div id="subsection-city-date_of_foundation_{{ forloop.counter }}">
-                <small class="card-subtitle text-muted">
-                    {% if city.date_of_foundation %}
-                        Основан в <strong>{{ city.date_of_foundation }}</strong> году
-                    {% else %}
-                        Год основания неизвестен
-                    {% endif %}
-                </small>
-            </div>
-            <!-- ^^^ Год основания -->
-
+        <div class="card-footer" style="background: none; border-top: none;">
             <!-- Количество посещений -->
-            <div class="d-flex gap-5 justify-content-center mt-3">
+            <div class="d-flex gap-5 justify-content-center">
                 <div class="d-flex gap-2 align-items-center"
                      data-bs-toggle="tooltip"
                      data-bs-title="Количество пользователей, посетивших город {{ city }}">
@@ -139,7 +127,7 @@
             <!-- ^^^ Количество посещений -->
 
             {% if city.is_visited %}
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between mt-3">
                     <!-- Рейтинг -->
                     <div id="subsection-city-rating_{{ forloop.counter }}"
                          data-bs-toggle="tooltip"

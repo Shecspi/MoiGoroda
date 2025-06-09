@@ -43,6 +43,7 @@ from city.services.db import (
     get_rank_by_users_of_city_in_region,
     get_number_of_cities_in_region_by_city,
     get_rank_by_users_of_city,
+    get_number_of_visited_countries,
 )
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
@@ -386,11 +387,13 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
         number_of_visited_cities = get_number_of_visited_cities(user_id)
         number_of_cities_in_country = get_number_of_cities(country_id)
         number_of_visited_cities_in_country = get_number_of_visited_cities(user_id, country_id)
+        number_of_visited_countries = get_number_of_visited_countries(user_id)
 
         context['total_qty_of_cities'] = number_of_cities
         context['qty_of_visited_cities'] = number_of_visited_cities
         context['number_of_cities_in_country'] = number_of_cities_in_country
         context['number_of_visited_cities_in_country'] = number_of_visited_cities_in_country
+        context['number_of_visited_countries'] = number_of_visited_countries
 
         context['declension_of_total_cities'] = modification__city(number_of_cities)
         context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
@@ -508,11 +511,13 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         number_of_visited_cities_in_country = get_number_of_visited_cities(
             self.user_id, self.country_id
         )
+        number_of_visited_countries = get_number_of_visited_countries(self.user_id)
 
         context['all_cities'] = self.all_cities
         context['total_qty_of_cities'] = number_of_cities
         context['number_of_cities_in_country'] = number_of_cities_in_country
         context['number_of_visited_cities_in_country'] = number_of_visited_cities_in_country
+        context['number_of_visited_countries'] = number_of_visited_countries
         context['qty_of_visited_cities'] = number_of_visited_cities
 
         context['declension_of_total_cities'] = modification__city(number_of_cities)

@@ -603,3 +603,7 @@ def get_not_visited_cities(user_id: int, country_id: int | None = None) -> Query
 
     visited_cities = [city.city.id for city in get_all_visited_cities(user_id, country_id)]
     return queryset.exclude(id__in=visited_cities)
+
+
+def get_number_of_visited_countries(user_id: int):
+    return get_all_visited_cities(user_id).values('city__country').distinct().count()

@@ -146,8 +146,16 @@ class RecieveUnknownCountries(generics.GenericAPIView):
 
 @api_view(['GET'])
 def country_list_with_visited_cities(request):
-    queryset = (
-        Country.objects.filter(city__visitedcity__user=request.user).distinct().order_by('name')
-    )
+    """
+    Возвращает список стран.
+    Для авторизованного пользователя - все посещённые.
+    Дл неавторизованного - все страны, у которых есть города.
+    """
+    if request.user.is_authenticated:
+        queryset = (
+            Country.objects.filter(city__visitedcity__user=request.user).distinct().order_by('name')
+        )
+    else:
+        queryset = Country.objects.filter(city__isnull=False).distinct().order_by('name')
     serializer = CountrySimpleSerializer(queryset, many=True)
     return Response(serializer.data)

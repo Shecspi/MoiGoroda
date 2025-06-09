@@ -19,6 +19,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
 
 from MoiGoroda import settings
+from country.models import Country
 from region.models import Region
 from city.models import VisitedCity, City
 from services import logger
@@ -29,6 +30,7 @@ from region.services.db import (
 )
 from region.services.filter import apply_filter_to_queryset
 from region.services.sort import apply_sort_to_queryset
+from services.morphology import to_genitive
 from services.url_params import make_url_params
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
@@ -50,6 +52,9 @@ class RegionList(RegionListMixin, ListView):
     paginate_by = 16
     all_regions = []
     list_or_map: str = ''
+    country: str = ''
+    country_code: str = ''
+    country_id: str | None = None
 
     def __init__(self, list_or_map: str):
         super().__init__()
@@ -64,13 +69,26 @@ class RegionList(RegionListMixin, ListView):
             * num_total - общее количество городов в регионе
             * num_visited - количество посещённых пользователем городов в регионе (для авторизованных пользователей)
         """
-        self.qty_of_regions = Region.objects.count()
+        # По умолчанию отображаются регионы России
+        self.country_id = (
+            self.request.GET.get('country') if self.request.GET.get('country') else 171
+        )
+
+        try:
+            country = Country.objects.get(id=self.country_id)
+        except (Country.DoesNotExist, ValueError):
+            raise Http404
+        else:
+            self.country = str(country)
+            self.country_code = country.code
+
+        self.qty_of_regions = Region.objects.filter(country=self.country_id).count()
 
         if self.request.user.is_authenticated:
-            queryset = get_all_region_with_visited_cities(self.request.user.pk)
+            queryset = get_all_region_with_visited_cities(self.request.user.pk, self.country_id)
             self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
         else:
-            queryset = get_all_regions()
+            queryset = get_all_regions(self.country_id)
 
         if self.list_or_map == 'list':
             logger.info(self.request, '(Region) Viewing the list of regions')
@@ -98,15 +116,30 @@ class RegionList(RegionListMixin, ListView):
         context['all_regions'] = self.all_regions
         context['qty_of_regions'] = self.qty_of_regions
         context['qty_of_visited_regions'] = self.qty_of_visited_regions
+        context['country_name'] = self.country
+        context['country_id'] = self.country_id
+        context['country_code'] = self.country_code
         context['declension_of_regions'] = self.declension_of_region(self.qty_of_visited_regions)
         context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_regions)
 
         if self.list_or_map == 'list':
-            context['page_title'] = 'Список регионов России'
-            context['page_description'] = 'Список регионов России'
+            context['page_title'] = (
+                'Список регионов ' + f'{to_genitive(self.country).title()}'
+                if self.country
+                else '(все страны)'
+            )
+            context['page_description'] = (
+                f'Список регионов {to_genitive(self.country).title()} с возможностью просмотра на карте. Актуальная информация об административном делении и расположении регионов.'
+            )
         else:
-            context['page_title'] = 'Карта регионов России'
-            context['page_description'] = 'Карта с отмеченными регионами России'
+            context['page_title'] = (
+                'Карта регионов ' + f'{to_genitive(self.country).title()}'
+                if self.country
+                else '(все страны)'
+            )
+            context['page_description'] = (
+                f'Карта регионов {to_genitive(self.country).title()}. Актуальная информация об административном делении и расположении регионов.'
+            )
 
         return context
 

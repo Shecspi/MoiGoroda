@@ -35,12 +35,17 @@ from city.models import City, VisitedCity
 from region.models import Region, Area
 
 
-def get_all_regions() -> QuerySet[Region]:
+def get_all_regions(country_id: int | None = None) -> QuerySet[Region]:
     """
     Возвращает QuerySet со всеми регионами и количеством городов в каждом из них.
     """
+    queryset = Region.objects.all()
+
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+
     return (
-        Region.objects.select_related('area')
+        queryset.select_related('area')
         .annotate(num_total=Count('city', distinct=True))
         .order_by('title')
     )
@@ -53,13 +58,20 @@ def get_number_of_regions() -> int:
     return Region.objects.count()
 
 
-def get_all_region_with_visited_cities(user_id: int) -> QuerySet[Region]:
+def get_all_region_with_visited_cities(
+    user_id: int, country_id: int | None = None
+) -> QuerySet[Region]:
     """
     Возвращает QuerySet со всеми регионами, количеством городов в каждом из них и
     количеством посещённых городов пользователем с ID равным user_id.
     """
+    queryset = Region.objects.all()
+
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+
     return (
-        Region.objects.select_related('area')
+        queryset.select_related('area')
         .annotate(
             num_total=Count('city', distinct=True),
             num_visited=Count('city', filter=Q(city__visitedcity__user_id=user_id), distinct=True),

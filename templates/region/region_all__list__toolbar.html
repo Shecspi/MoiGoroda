@@ -1,63 +1,25 @@
-<div class="row mx-3 my-3 g-3" id="toolbar">
-    <!-- Статистика -->
-    <div class="col-sm-12 col-md-6 col-xxl-3 order-md-1 order-xxl-1">
-        <div class="card text-center shadow h-100">
-            <div class="card-body bg-warning-subtle d-grid" id="section-statistic">
-                <div class="align-self-center">
-                    {% if user.is_authenticated %}
-                        {{ declension_of_visited }} <span class="fs-4 fw-medium">{{ qty_of_visited_regions }}</span>
-                        {{ declension_of_regions }} из {{ qty_of_regions }}
-                    {% else %}
-                        В России <span class="fs-4 fw-medium">{{ qty_of_regions }}</span> регионов
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+{% load morphology %}
+
+<!-- Панель инструментов -->
+<div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 justify-content-between align-items-center" id="toolbar">
+    <!-- Статистика посещёния -->
+    <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
+        <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
+            Посещено {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
+        </span>
     </div>
-    <!-- ^^^ Статистика -->
 
-    <!-- Поиск -->
-    <div class="col-md-12 col-xxl-6 order-md-3 order-xxl-2">
-        <div class="card text-center shadow h-100">
-            <div class="card-body d-grid bg-primary-subtle" id="block-search">
-                <form action="{% url 'region-all-list' %}" class="align-self-center">
-                    {% if request.GET.filter %}
-                        <div class="row small">
-                            <div class="text-start mb-2" id="search-active">
-                                Поиск по фразе <span class="badge bg-secondary">{{ request.GET.filter }}</span>&nbsp;&nbsp;&nbsp;
-                                <a href="{% url 'region-all-list' %}" class="text-underline-dashed">
-                                    Отменить
-                                </a>
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    <div class="row g-2">
-                        <div class="col-sm-9 align-self-center">
-                            <input type="text" name='filter' class="form-control" placeholder="Введите текст для поиска">
-                        </div>
-
-                        <div class="col-sm-3 align-self-center">
-                            <button class="btn btn-outline-primary form-control" type="submit">
-                                <i class="fa-solid fa-magnifying-glass"></i>&nbsp;&nbsp;&nbsp;Найти
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+    <!-- Фильтры -->
+    <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-small-buttons">
+        <div class="flex-grow-1" style="min-width: 250px;">
+            <select class="form-select w-100" id="id_country"></select>
         </div>
-    </div>
-    <!-- ^^^ Поиск -->
 
-    <!-- Посмотреть на карте -->
-    <div class="col-sm-12 col-md-6 col-xxl-3 order-md-2 order-xxl-3">
-        <div class="card text-center shadow h-100">
-            <div class="card-body d-grid bg-success-subtle" id="section-show_map">
-                <a href="{% url 'region-all-map' %}" class="btn btn-outline-success align-self-center">
-                    <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
-                </a>
-            </div>
-        </div>
+        <a href="{% url 'region-all-map' %}{% if country_id %}?country={{ country_id }}{% endif %}"
+           class="btn btn-outline-success align-self-center"
+            data-bs-toggle="tooltip"
+           data-bs-title="Посмотреть регионы {{ country_name|prepositional|title}} на карте">
+            <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
+        </a>
     </div>
-    <!-- ^^^ Посмотреть на карте -->
 </div>

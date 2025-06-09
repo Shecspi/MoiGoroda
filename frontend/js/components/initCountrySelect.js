@@ -5,7 +5,8 @@ export async function initCountrySelect({
     selectId = 'id_country',
     apiUrl = '/api/country/list_by_cities',
     redirectBaseUrl = window.location.pathname,
-    urlParamName = 'country'
+    urlParamName = 'country',
+    showAllOption = true
 } = {}) {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedCountryId = urlParams.get(urlParamName);
@@ -29,25 +30,23 @@ export async function initCountrySelect({
         if (!response.ok) throw new Error('Ошибка загрузки списка стран');
         const countries = await response.json();
 
-        choices.setChoices(
-            [
-                {
-                    value: '',
-                    label: 'Все страны',
-                    selected: !selectedCountryId,
-                    disabled: false,
-                },
-                ...countries.map((city) => ({
-                    value: city.id,
-                    label: city.name,
-                    selected: Number(selectedCountryId) === Number(city.id),
-                    disabled: false,
-                })),
-            ],
-            'value',
-            'label',
-            true
-        );
+        const countryChoices = countries.map((country) => ({
+            value: country.id,
+            label: country.name,
+            selected: Number(selectedCountryId) === Number(country.id),
+            disabled: false,
+        }));
+
+        if (showAllOption) {
+            countryChoices.unshift({
+                value: '',
+                label: 'Все страны',
+                selected: !selectedCountryId,
+                disabled: false,
+            });
+        }
+
+        choices.setChoices(countryChoices, 'value', 'label', true);
         choices.enable();
     } catch (error) {
         console.error(error);

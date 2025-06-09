@@ -18,6 +18,7 @@ django-colorfield = "^0.13.0"
 django-admin-autocomplete-filter = "^0.7.1"
 setuptools = "^80.9.0"
 petrovich = "^2.0.1"
+pymorphy3 = "^2.0.4"
 
 
 [tool.poetry.group.dev.dependencies]

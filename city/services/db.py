@@ -171,11 +171,11 @@ def get_number_of_cities_in_region_by_city(city_id: int) -> int:
     return City.objects.filter(region=city.region).count()
 
 
-def get_number_of_visited_cities(user_id: int) -> int:
+def get_number_of_visited_cities(user_id: int, country_id: int | None = None) -> int:
     """
     Возвращает количество городов, посещённых пользователем с user_id.
     """
-    return get_all_visited_cities(user_id).count()
+    return get_all_visited_cities(user_id, country_id).count()
 
 
 def get_number_of_not_visited_cities(user_id: int) -> int:

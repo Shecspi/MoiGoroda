@@ -201,3 +201,47 @@ function removeBorderFromMap(externalBorder, internalBorder) {
         });
     }
 }
+
+/**
+ * Создаёт на карте map панель с информацией о том, что идёт загрузка полигонов.
+ */
+export function addLoadControl(map, label) {
+    const load = L.control({position: 'bottomright'});
+
+    load.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'load');
+        this.update();
+        return this._div;
+    };
+    load.update = function (props) {
+        this._div.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2">'
+                            + '<div class="spinner-border spinner-border-sm" role="status">'
+                            + `<span class="visually-hidden">Загрузка...</span></div><div>${label}</div></div>`;
+    };
+    load.addTo(map);
+
+    return load
+}
+
+/**
+ * Создаёт на карте map панель с информацией о том, что произошла ошибка при загрузке полигонов.
+ */
+export function addErrorControl(map, label) {
+    const error = L.control({position: 'bottomright'});
+
+    error.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'error');
+        this.update();
+        return this._div;
+    };
+    error.update = function (props) {
+        this._div.innerHTML = `<div>${label}</div>`;
+    };
+    error.addTo(map);
+
+    setTimeout(() => {
+        map.removeControl(error);
+    }, 3000)
+
+    return error
+}

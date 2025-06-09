@@ -188,7 +188,6 @@ class GetNotVisitedCities(generics.ListAPIView):
             self.request,
             f'(API) Successful request for a list of not visited cities (user #{self.request.user.id})',
         )
-
         return super().get(*args, **kwargs)
 
     def get_queryset(self):

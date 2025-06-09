@@ -9,6 +9,7 @@ import {City, MarkerStyle} from "./schemas.js";
 import {open_modal_for_add_city} from './services.js';
 import {Button} from './button.js';
 import {getCookie} from './get_cookie.js';
+import {addErrorControl, addLoadControl} from "./map";
 
 // Это нужно для того, чтобы open_modal_for_add_city можно было использовать в onclick.
 // Иначе из-за специфичной области видимости доступа к этой функции нет.
@@ -196,25 +197,37 @@ export class ToolbarActions {
     }
 
     async showNotVisitedCities() {
+        const load = addLoadControl(this.myMap, 'Загружаю непосещённые города...');
+
         const url = this.elementShowNotVisitedCities.dataset.url;
 
         if (this.notVisitedCities.length === 0) {
-            let response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'X-CSRFToken': getCookie("csrftoken")
-                }
-            });
+            try {
+                let response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': getCookie("csrftoken")
+                    }
+                });
 
-            if (response.ok) {
-                this.notVisitedCities = await response.json();
-                this.addNotVisitedCitiesOnMap();
-            } else {
-                showDangerToast('Ошибка', 'Произошла ошибка при загрузке данных');
+                if (response.ok) {
+                    this.notVisitedCities = await response.json();
+                    this.addNotVisitedCitiesOnMap();
+                    this.myMap.removeControl(load);
+                } else {
+                    this.myMap.removeControl(load);
+                    addErrorControl(this.myMap, 'Произошла ошибка при загрузке непосещённых городов');
+                    return false;
+                }
+            } catch (error) {
+                console.error("Ошибка при выполнении запроса:", error);
+                this.myMap.removeControl(load);
+                addErrorControl(this.myMap, 'Произошла ошибка при загрузке непосещённых городов');
                 return false;
             }
         } else {
             this.addNotVisitedCitiesOnMap();
+            this.myMap.removeControl(load);
         }
     }
 

@@ -168,10 +168,11 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
     def get_queryset(self):
         if not self.user_ids:
             return []
+        country_id = self.request.GET.get('country')
 
         # get_all_visited_cities работает с одним user_id, поэтому она вызывается
         # несколько раз и результаты собираются в один QuerySet.
-        querysets = [get_all_visited_cities(user_id) for user_id in self.user_ids]
+        querysets = [get_all_visited_cities(user_id, country_id) for user_id in self.user_ids]
         combined_queryset = querysets[0]
         for qs in querysets[1:]:
             combined_queryset = combined_queryset.union(qs)

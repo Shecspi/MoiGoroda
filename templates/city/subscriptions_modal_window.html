@@ -46,7 +46,7 @@
             <div class="modal-footer justify-content-between">
                 <button class="btn btn-success"
                         id='btn_show-subscriptions-cities'
-                        data-url="{% url 'api__get_visited_cities_from_subscriptions' %}">
+                        data-url="{% url 'api__get_visited_cities_from_subscriptions' %}{% if country_id %}?country={{ country_id }}{% endif %}">
                     Применить
                 </button>
 

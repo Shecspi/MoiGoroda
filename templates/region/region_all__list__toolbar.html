@@ -5,7 +5,11 @@
     <!-- Статистика посещёния -->
     <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
         <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-            Посещено {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
+            {% if user.is_authenticated %}
+                Посещено {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
+            {% else %}
+                Зарегистрируйтесь, чтобы отмечать регионы
+            {% endif %}
         </span>
     </div>
 

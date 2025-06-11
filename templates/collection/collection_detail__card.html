@@ -49,7 +49,10 @@
                         <a href="{{ city.region.get_absolute_url }}"
                            class="text-underline-dashed text-reset">{{ city.region }}</a><br>
                     {% endif %}
-                    {{ city.country }}
+                    <a href="{% url 'city-all-list' %}?country={{ city.country.code }}"
+                       class="text-underline-dashed text-reset">
+                        {{ city.country }}
+                    </a>
                 </small>
             </div>
             <!-- ^^^ Регион, страна и год основания -->

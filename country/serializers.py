@@ -60,7 +60,7 @@ class CountrySerializer(serializers.ModelSerializer):
 class CountrySimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
-        fields = ['id', 'name']
+        fields = ['id', 'code', 'name']
 
 
 class VisitedCountrySerializer(serializers.ModelSerializer):

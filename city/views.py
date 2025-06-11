@@ -372,9 +372,9 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
     ) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        country_id = self.request.GET.get('country')
+        country_code = self.request.GET.get('country')
         try:
-            country = Country.objects.get(id=country_id)
+            country = Country.objects.get(code=country_code)
         except (Country.DoesNotExist, ValueError):
             country = 'все страны'
             country_id = None
@@ -385,8 +385,8 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
 
         number_of_cities = get_number_of_cities()
         number_of_visited_cities = get_number_of_visited_cities(user_id)
-        number_of_cities_in_country = get_number_of_cities(country_id)
-        number_of_visited_cities_in_country = get_number_of_visited_cities(user_id, country_id)
+        number_of_cities_in_country = get_number_of_cities(country_code)
+        number_of_visited_cities_in_country = get_number_of_visited_cities(user_id, country_code)
         number_of_visited_countries = get_number_of_visited_countries(user_id)
 
         context['total_qty_of_cities'] = number_of_cities
@@ -395,17 +395,13 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
         context['number_of_visited_cities_in_country'] = number_of_visited_cities_in_country
         context['number_of_visited_countries'] = number_of_visited_countries
 
-        context['declension_of_total_cities'] = modification__city(number_of_cities)
-        context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
-        context['declension_of_visited'] = modification__visited(number_of_visited_cities)
-
-        context['active_page'] = 'city_map'
-
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(user_id)
         context['subscriptions'] = get_all_subscriptions(user_id)
 
-        context['country_name'] = country
-        context['country_id'] = country_id
+        context['country_name'] = str(country)
+        context['country_code'] = country_code
+
+        context['active_page'] = 'city_map'
         context['page_title'] = f'Карта посещённых городов ({country})'
         context['page_description'] = 'Карта с отмеченными посещёнными городами'
 
@@ -442,7 +438,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         self.sort: str | None = ''
         self.filter: str | None = ''
         self.country: str = ''
-        self.country_id: str | None = None
+        self.country_code: str | None = None
         self.user_id: int | None = None
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
@@ -452,14 +448,15 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
     def get_queryset(self) -> QuerySet[VisitedCity]:
         self.user_id = self.request.user.pk
         self.filter = self.request.GET.get('filter')
-        self.country_id = self.request.GET.get('country')
+        self.country_code = self.request.GET.get('country')
+
         try:
-            self.country = Country.objects.get(id=self.country_id)
+            self.country = Country.objects.get(code=self.country_code)
         except (Country.DoesNotExist, ValueError):
             self.country = 'все страны'
-            self.country_id = None
+            self.country_code = None
 
-        self.queryset = get_all_visited_cities(self.user_id, self.country_id)
+        self.queryset = get_all_visited_cities(self.user_id, self.country_code)
         self.apply_filter()
         self.apply_sort()
 
@@ -506,10 +503,10 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         number_of_cities = get_number_of_cities()
-        number_of_cities_in_country = get_number_of_cities(self.country_id)
+        number_of_cities_in_country = get_number_of_cities(self.country_code)
         number_of_visited_cities = get_number_of_visited_cities(self.user_id)
         number_of_visited_cities_in_country = get_number_of_visited_cities(
-            self.user_id, self.country_id
+            self.user_id, self.country_code
         )
         number_of_visited_countries = get_number_of_visited_countries(self.user_id)
 
@@ -532,8 +529,8 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(self.user_id)
         context['subscriptions'] = get_all_subscriptions(self.user_id)
 
-        context['country_name'] = self.country
-        context['country_id'] = self.country_id
+        context['country_name'] = str(self.country)
+        context['country_code'] = self.country_code
         context['page_title'] = f'Список посещённых городов ({self.country})'
         context['page_description'] = (
             'Список всех посещённых городов, отсортированный в порядке посещения'

@@ -32,7 +32,7 @@ class ExtractYearFromArray(Func):
         super().__init__(*expressions, **extra)
 
 
-def get_all_visited_cities(user_id: int, country_id: int | None = None) -> QuerySet[VisitedCity]:
+def get_all_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[VisitedCity]:
     """
     Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.
     Возвращает Queryset, состоящий из полей:
@@ -117,8 +117,8 @@ def get_all_visited_cities(user_id: int, country_id: int | None = None) -> Query
         .values('count')[:1]
     )
 
-    if country_id:
-        queryset = VisitedCity.objects.filter(city__country_id=country_id)
+    if country_code:
+        queryset = VisitedCity.objects.filter(city__country__code=country_code)
     else:
         queryset = VisitedCity.objects.all()
 
@@ -153,13 +153,13 @@ def get_all_new_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     return VisitedCity.objects.filter(is_first_visit=True, user_id=user_id)
 
 
-def get_number_of_cities(country_id: int | None = None) -> int:
+def get_number_of_cities(country_code: str | None = None) -> int:
     """
     Возвращает количество городов, сохранённых в базе данных.
     """
     queryset = City.objects.all()
-    if country_id:
-        queryset = queryset.filter(country_id=country_id)
+    if country_code:
+        queryset = queryset.filter(country__code=country_code)
     return queryset.count()
 
 
@@ -172,11 +172,11 @@ def get_number_of_cities_in_region_by_city(city_id: int) -> int:
     return City.objects.filter(region=city.region).count()
 
 
-def get_number_of_visited_cities(user_id: int, country_id: int | None = None) -> int:
+def get_number_of_visited_cities(user_id: int, country_code: str | None = None) -> int:
     """
     Возвращает количество городов, посещённых пользователем с user_id.
     """
-    return get_all_visited_cities(user_id, country_id).count()
+    return get_all_visited_cities(user_id, country_code).count()
 
 
 def get_number_of_not_visited_cities(user_id: int) -> int:

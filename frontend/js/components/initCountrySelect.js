@@ -9,7 +9,7 @@ export async function initCountrySelect({
     showAllOption = true
 } = {}) {
     const urlParams = new URLSearchParams(window.location.search);
-    const selectedCountryId = urlParams.get(urlParamName);
+    const selectedCountryCode = urlParams.get(urlParamName);
 
     const countrySelect = document.getElementById(selectId);
     if (!countrySelect) return;
@@ -31,9 +31,9 @@ export async function initCountrySelect({
         const countries = await response.json();
 
         const countryChoices = countries.map((country) => ({
-            value: country.id,
+            value: country.code,
             label: country.name,
-            selected: Number(selectedCountryId) === Number(country.id),
+            selected: selectedCountryCode === country.code,
             disabled: false,
         }));
 
@@ -41,7 +41,7 @@ export async function initCountrySelect({
             countryChoices.unshift({
                 value: '',
                 label: 'Все страны',
-                selected: !selectedCountryId,
+                selected: !selectedCountryCode,
                 disabled: false,
             });
         }

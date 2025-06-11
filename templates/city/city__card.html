@@ -30,7 +30,10 @@
                         <a href="{{ city.city.region.get_absolute_url }}"
                            class="text-underline-dashed text-reset">{{ city.city.region }}</a><br>
                     {% endif %}
-                    {{ city.city.country }}
+                    <a href="{% url 'city-all-list' %}?country={{ city.city.country.code }}"
+                       class="text-underline-dashed text-reset">
+                        {{ city.city.country }}
+                    </a>
                 </small><br>
 
                 <small class="card-subtitle text-muted">

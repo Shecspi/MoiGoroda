@@ -66,9 +66,12 @@ class RegionList(RegionListMixin, ListView):
         self.qty_of_visited_regions: int = 0
 
     def dispatch(self, request, *args, **kwargs):
-        self.country_id = self.request.GET.get('country')
-        if not self.country_id:
-            return redirect(reverse('region-all-list') + f'?country={171}')
+        self.country_code = self.request.GET.get('country')
+        if not self.country_code:
+            if self.list_or_map == 'map':
+                return redirect(reverse('region-all-map') + '?country=RU')
+            else:
+                return redirect(reverse('region-all-list') + '?country=RU')
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -78,20 +81,19 @@ class RegionList(RegionListMixin, ListView):
             * num_visited - количество посещённых пользователем городов в регионе (для авторизованных пользователей)
         """
         try:
-            country = Country.objects.get(id=self.country_id)
+            country = Country.objects.get(code=self.country_code)
         except (Country.DoesNotExist, ValueError):
             raise Http404
         else:
             self.country = str(country)
-            self.country_code = country.code
 
-        self.qty_of_regions = Region.objects.filter(country=self.country_id).count()
+        self.qty_of_regions = Region.objects.filter(country=country.id).count()
 
         if self.request.user.is_authenticated:
-            queryset = get_all_region_with_visited_cities(self.request.user.pk, self.country_id)
+            queryset = get_all_region_with_visited_cities(self.request.user.pk, country.id)
             self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
         else:
-            queryset = get_all_regions(self.country_id)
+            queryset = get_all_regions(country.id)
 
         if self.list_or_map == 'list':
             logger.info(self.request, '(Region) Viewing the list of regions')
@@ -119,11 +121,10 @@ class RegionList(RegionListMixin, ListView):
         context['all_regions'] = self.all_regions
         context['qty_of_regions'] = self.qty_of_regions
         context['qty_of_visited_regions'] = self.qty_of_visited_regions
-        context['country_name'] = self.country
+
         context['country_id'] = self.country_id
+        context['country_name'] = self.country
         context['country_code'] = self.country_code
-        context['declension_of_regions'] = self.declension_of_region(self.qty_of_visited_regions)
-        context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_regions)
 
         if self.list_or_map == 'list':
             context['page_title'] = (

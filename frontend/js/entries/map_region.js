@@ -21,7 +21,9 @@ document.addEventListener('DOMContentLoaded', async (event) => {
 function init() {
     const map = create_map();
     const load = addLoadControl(map);
-    createLegendControl(map);
+    if (window.NUMBER_OF_REGIONS > 0) {
+        createLegendControl(map);
+    }
 
     const allMarkers = [];
 

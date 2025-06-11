@@ -1,12 +1,13 @@
+{% load morphology %}
 <div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 justify-content-between align-items-center" id="toolbar" style="z-index: 1001; position: relative;">
     <!-- Статистика посещёния -->
     <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
         <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-            Городов: <span id="number_of_visited_cities">{{ qty_of_visited_cities }}</span>
+            Всего посещено {{ qty_of_visited_cities }} {{ "города"|plural_by_num:qty_of_visited_cities }}
         </span>
-        {% if country_id %}
+        {% if country_code %}
             <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
-                {{ country_name }}: {{ number_of_visited_cities_in_country }} из {{ number_of_cities_in_country }}
+                В {{ country_name|prepositional|title }}: {{ number_of_visited_cities_in_country }} из {{ number_of_cities_in_country }}
             </span>
         {% else %}
             <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
@@ -70,7 +71,7 @@
             <!-- Показать непосещённые города -->
             <button class="align-self-center btn btn-outline-danger small-btn-for-toolbar"
                     id="btn_show-not-visited-cities"
-                    data-url="{% url 'api__get_not_visited_cities' %}{% if country_id %}?country={{ country_id }}{% endif %}"
+                    data-url="{% url 'api__get_not_visited_cities' %}{% if country_code %}?country={{ country_code }}{% endif %}"
                     data-type="show"
                     data-bs-toggle="tooltip"
                     data-bs-title="Показать непосещённые города">
@@ -90,7 +91,7 @@
             <!-- ^^^ Подписки -->
         </div>
 
-        <a href="{% url 'city-all-list' %}{% if country_id %}?country={{ country_id }}{% endif %}" class="btn btn-outline-success align-self-center">
+        <a href="{% url 'city-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}" class="btn btn-outline-success align-self-center">
             <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
         </a>
     </div>

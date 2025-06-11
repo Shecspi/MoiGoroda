@@ -1,3 +1,4 @@
+{% load morphology %}
 {% load vite %}
 {% load static %}
 {% load filters %}
@@ -7,11 +8,11 @@
     <!-- Статистика посещёния -->
     <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
         <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-            Посещено городов: {{ qty_of_visited_cities }}
+            Всего посещено {{ qty_of_visited_cities }} {{ "города"|plural_by_num:qty_of_visited_cities }}
         </span>
-        {% if country_id %}
+        {% if country_code %}
             <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
-                {{ country_name }}: {{ number_of_visited_cities_in_country }} из {{ number_of_cities_in_country }}
+                В {{ country_name|prepositional|title }}: {{ number_of_visited_cities_in_country }} из {{ number_of_cities_in_country }}
             </span>
         {% else %}
             <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
@@ -26,7 +27,7 @@
             <select class="form-select w-100" id="id_country"></select>
         </div>
 
-        <a href="{% url 'city-all-map' %}{% if country_id %}?country={{ country_id }}{% endif %}" class="btn btn-outline-success align-self-center">
+        <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" class="btn btn-outline-success align-self-center">
             <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
         </a>
 

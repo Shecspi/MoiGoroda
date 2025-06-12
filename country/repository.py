@@ -34,11 +34,12 @@ def _get_countries_with_visited_city(
 
 def get_countries_with_visited_city(user_id: int):
     """
-    Возвращает перечень стран, в городах которых был пользователь `user_id` за год `year`.
-    Для каждой страны добавляются поля `total_cities` с количеством городов в этой стране и
-    `visited_cities` с количеством посещённых городов.
+    Возвращает перечень стран, в городах которых был пользователь `user_id`.
+    Для каждой страны добавляются поля:
+     - `total_cities` с количеством городов в этой стране
+     - `visited_cities` с количеством посещённых городов.
     """
-    queryset = VisitedCity.objects.filter(user_id=user_id)
+    queryset = VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
     return _get_countries_with_visited_city(queryset)
 
 

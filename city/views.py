@@ -30,7 +30,7 @@ from django.views.generic import (
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 from city.services.db import (
-    get_all_visited_cities,
+    get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
     get_number_of_users_who_visit_city,
     get_total_number_of_visits,
@@ -50,7 +50,7 @@ from city.services.filter import apply_filter_to_queryset
 from collection.models import Collection
 from country.models import Country
 from services import logger
-from city.services.db import get_number_of_cities, get_number_of_visited_cities
+from city.services.db import get_number_of_cities, get_number_of_new_visited_cities
 from services.db.visited_city_repo import (
     get_visited_city,
 )
@@ -384,9 +384,11 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
         user_id = self.request.user.pk
 
         number_of_cities = get_number_of_cities()
-        number_of_visited_cities = get_number_of_visited_cities(user_id)
+        number_of_visited_cities = get_number_of_new_visited_cities(user_id)
         number_of_cities_in_country = get_number_of_cities(country_code)
-        number_of_visited_cities_in_country = get_number_of_visited_cities(user_id, country_code)
+        number_of_visited_cities_in_country = get_number_of_new_visited_cities(
+            user_id, country_code
+        )
         number_of_visited_countries = get_number_of_visited_countries(user_id)
 
         context['total_qty_of_cities'] = number_of_cities
@@ -456,7 +458,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
             self.country = 'все страны'
             self.country_code = None
 
-        self.queryset = get_all_visited_cities(self.user_id, self.country_code)
+        self.queryset = get_unique_visited_cities(self.user_id, self.country_code)
         self.apply_filter()
         self.apply_sort()
 
@@ -504,8 +506,8 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
 
         number_of_cities = get_number_of_cities()
         number_of_cities_in_country = get_number_of_cities(self.country_code)
-        number_of_visited_cities = get_number_of_visited_cities(self.user_id)
-        number_of_visited_cities_in_country = get_number_of_visited_cities(
+        number_of_visited_cities = get_number_of_new_visited_cities(self.user_id)
+        number_of_visited_cities_in_country = get_number_of_new_visited_cities(
             self.user_id, self.country_code
         )
         number_of_visited_countries = get_number_of_visited_countries(self.user_id)

@@ -18,9 +18,10 @@ from django.db.models import (
     F,
     Window,
 )
-from django.db.models.functions import Round, TruncYear, TruncMonth, Rank
+from django.db.models.functions import Round, TruncYear, TruncMonth, Rank, Coalesce
 
 from city.models import VisitedCity, City
+from country.models import Country
 
 
 class ExtractYearFromArray(Func):
@@ -32,7 +33,9 @@ class ExtractYearFromArray(Func):
         super().__init__(*expressions, **extra)
 
 
-def get_all_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[VisitedCity]:
+def get_unique_visited_cities(
+    user_id: int, country_code: str | None = None
+) -> QuerySet[VisitedCity]:
     """
     Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.
     Возвращает Queryset, состоящий из полей:
@@ -163,6 +166,34 @@ def get_number_of_cities(country_code: str | None = None) -> int:
     return queryset.count()
 
 
+def _get_all_countries_with_visited_city(queryset: QuerySet[VisitedCity]) -> QuerySet[Country]:
+    # Подзапрос: сколько уникальных городов в каждой стране посетил пользователь
+    visited_counts_subquery = (
+        queryset.filter(city__country=OuterRef('pk'))
+        .values('city__country')
+        .annotate(unique_city_count=Count('city', distinct=True))
+        .values('unique_city_count')[:1]
+    )
+
+    return (
+        Country.objects.annotate(
+            total_cities=Count('city', distinct=True),
+            visited_cities=Coalesce(
+                Subquery(visited_counts_subquery, output_field=IntegerField()), 0
+            ),
+        )
+        .filter(visited_cities__gt=0)
+        .order_by('-visited_cities')
+    )
+
+
+def get_number_of_cities_in_country(country_code: str) -> int:
+    """
+    Возвращает количество городов в указанной стране.
+    """
+    return City.objects.filter(country__code=country_code).count()
+
+
 def get_number_of_cities_in_region_by_city(city_id: int) -> int:
     try:
         city = City.objects.get(id=city_id)
@@ -172,18 +203,35 @@ def get_number_of_cities_in_region_by_city(city_id: int) -> int:
     return City.objects.filter(region=city.region).count()
 
 
+def get_number_of_new_visited_cities(user_id: int, country_code: str | None = None) -> int:
+    """
+    Возвращает количество уникальных городов, посещённых пользователем с user_id.
+    """
+    if country_code:
+        queryset = VisitedCity.objects.filter(city__country__code=country_code)
+    else:
+        queryset = VisitedCity.objects.all()
+
+    return queryset.filter(user_id=user_id, is_first_visit=True).count()
+
+
 def get_number_of_visited_cities(user_id: int, country_code: str | None = None) -> int:
     """
-    Возвращает количество городов, посещённых пользователем с user_id.
+    Возвращает количество городов, посещённых пользователем с user_id (включая повторные посещения).
     """
-    return get_all_visited_cities(user_id, country_code).count()
+    if country_code:
+        queryset = VisitedCity.objects.filter(city__country__code=country_code)
+    else:
+        queryset = VisitedCity.objects.all()
+
+    return queryset.filter(user_id=user_id).count()
 
 
 def get_number_of_not_visited_cities(user_id: int) -> int:
     """
     Возвращает количество непосещённых городов пользователем с ID, указанном в user_id.
     """
-    return City.objects.count() - get_number_of_visited_cities(user_id)
+    return City.objects.count() - get_number_of_new_visited_cities(user_id)
 
 
 def get_number_of_total_visited_cities_by_year(user_id: int, year: int) -> int:
@@ -192,7 +240,7 @@ def get_number_of_total_visited_cities_by_year(user_id: int, year: int) -> int:
     Учитываются все посещённые города, а не только уникальные.
     """
     result = 0
-    for city in get_all_visited_cities(user_id):
+    for city in get_unique_visited_cities(user_id):
         if city.visit_dates:
             for visit_date in city.visit_dates:
                 if visit_date.year == year:
@@ -217,7 +265,7 @@ def get_last_10_new_visited_cities(user_id: int) -> QuerySet:
     Возвращает последние 10 посещённых городов пользователя с ID, указанным в user_id.
     """
     return (
-        get_all_visited_cities(user_id)
+        get_unique_visited_cities(user_id)
         .exclude(first_visit_date=None)
         .order_by('-first_visit_date')[:10]
     )
@@ -602,9 +650,9 @@ def get_not_visited_cities(user_id: int, country_id: int | None = None) -> Query
     if country_id:
         queryset = queryset.filter(country_id=country_id)
 
-    visited_cities = [city.city.id for city in get_all_visited_cities(user_id, country_id)]
+    visited_cities = [city.city.id for city in get_unique_visited_cities(user_id, country_id)]
     return queryset.exclude(id__in=visited_cities)
 
 
 def get_number_of_visited_countries(user_id: int):
-    return get_all_visited_cities(user_id).values('city__country').distinct().count()
+    return get_unique_visited_cities(user_id).values('city__country').distinct().count()

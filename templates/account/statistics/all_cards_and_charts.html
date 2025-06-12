@@ -2,7 +2,112 @@
     Города
 </h1>
 
-{% include 'account/statistics/cards_for_cities.html' %}
+<div class="row row-cols-3 mx-3 mt-3 px-xxl-5">
+    <div class="col d-flex gap-2 flex-column">
+        <h4>Общее количество</h4>
+        <hr>
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Посещённых городов:</span>
+            <span class="px-2 py-1 rounded bg-success bg-opacity-75 text-white fw-bold border border-secondary">
+                {{ cities.number_of_new_visited_cities }}
+            </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Всего посещений:</span>
+            <span class="px-2 py-1 rounded bg-success bg-opacity-75 text-white fw-bold border border-secondary">
+                {{ cities.number_of_visited_cities }}
+            </span>
+        </div>
+        <div class="fw-bold">
+            По странам:
+        </div>
+        {% for country in cities.all_countries_with_visited_cities %}
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ country.name }}</span>
+                <span class="px-2 py-1 rounded bg-success-subtle text-success-emphasis fw-bold border border-secondary">
+                    {{ country.visited_cities }} из {{ country.total_cities }}</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- В этом году -->
+    <div class="col d-flex gap-2 flex-column">
+        <h4>В этом году</h4>
+        <hr>
+        <h5>Новые города</h5>
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Все страны</span>
+            <span class="px-2 py-1 rounded bg-primary bg-opacity-75 text-white fw-bold border border-success">
+                {{ cities.number_of_new_visited_cities_current_year }}
+            </span>
+        </div>
+        {% for country in cities.countries_with_new_visited_cities_current_year %}
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ country.name }}</span>
+                <span class="px-2 py-1 rounded bg-primary-subtle text-primary-emphasis fw-bold border border-secondary">
+                    {{ country.visited_cities }}</span>
+            </div>
+        {% endfor %}
+
+        <hr>
+
+        <h5>Всего посещений</h5>
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Все страны</span>
+            <span class="px-2 py-1 rounded bg-info bg-opacity-75 text-info-emphasis fw-bold border border-primary">
+                {{ cities.number_of_total_visited_cities_current_year }}
+            </span>
+        </div>
+        {% for country in cities.countries_with_visited_cities_current_year %}
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ country.name }}</span>
+                <span class="px-2 py-1 rounded bg-info-subtle text-info-emphasis fw-bold border border-primary">
+                    {{ country.visited_cities }}</span>
+            </div>
+        {% endfor %}
+    </div>
+    <!-- ^^^ В этом году -->
+
+    <!-- В прошлом году -->
+    <div class="col d-flex gap-2 flex-column">
+        <h4>В прошлом году</h4>
+        <hr>
+        <h5>Новые города</h5>
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Все страны</span>
+            <span class="px-2 py-1 rounded bg-danger ng-opacity-75 text-white fw-bold border border-secondary">
+                {{ cities.number_of_new_visited_cities_previous_year }}
+            </span>
+        </div>
+        {% for country in cities.countries_with_new_visited_cities_previous_year %}
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ country.name }}</span>
+                <span class="px-2 py-1 rounded bg-danger-subtle text-danger-emphasis fw-bold border border-secondary">
+                    {{ country.visited_cities }}
+                </span>
+            </div>
+        {% endfor %}
+
+        <hr>
+
+        <h5>Всего посещений</h5>
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Все страны</span>
+                <span class="px-2 py-1 rounded bg-warning bg-opacity-75 text-warning-emphasis fw-bold border border-secondary">
+                    {{ cities.number_of_total_visited_cities_previous_year }}
+            </span>
+        </div>
+        {% for country in cities.countries_with_new_visited_cities_previous_year %}
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ country.name }}</span>
+                <span class="px-2 py-1 rounded bg-warning-subtle text-warning-emphasis fw-bold border border-secondary">
+                    {{ country.visited_cities }}</span>
+            </div>
+        {% endfor %}
+    </div>
+    <!-- ^^^ В прошлом году -->
+</div>
+
 {% include 'account/statistics/charts_for_cities.html' %}
 
 <h1 class="text-center fw-bolder display-6 mt-5">

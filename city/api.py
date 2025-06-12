@@ -32,7 +32,7 @@ from city.services.filter import apply_filter_to_queryset
 from city.structs import UserID
 from services import logger
 from city.services.db import (
-    get_all_visited_cities,
+    get_unique_visited_cities,
     get_number_of_visits_by_city,
     get_first_visit_date_by_city,
     get_last_visit_date_by_city,
@@ -59,7 +59,7 @@ class GetVisitedCities(generics.ListAPIView):
         country_id = self.request.GET.get('country')
         filter = self.request.GET.get('filter')
 
-        queryset = get_all_visited_cities(user_id, country_id)
+        queryset = get_unique_visited_cities(user_id, country_id)
 
         if filter:
             queryset = apply_filter_to_queryset(queryset, user_id, filter)
@@ -172,7 +172,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
 
         # get_all_visited_cities работает с одним user_id, поэтому она вызывается
         # несколько раз и результаты собираются в один QuerySet.
-        querysets = [get_all_visited_cities(user_id, country_id) for user_id in self.user_ids]
+        querysets = [get_unique_visited_cities(user_id, country_id) for user_id in self.user_ids]
         combined_queryset = querysets[0]
         for qs in querysets[1:]:
             combined_queryset = combined_queryset.union(qs)

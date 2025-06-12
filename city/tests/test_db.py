@@ -2,9 +2,9 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from city.services.db import (
-    get_all_visited_cities,
+    get_unique_visited_cities,
     get_number_of_cities,
-    get_number_of_visited_cities,
+    get_number_of_new_visited_cities,
 )
 
 
@@ -59,7 +59,7 @@ def test_get_all_visited_cities_structure(mock_VisitedCity, mock_aggregates):
     mock_qs.select_related.return_value = mock_qs
     mock_qs.annotate.return_value = mock_qs
 
-    result = get_all_visited_cities(user_id)
+    result = get_unique_visited_cities(user_id)
 
     # Проверяем, что был хотя бы один вызов filter с is_first_visit
     mock_VisitedCity.objects.filter.assert_any_call(user_id=user_id, is_first_visit=True)
@@ -79,7 +79,7 @@ def test_get_all_visited_cities_annotations(mock_VisitedCity, mock_aggregates):
     mock_qs.select_related.return_value = mock_qs
     mock_qs.annotate.return_value = mock_qs
 
-    get_all_visited_cities(user_id)
+    get_unique_visited_cities(user_id)
 
     # Проверяем, что annotate вызывается хотя бы с number_of_visits и has_souvenir
     call_args = mock_qs.annotate.call_args[1]
@@ -122,7 +122,7 @@ def test_get_number_of_visited_cities_returns_count(mock_get_all_visited_cities)
     user_id = 42
     mock_get_all_visited_cities.return_value.count.return_value = 5
 
-    result = get_number_of_visited_cities(user_id)
+    result = get_number_of_new_visited_cities(user_id)
     mock_get_all_visited_cities.assert_called_once_with(user_id)
 
     assert result == 5

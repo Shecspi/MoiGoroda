@@ -5,7 +5,7 @@ from city.models import VisitedCity
 from country.models import Country
 
 
-def _get_countries_with_visited_city(
+def _annotate_countries_with_visited_city_counts(
     queryset: QuerySet[VisitedCity],
 ) -> QuerySet[Country]:
     """
@@ -32,7 +32,7 @@ def _get_countries_with_visited_city(
     )
 
 
-def get_countries_with_visited_city(user_id: int):
+def get_countries_with_visited_city(user_id: int) -> QuerySet[Country]:
     """
     Возвращает перечень стран, в городах которых был пользователь `user_id`.
     Для каждой страны добавляются поля:
@@ -40,7 +40,7 @@ def get_countries_with_visited_city(user_id: int):
      - `visited_cities` с количеством посещённых городов.
     """
     queryset = VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
-    return _get_countries_with_visited_city(queryset)
+    return _annotate_countries_with_visited_city_counts(queryset)
 
 
 def get_countries_with_visited_city_in_year(user_id: int, year: int) -> QuerySet[Country]:
@@ -50,7 +50,7 @@ def get_countries_with_visited_city_in_year(user_id: int, year: int) -> QuerySet
     `visited_cities` с количеством посещённых городов.
     """
     queryset = VisitedCity.objects.filter(user_id=user_id, date_of_visit__year=year)
-    return _get_countries_with_visited_city(queryset)
+    return _annotate_countries_with_visited_city_counts(queryset)
 
 
 def get_countries_with_new_visited_city_in_year(user_id: int, year: int) -> QuerySet[Country]:
@@ -62,4 +62,4 @@ def get_countries_with_new_visited_city_in_year(user_id: int, year: int) -> Quer
     queryset = VisitedCity.objects.filter(
         user_id=user_id, date_of_visit__year=year, is_first_visit=True
     )
-    return _get_countries_with_visited_city(queryset)
+    return _annotate_countries_with_visited_city_counts(queryset)

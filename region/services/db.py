@@ -51,11 +51,15 @@ def get_all_regions(country_id: int | None = None) -> QuerySet[Region]:
     )
 
 
-def get_number_of_regions() -> int:
+def get_number_of_regions(country_id: int | None) -> int:
     """
     Возвращает количество регионов, сохранённых в БД.
+    Если указан параметр country_id, то возвращается количество регионов в конкретной стране.
     """
-    return Region.objects.count()
+    queryset = Region.objects.all()
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+    return queryset.count()
 
 
 def get_all_region_with_visited_cities(
@@ -182,19 +186,27 @@ def get_all_cities_in_region(
     return queryset
 
 
-def get_number_of_visited_regions(user_id: int) -> int:
+def get_number_of_visited_regions(user_id: int, country_id: int | None = None) -> int:
     """
     Возвращает количество посещённых регионов пользователя с ID user_id.
     """
-    return get_all_region_with_visited_cities(user_id).filter(num_visited__gt=0).count()
+    if country_id:
+        queryset = get_all_region_with_visited_cities(user_id, country_id)
+    else:
+        queryset = get_all_region_with_visited_cities(user_id)
+    return queryset.filter(num_visited__gt=0).count()
 
 
-def get_number_of_finished_regions(user_id: int) -> int:
+def get_number_of_finished_regions(user_id: int, country_id: int | None = None) -> int:
     """
     Возвращает количество регионов, в которых пользователь с ID == user_id посетил все города.
     Эта функция расширяет функцию get_all_visited_regions(), добавляя одно условие фильтрации.
     """
-    return get_all_region_with_visited_cities(user_id).filter(num_total=F('num_visited')).count()
+    if country_id:
+        queryset = get_all_region_with_visited_cities(user_id, country_id)
+    else:
+        queryset = get_all_region_with_visited_cities(user_id)
+    return queryset.filter(num_total=F('num_visited')).count()
 
 
 def get_visited_areas(user_id: int) -> QuerySet:

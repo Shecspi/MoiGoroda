@@ -24,6 +24,7 @@ from country.repository import (
     get_countries_with_visited_city,
     get_countries_with_visited_city_in_year,
     get_countries_with_new_visited_city_in_year,
+    get_list_of_countries_with_visited_regions,
 )
 
 
@@ -119,6 +120,19 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
     number_of_visited_regions = get_number_of_visited_regions(user_id, country_id)
     number_of_not_visited_regions = number_of_regions - number_of_visited_regions
     number_of_finished_regions = get_number_of_finished_regions(user_id, country_id)
+    list_of_countries_with_visited_regions = get_list_of_countries_with_visited_regions(user_id)
+    list_of_countries_with_visited_regions_current_year = (
+        get_list_of_countries_with_visited_regions(user_id, current_year)
+    )
+    list_of_countries_with_visited_regions_previous_year = (
+        get_list_of_countries_with_visited_regions(user_id, current_year - 1)
+    )
+    list_of_countries_with_all_visited_regions = [
+        country
+        for country in list_of_countries_with_visited_regions
+        if country.number_of_regions > 0
+        and country.number_of_regions == country.number_of_visited_regions
+    ]
 
     context['regions'] = {
         'most_visited_regions': regions[:10],
@@ -126,6 +140,10 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
         'number_of_visited_regions': number_of_visited_regions,
         'number_of_not_visited_regions': number_of_not_visited_regions,
         'number_of_finished_regions': number_of_finished_regions,
+        'list_of_countries_with_visited_regions': list_of_countries_with_visited_regions,
+        'list_of_countries_with_visited_regions_current_year': list_of_countries_with_visited_regions_current_year,
+        'list_of_countries_with_visited_regions_previous_year': list_of_countries_with_visited_regions_previous_year,
+        'list_of_countries_with_all_visited_regions': list_of_countries_with_all_visited_regions,
     }
     #
     # #############################################

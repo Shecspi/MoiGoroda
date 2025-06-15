@@ -120,35 +120,43 @@
 {% include 'account/statistics/charts_for_cities.html' %}
 
 <h1 class="text-center fw-bolder display-6 mt-5">
-    Регионы России
+    Регионы
 </h1>
 
-<div class="row row-cols-3 mx-3 mt-3 px-xxl-5">
+<div class="row row-cols-3 mx-3 mt-3 mb-5 px-xxl-5">
     <!-- Общее количество -->
     <div class="col d-flex gap-2 flex-column">
         <h4>Общее количество</h4>
         <hr>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <span>Посещено</span>
-            <span class="px-2 py-1 rounded bg-success-subtle text-success-emphasis fw-bold border border-secondary">
-                {{ regions.number_of_visited_regions }} из {{ regions.number_of_regions }}
-            </span>
-        </div>
+        {% for country in regions.list_of_countries_with_visited_regions %}
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ country.name }}</span>
+                <span class="px-2 py-1 rounded bg-warning-subtle text-warning-emphasis fw-bold border border-secondary">
+                    {% if country.number_of_regions == 0 %}
+                        нет регионов
+                    {% else %}
+                        {{ country.number_of_visited_regions }} из {{ country.number_of_regions }}</span>
+                    {% endif %}
+            </div>
+        {% endfor %}
 
-        <div class="d-flex justify-content-between align-items-center">
-            <span>Осталось посетить</span>
-            <span class="px-2 py-1 rounded bg-success-subtle text-success-emphasis fw-bold border border-secondary">
-                {{ regions.number_of_not_visited_regions }}
-            </span>
-        </div>
+        {% if regions.list_of_countries_with_all_visited_regions %}
+            <hr>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <span>Полностью посещено</span>
-            <span class="px-2 py-1 rounded bg-success-subtle text-success-emphasis fw-bold border border-secondary">
-                {{ regions.number_of_finished_regions }}
-            </span>
-        </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Полностью посещено</span>
+            </div>
+
+            {% for country in regions.list_of_countries_with_all_visited_regions %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>{{ country.name }}</span>
+                    <span class="px-2 py-1 rounded bg-warning-subtle text-warning-emphasis fw-bold border border-secondary">
+                        {{ country.number_of_visited_regions }} из {{ country.number_of_regions }}
+                    </span>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
     <!-- ^^^ Общее количество -->
 
@@ -157,19 +165,17 @@
         <h4>В этом году</h4>
         <hr>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <span>Всего регионов</span>
-            <span class="px-2 py-1 rounded bg-primary bg-opacity-75 text-white fw-bold border border-success">
-                -
-            </span>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center">
-            <span>Новых регионов</span>
-            <span class="px-2 py-1 rounded bg-primary-subtle text-primary-emphasis fw-bold border border-secondary">
-                -
-            </span>
-        </div>
+        {% for country in regions.list_of_countries_with_visited_regions_current_year %}
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ country.name }}</span>
+                <span class="px-2 py-1 rounded bg-warning-subtle text-warning-emphasis fw-bold border border-secondary">
+                    {% if country.number_of_regions == 0 %}
+                        нет регионов
+                    {% else %}
+                        {{ country.number_of_visited_regions }} из {{ country.number_of_regions }}</span>
+                    {% endif %}
+            </div>
+        {% endfor %}
     </div>
     <!-- ^^^ В этом году -->
 
@@ -178,21 +184,17 @@
         <h4>В прошлом году</h4>
         <hr>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <span>Всего регионов</span>
-            <span class="px-2 py-1 rounded bg-primary bg-opacity-75 text-white fw-bold border border-success">
-                -
-            </span>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center">
-            <span>Новых регионов</span>
-            <span class="px-2 py-1 rounded bg-primary-subtle text-primary-emphasis fw-bold border border-secondary">
-                -
-            </span>
-        </div>
+        {% for country in regions.list_of_countries_with_visited_regions_previous_year %}
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ country.name }}</span>
+                <span class="px-2 py-1 rounded bg-warning-subtle text-warning-emphasis fw-bold border border-secondary">
+                    {% if country.number_of_regions == 0 %}
+                        нет регионов
+                    {% else %}
+                        {{ country.number_of_visited_regions }} из {{ country.number_of_regions }}</span>
+                    {% endif %}
+            </div>
+        {% endfor %}
     </div>
     <!-- ^^^ В прошлом году -->
 </div>
-
-{% include 'account/statistics/charts_for_regions.html' %}

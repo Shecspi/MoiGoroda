@@ -1,8 +1,9 @@
-from django.db.models import QuerySet, OuterRef, Count, Subquery, IntegerField
+from django.db.models import QuerySet, OuterRef, Count, Subquery, IntegerField, Value, Q
 from django.db.models.functions import Coalesce
 
 from city.models import VisitedCity
 from country.models import Country
+from region.models import Region
 
 
 def _annotate_countries_with_visited_city_counts(
@@ -63,3 +64,47 @@ def get_countries_with_new_visited_city_in_year(user_id: int, year: int) -> Quer
         user_id=user_id, date_of_visit__year=year, is_first_visit=True
     )
     return _annotate_countries_with_visited_city_counts(queryset)
+
+
+def get_list_of_countries_with_visited_regions(
+    user_id: int, year: int | None = None
+) -> QuerySet[Country]:
+    # Подзапрос для количества всех регионов в стране
+    regions_in_country = (
+        Region.objects.filter(country=OuterRef('pk'))
+        .values('country')
+        .annotate(count=Count('pk', distinct=True))
+        .values('count')[:1]
+    )
+
+    # Подзапрос для количества посещённых пользователем регионов в каждой стране
+    if year:
+        subquery_filter_condition = (
+            Q(country=OuterRef('pk'))
+            & Q(city__visitedcity__user_id=user_id)
+            & Q(city__visitedcity__date_of_visit__year=year)
+        )
+    else:
+        subquery_filter_condition = Q(country=OuterRef('pk')) & Q(
+            city__visitedcity__user_id=user_id
+        )
+    visited_regions_in_country = (
+        Region.objects.filter(subquery_filter_condition)
+        .values('country')  # группируем по стране
+        .annotate(count=Count('pk', distinct=True))  # считаем уникальные регионы
+        .values('count')[:1]
+    )
+
+    return (
+        Country.objects.filter(city__visitedcity__user_id=user_id)
+        .distinct()
+        .annotate(
+            number_of_regions=Coalesce(
+                Subquery(regions_in_country, output_field=IntegerField()), Value(0)
+            ),
+            number_of_visited_regions=Coalesce(
+                Subquery(visited_regions_in_country, output_field=IntegerField()), Value(0)
+            ),
+        )
+        .order_by('-number_of_visited_regions')
+    )

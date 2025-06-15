@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any, NoReturn
 
-from django.contrib.auth.models import User
 from django.db.models.functions import Round
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest
@@ -282,7 +281,7 @@ class VisitedCity_Detail(DetailView):
 
         self.city.collections = Collection.objects.filter(city=self.city)
 
-        self.city.number_of_visits = (
+        self.city.number_of_visits_all_users = (
             VisitedCity.objects.filter(city=self.city.id)
             .aggregate(count=Count('*'))
             .get('count', 0)
@@ -331,8 +330,7 @@ class VisitedCity_Detail(DetailView):
         )
 
         context['number_of_users_who_visit_city'] = get_number_of_users_who_visit_city(self.city.id)
-        context['number_of_users'] = User.objects.count()
-        context['number_of_visits'] = self.city.number_of_visits
+        context['number_of_visits'] = self.city.number_of_visits_all_users
         context['total_number_of_visits'] = get_total_number_of_visits()
         context = {
             **context,

@@ -53,8 +53,7 @@ from city.services.db import get_number_of_cities, get_number_of_new_visited_cit
 from services.db.visited_city_repo import (
     get_visited_city,
 )
-from services.word_modifications.city import modification__city
-from services.word_modifications.visited import modification__visited
+from services.morphology import to_prepositional
 from subscribe.repository import is_user_has_subscriptions, get_all_subscriptions
 
 
@@ -379,11 +378,8 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         country_code = self.request.GET.get('country')
-        if country_code:
-            # country_code уже проверен на существование, здесь Country.DoesNotExist не может быть
-            country = Country.objects.get(code=country_code)
-        else:
-            country = 'все страны'
+        # country_code уже проверен на существование, здесь Country.DoesNotExist не может быть
+        country = str(Country.objects.get(code=country_code)) if country_code else ''
 
         logger.info(self.request, '(Visited city) Viewing the map of visited cities')
 
@@ -406,11 +402,15 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(user_id)
         context['subscriptions'] = get_all_subscriptions(user_id)
 
-        context['country_name'] = str(country)
+        context['country_name'] = country
         context['country_code'] = country_code
 
         context['active_page'] = 'city_map'
-        context['page_title'] = f'Карта посещённых городов ({country})'
+        context['page_title'] = (
+            f'Карта посещённых городов в {to_prepositional(country).title()}'
+            if country
+            else 'Карта посещённых городов'
+        )
         context['page_description'] = 'Карта с отмеченными посещёнными городами'
 
         return context
@@ -468,9 +468,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
 
         if self.country_code:
             # country_code уже проверен на существование, здесь Country.DoesNotExist не может быть
-            self.country = Country.objects.get(code=self.country_code)
-        else:
-            self.country = 'все страны'
+            self.country = str(Country.objects.get(code=self.country_code))
 
         self.queryset = get_unique_visited_cities(self.user_id, self.country_code)
         self.apply_filter()
@@ -533,10 +531,6 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         context['number_of_visited_countries'] = number_of_visited_countries
         context['qty_of_visited_cities'] = number_of_visited_cities
 
-        context['declension_of_total_cities'] = modification__city(number_of_cities)
-        context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
-        context['declension_of_visited'] = modification__visited(number_of_visited_cities)
-
         context['filter'] = self.filter
         context['sort'] = self.sort
 
@@ -547,7 +541,11 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
 
         context['country_name'] = str(self.country)
         context['country_code'] = self.country_code
-        context['page_title'] = f'Список посещённых городов ({self.country})'
+        context['page_title'] = (
+            f'Список посещённых городов в {to_prepositional(self.country).title()}'
+            if self.country
+            else 'Список посещённых городов'
+        )
         context['page_description'] = (
             'Список всех посещённых городов, отсортированный в порядке посещения'
         )

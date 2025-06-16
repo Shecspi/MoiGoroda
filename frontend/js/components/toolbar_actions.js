@@ -149,7 +149,9 @@ export class ToolbarActions {
         const selectedCountryCode = urlParams.get('country');
 
         const url = new URL(this.elementShowSubscriptionCities.dataset.url, window.location.origin);
-        url.searchParams.set('country', selectedCountryCode);
+        if (selectedCountryCode !== undefined && selectedCountryCode !== null) {
+            url.searchParams.set('country', selectedCountryCode);
+        }
 
         // Добавляем в URL повторяющийся параметр user_ids
         let selectedCheckboxes = document.querySelectorAll('input.checkbox_username:checked');
@@ -160,7 +162,6 @@ export class ToolbarActions {
         button.disabled = true;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;<span role="status">Загрузка...</span>';
 
-        console.log(url.toString())
         let response = await fetch(url.toString(), {
             method: 'GET',
             headers: {

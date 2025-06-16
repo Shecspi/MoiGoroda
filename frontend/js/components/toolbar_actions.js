@@ -348,6 +348,7 @@ export class ToolbarActions {
             city.id = this.subscriptionCities[i].id;
             city.name = this.subscriptionCities[i].title;
             city.region = this.subscriptionCities[i].region_title;
+            city.country = this.subscriptionCities[i].country;
             city.lat = this.subscriptionCities[i].lat;
             city.lon = this.subscriptionCities[i].lon;
             city.visit_years = ownCities[city.name] ? ownCities[city.name].visit_years : undefined;
@@ -399,6 +400,7 @@ export class ToolbarActions {
             city.id = this.ownCities[i].id;
             city.name = this.ownCities[i].title;
             city.region = this.ownCities[i].region_title;
+            city.country = this.ownCities[i].country;
             city.lat = this.ownCities[i].lat;
             city.lon = this.ownCities[i].lon;
             city.visit_years = this.ownCities[i].visit_years;
@@ -428,6 +430,7 @@ export class ToolbarActions {
             city.id = this.notVisitedCities[i].id;
             city.name = this.notVisitedCities[i].title;
             city.region = this.notVisitedCities[i].region;
+            city.country = this.notVisitedCities[i].country;
             city.lat = this.notVisitedCities[i].lat;
             city.lon = this.notVisitedCities[i].lon;
 
@@ -473,8 +476,17 @@ export class ToolbarActions {
         marker.setZIndexOffset(zIndexOffset);
 
         let content = '';
+
+        // Название города
         content += `<div><span class="fw-semibold fs-3"><a href="/city/${city.id}" target="_blank" rel="noopener noreferrer" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">${city.name}</a></span></div>`;
-        content += `<div class="mt-2"><small class="text-secondary fw-medium fs-6">${city.region}</small></div>`;
+
+        // Название региона и страны
+        if (city.region) {
+            content += `<div class="mt-2"><small class="text-secondary fw-medium fs-6">${city.region}, ${city.country}</small></div>`;
+        } else {
+            content += `<div class="mt-2"><small class="text-secondary fw-medium fs-6">${city.country}</small></div>`;
+        }
+
         let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Отметить как посещённый</a>`
         let linkToAddAgain = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Добавить ещё одно посещение</a>`
         const first_visit_date = city.first_visit_date ? new Date(city.first_visit_date).toLocaleDateString() : undefined;

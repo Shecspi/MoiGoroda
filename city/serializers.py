@@ -20,6 +20,7 @@ class VisitedCitySerializer(serializers.ModelSerializer):
     title = serializers.CharField(source='city.title', read_only=True)
     region_title = serializers.CharField(source='city.region', read_only=True)
     region_id = serializers.IntegerField(source='city.region_id', read_only=True)
+    country = serializers.CharField(source='city.country', read_only=True)
     lat = serializers.CharField(source='city.coordinate_width', read_only=True)
     lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
     number_of_visits = serializers.IntegerField(read_only=True)
@@ -46,6 +47,7 @@ class VisitedCitySerializer(serializers.ModelSerializer):
             'title',
             'region_title',
             'region_id',
+            'country',
             'lat',
             'lon',
             'number_of_visits',
@@ -60,10 +62,11 @@ class NotVisitedCitySerializer(serializers.ModelSerializer):
     lat = serializers.CharField(source='coordinate_width', read_only=True)
     lon = serializers.CharField(source='coordinate_longitude', read_only=True)
     region = serializers.StringRelatedField()
+    country = serializers.CharField(source='country.name', read_only=True)
 
     class Meta:
         model = City
-        fields = ('id', 'title', 'region', 'lat', 'lon')
+        fields = ('id', 'title', 'region', 'country', 'lat', 'lon')
 
 
 class AddVisitedCitySerializer(serializers.ModelSerializer):

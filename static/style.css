@@ -38,7 +38,7 @@ body.simple {
     padding: 20px 20px;
     font: 18px 'Roboto', sans-serif;
     font-weight: 300;
-    background: rgba(253, 118, 118, 0.9);
+    background: rgb(245, 198, 203);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
     border-radius: 5px;
 }

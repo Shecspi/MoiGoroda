@@ -22,10 +22,13 @@ import {initCountrySelect} from "../components/initCountrySelect";
 let actions;
 let map;
 
+const urlParams = new URLSearchParams(window.location.search);
+const selectedCountryCode = urlParams.get('country');
+
 window.onload = async () => {
     map = create_map();
-    addExternalBorderControl(map);
-    addInternalBorderControl(map);
+    addExternalBorderControl(map, selectedCountryCode);
+    addInternalBorderControl(map, selectedCountryCode);
 
     getVisitedCities()
         .then(own_cities => {

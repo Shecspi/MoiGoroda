@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Нажатие кнопки "Применить фильтры и сортировку"
 document.getElementById('applyFilters').addEventListener('click', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedCountryCode = urlParams.get('country');
+
     const filter = document.querySelector('input[name="filter"]:checked')?.value || '';
     const sort = document.querySelector('input[name="sort"]:checked')?.value || '';
     const defaultFilter = this.dataset.filter;
@@ -39,6 +42,7 @@ document.getElementById('applyFilters').addEventListener('click', function () {
 
     if (filterValue) params.set('filter', filterValue);
     if (sortValue) params.set('sort', sortValue);
+    if (selectedCountryCode) params.set('country', selectedCountryCode);
 
     window.location.href = `${window.location.pathname}?${params.toString()}`;
 });

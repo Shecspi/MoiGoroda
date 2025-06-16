@@ -32,10 +32,11 @@ window.onload = async () => {
 
     getVisitedCities()
         .then(own_cities => {
+                actions = new ToolbarActions(map, own_cities);
+
                 if (own_cities.length === 0) {
                     map.setView([55.7522, 37.6156], 6);
                 } else {
-                    actions = new ToolbarActions(map, own_cities);
                     const allMarkers = actions.addOwnCitiesOnMap();
                     const group = new L.featureGroup([...allMarkers]);
                     map.fitBounds(group.getBounds());

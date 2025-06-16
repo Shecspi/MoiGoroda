@@ -20,14 +20,24 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
-            <div class="col-xl-8">
-                <div class="alert alert-danger p-5 text-center" role="alert" id="section-info_box">
-                    На данный момент Вы не сохранили ни одного посещённого города.<br>
-                    Нажмите кнопку "Добавить город" и начните пользоваться сервисом.
+        {% if qty_of_visited_cities > 0 %}
+            <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
+                <div class="col-xl-8">
+                    <div class="alert alert-warning p-5 text-center fs-3" role="alert" id="section-info_box">
+                        По заданным условиям фильтрации не найдено ни одного города
+                    </div>
                 </div>
             </div>
-        </div>
+        {% else %}
+            <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
+                <div class="col-xl-8">
+                    <div class="alert alert-danger p-5 text-center fs-3" role="alert" id="section-info_box">
+                        На данный момент Вы не сохранили ни одного посещённого города.<br>
+                        Нажмите кнопку "Добавить город" и начните пользоваться сервисом.
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
     <!-- ^^^ Карточки с городами -->
 

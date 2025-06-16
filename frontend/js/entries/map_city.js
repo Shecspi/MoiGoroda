@@ -114,7 +114,8 @@ form.addEventListener('submit', event => {
 
             city.id = data.city.city;
             city.name = data.city.city_title;
-            city.region = data.city.region;
+            city.region = data.city.region_title;
+            city.country = data.city.country;
             city.lat = data.city.lat;
             city.lon = data.city.lon;
             city.number_of_visits = data.city.number_of_visits;

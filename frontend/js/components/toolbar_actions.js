@@ -145,17 +145,23 @@ export class ToolbarActions {
     }
 
     async showSubscriptionCities() {
-        const url = this.elementShowSubscriptionCities.dataset.url
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedCountryCode = urlParams.get('country');
 
+        const url = new URL(this.elementShowSubscriptionCities.dataset.url, window.location.origin);
+        url.searchParams.set('country', selectedCountryCode);
+
+        // Добавляем в URL повторяющийся параметр user_ids
         let selectedCheckboxes = document.querySelectorAll('input.checkbox_username:checked');
         let checkedValues = Array.from(selectedCheckboxes).map(cb => Number(cb.value));
-        let data = {'id': checkedValues};
+        checkedValues.forEach(id => url.searchParams.append('user_ids', id));
 
         let button = document.getElementById('btn_show-subscriptions-cities');
         button.disabled = true;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;<span role="status">Загрузка...</span>';
 
-        let response = await fetch(url + '?data=' + encodeURIComponent(JSON.stringify(data)), {
+        console.log(url.toString())
+        let response = await fetch(url.toString(), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

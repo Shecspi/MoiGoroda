@@ -640,17 +640,17 @@ def get_neighboring_cities_in_region_by_users_rank(city_id: int, is_country_filt
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_not_visited_cities(user_id: int, country_id: int | None = None) -> QuerySet[City]:
+def get_not_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[City]:
     """
     Возвращает QuerySet объектов City, которые пользователь с ID user_id не отметил, как посещённые.
     Для этого берётся список всех городов, которые есть в БД, и из него убираются уже посещённые пользователем города.
     """
     queryset = City.objects.all()
 
-    if country_id:
-        queryset = queryset.filter(country_id=country_id)
+    if country_code:
+        queryset = queryset.filter(country__code=country_code)
 
-    visited_cities = [city.city.id for city in get_unique_visited_cities(user_id, country_id)]
+    visited_cities = [city.city.id for city in get_unique_visited_cities(user_id, country_code)]
     return queryset.exclude(id__in=visited_cities)
 
 

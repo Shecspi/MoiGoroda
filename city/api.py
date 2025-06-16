@@ -9,11 +9,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-import json
-from json import JSONDecodeError
-from typing import NoReturn
-
-from pydantic import ValidationError
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
@@ -29,7 +24,6 @@ from city.serializers import (
     CitySerializer,
 )
 from city.services.filter import apply_filter_to_queryset
-from city.structs import UserID
 from services import logger
 from city.services.db import (
     get_unique_visited_cities,
@@ -74,29 +68,9 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
 
     def __init__(self) -> None:
         # Список ID пользователей, у которых необходимо вернуть посещённые города
-        self.user_ids: list = []
+        self.user_ids: list[int] = []
 
         super().__init__()
-
-    def _validate_json(self, data: str) -> None | NoReturn:
-        try:
-            UserID.model_validate_json(data)
-        except ValidationError:
-            logger.warning(
-                self.request,
-                '(API) An incorrect list of user IDs was received',
-            )
-            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
-
-    def _load_json(self, data: str) -> dict | NoReturn:
-        try:
-            return json.loads(data)
-        except JSONDecodeError:
-            logger.warning(
-                self.request,
-                '(API) An incorrect list of user IDs was received',
-            )
-            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
 
     def _user_has_allowed_to_subscribe_to_himself(self, user_id: int) -> bool:
         try:
@@ -131,15 +105,16 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
             return False
 
     def get(self, *args, **kwargs):
-        input_data = self.request.GET.get('data')
+        user_ids = self.request.GET.getlist('user_ids')
 
-        self._validate_json(input_data)
-
-        # По идее ошибок загрузки JSON быть не должно, так как его уже проверил Pydantic,
-        # но на всякий случай обрабатываю эту ситуацию.
-        json_data = self._load_json(input_data)
-
-        user_ids = json_data.get('id')
+        try:
+            user_ids = [int(user_id) for user_id in user_ids]
+        except ValueError:
+            logger.warning(
+                self.request,
+                '(API) Received invalid user_ids, cannot cast to int',
+            )
+            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
 
         if not self.request.user.is_superuser:
             # Убираем из списка ID тех пользователей, которые не разрешили подписываться на себя.
@@ -192,8 +167,9 @@ class GetNotVisitedCities(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        country_id = self.request.GET.get('country')
-        return get_not_visited_cities(self.request.user.pk, country_id)
+        country_code = self.request.GET.get('country')
+        print(country_code)
+        return get_not_visited_cities(self.request.user.pk, country_code)
 
 
 class AddVisitedCity(generics.CreateAPIView):

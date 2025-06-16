@@ -12,7 +12,7 @@ from typing import Any, NoReturn
 from django.db.models.functions import Round
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.db.models import QuerySet, Avg, Count, F, OuterRef, Subquery
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -365,17 +365,25 @@ class VisitedCity_Detail(DetailView):
 class VisitedCity_Map(LoginRequiredMixin, TemplateView):
     template_name = 'city/city_all__map.html'
 
+    def get(self, request, *args, **kwargs):
+        # Если в URL передан несуществующий код страны, то перенаправляем пользователя на страницу всех городов
+        country_code = self.request.GET.get('country')
+        if country_code and not Country.objects.filter(code=country_code).exists():
+            return redirect('city-all-map')
+
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(
         self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any
     ) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         country_code = self.request.GET.get('country')
-        try:
+        if country_code:
+            # country_code уже проверен на существование, здесь Country.DoesNotExist не может быть
             country = Country.objects.get(code=country_code)
-        except (Country.DoesNotExist, ValueError):
+        else:
             country = 'все страны'
-            country_id = None
 
         logger.info(self.request, '(Visited city) Viewing the map of visited cities')
 
@@ -445,16 +453,24 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         self.has_subscriptions: bool = False
         self.all_visited_cities: QuerySet[VisitedCity] | None = None
 
+    def get(self, request, *args, **kwargs):
+        # Если в URL передан несуществующий код страны, то перенаправляем пользователя на страницу всех городов
+        country_code = self.request.GET.get('country')
+        if country_code and not Country.objects.filter(code=country_code).exists():
+            return redirect('city-all-map')
+
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self) -> QuerySet[VisitedCity]:
         self.user_id = self.request.user.pk
         self.filter = self.request.GET.get('filter')
         self.country_code = self.request.GET.get('country')
 
-        try:
+        if self.country_code:
+            # country_code уже проверен на существование, здесь Country.DoesNotExist не может быть
             self.country = Country.objects.get(code=self.country_code)
-        except (Country.DoesNotExist, ValueError):
+        else:
             self.country = 'все страны'
-            self.country_code = None
 
         self.queryset = get_unique_visited_cities(self.user_id, self.country_code)
         self.apply_filter()

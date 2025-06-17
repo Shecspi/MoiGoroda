@@ -41,7 +41,7 @@ class Area(models.Model):
 
 class Region(models.Model):
     area = models.ForeignKey(
-        Area, on_delete=CASCADE, verbose_name='Федеральный округ', blank=False, null=False
+        Area, on_delete=CASCADE, verbose_name='Федеральный округ', blank=True, null=True
     )
     country = models.ForeignKey(
         Country, on_delete=PROTECT, verbose_name='Страна', blank=False, null=False

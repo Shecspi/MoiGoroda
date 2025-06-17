@@ -80,25 +80,7 @@ class Region(models.Model):
         unique_together = ('title', 'type')
 
     def __str__(self):
-        # Для городов федерального значения просто выводим название
-        if self.type == 'G':
-            return self.title
-        # Для республик, кроме некоторых, слово "Республика" не используем
-        elif self.type == 'R':
-            match self.title:
-                case (
-                    'Кабардино-Балкарская'
-                    | 'Карачаево-Черкесская'
-                    | 'Удмуртская'
-                    | 'Чеченская'
-                    | 'Чувашская'
-                ):
-                    return self.title + ' республика'
-                case _:
-                    return self.title
-        # Во всех остальных случаях выводим название + тип субъекта
-        else:
-            return self.title + ' ' + self.get_type_display().lower()
+        return self.full_name
 
     def get_absolute_url(self):
         return reverse('region-selected-list', kwargs={'pk': self.pk})

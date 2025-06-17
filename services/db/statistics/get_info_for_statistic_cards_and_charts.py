@@ -41,8 +41,6 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
     #################################
     number_of_visited_cities = get_number_of_visited_cities(user_id)
     number_of_new_visited_cities = get_number_of_new_visited_cities(user_id)
-    # number_of_not_visited_cities = get_number_of_not_visited_cities(user_id)
-    #
     number_of_visited_cities_current_year = get_number_of_total_visited_cities_by_year(
         user_id, current_year
     )
@@ -72,11 +70,6 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
     list_of_countries_with_new_visited_cities_previous_year = (
         get_countries_with_new_visited_city_in_year(user_id, current_year - 1)
     )
-    # ratio_cities_this_year = calculate_ratio(
-    #     number_of_total_visited_cities_current_year, number_of_total_visited_cities_previous_year
-    # )
-    # ratio_cities_prev_year = 100 - ratio_cities_this_year
-    #
     number_of_visited_cities_in_several_years = get_number_of_total_visited_cities_in_several_years(
         user_id
     )

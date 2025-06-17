@@ -106,5 +106,6 @@ def get_list_of_countries_with_visited_regions(
                 Subquery(visited_regions_in_country, output_field=IntegerField()), Value(0)
             ),
         )
+        .filter(number_of_visited_regions__gt=0)
         .order_by('-number_of_visited_regions')
     )

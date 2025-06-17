@@ -13,7 +13,7 @@ from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
-from account.report import CityReport, RegionReport, AreaReport
+from account.report import CityReport
 from account.serializer import TxtSerializer, CsvSerializer, JsonSerializer, XlsSerializer
 from services import logger
 
@@ -29,10 +29,10 @@ def download(request):
     # реализующий интерфейс report.Report и добавить его эту секцию if ... else ...
     if reporttype == 'city':
         report = CityReport(request.user.id)
-    elif reporttype == 'region':
-        report = RegionReport(request.user.id)
-    elif reporttype == 'area':
-        report = AreaReport(request.user.id)
+    # elif reporttype == 'region':
+    #     report = RegionReport(request.user.id)
+    # elif reporttype == 'area':
+    #     report = AreaReport(request.user.id)
     else:
         logger.info(request, f'(Download stats): Incorrect reporttype "{reporttype}", raise 404')
         raise Http404

@@ -34,6 +34,7 @@ class CityReport(Report):
             (
                 'Город',
                 'Регион',
+                'Страна',
                 'Количество посещений',
                 'Дата первого посещения',
                 'Дата последнего посещения',
@@ -45,7 +46,8 @@ class CityReport(Report):
             result.append(
                 (
                     city.city.title,
-                    str(city.region),
+                    str(city.city.region) if city.city.region else 'Нет региона',
+                    str(city.city.country),
                     city.number_of_visits,
                     str(city.first_visit_date) if city.first_visit_date else 'Не указана',
                     str(city.last_visit_date) if city.last_visit_date else 'Не указана',

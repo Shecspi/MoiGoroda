@@ -33,9 +33,6 @@ from region.services.db import (
 from region.services.filter import apply_filter_to_queryset
 from region.services.sort import apply_sort_to_queryset
 from services.morphology import to_genitive
-from services.url_params import make_url_params
-from services.word_modifications.city import modification__city
-from services.word_modifications.visited import modification__visited
 from utils.RegionListMixin import RegionListMixin
 
 
@@ -321,45 +318,11 @@ class CitiesByRegionList(ListView):
                 'filter': self.filter,
                 'region_id': self.region_id,
                 'all_cities': self.all_cities,
-                'region_name': self.region_name,
+                'region_name': str(self.region_name),
                 'iso3166_code': self.region_name.iso3166,
                 'url_geo_polygons': settings.URL_GEO_POLYGONS,
                 'total_qty_of_cities': self.total_qty_of_cities,
                 'qty_of_visited_cities': self.qty_of_visited_cities,
-                'declension_of_visited_cities': modification__city(self.qty_of_visited_cities),
-                'declension_of_visited': modification__visited(self.qty_of_visited_cities),
-                'url_for_filter_has_no_magnet': make_url_params(
-                    'has_no_magnet' if self.filter != 'has_no_magnet' else '', self.sort
-                ),
-                'url_for_filter_has_magnet': make_url_params(
-                    'has_magnet' if self.filter != 'has_magnet' else '', self.sort
-                ),
-                'url_for_filter_current_year': make_url_params(
-                    'current_year' if self.filter != 'current_year' else '', self.sort
-                ),
-                'url_for_filter_last_year': make_url_params(
-                    'last_year' if self.filter != 'last_year' else '', self.sort
-                ),
-                'url_for_sort_name_down': make_url_params(
-                    self.filter, 'name_down' if self.sort != 'name_down' else ''
-                ),
-                'url_for_sort_name_up': make_url_params(
-                    self.filter, 'name_up' if self.sort != 'name_up' else ''
-                ),
-                'url_for_sort_date_down': make_url_params(
-                    self.filter,
-                    'first_visit_date_down' if self.sort != 'first_visit_date_down' else '',
-                ),
-                'url_for_sort_date_up': make_url_params(
-                    self.filter, 'first_visit_date_up' if self.sort != 'first_visit_date_up' else ''
-                ),
-                'url_for_sort_last_visit_date_down': make_url_params(
-                    self.filter,
-                    'last_visit_date_down' if self.sort != 'last_visit_date_down' else '',
-                ),
-                'url_for_sort_last_visit_date_up': make_url_params(
-                    self.filter, 'last_visit_date_up' if self.sort != 'last_visit_date_up' else ''
-                ),
             }
         )
 

@@ -39,6 +39,18 @@ class Area(models.Model):
         return self.title
 
 
+class RegionType(models.Model):
+    title = models.CharField(max_length=100, verbose_name='Название типа')
+
+    class Meta:
+        verbose_name = 'Тип региона'
+        verbose_name_plural = 'Типы регионов'
+        ordering = ['title']
+
+    def __str__(self):
+        return self.title
+
+
 class Region(models.Model):
     area = models.ForeignKey(
         Area, on_delete=CASCADE, verbose_name='Федеральный округ', blank=True, null=True
@@ -47,9 +59,9 @@ class Region(models.Model):
         Country, on_delete=PROTECT, verbose_name='Страна', blank=False, null=False
     )
     title = models.CharField(max_length=100, verbose_name='Название', blank=False, null=False)
-    type = models.CharField(
-        max_length=100,
-        choices=TYPES_OF_REGIONS,
+    type = models.ForeignKey(
+        RegionType,
+        on_delete=PROTECT,
         verbose_name='Тип субъекта',
         blank=False,
         null=False,

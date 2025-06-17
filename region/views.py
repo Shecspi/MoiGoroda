@@ -174,12 +174,14 @@ class CitiesByRegionList(ListView):
 
     sort: str = ''
     filter: str | None = None
+    country_name: str = ''
     region_id = None
-    all_cities = None
     region_name = None
+    region_iso3166: str = ''
+    all_cities = None
     list_or_map: str = ''
-    total_qty_of_cities: int = 0
-    qty_of_visited_cities: int = 0
+    number_of_cities: int = 0
+    number_of_visited_cities: int = 0
     valid_filters = ('magnet', 'current_year', 'last_year')
     valid_sorts = ('name_down', 'name_up', 'date_down', 'date_up')
 
@@ -191,12 +193,16 @@ class CitiesByRegionList(ListView):
         self.region_id = self.kwargs['pk']
 
         try:
-            self.region_name = Region.objects.get(id=self.region_id)
+            region = Region.objects.get(id=self.region_id)
         except ObjectDoesNotExist as exc:
             logger.warning(
                 self.request, f'(Region) Attempt to access a non-existent region #{self.region_id}'
             )
             raise Http404 from exc
+
+        self.region_name = str(region)
+        self.region_iso3166 = str(region.iso3166)
+        self.country_name = str(region.country)
 
         return super().get(*args, **kwargs)
 
@@ -212,8 +218,8 @@ class CitiesByRegionList(ListView):
             queryset = get_all_cities_in_region(self.request.user, self.region_id)
 
             # Количество городов считаем до фильтрации, чтобы всегда было указано, сколько городов посещено
-            self.total_qty_of_cities = City.objects.filter(region_id=self.region_id).count()
-            self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
+            self.number_of_cities = City.objects.filter(region_id=self.region_id).count()
+            self.number_of_visited_cities = queryset.filter(is_visited=True).count()
 
             queryset = self.apply_filter(queryset)
             queryset = queryset.values(
@@ -243,9 +249,9 @@ class CitiesByRegionList(ListView):
                 'coordinate_width',
                 'coordinate_longitude',
             )
-            self.total_qty_of_cities = queryset.count()
+            self.number_of_cities = queryset.count()
 
-        if self.total_qty_of_cities == 0:
+        if self.number_of_cities == 0:
             logger.warning(
                 self.request, f'(Region) There is no cities in the region #{self.region_id}'
             )
@@ -316,13 +322,14 @@ class CitiesByRegionList(ListView):
                 'sort': self.sort,
                 'type': 'by_region',
                 'filter': self.filter,
-                'region_id': self.region_id,
                 'all_cities': self.all_cities,
-                'region_name': str(self.region_name),
-                'iso3166_code': self.region_name.iso3166,
+                'country_name': self.country_name,
+                'region_id': self.region_id,
+                'region_name': self.region_name,
+                'iso3166_code': self.region_iso3166,
                 'url_geo_polygons': settings.URL_GEO_POLYGONS,
-                'total_qty_of_cities': self.total_qty_of_cities,
-                'qty_of_visited_cities': self.qty_of_visited_cities,
+                'number_of_cities': self.number_of_cities,
+                'number_of_visited_cities': self.number_of_visited_cities,
             }
         )
 

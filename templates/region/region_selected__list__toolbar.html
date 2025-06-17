@@ -8,7 +8,7 @@
     <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
         <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
             {% if user.is_authenticated %}
-                Посещено: {{ qty_of_visited_cities }} {{ "город"|plural_by_num:qty_of_visited_cities }} из {{ total_qty_of_cities }}
+                Посещено: {{ number_of_visited_cities }} {{ "город"|plural_by_num:number_of_visited_cities }} из {{ number_of_cities }}
             {% else %}
                 Зарегистрируйтесь, чтобы отмечать регионы
             {% endif %}

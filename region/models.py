@@ -54,6 +54,9 @@ class Region(models.Model):
         blank=False,
         null=False,
     )
+    full_name = models.CharField(
+        max_length=255, verbose_name='Полное название', blank=False, null=False, default=''
+    )
     iso3166 = models.CharField(
         max_length=10, verbose_name='Код ISO3166', blank=False, null=False, unique=True
     )

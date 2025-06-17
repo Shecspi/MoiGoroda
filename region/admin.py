@@ -7,10 +7,17 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from admin_auto_filters.filters import AutocompleteFilter
+
 from city.models import City
 from django.contrib import admin
 
 from .models import Area, Region
+
+
+class RegionFilter(AutocompleteFilter):
+    title = 'Страна'
+    field_name = 'country'
 
 
 @admin.register(Area)
@@ -29,7 +36,10 @@ class AreaAdmin(admin.ModelAdmin):
 
 @admin.register(Region)
 class RegionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'get_title', 'get_qty_of_cities', 'area', 'iso3166')
+    fields = ['country', 'area', 'title', 'type', 'full_name', 'iso3166']
+    list_display = ('id', 'get_title', 'get_qty_of_cities', 'country', 'area', 'iso3166')
+    search_fields = ('title',)
+    list_filter = (RegionFilter,)
 
     def get_title(self, region):
         return region

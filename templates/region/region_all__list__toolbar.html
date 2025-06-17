@@ -6,7 +6,7 @@
     <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
         <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
             {% if user.is_authenticated %}
-                Посещено {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
+                Посещено: {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
             {% else %}
                 Зарегистрируйтесь, чтобы отмечать регионы
             {% endif %}
@@ -19,7 +19,7 @@
             <select class="form-select w-100" id="id_country"></select>
         </div>
 
-        <a href="{% url 'region-all-map' %}{% if country_id %}?country={{ country_id }}{% endif %}"
+        <a href="{% url 'region-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}"
            class="btn btn-outline-success align-self-center"
             data-bs-toggle="tooltip"
            data-bs-title="Посмотреть регионы {{ country_name|prepositional|title}} на карте">

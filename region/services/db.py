@@ -28,6 +28,8 @@ from django.db.models import (
     F,
     FloatField,
     ExpressionWrapper,
+    Case,
+    When,
 )
 from django.db.models.functions import Coalesce, Cast, Round
 
@@ -83,7 +85,11 @@ def get_all_region_with_visited_cities(
         .annotate(
             ratio_visited=Round(
                 ExpressionWrapper(
-                    100 * F('num_visited') / Coalesce(F('num_total'), 1),  # чтобы не делить на 0
+                    Case(
+                        When(num_total=0, then=Value(0.0)),
+                        default=100 * F('num_visited') / F('num_total'),
+                        output_field=FloatField(),
+                    ),
                     output_field=FloatField(),
                 )
             ),

@@ -35,7 +35,7 @@
                 {% else %}
                     <div class="alert alert-secondary p-5 text-center fs-5" role="alert">
                         В {{ country_name|prepositional|title }} административно-территориальное деление на уровне регионов не предусмотрено.<br>
-                        Вы можете ознакомиться со <a href="{% url 'city-all-list' %}?country={{ country_id }}" class="link-offset-2 link-underline-dark link-dark link-opacity-100 link-underline-opacity-100 link-opacity-75-hover link-underline-opacity-75-hover">списком городов {{ country_name|prepositional|title }}</a>.
+                        Вы можете ознакомиться со <a href="{% url 'city-all-list' %}?country={{ country_code }}" class="link-offset-2 link-underline-dark link-dark link-opacity-100 link-underline-opacity-100 link-opacity-75-hover link-underline-opacity-75-hover">списком городов {{ country_name|prepositional|title }}</a>.
                     </div>
                 {% endif %}
             </div>

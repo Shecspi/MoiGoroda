@@ -23,7 +23,7 @@
             <select class="form-select w-100" id="id_country"></select>
         </div>
 
-        <a href="{% url 'region-all-list' %}{% if country_id %}?country={{ country_id }}{% endif %}"
+        <a href="{% url 'region-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}"
            class="btn btn-outline-success align-self-center"
             data-bs-toggle="tooltip"
            data-bs-title="Посмотреть список регионов {{ country_name|prepositional|title}}">

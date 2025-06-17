@@ -2,7 +2,7 @@ import * as L from 'leaflet';
 import 'leaflet-fullscreen';
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 import {initCountrySelect} from "../components/initCountrySelect";
-import {create_map} from "../components/map";
+import {addLoadControl, addErrorControl, create_map} from "../components/map";
 
 const fillOpacity = 0.7;
 const fillOpacityHighlight = 0.9;
@@ -20,16 +20,16 @@ document.addEventListener('DOMContentLoaded', async (event) => {
 
 function init() {
     const map = create_map();
-    const load = addLoadControl(map);
     if (window.NUMBER_OF_REGIONS > 0) {
         createLegendControl(map);
     }
+    const load = addLoadControl(map, 'Загружаю регионы...');
 
     const allMarkers = [];
 
     let url_all_geo_polygons;
     if (window.NUMBER_OF_REGIONS > 0) {
-        url_all_geo_polygons = `${window.URL_GEO_POLYGONS}/region/lq/RU/all`;
+        url_all_geo_polygons = `${window.URL_GEO_POLYGONS}/region/lq/${window.COUNTRY_CODE}/all`;
     } else {
         url_all_geo_polygons = `${window.URL_GEO_POLYGONS}/country/hq/${window.COUNTRY_CODE}`;
     }
@@ -42,9 +42,6 @@ function init() {
             return response.json();
         })
         .then(data => {
-            // Удаляем информацию о загрузке регионов
-            map.removeControl(load);
-
             // Добавляем полигоны на карту
             if (window.NUMBER_OF_REGIONS > 0) {
                 data.forEach(region => {
@@ -112,9 +109,9 @@ function init() {
                     });
 
                     allMarkers.push(geojson);
-                    const group = new L.featureGroup([...allMarkers]);
-                    map.fitBounds(group.getBounds());
                 });
+                const group = new L.featureGroup([...allMarkers]);
+                map.fitBounds(group.getBounds());
             } else {
                 const myStyle = {
                     fillOpacity: 0.1,
@@ -126,10 +123,11 @@ function init() {
                 const geoJsonLayer = L.geoJSON(data, { style: myStyle }).addTo(map);
                 map.fitBounds(geoJsonLayer.getBounds());
             }
+            map.removeControl(load);
         })
         .catch(error => {
             map.removeControl(load);
-            addErrorControl(map);
+            addErrorControl(map, 'Произошла ошибка при загрузке регионов');
         });
 }
 
@@ -175,46 +173,6 @@ function onEachFeature(feature, layer) {
         mouseout: resetHighlight,
         click: zoomToFeature
     });
-}
-
-/**
- * Создаёт на карте map панель с информацией о том, что идёт загрузка полигонов.
- */
-function addLoadControl(map) {
-    const load = L.control();
-
-    load.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'load');
-        this.update();
-        return this._div;
-    };
-    load.update = function (props) {
-        this._div.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2">'
-                            + '<div class="spinner-border spinner-border-sm" role="status">'
-                            + '<span class="visually-hidden">Загрузка...</span></div><div>Загружаю границы регионов...</div></div>';
-    };
-    load.addTo(map);
-
-    return load
-}
-
-/**
- * Создаёт на карте map панель с информацией о том, что произошла ошибка при загрузке полигонов.
- */
-function addErrorControl(map) {
-    const error = L.control();
-
-    error.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'error');
-        this.update();
-        return this._div;
-    };
-    error.update = function (props) {
-        this._div.innerHTML = '<div>Произошла ошибка при загрузке границ регионов</div>';
-    };
-    error.addTo(map);
-
-    return error
 }
 
 function createLegendControl(map) {

@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     regionSelect.addEventListener('change', async (event) => {
         choicesCity.enable();
+        choicesCity.clearStore();
 
         const regionId = event.target.value;
 

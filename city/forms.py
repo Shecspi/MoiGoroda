@@ -108,6 +108,25 @@ class VisitedCity_Create_Form(ModelForm):
         elif self.instance.pk:
             self.fields['city'].queryset = self.instance.region.city_set.order_by('title')
 
+        # Ограничиваем список регионов только регионами выбранной страны
+        # По умолчанию отображаем показываем регионы России
+        country_id = self.initial.get('country')
+        if country_id:
+            try:
+                country_id = int(country_id)
+                self.fields['region'].queryset = Region.objects.filter(
+                    country_id=country_id
+                ).order_by('title')
+
+                if not self.fields['region'].queryset.exists():
+                    self.fields['region'].disabled = True
+                else:
+                    self.fields['region'].disabled = False
+            except (ValueError, TypeError):
+                self.fields['region'].queryset = Region.objects.none()
+        else:
+            self.fields['region'].queryset = Region.objects.filter(country_id=171)
+
         # По-умолчанию делаем Россию выбранной страной
         if not self.initial.get('country'):
             try:

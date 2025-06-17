@@ -73,19 +73,30 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
         В случае, когда в URL передан city_id, необходимо определить город и автоматически выбрать его в форме
         """
         initial = super().get_initial()
-
         city_id = self.request.GET.get('city_id')
+
         if city_id:
             try:
                 city_id = int(city_id)
-                if City.objects.filter(id=city_id).exists():
-                    initial['city'] = city_id
-                else:
-                    logger.warning(
-                        self.request, f'(Visited city) City with id={city_id} does not exist'
-                    )
             except (ValueError, TypeError):
-                logger.warning(self.request, f'(Visited city) Invalid city_id passed: {city_id}')
+                logger.warning(
+                    self.request,
+                    f'(Visited city) Invalid city_id passed: {self.request.GET.get('city_id')}',
+                )
+                return initial
+
+            try:
+                city = City.objects.get(id=city_id)
+            except City.DoesNotExist:
+                logger.warning(
+                    self.request, f'(Visited city) City with id={city_id} does not exist'
+                )
+            else:
+                initial['city'] = city.id
+                initial['country'] = city.country.id
+                if city.region:
+                    initial['region'] = city.region.id
+
         return initial
 
     def get_form_kwargs(self) -> dict[str, Any]:
@@ -172,14 +183,21 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     form_class = VisitedCity_Create_Form
     template_name = 'city/city_create.html'
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        if not get_visited_city(self.request.user.pk, self.kwargs['pk']):
-            logger.warning(
-                self.request,
-                f'(Visited city) Attempt to update a non-existent visited city #{self.kwargs["pk"]}',
-            )
-            raise Http404
-        return super().get(request, *args, **kwargs)
+    def get_initial(self) -> dict[str, Any]:
+        """
+        Устанавливает значения формы по умолчанию.
+        """
+        initial = super().get_initial()
+
+        # Проверка наличия города в базе не требуется, так как это уже сделано на уровне Django
+        city_id = self.kwargs['pk']
+        city = VisitedCity.objects.get(id=city_id)
+        initial['city'] = city.city.id
+        initial['country'] = city.city.country.id
+        if city.city.region:
+            initial['region'] = city.city.region.id
+
+        return initial
 
     def get_form_kwargs(self) -> dict[str, Any]:
         form_kwargs = super().get_form_kwargs()

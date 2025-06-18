@@ -26,6 +26,7 @@ export default defineConfig({
     manifest: true, // нужен для Django
     rollupOptions: {
       input: {
+        choices_css: path.resolve(entriesDir, 'choices_css.js'),
         city_all: path.resolve(entriesDir, 'city_all.js'),
         city_create: path.resolve(entriesDir, 'city_create.js'),
         city_statistics: path.resolve(entriesDir, 'city_statistics.js'),

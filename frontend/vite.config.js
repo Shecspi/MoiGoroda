@@ -26,6 +26,9 @@ export default defineConfig({
     manifest: true, // нужен для Django
     rollupOptions: {
       input: {
+        city_all: path.resolve(entriesDir, 'city_all.js'),
+        city_create: path.resolve(entriesDir, 'city_create.js'),
+        city_statistic: path.resolve(entriesDir, 'city_statistic.js'),
         dashboard: path.resolve(entriesDir, 'dashboard.js'),
         enable_tooltips: path.resolve(entriesDir, 'enable_tooltips.js'),
         filter_city: path.resolve(entriesDir, 'filter_city.js'),
@@ -39,12 +42,12 @@ export default defineConfig({
         map_region: path.resolve(entriesDir, 'map_region.js'),
         map_region_selected: path.resolve(entriesDir, 'map_region_selected.js'),
         map_share: path.resolve(entriesDir, 'map_share.js'),
+        region_all: path.resolve(entriesDir, 'region_all.js'),
         share_modal: path.resolve(entriesDir, 'share_modal.js'),
         sidebar: path.resolve(entriesDir, 'sidebar.js'),
         subscribe_api: path.resolve(entriesDir, 'subscribe_api.js'),
-        travelpayouts_verify: path.resolve(entriesDir, 'travelpayouts_verify.js'),
-        city_statistics: path.resolve(entriesDir, 'city_statistics.js'),
         signup: path.resolve(entriesDir, 'signup.js'),
+        travelpayouts_verify: path.resolve(entriesDir, 'travelpayouts_verify.js'),
       }
     }
   }

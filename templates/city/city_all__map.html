@@ -31,6 +31,7 @@
         window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
     </script>
     {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/choices_css.js' %}
     {% vite_asset 'js/entries/map_city.js' %}
 
     {% include 'parts/toast/danger.html' with error_title="Ошибка соединения с сервером" error_message='Не получилось загрузить список Ваших посещённых городов.' error_id='toast_request_error' %}

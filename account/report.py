@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0
 
 from abc import ABC, abstractmethod
 
-from city.services.db import get_all_visited_cities
+from city.services.db import get_unique_visited_cities
 from city.services.sort import apply_sort_to_queryset
 from services.db.area_repo import get_visited_areas
 from region.services.db import get_all_region_with_visited_cities
@@ -28,12 +28,13 @@ class CityReport(Report):
         self.user_id = user_id
 
     def get_report(self) -> list[tuple]:
-        all_visited_cities = get_all_visited_cities(self.user_id)
+        all_visited_cities = get_unique_visited_cities(self.user_id)
         sorted_visited_cities = apply_sort_to_queryset(all_visited_cities, 'last_visit_date_down')
         result = [
             (
                 'Город',
                 'Регион',
+                'Страна',
                 'Количество посещений',
                 'Дата первого посещения',
                 'Дата последнего посещения',
@@ -45,7 +46,8 @@ class CityReport(Report):
             result.append(
                 (
                     city.city.title,
-                    str(city.region),
+                    str(city.city.region) if city.city.region else 'Нет региона',
+                    str(city.city.country),
                     city.number_of_visits,
                     str(city.first_visit_date) if city.first_visit_date else 'Не указана',
                     str(city.last_visit_date) if city.last_visit_date else 'Не указана',

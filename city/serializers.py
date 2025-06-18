@@ -20,6 +20,7 @@ class VisitedCitySerializer(serializers.ModelSerializer):
     title = serializers.CharField(source='city.title', read_only=True)
     region_title = serializers.CharField(source='city.region', read_only=True)
     region_id = serializers.IntegerField(source='city.region_id', read_only=True)
+    country = serializers.CharField(source='city.country', read_only=True)
     lat = serializers.CharField(source='city.coordinate_width', read_only=True)
     lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
     number_of_visits = serializers.IntegerField(read_only=True)
@@ -46,6 +47,7 @@ class VisitedCitySerializer(serializers.ModelSerializer):
             'title',
             'region_title',
             'region_id',
+            'country',
             'lat',
             'lon',
             'number_of_visits',
@@ -57,18 +59,20 @@ class VisitedCitySerializer(serializers.ModelSerializer):
 
 
 class NotVisitedCitySerializer(serializers.ModelSerializer):
-    region_title = serializers.CharField()
     lat = serializers.CharField(source='coordinate_width', read_only=True)
     lon = serializers.CharField(source='coordinate_longitude', read_only=True)
+    region = serializers.StringRelatedField()
+    country = serializers.CharField(source='country.name', read_only=True)
 
     class Meta:
         model = City
-        fields = ('id', 'title', 'region', 'region_title', 'lat', 'lon')
+        fields = ('id', 'title', 'region', 'country', 'lat', 'lon')
 
 
 class AddVisitedCitySerializer(serializers.ModelSerializer):
     city_title = serializers.CharField(source='city.title', read_only=True)
     region_title = serializers.CharField(source='city.region', read_only=True)
+    country = serializers.CharField(source='city.country.name', read_only=True)
     lat = serializers.CharField(source='city.coordinate_width', read_only=True)
     lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
 
@@ -79,6 +83,7 @@ class AddVisitedCitySerializer(serializers.ModelSerializer):
             'city',
             'city_title',
             'region_title',
+            'country',
             'date_of_visit',
             'has_magnet',
             'impression',
@@ -97,3 +102,9 @@ class AddVisitedCitySerializer(serializers.ModelSerializer):
         validated_data['is_first_visit'] = not exists  # Если запись есть, ставим False, иначе True
 
         return VisitedCity.objects.create(**validated_data)
+
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id', 'title']

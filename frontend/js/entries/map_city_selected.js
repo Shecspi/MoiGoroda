@@ -1,5 +1,6 @@
 import {create_map} from "../components/map";
 import {icon_visited_pin} from "../components/icons";
+import L from "leaflet";
 
 let map;
 
@@ -14,16 +15,22 @@ function initMap() {
     const lon = parseFloat(window.LON.replace(',', '.'));
 
     map = create_map();
-    map.setView([lat, lon], 7);
+    // map.setView([lat, lon], 7);
     const marker = L.marker([lat, lon], {icon: icon_visited_pin}).addTo(map);
     marker.bindTooltip(window.CITY_TITLE, {
         direction: 'top',
         permanent: true,
     });
 
-    // Загружаем полигон региона
-    const [country, region] = window.ISO3166.split('-')
-    const url = `${URL_GEO_POLYGONS}/region/hq/${country}/${region}`;
+    // Загружаем полигон региона или страны
+    let url;
+    if (window.ISO3166) {
+        const [country, region] = window.ISO3166.split('-');
+        url = `${URL_GEO_POLYGONS}/region/hq/${country}/${region}`;
+    } else {
+        url = `${URL_GEO_POLYGONS}/country/hq/${window.COUNTRY_CODE}`;
+    }
+
     fetch(url)
         .then(response => {
             if (!response.ok) {
@@ -39,9 +46,13 @@ function initMap() {
                 color: '#0033ff',
                 opacity: 0.3
             };
-            L.geoJSON(geoJson, { style: myStyle }).addTo(map);
+            const polygon = L.geoJSON(geoJson, { style: myStyle }).addTo(map);
+            const group = new L.featureGroup([polygon]);
+            map.fitBounds(group.getBounds());
         })
         .catch(error => {
+            const group = new L.featureGroup([marker]);
+            map.fitBounds(group.getBounds());
             console.log('Произошла ошибка при загрузке границ региона:\n' + error);
         });
 }

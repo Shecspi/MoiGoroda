@@ -57,6 +57,12 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CountrySimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ['id', 'code', 'name']
+
+
 class VisitedCountrySerializer(serializers.ModelSerializer):
     """Сериалайзер для модели VisitedCountry"""
 

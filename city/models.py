@@ -10,9 +10,10 @@ Licensed under the Apache License, Version 2.0
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import CASCADE
+from django.db.models import CASCADE, PROTECT
 from django.urls import reverse
 
+from country.models import Country
 from region.models import Region
 
 
@@ -23,8 +24,11 @@ class City(models.Model):
     """
 
     title = models.CharField(max_length=100, verbose_name='Название', blank=False, null=False)
+    country = models.ForeignKey(
+        Country, on_delete=PROTECT, verbose_name='Страна', blank=False, null=False
+    )
     region = models.ForeignKey(
-        Region, on_delete=CASCADE, verbose_name='Регион', blank=False, null=False
+        Region, on_delete=CASCADE, verbose_name='Регион', blank=True, null=True
     )
     population = models.PositiveIntegerField(
         verbose_name='Численность населения', blank=True, null=True
@@ -69,15 +73,6 @@ class VisitedCity(models.Model):
 
     user = models.ForeignKey(
         User, on_delete=CASCADE, verbose_name='Пользователь', blank=False, null=False
-    )
-    region = models.ForeignKey(
-        Region,
-        on_delete=CASCADE,
-        verbose_name='Регион',
-        help_text='Выберите регион, в котором находится посещённый город. '
-        'Список городов выбранного региона подгрузится автоматически в поле "Город".',
-        blank=False,
-        null=False,
     )
     city = models.ForeignKey(
         City,

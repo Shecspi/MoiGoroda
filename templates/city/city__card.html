@@ -23,12 +23,16 @@
             </div>
             <!-- ^^^ Название города -->
 
-            <!-- Регион и год основания -->
+            <!-- Регион, страна и год основания -->
             <div id="subsection-city-region_{{ forloop.counter }}" class="mt-2">
                 <small class="card-subtitle text-muted">
-                    <a href="{{ city.region.get_absolute_url }}"
+                    {% if city.city.region %}
+                        <a href="{{ city.city.region.get_absolute_url }}"
+                           class="text-underline-dashed text-reset">{{ city.city.region }}</a><br>
+                    {% endif %}
+                    <a href="{% url 'city-all-list' %}?country={{ city.city.country.code }}"
                        class="text-underline-dashed text-reset">
-                        {{ city.region }}
+                        {{ city.city.country }}
                     </a>
                 </small><br>
 

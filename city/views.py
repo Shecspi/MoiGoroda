@@ -12,7 +12,7 @@ from typing import Any, NoReturn
 from django.db.models.functions import Round
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.db.models import QuerySet, Avg, Count, F, OuterRef, Subquery
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -29,11 +29,11 @@ from django.views.generic import (
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
 from city.services.db import (
-    get_all_visited_cities,
+    get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
     get_number_of_users_who_visit_city,
     get_total_number_of_visits,
-    get_rank_vy_visits_of_city,
+    get_rank_by_visits_of_city,
     get_neighboring_cities_by_users_rank,
     get_neighboring_cities_by_visits_rank,
     get_neighboring_cities_in_region_by_visits_rank,
@@ -41,17 +41,19 @@ from city.services.db import (
     get_rank_by_visits_of_city_in_region,
     get_rank_by_users_of_city_in_region,
     get_number_of_cities_in_region_by_city,
+    get_rank_by_users_of_city,
+    get_number_of_visited_countries,
 )
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
 from collection.models import Collection
+from country.models import Country
 from services import logger
-from city.services.db import get_number_of_cities, get_number_of_visited_cities
+from city.services.db import get_number_of_cities, get_number_of_new_visited_cities
 from services.db.visited_city_repo import (
     get_visited_city,
 )
-from services.word_modifications.city import modification__city
-from services.word_modifications.visited import modification__visited
+from services.morphology import to_prepositional
 from subscribe.repository import is_user_has_subscriptions, get_all_subscriptions
 
 
@@ -71,19 +73,30 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
         В случае, когда в URL передан city_id, необходимо определить город и автоматически выбрать его в форме
         """
         initial = super().get_initial()
-
         city_id = self.request.GET.get('city_id')
+
         if city_id:
             try:
                 city_id = int(city_id)
-                if City.objects.filter(id=city_id).exists():
-                    initial['city'] = city_id
-                else:
-                    logger.warning(
-                        self.request, f'(Visited city) City with id={city_id} does not exist'
-                    )
             except (ValueError, TypeError):
-                logger.warning(self.request, f'(Visited city) Invalid city_id passed: {city_id}')
+                logger.warning(
+                    self.request,
+                    f'(Visited city) Invalid city_id passed: {self.request.GET.get('city_id')}',
+                )
+                return initial
+
+            try:
+                city = City.objects.get(id=city_id)
+            except City.DoesNotExist:
+                logger.warning(
+                    self.request, f'(Visited city) City with id={city_id} does not exist'
+                )
+            else:
+                initial['city'] = city.id
+                initial['country'] = city.country.id
+                if city.region:
+                    initial['region'] = city.region.id
+
         return initial
 
     def get_form_kwargs(self) -> dict[str, Any]:
@@ -170,14 +183,21 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
     form_class = VisitedCity_Create_Form
     template_name = 'city/city_create.html'
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        if not get_visited_city(self.request.user.pk, self.kwargs['pk']):
-            logger.warning(
-                self.request,
-                f'(Visited city) Attempt to update a non-existent visited city #{self.kwargs["pk"]}',
-            )
-            raise Http404
-        return super().get(request, *args, **kwargs)
+    def get_initial(self) -> dict[str, Any]:
+        """
+        Устанавливает значения формы по умолчанию.
+        """
+        initial = super().get_initial()
+
+        # Проверка наличия города в базе не требуется, так как это уже сделано на уровне Django
+        city_id = self.kwargs['pk']
+        city = VisitedCity.objects.get(id=city_id)
+        initial['city'] = city.city.id
+        initial['country'] = city.city.country.id
+        if city.city.region:
+            initial['region'] = city.city.region.id
+
+        return initial
 
     def get_form_kwargs(self) -> dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
@@ -290,12 +310,18 @@ class VisitedCity_Detail(DetailView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        country_id = self.city.country_id
+
         context['page_title'] = (
-            f'{self.city.title} ({self.city.region}) - информация о городе, карта'
+            f'{self.city.title}, {self.city.region}, {self.city.country} - информация о городе, карта'
+            if self.city.region
+            else f'{self.city.title}, {self.city.country} - информация о городе, карта'
         )
 
         context['page_description'] = (
-            f'{self.city.title} ({self.city.region}, {self.city.region.area} федеральный округ). '
+            f'{self.city.title}, {self.city.country}, {self.city.region}. '
+            if self.city.region
+            else f'{self.city.title}, {self.city.country}. '
         )
 
         if len(self.city.collections) == 1:
@@ -321,25 +347,32 @@ class VisitedCity_Detail(DetailView):
         )
 
         context['number_of_users_who_visit_city'] = get_number_of_users_who_visit_city(self.city.id)
-        context['number_of_visits_all_users'] = self.city.number_of_visits_all_users
+        context['number_of_visits'] = self.city.number_of_visits_all_users
         context['total_number_of_visits'] = get_total_number_of_visits()
         context = {
             **context,
-            'number_of_cities': get_number_of_cities(),
-            'total_number_of_visits': get_total_number_of_visits(),
-            'number_of_cities_in_region': get_number_of_cities_in_region_by_city(self.city.id),
-            'rank': get_rank_vy_visits_of_city(self.city.id),
-            'rank_by_visits_of_city_in_region': get_rank_by_visits_of_city_in_region(self.city.id),
-            'rank_by_users_of_city_in_region': get_rank_by_users_of_city_in_region(self.city.id),
-            'neighboring_cities_by_users_rank': get_neighboring_cities_by_users_rank(self.city.id),
-            'neighboring_cities_by_visits_rank': get_neighboring_cities_by_visits_rank(
-                self.city.id
+            'popular_months': ', '.join(
+                sorted(self.city.popular_months, key=lambda m: self.MONTH_NAMES.index(m))
             ),
-            'neighboring_cities_in_region_by_users_rank': (
-                get_neighboring_cities_in_region_by_users_rank(self.city.id)
+            'all_cities_qty': get_number_of_cities(country_id),
+            'region_cities_qty': get_number_of_cities_in_region_by_city(self.city.id),
+            'visits_rank_in_country': get_rank_by_visits_of_city(
+                self.city.id, self.city.country_id
             ),
-            'neighboring_cities_in_region_by_visits_rank': get_neighboring_cities_in_region_by_visits_rank(
-                self.city.id
+            'users_rank_in_country': get_rank_by_users_of_city(self.city.id, self.city.country_id),
+            'visits_rank_in_region': get_rank_by_visits_of_city_in_region(self.city.id, True),
+            'users_rank_in_region': get_rank_by_users_of_city_in_region(self.city.id, True),
+            'users_rank_in_country_neighboring_cities': get_neighboring_cities_by_users_rank(
+                self.city.id, country_id
+            ),
+            'visits_rank_in_country_neighboring_cities': get_neighboring_cities_by_visits_rank(
+                self.city.id, country_id
+            ),
+            'users_rank_neighboring_cities_in_region': (
+                get_neighboring_cities_in_region_by_users_rank(self.city.id, country_id)
+            ),
+            'visits_rank_neighboring_cities_in_region': get_neighboring_cities_in_region_by_visits_rank(
+                self.city.id, country_id
             ),
         }
 
@@ -349,31 +382,53 @@ class VisitedCity_Detail(DetailView):
 class VisitedCity_Map(LoginRequiredMixin, TemplateView):
     template_name = 'city/city_all__map.html'
 
+    def get(self, request, *args, **kwargs):
+        # Если в URL передан несуществующий код страны, то перенаправляем пользователя на страницу всех городов
+        country_code = self.request.GET.get('country')
+        if country_code and not Country.objects.filter(code=country_code).exists():
+            return redirect('city-all-map')
+
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(
         self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any
     ) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        country_code = self.request.GET.get('country')
+        # country_code уже проверен на существование, здесь Country.DoesNotExist не может быть
+        country = str(Country.objects.get(code=country_code)) if country_code else ''
 
         logger.info(self.request, '(Visited city) Viewing the map of visited cities')
 
         user_id = self.request.user.pk
 
         number_of_cities = get_number_of_cities()
-        number_of_visited_cities = get_number_of_visited_cities(user_id)
+        number_of_visited_cities = get_number_of_new_visited_cities(user_id)
+        number_of_cities_in_country = get_number_of_cities(country_code)
+        number_of_visited_cities_in_country = get_number_of_new_visited_cities(
+            user_id, country_code
+        )
+        number_of_visited_countries = get_number_of_visited_countries(user_id)
 
         context['total_qty_of_cities'] = number_of_cities
         context['qty_of_visited_cities'] = number_of_visited_cities
-
-        context['declension_of_total_cities'] = modification__city(number_of_cities)
-        context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
-        context['declension_of_visited'] = modification__visited(number_of_visited_cities)
-
-        context['active_page'] = 'city_map'
+        context['number_of_cities_in_country'] = number_of_cities_in_country
+        context['number_of_visited_cities_in_country'] = number_of_visited_cities_in_country
+        context['number_of_visited_countries'] = number_of_visited_countries
 
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(user_id)
         context['subscriptions'] = get_all_subscriptions(user_id)
 
-        context['page_title'] = 'Карта посещённых городов'
+        context['country_name'] = country
+        context['country_code'] = country_code
+
+        context['active_page'] = 'city_map'
+        context['page_title'] = (
+            f'Карта посещённых городов в {to_prepositional(country).title()}'
+            if country
+            else 'Карта посещённых городов'
+        )
         context['page_description'] = 'Карта с отмеченными посещёнными городами'
 
         return context
@@ -408,17 +463,32 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
 
         self.sort: str | None = ''
         self.filter: str | None = ''
+        self.country: str = ''
+        self.country_code: str | None = None
         self.user_id: int | None = None
         self.total_qty_of_cities: int = 0
         self.qty_of_visited_cities: int = 0
         self.has_subscriptions: bool = False
         self.all_visited_cities: QuerySet[VisitedCity] | None = None
 
+    def get(self, request, *args, **kwargs):
+        # Если в URL передан несуществующий код страны, то перенаправляем пользователя на страницу всех городов
+        country_code = self.request.GET.get('country')
+        if country_code and not Country.objects.filter(code=country_code).exists():
+            return redirect('city-all-map')
+
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self) -> QuerySet[VisitedCity]:
         self.user_id = self.request.user.pk
         self.filter = self.request.GET.get('filter')
+        self.country_code = self.request.GET.get('country')
 
-        self.queryset = get_all_visited_cities(self.user_id)
+        if self.country_code:
+            # country_code уже проверен на существование, здесь Country.DoesNotExist не может быть
+            self.country = str(Country.objects.get(code=self.country_code))
+
+        self.queryset = get_unique_visited_cities(self.user_id, self.country_code)
         self.apply_filter()
         self.apply_sort()
 
@@ -465,15 +535,19 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         number_of_cities = get_number_of_cities()
-        number_of_visited_cities = get_number_of_visited_cities(self.user_id)
+        number_of_cities_in_country = get_number_of_cities(self.country_code)
+        number_of_visited_cities = get_number_of_new_visited_cities(self.user_id)
+        number_of_visited_cities_in_country = get_number_of_new_visited_cities(
+            self.user_id, self.country_code
+        )
+        number_of_visited_countries = get_number_of_visited_countries(self.user_id)
 
         context['all_cities'] = self.all_cities
         context['total_qty_of_cities'] = number_of_cities
+        context['number_of_cities_in_country'] = number_of_cities_in_country
+        context['number_of_visited_cities_in_country'] = number_of_visited_cities_in_country
+        context['number_of_visited_countries'] = number_of_visited_countries
         context['qty_of_visited_cities'] = number_of_visited_cities
-
-        context['declension_of_total_cities'] = modification__city(number_of_cities)
-        context['declension_of_visited_cities'] = modification__city(number_of_visited_cities)
-        context['declension_of_visited'] = modification__visited(number_of_visited_cities)
 
         context['filter'] = self.filter
         context['sort'] = self.sort
@@ -483,7 +557,13 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(self.user_id)
         context['subscriptions'] = get_all_subscriptions(self.user_id)
 
-        context['page_title'] = 'Список посещённых городов'
+        context['country_name'] = str(self.country)
+        context['country_code'] = self.country_code
+        context['page_title'] = (
+            f'Список посещённых городов в {to_prepositional(self.country).title()}'
+            if self.country
+            else 'Список посещённых городов'
+        )
         context['page_description'] = (
             'Список всех посещённых городов, отсортированный в порядке посещения'
         )

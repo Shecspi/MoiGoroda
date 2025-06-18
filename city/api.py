@@ -9,12 +9,8 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-import json
-from json import JSONDecodeError
-from typing import NoReturn
-
-from pydantic import ValidationError
 from rest_framework import generics, status
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 import rest_framework.exceptions as drf_exc
 from rest_framework.response import Response
@@ -25,16 +21,16 @@ from city.serializers import (
     VisitedCitySerializer,
     NotVisitedCitySerializer,
     AddVisitedCitySerializer,
+    CitySerializer,
 )
-from city.structs import UserID
-from region.models import Region
+from city.services.filter import apply_filter_to_queryset
 from services import logger
-from services.db.visited_city_repo import get_not_visited_cities
 from city.services.db import (
-    get_all_visited_cities,
+    get_unique_visited_cities,
     get_number_of_visits_by_city,
     get_first_visit_date_by_city,
     get_last_visit_date_by_city,
+    get_not_visited_cities,
 )
 from subscribe.repository import is_subscribed
 
@@ -54,7 +50,15 @@ class GetVisitedCities(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.request.user.pk
-        return get_all_visited_cities(user_id)
+        country_id = self.request.GET.get('country')
+        filter = self.request.GET.get('filter')
+
+        queryset = get_unique_visited_cities(user_id, country_id)
+
+        if filter:
+            queryset = apply_filter_to_queryset(queryset, user_id, filter)
+
+        return queryset
 
 
 class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
@@ -64,29 +68,9 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
 
     def __init__(self) -> None:
         # Список ID пользователей, у которых необходимо вернуть посещённые города
-        self.user_ids: list = []
+        self.user_ids: list[int] = []
 
         super().__init__()
-
-    def _validate_json(self, data: str) -> None | NoReturn:
-        try:
-            UserID.model_validate_json(data)
-        except ValidationError:
-            logger.warning(
-                self.request,
-                '(API) An incorrect list of user IDs was received',
-            )
-            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
-
-    def _load_json(self, data: str) -> dict | NoReturn:
-        try:
-            return json.loads(data)
-        except JSONDecodeError:
-            logger.warning(
-                self.request,
-                '(API) An incorrect list of user IDs was received',
-            )
-            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
 
     def _user_has_allowed_to_subscribe_to_himself(self, user_id: int) -> bool:
         try:
@@ -121,15 +105,16 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
             return False
 
     def get(self, *args, **kwargs):
-        input_data = self.request.GET.get('data')
+        user_ids = self.request.GET.getlist('user_ids')
 
-        self._validate_json(input_data)
-
-        # По идее ошибок загрузки JSON быть не должно, так как его уже проверил Pydantic,
-        # но на всякий случай обрабатываю эту ситуацию.
-        json_data = self._load_json(input_data)
-
-        user_ids = json_data.get('id')
+        try:
+            user_ids = [int(user_id) for user_id in user_ids]
+        except ValueError:
+            logger.warning(
+                self.request,
+                '(API) Received invalid user_ids, cannot cast to int',
+            )
+            raise drf_exc.ParseError('Получен некорректный список идентификаторов пользователей')
 
         if not self.request.user.is_superuser:
             # Убираем из списка ID тех пользователей, которые не разрешили подписываться на себя.
@@ -158,10 +143,11 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
     def get_queryset(self):
         if not self.user_ids:
             return []
+        country_id = self.request.GET.get('country')
 
         # get_all_visited_cities работает с одним user_id, поэтому она вызывается
         # несколько раз и результаты собираются в один QuerySet.
-        querysets = [get_all_visited_cities(user_id) for user_id in self.user_ids]
+        querysets = [get_unique_visited_cities(user_id, country_id) for user_id in self.user_ids]
         combined_queryset = querysets[0]
         for qs in querysets[1:]:
             combined_queryset = combined_queryset.union(qs)
@@ -178,12 +164,12 @@ class GetNotVisitedCities(generics.ListAPIView):
             self.request,
             f'(API) Successful request for a list of not visited cities (user #{self.request.user.id})',
         )
-
         return super().get(*args, **kwargs)
 
     def get_queryset(self):
-        regions = {region.id: str(region) for region in Region.objects.all()}
-        return get_not_visited_cities(self.request.user.pk, regions)
+        country_code = self.request.GET.get('country')
+        print(country_code)
+        return get_not_visited_cities(self.request.user.pk, country_code)
 
 
 class AddVisitedCity(generics.CreateAPIView):
@@ -214,8 +200,7 @@ class AddVisitedCity(generics.CreateAPIView):
                 status=status.HTTP_409_CONFLICT,
             )
 
-        region = city.region
-        serializer.save(user=user, region=region)
+        serializer.save(user=user)
 
         logger.info(
             self.request,
@@ -233,3 +218,33 @@ class AddVisitedCity(generics.CreateAPIView):
         )
 
         return Response({'status': 'success', 'city': return_data})
+
+
+@api_view(['GET'])
+def city_list_by_region(request):
+    region_id = request.GET.get('region_id')
+    if not region_id:
+        return Response(
+            {'detail': 'Параметр region_id является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    cities = City.objects.filter(region_id=region_id).order_by('title')
+    serializer = CitySerializer(cities, many=True)
+
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def city_list_by_country(request):
+    country_id = request.GET.get('country_id')
+    if not country_id:
+        return Response(
+            {'detail': 'Параметр country_id является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    cities = City.objects.filter(country_id=country_id).order_by('title')
+    serializer = CitySerializer(cities, many=True)
+
+    return Response(serializer.data)

@@ -1,12 +1,13 @@
+{% load query_string %}
 {% if page_obj.has_other_pages %}
     <div class="text-center my-2" id="section-pagination">
         <div class="btn-group mb-3 shadow" role="group">
             {% if page_obj.has_previous %}
-                <a href="?page=1{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                <a href="?{% update_query page=1 %}"
                    class="btn btn-outline-danger" id="link-to_first_page">
                     <i class="fa-solid fa-angles-left"></i>
                 </a>
-                <a href="?page={{ page_obj.previous_page_number }}{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                <a href="?{% update_query page=page_obj.previous_page_number %}"
                    class="btn btn-outline-danger" id="link-to_prev_page">
                     <i class="fa-solid fa-angle-left"></i>
                 </a>
@@ -24,11 +25,11 @@
             </button>
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                <a href="?{% update_query page=page_obj.next_page_number %}"
                    class="btn btn-outline-success" id="link-to_next_page">
                     <i class="fa-solid fa-angle-right"></i>
                 </a>
-                <a href="?page={{ page_obj.paginator.num_pages }}{% if filter %}&filter={{ filter }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                <a href="?{% update_query page=page_obj.paginator.num_pages %}"
                    class="btn btn-outline-success" id="link-to_last_page">
                     <i class="fa-solid fa-angles-right"></i>
                 </a>

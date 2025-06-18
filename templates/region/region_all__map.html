@@ -5,7 +5,7 @@
 
 {% block content %}
     <h1 class="display-5 text-center mt-3 mx-3" id="page-header">
-        Карта регионов России
+        {{ page_title }}
     </h1>
 
     {% if not DEBUG %}
@@ -35,6 +35,8 @@
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
         window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}"
+        window.NUMBER_OF_REGIONS = {{ qty_of_regions }};
+        window.COUNTRY_CODE = "{{ country_code }}";
         window.REGION_LIST = new Map();
         {% for item in all_regions %}
             window.REGION_LIST.set('{{ item.iso3166 }}', {

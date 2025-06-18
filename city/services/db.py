@@ -18,9 +18,10 @@ from django.db.models import (
     F,
     Window,
 )
-from django.db.models.functions import Round, TruncYear, TruncMonth, Rank
+from django.db.models.functions import Round, TruncYear, TruncMonth, Rank, Coalesce
 
 from city.models import VisitedCity, City
+from country.models import Country
 
 
 class ExtractYearFromArray(Func):
@@ -32,7 +33,9 @@ class ExtractYearFromArray(Func):
         super().__init__(*expressions, **extra)
 
 
-def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
+def get_unique_visited_cities(
+    user_id: int, country_code: str | None = None
+) -> QuerySet[VisitedCity]:
     """
     Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.
     Возвращает Queryset, состоящий из полей:
@@ -117,9 +120,19 @@ def get_all_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
         .values('count')[:1]
     )
 
+    if country_code:
+        queryset = VisitedCity.objects.filter(city__country__code=country_code)
+    else:
+        queryset = VisitedCity.objects.all()
+
     queryset = (
-        VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
-        .select_related('city', 'city__region', 'user', 'region')
+        queryset.filter(user_id=user_id, is_first_visit=True)
+        .select_related(
+            'city',
+            'city__region',
+            'city__country',
+            'user',
+        )
         .annotate(
             number_of_visits=Subquery(city_visits_subquery, output_field=IntegerField()),
             average_rating=(
@@ -143,11 +156,42 @@ def get_all_new_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     return VisitedCity.objects.filter(is_first_visit=True, user_id=user_id)
 
 
-def get_number_of_cities() -> int:
+def get_number_of_cities(country_code: str | None = None) -> int:
     """
     Возвращает количество городов, сохранённых в базе данных.
     """
-    return City.objects.count()
+    queryset = City.objects.all()
+    if country_code:
+        queryset = queryset.filter(country__code=country_code)
+    return queryset.count()
+
+
+def _get_all_countries_with_visited_city(queryset: QuerySet[VisitedCity]) -> QuerySet[Country]:
+    # Подзапрос: сколько уникальных городов в каждой стране посетил пользователь
+    visited_counts_subquery = (
+        queryset.filter(city__country=OuterRef('pk'))
+        .values('city__country')
+        .annotate(unique_city_count=Count('city', distinct=True))
+        .values('unique_city_count')[:1]
+    )
+
+    return (
+        Country.objects.annotate(
+            total_cities=Count('city', distinct=True),
+            visited_cities=Coalesce(
+                Subquery(visited_counts_subquery, output_field=IntegerField()), 0
+            ),
+        )
+        .filter(visited_cities__gt=0)
+        .order_by('-visited_cities')
+    )
+
+
+def get_number_of_cities_in_country(country_code: str) -> int:
+    """
+    Возвращает количество городов в указанной стране.
+    """
+    return City.objects.filter(country__code=country_code).count()
 
 
 def get_number_of_cities_in_region_by_city(city_id: int) -> int:
@@ -159,18 +203,35 @@ def get_number_of_cities_in_region_by_city(city_id: int) -> int:
     return City.objects.filter(region=city.region).count()
 
 
-def get_number_of_visited_cities(user_id: int) -> int:
+def get_number_of_new_visited_cities(user_id: int, country_code: str | None = None) -> int:
     """
-    Возвращает количество городов, посещённых пользователем с user_id.
+    Возвращает количество уникальных городов, посещённых пользователем с user_id.
     """
-    return get_all_visited_cities(user_id).count()
+    if country_code:
+        queryset = VisitedCity.objects.filter(city__country__code=country_code)
+    else:
+        queryset = VisitedCity.objects.all()
+
+    return queryset.filter(user_id=user_id, is_first_visit=True).count()
+
+
+def get_number_of_visited_cities(user_id: int, country_code: str | None = None) -> int:
+    """
+    Возвращает количество городов, посещённых пользователем с user_id (включая повторные посещения).
+    """
+    if country_code:
+        queryset = VisitedCity.objects.filter(city__country__code=country_code)
+    else:
+        queryset = VisitedCity.objects.all()
+
+    return queryset.filter(user_id=user_id).count()
 
 
 def get_number_of_not_visited_cities(user_id: int) -> int:
     """
     Возвращает количество непосещённых городов пользователем с ID, указанном в user_id.
     """
-    return City.objects.count() - get_number_of_visited_cities(user_id)
+    return City.objects.count() - get_number_of_new_visited_cities(user_id)
 
 
 def get_number_of_total_visited_cities_by_year(user_id: int, year: int) -> int:
@@ -179,7 +240,7 @@ def get_number_of_total_visited_cities_by_year(user_id: int, year: int) -> int:
     Учитываются все посещённые города, а не только уникальные.
     """
     result = 0
-    for city in get_all_visited_cities(user_id):
+    for city in get_unique_visited_cities(user_id):
         if city.visit_dates:
             for visit_date in city.visit_dates:
                 if visit_date.year == year:
@@ -204,7 +265,7 @@ def get_last_10_new_visited_cities(user_id: int) -> QuerySet:
     Возвращает последние 10 посещённых городов пользователя с ID, указанным в user_id.
     """
     return (
-        get_all_visited_cities(user_id)
+        get_unique_visited_cities(user_id)
         .exclude(first_visit_date=None)
         .order_by('-first_visit_date')[:10]
     )
@@ -349,16 +410,23 @@ def get_number_of_users_who_visit_city(city_id: int) -> int:
     return VisitedCity.objects.filter(city=city_id, is_first_visit=True).count()
 
 
-def get_total_number_of_visits() -> int:
+def get_total_number_of_visits(country_id: int | None = False) -> int:
     """
     Возвращает общее количество посещённых городов всеми пользователями
     """
-    return VisitedCity.objects.count()
+    queryset = VisitedCity.objects.select_related('city')
+    if country_id:
+        queryset = queryset.filter(city__country_id=country_id)
+    return queryset.count()
 
 
-def get_rank_vy_visits_of_city(city_id: int) -> int:
+def get_rank_by_visits_of_city(city_id: int, country_id: int | None = False) -> int:
+    queryset = City.objects.all()
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+
     ranked_cities = list(
-        City.objects.annotate(
+        queryset.annotate(
             visits=Count('visitedcity'), rank=Window(expression=Rank(), order_by=F('visits').desc())
         )
         .values('id', 'title', 'visits', 'rank')
@@ -372,18 +440,46 @@ def get_rank_vy_visits_of_city(city_id: int) -> int:
     return 0
 
 
-def get_rank_by_visits_of_city_in_region(city_id: int) -> int:
+def get_rank_by_users_of_city(city_id: int, country_id: int | None = False) -> int:
+    queryset = City.objects.all()
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+
+    ranked_cities = list(
+        queryset.annotate(
+            visits=Count('visitedcity__user', distinct=True),
+            rank=Window(expression=Rank(), order_by=F('visits').desc()),
+        )
+        .values('id', 'title', 'visits', 'rank')
+        .order_by('rank')
+    )
+
+    for city in ranked_cities:
+        if city['id'] == city_id:
+            return city['rank']
+
+    return 0
+
+
+def get_rank_by_visits_of_city_in_region(city_id: int, is_country_filter: bool = False) -> int:
     """
     Возвращает местоположение города в рейтинге городов региона на основе количества посещений.
+    По-умолчанию сравнивает со всеми городами, но можно ограничить выборку одной страной.
+    Если в стране есть разбивка на регионы, то показывает рейтинг в этом регионе.
+    Если такой разбивки нет, то в рейтинг пойдут все города страны.
     """
     try:
         city = City.objects.get(id=city_id)
     except (City.DoesNotExist, City.MultipleObjectsReturned):
         return 0
 
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
+    if city.region:
+        queryset = queryset.filter(region=city.region)
     ranked_cities = list(
-        City.objects.filter(region=city.region)
-        .annotate(
+        queryset.annotate(
             visits=Count('visitedcity'), rank=Window(expression=Rank(), order_by=F('visits').desc())
         )
         .values('id', 'title', 'visits', 'rank')
@@ -397,18 +493,25 @@ def get_rank_by_visits_of_city_in_region(city_id: int) -> int:
     return 0
 
 
-def get_rank_by_users_of_city_in_region(city_id: int) -> int:
+def get_rank_by_users_of_city_in_region(city_id: int, is_country_filter: bool = False) -> int:
     """
     Возвращает местоположение города в рейтинге городов региона на основе количества пользователей, посетивших город.
+    По-умолчанию сравнивает со всеми городами, но можно ограничить выборку одной страной.
+    Если в стране есть разбивка на регионы, то показывает рейтинг в этом регионе.
+    Если такой разбивки нет, то в рейтинг пойдут все города страны.
     """
     try:
         city = City.objects.get(id=city_id)
     except (City.DoesNotExist, City.MultipleObjectsReturned):
         return 0
 
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
+    if city.region:
+        queryset = queryset.filter(region=city.region)
     ranked_cities = list(
-        City.objects.filter(region=city.region)
-        .annotate(
+        queryset.annotate(
             visits=Count('visitedcity__user', distinct=True),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),
         )
@@ -439,13 +542,21 @@ def _get_cities_near_index(items: list, city_id: int, window_size: int = 10) -> 
     return items[start:end]
 
 
-def get_neighboring_cities_by_visits_rank(city_id: int):
+def get_neighboring_cities_by_visits_rank(city_id: int, is_country_filter: bool = False):
     """
     Возвращает список 10 городов, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
     """
+    try:
+        city = City.objects.get(id=city_id)
+    except (City.DoesNotExist, City.MultipleObjectsReturned):
+        return []
+
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
     ranked_cities = list(
-        City.objects.annotate(
+        queryset.annotate(
             visits=Count('visitedcity__user', distinct=True),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),
         )
@@ -455,7 +566,7 @@ def get_neighboring_cities_by_visits_rank(city_id: int):
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_neighboring_cities_in_region_by_visits_rank(city_id: int):
+def get_neighboring_cities_in_region_by_visits_rank(city_id: int, is_country_filter: bool = False):
     """
     Возвращает список 10 городов конкретного региона, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
@@ -465,8 +576,11 @@ def get_neighboring_cities_in_region_by_visits_rank(city_id: int):
     except (City.DoesNotExist, City.MultipleObjectsReturned):
         return []
 
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
     ranked_cities = list(
-        City.objects.filter(region=city.region)
+        queryset.filter(region=city.region)
         .annotate(
             visits=Count('visitedcity__user', distinct=True),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),
@@ -477,13 +591,21 @@ def get_neighboring_cities_in_region_by_visits_rank(city_id: int):
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_neighboring_cities_by_users_rank(city_id: int):
+def get_neighboring_cities_by_users_rank(city_id: int, is_country_filter: bool = False):
     """
     Возвращает список 10 городов, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
     """
+    try:
+        city = City.objects.get(id=city_id)
+    except (City.DoesNotExist, City.MultipleObjectsReturned):
+        return []
+
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
     ranked_cities = list(
-        City.objects.annotate(
+        queryset.annotate(
             visits=Count('visitedcity'),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),
         )
@@ -493,7 +615,7 @@ def get_neighboring_cities_by_users_rank(city_id: int):
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_neighboring_cities_in_region_by_users_rank(city_id: int):
+def get_neighboring_cities_in_region_by_users_rank(city_id: int, is_country_filter: bool = False):
     """
     Возвращает список 10 городов конкретного региона, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
@@ -503,8 +625,11 @@ def get_neighboring_cities_in_region_by_users_rank(city_id: int):
     except (City.DoesNotExist, City.MultipleObjectsReturned):
         return []
 
+    queryset = City.objects.all()
+    if is_country_filter:
+        queryset = queryset.filter(country_id=city.country_id)
     ranked_cities = list(
-        City.objects.filter(region=city.region)
+        queryset.filter(region=city.region)
         .annotate(
             visits=Count('visitedcity'),
             rank=Window(expression=Rank(), order_by=F('visits').desc()),
@@ -513,3 +638,21 @@ def get_neighboring_cities_in_region_by_users_rank(city_id: int):
         .order_by('rank')
     )
     return _get_cities_near_index(ranked_cities, city_id)
+
+
+def get_not_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[City]:
+    """
+    Возвращает QuerySet объектов City, которые пользователь с ID user_id не отметил, как посещённые.
+    Для этого берётся список всех городов, которые есть в БД, и из него убираются уже посещённые пользователем города.
+    """
+    queryset = City.objects.all()
+
+    if country_code:
+        queryset = queryset.filter(country__code=country_code)
+
+    visited_cities = [city.city.id for city in get_unique_visited_cities(user_id, country_code)]
+    return queryset.exclude(id__in=visited_cities)
+
+
+def get_number_of_visited_countries(user_id: int):
+    return get_unique_visited_cities(user_id).values('city__country').distinct().count()

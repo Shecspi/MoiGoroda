@@ -14,11 +14,14 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.http import Http404, HttpResponse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
 
 from MoiGoroda import settings
+from country.models import Country
 from region.models import Region
 from city.models import VisitedCity, City
 from services import logger
@@ -29,9 +32,7 @@ from region.services.db import (
 )
 from region.services.filter import apply_filter_to_queryset
 from region.services.sort import apply_sort_to_queryset
-from services.url_params import make_url_params
-from services.word_modifications.city import modification__city
-from services.word_modifications.visited import modification__visited
+from services.morphology import to_genitive
 from utils.RegionListMixin import RegionListMixin
 
 
@@ -50,6 +51,9 @@ class RegionList(RegionListMixin, ListView):
     paginate_by = 16
     all_regions = []
     list_or_map: str = ''
+    country: str = ''
+    country_code: str = ''
+    country_id: str | None = None
 
     def __init__(self, list_or_map: str):
         super().__init__()
@@ -58,19 +62,36 @@ class RegionList(RegionListMixin, ListView):
         self.qty_of_regions: int = 0
         self.qty_of_visited_regions: int = 0
 
+    def dispatch(self, request, *args, **kwargs):
+        self.country_code = self.request.GET.get('country')
+        if not self.country_code:
+            if self.list_or_map == 'map':
+                return redirect(reverse('region-all-map') + '?country=RU')
+            else:
+                return redirect(reverse('region-all-list') + '?country=RU')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         """
+        Достаёт из базы данных все регионы, добавляя дополнительные поля:
         Достаёт из базы данных все регионы, добавляя дополнительные поля:
             * num_total - общее количество городов в регионе
             * num_visited - количество посещённых пользователем городов в регионе (для авторизованных пользователей)
         """
-        self.qty_of_regions = Region.objects.count()
+        try:
+            country = Country.objects.get(code=self.country_code)
+        except (Country.DoesNotExist, ValueError):
+            raise Http404
+        else:
+            self.country = str(country)
+
+        self.qty_of_regions = Region.objects.filter(country=country.id).count()
 
         if self.request.user.is_authenticated:
-            queryset = get_all_region_with_visited_cities(self.request.user.pk)
+            queryset = get_all_region_with_visited_cities(self.request.user.pk, country.id)
             self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
         else:
-            queryset = get_all_regions()
+            queryset = get_all_regions(country.id)
 
         if self.list_or_map == 'list':
             logger.info(self.request, '(Region) Viewing the list of regions')
@@ -98,15 +119,29 @@ class RegionList(RegionListMixin, ListView):
         context['all_regions'] = self.all_regions
         context['qty_of_regions'] = self.qty_of_regions
         context['qty_of_visited_regions'] = self.qty_of_visited_regions
-        context['declension_of_regions'] = self.declension_of_region(self.qty_of_visited_regions)
-        context['declension_of_visited'] = self.declension_of_visited(self.qty_of_visited_regions)
+
+        context['country_id'] = self.country_id
+        context['country_name'] = self.country
+        context['country_code'] = self.country_code
 
         if self.list_or_map == 'list':
-            context['page_title'] = 'Список регионов России'
-            context['page_description'] = 'Список регионов России'
+            context['page_title'] = (
+                'Список регионов ' + f'{to_genitive(self.country).title()}'
+                if self.country
+                else '(все страны)'
+            )
+            context['page_description'] = (
+                f'Список регионов {to_genitive(self.country).title()} с возможностью просмотра на карте. Актуальная информация об административном делении и расположении регионов.'
+            )
         else:
-            context['page_title'] = 'Карта регионов России'
-            context['page_description'] = 'Карта с отмеченными регионами России'
+            context['page_title'] = (
+                'Карта регионов ' + f'{to_genitive(self.country).title()}'
+                if self.country
+                else '(все страны)'
+            )
+            context['page_description'] = (
+                f'Карта регионов {to_genitive(self.country).title()}. Актуальная информация об административном делении и расположении регионов.'
+            )
 
         return context
 
@@ -139,12 +174,14 @@ class CitiesByRegionList(ListView):
 
     sort: str = ''
     filter: str | None = None
+    country_name: str = ''
     region_id = None
-    all_cities = None
     region_name = None
+    region_iso3166: str = ''
+    all_cities = None
     list_or_map: str = ''
-    total_qty_of_cities: int = 0
-    qty_of_visited_cities: int = 0
+    number_of_cities: int = 0
+    number_of_visited_cities: int = 0
     valid_filters = ('magnet', 'current_year', 'last_year')
     valid_sorts = ('name_down', 'name_up', 'date_down', 'date_up')
 
@@ -156,12 +193,16 @@ class CitiesByRegionList(ListView):
         self.region_id = self.kwargs['pk']
 
         try:
-            self.region_name = Region.objects.get(id=self.region_id)
+            region = Region.objects.get(id=self.region_id)
         except ObjectDoesNotExist as exc:
             logger.warning(
                 self.request, f'(Region) Attempt to access a non-existent region #{self.region_id}'
             )
             raise Http404 from exc
+
+        self.region_name = str(region)
+        self.region_iso3166 = str(region.iso3166)
+        self.country_name = str(region.country)
 
         return super().get(*args, **kwargs)
 
@@ -177,8 +218,8 @@ class CitiesByRegionList(ListView):
             queryset = get_all_cities_in_region(self.request.user, self.region_id)
 
             # Количество городов считаем до фильтрации, чтобы всегда было указано, сколько городов посещено
-            self.total_qty_of_cities = City.objects.filter(region_id=self.region_id).count()
-            self.qty_of_visited_cities = queryset.filter(is_visited=True).count()
+            self.number_of_cities = City.objects.filter(region_id=self.region_id).count()
+            self.number_of_visited_cities = queryset.filter(is_visited=True).count()
 
             queryset = self.apply_filter(queryset)
             queryset = queryset.values(
@@ -208,9 +249,9 @@ class CitiesByRegionList(ListView):
                 'coordinate_width',
                 'coordinate_longitude',
             )
-            self.total_qty_of_cities = queryset.count()
+            self.number_of_cities = queryset.count()
 
-        if self.total_qty_of_cities == 0:
+        if self.number_of_cities == 0:
             logger.warning(
                 self.request, f'(Region) There is no cities in the region #{self.region_id}'
             )
@@ -281,47 +322,14 @@ class CitiesByRegionList(ListView):
                 'sort': self.sort,
                 'type': 'by_region',
                 'filter': self.filter,
-                'region_id': self.region_id,
                 'all_cities': self.all_cities,
+                'country_name': self.country_name,
+                'region_id': self.region_id,
                 'region_name': self.region_name,
-                'iso3166_code': self.region_name.iso3166,
+                'iso3166_code': self.region_iso3166,
                 'url_geo_polygons': settings.URL_GEO_POLYGONS,
-                'total_qty_of_cities': self.total_qty_of_cities,
-                'qty_of_visited_cities': self.qty_of_visited_cities,
-                'declension_of_visited_cities': modification__city(self.qty_of_visited_cities),
-                'declension_of_visited': modification__visited(self.qty_of_visited_cities),
-                'url_for_filter_has_no_magnet': make_url_params(
-                    'has_no_magnet' if self.filter != 'has_no_magnet' else '', self.sort
-                ),
-                'url_for_filter_has_magnet': make_url_params(
-                    'has_magnet' if self.filter != 'has_magnet' else '', self.sort
-                ),
-                'url_for_filter_current_year': make_url_params(
-                    'current_year' if self.filter != 'current_year' else '', self.sort
-                ),
-                'url_for_filter_last_year': make_url_params(
-                    'last_year' if self.filter != 'last_year' else '', self.sort
-                ),
-                'url_for_sort_name_down': make_url_params(
-                    self.filter, 'name_down' if self.sort != 'name_down' else ''
-                ),
-                'url_for_sort_name_up': make_url_params(
-                    self.filter, 'name_up' if self.sort != 'name_up' else ''
-                ),
-                'url_for_sort_date_down': make_url_params(
-                    self.filter,
-                    'first_visit_date_down' if self.sort != 'first_visit_date_down' else '',
-                ),
-                'url_for_sort_date_up': make_url_params(
-                    self.filter, 'first_visit_date_up' if self.sort != 'first_visit_date_up' else ''
-                ),
-                'url_for_sort_last_visit_date_down': make_url_params(
-                    self.filter,
-                    'last_visit_date_down' if self.sort != 'last_visit_date_down' else '',
-                ),
-                'url_for_sort_last_visit_date_up': make_url_params(
-                    self.filter, 'last_visit_date_up' if self.sort != 'last_visit_date_up' else ''
-                ),
+                'number_of_cities': self.number_of_cities,
+                'number_of_visited_cities': self.number_of_visited_cities,
             }
         )
 

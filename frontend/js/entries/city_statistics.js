@@ -54,24 +54,27 @@ const chartRankByVisits = {
   backgroundColors: neighboringCitiesByVisits.map(city => city.id === window.CITY_ID ? '#5c7cfa' : '#c1c7fb'),
   borderColors: neighboringCitiesByVisits.map(city => city.id === window.CITY_ID ? '#3f55c9' : '#9da4e8')
 }
-const chartRankInRegionByVisits = {
-  elementId: 'rankBarInRegionChartByVisits',
-  data: neighboringCitiesInRegionByVisits.map(city => city.visits),
-  labels: neighboringCitiesInRegionByVisits.map(city => city.title),
-  label: 'Количество посещений',
-  backgroundColors: neighboringCitiesInRegionByVisits.map(city => city.id === window.CITY_ID ? '#38a169' : '#b9dcb6'),
-  borderColors: neighboringCitiesInRegionByVisits.map(city => city.id === window.CITY_ID ? '#2c7a50' : '#8ab17e')
-}
-const chartRankInRegionByUsers = {
-  elementId: 'rankBarInRegionChartByUsers',
-  data: neighboringCitiesInRegionByUsers.map(city => city.visits),
-  labels: neighboringCitiesInRegionByUsers.map(city => city.title),
-  label: 'Количество пользователей',
-  backgroundColors: neighboringCitiesInRegionByUsers.map(city => city.id === window.CITY_ID ? '#38a169' : '#b9dcb6'),
-  borderColors: neighboringCitiesInRegionByUsers.map(city => city.id === window.CITY_ID ? '#2c7a50' : '#8ab17e')
-}
 
 createMultiBarChart(chartRankByUsers);
 createMultiBarChart(chartRankByVisits);
-createMultiBarChart(chartRankInRegionByVisits);
-createMultiBarChart(chartRankInRegionByUsers);
+
+if (window.HAS_REGION) {
+  const chartRankInRegionByVisits = {
+    elementId: 'rankBarInRegionChartByVisits',
+    data: neighboringCitiesInRegionByVisits.map(city => city.visits),
+    labels: neighboringCitiesInRegionByVisits.map(city => city.title),
+    label: 'Количество посещений',
+    backgroundColors: neighboringCitiesInRegionByVisits.map(city => city.id === window.CITY_ID ? '#38a169' : '#b9dcb6'),
+    borderColors: neighboringCitiesInRegionByVisits.map(city => city.id === window.CITY_ID ? '#2c7a50' : '#8ab17e')
+  }
+  const chartRankInRegionByUsers = {
+    elementId: 'rankBarInRegionChartByUsers',
+    data: neighboringCitiesInRegionByUsers.map(city => city.visits),
+    labels: neighboringCitiesInRegionByUsers.map(city => city.title),
+    label: 'Количество пользователей',
+    backgroundColors: neighboringCitiesInRegionByUsers.map(city => city.id === window.CITY_ID ? '#38a169' : '#b9dcb6'),
+    borderColors: neighboringCitiesInRegionByUsers.map(city => city.id === window.CITY_ID ? '#2c7a50' : '#8ab17e')
+  }
+  createMultiBarChart(chartRankInRegionByVisits);
+  createMultiBarChart(chartRankInRegionByUsers);
+}

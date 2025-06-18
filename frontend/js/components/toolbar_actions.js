@@ -9,6 +9,7 @@ import {City, MarkerStyle} from "./schemas.js";
 import {open_modal_for_add_city} from './services.js';
 import {Button} from './button.js';
 import {getCookie} from './get_cookie.js';
+import {addErrorControl, addLoadControl} from "./map";
 
 // Это нужно для того, чтобы open_modal_for_add_city можно было использовать в onclick.
 // Иначе из-за специфичной области видимости доступа к этой функции нет.
@@ -144,17 +145,24 @@ export class ToolbarActions {
     }
 
     async showSubscriptionCities() {
-        const url = this.elementShowSubscriptionCities.dataset.url
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedCountryCode = urlParams.get('country');
 
+        const url = new URL(this.elementShowSubscriptionCities.dataset.url, window.location.origin);
+        if (selectedCountryCode !== undefined && selectedCountryCode !== null) {
+            url.searchParams.set('country', selectedCountryCode);
+        }
+
+        // Добавляем в URL повторяющийся параметр user_ids
         let selectedCheckboxes = document.querySelectorAll('input.checkbox_username:checked');
         let checkedValues = Array.from(selectedCheckboxes).map(cb => Number(cb.value));
-        let data = {'id': checkedValues};
+        checkedValues.forEach(id => url.searchParams.append('user_ids', id));
 
         let button = document.getElementById('btn_show-subscriptions-cities');
         button.disabled = true;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;<span role="status">Загрузка...</span>';
 
-        let response = await fetch(url + '?data=' + encodeURIComponent(JSON.stringify(data)), {
+        let response = await fetch(url.toString(), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -196,25 +204,37 @@ export class ToolbarActions {
     }
 
     async showNotVisitedCities() {
+        const load = addLoadControl(this.myMap, 'Загружаю непосещённые города...');
+
         const url = this.elementShowNotVisitedCities.dataset.url;
 
         if (this.notVisitedCities.length === 0) {
-            let response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'X-CSRFToken': getCookie("csrftoken")
-                }
-            });
+            try {
+                let response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': getCookie("csrftoken")
+                    }
+                });
 
-            if (response.ok) {
-                this.notVisitedCities = await response.json();
-                this.addNotVisitedCitiesOnMap();
-            } else {
-                showDangerToast('Ошибка', 'Произошла ошибка при загрузке данных');
+                if (response.ok) {
+                    this.notVisitedCities = await response.json();
+                    this.addNotVisitedCitiesOnMap();
+                    this.myMap.removeControl(load);
+                } else {
+                    this.myMap.removeControl(load);
+                    addErrorControl(this.myMap, 'Произошла ошибка при загрузке непосещённых городов');
+                    return false;
+                }
+            } catch (error) {
+                console.error("Ошибка при выполнении запроса:", error);
+                this.myMap.removeControl(load);
+                addErrorControl(this.myMap, 'Произошла ошибка при загрузке непосещённых городов');
                 return false;
             }
         } else {
             this.addNotVisitedCitiesOnMap();
+            this.myMap.removeControl(load);
         }
     }
 
@@ -329,6 +349,7 @@ export class ToolbarActions {
             city.id = this.subscriptionCities[i].id;
             city.name = this.subscriptionCities[i].title;
             city.region = this.subscriptionCities[i].region_title;
+            city.country = this.subscriptionCities[i].country;
             city.lat = this.subscriptionCities[i].lat;
             city.lon = this.subscriptionCities[i].lon;
             city.visit_years = ownCities[city.name] ? ownCities[city.name].visit_years : undefined;
@@ -380,6 +401,7 @@ export class ToolbarActions {
             city.id = this.ownCities[i].id;
             city.name = this.ownCities[i].title;
             city.region = this.ownCities[i].region_title;
+            city.country = this.ownCities[i].country;
             city.lat = this.ownCities[i].lat;
             city.lon = this.ownCities[i].lon;
             city.visit_years = this.ownCities[i].visit_years;
@@ -408,7 +430,8 @@ export class ToolbarActions {
             const city = new City();
             city.id = this.notVisitedCities[i].id;
             city.name = this.notVisitedCities[i].title;
-            city.region = this.notVisitedCities[i].region_title;
+            city.region = this.notVisitedCities[i].region;
+            city.country = this.notVisitedCities[i].country;
             city.lat = this.notVisitedCities[i].lat;
             city.lon = this.notVisitedCities[i].lon;
 
@@ -454,8 +477,17 @@ export class ToolbarActions {
         marker.setZIndexOffset(zIndexOffset);
 
         let content = '';
+
+        // Название города
         content += `<div><span class="fw-semibold fs-3"><a href="/city/${city.id}" target="_blank" rel="noopener noreferrer" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">${city.name}</a></span></div>`;
-        content += `<div class="mt-2"><small class="text-secondary fw-medium fs-6">${city.region}</small></div>`;
+
+        // Название региона и страны
+        if (city.region) {
+            content += `<div class="mt-2"><small class="text-secondary fw-medium fs-6">${city.region}, ${city.country}</small></div>`;
+        } else {
+            content += `<div class="mt-2"><small class="text-secondary fw-medium fs-6">${city.country}</small></div>`;
+        }
+
         let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Отметить как посещённый</a>`
         let linkToAddAgain = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Добавить ещё одно посещение</a>`
         const first_visit_date = city.first_visit_date ? new Date(city.first_visit_date).toLocaleDateString() : undefined;

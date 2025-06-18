@@ -15,31 +15,45 @@ import {addExternalBorderControl, addInternalBorderControl, create_map} from "..
 import {ToolbarActions} from "../components/toolbar_actions.js";
 import {City} from "../components/schemas.js";
 import {change_qty_of_visited_cities_in_toolbar, modal} from '../components/services.js';
-import {showSuccessToast, showDangerToast} from "../components/toast.js";
+import {showDangerToast, showSuccessToast} from "../components/toast.js";
 import {getCookie} from '../components/get_cookie.js';
+import {initCountrySelect} from "../components/initCountrySelect";
 
 let actions;
 let map;
 
-window.onload = () => {
+const urlParams = new URLSearchParams(window.location.search);
+const selectedCountryCode = urlParams.get('country');
+
+window.onload = async () => {
     map = create_map();
-    addExternalBorderControl(map);
-    addInternalBorderControl(map);
+    addExternalBorderControl(map, selectedCountryCode);
+    addInternalBorderControl(map, selectedCountryCode);
 
     getVisitedCities()
         .then(own_cities => {
-            actions = new ToolbarActions(map, own_cities);
-            const allMarkers = actions.addOwnCitiesOnMap();
-            const group = new L.featureGroup([...allMarkers]);
-            map.fitBounds(group.getBounds());
-        });
+                actions = new ToolbarActions(map, own_cities);
+
+                if (own_cities.length === 0) {
+                    map.setView([55.7522, 37.6156], 6);
+                } else {
+                    const allMarkers = actions.addOwnCitiesOnMap();
+                    const group = new L.featureGroup([...allMarkers]);
+                    map.fitBounds(group.getBounds());
+                }
+            }
+        )
+    await initCountrySelect();
 }
 
 /**
  * Делает запрос на сервер и возвращает список городов, посещённых пользователем.
  */
 async function getVisitedCities() {
-    let url = window.URL_GET_VISITED_CITIES;
+    let baseUrl = window.URL_GET_VISITED_CITIES;
+    let queryParams = window.location.search;
+
+    let url = baseUrl + queryParams;
 
     return fetch(url, {
         method: 'GET',
@@ -102,6 +116,7 @@ form.addEventListener('submit', event => {
             city.id = data.city.city;
             city.name = data.city.city_title;
             city.region = data.city.region_title;
+            city.country = data.city.country;
             city.lat = data.city.lat;
             city.lon = data.city.lon;
             city.number_of_visits = data.city.number_of_visits;

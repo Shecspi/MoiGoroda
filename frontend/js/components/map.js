@@ -105,62 +105,102 @@ function add_screenshot_control(map) {
     }).addTo(map);
 }
 
-export function addExternalBorderControl(map) {
+export function addExternalBorderControl(map, countryCode) {
     const external_border = new L.Control({
-                position: 'topright'
-            });
-            external_border.onAdd = function (map) {
-                let container = L.DomUtil.create('div', 'custom-control-for-map')
+        position: 'topright',
+    });
+    const container = L.DomUtil.create('div', 'custom-control-for-map');
+    container.innerHTML = '<i class="fa-regular fa-square"></i>';
 
-                container.title = 'Отобразить внешние границы России';
-                container.innerHTML = '<i class="fa-regular fa-square"></i>';
-                container.addEventListener('click', () => {
-                    if (downloadedExternalBorder === undefined) {
-                        fetch('https://geo-polygons.ru/country/hq/RU')
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Ошибка при получении полигонов страны')
-                                }
-                                return response.json();
-                            })
-                            .then(polygon => {
-                                removeBorderFromMap(externalBorder, internalBorder);
+    // Если страна не указана - делаем контрол неактивным
+    if (countryCode === null || countryCode === undefined) {
+        external_border.onAdd = function (map) {
+            container.title = 'Выберите страну, чтобы загрузить её границы';
+            container.style.opacity = '0.5'; // Визуально — неактивный
 
-                                externalBorder = L.geoJSON(polygon, {
-                                    style: myStyle,
-                                });
-                                externalBorder.addTo(map);
-                                downloadedExternalBorder = polygon;
-                            })
-                    } else {
+            return container;
+        };
+        external_border.addTo(map);
+        return;
+    }
+
+    external_border.onAdd = function (map) {
+        container.title = 'Отобразить внешние границы России';
+
+        container.addEventListener('click', () => {
+            const load = addLoadControl(map, 'Загружаю внешние границы страны...');
+
+            if (downloadedExternalBorder === undefined) {
+                fetch(`https://geo-polygons.ru/country/hq/${countryCode}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            map.removeControl(load);
+                            addErrorControl(map, 'Произошла ошибка при загрузке внешних границ страны');
+                            throw new Error('Ошибка при получении внешних границ страны')
+                        }
+                        return response.json();
+                    })
+                    .then(polygon => {
                         removeBorderFromMap(externalBorder, internalBorder);
 
-                        externalBorder = L.geoJSON(downloadedExternalBorder, {
+                        externalBorder = L.geoJSON(polygon, {
                             style: myStyle,
                         });
                         externalBorder.addTo(map);
-                    }
+                        downloadedExternalBorder = polygon;
+                        map.removeControl(load);
+                    })
+            } else {
+                removeBorderFromMap(externalBorder, internalBorder);
+
+                externalBorder = L.geoJSON(downloadedExternalBorder, {
+                    style: myStyle,
                 });
-	            return container;
+                externalBorder.addTo(map);
             }
-            external_border.addTo(map);
+        });
+        return container;
+    }
+    external_border.addTo(map);
 }
 
-export function addInternalBorderControl(map) {
+export function addInternalBorderControl(map, countryCode) {
     const external_border = new L.Control({
         position: 'topright'
     });
-    external_border.onAdd = function (map) {
-        let container = L.DomUtil.create('div', 'custom-control-for-map')
+    const container = L.DomUtil.create('div', 'custom-control-for-map')
+    container.innerHTML = '<i class="fa-regular fa-square-plus"></i>';
 
+    // Если страна не указана - делаем контрол неактивным
+    if (countryCode === null || countryCode === undefined) {
+        external_border.onAdd = function (map) {
+            container.title = 'Выберите страну, чтобы загрузить границы её регионов';
+            container.style.opacity = '0.5'; // Визуально — неактивный
+
+            return container;
+        };
+        external_border.addTo(map);
+        return;
+    }
+
+    external_border.onAdd = function (map) {
         container.title = 'Отобразить границы регионов России';
-        container.innerHTML = '<i class="fa-regular fa-square-plus"></i>';
+
         container.addEventListener('click', () => {
+            const load = addLoadControl(map, 'Загружаю границы регионов страны...');
+
             if (downloadedInternalBorder === undefined) {
-                fetch(`${URL_GEO_POLYGONS}/region/lq/RU/all`)
+                fetch(`${URL_GEO_POLYGONS}/region/lq/${countryCode}/all`)
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('Ошибка при получении полигонов страны')
+                            map.removeControl(load);
+
+                            if (response.status === 404) {
+                                addErrorControl(map, 'В выбранной Вами стране нет территориального деления на регионы');
+                                throw new Error('В выбранной Вами стране нет территориального деления на регионы');
+                            }
+                                addErrorControl(map, 'Произошла ошибка при загрузке границ регионов страны');
+                            throw new Error('Ошибка при получении границ регионов страны');
                         }
                         return response.json();
                     })
@@ -174,6 +214,8 @@ export function addInternalBorderControl(map) {
                             internalBorder.push(layer);
                         });
                         downloadedInternalBorder = polygons;
+
+                        map.removeControl(load);
                     })
             } else {
                 removeBorderFromMap(externalBorder, internalBorder);
@@ -200,4 +242,48 @@ function removeBorderFromMap(externalBorder, internalBorder) {
             layer.clearLayers();
         });
     }
+}
+
+/**
+ * Создаёт на карте map панель с информацией о том, что идёт загрузка полигонов.
+ */
+export function addLoadControl(map, label) {
+    const load = L.control({position: 'bottomright'});
+
+    load.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'load');
+        this.update();
+        return this._div;
+    };
+    load.update = function (props) {
+        this._div.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2">'
+            + '<div class="spinner-border spinner-border-sm" role="status">'
+            + `<span class="visually-hidden">Загрузка...</span></div><div>${label}</div></div>`;
+    };
+    load.addTo(map);
+
+    return load
+}
+
+/**
+ * Создаёт на карте map панель с информацией о том, что произошла ошибка при загрузке полигонов.
+ */
+export function addErrorControl(map, label) {
+    const error = L.control({position: 'bottomright'});
+
+    error.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'error');
+        this.update();
+        return this._div;
+    };
+    error.update = function (props) {
+        this._div.innerHTML = `<div>${label}</div>`;
+    };
+    error.addTo(map);
+
+    setTimeout(() => {
+        map.removeControl(error);
+    }, 3000)
+
+    return error
 }

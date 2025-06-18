@@ -28,6 +28,8 @@ from django.db.models import (
     F,
     FloatField,
     ExpressionWrapper,
+    Case,
+    When,
 )
 from django.db.models.functions import Coalesce, Cast, Round
 
@@ -35,31 +37,47 @@ from city.models import City, VisitedCity
 from region.models import Region, Area
 
 
-def get_all_regions() -> QuerySet[Region]:
+def get_all_regions(country_id: int | None = None) -> QuerySet[Region]:
     """
     Возвращает QuerySet со всеми регионами и количеством городов в каждом из них.
     """
+    queryset = Region.objects.all()
+
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+
     return (
-        Region.objects.select_related('area')
+        queryset.select_related('area')
         .annotate(num_total=Count('city', distinct=True))
         .order_by('title')
     )
 
 
-def get_number_of_regions() -> int:
+def get_number_of_regions(country_id: int | None) -> int:
     """
     Возвращает количество регионов, сохранённых в БД.
+    Если указан параметр country_id, то возвращается количество регионов в конкретной стране.
     """
-    return Region.objects.count()
+    queryset = Region.objects.all()
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+    return queryset.count()
 
 
-def get_all_region_with_visited_cities(user_id: int) -> QuerySet[Region]:
+def get_all_region_with_visited_cities(
+    user_id: int, country_id: int | None = None
+) -> QuerySet[Region]:
     """
     Возвращает QuerySet со всеми регионами, количеством городов в каждом из них и
     количеством посещённых городов пользователем с ID равным user_id.
     """
+    queryset = Region.objects.all()
+
+    if country_id:
+        queryset = queryset.filter(country_id=country_id)
+
     return (
-        Region.objects.select_related('area')
+        queryset.select_related('area')
         .annotate(
             num_total=Count('city', distinct=True),
             num_visited=Count('city', filter=Q(city__visitedcity__user_id=user_id), distinct=True),
@@ -67,7 +85,11 @@ def get_all_region_with_visited_cities(user_id: int) -> QuerySet[Region]:
         .annotate(
             ratio_visited=Round(
                 ExpressionWrapper(
-                    100 * F('num_visited') / Coalesce(F('num_total'), 1),  # чтобы не делить на 0
+                    Case(
+                        When(num_total=0, then=Value(0.0)),
+                        default=100 * F('num_visited') / F('num_total'),
+                        output_field=FloatField(),
+                    ),
                     output_field=FloatField(),
                 )
             ),
@@ -170,19 +192,27 @@ def get_all_cities_in_region(
     return queryset
 
 
-def get_number_of_visited_regions(user_id: int) -> int:
+def get_number_of_visited_regions(user_id: int, country_id: int | None = None) -> int:
     """
     Возвращает количество посещённых регионов пользователя с ID user_id.
     """
-    return get_all_region_with_visited_cities(user_id).filter(num_visited__gt=0).count()
+    if country_id:
+        queryset = get_all_region_with_visited_cities(user_id, country_id)
+    else:
+        queryset = get_all_region_with_visited_cities(user_id)
+    return queryset.filter(num_visited__gt=0).count()
 
 
-def get_number_of_finished_regions(user_id: int) -> int:
+def get_number_of_finished_regions(user_id: int, country_id: int | None = None) -> int:
     """
     Возвращает количество регионов, в которых пользователь с ID == user_id посетил все города.
     Эта функция расширяет функцию get_all_visited_regions(), добавляя одно условие фильтрации.
     """
-    return get_all_region_with_visited_cities(user_id).filter(num_total=F('num_visited')).count()
+    if country_id:
+        queryset = get_all_region_with_visited_cities(user_id, country_id)
+    else:
+        queryset = get_all_region_with_visited_cities(user_id)
+    return queryset.filter(num_total=F('num_visited')).count()
 
 
 def get_visited_areas(user_id: int) -> QuerySet:

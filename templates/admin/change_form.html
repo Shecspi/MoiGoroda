@@ -1,4 +1,5 @@
 {% extends "admin/base_site.html" %}
+{% load vite %}
 {% load i18n admin_urls static admin_modify %}
 
 {% block extrahead %}{{ block.super }}
@@ -52,34 +53,70 @@
 {% endblock %}
 
 {% block after_field_sets %}
-    <input type="button" class="default" value="Получить координаты" id="getCoordinates" style="margin-bottom: 10px;">
+    {% if opts.model_name == 'city' %}
+        <input type="button" class="default" value="Получить координаты" id="getCoordinates" style="margin-bottom: 10px;">
 
-    <script src="https://api-maps.yandex.ru/2.1/?apikey=19810d24-2da7-4abe-af09-4ed2cb117401&lang=ru_RU" type="text/javascript"></script>
-    <script>
-        window.onload = function() {
-            let form = document.getElementById('city_form');
-            let coordinate_width = form.querySelector('#id_coordinate_width');
-            let coordinate_longitude = form.querySelector('#id_coordinate_longitude');
+        <script src="https://api-maps.yandex.ru/2.1/?apikey={{ API_YANDEX_MAP }}&lang=ru_RU" type="text/javascript"></script>
+        <script>
+            window.onload = function() {
+                let form = document.getElementById('city_form');
+                let coordinate_width = form.querySelector('#id_coordinate_width');
+                let coordinate_longitude = form.querySelector('#id_coordinate_longitude');
 
-            document.getElementById('getCoordinates').onclick = function () {
-                let city = form.querySelector('#id_title').value;
-                let region_tmp = form.querySelector('#id_region');
+                document.getElementById('getCoordinates').onclick = function () {
+                    let city = form.querySelector('#id_title').value;
+                    let region_tmp = form.querySelector('#id_region');
 
-                let region = region_tmp.options[region_tmp.selectedIndex].text;
-                let final_city = city + ' ' + region;
+                    let region = region_tmp.options[region_tmp.selectedIndex].text;
+                    let final_city = city + ' ' + region;
 
-                ymaps.geocode(final_city, {
-                    results: 1
-                }).then(function(res) {
-                    let firstObject = res.geoObjects.get(0);
-                    let coords = firstObject.geometry.getCoordinates();
+                    ymaps.geocode(final_city, {
+                        results: 1
+                    }).then(function(res) {
+                        let firstObject = res.geoObjects.get(0);
+                        let coords = firstObject.geometry.getCoordinates();
 
-                    coordinate_width.value = coords[0];
-                    coordinate_longitude.value = coords[1];
+                        coordinate_width.value = coords[0];
+                        coordinate_longitude.value = coords[1];
+                    });
+                };
+
+                const countrySelect = document.getElementById('id_country');
+                const regionSelect = document.getElementById('id_region');
+
+                if (!countrySelect || !regionSelect) return;
+
+                countrySelect.addEventListener('change', function () {
+                const countryId = this.value;
+
+                // Очищаем текущие опции региона
+                regionSelect.innerHTML = '<option value="">---------</option>';
+
+                if (!countryId) {
+                    // Если страна не выбрана — сбрасываем регион
+                    return;
+                }
+
+                // Запрос на сервер для получения регионов по стране
+                fetch(`/api/region/list?country_id=${countryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.length) {
+                            data.forEach(region => {
+                                const option = document.createElement('option');
+                                option.value = region.id;
+                                option.textContent = region.title;
+                                regionSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при загрузке регионов:', error);
+                    });
                 });
-            };
-        }
-    </script>
+            }
+        </script>
+    {% endif %}
 {% endblock %}
 
 {% block inline_field_sets %}

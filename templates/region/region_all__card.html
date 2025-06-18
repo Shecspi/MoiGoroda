@@ -15,7 +15,9 @@
             <!-- Федеральный округ -->
             <div class="my-2" id="section-area_title_{{ forloop.counter }}">
                 <small class="card-subtitle text-muted">
-                    {{ region.area }} федеральный округ
+                    {% if region.area %}
+                        {{ region.area }} федеральный округ
+                    {% endif %}
                 </small>
             </div>
             <!-- ^^^ Федеральный округ -->

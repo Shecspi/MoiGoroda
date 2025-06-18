@@ -1,7 +1,7 @@
 <div class="card text-center shadow h-100">
     <div class="card-body">
         <p class="fs-4">Общее количество посещённых городов по годам</p>
-        {% if cities.number_of_total_visited_cities_in_several_years %}
+        {% if cities.number_of_visited_cities_in_several_years %}
             <canvas id="chart__total_cities_by_year"></canvas>
         {% else %}
             <div class="alert alert-danger text-center mt-3" role="alert">
@@ -15,7 +15,7 @@
     const ctx_total_cities_by_year = document.getElementById('chart__total_cities_by_year').getContext('2d');
 
     let data_year_total_cities_by_year = {}
-    {% for year in cities.number_of_total_visited_cities_in_several_years %}
+    {% for year in cities.number_of_visited_cities_in_several_years %}
         data_year_total_cities_by_year['{{ year.year|date:'Y' }}'] = '{{ year.qty }}'
     {% endfor %}
 

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load morphology %}
 {% load l10n %}
 {% load vite %}
 
@@ -9,11 +10,22 @@
     
     {% include 'share/parts/tab_panel.html' %}
     {% include 'share/parts/toolbar.html' %}
+
+    <!-- Панель инструментов -->
+    <div class="mx-3 my-3" id="toolbar" style="z-index: 1001; position: relative;">
+        <div class="row w-100 justify-content-end" id="section-small-buttons">
+            <div class="col-xl-4 col-lg-6 col-md-12 px-3">
+                <select class="form-select" id="id_country"></select>
+            </div>
+        </div>
+    </div>
     
     <div id="map" class="h-100 mt-3"></div>
 
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
+        window.COUNTRY_CODE = "{{ country_code }}";
+        window.NUMBER_OF_REGIONS = {{ number_of_regions }};
         window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}"
         window.REGION_LIST = new Map();
         {% for item in all_regions %}

@@ -7,34 +7,11 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-import json
-from enum import auto, StrEnum
 from typing import Any, Literal
 
-from django.contrib.auth.models import User
-from django.http import Http404, HttpResponse
-from django.shortcuts import redirect
-from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 
-from account.models import ShareSettings
-from services import logger
-from services.db.statistics.get_info_for_statistic_cards_and_charts import (
-    get_info_for_statistic_cards_and_charts,
-)
-from services.db.visited_city_repo import get_all_visited_cities
-from region.services.db import get_all_region_with_visited_cities
-import subscribe.repository as repo
-
-
-class TypeOfSharedPage(StrEnum):
-    """
-    Структура данных, которая хранит в себе информацию о трёх возможных типах отображаемых страниц.
-    """
-
-    dashboard = auto()
-    city_map = auto()
-    region_map = auto()
+from share.service import ShareService, TypeOfSharedPage
 
 
 class Share(TemplateView):
@@ -65,170 +42,33 @@ class Share(TemplateView):
 
         # Подписан ли пользователь на выбранного пользователя
         self.is_subscribed: bool = False
+        self.country_code: str | None = None
 
-    def get(self, *args: Any, **kwargs: Any) -> HttpResponse:
-        self.user_id = kwargs['pk']
-
-        # Суперпользователь может просматривать статистику любого пользователя вне зависимости от настроек.
-        # Поэтому определяем необходимые параметры и пропускаем все проверки.
-        if self.request.user.is_authenticated and self.request.user.is_superuser:
-            self.displayed_page = kwargs.get('requested_page')
-            if not self.displayed_page:
-                self.displayed_page = TypeOfSharedPage.dashboard
-
-            self.can_share_dashboard = True
-            self.can_share_city_map = True
-            self.can_share_region_map = True
-            self.can_subscribe = True
-            self.is_subscribed = repo.is_subscribed(self.request.user.id, self.user_id)
-
-            logger.info(
-                self.request,
-                '(Share statistics) Viewing shared statistics by superuser',
-            )
-
-            return super().get(*args, **kwargs)
-
-        # Если пользователь не разрешил делиться своей статистикой, то возвращаем 404.
-        # Это происходит в 2 случаях - когда пользователь ни разу не изменял настройки
-        # (в таком случае в БД не будет записи), либо если запись имеется, но поле can_share имеет значение False.
-        if (
-            ShareSettings.objects.filter(user=self.user_id).count() == 0
-            or not ShareSettings.objects.get(user=self.user_id).can_share
-        ):
-            logger.warning(
-                self.request,
-                '(Share statistics): Has no permissions from owner to see this page',
-            )
-            raise Http404
-
-        settings = ShareSettings.objects.get(user=self.user_id)
-
-        # Если по каким-то причинам оказалось так, что все три возможных страницы для отображения
-        # в БД указаны как False, то возвращаем 404. Хотя такого быть не должно. Но на всякий случай проверил.
-        if (
-            not settings.can_share_dashboard
-            and not settings.can_share_city_map
-            and not settings.can_share_region_map
-        ):
-            logger.warning(
-                self.request,
-                '(Share statistics) All share settings are False. I do not know what to show.',
-            )
-            raise Http404
-
-        self.requested_page = kwargs.get('requested_page', None)
-
-        # Если URL имеет вид /share/1, то отображаем общую информацию
-        if not self.requested_page:
-            self.requested_page = TypeOfSharedPage.dashboard
-
-        # Если в URL указан неподдерживаемый параметр 'requested_page', то возвращаем 404.
-        if self.requested_page not in TypeOfSharedPage:
-            logger.warning(
-                self.request,
-                '(Share statistics) Invalid GET-parameter "requested_page"',
-            )
-            raise Http404
-
-        # Определяем страницу, которую необходимо отобразить
-        self.displayed_page = get_displayed_page(self.requested_page, settings)
-        if self.displayed_page != self.requested_page:
-            if self.displayed_page == TypeOfSharedPage.dashboard:
-                return redirect('share', pk=self.user_id)
-            else:
-                return redirect('share', pk=self.user_id, requested_page=self.displayed_page.value)
-        if not self.displayed_page:
-            logger.warning(
-                self.request,
-                '(Share statistics) All share settings are False. Cannot find the HTML-template.',
-            )
-            raise Http404
-
-        # Определяем доступность кнопок для перехода в определённые пункты статистики
-        self.can_share_dashboard = True if settings.can_share_dashboard else False
-        self.can_share_city_map = True if settings.can_share_city_map else False
-        self.can_share_region_map = True if settings.can_share_region_map else False
-        self.can_subscribe = True if settings.can_subscribe else False
-        self.is_subscribed = repo.is_subscribed(self.request.user.id, self.user_id)
-
-        logger.info(self.request, '(Share statistics) Viewing shared statistics')
-
-        return super().get(*args, **kwargs)
-
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-
-        context['username'] = User.objects.get(pk=self.user_id).username
-        context['user_id'] = self.user_id
-        context['displayed_page'] = self.displayed_page
-        context['can_share_dashboard'] = self.can_share_dashboard
-        context['can_share_city_map'] = self.can_share_city_map
-        context['can_share_region_map'] = self.can_share_region_map
-        context['can_subscribe'] = self.can_subscribe
-        context['is_subscribed'] = self.is_subscribed
-        context['page_title'] = f'Статистика пользователя {context["username"]}'
-        context['page_description'] = (
-            f'Статистика посещённых городов и регионов пользователя {context["username"]}'
+    def dispatch(self, request, *args, **kwargs):
+        self.service = ShareService(
+            request,
+            user_id=kwargs['pk'],
+            requested_page=kwargs.get('requested_page'),
+            country_code=request.GET.get('country'),
         )
 
-        if self.displayed_page == TypeOfSharedPage.dashboard:
-            context = context | get_info_for_statistic_cards_and_charts(self.user_id)
-        elif self.displayed_page == TypeOfSharedPage.city_map:
-            all_cities = get_all_visited_cities(self.user_id)
-            cities_data = [
-                {
-                    'name': city.city.title,
-                    'lat': float(str(city.city.coordinate_width).replace(',', '.')),
-                    'lon': float(str(city.city.coordinate_longitude).replace(',', '.')),
-                }
-                for city in all_cities
-            ]
-            context['all_cities'] = mark_safe(json.dumps(cities_data))
-        elif self.displayed_page == TypeOfSharedPage.region_map:
-            context['all_regions'] = get_all_region_with_visited_cities(self.user_id)
-        else:
-            logger.info(
-                self.request,
-                '(Share statistics) All share settings are False. Cannot find the context generator.',
-            )
-            raise Http404
+        redirect_response = self.service.handle_redirects_if_needed()
+        if redirect_response:
+            return redirect_response
 
-        return context
+        self.service.check_permissions_and_get_settings()
+        self.service.determine_displayed_page()
+        self.service.resolve_country_if_needed()
 
-    def get_template_names(self) -> list[str]:
-        return [f'share/{self.displayed_page}.html']
+        redirect_response = self.service.maybe_redirect_to_valid_page()
+        if redirect_response:
+            return redirect_response
 
+        return super().dispatch(request, *args, **kwargs)
 
-def get_displayed_page(requested_page: str, settings: ShareSettings) -> TypeOfSharedPage | None:
-    """
-    Возвращает страницу, которую необходимо отобразить пользователю на основе запрошенной страницы requested_page
-    и настроек settings, сохранённых в базе данных. Если запрошенная страница не доступна для отображения,
-    соответственно настройкам БД, то выбираются другие на основе приоритетности. Если и они не доступны для отображения,
-    то возвращается False.
-    """
-    displayed_page = None
+    def get_context_data(self, **kwargs):
+        super().get_context_data(**kwargs)
+        return self.service.get_context()
 
-    if requested_page == TypeOfSharedPage.dashboard:
-        if settings.can_share_dashboard:
-            displayed_page = TypeOfSharedPage.dashboard
-        elif settings.can_share_city_map:
-            displayed_page = TypeOfSharedPage.city_map
-        elif settings.can_share_region_map:
-            displayed_page = TypeOfSharedPage.region_map
-    elif requested_page == TypeOfSharedPage.city_map:
-        if settings.can_share_city_map:
-            displayed_page = TypeOfSharedPage.city_map
-        elif settings.can_share_dashboard:
-            displayed_page = TypeOfSharedPage.dashboard
-        elif settings.can_share_region_map:
-            displayed_page = TypeOfSharedPage.region_map
-    elif requested_page == TypeOfSharedPage.region_map:
-        if settings.can_share_region_map:
-            displayed_page = TypeOfSharedPage.region_map
-        elif settings.can_share_dashboard:
-            displayed_page = TypeOfSharedPage.dashboard
-        elif settings.can_share_city_map:
-            displayed_page = TypeOfSharedPage.city_map
-
-    return displayed_page
+    def get_template_names(self) -> str:
+        return self.service.get_template_name()

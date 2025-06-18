@@ -1,5 +1,5 @@
 import Choices from 'choices.js';
-import 'choices.js/public/assets/styles/choices.min.css';
+
 import {showDangerToast} from "../components/toast";
 
 document.addEventListener('DOMContentLoaded', () => {

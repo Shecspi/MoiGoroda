@@ -95,6 +95,7 @@ jobs:
           
           # Собираем JS файлы
           cd frontend
+          npm ci
           npm run build
           cd ../
           

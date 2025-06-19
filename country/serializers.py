@@ -58,9 +58,12 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class CountrySimpleSerializer(serializers.ModelSerializer):
+    number_of_visited_cities = serializers.IntegerField(read_only=True)
+    number_of_cities = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Country
-        fields = ['id', 'code', 'name']
+        fields = ['id', 'code', 'name', 'number_of_visited_cities', 'number_of_cities']
 
 
 class VisitedCountrySerializer(serializers.ModelSerializer):

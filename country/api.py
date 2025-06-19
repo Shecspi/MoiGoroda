@@ -7,6 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from django.db.models import Count, Q
 from rest_framework import generics
 import rest_framework.exceptions as drf_exc
 from rest_framework.decorators import api_view
@@ -153,7 +154,18 @@ def country_list_with_visited_cities(request):
     """
     if request.user.is_authenticated:
         queryset = (
-            Country.objects.filter(city__visitedcity__user=request.user).distinct().order_by('name')
+            Country.objects.filter(city__isnull=False)
+            .annotate(
+                number_of_visited_cities=Count(
+                    'city__visitedcity', filter=Q(city__visitedcity__user=request.user)
+                ),
+                number_of_cities=Count('city', distinct=True),
+            )
+            .order_by(
+                '-number_of_visited_cities',  # сначала страны с посещёнными городами
+                'name',  # затем сортировка по имени страны
+            )
+            .distinct()
         )
     else:
         queryset = Country.objects.filter(city__isnull=False).distinct().order_by('name')

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load morphology %}
 {% load vite %}
 
 {% block content %}
@@ -24,7 +25,12 @@
             <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
                 <div class="col-xl-8">
                     <div class="alert alert-warning p-5 text-center fs-3" role="alert" id="section-info_box">
-                        По заданным условиям фильтрации не найдено ни одного города
+                        {% if filter %}
+                            По заданным условиям фильтрации не найдено ни одного города
+                        {% else %}
+                            Вы не посетили ни одного города в {{ country_name|prepositional|title }}.<br>
+                            Можете посмотреть <a href="{% url 'city-all-map' %}?country={{ country_code }}" class="link-dark link-underline-dark link-underline-opacity-25 link-underline-opacity-100-hover link-offset-2">все города {{ country_name|genitive|title }} на карте</a>.
+                        {% endif %}
                     </div>
                 </div>
             </div>

@@ -36,6 +36,20 @@ window.onload = async () => {
 
                 if (own_cities.length === 0) {
                     map.setView([55.7522, 37.6156], 6);
+
+                    const btn = document.getElementById('btn_show-not-visited-cities');
+                    if (!btn) {
+                        console.error('Кнопка не найдена!');
+                    } else if (own_cities.length === 0) {
+                        btn.click();
+                        const checkInterval = setInterval(() => {
+                          if (actions.stateNotVisitedCities.size > 0) {
+                            const group = new L.featureGroup(Array.from(actions.stateNotVisitedCities.values()));
+                            map.fitBounds(group.getBounds());
+                            clearInterval(checkInterval);
+                          }
+                        }, 200); // проверяем каждые 200 мс
+                    }
                 } else {
                     const allMarkers = actions.addOwnCitiesOnMap();
                     const group = new L.featureGroup([...allMarkers]);

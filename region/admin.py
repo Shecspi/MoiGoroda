@@ -12,7 +12,7 @@ from admin_auto_filters.filters import AutocompleteFilter
 from city.models import City
 from django.contrib import admin
 
-from .models import Area, Region
+from .models import Area, Region, RegionType
 
 
 class RegionFilter(AutocompleteFilter):
@@ -32,6 +32,11 @@ class AreaAdmin(admin.ModelAdmin):
 
     get_qty_of_regions.short_description = 'Количество регионов'
     get_qty_of_cities.short_description = 'Количество городов'
+
+
+@admin.register(RegionType)
+class RegionTypeAdmin(admin.ModelAdmin):
+    fields = ('title',)
 
 
 @admin.register(Region)

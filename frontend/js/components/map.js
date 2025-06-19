@@ -128,9 +128,9 @@ export function addExternalBorderControl(map, countryCode) {
         container.title = 'Отобразить внешние границы России';
 
         container.addEventListener('click', () => {
-            const load = addLoadControl(map, 'Загружаю внешние границы страны...');
-
             if (downloadedExternalBorder === undefined) {
+                const load = addLoadControl(map, 'Загружаю внешние границы страны...');
+
                 fetch(`https://geo-polygons.ru/country/hq/${countryCode}`)
                     .then(response => {
                         if (!response.ok) {
@@ -187,9 +187,9 @@ export function addInternalBorderControl(map, countryCode) {
         container.title = 'Отобразить границы регионов России';
 
         container.addEventListener('click', () => {
-            const load = addLoadControl(map, 'Загружаю границы регионов страны...');
-
             if (downloadedInternalBorder === undefined) {
+                const load = addLoadControl(map, 'Загружаю границы регионов страны...');
+
                 fetch(`${URL_GEO_POLYGONS}/region/lq/${countryCode}/all`)
                     .then(response => {
                         if (!response.ok) {

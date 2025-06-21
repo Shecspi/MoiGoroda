@@ -157,7 +157,9 @@ def country_list_with_visited_cities(request):
             Country.objects.filter(city__isnull=False)
             .annotate(
                 number_of_visited_cities=Count(
-                    'city__visitedcity', filter=Q(city__visitedcity__user=request.user)
+                    'city',
+                    filter=Q(city__visitedcity__user=request.user),
+                    distinct=True,
                 ),
                 number_of_cities=Count('city', distinct=True),
             )

@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import Any, NoReturn
+from typing import Any, NoReturn, Callable
 
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest
@@ -15,7 +15,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.db.models import QuerySet
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.views.generic import (
     ListView,
     CreateView,
@@ -27,27 +27,14 @@ from django.views.generic import (
 
 from city.forms import VisitedCity_Create_Form
 from city.models import VisitedCity, City
-from city.repository.city_repository import CityRepository
-from city.repository.visited_city_repository import VisitedCityRepository
 from city.services.db import (
     get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
-    get_number_of_users_who_visit_city,
-    get_total_number_of_visits,
-    get_rank_by_visits_of_city,
-    get_neighboring_cities_by_users_rank,
-    get_neighboring_cities_by_visits_rank,
-    get_neighboring_cities_in_region_by_visits_rank,
-    get_neighboring_cities_in_region_by_users_rank,
-    get_rank_by_visits_of_city_in_region,
-    get_rank_by_users_of_city_in_region,
-    get_number_of_cities_in_region_by_city,
-    get_rank_by_users_of_city,
     get_number_of_visited_countries,
 )
+from city.services.interfaces import AbstractVisitedCityService
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
-from city.services.visited_city_service import VisitedCityService
 from country.models import Country
 from services import logger
 from city.services.db import get_number_of_cities, get_number_of_new_visited_cities
@@ -227,77 +214,71 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
 
 class VisitedCity_Detail(DetailView):
     """
-    Отображает страницу с информацией о городе.
+    Отображает детальную страницу с информацией о конкретном городе.
+
+    Этот класс-наследник Django DetailView отвечает за:
+    - загрузку объекта City по первичному ключу из URL;
+    - получение подробных данных по городу через сервис `AbstractVisitedCityService`;
+    - передачу этих данных в контекст шаблона для рендеринга страницы.
+
+    Атрибуты:
+        service (AbstractVisitedCityService): Экземпляр сервиса для работы с логикой города,
+            инициализируется в методе dispatch.
+        service_factory (Callable[[HttpRequest], AbstractVisitedCityService]): Фабрика для создания
+            сервиса, принимающая запрос и возвращающая сервис. Должна быть обязательно установлена перед вызовом.
     """
 
     model = City
     template_name = 'city/city_selected.html'
     context_object_name = 'city'
 
-    MONTH_NAMES = [
-        '',
-        'Январь',
-        'Февраль',
-        'Март',
-        'Апрель',
-        'Май',
-        'Июнь',
-        'Июль',
-        'Август',
-        'Сентябрь',
-        'Октябрь',
-        'Ноябрь',
-        'Декабрь',
-    ]
+    service: AbstractVisitedCityService = None
+    service_factory: Callable[[HttpRequest], AbstractVisitedCityService] = None
 
-    def __init__(self, **kwargs: Any):
-        super().__init__(**kwargs)
-        self.city = None
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Переопределён для инициализации сервиса с помощью фабрики до обработки запроса.
+        Проверяет наличие фабрики и создаёт сервис.
+        """
+        if not self.service_factory:
+            raise ImproperlyConfigured('VisitedCityService factory is not set')
+        self.service = self.service_factory(request)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        """
+        Формирует контекст для шаблона, расширяя базовый контекст данными,
+        полученными из сервиса по деталям города и метаданным страницы.
+        """
         city_id = self.kwargs['pk']
-        service = VisitedCityService(CityRepository(), VisitedCityRepository(), self.request)
-        city_dto = service.get_city_details(city_id, self.request.user)
+        city_dto = self.service.get_city_details(city_id, self.request.user)
 
         context = super().get_context_data(**kwargs)
 
-        country_id = city_dto.city.country_id
-
-        context['page_title'] = city_dto.page_title
-        context['page_description'] = city_dto.page_description
-
-        context['number_of_users_who_visit_city'] = get_number_of_users_who_visit_city(
-            city_dto.city.id
-        )
-        context['number_of_visits'] = city_dto.number_of_visits
-        context['total_number_of_visits'] = get_total_number_of_visits()
         context = {
             **context,
+            'page_title': city_dto.page_title,
+            'page_description': city_dto.page_description,
+            # ---
             'city': city_dto.city,
             'average_rating': city_dto.average_rating,
-            'popular_months': ', '.join(
-                sorted(city_dto.popular_months, key=lambda m: self.MONTH_NAMES.index(m))
-            ),
+            'popular_months': ', '.join(city_dto.popular_months),
             'collections': city_dto.collections,
             'visits': city_dto.visits,
-            'all_cities_qty': get_number_of_cities(country_id),
-            'region_cities_qty': get_number_of_cities_in_region_by_city(city_dto.city.id),
-            'visits_rank_in_country': get_rank_by_visits_of_city(city_dto.city.id, country_id),
-            'users_rank_in_country': get_rank_by_users_of_city(city_dto.city.id, country_id),
-            'visits_rank_in_region': get_rank_by_visits_of_city_in_region(city_dto.city.id, True),
-            'users_rank_in_region': get_rank_by_users_of_city_in_region(city_dto.city.id, True),
-            'users_rank_in_country_neighboring_cities': get_neighboring_cities_by_users_rank(
-                city_dto.city.id, country_id
-            ),
-            'visits_rank_in_country_neighboring_cities': get_neighboring_cities_by_visits_rank(
-                city_dto.city.id, country_id
-            ),
-            'users_rank_neighboring_cities_in_region': (
-                get_neighboring_cities_in_region_by_users_rank(city_dto.city.id, country_id)
-            ),
-            'visits_rank_neighboring_cities_in_region': get_neighboring_cities_in_region_by_visits_rank(
-                city_dto.city.id, country_id
-            ),
+            'all_cities_qty': city_dto.all_cities_qty,
+            'region_cities_qty': city_dto.region_cities_qty,
+            'number_of_visits': city_dto.number_of_visits,
+            'number_of_users_who_visit_city': city_dto.number_of_users_who_visit_city,
+            'total_number_of_visits': city_dto.total_number_of_visits,
+            # ---
+            'visits_rank_in_country': city_dto.visits_rank_in_country,
+            'users_rank_in_country': city_dto.users_rank_in_country,
+            'visits_rank_in_region': city_dto.visits_rank_in_region,
+            'users_rank_in_region': city_dto.users_rank_in_region,
+            'users_rank_in_country_neighboring_cities': city_dto.users_rank_in_country_neighboring_cities,
+            'visits_rank_in_country_neighboring_cities': city_dto.visits_rank_in_country_neighboring_cities,
+            'users_rank_neighboring_cities_in_region': city_dto.users_rank_neighboring_cities_in_region,
+            'visits_rank_neighboring_cities_in_region': city_dto.visits_rank_neighboring_cities_in_region,
         }
 
         return context

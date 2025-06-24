@@ -19,7 +19,7 @@ urlpatterns = [
     path('all/map', views.VisitedCity_Map.as_view(), name='city-all-map'),
     path(
         '<int:pk>',
-        views.VisitedCity_Detail.as_view(
+        views.VisitedCityDetail.as_view(
             service_factory=lambda request: VisitedCityService(
                 CityRepository(),
                 VisitedCityRepository(),

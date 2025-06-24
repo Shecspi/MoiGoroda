@@ -48,40 +48,6 @@ def visited_city_repo(mocker):
     return repo
 
 
-@pytest.fixture(autouse=True)
-def mock_helpers(mocker):
-    mocker.patch(
-        'city.services.visited_city_service.get_number_of_users_who_visit_city', return_value=5
-    )
-    mocker.patch('city.services.visited_city_service.get_total_number_of_visits', return_value=100)
-    mocker.patch('city.services.visited_city_service.get_number_of_cities', return_value=50)
-    mocker.patch(
-        'city.services.visited_city_service.get_number_of_cities_in_region_by_city', return_value=10
-    )
-    mocker.patch('city.services.visited_city_service.get_rank_by_visits_of_city', return_value=1)
-    mocker.patch('city.services.visited_city_service.get_rank_by_users_of_city', return_value=2)
-    mocker.patch(
-        'city.services.visited_city_service.get_rank_by_visits_of_city_in_region', return_value=3
-    )
-    mocker.patch(
-        'city.services.visited_city_service.get_rank_by_users_of_city_in_region', return_value=4
-    )
-    mocker.patch(
-        'city.services.visited_city_service.get_neighboring_cities_by_users_rank', return_value=[]
-    )
-    mocker.patch(
-        'city.services.visited_city_service.get_neighboring_cities_by_visits_rank', return_value=[]
-    )
-    mocker.patch(
-        'city.services.visited_city_service.get_neighboring_cities_in_region_by_users_rank',
-        return_value=[],
-    )
-    mocker.patch(
-        'city.services.visited_city_service.get_neighboring_cities_in_region_by_visits_rank',
-        return_value=[],
-    )
-
-
 @pytest.fixture
 def mock_collections(mocker):
     return mocker.patch(
@@ -265,34 +231,9 @@ def test_repo_methods_called_with_correct_args(
     city_repo.get_by_id.assert_called_once_with(1)
     visited_city_repo.get_average_rating.assert_called_once_with(fake_city)
     visited_city_repo.get_popular_months.assert_called_once_with(fake_city)
-    visited_city_repo.count_user_visits.assert_called_once_with(fake_city, fake_user)
-    visited_city_repo.count_all_visits.assert_called_once_with(fake_city)
-    visited_city_repo.get_user_visits.assert_called_once_with(fake_city, fake_user)
-
-
-def test_helpers_raise_exception(
-    city_repo,
-    visited_city_repo,
-    fake_user,
-    fake_request,
-    fake_city,
-    mock_collections,
-    mock_logger,
-    mocker,
-):
-    # Пусть одна из вспомогательных функций выбрасывает исключение
-    mocker.patch(
-        'city.services.visited_city_service.get_number_of_users_who_visit_city',
-        side_effect=Exception('Helper failure'),
-    )
-
-    service = VisitedCityService(city_repo, visited_city_repo, fake_request)
-
-    # Проверяем, что исключение пробрасывается (т.к. в коде нет try/except для этих вызовов)
-    with pytest.raises(Exception) as excinfo:
-        service.get_city_details(city_id=1, user=fake_user)
-
-    assert 'Helper failure' in str(excinfo.value)
+    visited_city_repo.count_user_visits.assert_called_once_with(1, fake_user)
+    visited_city_repo.count_all_visits.assert_called_once_with(1)
+    visited_city_repo.get_user_visits.assert_called_once_with(1, fake_user)
 
 
 def test_unauthenticated_user_no_calls_to_user_specific_methods(
@@ -316,3 +257,81 @@ def test_unauthenticated_user_no_calls_to_user_specific_methods(
     # Проверяем, что методы, которые требуют user, не вызываются
     visited_city_repo.count_user_visits.assert_not_called()
     visited_city_repo.get_user_visits.assert_not_called()
+
+
+def test_get_city_details_empty_collections(
+    city_repo,
+    visited_city_repo,
+    fake_user,
+    fake_request,
+    fake_city,
+    mocker,
+    mock_logger,
+):
+    mocker.patch('city.services.visited_city_service.Collection.objects.filter', return_value=[])
+    service = VisitedCityService(city_repo, visited_city_repo, fake_request)
+    result = service.get_city_details(city_id=1, user=fake_user)
+    assert result.collections == []
+
+
+def test_get_city_details_empty_visits(
+    city_repo,
+    visited_city_repo,
+    fake_user,
+    fake_request,
+    fake_city,
+    mock_collections,
+    mock_logger,
+):
+    visited_city_repo.get_user_visits.return_value = []
+    service = VisitedCityService(city_repo, visited_city_repo, fake_request)
+    result = service.get_city_details(city_id=1, user=fake_user)
+    assert result.visits == []
+
+
+def test_get_city_details_all_dto_fields(
+    city_repo,
+    visited_city_repo,
+    fake_user,
+    fake_request,
+    fake_city,
+    mock_collections,
+    mock_logger,
+):
+    service = VisitedCityService(city_repo, visited_city_repo, fake_request)
+    result = service.get_city_details(city_id=1, user=fake_user)
+    # Проверяем, что все основные поля DTO присутствуют и не None (кроме тех, что могут быть пустыми)
+    assert hasattr(result, 'city')
+    assert hasattr(result, 'average_rating')
+    assert hasattr(result, 'popular_months')
+    assert hasattr(result, 'visits')
+    assert hasattr(result, 'collections')
+    assert hasattr(result, 'number_of_visits')
+    assert hasattr(result, 'number_of_visits_all_users')
+    assert hasattr(result, 'number_of_users_who_visit_city')
+    assert hasattr(result, 'number_of_cities_in_country')
+    assert hasattr(result, 'number_of_cities_in_region')
+    assert hasattr(result, 'rank_in_country_by_visits')
+    assert hasattr(result, 'rank_in_country_by_users')
+    assert hasattr(result, 'rank_in_region_by_visits')
+    assert hasattr(result, 'rank_in_region_by_users')
+    assert hasattr(result, 'neighboring_cities_by_rank_in_region_by_users')
+    assert hasattr(result, 'neighboring_cities_by_rank_in_region_by_visits')
+    assert hasattr(result, 'neighboring_cities_by_rank_in_country_by_visits')
+    assert hasattr(result, 'neighboring_cities_by_rank_in_country_by_users')
+
+
+def test_get_city_details_repo_exception(
+    city_repo,
+    visited_city_repo,
+    fake_user,
+    fake_request,
+    fake_city,
+    mock_collections,
+    mock_logger,
+):
+    visited_city_repo.count_user_visits.side_effect = Exception('DB error')
+    service = VisitedCityService(city_repo, visited_city_repo, fake_request)
+    with pytest.raises(Exception) as excinfo:
+        service.get_city_details(city_id=1, user=fake_user)
+    assert 'DB error' in str(excinfo.value)

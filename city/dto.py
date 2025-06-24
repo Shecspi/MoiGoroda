@@ -12,20 +12,21 @@ class CityDetailsDTO:
     popular_months: list[str]
     visits: list[dict[str, Any]]
     collections: list[Collection]
+    # Количество
     number_of_visits: int
     number_of_visits_all_users: int
     number_of_users_who_visit_city: int
-    total_number_of_visits: int
-    all_cities_qty: int
-    region_cities_qty: int
-    visits_rank_in_country: int
-    users_rank_in_country: int
-    visits_rank_in_region: int
-    users_rank_in_region: int
-    users_rank_in_country_neighboring_cities: list[City]
-    visits_rank_in_country_neighboring_cities: list[City]
-    users_rank_neighboring_cities_in_region: list[City]
-    visits_rank_neighboring_cities_in_region: list[City]
+    number_of_cities_in_country: int
+    number_of_cities_in_region: int
+    # Ранги
+    rank_in_country_by_visits: int
+    rank_in_country_by_users: int
+    rank_in_region_by_visits: int
+    rank_in_region_by_users: int
+    neighboring_cities_by_rank_in_country_by_visits: list[City]
+    neighboring_cities_by_rank_in_country_by_users: list[City]
+    neighboring_cities_by_rank_in_region_by_visits: list[City]
+    neighboring_cities_by_rank_in_region_by_users: list[City]
 
     @property
     def page_title(self) -> str:

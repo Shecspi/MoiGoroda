@@ -7,6 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from dataclasses import asdict
 from typing import Any, NoReturn, Callable
 
 from django.forms import BaseModelForm
@@ -212,7 +213,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         return context
 
 
-class VisitedCity_Detail(DetailView):
+class VisitedCityDetail(DetailView):
     """
     Отображает детальную страницу с информацией о конкретном городе.
 
@@ -250,35 +251,14 @@ class VisitedCity_Detail(DetailView):
         Формирует контекст для шаблона, расширяя базовый контекст данными,
         полученными из сервиса по деталям города и метаданным страницы.
         """
-        city_id = self.kwargs['pk']
-        city_dto = self.service.get_city_details(city_id, self.request.user)
+        city_dto = self.service.get_city_details(self.kwargs['pk'], self.request.user)
 
         context = super().get_context_data(**kwargs)
-
         context = {
             **context,
+            **asdict(city_dto),
             'page_title': city_dto.page_title,
             'page_description': city_dto.page_description,
-            # ---
-            'city': city_dto.city,
-            'average_rating': city_dto.average_rating,
-            'popular_months': ', '.join(city_dto.popular_months),
-            'collections': city_dto.collections,
-            'visits': city_dto.visits,
-            'all_cities_qty': city_dto.all_cities_qty,
-            'region_cities_qty': city_dto.region_cities_qty,
-            'number_of_visits': city_dto.number_of_visits,
-            'number_of_users_who_visit_city': city_dto.number_of_users_who_visit_city,
-            'total_number_of_visits': city_dto.total_number_of_visits,
-            # ---
-            'visits_rank_in_country': city_dto.visits_rank_in_country,
-            'users_rank_in_country': city_dto.users_rank_in_country,
-            'visits_rank_in_region': city_dto.visits_rank_in_region,
-            'users_rank_in_region': city_dto.users_rank_in_region,
-            'users_rank_in_country_neighboring_cities': city_dto.users_rank_in_country_neighboring_cities,
-            'visits_rank_in_country_neighboring_cities': city_dto.visits_rank_in_country_neighboring_cities,
-            'users_rank_neighboring_cities_in_region': city_dto.users_rank_neighboring_cities_in_region,
-            'visits_rank_neighboring_cities_in_region': city_dto.visits_rank_neighboring_cities_in_region,
         }
 
         return context

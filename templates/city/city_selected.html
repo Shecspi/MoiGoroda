@@ -137,7 +137,7 @@
                                     <h6 class="fw-semibold mb-1">Популярные месяцы для посещения:</h6>
                                     <div>
                                         {% if popular_months %}
-                                            {{ popular_months }}
+                                            {{ popular_months|join:", " }}
                                         {% else %}
                                             <span class="small text-muted">Статистика ещё не собрана</span>
                                         {% endif %}

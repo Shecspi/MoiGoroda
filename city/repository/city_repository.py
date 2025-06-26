@@ -45,9 +45,12 @@ class CityRepository(AbstractCityRepository):
             .order_by('rank')
         )
 
-        for city in ranked_cities:
-            if city['id'] == city_id:
-                return city['rank']
+        for item in ranked_cities:
+            if not isinstance(item, dict):
+                continue
+            if item.get('id') == city_id:
+                rank = item.get('rank')
+                return rank if rank is not None else 0
 
         return 0
 
@@ -131,7 +134,7 @@ class CityRepository(AbstractCityRepository):
 
         return 0
 
-    # Нет тестов
+
     def get_neighboring_cities_by_rank_in_region_by_users(self, city_id: int) -> list[City]:
         """
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
@@ -157,7 +160,7 @@ class CityRepository(AbstractCityRepository):
         )
         return self._get_cities_near_index(ranked_cities, city_id)
 
-    # Нет тестов
+
     def get_neighboring_cities_by_rank_in_region_by_visits(self, city_id: int) -> list[City]:
         """
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
@@ -183,7 +186,7 @@ class CityRepository(AbstractCityRepository):
         )
         return self._get_cities_near_index(ranked_cities, city_id)
 
-    # Нет тестов
+
     def get_neighboring_cities_by_rank_in_country_by_visits(self, city_id: int) -> list[City]:
         """
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
@@ -206,7 +209,7 @@ class CityRepository(AbstractCityRepository):
         )
         return self._get_cities_near_index(ranked_cities, city_id)
 
-    # Нет тестов
+    
     def get_neighboring_cities_by_rank_in_country_by_users(self, city_id: int) -> list[City]:
         """
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.

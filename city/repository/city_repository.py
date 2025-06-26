@@ -55,7 +55,9 @@ class CityRepository(AbstractCityRepository):
         ranked_cities = list(
             City.objects.annotate(
                 visits=Count('visitedcity__user', distinct=True),
-                rank=Window(expression=Rank(), order_by=F('visits').desc()),
+                rank=Window(
+                    expression=Rank(), partition_by=F('country'), order_by=F('visits').desc()
+                ),
             )
             .values('id', 'title', 'visits', 'rank')
             .order_by('rank')
@@ -184,7 +186,7 @@ class CityRepository(AbstractCityRepository):
     # Нет тестов
     def get_neighboring_cities_by_rank_in_country_by_visits(self, city_id: int) -> list[City]:
         """
-        Возвращает список 10 городов по региону, которые располагаются близко к искомому городу.
+        Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по количеству посещений города всеми пользователями.
         """
         try:
@@ -194,7 +196,7 @@ class CityRepository(AbstractCityRepository):
 
         ranked_cities = list(
             City.objects.all()
-            .filter(region_id=city.region.id)
+            .filter(country_id=city.country.id)
             .annotate(
                 visits=Count('visitedcity'),
                 rank=Window(expression=Rank(), order_by=F('visits').desc()),
@@ -207,7 +209,7 @@ class CityRepository(AbstractCityRepository):
     # Нет тестов
     def get_neighboring_cities_by_rank_in_country_by_users(self, city_id: int) -> list[City]:
         """
-        Возвращает список 10 городов по региону, которые располагаются близко к искомому городу.
+        Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по общему количеству пользователей, посетивших город.
         """
         try:
@@ -216,7 +218,7 @@ class CityRepository(AbstractCityRepository):
             return []
 
         ranked_cities = list(
-            City.objects.filter(region_id=city.region.id)
+            City.objects.filter(country_id=city.country.id)
             .annotate(
                 visits=Count('visitedcity__user', distinct=True),
                 rank=Window(expression=Rank(), order_by=F('visits').desc()),

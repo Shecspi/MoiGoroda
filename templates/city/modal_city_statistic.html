@@ -1,4 +1,5 @@
 {% load vite %}
+
 <!-- Модальное окно с картой -->
 <div class="modal fade" id="cityStatisticModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -27,7 +28,7 @@
                         <div class="card w-100 shadow-sm mb-3">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <span>Всего посещений города:</span>
-                                <span class="px-2 py-1 rounded bg-light text-dark fw-bold border border-secondary">{{ number_of_visits }}</span>
+                                <span class="px-2 py-1 rounded bg-light text-dark fw-bold border border-secondary">{{ number_of_visits_all_users }}</span>
                             </div>
                         </div>
                     </div>
@@ -44,7 +45,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <span>По пользователям</span>
                             <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
-                                {{ visits_rank_in_country }} из {{ users_rank_in_country }}
+                                {{ rank_in_country_by_users }} из {{ number_of_cities_in_country }}
                             </span>
                         </div>
                         <canvas id="rankBarChartByUsers" class="mt-3" style="width: 100%; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);"></canvas>
@@ -54,7 +55,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <span>По посещениям</span>
                             <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
-                                {{ visits_rank_in_country }} из {{ users_rank_in_region }}
+                                {{ rank_in_country_by_visits }} из {{ number_of_cities_in_country }}
                             </span>
                         </div>
                         <canvas id="rankBarChartByVisits" class="mt-3" style="width: 100%; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);"></canvas>
@@ -73,7 +74,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <span>По пользователям</span>
                                 <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-                                    {{ users_rank_in_region }} из {{ region_cities_qty }}
+                                    {{ rank_in_region_by_users }} из {{ number_of_cities_in_region }}
                                 </span>
                             </div>
                             <canvas id="rankBarInRegionChartByUsers" class="mt-3" style="width: 100%; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);"></canvas>
@@ -83,7 +84,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <span>По посещениям</span>
                                 <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-                                    {{ visits_rank_in_region }} из {{ region_cities_qty }}
+                                    {{ rank_in_region_by_visits }} из {{ number_of_cities_in_region }}
                                 </span>
                             </div>
                             <canvas id="rankBarInRegionChartByVisits" class="mt-3" style="width: 100%; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);"></canvas>
@@ -95,10 +96,10 @@
     </div>
 </div>
 
-{{ users_rank_in_country_neighboring_cities|json_script:"neighboringCitiesDataByUsers" }}
-{{ visits_rank_in_country_neighboring_cities|json_script:"neighboringCitiesDataByVisits" }}
-{{ users_rank_neighboring_cities_in_region|json_script:"neighboringCitiesInRegionDataByVisits" }}
-{{ visits_rank_neighboring_cities_in_region|json_script:"neighboringCitiesInRegionDataByUsers" }}
+{{ neighboring_cities_by_rank_in_country_by_users|json_script:"neighboringCitiesDataByUsers" }}
+{{ neighboring_cities_by_rank_in_country_by_visits|json_script:"neighboringCitiesDataByVisits" }}
+{{ neighboring_cities_by_rank_in_region_by_users|json_script:"neighboringCitiesInRegionDataByVisits" }}
+{{ neighboring_cities_by_rank_in_region_by_visits|json_script:"neighboringCitiesInRegionDataByUsers" }}
 <script>
     window.CITY_ID = {{ city.id }};
     {% if city.region %}

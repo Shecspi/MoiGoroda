@@ -7,16 +7,16 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import Any, NoReturn
+from dataclasses import asdict
+from typing import Any, NoReturn, Callable
 
-from django.db.models.functions import Round
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
-from django.db.models import QuerySet, Avg, Count, F, OuterRef, Subquery
+from django.db.models import QuerySet
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.views.generic import (
     ListView,
     CreateView,
@@ -31,22 +31,11 @@ from city.models import VisitedCity, City
 from city.services.db import (
     get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
-    get_number_of_users_who_visit_city,
-    get_total_number_of_visits,
-    get_rank_by_visits_of_city,
-    get_neighboring_cities_by_users_rank,
-    get_neighboring_cities_by_visits_rank,
-    get_neighboring_cities_in_region_by_visits_rank,
-    get_neighboring_cities_in_region_by_users_rank,
-    get_rank_by_visits_of_city_in_region,
-    get_rank_by_users_of_city_in_region,
-    get_number_of_cities_in_region_by_city,
-    get_rank_by_users_of_city,
     get_number_of_visited_countries,
 )
+from city.services.interfaces import AbstractVisitedCityService
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
-from collection.models import Collection
 from country.models import Country
 from services import logger
 from city.services.db import get_number_of_cities, get_number_of_new_visited_cities
@@ -224,156 +213,52 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         return context
 
 
-class VisitedCity_Detail(DetailView):
+class VisitedCityDetail(DetailView):
     """
-    Отображает страницу с информацией о городе.
+    Отображает детальную страницу с информацией о конкретном городе.
+
+    Этот класс-наследник Django DetailView отвечает за:
+    - загрузку объекта City по первичному ключу из URL;
+    - получение подробных данных по городу через сервис `AbstractVisitedCityService`;
+    - передачу этих данных в контекст шаблона для рендеринга страницы.
+
+    Атрибуты:
+        service (AbstractVisitedCityService): Экземпляр сервиса для работы с логикой города,
+            инициализируется в методе dispatch.
+        service_factory (Callable[[HttpRequest], AbstractVisitedCityService]): Фабрика для создания
+            сервиса, принимающая запрос и возвращающая сервис. Должна быть обязательно установлена перед вызовом.
     """
 
     model = City
     template_name = 'city/city_selected.html'
     context_object_name = 'city'
 
-    MONTH_NAMES = [
-        '',
-        'Январь',
-        'Февраль',
-        'Март',
-        'Апрель',
-        'Май',
-        'Июнь',
-        'Июль',
-        'Август',
-        'Сентябрь',
-        'Октябрь',
-        'Ноябрь',
-        'Декабрь',
-    ]
+    service: AbstractVisitedCityService = None
+    service_factory: Callable[[HttpRequest], AbstractVisitedCityService] = None
 
-    def __init__(self, **kwargs: Any):
-        super().__init__(**kwargs)
-        self.city = None
-
-    def get_object(self, queryset: QuerySet[City] = None) -> City:
-        self.city = City.objects.annotate(
-            average_rating=Round((Avg('visitedcity__rating') * 2), 0) / 2,
-        )
-
-        # Если пользователь залогинен — добавляем number_of_visits
-        if self.request.user.is_authenticated:
-            number_of_visits = (
-                VisitedCity.objects.filter(city_id=OuterRef('pk'), user=self.request.user)
-                .values('city')
-                .annotate(count=Count('id'))
-                .values('count')
-            )
-            self.city = self.city.annotate(number_of_visits=Subquery(number_of_visits))
-
-        # Получаем сам объект города из QuerySet
-        try:
-            self.city = self.city.get(id=self.kwargs['pk'])
-        except City.DoesNotExist:
-            logger.warning(
-                self.request,
-                f'(Visited city) Attempt to access a non-existent city #{self.kwargs["pk"]}',
-            )
-            raise Http404
-
-        popular_month = (
-            VisitedCity.objects.filter(city=self.city, date_of_visit__isnull=False)
-            .annotate(month=F('date_of_visit__month'))
-            .values('month')
-            .annotate(visits=Count('id'))
-            .order_by('-visits')
-        )
-        self.city.popular_months = [
-            self.MONTH_NAMES[month.get('month')] for month in popular_month[:3]
-        ]
-
-        if self.request.user.is_authenticated:
-            self.city.visits = (
-                VisitedCity.objects.filter(user=self.request.user, city=self.city)
-                .order_by(F('date_of_visit').desc(nulls_last=True))
-                .values('id', 'date_of_visit', 'rating', 'impression', 'city__title')
-            )
-
-        self.city.collections = Collection.objects.filter(city=self.city)
-
-        self.city.number_of_visits_all_users = (
-            VisitedCity.objects.filter(city=self.city.id)
-            .aggregate(count=Count('*'))
-            .get('count', 0)
-        )
-
-        logger.info(self.request, f'(Visited city) Viewing the visited city #{self.city.pk}')
-        return self.city
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Переопределён для инициализации сервиса с помощью фабрики до обработки запроса.
+        Проверяет наличие фабрики и создаёт сервис.
+        """
+        if not self.service_factory:
+            raise ImproperlyConfigured('VisitedCityService factory is not set')
+        self.service = self.service_factory(request)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        """
+        Формирует контекст для шаблона, расширяя базовый контекст данными,
+        полученными из сервиса по деталям города и метаданным страницы.
+        """
+        city_dto = self.service.get_city_details(self.kwargs['pk'], self.request.user)
+
         context = super().get_context_data(**kwargs)
-
-        country_id = self.city.country_id
-
-        context['page_title'] = (
-            f'{self.city.title}, {self.city.region}, {self.city.country} - информация о городе, карта'
-            if self.city.region
-            else f'{self.city.title}, {self.city.country} - информация о городе, карта'
-        )
-
-        context['page_description'] = (
-            f'{self.city.title}, {self.city.country}, {self.city.region}. '
-            if self.city.region
-            else f'{self.city.title}, {self.city.country}. '
-        )
-
-        if len(self.city.collections) == 1:
-            context['page_description'] += f"Входит в коллекцию '{self.city.collections[0]}'"
-        elif len(self.city.collections) >= 2:
-            context['page_description'] += (
-                f"Входит в коллекции {', '.join(["«" + str(collection) + "»" for collection in self.city.collections])} "
-            )
-
-        if self.city.average_rating:
-            context['page_description'] += (
-                f'Средняя оценка путешественников — {self.city.average_rating}. '
-            )
-
-        if self.city.popular_months:
-            context['page_description'] += (
-                f"Лучшее время для поездки: {', '.join(sorted(self.city.popular_months, key=lambda m: self.MONTH_NAMES.index(m)))}. "
-            )
-
-        context['page_description'] += (
-            'Смотрите информацию о городе и карту на сайте «Мои Города». '
-            'Зарегистрируйтесь, чтобы отмечать посещённые города.'
-        )
-
-        context['number_of_users_who_visit_city'] = get_number_of_users_who_visit_city(self.city.id)
-        context['number_of_visits'] = self.city.number_of_visits_all_users
-        context['total_number_of_visits'] = get_total_number_of_visits()
         context = {
             **context,
-            'popular_months': ', '.join(
-                sorted(self.city.popular_months, key=lambda m: self.MONTH_NAMES.index(m))
-            ),
-            'all_cities_qty': get_number_of_cities(country_id),
-            'region_cities_qty': get_number_of_cities_in_region_by_city(self.city.id),
-            'visits_rank_in_country': get_rank_by_visits_of_city(
-                self.city.id, self.city.country_id
-            ),
-            'users_rank_in_country': get_rank_by_users_of_city(self.city.id, self.city.country_id),
-            'visits_rank_in_region': get_rank_by_visits_of_city_in_region(self.city.id, True),
-            'users_rank_in_region': get_rank_by_users_of_city_in_region(self.city.id, True),
-            'users_rank_in_country_neighboring_cities': get_neighboring_cities_by_users_rank(
-                self.city.id, country_id
-            ),
-            'visits_rank_in_country_neighboring_cities': get_neighboring_cities_by_visits_rank(
-                self.city.id, country_id
-            ),
-            'users_rank_neighboring_cities_in_region': (
-                get_neighboring_cities_in_region_by_users_rank(self.city.id, country_id)
-            ),
-            'visits_rank_neighboring_cities_in_region': get_neighboring_cities_in_region_by_visits_rank(
-                self.city.id, country_id
-            ),
+            **asdict(city_dto),
+            'page_title': city_dto.page_title,
+            'page_description': city_dto.page_description,
         }
 
         return context

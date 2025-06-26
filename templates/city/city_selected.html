@@ -88,8 +88,8 @@
                                 <div class="col-12">
                                     <h6 class="fw-semibold mb-1">Коллекции:</h6>
                                     <div class="d-flex flex-wrap gap-1">
-                                        {% if city.collections %}
-                                            {% for collection in city.collections %}
+                                        {% if collections %}
+                                            {% for collection in collections %}
                                                 <a href="{% url 'collection-detail-list' collection.id %}"
                                                    class="btn btn-sm bg-light text-success border border-success-subtle badge-hover-success">
                                                     {{ collection }}
@@ -108,17 +108,17 @@
                                 <div class="col-6">
                                     <h6 class="fw-semibold mb-1">Средняя оценка среди всех пользователей:</h6>
                                     <div class="d-flex align-items-center gap-3">
-                                        {% if city.average_rating %}
+                                        {% if average_rating %}
                                             <span>
-                                                {{ city.average_rating }}
+                                                {{ average_rating }}
                                             </span>
                                             <span>
                                                 {% for i in "12345"|make_list %}
                                                     {% with index=forloop.counter %}
-                                                        {% if city.average_rating >= index %}
+                                                        {% if average_rating >= index %}
                                                             <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
                                                         {% else %}
-                                                            {% if city.average_rating >= index|sub:0.5 %}
+                                                            {% if average_rating >= index|sub:0.5 %}
                                                                 <i class="fa-solid fa-star-half-stroke" style="color: #ffc43c;"></i>
                                                             {% else %}
                                                                 <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
@@ -137,7 +137,7 @@
                                     <h6 class="fw-semibold mb-1">Популярные месяцы для посещения:</h6>
                                     <div>
                                         {% if popular_months %}
-                                            {{ popular_months }}
+                                            {{ popular_months|join:", " }}
                                         {% else %}
                                             <span class="small text-muted">Статистика ещё не собрана</span>
                                         {% endif %}
@@ -160,12 +160,12 @@
                     </div>
 
                     {% if user.is_authenticated %}
-                        {% if city.number_of_visits > 0 %}
+                        {% if number_of_visits > 0 %}
                             <div class="row align-items-center mt-3 mb-3">
-                                <div class="col-12 fs-3 fw-semibold">Ваши посещения города {{ city.title }} ({{ city.number_of_visits }})</div>
+                                <div class="col-12 fs-3 fw-semibold">Ваши посещения города {{ city.title }} ({{ number_of_visits }})</div>
                             </div>
 
-                            {% for visit in city.visits %}
+                            {% for visit in visits %}
                                 {% if not forloop.first %}
                                     <div class="row align-items-center">
                                         <div class="col-12">
@@ -225,7 +225,7 @@
                         {% endif %}
 
                         <div class="d-flex justify-content-end mt-5">
-                            {% if city.number_of_visits > 0 %}
+                            {% if number_of_visits > 0 %}
                                 <a href="{% url 'city-create' %}?city_id={{ city.id }}"
                                    class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
                                     <i class="fa-solid fa-plus"></i>

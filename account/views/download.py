@@ -24,11 +24,12 @@ def download(request):
     users_data = request.POST.dict()
     reporttype = users_data.get('reporttype')
     filetype = users_data.get('filetype')
+    group_city = users_data.get('group_city', False)
 
     # Для того чтобы добавить новый формат репорта, достаточно создать класс,
     # реализующий интерфейс report.Report и добавить его эту секцию if ... else ...
     if reporttype == 'city':
-        report = CityReport(request.user.id)
+        report = CityReport(request.user.id, group_city)
     # elif reporttype == 'region':
     #     report = RegionReport(request.user.id)
     # elif reporttype == 'area':

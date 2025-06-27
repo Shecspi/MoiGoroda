@@ -9,7 +9,9 @@ Licensed under the Apache License, Version 2.0
 
 from abc import ABC, abstractmethod
 
-from city.services.db import get_unique_visited_cities
+from django.db.models import F
+
+from city.services.db import get_unique_visited_cities, get_all_visited_cities
 from city.services.sort import apply_sort_to_queryset
 from services.db.area_repo import get_visited_areas
 from region.services.db import get_all_region_with_visited_cities
@@ -24,37 +26,68 @@ class Report(ABC):
 
 
 class CityReport(Report):
-    def __init__(self, user_id: int) -> None:
+    def __init__(self, user_id: int, group_city: bool = False) -> None:
         self.user_id = user_id
+        self.group_city = group_city
 
     def get_report(self) -> list[tuple]:
-        all_visited_cities = get_unique_visited_cities(self.user_id)
-        sorted_visited_cities = apply_sort_to_queryset(all_visited_cities, 'last_visit_date_down')
-        result = [
-            (
-                'Город',
-                'Регион',
-                'Страна',
-                'Количество посещений',
-                'Дата первого посещения',
-                'Дата последнего посещения',
-                'Наличие сувенира',
-                'Средняя оценка',
-            ),
-        ]
-        for city in sorted_visited_cities:
-            result.append(
-                (
-                    city.city.title,
-                    str(city.city.region) if city.city.region else 'Нет региона',
-                    str(city.city.country),
-                    city.number_of_visits,
-                    str(city.first_visit_date) if city.first_visit_date else 'Не указана',
-                    str(city.last_visit_date) if city.last_visit_date else 'Не указана',
-                    '+' if city.has_souvenir else '-',
-                    city.average_rating if city.average_rating else '',
-                ),
+        if self.group_city:
+            all_visited_cities = get_unique_visited_cities(self.user_id)
+            sorted_visited_cities = apply_sort_to_queryset(
+                all_visited_cities, 'last_visit_date_down'
             )
+            result = [
+                (
+                    'Город',
+                    'Регион',
+                    'Страна',
+                    'Количество посещений',
+                    'Дата первого посещения',
+                    'Дата последнего посещения',
+                    'Наличие сувенира',
+                    'Средняя оценка',
+                ),
+            ]
+            for city in sorted_visited_cities:
+                result.append(
+                    (
+                        city.city.title,
+                        str(city.city.region) if city.city.region else 'Нет региона',
+                        str(city.city.country),
+                        city.number_of_visits,
+                        str(city.first_visit_date) if city.first_visit_date else 'Не указана',
+                        str(city.last_visit_date) if city.last_visit_date else 'Не указана',
+                        '+' if city.has_souvenir else '-',
+                        city.average_rating if city.average_rating else '',
+                    ),
+                )
+        else:
+            all_visited_cities = get_all_visited_cities(self.user_id)
+            sorted_visited_cities = all_visited_cities.order_by(
+                F('date_of_visit').desc(nulls_last=True)
+            )
+            result = [
+                (
+                    'Город',
+                    'Регион',
+                    'Страна',
+                    'Дата посещения',
+                    'Наличие сувенира',
+                    'Оценка',
+                ),
+            ]
+            for city in sorted_visited_cities:
+                result.append(
+                    (
+                        city.city.title,
+                        str(city.city.region) if city.city.region else 'Нет региона',
+                        str(city.city.country),
+                        str(city.date_of_visit) if city.date_of_visit else 'Не указана',
+                        '+' if city.has_magnet else '-',
+                        city.rating if city.rating else '',
+                    ),
+                )
+
         return result
 
 

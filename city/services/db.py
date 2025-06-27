@@ -152,6 +152,43 @@ def get_unique_visited_cities(
     return queryset
 
 
+def get_all_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[VisitedCity]:
+    """
+    Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.
+    Возвращает Queryset, состоящий из полей:
+        * `id` - ID посещённого города
+        * `date_of_visit` - дата посещения города
+        * `rating` - рейтинг посещённого города
+        * `has_magnet` - наличие сувенира из города
+        * `city.id` - ID города
+        * `city.title` - Название города
+        * `city.population` - население города
+        * `city.date_of_foundation` - дата основания города
+        * `city.coordinate_width` - широта
+        * `city.coordinate_longitude` - долгота
+        * `region.id` - ID региона, в котором расположен город
+        * `region.title` - название региона, в котором расположен город
+        * `region.type` - тип региона, в котором расположен город
+        * `number_of_visits` - количество посещений городп
+        (для отображения названия региона лучше использовать просто `region`,
+        а не `region.title` и `region.type`, так как `region` через __str__()
+        отображает корректное обработанное название)
+    """
+    if country_code:
+        queryset = VisitedCity.objects.filter(city__country__code=country_code)
+    else:
+        queryset = VisitedCity.objects.all()
+
+    queryset = queryset.filter(user_id=user_id).select_related(
+        'city',
+        'city__region',
+        'city__country',
+        'user',
+    )
+
+    return queryset
+
+
 def get_all_new_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     return VisitedCity.objects.filter(is_first_visit=True, user_id=user_id)
 

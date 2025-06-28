@@ -63,7 +63,7 @@ class SignUpForm(UserCreationForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')
 
-        if User.objects.filter(email=email).exists():
+        if email and User.objects.filter(email=email).exists():
             raise ValidationError('Данный адрес электронной почты уже зарегистрирован.')
 
         return email

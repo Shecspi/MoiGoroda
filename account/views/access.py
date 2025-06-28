@@ -43,9 +43,9 @@ class SignUp(CreateView):
 
     def form_valid(self, form):
         user = User.objects.create_user(
-            username=self.request.POST['username'],
-            password=self.request.POST['password1'],
-            email=self.request.POST['email'],
+            username=form.cleaned_data['username'],
+            password=form.cleaned_data['password1'],
+            email=form.cleaned_data['email'],
         )
         user.save()
 
@@ -63,7 +63,7 @@ class SignUp(CreateView):
         )
 
         logger_email.info(
-            f"Registration of a new user: {self.request.POST['username']} ({self.request.POST['email']}). "
+            f"Registration of a new user: {form.cleaned_data['username']} ({form.cleaned_data['email']}). "
             f"Total numbers of users: {User.objects.count()}"
         )
         login(self.request, user)

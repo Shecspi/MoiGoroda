@@ -5,10 +5,6 @@
         Коллекции городов
     </h1>
 
-    {% if not DEBUG %}
-    {% include 'advertisement/travel_payouts.html' %}
-    {% endif %}
-
     <!-- Карточки с коллекциями -->
     {% if object_list %}
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">

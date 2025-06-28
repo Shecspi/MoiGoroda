@@ -51,10 +51,6 @@
     {% include 'parts/pagination.html' %}
     <!-- ^^^ Пагинация -->
 
-    {% if not DEBUG %}
-    {% include 'advertisement/travel_payouts.html' %}
-    {% endif %}
-
     {% vite_asset 'js/entries/choices_css.js' %}
     {% vite_asset 'js/entries/city_all.js' %}
 {% endblock %}

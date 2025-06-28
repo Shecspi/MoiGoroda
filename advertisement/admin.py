@@ -1,12 +1,6 @@
 from django.contrib import admin
 
-from advertisement.models import LinkAdvertisement, AdvertisementException
-
-
-@admin.register(LinkAdvertisement)
-class AdvertisementAdmin(admin.ModelAdmin):
-    list_display = ('title', 'url', 'legal_marking', 'icon_class', 'color')
-    search_fields = ('title',)
+from advertisement.models import AdvertisementException
 
 
 @admin.register(AdvertisementException)

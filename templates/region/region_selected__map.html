@@ -11,7 +11,6 @@
         {% if user.is_authenticated %}
             {% include 'advertisement/rtb_banner.html' %}
         {% else %}
-            {% include 'advertisement/travel_payouts.html' %}
             {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
         {% endif %}
     {% endif %}

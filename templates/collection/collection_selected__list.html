@@ -6,10 +6,6 @@
     </h1>
 
     {% if not DEBUG %}
-    {% include 'advertisement/travel_payouts.html' %}
-    {% endif %}
-
-    {% if not DEBUG %}
     {% if not user.is_authenticated %}
     {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
     {% endif %}

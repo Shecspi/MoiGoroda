@@ -18,7 +18,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Subquery, IntegerField, OuterRef, Count
 
 from MoiGoroda import settings
 from country.models import Country
@@ -241,13 +241,40 @@ class CitiesByRegionList(ListView):
                 'number_of_visits_all_users',
             )
         else:
-            queryset = City.objects.filter(region=self.region_id).values(
-                'id',
-                'title',
-                'population',
-                'date_of_foundation',
-                'coordinate_width',
-                'coordinate_longitude',
+            # Подзапрос для получения количество пользователей, посетивших город
+            number_of_users_who_visit_city = (
+                VisitedCity.objects.filter(city=OuterRef('pk'), is_first_visit=True)
+                .values('city')
+                .annotate(count=Count('*'))
+                .values('count')[:1]
+            )
+
+            # Подзапрос для получения общего количества посещений города
+            number_of_visits_all_users = (
+                VisitedCity.objects.filter(city=OuterRef('pk'))
+                .values('city')
+                .annotate(count=Count('*'))
+                .values('count')[:1]
+            )
+
+            queryset = (
+                City.objects.filter(region=self.region_id)
+                .annotate(
+                    number_of_users_who_visit_city=Subquery(
+                        number_of_users_who_visit_city, output_field=IntegerField()
+                    ),
+                    number_of_visits_all_users=Subquery(number_of_visits_all_users),
+                )
+                .values(
+                    'id',
+                    'title',
+                    'population',
+                    'date_of_foundation',
+                    'coordinate_width',
+                    'coordinate_longitude',
+                    'number_of_users_who_visit_city',
+                    'number_of_visits_all_users',
+                )
             )
             self.number_of_cities = queryset.count()
 

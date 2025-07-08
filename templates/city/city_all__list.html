@@ -4,7 +4,11 @@
 
 {% block content %}
     <h1 class="display-5 text-center mt-3 mx-3" id="section-page_header">
-        {{ page_title }}
+      {% if country_name %}
+        Список посещённых городов в {{ country_name|prepositional }}
+      {% else %}
+        Список посещённых городов
+      {% endif %}
     </h1>
 
     {% if not DEBUG %}
@@ -28,8 +32,8 @@
                         {% if filter %}
                             По заданным условиям фильтрации не найдено ни одного города
                         {% else %}
-                            Вы не посетили ни одного города в {{ country_name|prepositional|title }}.<br>
-                            Можете посмотреть <a href="{% url 'city-all-map' %}?country={{ country_code }}" class="link-dark link-underline-dark link-underline-opacity-25 link-underline-opacity-100-hover link-offset-2">все города {{ country_name|genitive|title }} на карте</a>.
+                            Вы не посетили ни одного города в {{ country_name|prepositional }}.<br>
+                            Можете посмотреть <a href="{% url 'city-all-map' %}?country={{ country_code }}" class="link-dark link-underline-dark link-underline-opacity-25 link-underline-opacity-100-hover link-offset-2">все города {{ country_name|genitive }} на карте</a>.
                         {% endif %}
                     </div>
                 </div>

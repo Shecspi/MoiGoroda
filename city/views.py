@@ -70,7 +70,7 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
             except (ValueError, TypeError):
                 logger.warning(
                     self.request,
-                    f'(Visited city) Invalid city_id passed: {self.request.GET.get('city_id')}',
+                    f'(Visited city) Invalid city_id passed: {self.request.GET.get("city_id")}',
                 )
                 return initial
 
@@ -310,7 +310,7 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
 
         context['active_page'] = 'city_map'
         context['page_title'] = (
-            f'Карта посещённых городов в {to_prepositional(country).title()}'
+            f'Карта посещённых городов в {to_prepositional(country)}'
             if country
             else 'Карта посещённых городов'
         )
@@ -445,7 +445,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         context['country_name'] = str(self.country)
         context['country_code'] = self.country_code
         context['page_title'] = (
-            f'Список посещённых городов в {to_prepositional(self.country).title()}'
+            f'Список посещённых городов в {to_prepositional(self.country)}'
             if self.country
             else 'Список посещённых городов'
         )

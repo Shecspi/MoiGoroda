@@ -5,13 +5,38 @@ from pymorphy3 import MorphAnalyzer
 morph = MorphAnalyzer()
 
 
-def inflect_word(word: str, case: Literal['nomn', 'gent', 'datv', 'accs', 'ablt', 'loct']) -> str:
-    """
-    Склоняет слово в указанный падеж.
-    """
+Case = Literal['nomn', 'gent', 'datv', 'accs', 'ablt', 'loct']
+
+
+def match_case(original: str, new: str) -> str:
+    if original.isupper():
+        return new.upper()
+    elif original.istitle():
+        return new.capitalize()
+    else:
+        return new
+
+
+def inflect_word(word: str, case: Case) -> str:
     parsed = morph.parse(word)[0]
     form = parsed.inflect({case})
-    return form.word if form else word
+    inflected = form.word if form else word
+    return match_case(word, inflected)
+
+
+def inflect_phrase(phrase: str, case: Case) -> str:
+    """
+    Склоняет фразу (с дефисами и пробелами) в нужный падеж, сохраняя регистр каждой части.
+    """
+    result_words = []
+
+    for word in phrase.split():
+        # Обработка дефисных слов: Абу-Даби → [Абу, Даби]
+        parts = word.split('-')
+        inflected_parts = [inflect_word(part, case) for part in parts]
+        result_words.append('-'.join(inflected_parts))
+
+    return ' '.join(result_words)
 
 
 def to_nominative(word: str) -> str:
@@ -20,7 +45,7 @@ def to_nominative(word: str) -> str:
     Используется для подлежащего.
     Пример: Россия, Франция, Китай
     """
-    return inflect_word(word, 'nomn')
+    return inflect_phrase(word, 'nomn')
 
 
 def to_genitive(word: str) -> str:
@@ -29,7 +54,7 @@ def to_genitive(word: str) -> str:
     Используется для выражения принадлежности, количества, отсутствия.
     Пример: города России, регионы Китая, столица Франции
     """
-    return inflect_word(word, 'gent')
+    return inflect_phrase(word, 'gent')
 
 
 def to_dative(word: str) -> str:
@@ -38,7 +63,7 @@ def to_dative(word: str) -> str:
     Используется для указания получателя действия.
     Пример: по России, подарить Франции, написать Китаю
     """
-    return inflect_word(word, 'datv')
+    return inflect_phrase(word, 'datv')
 
 
 def to_accusative(word: str) -> str:
@@ -47,7 +72,7 @@ def to_accusative(word: str) -> str:
     Объект действия, часто используется с глаголами.
     Пример: видеть Россию, посетить Францию, исследовать Китай
     """
-    return inflect_word(word, 'accs')
+    return inflect_phrase(word, 'accs')
 
 
 def to_instrumental(word: str) -> str:
@@ -56,7 +81,7 @@ def to_instrumental(word: str) -> str:
     Средство действия, совместность.
     Пример: с Россией, управлять Китаем, дружить с Францией
     """
-    return inflect_word(word, 'ablt')
+    return inflect_phrase(word, 'ablt')
 
 
 def to_prepositional(word: str) -> str:
@@ -65,7 +90,7 @@ def to_prepositional(word: str) -> str:
     Употребляется только с предлогами: о, в, на и т.п.
     Пример: о России, в Китае, на Франции (реже)
     """
-    return inflect_word(word, 'loct')
+    return inflect_phrase(word, 'loct')
 
 
 def plural_by_number(word: str, number: int) -> str:

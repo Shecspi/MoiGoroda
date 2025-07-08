@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load morphology %}
 {% load vite %}
 
 {% block content %}
     <h1 class="display-5 text-center mt-3 mx-3" id="section-page_header">
-        {{ page_title }}
+      {% if country_name %}
+        Карта посещённых городов в {{ country_name|prepositional }}
+      {% else %}
+        Карта посещённых городов
+      {% endif %}
     </h1>
 
     {% include 'city/city_all__map__toolbar.html' %}

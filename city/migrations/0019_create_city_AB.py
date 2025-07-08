@@ -13,82 +13,82 @@ def create_city_AB(apps, schema_editor):
 
     country = Country.objects.get(code='AB')
 
-    cities = [
-        {
-            'title': 'Гагра',
-            'country': country,
-            'population': '11807',
-            'date_of_foundation': None,
-            'coordinate_width': 43.280482,
-            'coordinate_longitude': 40.265698,
-            'wiki': 'https://ru.wikipedia.org/wiki/Гагра',
-        },
-        {
-            'title': 'Гали',
-            'country': country,
-            'population': '7452',
-            'date_of_foundation': None,
-            'coordinate_width': 42.627403,
-            'coordinate_longitude': 41.736896,
-            'wiki': 'https://ru.wikipedia.org/wiki/Гали',
-        },
-        {
-            'title': 'Гудаута',
-            'country': country,
-            'population': '8752',
-            'date_of_foundation': None,
-            'coordinate_width': 43.101181,
-            'coordinate_longitude': 40.634187,
-            'wiki': 'https://ru.wikipedia.org/wiki/Гудаута',
-        },
-        {
-            'title': 'Новый Афон',
-            'country': country,
-            'population': '1519',
-            'date_of_foundation': None,
-            'coordinate_width': 43.084985,
-            'coordinate_longitude': 40.812350,
-            'wiki': 'https://ru.wikipedia.org/wiki/Новый_Афон',
-        },
-        {
-            'title': 'Очамчира',
-            'country': country,
-            'population': '5238',
-            'date_of_foundation': None,
-            'coordinate_width': 42.708149,
-            'coordinate_longitude': 41.466512,
-            'wiki': 'https://ru.wikipedia.org/wiki/Очамчира',
-        },
-        {
-            'title': 'Пицунда',
-            'country': country,
-            'population': '3986',
-            'date_of_foundation': None,
-            'coordinate_width': 43.159705,
-            'coordinate_longitude': 40.338794,
-            'wiki': 'https://ru.wikipedia.org/wiki/Пицунда',
-        },
-        {
-            'title': 'Сухуми',
-            'country': country,
-            'population': '65146',
-            'date_of_foundation': None,
-            'coordinate_width': 43.003364,
-            'coordinate_longitude': 41.019268,
-            'wiki': 'https://ru.wikipedia.org/wiki/Сухуми',
-        },
-        {
-            'title': 'Ткварчели',
-            'country': country,
-            'population': '5044',
-            'date_of_foundation': None,
-            'coordinate_width': 42.847031,
-            'coordinate_longitude': 41.687587,
-            'wiki': 'https://ru.wikipedia.org/wiki/Ткварчели',
-        },
-    ]
-    for city in cities:
-        City.objects.create(**city)
+    # cities = [
+    #     {
+    #         'title': 'Гагра',
+    #         'country': country,
+    #         'population': '11807',
+    #         'date_of_foundation': None,
+    #         'coordinate_width': 43.280482,
+    #         'coordinate_longitude': 40.265698,
+    #         'wiki': 'https://ru.wikipedia.org/wiki/Гагра',
+    #     },
+    #     {
+    #         'title': 'Гали',
+    #         'country': country,
+    #         'population': '7452',
+    #         'date_of_foundation': None,
+    #         'coordinate_width': 42.627403,
+    #         'coordinate_longitude': 41.736896,
+    #         'wiki': 'https://ru.wikipedia.org/wiki/Гали',
+    #     },
+    #     {
+    #         'title': 'Гудаута',
+    #         'country': country,
+    #         'population': '8752',
+    #         'date_of_foundation': None,
+    #         'coordinate_width': 43.101181,
+    #         'coordinate_longitude': 40.634187,
+    #         'wiki': 'https://ru.wikipedia.org/wiki/Гудаута',
+    #     },
+    #     {
+    #         'title': 'Новый Афон',
+    #         'country': country,
+    #         'population': '1519',
+    #         'date_of_foundation': None,
+    #         'coordinate_width': 43.084985,
+    #         'coordinate_longitude': 40.812350,
+    #         'wiki': 'https://ru.wikipedia.org/wiki/Новый_Афон',
+    #     },
+    #     {
+    #         'title': 'Очамчира',
+    #         'country': country,
+    #         'population': '5238',
+    #         'date_of_foundation': None,
+    #         'coordinate_width': 42.708149,
+    #         'coordinate_longitude': 41.466512,
+    #         'wiki': 'https://ru.wikipedia.org/wiki/Очамчира',
+    #     },
+    #     {
+    #         'title': 'Пицунда',
+    #         'country': country,
+    #         'population': '3986',
+    #         'date_of_foundation': None,
+    #         'coordinate_width': 43.159705,
+    #         'coordinate_longitude': 40.338794,
+    #         'wiki': 'https://ru.wikipedia.org/wiki/Пицунда',
+    #     },
+    #     {
+    #         'title': 'Сухуми',
+    #         'country': country,
+    #         'population': '65146',
+    #         'date_of_foundation': None,
+    #         'coordinate_width': 43.003364,
+    #         'coordinate_longitude': 41.019268,
+    #         'wiki': 'https://ru.wikipedia.org/wiki/Сухуми',
+    #     },
+    #     {
+    #         'title': 'Ткварчели',
+    #         'country': country,
+    #         'population': '5044',
+    #         'date_of_foundation': None,
+    #         'coordinate_width': 42.847031,
+    #         'coordinate_longitude': 41.687587,
+    #         'wiki': 'https://ru.wikipedia.org/wiki/Ткварчели',
+    #     },
+    # ]
+    # for city in cities:
+    #     City.objects.create(**city)
 
 
 class Migration(migrations.Migration):
@@ -96,4 +96,4 @@ class Migration(migrations.Migration):
         ('city', '0018_remove_visitedcity_region'),
     ]
 
-    operations = [RunPython(create_city_AB)]
+    # operations = [RunPython(create_city_AB)]

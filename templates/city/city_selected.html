@@ -250,16 +250,16 @@
             </div>
         </div>
     </div>
-
-    {% if not DEBUG %}
-        {% include 'advertisement/rtb_feed.html' %}
-
-        {% if not user.is_authenticated %}
-            {% include 'advertisement/rtb_floor_ad_mobile.html' %}
-            {% include 'advertisement/rtb_floor_ad_desktop.html' %}
-        {% endif %}
-    {% endif %}
 </div>
+
+{% if not DEBUG %}
+    {% include 'advertisement/rtb_feed.html' %}
+
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+    {% endif %}
+{% endif %}
 
 {% include 'city/modal_city_statistic.html' %}
 

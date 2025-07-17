@@ -6,6 +6,13 @@
 {% load mathfilters %}
 
 {% block content %}
+
+{% if not DEBUG %}
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+    {% endif %}
+{% endif %}
+
 <h1 class="display-5 text-center mt-4 mb-4 fw-bold" id="section-page_header">
     {{ city.title }}
 </h1>
@@ -244,6 +251,15 @@
         </div>
     </div>
 </div>
+
+{% if not DEBUG %}
+    {% include 'advertisement/rtb_feed.html' %}
+
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+    {% endif %}
+{% endif %}
 
 {% include 'city/modal_city_statistic.html' %}
 

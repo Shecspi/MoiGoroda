@@ -1,0 +1,24 @@
+{% load vite %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Embedded Map</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #map { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script>
+        window.TILE_LAYER = "{{ TILE_LAYER }}";
+        window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
+        window.REGION_CODE = "{{ iso3166 }}";
+    </script>
+    {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/embedded_region_map.js' %}
+</body>
+</html>

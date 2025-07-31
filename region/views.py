@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
@@ -381,3 +381,7 @@ class CitiesByRegionList(ListView):
             else 'region/region_selected__list.html'
         )
         return [template_name]
+
+
+def embedded_map(request, iso3166):
+    return render(request, 'region/embedded_map.html', context={'iso3166': iso3166})

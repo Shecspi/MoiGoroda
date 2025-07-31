@@ -16,6 +16,7 @@ Licensed under the Apache License, Version 2.0
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import ListView
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet, Subquery, IntegerField, OuterRef, Count
@@ -383,5 +384,6 @@ class CitiesByRegionList(ListView):
         return [template_name]
 
 
+@xframe_options_exempt
 def embedded_map(request, iso3166):
     return render(request, 'region/embedded_map.html', context={'iso3166': iso3166})

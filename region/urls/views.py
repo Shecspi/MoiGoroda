@@ -23,5 +23,5 @@ urlpatterns = [
         views.CitiesByRegionList.as_view(list_or_map='map'),
         name='region-selected-map',
     ),
-    path('embedded/RU/<str:iso3166>', views.embedded_map, name='region-embedded-map'),
+    path('embedded/<str:quality>/RU/<str:iso3166>', views.embedded_map, name='region-embedded-map'),
 ]

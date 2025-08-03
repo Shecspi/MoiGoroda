@@ -5,7 +5,7 @@
     <h1 class="display-5 text-center mt-3 mx-3"
         id="change_password-section-page_header">Профиль</h1>
 
-    <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto"
+    <div class="row mx-3 mt-2 g-3 d-flex justify-content-center align-items-center my-auto"
          id="change_password-section-card">
         <div class="col-xl-6">
             <div class="card shadow p-3">
@@ -13,6 +13,59 @@
                     <form method="post">
                         {% crispy form %}
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mx-3 mt-3 mb-3 g-3">
+        <div class="col-md-6">
+            <div class="card shadow p-3">
+              <div class="card-head">
+                <h3>Ваши подписки</h3>
+              </div>
+                <div class="card-body d-flex flex-column gap-3">
+                    {% for user in subscribed_users %}
+                        <div class="d-flex justify-content-between align-items-center gap-3">
+                            <div>{{ user.username }}</div>
+                            <div class="d-flex flex-wrap gap-3 justify-content-end">
+                                <button class="btn btn-outline-primary d-flex gap-2 align-items-center"
+                                        data-user_id="{{ user.id }}">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span class="d-none d-xl-inline">Статистика</span>
+                                </button>
+                                <button class="btn btn-outline-danger d-flex gap-2 align-items-center">
+                                    <i class="fa-solid fa-ban"></i>
+                                    <span class="d-none d-xl-inline">Отписаться</span>
+                                </button>
+                            </div>
+                        </div>
+                    {% empty %}
+                        Вы ещё не подписались ни на одного пользователя
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow p-3">
+              <div class="card-head">
+                <h3>Подписаны на Вас</h3>
+              </div>
+                <div class="card-body d-flex flex-column gap-3">
+                    {% for user in subscriber_users %}
+                        <div class="d-flex justify-content-between align-items-center gap-3">
+                            <div>{{ user.username }}</div>
+                            <div class="d-flex flex-wrap gap-3 justify-content-end">
+                                <button class="btn btn-outline-danger d-flex gap-2 align-items-center">
+                                    <i class="fa-solid fa-trash"></i>
+                                    <span class="d-none d-xl-inline">Удалить подписку</span>
+                                </button>
+                            </div>
+                        </div>
+                    {% empty %}
+                        На Вас ещё не подписался ни один пользователь
+                    {% endfor %}
                 </div>
             </div>
         </div>

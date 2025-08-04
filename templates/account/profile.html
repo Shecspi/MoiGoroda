@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load vite %}
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -21,12 +22,14 @@
     <div class="row mx-3 mt-3 mb-3 g-3">
         <div class="col-md-6">
             <div class="card shadow p-3">
-              <div class="card-head">
-                <h3>Ваши подписки</h3>
-              </div>
+                <div class="card-head">
+                    <h3>Ваши подписки</h3>
+                </div>
                 <div class="card-body d-flex flex-column gap-3">
                     {% for user in subscribed_users %}
-                        <div class="d-flex justify-content-between align-items-center gap-3">
+                        <div class="d-flex justify-content-between align-items-center gap-3"
+                             data-subscribe_type="subscribed"
+                             data-user_id="{{ user.id }}">
                             <div>{{ user.username }}</div>
                             <div class="d-flex flex-wrap gap-3 justify-content-end">
                                 <button class="btn btn-outline-primary d-flex gap-2 align-items-center"
@@ -34,7 +37,11 @@
                                     <i class="fa-solid fa-eye"></i>
                                     <span class="d-none d-xl-inline">Статистика</span>
                                 </button>
-                                <button class="btn btn-outline-danger d-flex gap-2 align-items-center">
+                                <button class="btn btn-outline-danger d-flex gap-2 align-items-center unsubscribeButton"
+                                        data-user_id="{{ user.id }}"
+                                        data-username="{{ user.username }}"
+                                        data-subscribe_type="subscribed"
+                                        data-url="{% url 'save_subscribe' %}">
                                     <i class="fa-solid fa-ban"></i>
                                     <span class="d-none d-xl-inline">Отписаться</span>
                                 </button>
@@ -49,9 +56,9 @@
 
         <div class="col-md-6">
             <div class="card shadow p-3">
-              <div class="card-head">
-                <h3>Подписаны на Вас</h3>
-              </div>
+                <div class="card-head">
+                    <h3>Подписаны на Вас</h3>
+                </div>
                 <div class="card-body d-flex flex-column gap-3">
                     {% for user in subscriber_users %}
                         <div class="d-flex justify-content-between align-items-center gap-3">
@@ -70,4 +77,28 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="unsubscribeModal" tabindex="-1" aria-labelledby="unsubscribeModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="unsubscribeModalLabel">Подтверждение отписки</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Вы действительно хотите отписаться от <strong id="unsubscribeUsername">пользователя</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" id="confirmUnsubscribeButton">Отписаться</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.USER_ID = "{{ request.user.id }}";
+    </script>
+    {% vite_asset 'js/entries/profile.js' %}
 {% endblock %}

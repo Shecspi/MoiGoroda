@@ -22,8 +22,11 @@
     <div class="row mx-3 mt-3 mb-3 g-3">
         <div class="col-md-6">
             <div class="card shadow p-3">
-                <div class="card-head">
+                <div class="card-head d-flex justify-content-between align-items-center">
                     <h3>Ваши подписки</h3>
+                    <div class="border border-secondary bg-secondary bg-opacity-10 text-dark rounded p-2">
+                        {{ number_of_subscribed_users }}
+                    </div>
                 </div>
                 <div class="card-body d-flex flex-column gap-3">
                     {% for user in subscribed_users %}
@@ -58,8 +61,11 @@
 
         <div class="col-md-6">
             <div class="card shadow p-3">
-                <div class="card-head">
+                <div class="card-head d-flex justify-content-between align-items-center">
                     <h3>Подписаны на Вас</h3>
+                    <div class="border border-secondary bg-secondary bg-opacity-10 text-dark rounded p-2">
+                        {{ number_of_subscriber_users }}
+                    </div>
                 </div>
                 <div class="card-body d-flex flex-column gap-3">
                     {% for user in subscriber_users %}

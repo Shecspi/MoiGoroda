@@ -22,6 +22,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet, Subquery, IntegerField, OuterRef, Count
 
 from MoiGoroda import settings
+from MoiGoroda.settings import ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS
 from country.models import Country
 from region.models import Region
 from city.models import VisitedCity, City
@@ -385,5 +386,14 @@ class CitiesByRegionList(ListView):
 
 
 @xframe_options_exempt
-def embedded_map(request, iso3166):
-    return render(request, 'region/embedded_map.html', context={'iso3166': iso3166})
+def embedded_map(request, quality, iso3166):
+    response = render(
+        request, 'region/embedded_map.html', context={'iso3166': iso3166, 'quality': quality}
+    )
+
+    # Только указанные хосты могут встраивать iframe с картой себе на страницу
+    response['Content-Security-Policy'] = (
+        f'frame-ancestors {ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS}'
+    )
+
+    return response

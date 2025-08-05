@@ -3,7 +3,7 @@ import {create_map} from "../components/map";
 
 (async function initMap() {
     const map = create_map();
-    const url = `${URL_GEO_POLYGONS}/region/hq/RU/${window.REGION_CODE}`;
+    const url = `${URL_GEO_POLYGONS}/region/${window.QUALITY}/RU/${window.REGION_CODE}`;
 
     const polygonStyle = {
         fillOpacity: 0.1,

@@ -14,6 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import UpdateView
 
 from account.forms import UpdateProfileForm
+from account.repository import get_subscribed_users, get_subscriber_users
 from services import logger
 
 
@@ -40,6 +41,11 @@ class Profile(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        context['subscribed_users'] = get_subscribed_users(self.request.user.id)
+        context['subscriber_users'] = get_subscriber_users(self.request.user.id)
+        context['number_of_subscribed_users'] = len(context['subscribed_users'])
+        context['number_of_subscriber_users'] = len(context['subscriber_users'])
 
         context['active_page'] = 'profile'
         context['page_title'] = 'Профиль'

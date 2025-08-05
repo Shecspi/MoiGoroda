@@ -50,6 +50,10 @@ def delete_subscription(from_id: int, to_id: int) -> None:
     Subscribe.objects.get(subscribe_from_id=from_id, subscribe_to_id=to_id).delete()
 
 
+def check_subscription(from_id: int, to_id: int) -> bool:
+    return Subscribe.objects.filter(subscribe_from=from_id, subscribe_to=to_id).exists()
+
+
 def get_all_subscriptions(from_id: int) -> list:
     subscriptions = Subscribe.objects.filter(subscribe_from_id=from_id)
 

@@ -50,6 +50,7 @@ export default defineConfig({
         signup: path.resolve(entriesDir, 'signup.js'),
         travelpayouts_verify: path.resolve(entriesDir, 'travelpayouts_verify.js'),
         embedded_region_map: path.resolve(entriesDir, 'embedded_region_map.js'),
+        profile: path.resolve(entriesDir, 'profile.js'),
       }
     }
   }

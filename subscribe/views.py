@@ -2,6 +2,7 @@ from enum import StrEnum, auto
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from pydantic import BaseModel, ValidationError
 
@@ -12,6 +13,7 @@ from subscribe.repository import (
     add_subscription,
     is_user_exists,
     delete_subscription,
+    check_subscription,
 )
 
 
@@ -24,6 +26,10 @@ class SubscriptionRequest(BaseModel):
     from_id: int
     to_id: int
     action: Action
+
+
+class DeleteSubscriberRequest(BaseModel):
+    user_id: int
 
 
 def is_user_has_permission_to_change_subscription(from_id: int, user_id: int):
@@ -97,3 +103,43 @@ def save(request):
             f'(Subscription): Successful unsubscription from user #{subscription.from_id} to user #{subscription.to_id}',
         )
         return JsonResponse({'status': 'unsubscribed'})
+
+
+@require_POST
+@login_required
+@csrf_exempt
+def delete_subscriber(request):
+    json_data = request.body.decode('utf-8')
+
+    try:
+        subscription = DeleteSubscriberRequest.model_validate_json(json_data)
+    except ValidationError as exc:
+        return JsonResponse(data={'status': 'error', 'exception': exc.json()}, status=400)
+
+    if not is_user_exists(subscription.user_id):
+        logger.warning(request, '(Subscription): Attempt to subscribe from not exists user')
+        return JsonResponse(
+            data={'status': 'forbidden', 'message': 'Передан неверный ID пользователя'},
+            status=403,
+        )
+
+    if not check_subscription(subscription.user_id, request.user.id):
+        logger.warning(
+            request,
+            f'(Subscription): The user with ID {subscription.user_id} is not subscribed to the user with ID {request.user.id}',
+        )
+        return JsonResponse(
+            data={
+                'status': 'forbidden',
+                'message': f'Пользователь с ID {subscription.user_id} не подписан на пользователя с ID {request.user.id}',
+            },
+            status=403,
+        )
+
+    delete_subscription(subscription.user_id, request.user.id)
+    logger.info(
+        request,
+        f'(Subscription): The user with ID {subscription.user_id} has been successfully removed from the subscribers of the user with ID {request.user.id}',
+    )
+
+    return JsonResponse({'status': 'success'})

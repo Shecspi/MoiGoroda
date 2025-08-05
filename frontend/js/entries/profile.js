@@ -3,10 +3,10 @@ import {showDangerToast, showSuccessToast} from "../components/toast";
 
 window.USER_ID = USER_ID;
 
-function removeUserRow(userId, subscribe_type) {
-    const element = document.querySelector(`div[data-subscribe_type="${subscribe_type}"][data-user_id="${userId}"]`);
-    if (element) {
-        element.remove();
+function removeUserRow(element) {
+    const el = document.querySelector(element);
+    if (el) {
+        el.remove();
     }
 }
 
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const confirmButton = document.getElementById("confirmUnsubscribeButton");
     const confirmDeleteSubscriptionButton = document.getElementById("confirmDeleteSubscriptionButton");
 
-    const usernamePlaceholder = document.getElementById("usernamePlaceholder");
+    const usernamePlaceholder = document.getElementById("unsubscribeUsername");
     const deleteSubscriptionUsername = document.getElementById("deleteSubscriptionUsername");
 
     // Обработка нажатия кнопок в списке подписок/подписчиков
@@ -45,7 +45,8 @@ document.addEventListener("DOMContentLoaded", function () {
     confirmButton.addEventListener("click", async function () {
         const url = confirmButton.dataset.url;
         const subscribe_type = confirmButton.dataset.subscribe_type;
-        const number_of_subscribed_users = document.getElementById('number_of_subscribed_users')
+        const number_of_subscribed_users = document.getElementById('number_of_subscribed_users');
+        const list_of_subscribed_users = document.getElementById('list_of_subscribed_users');
 
         const data = {
             'from_id': window.USER_ID,
@@ -65,9 +66,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (response.ok) {
             let json = await response.json();
             if (json.status === 'unsubscribed') {
-                removeUserRow(this.dataset.user_id, subscribe_type);
+                removeUserRow(`div[data-subscribe_type="${subscribe_type}"][data-user_id="${this.dataset.user_id}"]`);
                 showSuccessToast('Успешно', 'Подписка успешно удалена');
-                number_of_subscribed_users.innerText = (Number(number_of_subscribed_users.text) - 1).toString();
+                number_of_subscribed_users.innerText = (Number(number_of_subscribed_users.textContent) - 1).toString();
+
+                if (Number(number_of_subscribed_users.textContent) === 0) {
+                    list_of_subscribed_users.innerText = "Вы ещё не подписались ни на одного пользователя"
+                }
             } else {
                 showDangerToast('Ошибка', 'Не удалось удалить подписку');
             }
@@ -78,11 +83,14 @@ document.addEventListener("DOMContentLoaded", function () {
         unsubscribeModal.hide();
     });
     confirmDeleteSubscriptionButton.addEventListener("click", async function () {
+        const number_of_subscriber_users = document.getElementById('number_of_subscriber_users');
+        const list_of_subscriber_users = document.getElementById('list_of_subscriber_users');
+
         const data = {
             "user_id": this.dataset.user_id
         }
 
-        const response = await fetch("", {
+        const response = await fetch("/subscribe/subscriber/delete", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -92,7 +100,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (response.ok) {
-            showDangerToast('Ошибка', 'Не удалось удалить подписку');
+            removeUserRow(`div[data-user_id="${this.dataset.user_id}"]`);
+            showSuccessToast('Успешно', 'Подписанный на Вас пользователь успешно удалён');
+            number_of_subscriber_users.innerText = (Number(number_of_subscriber_users.textContent) - 1).toString();
+
+            if (Number(number_of_subscriber_users.textContent) === 0) {
+                list_of_subscriber_users.innerText = "На Вас ещё не подписался ни один пользователь"
+            }
         } else {
             showDangerToast('Ошибка', 'Не удалось удалить подписку');
         }

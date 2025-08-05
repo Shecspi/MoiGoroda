@@ -12,10 +12,18 @@ function removeUserRow(userId, subscribe_type) {
 
 document.addEventListener("DOMContentLoaded", function () {
     const unsubscribeButtons = document.querySelectorAll(".unsubscribeButton");
-    const unsubscribeModal = new bootstrap.Modal(document.getElementById("unsubscribeModal"));
-    const confirmButton = document.getElementById("confirmUnsubscribeButton");
-    const usernamePlaceholder = document.getElementById("unsubscribeUsername");
+    const deleteSubscriptionButton = document.querySelectorAll(".deleteSubscriptionButton");
 
+    const unsubscribeModal = new bootstrap.Modal(document.getElementById("unsubscribeModal"));
+    const deleteSubscriptionModal = new bootstrap.Modal(document.getElementById("deleteSubscriptionModal"));
+
+    const confirmButton = document.getElementById("confirmUnsubscribeButton");
+    const confirmDeleteSubscriptionButton = document.getElementById("confirmDeleteSubscriptionButton");
+
+    const usernamePlaceholder = document.getElementById("usernamePlaceholder");
+    const deleteSubscriptionUsername = document.getElementById("deleteSubscriptionUsername");
+
+    // Обработка нажатия кнопок в списке подписок/подписчиков
     unsubscribeButtons.forEach(button => {
         button.addEventListener("click", function () {
             usernamePlaceholder.textContent = this.dataset.username;
@@ -25,10 +33,19 @@ document.addEventListener("DOMContentLoaded", function () {
             unsubscribeModal.show();
         });
     });
+    deleteSubscriptionButton.forEach(button => {
+        button.addEventListener("click", function () {
+            deleteSubscriptionUsername.textContent = this.dataset.username;
+            confirmDeleteSubscriptionButton.dataset.user_id = this.dataset.user_id;
+            deleteSubscriptionModal.show();
+        });
+    });
 
+    // Обработка нажатия кнопок подтверждения удаления подписки/подписчика
     confirmButton.addEventListener("click", async function () {
         const url = confirmButton.dataset.url;
         const subscribe_type = confirmButton.dataset.subscribe_type;
+        const number_of_subscribed_users = document.getElementById('number_of_subscribed_users')
 
         const data = {
             'from_id': window.USER_ID,
@@ -49,14 +66,37 @@ document.addEventListener("DOMContentLoaded", function () {
             let json = await response.json();
             if (json.status === 'unsubscribed') {
                 removeUserRow(this.dataset.user_id, subscribe_type);
-                showSuccessToast('Успешно', 'Подписка успешно удалена')
+                showSuccessToast('Успешно', 'Подписка успешно удалена');
+                number_of_subscribed_users.innerText = (Number(number_of_subscribed_users.text) - 1).toString();
             } else {
-                showDangerToast('Ошибка', 'Не удалось удалить подписку')
+                showDangerToast('Ошибка', 'Не удалось удалить подписку');
             }
         } else {
-            showDangerToast('Ошибка', 'Не удалось удалить подписку')
+            showDangerToast('Ошибка', 'Не удалось удалить подписку');
         }
 
         unsubscribeModal.hide();
+    });
+    confirmDeleteSubscriptionButton.addEventListener("click", async function () {
+        const data = {
+            "user_id": this.dataset.user_id
+        }
+
+        const response = await fetch("", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie("csrftoken")
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            showDangerToast('Ошибка', 'Не удалось удалить подписку');
+        } else {
+            showDangerToast('Ошибка', 'Не удалось удалить подписку');
+        }
+
+        deleteSubscriptionModal.hide();
     });
 });

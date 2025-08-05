@@ -24,7 +24,8 @@
             <div class="card shadow p-3">
                 <div class="card-head d-flex justify-content-between align-items-center">
                     <h3>Ваши подписки</h3>
-                    <div class="border border-secondary bg-secondary bg-opacity-10 text-dark rounded p-2">
+                    <div id="number_of_subscribed_users"
+                         class="border border-secondary bg-secondary bg-opacity-10 text-dark rounded p-2">
                         {{ number_of_subscribed_users }}
                     </div>
                 </div>
@@ -72,7 +73,9 @@
                         <div class="d-flex justify-content-between align-items-center gap-3">
                             <div>{{ user.username }}</div>
                             <div class="d-flex flex-wrap gap-3 justify-content-end">
-                                <button class="btn btn-outline-danger d-flex gap-2 align-items-center">
+                                <button class="btn btn-outline-danger d-flex gap-2 align-items-center deleteSubscriptionButton"
+                                        data-user_id="{{ user.id }}"
+                                        data-username="{{ user.username }}">
                                     <i class="fa-solid fa-trash"></i>
                                     <span class="d-none d-xl-inline">Удалить подписку</span>
                                 </button>
@@ -100,6 +103,34 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     <button type="button" class="btn btn-danger" id="confirmUnsubscribeButton">Отписаться</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteSubscriptionModal" tabindex="-1" aria-labelledby="deleteSubscriptionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="deleteSubscriptionModalLabel">
+                        Удалить подписку на Вас?
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <div>Вы действительно хотите удалить подписку <strong id="deleteSubscriptionUsername">пользователя</strong> на Вас?</div>
+                    <div class="mt-2">После этого он (она) не сможет наблюдать за Вашими посещёнными городами.</div>
+                    <div class="mt-2">Но сможет повторно подписаться на Вас, если Вы поделитесь с ним (ней) ссылкой на свою статистику.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button"
+                            class="btn btn-danger"
+                            id="confirmDeleteSubscriptionButton"
+                            data-user_id="{{ user.id }}">
+                        Удалить
+                    </button>
                 </div>
             </div>
         </div>

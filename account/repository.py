@@ -42,7 +42,9 @@ def get_subscriber_users(user_id: int) -> list[SubscriberUserDTO]:
             SubscriberUserDTO(
                 id=subscribe.subscribe_from.id,
                 username=subscribe.subscribe_from.username,
-                can_subscribe=share_settings.can_share if share_settings.exists() else False,
+                can_subscribe=share_settings.first().can_share
+                if share_settings.exists()
+                else False,
             )
         )
 

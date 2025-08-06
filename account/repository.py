@@ -1,4 +1,5 @@
 from account.dto import SubscribedUserDTO, SubscriberUserDTO
+from account.models import ShareSettings
 from subscribe.models import Subscribe
 
 
@@ -32,7 +33,23 @@ def get_subscriber_users(user_id: int) -> list[SubscriberUserDTO]:
     """
     subscribed_users = Subscribe.objects.filter(subscribe_to_id=user_id)
 
-    return [
-        SubscriberUserDTO(id=user.subscribe_from.id, username=user.subscribe_from.username)
-        for user in subscribed_users
-    ]
+    result = []
+
+    for subscribe in subscribed_users:
+        share_settings = ShareSettings.objects.filter(user=subscribe.subscribe_from)
+
+        if share_settings.exists():
+            share_settings = share_settings.first()
+            can_subscribe = share_settings.can_share and share_settings.can_subscribe
+        else:
+            can_subscribe = False
+
+        result.append(
+            SubscriberUserDTO(
+                id=subscribe.subscribe_from.id,
+                username=subscribe.subscribe_from.username,
+                can_subscribe=can_subscribe,
+            )
+        )
+
+    return result

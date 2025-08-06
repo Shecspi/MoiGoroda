@@ -19,3 +19,4 @@ class SubscriberUserDTO:
 
     id: int
     username: str
+    can_subscribe: bool

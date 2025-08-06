@@ -75,7 +75,17 @@
                     {% for user in subscriber_users %}
                         <div class="d-flex justify-content-between align-items-center gap-3"
                              data-user_id="{{ user.id }}">
-                            <div class="text-break">{{ user.username }}</div>
+                            <div class="text-break">
+                                {% if user.can_subscribe %}
+                                    <a href="{% url 'share' user.id %}"
+                                       class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover"
+                                       target="_blank">
+                                        {{ user.username }}
+                                    </a>
+                                {% else %}
+                                    {{ user.username }}
+                                {% endif %}
+                            </div>
                             <div class="d-flex flex-wrap gap-3 justify-content-end">
                                 <button class="btn btn-outline-danger d-flex gap-2 align-items-center deleteSubscriptionButton"
                                         data-user_id="{{ user.id }}"

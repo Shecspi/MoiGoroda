@@ -52,6 +52,3 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-
-# Перемещаем модель в админке в другую группу
-ShareSettings._meta.app_label = 'auth'

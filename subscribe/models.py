@@ -21,8 +21,29 @@ class Subscribe(models.Model):
     )
 
     def __str__(self):
-        return f"Подписка {self.subscribe_from} на {self.subscribe_to}"
+        return f'Подписка {self.subscribe_from} на {self.subscribe_to}'
 
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+
+
+class Notification(models.Model):
+    recipient = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='notifications', verbose_name='Получатель'
+    )
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='sent_notifications',
+        verbose_name='Отправитель',
+    )
+    message = models.TextField(verbose_name='Сообщение')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = "Уведомление"
+        verbose_name_plural = "Уведомления"

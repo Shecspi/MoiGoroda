@@ -26,6 +26,7 @@ class Subscribe(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        unique_together = ('subscribe_from', 'subscribe_to')
 
 
 class Notification(models.Model):
@@ -41,9 +42,9 @@ class Notification(models.Model):
     message = models.TextField(verbose_name='Сообщение')
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    read_at = models.DateTimeField()
+    read_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ('-created_at',)
-        verbose_name = "Уведомление"
-        verbose_name_plural = "Уведомления"
+        verbose_name = 'Уведомление'
+        verbose_name_plural = 'Уведомления'

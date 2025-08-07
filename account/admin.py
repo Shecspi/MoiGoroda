@@ -12,6 +12,21 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.db.models import Count
 
+from account.models import ShareSettings
+
+
+@admin.register(ShareSettings)
+class ShareSettingsAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'can_share',
+        'can_share_dashboard',
+        'can_share_city_map',
+        'can_share_region_map',
+        'can_subscribe',
+    )
+    search_fields = ('user__username',)
+
 
 class CustomUserAdmin(UserAdmin):
     list_display = UserAdmin.list_display + ('number_of_total_cities', 'number_of_unique_cities')
@@ -37,3 +52,6 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
+
+# Перемещаем модель в админке в другую группу
+ShareSettings._meta.app_label = 'auth'

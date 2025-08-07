@@ -5,6 +5,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from pydantic import BaseModel, ValidationError
+from rest_framework import status, viewsets
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from services import logger
 from subscribe.repository import (
@@ -15,6 +20,7 @@ from subscribe.repository import (
     delete_subscription,
     check_subscription,
 )
+from subscribe.serializers import NotificationSerializer
 
 
 class Action(StrEnum):
@@ -143,3 +149,22 @@ def delete_subscriber(request):
     )
 
     return JsonResponse({'status': 'success'})
+
+
+class NotificationViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request: Request) -> Response:
+        notifications = request.user.notifications.filter(is_read=False).order_by('-id')
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response({'notifications': serializer.data})
+
+    def partial_update(self, request: Request, pk: int | None = None) -> Response:
+        notification_obj = get_object_or_404(request.user.notifications, id=pk)
+        serializer = NotificationSerializer(notification_obj, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -51,6 +51,7 @@ export default defineConfig({
         travelpayouts_verify: path.resolve(entriesDir, 'travelpayouts_verify.js'),
         embedded_region_map: path.resolve(entriesDir, 'embedded_region_map.js'),
         profile: path.resolve(entriesDir, 'profile.js'),
+        notification: path.resolve(entriesDir, 'notification.js'),
       }
     }
   }

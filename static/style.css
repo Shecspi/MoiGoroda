@@ -373,3 +373,15 @@ div#main-background {
 .choices__list--dropdown {
     z-index: 3 !important;
 }
+
+/* Иконка уведомлений */
+
+.notification_icon {
+    z-index: 1060;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: box-shadow 0.3s ease;
+}
+.notification_icon:hover {
+    box-shadow: 0 0 5px 2px rgba(34, 60, 80, 0.15);
+}

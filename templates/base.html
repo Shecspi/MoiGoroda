@@ -4,6 +4,11 @@
 
 {% block base %}
     {% include 'parts/js_isAuthenticated.html' %}
+
+    <div id="notification_icon"
+         class="notification_icon position-fixed top-0 end-0 m-3 rounded border border-1 border-secondary-subtle bg-secondary-subtle">
+        <i class="fa-solid fa-bell text-secondary m-2" id="bell"></i>
+    </div>
     
     <div class="main-container d-flex">
         {% include 'parts/sidebar.html' %}
@@ -19,4 +24,5 @@
     </div>
 
     {% vite_asset 'js/entries/sidebar.js' %}
+    {% vite_asset 'js/entries/notification.js' %}
 {% endblock %}

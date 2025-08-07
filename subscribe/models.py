@@ -19,3 +19,10 @@ class Subscribe(models.Model):
         blank=False,
         null=False,
     )
+
+    def __str__(self):
+        return f"Подписка {self.subscribe_from} на {self.subscribe_to}"
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'

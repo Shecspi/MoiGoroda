@@ -9,7 +9,7 @@
          class="notification_icon position-fixed top-0 end-0 m-3 rounded border border-1 border-secondary-subtle bg-secondary-subtle">
         <i class="fa-solid fa-bell text-secondary m-2" id="bell"></i>
     </div>
-    
+
     <div class="main-container d-flex">
         {% include 'parts/sidebar.html' %}
 
@@ -22,6 +22,25 @@
             {% include 'parts/footer.html' %}
         </div>
     </div>
+
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLabel">Уведомления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body" id="notifications-list">
+                    У Вас ещё нет уведомлений
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     {% vite_asset 'js/entries/sidebar.js' %}
     {% vite_asset 'js/entries/notification.js' %}

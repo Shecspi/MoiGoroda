@@ -155,7 +155,7 @@ class NotificationViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def list(self, request: Request) -> Response:
-        notifications = request.user.notifications.filter(is_read=False).order_by('-id')
+        notifications = request.user.notifications.order_by('is_read', '-id')
         serializer = NotificationSerializer(notifications, many=True)
 
         return Response({'notifications': serializer.data})

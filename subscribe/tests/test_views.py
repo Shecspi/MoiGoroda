@@ -2,7 +2,6 @@ import pytest
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 from subscribe.views import NotificationViewSet
-from subscribe.serializers import NotificationSerializer
 from unittest.mock import MagicMock, patch
 
 
@@ -36,23 +35,31 @@ def mock_notification(mocker):
 
 
 # Тесты list()
-def test_notification_list_returns_unread_notifications(factory, mock_user, mocker):
+def test_notification_list_returns_notifications_sorted(factory, mock_user, mocker):
     request = factory.get('/notification/')
     request.user = mock_user
 
-    # Мок сериализатор, чтобы не проверять логику сериализации в этом тесте
-    mocker.patch('subscribe.views.NotificationSerializer', wraps=NotificationSerializer)
+    # Мокаем цепочку order_by('is_read', '-id') -> возвращает список уведомлений
+    notifications_qs_mock = mocker.MagicMock()
+    notifications_sorted = [mocker.MagicMock(), mocker.MagicMock()]
+    notifications_qs_mock.order_by.return_value = notifications_sorted
+    mock_user.notifications = notifications_qs_mock
 
+    # Мокаем сериализатор, чтобы вернуть фиктивные данные
+    serializer_mock = mocker.patch('subscribe.views.NotificationSerializer')
+    serializer_instance = serializer_mock.return_value
+    serializer_instance.data = 'mocked'
+
+    # Вызываем view
     view = NotificationViewSet.as_view({'get': 'list'})
-
     response = view(request)
 
+    # Проверки
     assert response.status_code == status.HTTP_200_OK
-    assert 'notifications' in response.data
+    assert response.data == {'notifications': 'mocked'}
 
-    # Проверяем, что вызов фильтрации был
-    mock_user.notifications.filter.assert_called_once_with(is_read=False)
-    mock_user.notifications.filter.return_value.order_by.assert_called_once_with('-id')
+    notifications_qs_mock.order_by.assert_called_once_with('is_read', '-id')
+    serializer_mock.assert_called_once_with(notifications_sorted, many=True)
 
 
 # Тесты partial_update()

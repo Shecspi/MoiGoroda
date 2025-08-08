@@ -50,8 +50,10 @@ function add_notifications_to_list(notifications) {
             div.classList.add(notification.is_read ? 'bg-light' : 'bg-warning-subtle', 'border');
 
             div.innerHTML = `
-              <div><strong>#${notification.id}</strong></div>
-              <div>${notification.message}</div>
+              <div class="d-flex flex-inline justify-content-between align-items-center">
+                <div>${notification.message}</div>
+                <div class="p-2 text-secondary" role="button"><i class="fa-solid fa-trash"></i></div>
+              </div>
             `;
             notificationsList.appendChild(div);
 

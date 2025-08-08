@@ -157,6 +157,7 @@ class NotificationViewSet(viewsets.ViewSet):
     def list(self, request: Request) -> Response:
         notifications = request.user.notifications.filter(is_read=False).order_by('-id')
         serializer = NotificationSerializer(notifications, many=True)
+
         return Response({'notifications': serializer.data})
 
     def partial_update(self, request: Request, pk: int | None = None) -> Response:

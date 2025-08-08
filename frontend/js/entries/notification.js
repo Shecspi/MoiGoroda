@@ -56,32 +56,35 @@ function add_notifications_to_list(notifications) {
             notificationsList.appendChild(div);
 
             // Обработка наведения
-            div.addEventListener('mouseenter', () => {
-                if (notification.is_read) return;
-
-                // Отправка PATCH-запроса
-                fetch(`/subscribe/notification/${notification.id}/`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie("csrftoken"),
-                    },
-                    body: JSON.stringify({is_read: true})
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            // Обновляем UI
-                            notification.is_read = true;
-                            div.classList.remove('bg-warning-subtle');
-                            div.classList.add('bg-light');
-                        } else {
-                            console.error('Не удалось обновить уведомление', notification.id);
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Ошибка при PATCH:', err);
-                    });
-            });
+            div.addEventListener('mouseenter', () => mark_notification_as_read(notification, div));
+            div.addEventListener('touchstart', () => mark_notification_as_read(notification, div));
         });
     }
+}
+
+function mark_notification_as_read(notification, div) {
+    if (notification.is_read) return;
+
+    // Отправка PATCH-запроса
+    fetch(`/subscribe/notification/${notification.id}/`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie("csrftoken"),
+        },
+        body: JSON.stringify({is_read: true})
+    })
+        .then(response => {
+            if (response.ok) {
+                // Обновляем UI
+                notification.is_read = true;
+                div.classList.remove('bg-warning-subtle');
+                div.classList.add('bg-light');
+            } else {
+                console.error('Не удалось обновить уведомление', notification.id);
+            }
+        })
+        .catch(err => {
+            console.error('Ошибка при PATCH:', err);
+        });
 }

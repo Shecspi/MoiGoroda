@@ -169,3 +169,8 @@ class NotificationViewSet(viewsets.ViewSet):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request: Request, pk: int | None = None) -> Response:
+        notification_obj = get_object_or_404(request.user.notifications, id=pk)
+        notification_obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

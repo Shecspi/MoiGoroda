@@ -44,7 +44,8 @@ function add_notifications_to_list(notifications) {
     } else {
         notifications.forEach(notification => {
             const div = document.createElement('div');
-            div.className = 'mb-2 p-2 rounded';
+            div.className = 'mb-2 p-2 rounded notificationItem';
+            div.dataset.id = notification.id;
 
             // Выделяем непрочитанные уведомления
             div.classList.add(notification.is_read ? 'bg-light' : 'bg-warning-subtle', 'border');
@@ -52,7 +53,7 @@ function add_notifications_to_list(notifications) {
             div.innerHTML = `
               <div class="d-flex flex-inline justify-content-between align-items-center">
                 <div>${notification.message}</div>
-                <div class="p-2 text-secondary" role="button"><i class="fa-solid fa-trash"></i></div>
+                <div class="p-2 text-secondary deleteNotificationButton" role="button"><i class="fa-solid fa-trash"></i></div>
               </div>
             `;
             notificationsList.appendChild(div);
@@ -60,8 +61,47 @@ function add_notifications_to_list(notifications) {
             // Обработка наведения
             div.addEventListener('mouseenter', () => mark_notification_as_read(notification, div));
             div.addEventListener('touchstart', () => mark_notification_as_read(notification, div));
+
+            const deleteBtn = div.querySelector('.deleteNotificationButton');
+            deleteBtn.addEventListener('click', (event) => {
+                delete_notification(event);
+            });
         });
     }
+}
+
+function delete_notification(event) {
+    const notificationItem = event.target.closest('.notificationItem');
+    const id = notificationItem.dataset.id;
+
+    // Отправка DELETE-запроса
+    fetch(`/subscribe/notification/${id}/`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie("csrftoken"),
+        },
+        body: JSON.stringify({is_read: true})
+    })
+        .then(response => {
+            if (response.ok) {
+                remove_notification_item(notificationItem);
+            } else {
+                console.error('Не удалось удалить уведомление', id);
+            }
+        })
+        .catch(err => {
+            console.error('Ошибка при DELETE:', err);
+        });
+
+
+    console.log(notificationItem.dataset.id);
+}
+
+function remove_notification_item(notificationItem) {
+    if (!notificationItem) return;
+
+    notificationItem.remove()
 }
 
 function mark_notification_as_read(notification, div) {

@@ -133,3 +133,54 @@ def test_permission_classes_enforced(factory):
 
     # Нет аутентификации — ответ 403 или 401 в зависимости от настроек
     assert response.status_code in (401, 403)
+
+
+# Тесты destroy()
+
+
+def test_destroy_deletes_user_notification(factory, mocker, mock_user):
+    # Мокаем объект уведомления
+    notification_mock = mocker.MagicMock()
+    notifications_qs = mocker.MagicMock()
+    notifications_qs.filter.return_value.exists.return_value = True
+    notifications_qs.get.return_value = notification_mock
+    mock_user.notifications = notifications_qs
+
+    # Мокаем get_object_or_404, чтобы он вернул наш объект
+    mocker.patch('subscribe.views.get_object_or_404', return_value=notification_mock)
+
+    request = factory.delete('/notification/123/')
+    request.user = mock_user
+
+    view = NotificationViewSet.as_view({'delete': 'destroy'})
+    response = view(request, pk=123)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    notification_mock.delete.assert_called_once()
+
+
+def test_destroy_returns_404_if_notification_not_found(factory, mocker, mock_user):
+    # Мокаем get_object_or_404, чтобы он выбросил Http404
+    mocker.patch('subscribe.views.get_object_or_404', side_effect=Exception('Not Found'))
+
+    request = factory.delete('/notification/999/')
+    request.user = mock_user
+
+    view = NotificationViewSet.as_view({'delete': 'destroy'})
+
+    with pytest.raises(Exception, match='Not Found'):
+        view(request, pk=999)
+
+
+def test_destroy_returns_404_if_notification_not_owned_by_user(factory, mocker, mock_user):
+    # Допустим, другой пользователь имеет уведомление с этим ID
+    # Поэтому get_object_or_404 ничего не находит в request.user.notifications
+    mocker.patch('subscribe.views.get_object_or_404', side_effect=Exception('Not Found'))
+
+    request = factory.delete('/notification/321/')
+    request.user = mock_user
+
+    view = NotificationViewSet.as_view({'delete': 'destroy'})
+
+    with pytest.raises(Exception, match='Not Found'):
+        view(request, pk=321)

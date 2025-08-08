@@ -1,4 +1,5 @@
 import {getCookie} from '../components/get_cookie.js';
+import {marked} from "marked";
 
 const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'));
 const notificationButton = document.getElementById('notification_icon');
@@ -52,7 +53,7 @@ function add_notifications_to_list(notifications) {
 
             div.innerHTML = `
               <div class="d-flex flex-inline justify-content-between align-items-center">
-                <div>${notification.message}</div>
+                <div class="p-2">${marked(notification.message)}</div>
                 <div class="p-2 text-secondary deleteNotificationButton" role="button"><i class="fa-solid fa-trash"></i></div>
               </div>
             `;

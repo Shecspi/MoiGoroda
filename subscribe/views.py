@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import StrEnum, auto
 
 from django.contrib.auth.decorators import login_required
@@ -165,6 +166,9 @@ class NotificationViewSet(viewsets.ViewSet):
         serializer = NotificationSerializer(notification_obj, data=request.data, partial=True)
 
         if serializer.is_valid():
+            if request.data.get('is_read') and not notification_obj.read_at:
+                notification_obj.read_at = datetime.now()
+
             serializer.save()
             return Response(serializer.data)
 

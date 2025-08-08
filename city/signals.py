@@ -18,5 +18,5 @@ def notify_subscribers_on_city_add(sender, instance, created, **kwargs):
         Notification.objects.create(
             recipient=subscriber.subscribe_from,
             sender=user,
-            message=f'{user} добавил посещённый город {city.title} ({city.country})',
+            message=f'**{user}** добавил посещённый город **{city.title} ({city.country})**',
         )

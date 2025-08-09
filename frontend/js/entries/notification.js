@@ -53,7 +53,9 @@ function add_notifications_to_list(notifications) {
 
             div.innerHTML = `
               <div class="d-flex flex-inline justify-content-between align-items-center">
-                <div class="p-2">${marked(notification.message)}</div>
+                <div>
+                    <a href="/share/${notification.sender}" class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover fw-bold">${notification.sender_username}</a> посетил город <a href="/city/${notification.city}" class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover fw-bolder">${notification.city_title}</a>
+                </div>
                 <div class="p-2 text-secondary deleteNotificationButton" role="button"><i class="fa-solid fa-trash"></i></div>
               </div>
             `;

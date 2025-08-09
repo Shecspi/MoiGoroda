@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from subscribe.models import Subscribe, Notification
+from subscribe.models import Subscribe, VisitedCityNotification
 
 
 @admin.register(Subscribe)
@@ -12,6 +12,6 @@ class SubscribeAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Notification)
-class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'recipient', 'sender', 'message', 'is_read', 'created_at', 'read_at')
+@admin.register(VisitedCityNotification)
+class VisitedCityNotificationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'recipient', 'sender', 'city', 'is_read', 'created_at', 'read_at')

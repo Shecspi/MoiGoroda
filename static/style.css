@@ -385,3 +385,10 @@ div#main-background {
 .notification_icon:hover {
     box-shadow: 0 0 5px 2px rgba(34, 60, 80, 0.15);
 }
+/*
+Нужно для того, чтобы блок p вставляемый функцией marked, не имел отступа снизу.
+Вроде бы больше p я особо не использую нигде.
+ */
+p {
+    margin-bottom: 0;
+}

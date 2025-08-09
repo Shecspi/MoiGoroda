@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from city.models import City
+
 
 class Subscribe(models.Model):
     subscribe_from = models.ForeignKey(
@@ -29,7 +31,7 @@ class Subscribe(models.Model):
         unique_together = ('subscribe_from', 'subscribe_to')
 
 
-class Notification(models.Model):
+class VisitedCityNotification(models.Model):
     recipient = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='notifications', verbose_name='Получатель'
     )
@@ -39,7 +41,9 @@ class Notification(models.Model):
         related_name='sent_notifications',
         verbose_name='Отправитель',
     )
-    message = models.TextField(verbose_name='Сообщение')
+    city = models.ForeignKey(
+        City, on_delete=models.CASCADE, related_name='city', verbose_name='Посещённый город'
+    )
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     read_at = models.DateTimeField(null=True, blank=True)

@@ -1,5 +1,6 @@
 import {getCookie} from '../components/get_cookie.js';
-import {marked} from "marked";
+
+const notifications = [];
 
 const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'));
 const notificationButton = document.getElementById('notification_icon');
@@ -18,7 +19,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (json.notifications.some(n => n.is_read === false)) {
             make_bell_red();
         }
-        add_notifications_to_list(json.notifications);
+        notifications.push(...json.notifications);
+        add_notifications_to_list();
     } catch (error) {
         console.log('Произошла ошибка при загрузке уведомлений:\n' + error);
     }
@@ -28,6 +30,9 @@ document.getElementById('notification_icon').addEventListener('click', function 
     notificationModal.show();
 });
 
+/**
+ * Делает иконку с колокольчиком красной
+ */
 function make_bell_red() {
     notificationButton.classList.remove('border-secondary-subtle');
     notificationButton.classList.remove('bg-secondary-subtle');
@@ -37,7 +42,19 @@ function make_bell_red() {
     notificationIcon.classList.add('text-danger');
 }
 
-function add_notifications_to_list(notifications) {
+/**
+ * Делает иконку с колокольчиком серой
+ */
+function make_bell_gray() {
+    notificationButton.classList.add('border-secondary-subtle');
+    notificationButton.classList.add('bg-secondary-subtle');
+    notificationButton.classList.remove('border-danger-subtle');
+    notificationButton.classList.remove('bg-danger-subtle');
+    notificationIcon.classList.add('text-secondary');
+    notificationIcon.classList.remove('text-danger');
+}
+
+function add_notifications_to_list() {
     notificationsList.innerHTML = '';
 
     if (!notifications.length) {
@@ -68,8 +85,8 @@ function add_notifications_to_list(notifications) {
             notificationsList.appendChild(div);
 
             // Обработка наведения
-            div.addEventListener('mouseenter', () => mark_notification_as_read(notification, div));
-            div.addEventListener('touchstart', () => mark_notification_as_read(notification, div));
+            div.addEventListener('mouseenter', () => mark_notification_as_read(notification, div, notifications));
+            div.addEventListener('touchstart', () => mark_notification_as_read(notification, div, notifications));
 
             const deleteBtn = div.querySelector('.deleteNotificationButton');
             deleteBtn.addEventListener('click', (event) => {
@@ -95,6 +112,9 @@ function delete_notification(event) {
         .then(response => {
             if (response.ok) {
                 remove_notification_item(notificationItem);
+                if (!exists_not_read_notifications()) {
+                    make_bell_gray();
+                }
             } else {
                 console.error('Не удалось удалить уведомление', id);
             }
@@ -102,9 +122,6 @@ function delete_notification(event) {
         .catch(err => {
             console.error('Ошибка при DELETE:', err);
         });
-
-
-    console.log(notificationItem.dataset.id);
 }
 
 function remove_notification_item(notificationItem) {
@@ -116,7 +133,6 @@ function remove_notification_item(notificationItem) {
 function mark_notification_as_read(notification, div) {
     if (notification.is_read) return;
 
-    // Отправка PATCH-запроса
     fetch(`/subscribe/notification/${notification.id}/`, {
         method: 'PATCH',
         headers: {
@@ -131,6 +147,9 @@ function mark_notification_as_read(notification, div) {
                 notification.is_read = true;
                 div.classList.remove('bg-warning-subtle');
                 div.classList.add('bg-light');
+                if (!exists_not_read_notifications()) {
+                    make_bell_gray();
+                }
             } else {
                 console.error('Не удалось обновить уведомление', notification.id);
             }
@@ -138,4 +157,11 @@ function mark_notification_as_read(notification, div) {
         .catch(err => {
             console.error('Ошибка при PATCH:', err);
         });
+}
+
+/**
+ * Проверяет, остались ли ещё непрочитанные уведомления
+ */
+function exists_not_read_notifications() {
+    return notifications.some(n => n.is_read === false);
 }

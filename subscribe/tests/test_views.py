@@ -184,3 +184,67 @@ def test_destroy_returns_404_if_notification_not_owned_by_user(factory, mocker, 
 
     with pytest.raises(Exception, match='Not Found'):
         view(request, pk=321)
+
+
+@patch('subscribe.views.get_object_or_404')
+def test_partial_update_is_read_false_does_not_set_read_at(mock_get_object_or_404, factory, mock_notification):
+    """
+    Если is_read=False, read_at не должен устанавливаться.
+    """
+    mock_notification.read_at = None
+    mock_get_object_or_404.return_value = mock_notification
+
+    request = factory.patch('/notification/1/', {'is_read': False}, format='json')
+    request.user = MagicMock()
+
+    view = NotificationViewSet.as_view({'patch': 'partial_update'})
+    response = view(request, pk=1)
+
+    assert response.status_code == 200
+    assert response.data['is_read'] is False
+    assert mock_notification.read_at is None
+
+
+@patch('subscribe.views.get_object_or_404')
+def test_partial_update_with_empty_body(mock_get_object_or_404, factory, mock_notification):
+    """
+    Пустое тело должно валидироваться (partial=True) и ничего не менять.
+    """
+    mock_notification.is_read = False
+    mock_notification.read_at = None
+    mock_get_object_or_404.return_value = mock_notification
+
+    request = factory.patch('/notification/1/', {}, format='json')
+    request.user = MagicMock()
+
+    view = NotificationViewSet.as_view({'patch': 'partial_update'})
+    response = view(request, pk=1)
+
+    assert response.status_code == 200
+    # Поле is_read отсутствует в validated_data, поэтому оно не должно измениться
+    assert response.data['is_read'] is False
+    assert mock_notification.read_at is None
+
+
+def test_notification_list_returns_empty_list(factory, mocker):
+    """
+    list() должен возвращать пустой список, если уведомлений нет.
+    """
+    request = factory.get('/notification/')
+    request.user = mocker.Mock()
+
+    notifications_qs_mock = mocker.MagicMock()
+    notifications_qs_mock.order_by.return_value = []
+    request.user.notifications = notifications_qs_mock
+
+    serializer_mock = mocker.patch('subscribe.views.NotificationSerializer')
+    serializer_instance = serializer_mock.return_value
+    serializer_instance.data = []
+
+    view = NotificationViewSet.as_view({'get': 'list'})
+    response = view(request)
+
+    assert response.status_code == 200
+    assert response.data == {'notifications': []}
+    notifications_qs_mock.order_by.assert_called_once_with('is_read', '-id')
+    serializer_mock.assert_called_once_with([], many=True)

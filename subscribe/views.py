@@ -1,4 +1,3 @@
-from datetime import datetime
 from enum import StrEnum, auto
 
 from django.contrib.auth.decorators import login_required
@@ -7,7 +6,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from pydantic import BaseModel, ValidationError
 from rest_framework import status, viewsets
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -21,7 +19,7 @@ from subscribe.repository import (
     delete_subscription,
     check_subscription,
 )
-from subscribe.serializers import NotificationSerializer
+from subscribe.api.serializers import NotificationSerializer
 
 
 class Action(StrEnum):
@@ -154,27 +152,21 @@ def delete_subscriber(request):
 
 class NotificationViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    service_class = None
+
+    def get_service(self):
+        return self.service_class()
 
     def list(self, request: Request) -> Response:
-        notifications = request.user.notifications.order_by('is_read', '-id')
+        notifications = self.get_service().list_notifications(request.user.id)
         serializer = NotificationSerializer(notifications, many=True)
-
         return Response({'notifications': serializer.data})
 
-    def partial_update(self, request: Request, pk: int | None = None) -> Response:
-        notification_obj = get_object_or_404(request.user.notifications, id=pk)
-        serializer = NotificationSerializer(notification_obj, data=request.data, partial=True)
+    def partial_update(self, request: Request, pk: int = None) -> Response:
+        notification = self.get_service().mark_notification_as_read(request.user.id, pk)
+        serializer = NotificationSerializer(notification)
+        return Response(serializer.data)
 
-        if serializer.is_valid():
-            if request.data.get('is_read') and not notification_obj.read_at:
-                notification_obj.read_at = datetime.now()
-
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def destroy(self, request: Request, pk: int | None = None) -> Response:
-        notification_obj = get_object_or_404(request.user.notifications, id=pk)
-        notification_obj.delete()
+    def destroy(self, request: Request, pk: int = None) -> Response:
+        self.get_service().delete_notification(request.user.id, pk)
         return Response(status=status.HTTP_204_NO_CONTENT)

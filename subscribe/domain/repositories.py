@@ -12,9 +12,9 @@ class AbstractNotificationRepository(ABC):
         pass
 
     @abstractmethod
-    def mark_as_read(self, user_id: int, notification_id: int) -> Notification:
+    def delete(self, user_id: int, notification_id: int) -> None:
         pass
 
     @abstractmethod
-    def delete(self, user_id: int, notification_id: int) -> None:
+    def update_read_status(self, notification: Notification) -> None:
         pass

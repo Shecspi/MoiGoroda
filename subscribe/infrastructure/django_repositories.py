@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.shortcuts import get_object_or_404
 from subscribe.domain.entities import Notification
 from subscribe.domain.repositories import AbstractNotificationRepository
@@ -23,21 +22,17 @@ class DjangoNotificationRepository(AbstractNotificationRepository):
         )
         return self._to_entity(obj)
 
-    def mark_as_read(self, user_id: int, notification_id: int) -> Notification:
-        obj = get_object_or_404(
-            VisitedCityNotification.objects.filter(recipient_id=user_id), id=notification_id
-        )
-        if not obj.read_at:
-            obj.read_at = datetime.now()
-            obj.is_read = True
-            obj.save(update_fields=['read_at', 'is_read'])
-        return self._to_entity(obj)
-
     def delete(self, user_id: int, notification_id: int) -> None:
         obj = get_object_or_404(
             VisitedCityNotification.objects.filter(recipient_id=user_id), id=notification_id
         )
         obj.delete()
+
+    def update_read_status(self, notification: Notification) -> None:
+        obj = VisitedCityNotification.objects.get(pk=notification.id)
+        obj.read_at = notification.read_at
+        obj.is_read = notification.is_read
+        obj.save(update_fields=['read_at', 'is_read'])
 
     def _to_entity(self, obj: VisitedCityNotification) -> Notification:
         return Notification(

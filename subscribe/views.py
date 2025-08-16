@@ -5,10 +5,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from pydantic import BaseModel, ValidationError
-from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.request import Request
-from rest_framework.response import Response
 
 from services import logger
 from subscribe.repository import (
@@ -19,7 +15,6 @@ from subscribe.repository import (
     delete_subscription,
     check_subscription,
 )
-from subscribe.api.serializers import NotificationSerializer
 
 
 class Action(StrEnum):
@@ -148,25 +143,3 @@ def delete_subscriber(request):
     )
 
     return JsonResponse({'status': 'success'})
-
-
-class NotificationViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
-    service_class = None
-
-    def get_service(self):
-        return self.service_class()
-
-    def list(self, request: Request) -> Response:
-        notifications = self.get_service().list_notifications(request.user.id)
-        serializer = NotificationSerializer(notifications, many=True)
-        return Response({'notifications': serializer.data})
-
-    def partial_update(self, request: Request, pk: int = None) -> Response:
-        notification = self.get_service().mark_notification_as_read(request.user.id, pk)
-        serializer = NotificationSerializer(notification)
-        return Response(serializer.data)
-
-    def destroy(self, request: Request, pk: int = None) -> Response:
-        self.get_service().delete_notification(request.user.id, pk)
-        return Response(status=status.HTTP_204_NO_CONTENT)

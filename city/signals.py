@@ -2,7 +2,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from city.models import VisitedCity
-from subscribe.models import Subscribe, VisitedCityNotification
+from subscribe.infrastructure.models import VisitedCityNotification
+from subscribe.models import Subscribe
 
 
 @receiver(post_save, sender=VisitedCity)

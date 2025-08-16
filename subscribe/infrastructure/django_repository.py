@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from subscribe.domain.entities import Notification
 from subscribe.domain.repositories import AbstractNotificationRepository
-from subscribe.models import VisitedCityNotification
+from subscribe.infrastructure.models import VisitedCityNotification
 
 
 class DjangoNotificationRepository(AbstractNotificationRepository):

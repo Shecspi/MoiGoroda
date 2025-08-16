@@ -10,11 +10,11 @@ Licensed under the Apache License, Version 2.0
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .api.dependencies import get_notification_service
-from .views import (
+from subscribe.api.dependencies import get_notification_service
+from subscribe.api.views import NotificationViewSet
+from subscribe.views import (
     save,
     delete_subscriber,
-    NotificationViewSet,
 )
 
 

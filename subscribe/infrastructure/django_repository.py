@@ -1,7 +1,51 @@
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+
+from account.models import ShareSettings
 from subscribe.domain.entities import Notification
-from subscribe.domain.repositories import AbstractNotificationRepository
+from subscribe.domain.interfaces import (
+    AbstractNotificationRepository,
+    AbstractUserRepository,
+    AbstractShareSettingsRepository,
+    AbstractSubscribeRepository,
+)
 from subscribe.infrastructure.models import VisitedCityNotification
+from subscribe.infrastructure.models import Subscribe
+
+
+class DjangoUserRepository(AbstractUserRepository):
+    def exists(self, user_id: int) -> bool:
+        return User.objects.filter(pk=user_id).exists()
+
+
+class DjangoShareSettingsRepository(AbstractShareSettingsRepository):
+    def can_subscribe(self, user_id: int) -> bool:
+        try:
+            return ShareSettings.objects.get(user_id=user_id).can_subscribe
+        except ShareSettings.DoesNotExist:
+            return False
+
+
+class DjangoSubscribeRepository(AbstractSubscribeRepository):
+    def is_subscribed(self, from_id: int, to_id: int) -> bool:
+        return Subscribe.objects.filter(subscribe_from_id=from_id, subscribe_to_id=to_id).exists()
+
+    def add(self, from_id: int, to_id: int) -> None:
+        Subscribe.objects.create(subscribe_from_id=from_id, subscribe_to_id=to_id)
+
+    def delete(self, from_id: int, to_id: int) -> None:
+        Subscribe.objects.filter(subscribe_from_id=from_id, subscribe_to_id=to_id).delete()
+
+    def check(self, from_id: int, to_id: int) -> bool:
+        return Subscribe.objects.filter(subscribe_from_id=from_id, subscribe_to_id=to_id).exists()
+
+    def get_all(self, from_id: int):
+        return [
+            {'to_id': s.subscribe_to_id, 'username': s.subscribe_to.username}
+            for s in Subscribe.objects.filter(subscribe_from_id=from_id).select_related(
+                'subscribe_to'
+            )
+        ]
 
 
 class DjangoNotificationRepository(AbstractNotificationRepository):

@@ -12,7 +12,7 @@ from rest_framework.routers import DefaultRouter
 
 from subscribe.api.dependencies import get_notification_service
 from subscribe.api.views import NotificationViewSet
-from subscribe.views import (
+from subscribe.api.views import (
     save,
     delete_subscriber,
 )

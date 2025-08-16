@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from subscribe.domain.entities import Notification
-from subscribe.views import NotificationViewSet
+from subscribe.api.views import NotificationViewSet
 from django.contrib.auth.models import AnonymousUser, User
 
 

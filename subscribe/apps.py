@@ -7,5 +7,5 @@ class SubscribeConfig(AppConfig):
 
     def ready(self):
         # Импортируем все модели, чтобы Django их зарегистрировал
-        import subscribe.models
+        import subscribe.infrastructure.models
         import subscribe.infrastructure.models

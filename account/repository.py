@@ -1,6 +1,6 @@
 from account.dto import SubscribedUserDTO, SubscriberUserDTO
 from account.models import ShareSettings
-from subscribe.models import Subscribe
+from subscribe.infrastructure.models import Subscribe
 
 
 def get_subscribed_users(user_id: int) -> list[SubscribedUserDTO]:

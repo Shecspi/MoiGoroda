@@ -3,7 +3,7 @@ from django.dispatch import receiver
 
 from city.models import VisitedCity
 from subscribe.infrastructure.models import VisitedCityNotification
-from subscribe.models import Subscribe
+from subscribe.infrastructure.models import Subscribe
 
 
 @receiver(post_save, sender=VisitedCity)

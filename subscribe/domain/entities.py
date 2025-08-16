@@ -1,5 +1,23 @@
 from dataclasses import dataclass
 from datetime import datetime
+from enum import StrEnum, auto
+
+from pydantic import BaseModel
+
+
+class Action(StrEnum):
+    subscribe = auto()
+    unsubscribe = auto()
+
+
+class SubscriptionRequest(BaseModel):
+    from_id: int
+    to_id: int
+    action: Action
+
+
+class DeleteSubscriberRequest(BaseModel):
+    user_id: int
 
 
 @dataclass

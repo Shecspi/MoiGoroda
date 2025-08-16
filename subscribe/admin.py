@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from subscribe.infrastructure.models import VisitedCityNotification
-from subscribe.models import Subscribe
+from subscribe.infrastructure.models import Subscribe
 
 
 @admin.register(Subscribe)

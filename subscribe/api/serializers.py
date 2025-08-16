@@ -10,5 +10,6 @@ class NotificationSerializer(serializers.Serializer):
     country_code = serializers.CharField()
     country_title = serializers.CharField()
     is_read = serializers.BooleanField()
+    read_at = serializers.DateTimeField()
     sender_id = serializers.IntegerField()
     sender_username = serializers.CharField()

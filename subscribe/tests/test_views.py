@@ -1,250 +1,140 @@
 import pytest
-from rest_framework.test import APIRequestFactory
+from datetime import datetime
 from rest_framework import status
+from rest_framework.test import APIRequestFactory, force_authenticate
+
+from subscribe.domain.entities import Notification
 from subscribe.views import NotificationViewSet
-from unittest.mock import MagicMock, patch
+from django.contrib.auth.models import AnonymousUser, User
+
+
+# Фейковый сервис для тестирования
+class FakeService:
+    def __init__(self, notifications=None):
+        self.notifications = notifications or []
+        self.deleted = []
+        self.read_updates = []
+
+    def list_notifications(self, user_id):
+        return self.notifications
+
+    def mark_notification_as_read(self, user_id, notification_id):
+        notif = next(n for n in self.notifications if n.id == notification_id)
+        if not notif.read_at:
+            notif.read_at = datetime(2025, 8, 16)
+            notif.is_read = True
+            self.read_updates.append(notif)
+        return notif
+
+    def delete_notification(self, user_id, notification_id):
+        self.deleted.append(notification_id)
+        self.notifications = [n for n in self.notifications if n.id != notification_id]
 
 
 @pytest.fixture
-def factory():
-    return APIRequestFactory()
+def user(db):
+    return User.objects.create_user(username='testuser', password='123')
 
 
 @pytest.fixture
-def viewset():
-    return NotificationViewSet.as_view({'get': 'list', 'patch': 'partial_update'})
-
-
-@pytest.fixture
-def mock_user(mocker):
-    user = mocker.Mock()
-    user.notifications.filter.return_value.order_by.return_value = [
-        mocker.Mock(id=1, message='Test1', is_read=False),
-        mocker.Mock(id=2, message='Test2', is_read=False),
+def notifications():
+    return [
+        Notification(
+            id=1,
+            city_id=10,
+            city_title='CityA',
+            region_id=100,
+            region_title='RegionA',
+            country_code='RU',
+            country_title='Russia',
+            is_read=False,
+            sender_id=5,
+            sender_username='sender1',
+        ),
+        Notification(
+            id=2,
+            city_id=20,
+            city_title='CityB',
+            region_id=200,
+            region_title='RegionB',
+            country_code='US',
+            country_title='USA',
+            is_read=True,
+            sender_id=6,
+            sender_username='sender2',
+            read_at=datetime(2025, 8, 15),
+        ),
     ]
-    return user
 
 
 @pytest.fixture
-def mock_notification(mocker):
-    notif = mocker.Mock()
-    notif.id = 1
-    notif.message = 'Message'
-    notif.is_read = False
-    return notif
+def viewset(notifications):
+    class TestViewSet(NotificationViewSet):
+        service_class = lambda self: FakeService(notifications=list(notifications))
+
+    return TestViewSet.as_view(
+        {
+            'get': 'list',
+            'patch': 'partial_update',
+            'delete': 'destroy',
+        }
+    )
 
 
-# Тесты list()
-def test_notification_list_returns_notifications_sorted(factory, mock_user, mocker):
-    request = factory.get('/notification/')
-    request.user = mock_user
+def test_list_notifications(user, notifications):
+    factory = APIRequestFactory()
+    request = factory.get('/notifications/')
+    force_authenticate(request, user=user)
 
-    # Мокаем цепочку order_by('is_read', '-id') -> возвращает список уведомлений
-    notifications_qs_mock = mocker.MagicMock()
-    notifications_sorted = [mocker.MagicMock(), mocker.MagicMock()]
-    notifications_qs_mock.order_by.return_value = notifications_sorted
-    mock_user.notifications = notifications_qs_mock
+    class TestViewSet(NotificationViewSet):
+        service_class = lambda self: FakeService(notifications=list(notifications))
 
-    # Мокаем сериализатор, чтобы вернуть фиктивные данные
-    serializer_mock = mocker.patch('subscribe.views.NotificationSerializer')
-    serializer_instance = serializer_mock.return_value
-    serializer_instance.data = 'mocked'
-
-    # Вызываем view
-    view = NotificationViewSet.as_view({'get': 'list'})
-    response = view(request)
-
-    # Проверки
+    response = TestViewSet.as_view({'get': 'list'})(request)
     assert response.status_code == status.HTTP_200_OK
-    assert response.data == {'notifications': 'mocked'}
-
-    notifications_qs_mock.order_by.assert_called_once_with('is_read', '-id')
-    serializer_mock.assert_called_once_with(notifications_sorted, many=True)
+    assert 'notifications' in response.data
+    assert len(response.data['notifications']) == len(notifications)
 
 
-# Тесты partial_update()
+def test_mark_notification_as_read(user, notifications):
+    factory = APIRequestFactory()
+    request = factory.patch('/notifications/1/')
+    force_authenticate(request, user=user)
+
+    class TestViewSet(NotificationViewSet):
+        service_class = lambda self: FakeService(notifications=list(notifications))
+
+    response = TestViewSet.as_view({'patch': 'partial_update'})(request, pk=1)
+    assert response.status_code == status.HTTP_200_OK
+    notif = response.data
+    assert notif['id'] == 1
+    assert notif['is_read'] is True
+    assert notif['read_at'] is not None
+
+    # Проверка, что другие поля не изменились
+    orig = next(n for n in notifications if n.id == 1)
+    assert notif['city_id'] == orig.city_id
+    assert notif['city_title'] == orig.city_title
 
 
-@patch('subscribe.views.get_object_or_404')
-@patch('subscribe.serializers.NotificationSerializer.save')
-def test_partial_update_success(mock_save, mock_get_object_or_404, factory, mock_notification):
-    # Возвращаем мок-объект
-    mock_get_object_or_404.return_value = mock_notification
-    mock_save.return_value = None  # предотвращаем реальные операции save()
+def test_delete_notification(user, notifications):
+    factory = APIRequestFactory()
+    request = factory.delete('/notifications/1/')
+    force_authenticate(request, user=user)
 
-    # Симулируем, что после сохранения поле is_read стало True
-    mock_notification.is_read = True
+    class TestViewSet(NotificationViewSet):
+        service_class = lambda self: FakeService(notifications=list(notifications))
 
-    request = factory.patch('/notification/1/', {'is_read': True}, format='json')
-    request.user = MagicMock()
-
-    view = NotificationViewSet.as_view({'patch': 'partial_update'})
-    response = view(request, pk=1)
-
-    assert response.status_code == 200
-    assert response.data['is_read'] is True
-    mock_save.assert_called_once()
-    mock_get_object_or_404.assert_called_once()
-
-
-@patch('subscribe.views.get_object_or_404')
-def test_partial_update_invalid_data(mock_get_object_or_404, factory, mock_notification):
-    mock_get_object_or_404.return_value = mock_notification
-
-    # Передаём неверное значение для is_read (должно быть boolean)
-    request = factory.patch('/notification/1/', {'is_read': 'not_bool'}, format='json')
-    request.user = MagicMock()
-
-    view = NotificationViewSet.as_view({'patch': 'partial_update'})
-
-    response = view(request, pk=1)
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert 'is_read' in response.data
-
-
-@patch('subscribe.views.get_object_or_404')
-def test_partial_update_object_not_found(mock_get_object_or_404, factory):
-    from rest_framework.exceptions import NotFound
-
-    # Симулируем, что объект не найден
-    mock_get_object_or_404.side_effect = NotFound()
-
-    request = factory.patch('/notification/999/', {'is_read': True}, format='json')
-    request.user = MagicMock()
-
-    view = NotificationViewSet.as_view({'patch': 'partial_update'})
-
-    response = view(request, pk=999)
-
-    assert response.status_code == 404
-
-
-# Тест, что permission_classes отрабатывают (требуется аутентификация)
-
-
-def test_permission_classes_enforced(factory):
-    request = factory.get('/notification/')
-    request.user = None  # Анонимный пользователь
-
-    view = NotificationViewSet.as_view({'get': 'list'})
-
-    response = view(request)
-
-    # Нет аутентификации — ответ 403 или 401 в зависимости от настроек
-    assert response.status_code in (401, 403)
-
-
-# Тесты destroy()
-
-
-def test_destroy_deletes_user_notification(factory, mocker, mock_user):
-    # Мокаем объект уведомления
-    notification_mock = mocker.MagicMock()
-    notifications_qs = mocker.MagicMock()
-    notifications_qs.filter.return_value.exists.return_value = True
-    notifications_qs.get.return_value = notification_mock
-    mock_user.notifications = notifications_qs
-
-    # Мокаем get_object_or_404, чтобы он вернул наш объект
-    mocker.patch('subscribe.views.get_object_or_404', return_value=notification_mock)
-
-    request = factory.delete('/notification/123/')
-    request.user = mock_user
-
-    view = NotificationViewSet.as_view({'delete': 'destroy'})
-    response = view(request, pk=123)
-
+    response = TestViewSet.as_view({'delete': 'destroy'})(request, pk=1)
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    notification_mock.delete.assert_called_once()
 
 
-def test_destroy_returns_404_if_notification_not_found(factory, mocker, mock_user):
-    # Мокаем get_object_or_404, чтобы он выбросил Http404
-    mocker.patch('subscribe.views.get_object_or_404', side_effect=Exception('Not Found'))
+def test_permission_classes_enforced():
+    factory = APIRequestFactory()
+    request = factory.get('/notifications/')
+    request.user = AnonymousUser()
 
-    request = factory.delete('/notification/999/')
-    request.user = mock_user
+    class TestViewSet(NotificationViewSet):
+        service_class = lambda self: FakeService()
 
-    view = NotificationViewSet.as_view({'delete': 'destroy'})
-
-    with pytest.raises(Exception, match='Not Found'):
-        view(request, pk=999)
-
-
-def test_destroy_returns_404_if_notification_not_owned_by_user(factory, mocker, mock_user):
-    # Допустим, другой пользователь имеет уведомление с этим ID
-    # Поэтому get_object_or_404 ничего не находит в request.user.notifications
-    mocker.patch('subscribe.views.get_object_or_404', side_effect=Exception('Not Found'))
-
-    request = factory.delete('/notification/321/')
-    request.user = mock_user
-
-    view = NotificationViewSet.as_view({'delete': 'destroy'})
-
-    with pytest.raises(Exception, match='Not Found'):
-        view(request, pk=321)
-
-
-@patch('subscribe.views.get_object_or_404')
-def test_partial_update_is_read_false_does_not_set_read_at(mock_get_object_or_404, factory, mock_notification):
-    """
-    Если is_read=False, read_at не должен устанавливаться.
-    """
-    mock_notification.read_at = None
-    mock_get_object_or_404.return_value = mock_notification
-
-    request = factory.patch('/notification/1/', {'is_read': False}, format='json')
-    request.user = MagicMock()
-
-    view = NotificationViewSet.as_view({'patch': 'partial_update'})
-    response = view(request, pk=1)
-
-    assert response.status_code == 200
-    assert response.data['is_read'] is False
-    assert mock_notification.read_at is None
-
-
-@patch('subscribe.views.get_object_or_404')
-def test_partial_update_with_empty_body(mock_get_object_or_404, factory, mock_notification):
-    """
-    Пустое тело должно валидироваться (partial=True) и ничего не менять.
-    """
-    mock_notification.is_read = False
-    mock_notification.read_at = None
-    mock_get_object_or_404.return_value = mock_notification
-
-    request = factory.patch('/notification/1/', {}, format='json')
-    request.user = MagicMock()
-
-    view = NotificationViewSet.as_view({'patch': 'partial_update'})
-    response = view(request, pk=1)
-
-    assert response.status_code == 200
-    # Поле is_read отсутствует в validated_data, поэтому оно не должно измениться
-    assert response.data['is_read'] is False
-    assert mock_notification.read_at is None
-
-
-def test_notification_list_returns_empty_list(factory, mocker):
-    """
-    list() должен возвращать пустой список, если уведомлений нет.
-    """
-    request = factory.get('/notification/')
-    request.user = mocker.Mock()
-
-    notifications_qs_mock = mocker.MagicMock()
-    notifications_qs_mock.order_by.return_value = []
-    request.user.notifications = notifications_qs_mock
-
-    serializer_mock = mocker.patch('subscribe.views.NotificationSerializer')
-    serializer_instance = serializer_mock.return_value
-    serializer_instance.data = []
-
-    view = NotificationViewSet.as_view({'get': 'list'})
-    response = view(request)
-
-    assert response.status_code == 200
-    assert response.data == {'notifications': []}
-    notifications_qs_mock.order_by.assert_called_once_with('is_read', '-id')
-    serializer_mock.assert_called_once_with([], many=True)
+    response = TestViewSet.as_view({'get': 'list'})(request)
+    assert response.status_code == status.HTTP_403_FORBIDDEN

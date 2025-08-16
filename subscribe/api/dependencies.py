@@ -1,4 +1,4 @@
-from subscribe.infrastructure.django_repositories import DjangoNotificationRepository
+from subscribe.infrastructure.django_repository import DjangoNotificationRepository
 from subscribe.application.services import NotificationService
 
 

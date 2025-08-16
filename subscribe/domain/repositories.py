@@ -8,7 +8,7 @@ class AbstractNotificationRepository(ABC):
         pass
 
     @abstractmethod
-    def get_for_user(self, user_id: int, notification_id: int) -> Notification | None:
+    def get_for_user(self, user_id: int, notification_id: int) -> Notification:
         pass
 
     @abstractmethod

@@ -201,7 +201,7 @@
 
                                     <div class="col-lg-6 mt-2">
                                         {% if visit.impression %}
-                                            {{ visit.impression }}
+                                            {{ visit.impression|markdownify }}
                                         {% else %}
                                             <span class="small text-muted">Вы не добавили описание Вашей поездки в город {{ visit.city__title }}</span>
                                         {% endif %}

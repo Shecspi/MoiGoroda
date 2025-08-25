@@ -130,6 +130,13 @@ function delete_notification(event) {
         .then(response => {
             if (response.ok) {
                 remove_notification_item(notificationItem);
+
+                // Сравниваем с 1, так как notifications обновляется только при загрузке данных с сервера,
+                // но не при удалении уведомления.
+                if (notifications.length === 1) {
+                    notificationsList.innerHTML = '<p class="text-muted">У Вас нет непрочитанных уведомлений</p>';
+                }
+
                 if (!exists_not_read_notifications()) {
                     make_bell_gray();
                 }

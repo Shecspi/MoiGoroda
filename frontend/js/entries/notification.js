@@ -1,6 +1,7 @@
 import {getCookie} from '../components/get_cookie.js';
 
 const notifications = [];
+const POLL_INTERVAL = 10000;
 
 const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'));
 const notificationButton = document.getElementById('notification_icon');
@@ -8,6 +9,26 @@ const notificationIcon = document.getElementById("bell");
 const notificationsList = document.getElementById('notifications-list');
 
 document.addEventListener("DOMContentLoaded", async function () {
+    const fetchNotifications = async () => {
+        try {
+            await get_notifications();
+        } catch (err) {
+            console.error("Ошибка при получении уведомлений:", err);
+        } finally {
+            // Запускаем следующий вызов через 5 секунд после завершения текущего
+            setTimeout(fetchNotifications, POLL_INTERVAL);
+        }
+    };
+
+    // Вызов сразу при загрузке страницы
+    await fetchNotifications();
+});
+
+document.getElementById('notification_icon').addEventListener('click', function () {
+    notificationModal.show();
+});
+
+async function get_notifications() {
     try {
         const response = await fetch('/subscribe/notification/');
 
@@ -19,16 +40,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (json.notifications.some(n => n.is_read === false)) {
             make_bell_red();
         }
+        notifications.length = 0;
         notifications.push(...json.notifications);
         add_notifications_to_list();
     } catch (error) {
         console.log('Произошла ошибка при загрузке уведомлений:\n' + error);
     }
-});
-
-document.getElementById('notification_icon').addEventListener('click', function () {
-    notificationModal.show();
-});
+}
 
 /**
  * Делает иконку с колокольчиком красной

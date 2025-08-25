@@ -64,5 +64,5 @@ quote-style = "single"
 [tool.pytest.ini_options]
 addopts = "--import-mode=importlib"
 DJANGO_SETTINGS_MODULE = "MoiGoroda.settings"
-python_files = ["*_test.py"]
+python_files = ["test_*"]
 python_functions = ["test_*"]

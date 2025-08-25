@@ -36,6 +36,13 @@ class ShareSettings(models.Model):
     def get_absolute_url(self):
         return reverse('share', kwargs={'pk': self.pk})
 
+    def __str__(self):
+        return f'Параметры публикации статистики пользователя {self.user}'
+
+    class Meta:
+        verbose_name = 'Параметры публикации статистики'
+        verbose_name_plural = 'Параметры публикации статистики'
+
 
 class UserConsent(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

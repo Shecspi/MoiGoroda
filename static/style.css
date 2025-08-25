@@ -373,3 +373,22 @@ div#main-background {
 .choices__list--dropdown {
     z-index: 3 !important;
 }
+
+/* Иконка уведомлений */
+
+.notification_icon {
+    z-index: 1040;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: box-shadow 0.3s ease;
+}
+.notification_icon:hover {
+    box-shadow: 0 0 5px 2px rgba(34, 60, 80, 0.15);
+}
+/*
+Нужно для того, чтобы блок p вставляемый функцией marked, не имел отступа снизу.
+Вроде бы больше p я особо не использую нигде.
+ */
+p {
+    margin-bottom: 0;
+}

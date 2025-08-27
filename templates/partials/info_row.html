@@ -1,3 +1,5 @@
+{% load humanize %}
+
 <div class="col-12 col-md-6" id="section-{{ id }}">
     <h6 class="fw-semibold mb-1" id="subsection-{{ id }}_title">{{ title }}</h6>
     <p class="mb-0" id="subsection-{{ id }}_value">
@@ -8,7 +10,11 @@
                     {{ value }}
                 </a>
             {% else %}
-                {{ value }}
+                {% if intcomma %}
+                    {{ value|intcomma }}
+                {% else %}
+                    {{ value }}
+                {% endif %}
             {% endif %}
         {% else %}
             <span class="text-muted">Не указано</span>

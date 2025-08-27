@@ -84,8 +84,8 @@
                                     <hr>
                                 </div>
 
-                                {% include "partials/info_row.html" with title="Год основания:" value=city.date_of_foundation|stringformat:"s"|default:"Год основания не известен" id="date_of_foundation" %}
-                                {% include "partials/info_row.html" with title="Население:" value=city.population|intcomma|stringformat:"s"|default:"Численность населения не известна" id="population" %}
+                                {% include "partials/info_row.html" with title="Год основания:" value=city.date_of_foundation id="date_of_foundation" %}
+                                {% include "partials/info_row.html" with title="Население:" value=city.population id="population" intcomma=True %}
 
                                 <div class="col-12">
                                     <hr>

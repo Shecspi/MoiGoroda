@@ -76,9 +76,14 @@
                                 <hr>
 
                                 {% url 'region-selected-list' city.region.id as region_url %}
-                                {% include "partials/info_row_4.html" with title="Страна:" link=False value=city.country id="country" %}
-                                {% include "partials/info_row_4.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
-                                {% include "partials/info_row_4.html" with title="Федеральный округ:" value=city.region.area id="area" %}
+                                {% if city.region.area %}
+                                    {% include "partials/info_row_4.html" with title="Страна:" link=False value=city.country id="country" %}
+                                    {% include "partials/info_row_4.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
+                                    {% include "partials/info_row_4.html" with title="Федеральный округ:" value=city.region.area id="area" %}
+                                {% else %}
+                                    {% include "partials/info_row.html" with title="Страна:" link=False value=city.country id="country" %}
+                                    {% include "partials/info_row.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
+                                {% endif %}
 
                                 <div class="col-12">
                                     <hr>

@@ -75,23 +75,22 @@ jobs:
           git pull origin master
           git checkout master
           
-          : # Устанавливаем необходимую версию Python, если она ещё не установлена
-          if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
+          : # Устанавливаем uv, если ещё не установлен
+          if ! command -v uv &> /dev/null; then
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+          fi
+          export PATH="$HOME/.cargo/bin:$PATH"
           
-          : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
-          : # которая указана в .python-version
-          if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
-          poetry env use $(cat .python-version)
-          poetry lock
-          poetry install --only main
+          : # Синхронизируем зависимости
+          uv venv --python $(cat .python-version)
           
           : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
-          : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
+          : # нужно создать символическую ссылку на файл, находящийся в папке с виртуальным окружением.
           : # Имя папки может меняться, поэтому нужен такой ход.
           rm -f ~/gunicorn
-          ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
+          ln -s .venv/bin/gunicorn ~/gunicorn
           
-          poetry run python3 manage.py migrate
+          uv run python manage.py migrate
           
           # Собираем JS файлы
           cd frontend

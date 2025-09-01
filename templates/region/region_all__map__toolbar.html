@@ -6,7 +6,7 @@
     <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
         <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
             {% if user.is_authenticated %}
-                {% if qty_of_visited_regions > 0 %}
+                {% if qty_of_regions > 0 %}
                     Посещено {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
                 {% else %}
                     Нет деления на регионы

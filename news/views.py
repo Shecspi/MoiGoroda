@@ -64,6 +64,6 @@ class NewsList(ListView):
 
         context['active_page'] = 'news'
         context['page_title'] = 'Новости'
-        context['page_description'] = 'Новости проекта "Мои городв"'
+        context['page_description'] = 'Новости проекта «Мои города»'
 
         return context

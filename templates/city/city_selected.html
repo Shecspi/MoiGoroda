@@ -31,7 +31,8 @@
                              {% if city.image %}
                                 <img src="{{ city.image }}"
                                      alt="Фото города {{ city.title }}"
-                                     class="img-fluid rounded-3 shadow city-image">
+                                     class="img-fluid rounded-3 shadow city-image"
+                                     onerror="this.onerror=null; this.src='{% static 'image/city_placeholder.png' %}';">>
                              {% else %}
                                 <img src="{% static 'image/city_placeholder.png' %}"
                                      alt="Фото города {{ city.title }}"

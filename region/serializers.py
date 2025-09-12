@@ -11,3 +11,8 @@ class RegionSerializer(serializers.ModelSerializer):
 
     def get_title(self, obj):
         return str(obj)
+
+
+class RegionSearchParamsSerializer(serializers.Serializer):
+    query = serializers.CharField(required=True)
+    country = serializers.CharField(required=False)

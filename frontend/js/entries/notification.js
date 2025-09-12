@@ -87,7 +87,7 @@ function add_notifications_to_list() {
             div.classList.add(notification.is_read ? 'bg-light' : 'bg-warning-subtle', 'border');
 
             // Формируем текст сообщения
-            let message = `<a href="/share/${notification.sender}" class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover fw-bold">${notification.sender_username}</a>`;
+            let message = `<a href="/share/${notification.sender_id}" class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover fw-bold">${notification.sender_username}</a>`;
             message += ` посетил город <a href="/city/${notification.city_id}" class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover fw-bolder">${notification.city_title}</a>`;
             if (notification.region_title) {
                 message += `, <a href="/region/${notification.region_id}/list" class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover fw-bolder">${notification.region_title}</a>`;

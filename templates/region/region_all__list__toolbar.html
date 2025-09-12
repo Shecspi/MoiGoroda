@@ -1,9 +1,12 @@
 {% load morphology %}
 
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.9/dist/autoComplete.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.9/dist/css/autoComplete.02.min.css">
+
 <!-- Панель инструментов -->
-<div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 justify-content-between align-items-center" id="toolbar">
+<div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 align-items-center" id="toolbar">
     <!-- Статистика посещёния -->
-    <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
+    <div class="d-flex flex-wrap gap-3 align-items-center">
         <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
             {% if user.is_authenticated %}
                 Посещено: {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
@@ -15,15 +18,54 @@
 
     <!-- Фильтры -->
     <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-small-buttons">
-        <div class="flex-grow-1" style="min-width: 250px;">
+        <input id="region-search" type="text" class="form-control" placeholder="Поиск региона...">
+        
+        <div style="min-width: 350px;">
             <select class="form-select w-100" id="id_country"></select>
         </div>
 
         <a href="{% url 'region-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}"
            class="btn btn-outline-success align-self-center"
-            data-bs-toggle="tooltip"
+           data-bs-toggle="tooltip"
            data-bs-title="Посмотреть регионы {{ country_name|prepositional|title}} на карте">
             <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
         </a>
     </div>
 </div>
+
+<script>
+    const inputEl = document.querySelector("#region-search");
+    const config = {
+        selector: () => inputEl,
+        placeHolder: "Начните вводить регион...",
+        debounce: 300,
+        data: {
+            src: async () => {
+                const query = inputEl.value;
+                if (!query) return [];
+                const response = await fetch(`/api/region/search?query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                return data.map(item => ({ value: item.title, id: item.id }));
+            },
+            keys: ["value"]
+        },
+        resultsList: {
+            render: true,
+            destination: () => inputEl,
+            position: "afterend"
+        },
+        resultItem: {
+            highlight: true,
+        },
+        events: {
+            input: {
+                selection: event => {
+                    const selection = event.detail.selection.value;
+                    inputEl.value = selection.value;
+                    window.location.href = `/region/${selection.id}/list`
+                }
+            }
+        }
+    }
+    const autoCompleteJS = new autoComplete(config);
+</script>

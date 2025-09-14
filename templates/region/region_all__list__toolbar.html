@@ -1,7 +1,8 @@
 {% load morphology %}
+{% load static %}
 
 <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.9/dist/autoComplete.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.9/dist/css/autoComplete.02.min.css">
+<link rel="stylesheet" href="{% static 'css/autoComplete.css' %}">
 
 <!-- Панель инструментов -->
 <div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 align-items-center" id="toolbar">
@@ -101,7 +102,7 @@
                 selection: event => {
                     const selection = event.detail.selection.value;
                     inputEl.value = selection.value;
-                    window.location.href = url;
+                    window.location.href = `/region/${selection.id}/list`;
                 }
             }
         }

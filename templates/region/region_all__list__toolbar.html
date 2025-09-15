@@ -1,9 +1,13 @@
 {% load morphology %}
+{% load static %}
+
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.9/dist/autoComplete.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/autoComplete.css' %}?ver={{ PROJECT_VERSION }}">
 
 <!-- Панель инструментов -->
-<div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 justify-content-between align-items-center" id="toolbar">
+<div class="row mx-3 my-3 y-3 g-3 align-items-center" id="toolbar">
     <!-- Статистика посещёния -->
-    <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
+    <div class="col-12 col-lg-auto col-xl-12 col-xxl-auto">
         <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
             {% if user.is_authenticated %}
                 Посещено: {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
@@ -14,16 +18,100 @@
     </div>
 
     <!-- Фильтры -->
-    <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-small-buttons">
-        <div class="flex-grow-1" style="min-width: 250px;">
-            <select class="form-select w-100" id="id_country"></select>
-        </div>
+    <div class="col-12 col-lg col-xl-12 col-xxl" id="section-small-buttons">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-6 col-lg">
+                <input id="region-search" type="text" class="form-control w-100" placeholder="Поиск региона...">
+            </div>
+            
+            <div class="col-12 col-md-6 col-lg">
+                <select class="form-select w-100" id="id_country"></select>
+            </div>
 
-        <a href="{% url 'region-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-           class="btn btn-outline-success align-self-center"
-            data-bs-toggle="tooltip"
-           data-bs-title="Посмотреть регионы {{ country_name|prepositional|title}} на карте">
-            <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
-        </a>
+            <div class="col-12 col-lg-auto text-end">
+                <a href="{% url 'region-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}"
+                   class="btn btn-outline-success"
+                   data-bs-toggle="tooltip"
+                   data-bs-title="Посмотреть регионы {{ country_name|prepositional|title}} на карте">
+                    <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
+                </a>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    function pluralize(num, one, few, many) {
+        const n = Math.abs(num) % 100;
+        const n1 = n % 10;
+        if (n > 10 && n < 20) return many;
+        if (n1 > 1 && n1 < 5) return few;
+        if (n1 === 1) return one;
+        return many;
+    }
+
+    const inputEl = document.querySelector("#region-search");
+    const config = {
+        selector: () => inputEl,
+        placeHolder: "Начните вводить регион...",
+        debounce: 300,
+        data: {
+            src: async () => {
+                const query = inputEl.value;
+
+                if (!query) return [];
+
+                const params = new URLSearchParams(window.location.search);
+                const country = params.get("country");
+
+                let url = `/api/region/search?query=${encodeURIComponent(query)}`;
+
+                if (country) {
+                    url += `&country=${encodeURIComponent(country)}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.map(item => ({ value: item.title, id: item.id }));
+            },
+            keys: ["value"]
+        },
+        resultsList: {
+            render: true,
+            element: (list, data) => {
+                const info = document.createElement("p");
+                info.classList.add("dropdown-item", "my-2", "px-2", "small", "text-secondary");
+                if (data.results.length) {
+                    const word = pluralize(data.results.length, "совпадение", "совпадения", "совпадений");
+                    info.innerHTML = `Найдено <strong>${data.results.length}</strong> ${word} для <strong>"${data.query}"</strong>`;
+                } else {
+                    info.innerHTML = `Найдено <strong>${data.matches.length}</strong> совпадений для <strong>"${data.query}"</strong>`;
+                }
+                list.prepend(info);
+            },
+            maxResults: undefined,
+            noResults: true,
+            destination: () => inputEl,
+            position: "afterend",
+        },
+        resultItem: {
+            highlight: true,
+            element: (item, data) => {
+                // Modify Results Item Style
+                item.style = "display: flex; justify-content: space-between;";
+                // Modify Results Item Content
+                item.innerHTML = `<span style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">${data.match}</span>`;
+            },
+        },
+        events: {
+            input: {
+                selection: event => {
+                    const selection = event.detail.selection.value;
+                    inputEl.value = selection.value;
+                    window.location.href = `/region/${selection.id}/list`;
+                }
+            }
+        }
+    }
+    const autoCompleteJS = new autoComplete(config);
+</script>

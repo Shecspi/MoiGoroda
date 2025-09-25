@@ -42,7 +42,7 @@ class VisitedCityNotification(models.Model):
         verbose_name='Отправитель',
     )
     city = models.ForeignKey(
-        City, on_delete=models.CASCADE, related_name='city', verbose_name='Посещённый город1'
+        City, on_delete=models.CASCADE, related_name='city', verbose_name='Посещённый город'
     )
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

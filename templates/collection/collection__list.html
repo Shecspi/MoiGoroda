@@ -1,9 +1,19 @@
 {% extends 'base.html' %}
+{% load vite %}
+{% load static %}
 
 {% block content %}
+    <link rel="stylesheet" href="{% static 'css/autoComplete.css' %}?ver={{ PROJECT_VERSION }}">
+
     <h1 class="display-5 text-center mt-3 mx-3" id="block-page_header">
         Коллекции городов
     </h1>
+
+    <div class="row mx-3 my-3 y-3 g-3 align-items-center" id="toolbar">
+        <div class="col-12 col-lg-6 ms-auto">
+            <input id="collection-search" type="text" class="form-control w-100" placeholder="Поиск коллекции...">
+        </div>
+    </div>
 
     <!-- Карточки с коллекциями -->
     {% if object_list %}
@@ -30,4 +40,6 @@
     <!-- Пагинация -->
     {% include 'parts/pagination_without_sort_and_filter.html' %}
     <!-- ^^^ Пагинация -->
+
+    {% vite_asset 'js/entries/collection_search.js' %}
 {% endblock %}

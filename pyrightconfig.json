@@ -1,0 +1,11 @@
+{
+    "typeCheckingMode": "strict",
+    "reportMissingTypeStubs": "none",
+    "venvPath": ".",
+    "venv": ".venv",
+    "plugins": [
+        {
+            "module": "mypy_django_plugin.main"
+        }
+    ]
+}

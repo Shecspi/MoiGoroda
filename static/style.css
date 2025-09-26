@@ -1,18 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
-body{
+body {
     font-family: 'Roboto', sans-serif;
     font-weight: 300;
     background: #fff;
 }
+
 body.simple {
     background: #ececec;
 }
+
 .logo-navbar {
     font-family: 'Pacifico', cursive;
     font-size: 40px;
 }
+
 .content {
     min-height: 100vh;
     width: 100%;
@@ -43,8 +46,7 @@ body.simple {
     border-radius: 5px;
 }
 
-.custom-control-for-map
-{
+.custom-control-for-map {
     width: 30px;
     height: 30px;
     display: flex;
@@ -56,8 +58,8 @@ body.simple {
     font-size: 20px;
     background-color: #FFFFFF;
 }
-.custom-control-for-map:hover
-{
+
+.custom-control-for-map:hover {
     background-color: #F4F4F4;
 }
 
@@ -73,55 +75,57 @@ body.simple {
     transform: rotate(-45deg);
     box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.5);
 }
+
 .pointer-green {
     border: 6px solid #1c821e;
 }
+
 .pointer-red {
     border: 6px solid #af2626;
 }
 
 .legend {
-  background: white;
-  padding: 10px;
-  line-height: 1.4;
-  box-shadow: 0 0 5px rgba(0,0,0,0.3);
-  border-radius: 5px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  color: #333;
-  width: 250px;
+    background: white;
+    padding: 10px;
+    line-height: 1.4;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    width: 250px;
 }
 
 .legend-title {
-  font-weight: bold;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .legend-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
 }
 
 .color-box {
-  width: 25px;
-  height: 20px;
-  margin-right: 8px;
-  border: 1px solid #444444;
-  flex-shrink: 0;
+    width: 25px;
+    height: 20px;
+    margin-right: 8px;
+    border: 1px solid #444444;
+    flex-shrink: 0;
 }
 
 .show-legend-btn button {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  background: white;
-  border: 1px solid #444444;
-  border-radius: 4px;
-  padding: 5px 10px;
-  color: #333;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background: white;
+    border: 1px solid #444444;
+    border-radius: 4px;
+    padding: 5px 10px;
+    color: #333;
 }
 
 
@@ -134,10 +138,12 @@ body.simple {
     position: fixed;
     overscroll-behavior-y: contain;
 }
+
 .sidebar-logo {
     font-family: 'Pacifico', cursive;
     font-size: 30px;
 }
+
 .sidebar li.active {
     background: #eee;
     border-radius: 8px;
@@ -147,17 +153,21 @@ body.simple {
     border: solid 1px #fff;
     border-radius: 10px;
 }
+
 .sidebar li a {
     color: #000;
 }
+
 .sidebar li a:hover {
     border-radius: 10px;
     background-color: #e9ecef;
 }
+
 .sidebar li a.active {
     background-color: #0d6efd;
     color: #fff;
 }
+
 @media(max-width: 1199px) {
     #sidebar {
         margin-left: -300px;
@@ -170,11 +180,13 @@ body.simple {
         margin-left: 0;
     }
 }
+
 @media(min-width: 1200px) {
     #section-content {
         padding-left: 300px;
     }
 }
+
 .marker-line-link {
     position: relative;
     font-weight: bold;
@@ -182,6 +194,7 @@ body.simple {
     background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 15' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 18 Q50 14 100 18 T200 17 T300 18 T400 16' stroke='%23ccf5e7' stroke-width='45' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center bottom;
     background-size: 100% 55px;
 }
+
 .marker-line-link-bi-green {
     position: relative;
     font-weight: bold;
@@ -190,6 +203,7 @@ body.simple {
     background-size: 100% 45px;
     border-radius: 15px;
 }
+
 .marker-line-link-bi-blue {
     position: relative;
     font-weight: bold;
@@ -201,73 +215,90 @@ body.simple {
 
 /*------------ Sign In and Sign Up pages ------------*/
 
-.box-area{
+.box-area {
     width: 930px;
 }
-.right-box{
+
+.right-box {
     padding: 40px 30px 40px 40px;
 }
-::placeholder{
+
+::placeholder {
     font-size: 16px;
 }
-.rounded-4{
+
+.rounded-4 {
     border-radius: 20px;
 }
-.rounded-5{
+
+.rounded-5 {
     border-radius: 30px;
 }
+
 .font-bold {
     font-weight: 400;
 }
-@media only screen and (max-width: 767px){
+
+@media only screen and (max-width: 767px) {
     .logo-navbar {
         font-size: 20px;
     }
-     .box-area{
+
+    .box-area {
         margin: 0;
 
-     }
-     .left-box{
+    }
+
+    .left-box {
         height: 100px;
         overflow: hidden;
-     }
-     .image-signin-left-box {
-         margin-top: 335px;
-     }
-     .image-signup-left-box {
-         margin-top: 290px;
-     }
-     .image-password_reset-left_box {
+    }
+
+    .image-signin-left-box {
+        margin-top: 335px;
+    }
+
+    .image-signup-left-box {
+        margin-top: 290px;
+    }
+
+    .image-password_reset-left_box {
         margin-top: 310px;
-     }
-     .right-box{
+    }
+
+    .right-box {
         padding: 20px;
-     }
+    }
 }
+
 @media only screen and (max-width: 489px) {
     .image-password_reset-left_box {
-         margin-top: 330px;
-     }
+        margin-top: 330px;
+    }
 }
+
 @media only screen and (max-width: 450px) {
     .image-signin-left-box {
-         margin-top: 360px;
-     }
+        margin-top: 360px;
+    }
 }
+
 @media only screen and (max-width: 432px) {
     .image-signin-left-box {
-         margin-top: 380px;
-     }
+        margin-top: 380px;
+    }
 }
+
 @media only screen and (max-width: 405px) {
     .image-signup-left-box {
-         margin-top: 310px;
-     }
+        margin-top: 310px;
+    }
 }
+
 @media only screen and (max-width: 341px) {
     .image-signup-left-box {
-         margin-top: 330px;
-     }
+        margin-top: 330px;
+    }
 }
 
 /*------------ Cards------------*/
@@ -277,6 +308,7 @@ body.simple {
         column-count: 1;
     }
 }
+
 @media (min-width: 992px) {
     .card-columns {
         column-count: 2;
@@ -289,15 +321,19 @@ div#main-background {
     height: 100dvh;
     background-size: cover;
 }
+
 .feature {
     min-height: 250px;
 }
+
 .feature-image {
     object-fit: cover;
 }
+
 .feature-divider {
     margin: 50px;
 }
+
 .index-logo {
     font-family: 'Pacifico', cursive;
 }
@@ -306,6 +342,7 @@ div#main-background {
 .opacity_until_hover[data-bs-toggle="tooltip"] {
     opacity: 0.3;
 }
+
 .opacity_until_hover[data-bs-toggle="tooltip"]:hover {
     opacity: 0.8;
 }
@@ -328,26 +365,32 @@ div#main-background {
 
 /*------------ Callouts ------------*/
 .callout {
-  padding: 20px;
-  border: 1px solid #eee;
-  border-left-width: 5px;
-  border-radius: 3px;
-  h4 {
-    margin-top: 0;
-    margin-bottom: 5px;
-  }
-  p:last-child {
-    margin-bottom: 0;
-  }
-  code {
+    padding: 20px;
+    border: 1px solid #eee;
+    border-left-width: 5px;
     border-radius: 3px;
-  }
-  & + .bs-callout {
-    margin-top: -5px;
-  }
+
+    h4 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+
+    p:last-child {
+        margin-bottom: 0;
+    }
+
+    code {
+        border-radius: 3px;
+    }
+
+    &+.bs-callout {
+        margin-top: -5px;
+    }
 }
+
 .callout-default {
     border-left-color: #d9534f;
+
     h4 {
         color: #d9534f;
     }
@@ -382,13 +425,27 @@ div#main-background {
     font-size: 1.5rem;
     transition: box-shadow 0.3s ease;
 }
+
 .notification_icon:hover {
     box-shadow: 0 0 5px 2px rgba(34, 60, 80, 0.15);
 }
+
 /*
 Нужно для того, чтобы блок p вставляемый функцией marked, не имел отступа снизу.
 Вроде бы больше p я особо не использую нигде.
  */
 p {
     margin-bottom: 0;
+}
+
+/* Новости */
+
+.news_card img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }

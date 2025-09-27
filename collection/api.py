@@ -21,7 +21,7 @@ from collection.serializers import CollectionSearchParamsSerializer
 @api_view(['GET'])
 def collection_search(request: Request) -> Response:
     """
-    Поиск регионов по подстроке.
+    Поиск коллекций по подстроке.
 
     Принимает GET-параметр `query`:
       - если параметр отсутствует → возвращает 400 с сообщением об ошибке,
@@ -46,10 +46,10 @@ def collection_search(request: Request) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    regions = Collection.objects.filter(title__icontains=query).order_by('title')
+    collections = Collection.objects.filter(title__icontains=query).order_by('title')
 
     collection_list: list[dict[str, Any]] = [
-        {'id': collection.id, 'title': collection.title} for collection in regions
+        {'id': collection.id, 'title': collection.title} for collection in collections
     ]
 
     return Response(collection_list, status=status.HTTP_200_OK)

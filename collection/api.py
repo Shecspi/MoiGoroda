@@ -19,7 +19,7 @@ from collection.serializers import CollectionSearchParamsSerializer
 
 
 @api_view(['GET'])
-def search_region(request: Request) -> Response:
+def collection_search(request: Request) -> Response:
     """
     Поиск регионов по подстроке.
 

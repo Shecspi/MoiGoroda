@@ -23,6 +23,10 @@
 
     <!-- Фильтры -->
     <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-small-buttons">
+        <div class="flex-grow-1">
+            <input id="city-search" type="text" class="form-control w-100" placeholder="Поиск города...">
+        </div>
+
         <div class="flex-grow-1" style="min-width: 250px;">
             <select class="form-select w-100" id="id_country"></select>
         </div>
@@ -342,4 +346,5 @@
 </div>
 {% endwith %}
 
+{% vite_asset 'js/entries/city_search.js' %}
 {% vite_asset 'js/entries/filter_city.js' %}

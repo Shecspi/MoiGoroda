@@ -9,29 +9,33 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import Any
+
+import rest_framework.exceptions as drf_exc
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
-import rest_framework.exceptions as drf_exc
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from account.models import ShareSettings
 from city.models import City, VisitedCity
 from city.serializers import (
-    VisitedCitySerializer,
-    NotVisitedCitySerializer,
     AddVisitedCitySerializer,
+    CitySearchParamsSerializer,
     CitySerializer,
+    NotVisitedCitySerializer,
+    VisitedCitySerializer,
 )
-from city.services.filter import apply_filter_to_queryset
-from services import logger
 from city.services.db import (
-    get_unique_visited_cities,
-    get_number_of_visits_by_city,
     get_first_visit_date_by_city,
     get_last_visit_date_by_city,
     get_not_visited_cities,
+    get_number_of_visits_by_city,
+    get_unique_visited_cities,
 )
+from city.services.filter import apply_filter_to_queryset
+from services import logger
 from subscribe.repository import is_subscribed
 
 
@@ -248,3 +252,38 @@ def city_list_by_country(request):
     serializer = CitySerializer(cities, many=True)
 
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def city_search(request: Request) -> Response:
+    """
+    Поиск городов по подстроке.
+
+    Принимает GET-параметр `query`:
+      - если параметр отсутствует → возвращает 400 с сообщением об ошибке,
+      - если параметр указан → ищет объекты `City`, у которых поле
+        `title` содержит подстроку (без учёта регистра).
+
+    Возвращает список словарей с полями:
+      - `id`: int — идентификатор города,
+      - `title`: str — название города.
+
+    :param request: DRF Request с GET-параметрами
+    :return: Response со списком коллекций или ошибкой 400
+    """
+    serializer = CitySearchParamsSerializer(data=request.GET)
+    serializer.is_valid(raise_exception=True)
+
+    query = serializer.validated_data.get('query')
+
+    if not query:
+        return Response(
+            {'detail': 'Параметр query является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    cities = City.objects.filter(title__icontains=query).order_by('title')
+
+    cities_list: list[dict[str, Any]] = [{'id': city.id, 'title': city.title} for city in cities]
+
+    return Response(cities_list, status=status.HTTP_200_OK)

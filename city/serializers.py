@@ -108,3 +108,7 @@ class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
         fields = ['id', 'title']
+
+
+class CitySearchParamsSerializer(serializers.Serializer):
+    query = serializers.CharField(required=True)

@@ -112,3 +112,4 @@ class CitySerializer(serializers.ModelSerializer):
 
 class CitySearchParamsSerializer(serializers.Serializer):
     query = serializers.CharField(required=True)
+    country = serializers.CharField(required=False)

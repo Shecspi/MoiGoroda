@@ -35,11 +35,10 @@ def search_region(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-
     regions = Region.objects.filter(title__icontains=query).order_by('title')
     if country:
         regions = regions.filter(country__code=country)
 
-    regions_list = [{"id": region.id, "title": region.full_name} for region in regions]
-    
+    regions_list = [{'id': region.id, 'title': region.full_name} for region in regions]
+
     return Response(regions_list, status=status.HTTP_200_OK)

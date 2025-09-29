@@ -275,6 +275,7 @@ def city_search(request: Request) -> Response:
     serializer.is_valid(raise_exception=True)
 
     query = serializer.validated_data.get('query')
+    country = serializer.validated_data.get('country')
 
     if not query:
         return Response(
@@ -283,6 +284,8 @@ def city_search(request: Request) -> Response:
         )
 
     cities = City.objects.filter(title__icontains=query).order_by('title')
+    if country:
+        cities = cities.filter(region__country__code=country)
 
     cities_list: list[dict[str, Any]] = [{'id': city.id, 'title': city.title} for city in cities]
 

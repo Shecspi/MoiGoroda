@@ -13,7 +13,14 @@ window.onload = async () => {
 
                 if (!query) return [];
 
+                const params = new URLSearchParams(window.location.search);
+                const country = params.get("country");
+
                 let url = `/api/city/search?query=${encodeURIComponent(query)}`;
+
+                if (country) {
+                    url += `&country=${encodeURIComponent(country)}`;
+                }
 
                 const response = await fetch(url);
                 const data = await response.json();

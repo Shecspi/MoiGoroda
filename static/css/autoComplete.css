@@ -1,5 +1,6 @@
 .autoComplete_wrapper {
     position: relative;
+    min-width: 300px;
 }
 
 .autoComplete_wrapper>input::placeholder {

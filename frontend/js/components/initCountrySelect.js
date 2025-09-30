@@ -20,7 +20,7 @@ export async function initCountrySelect({
         placeholderValue: 'Загрузка...',
         noResultsText: 'Ничего не найдено',
         noChoicesText: 'Нет доступных вариантов',
-        itemSelectText: 'Нажмите для выбора',
+        itemSelectText: '',
         loadingText: 'Загрузка...',
     });
     choices.disable();

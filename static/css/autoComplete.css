@@ -3,12 +3,12 @@
     min-width: 300px;
 }
 
-.autoComplete_wrapper>input::placeholder {
-    color: rgba(123, 123, 123, .5);
-    transition: all .3s ease;
+.autoComplete_wrapper > input::placeholder {
+    color: rgba(123, 123, 123, 0.5);
+    transition: all 0.3s ease;
 }
 
-.autoComplete_wrapper>ul {
+.autoComplete_wrapper > ul {
     position: absolute;
     max-height: 226px;
     overflow-y: auto;
@@ -17,7 +17,7 @@
     left: 0;
     right: 0;
     padding: 0;
-    margin: .5rem 0 0 0;
+    margin: 0.5rem 0 0 0;
     border-radius: 0 0 8px 8px;
     background-color: #fafafa;
     border: 1px solid rgba(0, 0, 0, 0.25);
@@ -31,40 +31,40 @@
 }
 
 /* Стилизация скроллбара для выпадающего списка */
-.autoComplete_wrapper>ul {
+.autoComplete_wrapper > ul {
     /* Firefox */
     scrollbar-width: thin;
     scrollbar-color: rgba(0, 0, 0, 0.35) transparent;
 }
 
 /* WebKit-браузеры (Chrome, Edge, Safari) */
-.autoComplete_wrapper>ul::-webkit-scrollbar {
+.autoComplete_wrapper > ul::-webkit-scrollbar {
     width: 10px;
 }
 
-.autoComplete_wrapper>ul::-webkit-scrollbar-track {
+.autoComplete_wrapper > ul::-webkit-scrollbar-track {
     background: transparent;
     border-bottom-right-radius: 8px;
 }
 
-.autoComplete_wrapper>ul::-webkit-scrollbar-thumb {
+.autoComplete_wrapper > ul::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.35);
     border-radius: 8px;
     border: 2px solid rgba(250, 250, 250, 0.9);
 }
 
-.autoComplete_wrapper>ul::-webkit-scrollbar-thumb:hover {
+.autoComplete_wrapper > ul::-webkit-scrollbar-thumb:hover {
     background-color: rgba(0, 0, 0, 0.45);
 }
 
-.autoComplete_wrapper>ul>li {
+.autoComplete_wrapper > ul > li {
     padding: 10px 20px;
     list-style: none;
     text-align: left;
     font-size: 16px;
     color: #212121;
     /* Плавные изменения цвета/фона при наведении/выборе */
-    transition: background-color .2s ease, color .2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
     border-radius: 3px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
     white-space: nowrap;
@@ -72,38 +72,37 @@
     text-overflow: ellipsis;
 }
 
-
-.autoComplete_wrapper>ul li:last-child {
+.autoComplete_wrapper > ul li:last-child {
     border-bottom: none;
 }
 
-.autoComplete_wrapper>ul>li::selection {
+.autoComplete_wrapper > ul > li::selection {
     color: inherit;
     background-color: transparent;
 }
 
-.autoComplete_wrapper>ul>li:hover {
+.autoComplete_wrapper > ul > li:hover {
     cursor: pointer;
-    background-color: rgba(123, 123, 123, .1)
+    background-color: rgba(123, 123, 123, 0.1);
 }
 
-.autoComplete_wrapper>ul>li mark {
+.autoComplete_wrapper > ul > li mark {
     background-color: transparent;
     color: #0d6efd;
-    font-weight: 700
+    font-weight: 700;
 }
 
-.autoComplete_wrapper>ul>li mark::selection {
+.autoComplete_wrapper > ul > li mark::selection {
     color: inherit;
     background-color: transparent;
 }
 
-.autoComplete_wrapper>ul>li[aria-selected=true] {
-    background-color: rgba(123, 123, 123, .1)
+.autoComplete_wrapper > ul > li[aria-selected="true"] {
+    background-color: rgba(123, 123, 123, 0.1);
 }
 
 @media only screen and (max-width: 600px) {
-    .autoComplete_wrapper>input {
+    .autoComplete_wrapper > input {
         width: 100%;
     }
 }

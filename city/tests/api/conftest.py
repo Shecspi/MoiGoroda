@@ -10,21 +10,25 @@ Licensed under the Apache License, Version 2.0
 """
 
 from datetime import date
+from typing import Any
 from unittest.mock import MagicMock
 import pytest
+from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
 from city.models import City, VisitedCity
 
 
 @pytest.fixture
-def api_client():
+def api_client() -> APIClient:
     """Фикстура для создания API клиента."""
     return APIClient()
 
 
 @pytest.fixture
-def authenticated_user(api_client, django_user_model):
+def authenticated_user(
+    api_client: APIClient, django_user_model: Any
+) -> User:  # django_user_model - специальная фикстура pytest-django
     """Фикстура для создания авторизованного пользователя."""
     user = django_user_model.objects.create_user(username='testuser', password='pass')
     api_client.force_authenticate(user=user)
@@ -32,7 +36,9 @@ def authenticated_user(api_client, django_user_model):
 
 
 @pytest.fixture
-def superuser(api_client, django_user_model):
+def superuser(
+    api_client: APIClient, django_user_model: Any
+) -> User:  # django_user_model - специальная фикстура pytest-django
     """Фикстура для создания суперпользователя."""
     superuser = django_user_model.objects.create_superuser(username='admin', password='admin')
     api_client.force_authenticate(user=superuser)
@@ -40,19 +46,19 @@ def superuser(api_client, django_user_model):
 
 
 @pytest.fixture
-def mock_country():
+def mock_country() -> MagicMock:
     """Фикстура для создания мока страны."""
     return MagicMock(id=1, name='Russia', code='RU')
 
 
 @pytest.fixture
-def mock_region():
+def mock_region() -> MagicMock:
     """Фикстура для создания мока региона."""
     return MagicMock(id=1, title='Moscow Region', country_id=1)
 
 
 @pytest.fixture
-def mock_city(mock_country, mock_region):
+def mock_city(mock_country: MagicMock, mock_region: MagicMock) -> MagicMock:
     """Фикстура для создания мока города."""
     city = MagicMock(spec=City)
     city.id = 1
@@ -65,7 +71,7 @@ def mock_city(mock_country, mock_region):
 
 
 @pytest.fixture
-def mock_visited_city(mock_city):
+def mock_visited_city(mock_city: MagicMock) -> MagicMock:
     """Фикстура для создания мока посещенного города."""
     visited_city = MagicMock(spec=VisitedCity)
     visited_city.city = mock_city

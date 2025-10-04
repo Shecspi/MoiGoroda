@@ -10,8 +10,10 @@ Licensed under the Apache License, Version 2.0
 """
 
 # Any больше не используется в city_search, убираем импорт
+from typing import Any
 
 import rest_framework.exceptions as drf_exc
+from django.db.models import QuerySet
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
@@ -27,7 +29,6 @@ from city.serializers import (
     NotVisitedCitySerializer,
     VisitedCitySerializer,
 )
-from city.services.search import CitySearchService
 from city.services.db import (
     get_first_visit_date_by_city,
     get_last_visit_date_by_city,
@@ -36,6 +37,7 @@ from city.services.db import (
     get_unique_visited_cities,
 )
 from city.services.filter import apply_filter_to_queryset
+from city.services.search import CitySearchService
 from services import logger
 from subscribe.repository import is_subscribed
 
@@ -45,7 +47,7 @@ class GetVisitedCities(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
 
-    def get(self, *args, **kwargs):
+    def get(self, *args: Any, **kwargs: Any) -> Response:
         logger.info(
             self.request,
             f'(API) Successful request for a list of visited cities (user #{self.request.user.id})',
@@ -53,7 +55,7 @@ class GetVisitedCities(generics.ListAPIView):
 
         return super().get(*args, **kwargs)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[VisitedCity]:
         user_id = self.request.user.pk
         country_id = self.request.GET.get('country')
         filter = self.request.GET.get('filter')
@@ -109,7 +111,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
             )
             return False
 
-    def get(self, *args, **kwargs):
+    def get(self, *args: Any, **kwargs: Any) -> Response:
         user_ids = self.request.GET.getlist('user_ids')
 
         try:
@@ -145,7 +147,7 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):
 
         return super().get(*args, **kwargs)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[City]:
         if not self.user_ids:
             return []
         country_id = self.request.GET.get('country')
@@ -164,16 +166,15 @@ class GetNotVisitedCities(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
 
-    def get(self, *args, **kwargs):
+    def get(self, *args: Any, **kwargs: Any) -> Response:
         logger.info(
             self.request,
             f'(API) Successful request for a list of not visited cities (user #{self.request.user.id})',
         )
         return super().get(*args, **kwargs)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[City]:
         country_code = self.request.GET.get('country')
-        print(country_code)
         return get_not_visited_cities(self.request.user.pk, country_code)
 
 
@@ -181,7 +182,7 @@ class AddVisitedCity(generics.CreateAPIView):
     serializer_class = AddVisitedCitySerializer
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         from_page = request.data.get('from') if request.data.get('from') else 'unknown location'
 
         serializer = AddVisitedCitySerializer(data=request.data, context={'request': self.request})
@@ -226,7 +227,7 @@ class AddVisitedCity(generics.CreateAPIView):
 
 
 @api_view(['GET'])
-def city_list_by_region(request):
+def city_list_by_region(request: Request) -> Response:
     region_id = request.GET.get('region_id')
     if not region_id:
         return Response(
@@ -241,7 +242,7 @@ def city_list_by_region(request):
 
 
 @api_view(['GET'])
-def city_list_by_country(request):
+def city_list_by_country(request: Request) -> Response:
     country_id = request.GET.get('country_id')
     if not country_id:
         return Response(

@@ -168,3 +168,5 @@ poetry.lock
 .vscode/
 */node_modules/
 /static/js/
+/media/
+.vscode/

@@ -102,13 +102,13 @@ class TestCitySearchParamsSerializer:
         assert serializer.validated_data['country'] == 'RU'
 
     def test_long_query_string(self) -> None:
-        """Тест с длинной строкой query."""
-        long_query = 'A' * 1000  # Длинная строка
+        """Тест с длинной строкой query (должна быть отклонена)."""
+        long_query = 'A' * 1000  # Длинная строка превышает max_length=100
         data = {'query': long_query}
         serializer = CitySearchParamsSerializer(data=data)
 
-        assert serializer.is_valid() is True
-        assert serializer.validated_data['query'] == long_query
+        assert serializer.is_valid() is False
+        assert 'query' in serializer.errors
 
     def test_special_characters_in_query(self) -> None:
         """Тест с специальными символами в query."""
@@ -120,29 +120,29 @@ class TestCitySearchParamsSerializer:
 
     def test_special_characters_in_country(self) -> None:
         """Тест с специальными символами в country."""
-        data = {'query': 'Moscow', 'country': 'R-U_123'}
+        data = {'query': 'Moscow', 'country': 'RU'}
         serializer = CitySearchParamsSerializer(data=data)
 
         assert serializer.is_valid() is True
-        assert serializer.validated_data['country'] == 'R-U_123'
+        assert serializer.validated_data['country'] == 'RU'
 
     def test_unicode_characters(self) -> None:
         """Тест с Unicode символами."""
-        data = {'query': 'Москва', 'country': 'Россия'}
+        data = {'query': 'Москва', 'country': 'RU'}
         serializer = CitySearchParamsSerializer(data=data)
 
         assert serializer.is_valid() is True
         assert serializer.validated_data['query'] == 'Москва'
-        assert serializer.validated_data['country'] == 'Россия'
+        assert serializer.validated_data['country'] == 'RU'
 
     def test_numeric_strings(self) -> None:
         """Тест с числовыми строками."""
-        data = {'query': '12345', 'country': '67890'}
+        data = {'query': '12345', 'country': '12'}
         serializer = CitySearchParamsSerializer(data=data)
 
         assert serializer.is_valid() is True
         assert serializer.validated_data['query'] == '12345'
-        assert serializer.validated_data['country'] == '67890'
+        assert serializer.validated_data['country'] == '12'
 
     def test_serializer_fields_definition(self) -> None:
         """Тест определения полей сериализатора."""
@@ -289,7 +289,9 @@ class TestCitySearchParamsSerializer:
         test_cases = [
             # (query, country, should_be_valid, description)
             ('a', 'b', True, 'Минимальные значения'),
-            ('x' * 10000, 'y' * 100, True, 'Максимальные значения'),
+            ('x' * 100, 'y' * 2, True, 'Максимальные допустимые значения'),
+            ('x' * 101, 'y' * 2, False, 'Query превышает max_length'),
+            ('test', 'y' * 3, False, 'Country превышает max_length'),
             ('test', None, True, 'country = None'),
             ('', 'RU', False, 'Пустой query'),
             (None, 'RU', False, 'query = None'),

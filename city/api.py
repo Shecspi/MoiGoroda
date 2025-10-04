@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import Any
+# Any больше не используется в city_search, убираем импорт
 
 import rest_framework.exceptions as drf_exc
 from rest_framework import generics, status
@@ -27,6 +27,7 @@ from city.serializers import (
     NotVisitedCitySerializer,
     VisitedCitySerializer,
 )
+from city.services.search import CitySearchService
 from city.services.db import (
     get_first_visit_date_by_city,
     get_last_visit_date_by_city,
@@ -259,34 +260,27 @@ def city_search(request: Request) -> Response:
     """
     Поиск городов по подстроке.
 
-    Принимает GET-параметр `query`:
-      - если параметр отсутствует → возвращает 400 с сообщением об ошибке,
-      - если параметр указан → ищет объекты `City`, у которых поле
-        `title` содержит подстроку (без учёта регистра).
+    Принимает GET-параметры:
+      - query (обязательный): подстрока для поиска в названии города
+      - country (необязательный): код страны для дополнительной фильтрации
 
-    Возвращает список словарей с полями:
-      - `id`: int — идентификатор города,
-      - `title`: str — название города.
+    Возвращает список городов с полями id и title.
 
     :param request: DRF Request с GET-параметрами
-    :return: Response со списком коллекций или ошибкой 400
+    :return: Response со списком городов или ошибкой валидации
     """
+    # Валидация входных данных
     serializer = CitySearchParamsSerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)
 
-    query = serializer.validated_data.get('query')
-    country = serializer.validated_data.get('country')
+    validated_data = serializer.validated_data
+    query = validated_data['query']
+    country = validated_data.get('country')
 
-    if not query:
-        return Response(
-            {'detail': 'Параметр query является обязательным'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    # Поиск городов через сервис
+    cities_queryset = CitySearchService.search_cities(query=query, country=country)
 
-    cities = City.objects.filter(title__icontains=query).order_by('title')
-    if country:
-        cities = cities.filter(region__country__code=country)
+    # Использование сериализатора для формирования ответа
+    city_serializer = CitySerializer(cities_queryset, many=True)
 
-    cities_list: list[dict[str, Any]] = [{'id': city.id, 'title': city.title} for city in cities]
-
-    return Response(cities_list, status=status.HTTP_200_OK)
+    return Response(city_serializer.data, status=status.HTTP_200_OK)

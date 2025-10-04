@@ -51,21 +51,19 @@ class TestCitySearch:
         # Пустая строка может проходить валидацию сериализатора, но логика API возвращает ошибку
         assert 'detail' in response_data or 'query' in response_data
 
-    @patch('city.api.City.objects.filter')
+    @patch('city.services.search.CitySearchService.search_cities')
     def test_search_cities_success(
-        self, mock_filter: MagicMock, api_client: APIClient, mock_city: MagicMock
+        self, mock_search: MagicMock, api_client: APIClient, mock_city: MagicMock
     ) -> None:
         """Тест успешного поиска городов по подстроке с проверкой структуры ответа."""
         mock_queryset = MagicMock()
-        mock_queryset.order_by.return_value = [mock_city]
-        mock_queryset.filter.return_value = mock_queryset
-        mock_filter.return_value = mock_queryset
+        mock_queryset.__iter__ = MagicMock(return_value=iter([mock_city]))
+        mock_search.return_value = mock_queryset
 
         response = api_client.get(f'{self.url}?query=Moscow')
 
         assert response.status_code == status.HTTP_200_OK
-        mock_filter.assert_called_once_with(title__icontains='Moscow')
-        mock_queryset.order_by.assert_called_once_with('title')
+        mock_search.assert_called_once_with(query='Moscow', country=None)
 
         response_data = response.json()
         assert isinstance(response_data, list)
@@ -73,30 +71,28 @@ class TestCitySearch:
         assert response_data[0]['id'] == mock_city.id
         assert response_data[0]['title'] == mock_city.title
 
-    @patch('city.api.City.objects.filter')
+    @patch('city.services.search.CitySearchService.search_cities')
     def test_search_cities_with_country_filter(
-        self, mock_filter: MagicMock, api_client: APIClient, mock_city: MagicMock
+        self, mock_search: MagicMock, api_client: APIClient, mock_city: MagicMock
     ) -> None:
         """Тест поиска городов с дополнительной фильтрацией по стране."""
         mock_queryset = MagicMock()
-        mock_queryset.order_by.return_value = mock_queryset
-        mock_queryset.filter.return_value = [mock_city]
-        mock_filter.return_value = mock_queryset
+        mock_queryset.__iter__ = MagicMock(return_value=iter([mock_city]))
+        mock_search.return_value = mock_queryset
 
         response = api_client.get(f'{self.url}?query=Moscow&country=RU')
 
         assert response.status_code == status.HTTP_200_OK
-        mock_filter.assert_called_once_with(title__icontains='Moscow')
-        mock_queryset.filter.assert_called_once_with(region__country__code='RU')
+        mock_search.assert_called_once_with(query='Moscow', country='RU')
 
-    @patch('city.api.City.objects.filter')
+    @patch('city.services.search.CitySearchService.search_cities')
     def test_search_cities_empty_result(
-        self, mock_filter: MagicMock, api_client: APIClient
+        self, mock_search: MagicMock, api_client: APIClient
     ) -> None:
         """Тест обработки пустого результата поиска."""
         mock_queryset = MagicMock()
-        mock_queryset.order_by.return_value = []
-        mock_filter.return_value = mock_queryset
+        mock_queryset.__iter__ = MagicMock(return_value=iter([]))
+        mock_search.return_value = mock_queryset
 
         response = api_client.get(f'{self.url}?query=NonexistentCity')
 

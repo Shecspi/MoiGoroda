@@ -113,5 +113,12 @@ class CitySerializer(serializers.ModelSerializer[City]):
 
 
 class CitySearchParamsSerializer(serializers.Serializer[dict[str, Any]]):
-    query = serializers.CharField(required=True)
-    country = serializers.CharField(required=False)
+    query = serializers.CharField(
+        required=True,
+        min_length=1,
+        max_length=100,
+        help_text='Подстрока для поиска в названии города',
+    )
+    country = serializers.CharField(
+        required=False, max_length=2, help_text='Код страны для дополнительной фильтрации'
+    )

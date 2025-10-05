@@ -23,7 +23,7 @@ def test__apply_sort_to_queryset_calls_correct_function(mocker: Any, sort_name: 
     result = apply_sort_to_queryset(mock_queryset, sort_name)
 
     mock_func.assert_called_once_with(mock_queryset)
-    assert result == 'sorted_queryset'
+    assert result == 'sorted_queryset'  # type: ignore
 
 
 def test__apply_sort_to_queryset_raises_for_unknown_sort(mocker: Any) -> None:

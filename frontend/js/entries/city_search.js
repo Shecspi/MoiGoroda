@@ -18,7 +18,12 @@ export async function searchCities(query, country = null) {
         const data = await response.json();
         return data
             .filter(item => item && item.title && item.id)
-            .map(item => ({ value: item.title, id: item.id }));
+            .map(item => ({ 
+                value: item.title, 
+                id: item.id,
+                region: item.region,
+                country: item.country
+            }));
     } catch (error) {
         console.error('Ошибка при поиске городов:', error);
         return [];
@@ -43,15 +48,39 @@ export function createResultsListElement(data) {
 
 export function createResultItemElement(data) {
     const item = document.createElement("div");
-    item.style = "display: flex; justify-content: space-between;";
-    item.innerHTML = `<span style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">${data.match}</span>`;
+    item.style.cssText = "display: flex !important; flex-direction: column !important; width: 100%;";
+    
+    // Основная строка с названием города (сохраняем подсветку)
+    const cityName = document.createElement("span");
+    cityName.style.cssText = "display: block; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-weight: 500; width: 100%;";
+    cityName.innerHTML = data.match; // Используем innerHTML для сохранения <mark> тегов
+    
+    // Вторая строка с регионом и страной
+    const locationInfo = document.createElement("span");
+    locationInfo.style.cssText = "display: block; font-size: 0.85em; color: #6c757d; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; width: 100%; margin-top: 2px;";
+    
+    const locationParts = [];
+    if (data.value.region) {
+        locationParts.push(data.value.region);
+    }
+    if (data.value.country) {
+        locationParts.push(data.value.country);
+    }
+    
+    locationInfo.textContent = locationParts.join(', ');
+    
+    item.appendChild(cityName);
+    if (locationParts.length > 0) {
+        item.appendChild(locationInfo);
+    }
+    
     return item;
 }
 
 export function handleCitySelection(selection, inputEl) {
-    const value = selection.value;
+    const value = selection.value.value; // Получаем название города из объекта
     inputEl.value = value;
-    window.location.href = `/city/${selection.id}`;
+    window.location.href = `/city/${selection.value.id}`;
 }
 
 export function createAutoCompleteConfig(inputEl) {
@@ -89,7 +118,7 @@ export function createAutoCompleteConfig(inputEl) {
         events: {
             input: {
                 selection: event => {
-                    const selection = event.detail.selection.value;
+                    const selection = event.detail.selection;
                     handleCitySelection(selection, inputEl);
                 }
             }

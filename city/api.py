@@ -236,7 +236,7 @@ def city_list_by_region(request: Request) -> Response:
         )
 
     cities = City.objects.filter(region_id=region_id).order_by('title')
-    serializer = CitySerializer(cities, many=True)
+    serializer = CitySerializer(cities, many=True, context={'request': request})
 
     return Response(serializer.data)
 
@@ -251,7 +251,7 @@ def city_list_by_country(request: Request) -> Response:
         )
 
     cities = City.objects.filter(country_id=country_id).order_by('title')
-    serializer = CitySerializer(cities, many=True)
+    serializer = CitySerializer(cities, many=True, context={'request': request})
 
     return Response(serializer.data)
 
@@ -264,8 +264,10 @@ def city_search(request: Request) -> Response:
     Принимает GET-параметры:
       - query (обязательный): подстрока для поиска в названии города
       - country (необязательный): код страны для дополнительной фильтрации
+      - limit (необязательный): максимальное количество результатов (по умолчанию 50, максимум 200)
 
-    Возвращает список городов с полями id и title.
+    Возвращает список городов с полями id, title, region и country.
+    Результаты отсортированы по приоритету (города, начинающиеся с запроса, идут первыми).
 
     :param request: DRF Request с GET-параметрами
     :return: Response со списком городов или ошибкой валидации
@@ -277,11 +279,12 @@ def city_search(request: Request) -> Response:
     validated_data = serializer.validated_data
     query = validated_data['query']
     country = validated_data.get('country')
+    limit = validated_data.get('limit', 50)
 
     # Поиск городов через сервис
-    cities_queryset = CitySearchService.search_cities(query=query, country=country)
+    cities_queryset = CitySearchService.search_cities(query=query, country=country, limit=limit)
 
     # Использование сериализатора для формирования ответа
-    city_serializer = CitySerializer(cities_queryset, many=True)
+    city_serializer = CitySerializer(cities_queryset, many=True, context={'request': request})
 
     return Response(city_serializer.data, status=status.HTTP_200_OK)

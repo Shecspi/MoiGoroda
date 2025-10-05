@@ -42,6 +42,42 @@ class TestCitySearchParamsSerializer:
         assert serializer.is_valid() is True
         assert serializer.validated_data['query'] == 'Moscow'
         assert serializer.validated_data['country'] == 'RU'
+        assert serializer.validated_data['limit'] == 50  # Дефолтное значение
+
+    def test_valid_data_with_limit(self) -> None:
+        """Тест валидации с пользовательским лимитом."""
+        data = {'query': 'Moscow', 'limit': 20}
+        serializer = CitySearchParamsSerializer(data=data)
+
+        assert serializer.is_valid() is True
+        assert serializer.validated_data['query'] == 'Moscow'
+        assert serializer.validated_data['limit'] == 20
+
+    def test_valid_data_with_all_parameters(self) -> None:
+        """Тест валидации со всеми параметрами."""
+        data = {'query': 'Moscow', 'country': 'RU', 'limit': 30}
+        serializer = CitySearchParamsSerializer(data=data)
+
+        assert serializer.is_valid() is True
+        assert serializer.validated_data['query'] == 'Moscow'
+        assert serializer.validated_data['country'] == 'RU'
+        assert serializer.validated_data['limit'] == 30
+
+    def test_invalid_limit_too_small(self) -> None:
+        """Тест валидации с лимитом меньше минимального."""
+        data = {'query': 'Moscow', 'limit': 0}
+        serializer = CitySearchParamsSerializer(data=data)
+
+        assert serializer.is_valid() is False
+        assert 'limit' in serializer.errors
+
+    def test_invalid_limit_too_large(self) -> None:
+        """Тест валидации с лимитом больше максимального."""
+        data = {'query': 'Moscow', 'limit': 300}
+        serializer = CitySearchParamsSerializer(data=data)
+
+        assert serializer.is_valid() is False
+        assert 'limit' in serializer.errors
 
     def test_empty_query_validation_error(self) -> None:
         """Тест ошибки валидации при пустой строке query."""

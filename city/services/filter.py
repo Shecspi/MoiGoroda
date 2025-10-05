@@ -47,14 +47,14 @@ def filter_has_no_magnet(queryset: QuerySet[VisitedCity], user_id: int) -> Query
     (которое является обобщённым для всех одинаковых посещённых городов),
     поэтому именно по нему происходит фильтрация.
     """
-    return queryset.filter(has_magnet=False)
+    return queryset.filter(has_souvenir=False)
 
 
-def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int):
+def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet[VisitedCity]:
     return filter_by_year(queryset, user_id, date.today().year)
 
 
-def filter_last_year(queryset: QuerySet[VisitedCity], user_id: int):
+def filter_last_year(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet[VisitedCity]:
     return filter_by_year(queryset, user_id, date.today().year - 1)
 
 
@@ -134,7 +134,7 @@ def filter_by_year(
     )
 
 
-FILTER_FUNCTIONS: dict[str, Callable[[QuerySet[VisitedCity]], QuerySet[VisitedCity]]] = {
+FILTER_FUNCTIONS: dict[str, Callable[[QuerySet[VisitedCity], int], QuerySet[VisitedCity]]] = {
     'magnet': filter_has_magnet,
     'no_magnet': filter_has_no_magnet,
     'current_year': filter_current_year,

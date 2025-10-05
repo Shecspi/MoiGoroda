@@ -51,6 +51,13 @@ check_untyped_defs = true
 warn_unused_ignores = true
 no_implicit_optional = true
 disallow_untyped_defs = true
+strict = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+strict_concatenate = true
 
 [tool.django-stubs]
 django_settings_module = "MoiGoroda.settings"

@@ -9,12 +9,14 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import Any
+
 from rest_framework import serializers
 
-from city.models import VisitedCity, City
+from city.models import City, VisitedCity
 
 
-class VisitedCitySerializer(serializers.ModelSerializer):
+class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
     id = serializers.IntegerField(source='city.id', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
     title = serializers.CharField(source='city.title', read_only=True)
@@ -29,14 +31,14 @@ class VisitedCitySerializer(serializers.ModelSerializer):
     average_rating = serializers.FloatField(read_only=True)
     visit_years = serializers.SerializerMethodField()
 
-    def get_year(self, obj) -> int | None:
+    def get_year(self, obj: VisitedCity) -> int | None:
         if obj.date_of_visit:
             return obj.date_of_visit.year
         return None
 
-    def get_visit_years(self, obj) -> list[int] | None:
-        if obj.visit_dates:
-            return list(set(visit_date.year for visit_date in obj.visit_dates))
+    def get_visit_years(self, obj: VisitedCity) -> list[int] | None:
+        if obj.date_of_visit:
+            return [obj.date_of_visit.year]
         return None
 
     class Meta:
@@ -58,7 +60,7 @@ class VisitedCitySerializer(serializers.ModelSerializer):
         )
 
 
-class NotVisitedCitySerializer(serializers.ModelSerializer):
+class NotVisitedCitySerializer(serializers.ModelSerializer[City]):
     lat = serializers.CharField(source='coordinate_width', read_only=True)
     lon = serializers.CharField(source='coordinate_longitude', read_only=True)
     region = serializers.StringRelatedField()
@@ -69,7 +71,7 @@ class NotVisitedCitySerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'region', 'country', 'lat', 'lon')
 
 
-class AddVisitedCitySerializer(serializers.ModelSerializer):
+class AddVisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
     city_title = serializers.CharField(source='city.title', read_only=True)
     region_title = serializers.CharField(source='city.region', read_only=True)
     country = serializers.CharField(source='city.country.name', read_only=True)
@@ -92,7 +94,7 @@ class AddVisitedCitySerializer(serializers.ModelSerializer):
             'lon',
         )
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict[str, Any]) -> VisitedCity:
         user = self.context['request'].user
         city = validated_data['city']
 
@@ -104,7 +106,19 @@ class AddVisitedCitySerializer(serializers.ModelSerializer):
         return VisitedCity.objects.create(**validated_data)
 
 
-class CitySerializer(serializers.ModelSerializer):
+class CitySerializer(serializers.ModelSerializer[City]):
     class Meta:
         model = City
         fields = ['id', 'title']
+
+
+class CitySearchParamsSerializer(serializers.Serializer[dict[str, Any]]):
+    query = serializers.CharField(
+        required=True,
+        min_length=1,
+        max_length=100,
+        help_text='Подстрока для поиска в названии города',
+    )
+    country = serializers.CharField(
+        required=False, max_length=2, help_text='Код страны для дополнительной фильтрации'
+    )

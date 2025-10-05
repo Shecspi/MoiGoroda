@@ -11,7 +11,7 @@ from dataclasses import asdict
 from typing import Any, NoReturn, Callable
 
 from django.forms import BaseModelForm
-from django.http import Http404, HttpResponse, HttpRequest
+from django.http import Http404, HttpResponse, HttpRequest, HttpResponseBase
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.db.models import QuerySet
@@ -236,7 +236,7 @@ class VisitedCityDetail(DetailView):
     service: AbstractVisitedCityService = None
     service_factory: Callable[[HttpRequest], AbstractVisitedCityService] = None
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         """
         Переопределён для инициализации сервиса с помощью фабрики до обработки запроса.
         Проверяет наличие фабрики и создаёт сервис.

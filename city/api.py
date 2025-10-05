@@ -236,7 +236,7 @@ def city_list_by_region(request: Request) -> Response:
         )
 
     cities = City.objects.filter(region_id=region_id).order_by('title')
-    serializer = CitySerializer(cities, many=True)
+    serializer = CitySerializer(cities, many=True, context={'request': request})
 
     return Response(serializer.data)
 
@@ -251,7 +251,7 @@ def city_list_by_country(request: Request) -> Response:
         )
 
     cities = City.objects.filter(country_id=country_id).order_by('title')
-    serializer = CitySerializer(cities, many=True)
+    serializer = CitySerializer(cities, many=True, context={'request': request})
 
     return Response(serializer.data)
 
@@ -282,6 +282,6 @@ def city_search(request: Request) -> Response:
     cities_queryset = CitySearchService.search_cities(query=query, country=country)
 
     # Использование сериализатора для формирования ответа
-    city_serializer = CitySerializer(cities_queryset, many=True)
+    city_serializer = CitySerializer(cities_queryset, many=True, context={'request': request})
 
     return Response(city_serializer.data, status=status.HTTP_200_OK)

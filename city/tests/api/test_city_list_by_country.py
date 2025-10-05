@@ -45,6 +45,14 @@ class TestCityListByCountry:
         self, mock_filter: MagicMock, api_client: APIClient, mock_city: MagicMock
     ) -> None:
         """Тест успешного получения городов по стране."""
+        # Настройка мока города с регионом и страной
+        mock_city.id = 1
+        mock_city.title = 'Moscow'
+        mock_city.region = MagicMock()
+        mock_city.region.full_name = 'Московская область'
+        mock_city.country = MagicMock()
+        mock_city.country.name = 'Россия'
+
         mock_queryset = MagicMock()
         mock_queryset.order_by.return_value = [mock_city]
         mock_filter.return_value = mock_queryset
@@ -54,6 +62,16 @@ class TestCityListByCountry:
         assert response.status_code == status.HTTP_200_OK
         mock_filter.assert_called_once_with(country_id='1')
         mock_queryset.order_by.assert_called_once_with('title')
+
+        response_data = response.json()
+        assert isinstance(response_data, list)
+        assert len(response_data) == 1
+        assert response_data[0]['id'] == mock_city.id
+        assert response_data[0]['title'] == mock_city.title
+        assert response_data[0]['region'] == mock_city.region.full_name
+        assert (
+            response_data[0]['country'] is None
+        )  # Страна должна быть скрыта, так как country_id указан в URL
 
     @patch('city.api.City.objects.filter')
     def test_empty_cities_list_by_country(

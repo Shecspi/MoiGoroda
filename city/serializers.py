@@ -63,7 +63,7 @@ class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
 class NotVisitedCitySerializer(serializers.ModelSerializer[City]):
     lat = serializers.CharField(source='coordinate_width', read_only=True)
     lon = serializers.CharField(source='coordinate_longitude', read_only=True)
-    region = serializers.StringRelatedField()
+    region: serializers.StringRelatedField = serializers.StringRelatedField()
     country = serializers.CharField(source='country.name', read_only=True)
 
     class Meta:
@@ -107,9 +107,26 @@ class AddVisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
 
 
 class CitySerializer(serializers.ModelSerializer[City]):
+    region = serializers.SerializerMethodField()
+    country = serializers.SerializerMethodField()
+
+    def get_region(self, obj: City) -> str | None:
+        """Возвращает полное название региона, если он указан."""
+        if obj.region:
+            return obj.region.full_name
+        return None
+
+    def get_country(self, obj: City) -> str | None:
+        """Возвращает название страны, если country или country_id не указан в URL."""
+        # Проверяем, есть ли country или country_id в контексте запроса
+        request = self.context.get('request')
+        if request and (request.GET.get('country') or request.GET.get('country_id')):
+            return None  # Скрываем страну, если country или country_id указан в URL
+        return obj.country.name if obj.country else None
+
     class Meta:
         model = City
-        fields = ['id', 'title']
+        fields = ['id', 'title', 'region', 'country']
 
 
 class CitySearchParamsSerializer(serializers.Serializer[dict[str, Any]]):

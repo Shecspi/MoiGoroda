@@ -33,10 +33,14 @@ class TestCitySerializer:
         # Проверяем, что поля определены корректно
         assert 'id' in serializer.fields
         assert 'title' in serializer.fields
+        assert 'region' in serializer.fields
+        assert 'country' in serializer.fields
 
         # Проверяем типы полей
         assert isinstance(serializer.fields['id'], serializers.IntegerField)
         assert isinstance(serializer.fields['title'], serializers.CharField)
+        assert isinstance(serializer.fields['region'], serializers.SerializerMethodField)
+        assert isinstance(serializer.fields['country'], serializers.SerializerMethodField)
 
         # Проверяем, что поля только для чтения
         assert serializer.fields['id'].read_only is True
@@ -48,7 +52,7 @@ class TestCitySerializer:
 
         # Проверяем Meta настройки
         assert serializer.Meta.model == City
-        assert serializer.Meta.fields == ['id', 'title']
+        assert serializer.Meta.fields == ['id', 'title', 'region', 'country']
 
     def test_serializer_with_valid_data(self) -> None:
         """Тест сериализатора с валидными данными."""
@@ -56,6 +60,10 @@ class TestCitySerializer:
         mock_city = MagicMock(spec=City)
         mock_city.id = 1
         mock_city.title = 'Moscow'
+        mock_city.region = MagicMock()
+        mock_city.region.full_name = 'Московская область'
+        mock_city.country = MagicMock()
+        mock_city.country.name = 'Россия'
 
         # Создаем сериализатор с объектом
         serializer = CitySerializer(mock_city)
@@ -64,6 +72,8 @@ class TestCitySerializer:
         data = serializer.data
         assert data['id'] == 1
         assert data['title'] == 'Moscow'
+        assert data['region'] == 'Московская область'
+        assert data['country'] == 'Россия'
 
     def test_serializer_with_multiple_objects(self) -> None:
         """Тест сериализатора с множественными объектами."""
@@ -73,6 +83,10 @@ class TestCitySerializer:
             mock_city = MagicMock(spec=City)
             mock_city.id = i + 1
             mock_city.title = f'City {i + 1}'
+            mock_city.region = MagicMock()
+            mock_city.region.full_name = f'Region {i + 1}'
+            mock_city.country = MagicMock()
+            mock_city.country.name = f'Country {i + 1}'
             mock_cities.append(mock_city)
 
         # Создаем сериализатор с множественными объектами
@@ -83,10 +97,16 @@ class TestCitySerializer:
         assert len(data) == 3
         assert data[0]['id'] == 1
         assert data[0]['title'] == 'City 1'
+        assert data[0]['region'] == 'Region 1'
+        assert data[0]['country'] == 'Country 1'
         assert data[1]['id'] == 2
         assert data[1]['title'] == 'City 2'
+        assert data[1]['region'] == 'Region 2'
+        assert data[1]['country'] == 'Country 2'
         assert data[2]['id'] == 3
         assert data[2]['title'] == 'City 3'
+        assert data[2]['region'] == 'Region 3'
+        assert data[2]['country'] == 'Country 3'
 
     def test_serializer_with_empty_data(self) -> None:
         """Тест сериализатора с пустыми данными."""
@@ -173,12 +193,18 @@ class TestCitySerializer:
         mock_city = MagicMock(spec=City)
         mock_city.id = 42
         mock_city.title = 'Test City'
+        mock_city.region = MagicMock()
+        mock_city.region.full_name = 'Test Region'
+        mock_city.country = MagicMock()
+        mock_city.country.name = 'Test Country'
 
         serializer = CitySerializer()
         representation = serializer.to_representation(mock_city)
 
         assert representation['id'] == 42
         assert representation['title'] == 'Test City'
+        assert representation['region'] == 'Test Region'
+        assert representation['country'] == 'Test Country'
 
     def test_serializer_to_internal_value(self) -> None:
         """Тест метода to_internal_value."""
@@ -271,12 +297,18 @@ class TestCitySerializer:
         mock_city = MagicMock(spec=City)
         mock_city.id = 1
         mock_city.title = 'Test City'
+        mock_city.region = MagicMock()
+        mock_city.region.full_name = 'Test Region'
+        mock_city.country = MagicMock()
+        mock_city.country.name = 'Test Country'
 
         serializer = CitySerializer(mock_city)
         data = serializer.data
 
         assert data['id'] == 1
         assert data['title'] == 'Test City'
+        assert data['region'] == 'Test Region'
+        assert data['country'] == 'Test Country'
 
     def test_serializer_data_property_with_errors(self) -> None:
         """Тест свойства data при наличии ошибок валидации."""
@@ -372,7 +404,7 @@ class TestCitySerializer:
 
         # Проверяем, что поля в правильном порядке
         field_names = list(serializer.fields.keys())
-        assert field_names == ['id', 'title']
+        assert field_names == ['id', 'title', 'region', 'country']
 
     def test_serializer_with_none_instance(self) -> None:
         """Тест сериализатора с None экземпляром."""

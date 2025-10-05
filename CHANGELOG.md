@@ -10,6 +10,8 @@
 
 - *(collection)* Добавлен поиск по коллекциям ([26d842d](https://github.com/Shecspi/MoiGoroda/commit/26d842d1ea81847f1d6370c44f395f83b8e2e8f1))
 
+- *(city)* Добавлен поиск по городам ([eb1d030](https://github.com/Shecspi/MoiGoroda/commit/eb1d030e50666461c06d5d06ea19f71701a4f381))
+
 
 #### 🐛 Исправление ошибок
 

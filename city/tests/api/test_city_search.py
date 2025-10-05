@@ -71,7 +71,7 @@ class TestCitySearch:
         response = api_client.get(f'{self.url}?query=Moscow')
 
         assert response.status_code == status.HTTP_200_OK
-        mock_search.assert_called_once_with(query='Moscow', country=None)
+        mock_search.assert_called_once_with(query='Moscow', country=None, limit=50)
 
         response_data = response.json()
         assert isinstance(response_data, list)
@@ -101,7 +101,7 @@ class TestCitySearch:
         response = api_client.get(f'{self.url}?query=Moscow&country=RU')
 
         assert response.status_code == status.HTTP_200_OK
-        mock_search.assert_called_once_with(query='Moscow', country='RU')
+        mock_search.assert_called_once_with(query='Moscow', country='RU', limit=50)
 
         response_data = response.json()
         assert isinstance(response_data, list)
@@ -112,6 +112,36 @@ class TestCitySearch:
         assert (
             response_data[0]['country'] is None
         )  # Страна должна быть скрыта, так как country указан в URL
+
+    @patch('city.services.search.CitySearchService.search_cities')
+    def test_search_cities_with_custom_limit(
+        self, mock_search: MagicMock, api_client: APIClient, mock_city: MagicMock
+    ) -> None:
+        """Тест поиска городов с пользовательским лимитом."""
+        # Настройка мока города с регионом и страной
+        mock_city.id = 1
+        mock_city.title = 'Moscow'
+        mock_city.region = MagicMock()
+        mock_city.region.full_name = 'Московская область'
+        mock_city.country = MagicMock()
+        mock_city.country.name = 'Russia'
+
+        mock_queryset = MagicMock()
+        mock_queryset.__iter__ = MagicMock(return_value=iter([mock_city]))
+        mock_search.return_value = mock_queryset
+
+        response = api_client.get(f'{self.url}?query=Moscow&limit=20')
+
+        assert response.status_code == status.HTTP_200_OK
+        mock_search.assert_called_once_with(query='Moscow', country=None, limit=20)
+
+        response_data = response.json()
+        assert isinstance(response_data, list)
+        assert len(response_data) == 1
+        assert response_data[0]['id'] == mock_city.id
+        assert response_data[0]['title'] == mock_city.title
+        assert response_data[0]['region'] == mock_city.region.full_name
+        assert response_data[0]['country'] == mock_city.country.name
 
     @patch('city.services.search.CitySearchService.search_cities')
     def test_search_cities_empty_result(

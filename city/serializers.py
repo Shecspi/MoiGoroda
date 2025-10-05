@@ -139,3 +139,10 @@ class CitySearchParamsSerializer(serializers.Serializer[dict[str, Any]]):
     country = serializers.CharField(
         required=False, max_length=2, help_text='Код страны для дополнительной фильтрации'
     )
+    limit = serializers.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=200,
+        default=50,
+        help_text='Максимальное количество результатов (по умолчанию 50, максимум 200)',
+    )

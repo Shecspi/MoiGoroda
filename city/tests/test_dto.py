@@ -1,35 +1,44 @@
 from types import SimpleNamespace
+from typing import Any, Protocol
 
 import pytest
 
 from city.dto import CityDetailsDTO
 
 
-def make_city(title='Москва', region='Московская область', country='Россия'):
+class MockCity(Protocol):
+    title: str
+    region: str | None
+    country: str
+
+
+def make_city(
+    title: str = 'Москва', region: str | None = 'Московская область', country: str = 'Россия'
+) -> SimpleNamespace:
     # region может быть None для тестов, где это требуется
     return SimpleNamespace(title=title, region=region, country=country)
 
 
 def make_city_details_dto(
-    city=None,
-    average_rating=0.0,
-    popular_months=None,
-    visits=None,
-    collections=None,
-    number_of_visits=0,
-    number_of_visits_all_users=0,
-    number_of_users_who_visit_city=0,
-    number_of_cities_in_country=0,
-    number_of_cities_in_region=0,
-    rank_in_country_by_visits=0,
-    rank_in_country_by_users=0,
-    rank_in_region_by_visits=0,
-    rank_in_region_by_users=0,
-    neighboring_cities_by_rank_in_country_by_visits=None,
-    neighboring_cities_by_rank_in_country_by_users=None,
-    neighboring_cities_by_rank_in_region_by_visits=None,
-    neighboring_cities_by_rank_in_region_by_users=None,
-):
+    city: Any | None = None,
+    average_rating: float = 0.0,
+    popular_months: list[str] | None = None,
+    visits: list[dict[str, Any]] | None = None,
+    collections: list[Any] | None = None,
+    number_of_visits: int = 0,
+    number_of_visits_all_users: int = 0,
+    number_of_users_who_visit_city: int = 0,
+    number_of_cities_in_country: int = 0,
+    number_of_cities_in_region: int = 0,
+    rank_in_country_by_visits: int = 0,
+    rank_in_country_by_users: int = 0,
+    rank_in_region_by_visits: int = 0,
+    rank_in_region_by_users: int = 0,
+    neighboring_cities_by_rank_in_country_by_visits: list[Any] | None = None,
+    neighboring_cities_by_rank_in_country_by_users: list[Any] | None = None,
+    neighboring_cities_by_rank_in_region_by_visits: list[Any] | None = None,
+    neighboring_cities_by_rank_in_region_by_users: list[Any] | None = None,
+) -> CityDetailsDTO:
     if city is None:
         city = make_city()
     if popular_months is None:
@@ -48,7 +57,7 @@ def make_city_details_dto(
         neighboring_cities_by_rank_in_region_by_users = []
 
     return CityDetailsDTO(
-        city=city,
+        city=city,  # type: ignore
         average_rating=average_rating,
         popular_months=popular_months,
         visits=visits,
@@ -66,7 +75,7 @@ def make_city_details_dto(
         neighboring_cities_by_rank_in_country_by_users=neighboring_cities_by_rank_in_country_by_users,
         neighboring_cities_by_rank_in_region_by_visits=neighboring_cities_by_rank_in_region_by_visits,
         neighboring_cities_by_rank_in_region_by_users=neighboring_cities_by_rank_in_region_by_users,
-    )  # type: ignore
+    )
 
 
 @pytest.mark.parametrize(
@@ -76,16 +85,16 @@ def make_city_details_dto(
         (None, 'Москва, Россия - информация о городе, карта'),
     ],
 )
-def test_page_title(region, expected):
+def test_page_title(region: str | None, expected: str) -> None:
     city = make_city(region=region)
     dto = make_city_details_dto(city=city)
 
     assert dto.page_title == expected
 
 
-def test_page_description_minimal():
-    city = make_city(region=None)  # type: ignore
-    dto = make_city_details_dto(city=city)  # type: ignore
+def test_page_description_minimal() -> None:
+    city = make_city(region=None)
+    dto = make_city_details_dto(city=city)
     assert dto.page_description == (
         'Москва, Россия. '
         'Смотрите информацию о городе и карту на сайте «Мои Города». '
@@ -93,11 +102,11 @@ def test_page_description_minimal():
     )
 
 
-def test_page_description_with_one_collection():
+def test_page_description_with_one_collection() -> None:
     city = make_city()
 
     class FakeCollection:
-        def __str__(self):
+        def __str__(self) -> str:
             return 'Культурное наследие'
 
     collection = FakeCollection()
@@ -106,15 +115,15 @@ def test_page_description_with_one_collection():
     assert 'Входит в коллекцию «Культурное наследие»' in dto.page_description
 
 
-def test_page_description_with_multiple_collections():
+def test_page_description_with_multiple_collections() -> None:
     city = make_city()
 
     class Collection1:
-        def __str__(self):
+        def __str__(self) -> str:
             return 'Исторические города'
 
     class Collection2:
-        def __str__(self):
+        def __str__(self) -> str:
             return 'Морские курорты'
 
     dto = make_city_details_dto(city=city, collections=[Collection1(), Collection2()])
@@ -122,29 +131,29 @@ def test_page_description_with_multiple_collections():
     assert 'Входит в коллекции «Исторические города», «Морские курорты»' in dto.page_description
 
 
-def test_page_description_with_rating():
+def test_page_description_with_rating() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, average_rating=4.7)
 
     assert 'Средняя оценка путешественников — 4.7' in dto.page_description
 
 
-def test_page_description_with_popular_months():
+def test_page_description_with_popular_months() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, popular_months=['Июнь', 'Июль'])
 
     assert 'Лучшее время для поездки: Июнь, Июль' in dto.page_description
 
 
-def test_page_description_full():
+def test_page_description_full() -> None:
     city = make_city()
 
     class Collection1:
-        def __str__(self):
+        def __str__(self) -> str:
             return 'Города России'
 
     class Collection2:
-        def __str__(self):
+        def __str__(self) -> str:
             return 'Места силы'
 
     dto = make_city_details_dto(
@@ -165,21 +174,21 @@ def test_page_description_full():
     assert 'Зарегистрируйтесь, чтобы отмечать посещённые города' in desc
 
 
-def test_page_title_without_region():
-    city = make_city(region=None)  # type: ignore
-    dto = make_city_details_dto(city=city)  # type: ignore
+def test_page_title_without_region() -> None:
+    city = make_city(region=None)
+    dto = make_city_details_dto(city=city)
     assert dto.page_title == 'Москва, Россия - информация о городе, карта'
 
 
-def test_page_title_with_region():
+def test_page_title_with_region() -> None:
     city = make_city(region='Свердловская область')
     dto = make_city_details_dto(city=city)
     assert dto.page_title == 'Москва, Свердловская область, Россия - информация о городе, карта'
 
 
-def test_page_description_no_collections_no_rating_no_months():
-    city = make_city(region=None)  # type: ignore
-    dto = make_city_details_dto(city=city, collections=[], average_rating=0, popular_months=[])  # type: ignore
+def test_page_description_no_collections_no_rating_no_months() -> None:
+    city = make_city(region=None)
+    dto = make_city_details_dto(city=city, collections=[], average_rating=0, popular_months=[])
     desc = dto.page_description
     assert desc.startswith('Москва, Россия.')
     assert 'Входит в коллекцию' not in desc
@@ -187,9 +196,9 @@ def test_page_description_no_collections_no_rating_no_months():
     assert 'Лучшее время для поездки' not in desc
 
 
-def test_page_description_one_collection():
+def test_page_description_one_collection() -> None:
     class Collection:
-        def __str__(self):
+        def __str__(self) -> str:
             return 'Коллекция1'
 
     city = make_city()
@@ -198,13 +207,13 @@ def test_page_description_one_collection():
     assert 'Входит в коллекцию «Коллекция1»' in desc
 
 
-def test_page_description_multiple_collections_order():
+def test_page_description_multiple_collections_order() -> None:
     class CollectionA:
-        def __str__(self):
+        def __str__(self) -> str:
             return 'Альфа'
 
     class CollectionB:
-        def __str__(self):
+        def __str__(self) -> str:
             return 'Бета'
 
     city = make_city()
@@ -213,7 +222,7 @@ def test_page_description_multiple_collections_order():
     assert 'Входит в коллекции «Альфа», «Бета»' in desc
 
 
-def test_page_description_with_zero_rating_and_popular_months_empty():
+def test_page_description_with_zero_rating_and_popular_months_empty() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, average_rating=0, popular_months=[])
     desc = dto.page_description
@@ -221,7 +230,7 @@ def test_page_description_with_zero_rating_and_popular_months_empty():
     assert 'Лучшее время для поездки' not in desc
 
 
-def test_page_description_with_rating_and_empty_popular_months():
+def test_page_description_with_rating_and_empty_popular_months() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, average_rating=3.3, popular_months=[])
     desc = dto.page_description
@@ -229,7 +238,7 @@ def test_page_description_with_rating_and_empty_popular_months():
     assert 'Лучшее время для поездки' not in desc
 
 
-def test_page_description_with_popular_months_and_zero_rating():
+def test_page_description_with_popular_months_and_zero_rating() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, average_rating=0, popular_months=['Январь'])
     desc = dto.page_description
@@ -237,21 +246,21 @@ def test_page_description_with_popular_months_and_zero_rating():
     assert 'Средняя оценка путешественников' not in desc
 
 
-def test_page_description_includes_base_text_always():
+def test_page_description_includes_base_text_always() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city)
     assert 'Смотрите информацию о городе и карту на сайте «Мои Города».' in dto.page_description
     assert 'Зарегистрируйтесь, чтобы отмечать посещённые города.' in dto.page_description
 
 
-def test_collections_str_called_once_per_collection():
-    call_count = {}
+def test_collections_str_called_once_per_collection() -> None:
+    call_count: dict[str, int] = {}
 
     class Collection:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
-        def __str__(self):
+        def __str__(self) -> str:
             call_count[self.name] = call_count.get(self.name, 0) + 1
             return self.name
 
@@ -265,10 +274,10 @@ def test_collections_str_called_once_per_collection():
 
 
 # Тесты для некоторых других полей — просто проверить, что можно создавать DTO и поля доступны
-def test_fields_are_set_correctly():
+def test_fields_are_set_correctly() -> None:
     city = make_city()
     dto = make_city_details_dto(
-        city=city,  # type: ignore
+        city=city,
         average_rating=4.0,
         popular_months=['Март'],
         visits=[{'user': 'A', 'date': '2023-01-01'}],
@@ -286,7 +295,7 @@ def test_fields_are_set_correctly():
         neighboring_cities_by_rank_in_country_by_users=[city],
         neighboring_cities_by_rank_in_region_by_visits=[city],
         neighboring_cities_by_rank_in_region_by_users=[city],
-    )  # type: ignore
+    )
 
     assert dto.number_of_visits == 10
     assert dto.visits[0]['user'] == 'A'
@@ -296,14 +305,14 @@ def test_fields_are_set_correctly():
 
 
 # Проверка, что page_title корректно работает с пустой строкой в регионе
-def test_page_title_region_empty_string():
+def test_page_title_region_empty_string() -> None:
     city = make_city(region='')
     dto = make_city_details_dto(city=city)
     assert dto.page_title == 'Москва, Россия - информация о городе, карта'
 
 
 # Проверка, что page_description корректно работает с пустыми коллекциями
-def test_page_description_empty_collections():
+def test_page_description_empty_collections() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, collections=[])
     desc = dto.page_description
@@ -312,7 +321,7 @@ def test_page_description_empty_collections():
 
 
 # Проверка, что page_description не ломается, если популярные месяцы None (должен быть пустой список)
-def test_page_description_popular_months_none():
+def test_page_description_popular_months_none() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, popular_months=None)
     desc = dto.page_description

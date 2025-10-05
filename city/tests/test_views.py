@@ -3,14 +3,13 @@ import pytest
 from django.test import RequestFactory
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest, Http404
-from unittest.mock import Mock
 
 from city.views import VisitedCityDetail
 from city.dto import CityDetailsDTO
 
 
 @pytest.fixture
-def fake_service(mocker: Any) -> Mock:
+def fake_service(mocker: Any) -> Any:
     service = mocker.Mock()
     city = mocker.Mock()
     city.title = 'Москва'
@@ -37,11 +36,11 @@ def fake_service(mocker: Any) -> Mock:
         neighboring_cities_by_rank_in_region_by_users=[],
     )
     service.get_city_details.return_value = dto
-    return service  # type: ignore
+    return service
 
 
 @pytest.fixture
-def fake_service_factory(fake_service: Mock) -> Callable[[HttpRequest], Mock]:
+def fake_service_factory(fake_service: Any) -> Callable[[HttpRequest], Any]:
     return lambda request: fake_service
 
 
@@ -52,8 +51,8 @@ def rf() -> RequestFactory:
 
 def test_visited_city_detail_context(
     rf: RequestFactory,
-    fake_service_factory: Callable[[HttpRequest], Mock],
-    fake_service: Mock,
+    fake_service_factory: Callable[[HttpRequest], Any],
+    fake_service: Any,
     mocker: Any,
 ) -> None:
     request = rf.get('/city/1/')
@@ -79,8 +78,8 @@ def test_visited_city_detail_improperly_configured(rf: RequestFactory) -> None:
 
 def test_visited_city_detail_service_raises(
     rf: RequestFactory,
-    fake_service_factory: Callable[[HttpRequest], Mock],
-    fake_service: Mock,
+    fake_service_factory: Callable[[HttpRequest], Any],
+    fake_service: Any,
     mocker: Any,
 ) -> None:
     request = rf.get('/city/1/')
@@ -102,8 +101,8 @@ def test_visited_city_detail_service_raises(
 
 def test_visited_city_detail_unauthenticated_user(
     rf: RequestFactory,
-    fake_service_factory: Callable[[HttpRequest], Mock],
-    fake_service: Mock,
+    fake_service_factory: Callable[[HttpRequest], Any],
+    fake_service: Any,
     mocker: Any,
 ) -> None:
     request = rf.get('/city/1/')
@@ -123,8 +122,8 @@ def test_visited_city_detail_unauthenticated_user(
 
 def test_visited_city_detail_get_object_called(
     rf: RequestFactory,
-    fake_service_factory: Callable[[HttpRequest], Mock],
-    fake_service: Mock,
+    fake_service_factory: Callable[[HttpRequest], Any],
+    fake_service: Any,
     mocker: Any,
 ) -> None:
     request = rf.get('/city/1/')
@@ -142,8 +141,8 @@ def test_visited_city_detail_get_object_called(
 
 def test_visited_city_detail_context_extra_fields(
     rf: RequestFactory,
-    fake_service_factory: Callable[[HttpRequest], Mock],
-    fake_service: Mock,
+    fake_service_factory: Callable[[HttpRequest], Any],
+    fake_service: Any,
     mocker: Any,
 ) -> None:
     request = rf.get('/city/1/')

@@ -1,50 +1,55 @@
+from typing import Any, cast
+from django.contrib.auth.models import User
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 
 from place.models import Place, Category
 from place.serializers import PlaceSerializer, CategorySerializer
 from services import logger
 
 
-class GetCategory(generics.ListAPIView):
+class GetCategory(generics.ListAPIView[Category]):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
     serializer_class = CategorySerializer
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('name')
 
-    def get(self, *args, **kwargs):
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         logger.info(
-            self.request,
+            request,
             '(API: Place): Getting a list of categories',
         )
-        return super(GetCategory, self).get(*args, **kwargs)
+        return super(GetCategory, self).get(request, *args, **kwargs)
 
 
-class GetPlaces(generics.ListAPIView):
+class GetPlaces(generics.ListAPIView[Place]):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
     serializer_class = PlaceSerializer
 
-    def get(self, *args, **kwargs):
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         logger.info(
-            self.request,
+            request,
             '(API: Place): Getting a list of places',
         )
-        return super(GetPlaces, self).get(*args, **kwargs)
+        return super(GetPlaces, self).get(request, *args, **kwargs)
 
-    def get_queryset(self):
-        return Place.objects.filter(user=self.request.user)
+    def get_queryset(self) -> Any:
+        return Place.objects.filter(user=cast(User, self.request.user))
 
 
-class CreatePlace(generics.CreateAPIView):
+class CreatePlace(generics.CreateAPIView[Place]):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['post']
     serializer_class = PlaceSerializer
 
-    def post(self, *args, **kwargs):
-        return super(CreatePlace, self).post(*args, **kwargs)
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        return super(CreatePlace, self).post(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: BaseSerializer[Place]) -> None:
         instance = serializer.save()
         logger.info(
             self.request,
@@ -52,35 +57,35 @@ class CreatePlace(generics.CreateAPIView):
         )
 
 
-class DeletePlace(generics.DestroyAPIView):
+class DeletePlace(generics.DestroyAPIView[Place]):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['delete']
 
-    def get_queryset(self):
-        return Place.objects.filter(user=self.request.user)
+    def get_queryset(self) -> Any:
+        return Place.objects.filter(user=cast(User, self.request.user))
 
-    def delete(self, *args, **kwargs):
+    def delete(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         logger.info(
-            self.request,
-            f'(API: Place): Deleting a place #{self.kwargs["pk"]}',
+            request,
+            f'(API: Place): Deleting a place #{kwargs["pk"]}',
         )
-        return super(DeletePlace, self).delete(*args, **kwargs)
+        return super(DeletePlace, self).delete(request, *args, **kwargs)
 
 
-class UpdatePlace(generics.UpdateAPIView):
+class UpdatePlace(generics.UpdateAPIView[Place]):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['patch']
     serializer_class = PlaceSerializer
 
-    def get_queryset(self):
-        return Place.objects.filter(user=self.request.user)
+    def get_queryset(self) -> Any:
+        return Place.objects.filter(user=cast(User, self.request.user))
 
-    def update(self, request, *args, **kwargs):
-        old_place = Place.objects.get(id=self.kwargs['pk'])
+    def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        old_place = Place.objects.get(id=kwargs['pk'])
         response = super().update(request, *args, **kwargs)
-        new_place = Place.objects.get(id=self.kwargs['pk'])
+        new_place = Place.objects.get(id=kwargs['pk'])
         logger.info(
-            self.request,
+            request,
             f'(API: Place): Updating a place #{old_place.id}. Name: "{old_place.name}" -> "{new_place.name}"',
         )
 

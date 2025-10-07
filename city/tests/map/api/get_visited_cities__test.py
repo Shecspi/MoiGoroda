@@ -8,10 +8,13 @@ Licensed under the Apache License, Version 2.0
 """
 
 import json
+from typing import Any
 
 import pytest
 from datetime import datetime
 
+from django.test import Client
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from tests.create_db import (
@@ -25,7 +28,7 @@ from tests.create_db import (
 
 
 @pytest.fixture
-def setup_db_without_visited_cities(client, django_user_model):
+def setup_db_without_visited_cities(client: Client, django_user_model: Any) -> None:
     create_user(django_user_model, 1)
     create_user(django_user_model, 2)
     create_superuser(django_user_model, 3)
@@ -35,7 +38,7 @@ def setup_db_without_visited_cities(client, django_user_model):
 
 
 @pytest.fixture
-def setup_db_with_visited_cities(client, django_user_model):
+def setup_db_with_visited_cities(client: Client, django_user_model: Any) -> None:
     user1 = create_user(django_user_model, 1)
     user2 = create_user(django_user_model, 2)
     create_superuser(django_user_model, 3)
@@ -61,7 +64,9 @@ def setup_db_with_visited_cities(client, django_user_model):
     )
 
 
-def access_by_POST_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_POST_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.post(reverse('api__get_visited_cities'))
 
@@ -70,7 +75,9 @@ def access_by_POST_is_prohibited__test(setup_db_without_visited_cities, caplog, 
     assert response.status_code == 405
 
 
-def access_by_DELETE_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_DELETE_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.delete(reverse('api__get_visited_cities'))
 
@@ -79,7 +86,9 @@ def access_by_DELETE_is_prohibited__test(setup_db_without_visited_cities, caplog
     assert response.status_code == 405
 
 
-def access_by_PUT_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_PUT_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.put(reverse('api__get_visited_cities'))
 
@@ -88,7 +97,9 @@ def access_by_PUT_is_prohibited__test(setup_db_without_visited_cities, caplog, c
     assert response.status_code == 405
 
 
-def access_by_PATCH_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_PATCH_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.patch(reverse('api__get_visited_cities'))
 
@@ -97,7 +108,9 @@ def access_by_PATCH_is_prohibited__test(setup_db_without_visited_cities, caplog,
     assert response.status_code == 405
 
 
-def guest_can_not_get_visited_cities__test(setup_db_without_visited_cities, caplog, client):
+def guest_can_not_get_visited_cities__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     response = client.get(reverse('api__get_visited_cities'))
 
     assert caplog.records[0].levelname == 'WARNING'
@@ -105,18 +118,22 @@ def guest_can_not_get_visited_cities__test(setup_db_without_visited_cities, capl
     assert response.status_code == 403
 
 
-def auth_user_can_get_visited_cities__test(setup_db_without_visited_cities, caplog, client):
+def auth_user_can_get_visited_cities__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_visited_cities'))
 
     assert caplog.records[0].levelname == 'INFO'
     assert caplog.records[0].getMessage() == (
-        '(API) Successful request for a list of visited cities (user #1)   ' '/api/city/visited'
+        '(API) Successful request for a list of visited cities (user #1)   /api/city/visited'
     )
     assert response.status_code == 200
 
 
-def superuser_can_get_visited_cities__test(setup_db_without_visited_cities, client):
+def superuser_can_get_visited_cities__test(
+    setup_db_without_visited_cities: None, client: Client
+) -> None:
     client.login(username='superuser3', password='password')
     response = client.get(reverse('api__get_visited_cities'))
 
@@ -124,23 +141,23 @@ def superuser_can_get_visited_cities__test(setup_db_without_visited_cities, clie
 
 
 def auth_user_without_visited_cities_and_subscriptions_should_get_empty_list__test(
-    setup_db_without_visited_cities, caplog, client
-):
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_visited_cities'))
     content = json.loads(response.content.decode())
-    correct_content = []
+    correct_content: list[dict[str, Any]] = []
 
     assert caplog.records[0].levelname == 'INFO'
     assert caplog.records[0].getMessage() == (
-        '(API) Successful request for a list of visited cities (user #1)   ' '/api/city/visited'
+        '(API) Successful request for a list of visited cities (user #1)   /api/city/visited'
     )
     assert content == correct_content
 
 
 def auth_user_with_visited_cities_should_get_list_only_with_own_cities__test(
-    setup_db_with_visited_cities, caplog, client
-):
+    setup_db_with_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_visited_cities'))
     content = json.loads(response.content.decode())

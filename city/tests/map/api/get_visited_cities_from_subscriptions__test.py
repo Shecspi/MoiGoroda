@@ -8,10 +8,13 @@ Licensed under the Apache License, Version 2.0
 """
 
 import json
+from typing import Any
 
 import pytest
 from datetime import datetime
 
+from django.test import Client
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from tests.create_db import (
@@ -27,7 +30,7 @@ from tests.create_db import (
 
 
 @pytest.fixture
-def setup_db_without_visited_cities(client, django_user_model):
+def setup_db_without_visited_cities(client: Client, django_user_model: Any) -> None:
     create_user(django_user_model, 1)
     create_user(django_user_model, 2)
     create_superuser(django_user_model, 3)
@@ -37,7 +40,7 @@ def setup_db_without_visited_cities(client, django_user_model):
 
 
 @pytest.fixture
-def setup_db_with_visited_cities_for_1_user(client, django_user_model):
+def setup_db_with_visited_cities_for_1_user(client: Client, django_user_model: Any) -> None:
     user1 = create_user(django_user_model, 1)
     user2 = create_user(django_user_model, 2)
     create_superuser(django_user_model, 3)
@@ -64,7 +67,7 @@ def setup_db_with_visited_cities_for_1_user(client, django_user_model):
 
 
 @pytest.fixture
-def setup_db_with_visited_cities_for_2_users(client, django_user_model):
+def setup_db_with_visited_cities_for_2_users(client: Client, django_user_model: Any) -> None:
     user1 = create_user(django_user_model, 1)
     user2 = create_user(django_user_model, 2)
     user3 = create_superuser(django_user_model, 3)
@@ -98,7 +101,9 @@ def setup_db_with_visited_cities_for_2_users(client, django_user_model):
     )
 
 
-def access_by_POST_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_POST_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.post(reverse('api__get_visited_cities_from_subscriptions'))
 
@@ -107,7 +112,9 @@ def access_by_POST_is_prohibited__test(setup_db_without_visited_cities, caplog, 
     assert response.status_code == 405
 
 
-def access_by_DELETE_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_DELETE_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.delete(reverse('api__get_visited_cities_from_subscriptions'))
 
@@ -116,7 +123,9 @@ def access_by_DELETE_is_prohibited__test(setup_db_without_visited_cities, caplog
     assert response.status_code == 405
 
 
-def access_by_PUT_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_PUT_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.put(reverse('api__get_visited_cities_from_subscriptions'))
 
@@ -125,7 +134,9 @@ def access_by_PUT_is_prohibited__test(setup_db_without_visited_cities, caplog, c
     assert response.status_code == 405
 
 
-def access_by_PATCH_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_PATCH_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.patch(reverse('api__get_visited_cities_from_subscriptions'))
 
@@ -134,7 +145,9 @@ def access_by_PATCH_is_prohibited__test(setup_db_without_visited_cities, caplog,
     assert response.status_code == 405
 
 
-def guest_can_not_get_visited_cities__test(setup_db_without_visited_cities, caplog, client):
+def guest_can_not_get_visited_cities__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     response = client.get(reverse('api__get_visited_cities_from_subscriptions'))
 
     assert caplog.records[0].levelname == 'WARNING'
@@ -143,8 +156,8 @@ def guest_can_not_get_visited_cities__test(setup_db_without_visited_cities, capl
 
 
 def user_without_correct_account_data_can_not_get_visited_cities__test(
-    setup_db_without_visited_cities, caplog, client
-):
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     response = client.get(reverse('api__get_visited_cities_from_subscriptions'))
     client.login(username='username1111', password='password')
 
@@ -155,8 +168,8 @@ def user_without_correct_account_data_can_not_get_visited_cities__test(
 
 @pytest.mark.django_db
 def test__auth_user_can_get_visited_cities_for_1_subscription__test(
-    setup_db_with_visited_cities_for_1_user, caplog, client
-):
+    setup_db_with_visited_cities_for_1_user: None, caplog: Any, client: Client
+) -> None:
     create_share_settings(2)
     create_subscription(1, 2)
 
@@ -190,8 +203,8 @@ def test__auth_user_can_get_visited_cities_for_1_subscription__test(
 
 @pytest.mark.django_db
 def auth_user_can_get_visited_cities_for_2_subscriptions__test(
-    setup_db_with_visited_cities_for_2_users, caplog, client
-):
+    setup_db_with_visited_cities_for_2_users: None, caplog: Any, client: Client
+) -> None:
     create_share_settings(2)
     create_share_settings(3)
     create_subscription(1, 2)
@@ -237,7 +250,9 @@ def auth_user_can_get_visited_cities_for_2_subscriptions__test(
 
 
 @pytest.mark.django_db
-def superuser_can_get_visited_cities__test(setup_db_without_visited_cities, caplog, client):
+def superuser_can_get_visited_cities__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     create_share_settings(2)
     create_subscription(1, 2)
 
@@ -256,8 +271,8 @@ def superuser_can_get_visited_cities__test(setup_db_without_visited_cities, capl
 
 @pytest.mark.django_db
 def superuser_can_get_visited_cities_without_permission__test(
-    setup_db_without_visited_cities, caplog, client
-):
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     create_share_settings(2, can_subscribe=False)
 
     client.login(username='superuser3', password='password')
@@ -275,8 +290,8 @@ def superuser_can_get_visited_cities_without_permission__test(
 
 @pytest.mark.django_db
 def superuser_can_get_visited_cities_without_permission_and_share_setting__test(
-    setup_db_without_visited_cities, caplog, client
-):
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='superuser3', password='password')
     response = client.get(
         reverse('api__get_visited_cities_from_subscriptions') + '?data={"id":[2]}'
@@ -291,8 +306,8 @@ def superuser_can_get_visited_cities_without_permission_and_share_setting__test(
 
 
 def request_without_user_ids_can_not_be_performed__test(
-    setup_db_without_visited_cities, caplog, client
-):
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_visited_cities_from_subscriptions'))
 
@@ -304,8 +319,8 @@ def request_without_user_ids_can_not_be_performed__test(
 
 
 def request_with_incorrect_user_ids_can_not_be_performed__test(
-    setup_db_without_visited_cities, caplog, client
-):
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     """
     API может принимать только запросы, в которых указан один параметр ids, являющийся массивом чисел:
     data = [ids: [1, 2, 3]]
@@ -330,8 +345,7 @@ def request_with_incorrect_user_ids_can_not_be_performed__test(
     # Проверка, что вместо списка цифр передан одно число
     assert caplog.records[2].levelname == 'WARNING'
     assert caplog.records[2].getMessage() == (
-        '(API) An incorrect list of user IDs was received   '
-        '/api/city/visited/subscriptions?data=5'
+        '(API) An incorrect list of user IDs was received   /api/city/visited/subscriptions?data=5'
     )
     assert response2.status_code == 400
 
@@ -354,8 +368,8 @@ def request_with_incorrect_user_ids_can_not_be_performed__test(
 
 
 def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_1__test(
-    setup_db_without_visited_cities, caplog, client
-):
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     """
     Проверяет, что невозможно посмотреть города пользователей,
     которые ни разу не сохранили настройки шеринга.
@@ -376,8 +390,8 @@ def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_1__test(
 
 
 def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_2__test(
-    setup_db_with_visited_cities_for_1_user, caplog, client
-):
+    setup_db_with_visited_cities_for_1_user: None, caplog: Any, client: Client
+) -> None:
     """
     Проверяет, что невозможно посмотреть города пользователей,
     которые ни разу не сохранили настройки шеринга.
@@ -420,8 +434,8 @@ def auth_user_dont_have_access_to_user_who_dont_have_initial_settings_2__test(
 
 
 def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscribe_is_false_1__test(
-    setup_db_without_visited_cities, caplog, client
-):
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     """
     Проверяет, что невозможно посмотреть города пользователей,
     которые не разрешили этого делать.
@@ -443,8 +457,8 @@ def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscri
 
 
 def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscribe_is_false_2__test(
-    setup_db_with_visited_cities_for_1_user, caplog, client
-):
+    setup_db_with_visited_cities_for_1_user: None, caplog: Any, client: Client
+) -> None:
     """
     Проверяет, что невозможно посмотреть города пользователей,
     которые ни разу не сохранили настройки шеринга.
@@ -488,8 +502,8 @@ def auth_user_dont_have_access_to_user_who_have_initial_settings_but_can_subscri
 
 
 def auth_user_dont_have_subscription_to_user_but_try_to_get_his_cities__test(
-    setup_db_with_visited_cities_for_1_user, caplog, client
-):
+    setup_db_with_visited_cities_for_1_user: None, caplog: Any, client: Client
+) -> None:
     """
     Проверяет, что невозможно посмотреть города пользователей, на которых не оформлена подписка.
     В этом тесте проверяется один пользователь, ответ должен быть пустым списком.

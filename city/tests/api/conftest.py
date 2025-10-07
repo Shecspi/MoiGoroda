@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from datetime import date
-from typing import Any
+from typing import Any, Type
 from unittest.mock import MagicMock
 import pytest
 from django.contrib.auth.models import User
@@ -27,7 +27,7 @@ def api_client() -> APIClient:
 
 @pytest.fixture
 def authenticated_user(
-    api_client: APIClient, django_user_model: Any
+    api_client: APIClient, django_user_model: Type[User]
 ) -> User:  # django_user_model - специальная фикстура pytest-django
     """Фикстура для создания авторизованного пользователя."""
     user = django_user_model.objects.create_user(username='testuser', password='pass')
@@ -37,7 +37,7 @@ def authenticated_user(
 
 @pytest.fixture
 def superuser(
-    api_client: APIClient, django_user_model: Any
+    api_client: APIClient, django_user_model: Type[User]
 ) -> User:  # django_user_model - специальная фикстура pytest-django
     """Фикстура для создания суперпользователя."""
     superuser = django_user_model.objects.create_superuser(username='admin', password='admin')

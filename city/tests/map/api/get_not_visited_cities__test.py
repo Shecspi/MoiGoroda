@@ -6,10 +6,13 @@ Licensed under the Apache License, Version 2.0
 """
 
 import json
+from typing import Any
 
 import pytest
 from datetime import datetime
 
+from django.test import Client
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from tests.create_db import (
@@ -23,7 +26,7 @@ from tests.create_db import (
 
 
 @pytest.fixture
-def setup_db_without_visited_cities(client, django_user_model):
+def setup_db_without_visited_cities(client: Client, django_user_model: Any) -> None:
     create_user(django_user_model, 1)
     create_superuser(django_user_model, 2)
     area = create_area(1)
@@ -32,7 +35,7 @@ def setup_db_without_visited_cities(client, django_user_model):
 
 
 @pytest.fixture
-def setup_db_with_1_visited_city(client, django_user_model):
+def setup_db_with_1_visited_city(client: Client, django_user_model: Any) -> None:
     user1 = create_user(django_user_model, 1)
     area = create_area(1)
     region = create_region(1, area[0])
@@ -48,7 +51,7 @@ def setup_db_with_1_visited_city(client, django_user_model):
 
 
 @pytest.fixture
-def setup_db_with_4_visited_city(client, django_user_model):
+def setup_db_with_4_visited_city(client: Client, django_user_model: Any) -> None:
     user1 = create_user(django_user_model, 1)
     area = create_area(1)
     region = create_region(1, area[0])
@@ -65,7 +68,9 @@ def setup_db_with_4_visited_city(client, django_user_model):
 
 
 @pytest.mark.django_db
-def access_by_POST_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_POST_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.post(reverse('api__get_not_visited_cities'))
 
@@ -75,7 +80,9 @@ def access_by_POST_is_prohibited__test(setup_db_without_visited_cities, caplog, 
 
 
 @pytest.mark.django_db
-def access_by_DELETE_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_DELETE_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.delete(reverse('api__get_not_visited_cities'))
 
@@ -85,7 +92,9 @@ def access_by_DELETE_is_prohibited__test(setup_db_without_visited_cities, caplog
 
 
 @pytest.mark.django_db
-def access_by_PUT_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_PUT_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.put(reverse('api__get_not_visited_cities'))
 
@@ -95,7 +104,9 @@ def access_by_PUT_is_prohibited__test(setup_db_without_visited_cities, caplog, c
 
 
 @pytest.mark.django_db
-def access_by_PATCH_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_PATCH_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.patch(reverse('api__get_not_visited_cities'))
 
@@ -105,7 +116,9 @@ def access_by_PATCH_is_prohibited__test(setup_db_without_visited_cities, caplog,
 
 
 @pytest.mark.django_db
-def access_by_GET_for_auth_user_is_allowed__test(setup_db_without_visited_cities, caplog, client):
+def access_by_GET_for_auth_user_is_allowed__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_not_visited_cities'))
 
@@ -118,7 +131,9 @@ def access_by_GET_for_auth_user_is_allowed__test(setup_db_without_visited_cities
 
 
 @pytest.mark.django_db
-def access_by_GET_for_superuser_is_allowed__test(setup_db_without_visited_cities, caplog, client):
+def access_by_GET_for_superuser_is_allowed__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='superuser2', password='password')
     response = client.get(reverse('api__get_not_visited_cities'))
 
@@ -131,7 +146,9 @@ def access_by_GET_for_superuser_is_allowed__test(setup_db_without_visited_cities
 
 
 @pytest.mark.django_db
-def access_by_GET_for_guest_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_GET_for_guest_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     response = client.get(reverse('api__get_not_visited_cities'))
 
     assert caplog.records[0].levelname == 'WARNING'
@@ -140,7 +157,9 @@ def access_by_GET_for_guest_is_prohibited__test(setup_db_without_visited_cities,
 
 
 @pytest.mark.django_db
-def response_with_0_visited_cities__test(setup_db_without_visited_cities, caplog, client):
+def response_with_0_visited_cities__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_not_visited_cities'))
     content = json.loads(response.content.decode())
@@ -188,7 +207,9 @@ def response_with_0_visited_cities__test(setup_db_without_visited_cities, caplog
 
 
 @pytest.mark.django_db
-def response_with_1_visited_city__test(setup_db_with_1_visited_city, caplog, client):
+def response_with_1_visited_city__test(
+    setup_db_with_1_visited_city: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_not_visited_cities'))
     content = json.loads(response.content.decode())
@@ -228,11 +249,13 @@ def response_with_1_visited_city__test(setup_db_with_1_visited_city, caplog, cli
 
 
 @pytest.mark.django_db
-def response_with_4_visited_city__test(setup_db_with_4_visited_city, caplog, client):
+def response_with_4_visited_city__test(
+    setup_db_with_4_visited_city: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.get(reverse('api__get_not_visited_cities'))
     content = json.loads(response.content.decode())
-    correct_response = []
+    correct_response: list[dict[str, Any]] = []
 
     assert content == correct_response
     assert caplog.records[0].levelname == 'INFO'

@@ -1,5 +1,6 @@
+from typing import Any
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST
 from pydantic import ValidationError
 from rest_framework import viewsets, status
@@ -25,7 +26,7 @@ service = SubscriptionService(
 
 @require_POST
 @login_required
-def save(request):
+def save(request: HttpRequest) -> JsonResponse:
     try:
         subscription = SubscriptionRequest.model_validate_json(request.body.decode('utf-8'))
     except ValidationError as exc:
@@ -42,7 +43,7 @@ def save(request):
 
 @require_POST
 @login_required
-def delete_subscriber(request):
+def delete_subscriber(request: HttpRequest) -> JsonResponse:
     try:
         subscription = DeleteSubscriberRequest.model_validate_json(request.body.decode('utf-8'))
     except ValidationError as exc:
@@ -59,7 +60,7 @@ def delete_subscriber(request):
 
 class NotificationViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
-    service_class = None
+    service_class: type | None = None
 
     def get_service(self):
         return self.service_class()
@@ -69,11 +70,11 @@ class NotificationViewSet(viewsets.ViewSet):
         serializer = NotificationSerializer(notifications, many=True)
         return Response({'notifications': serializer.data})
 
-    def partial_update(self, request: Request, pk: int = None) -> Response:
+    def partial_update(self, request: Request, pk: int | None = None) -> Response:
         notification = self.get_service().mark_notification_as_read(request.user.id, pk)
         serializer = NotificationSerializer(notification)
         return Response(serializer.data)
 
-    def destroy(self, request: Request, pk: int = None) -> Response:
+    def destroy(self, request: Request, pk: int | None = None) -> Response:
         self.get_service().delete_notification(request.user.id, pk)
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -18,7 +18,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
-from django.urls import reverse  # type: ignore
+from django.urls import reverse
 
 
 class TestCityListByCountry:

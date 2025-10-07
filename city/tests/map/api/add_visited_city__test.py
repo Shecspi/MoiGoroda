@@ -6,9 +6,12 @@ Licensed under the Apache License, Version 2.0
 """
 
 import json
+from typing import Any
 
 import pytest
 
+from django.test import Client
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from services.db.visited_city_repo import get_number_of_visited_cities
@@ -22,7 +25,7 @@ from tests.create_db import (
 
 
 @pytest.fixture
-def setup_db_without_visited_cities(client, django_user_model):
+def setup_db_without_visited_cities(client: Client, django_user_model: Any) -> None:
     create_user(django_user_model, 1)
     area = create_area(1)
     region = create_region(1, area[0])
@@ -30,7 +33,9 @@ def setup_db_without_visited_cities(client, django_user_model):
 
 
 @pytest.mark.django_db
-def access_by_GET_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_GET_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.get(reverse('api__add_visited_city'))
 
@@ -40,7 +45,9 @@ def access_by_GET_is_prohibited__test(setup_db_without_visited_cities, caplog, c
 
 
 @pytest.mark.django_db
-def access_by_DELETE_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_DELETE_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.delete(reverse('api__add_visited_city'))
 
@@ -50,7 +57,9 @@ def access_by_DELETE_is_prohibited__test(setup_db_without_visited_cities, caplog
 
 
 @pytest.mark.django_db
-def access_by_PUT_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_PUT_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.put(reverse('api__add_visited_city'))
 
@@ -60,7 +69,9 @@ def access_by_PUT_is_prohibited__test(setup_db_without_visited_cities, caplog, c
 
 
 @pytest.mark.django_db
-def access_by_PATCH_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_PATCH_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     client.login(username='username1', password='password')
     response = client.patch(reverse('api__add_visited_city'))
 
@@ -70,7 +81,9 @@ def access_by_PATCH_is_prohibited__test(setup_db_without_visited_cities, caplog,
 
 
 @pytest.mark.django_db
-def access_by_POST_for_guest_is_prohibited__test(setup_db_without_visited_cities, caplog, client):
+def access_by_POST_for_guest_is_prohibited__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     response = client.get(reverse('api__add_visited_city'))
 
     assert caplog.records[0].levelname == 'WARNING'
@@ -84,15 +97,15 @@ def access_by_POST_for_guest_is_prohibited__test(setup_db_without_visited_cities
     add_visited_city_test_data,
 )
 def request_fields_and_response__test(
-    setup_db_without_visited_cities,
-    caplog,
-    client,
-    request_data: dict,
+    setup_db_without_visited_cities: None,
+    caplog: Any,
+    client: Client,
+    request_data: dict[str, Any],
     status_code: int,
-    correct_response_data: dict | bool,
+    correct_response_data: dict[str, Any] | bool,
     log_level: str | bool,
     log_message: str | bool,
-):
+) -> None:
     client.login(username='username1', password='password')
     response = client.post(
         reverse('api__add_visited_city'),
@@ -110,7 +123,9 @@ def request_fields_and_response__test(
         assert caplog.records[0].getMessage() == log_message
 
 
-def db_after_succesful_request__test(setup_db_without_visited_cities, caplog, client):
+def db_after_succesful_request__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     num_before = get_number_of_visited_cities(1)
     client.login(username='username1', password='password')
     client.post(
@@ -131,7 +146,9 @@ def db_after_succesful_request__test(setup_db_without_visited_cities, caplog, cl
     assert num_after == num_before + 1
 
 
-def db_after_unsuccesful_request__test(setup_db_without_visited_cities, caplog, client):
+def db_after_unsuccesful_request__test(
+    setup_db_without_visited_cities: None, caplog: Any, client: Client
+) -> None:
     num_before = get_number_of_visited_cities(1)
     client.login(username='username1', password='password')
     client.post(

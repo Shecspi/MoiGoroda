@@ -1,4 +1,3 @@
-from typing import Any
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_POST

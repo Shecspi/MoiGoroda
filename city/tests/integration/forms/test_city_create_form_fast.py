@@ -39,6 +39,7 @@ from country.models import Country
 
 @patch('city.views.VisitedCity')
 @patch('city.views.City')
+@pytest.mark.integration
 def test_city_create_post_request_structure(
     mock_city_model: MagicMock, mock_visited_city_model: MagicMock
 ) -> None:
@@ -62,6 +63,7 @@ def test_city_create_post_request_structure(
     assert request.POST['date_of_visit'] == '15.01.2024'
 
 
+@pytest.mark.integration
 def test_city_create_form_data_validation() -> None:
     """Проверяет валидацию данных формы (быстрый тест без БД)."""
     # Проверяем, что рейтинг должен быть строкой от '1' до '5'
@@ -88,6 +90,7 @@ def test_city_create_form_data_validation() -> None:
 @pytest.mark.django_db(transaction=True)
 @patch('city.signals.notify_subscribers_on_city_add')
 @patch('city.services.db.set_is_visit_first_for_all_visited_cities')
+@pytest.mark.integration
 def test_city_create_integration_full_flow(
     mock_set_first_visit: MagicMock,
     mock_signal: MagicMock,
@@ -135,6 +138,7 @@ def test_city_create_integration_full_flow(
 
 @pytest.mark.django_db(transaction=True)
 @patch('city.signals.notify_subscribers_on_city_add')
+@pytest.mark.integration
 def test_city_create_integration_duplicate_validation(
     mock_signal: MagicMock,
     django_user_model: Any,

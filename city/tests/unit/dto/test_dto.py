@@ -85,6 +85,7 @@ def make_city_details_dto(
         (None, 'Москва, Россия - информация о городе, карта'),
     ],
 )
+@pytest.mark.unit
 def test_page_title(region: str | None, expected: str) -> None:
     city = make_city(region=region)
     dto = make_city_details_dto(city=city)
@@ -92,6 +93,7 @@ def test_page_title(region: str | None, expected: str) -> None:
     assert dto.page_title == expected
 
 
+@pytest.mark.unit
 def test_page_description_minimal() -> None:
     city = make_city(region=None)
     dto = make_city_details_dto(city=city)
@@ -102,6 +104,7 @@ def test_page_description_minimal() -> None:
     )
 
 
+@pytest.mark.unit
 def test_page_description_with_one_collection() -> None:
     city = make_city()
 
@@ -115,6 +118,7 @@ def test_page_description_with_one_collection() -> None:
     assert 'Входит в коллекцию «Культурное наследие»' in dto.page_description
 
 
+@pytest.mark.unit
 def test_page_description_with_multiple_collections() -> None:
     city = make_city()
 
@@ -131,6 +135,7 @@ def test_page_description_with_multiple_collections() -> None:
     assert 'Входит в коллекции «Исторические города», «Морские курорты»' in dto.page_description
 
 
+@pytest.mark.unit
 def test_page_description_with_rating() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, average_rating=4.7)
@@ -138,6 +143,7 @@ def test_page_description_with_rating() -> None:
     assert 'Средняя оценка путешественников — 4.7' in dto.page_description
 
 
+@pytest.mark.unit
 def test_page_description_with_popular_months() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, popular_months=['Июнь', 'Июль'])
@@ -145,6 +151,7 @@ def test_page_description_with_popular_months() -> None:
     assert 'Лучшее время для поездки: Июнь, Июль' in dto.page_description
 
 
+@pytest.mark.unit
 def test_page_description_full() -> None:
     city = make_city()
 
@@ -174,18 +181,21 @@ def test_page_description_full() -> None:
     assert 'Зарегистрируйтесь, чтобы отмечать посещённые города' in desc
 
 
+@pytest.mark.unit
 def test_page_title_without_region() -> None:
     city = make_city(region=None)
     dto = make_city_details_dto(city=city)
     assert dto.page_title == 'Москва, Россия - информация о городе, карта'
 
 
+@pytest.mark.unit
 def test_page_title_with_region() -> None:
     city = make_city(region='Свердловская область')
     dto = make_city_details_dto(city=city)
     assert dto.page_title == 'Москва, Свердловская область, Россия - информация о городе, карта'
 
 
+@pytest.mark.unit
 def test_page_description_no_collections_no_rating_no_months() -> None:
     city = make_city(region=None)
     dto = make_city_details_dto(city=city, collections=[], average_rating=0, popular_months=[])
@@ -196,6 +206,7 @@ def test_page_description_no_collections_no_rating_no_months() -> None:
     assert 'Лучшее время для поездки' not in desc
 
 
+@pytest.mark.unit
 def test_page_description_one_collection() -> None:
     class Collection:
         def __str__(self) -> str:
@@ -207,6 +218,7 @@ def test_page_description_one_collection() -> None:
     assert 'Входит в коллекцию «Коллекция1»' in desc
 
 
+@pytest.mark.unit
 def test_page_description_multiple_collections_order() -> None:
     class CollectionA:
         def __str__(self) -> str:
@@ -222,6 +234,7 @@ def test_page_description_multiple_collections_order() -> None:
     assert 'Входит в коллекции «Альфа», «Бета»' in desc
 
 
+@pytest.mark.unit
 def test_page_description_with_zero_rating_and_popular_months_empty() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, average_rating=0, popular_months=[])
@@ -230,6 +243,7 @@ def test_page_description_with_zero_rating_and_popular_months_empty() -> None:
     assert 'Лучшее время для поездки' not in desc
 
 
+@pytest.mark.unit
 def test_page_description_with_rating_and_empty_popular_months() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, average_rating=3.3, popular_months=[])
@@ -238,6 +252,7 @@ def test_page_description_with_rating_and_empty_popular_months() -> None:
     assert 'Лучшее время для поездки' not in desc
 
 
+@pytest.mark.unit
 def test_page_description_with_popular_months_and_zero_rating() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, average_rating=0, popular_months=['Январь'])
@@ -246,6 +261,7 @@ def test_page_description_with_popular_months_and_zero_rating() -> None:
     assert 'Средняя оценка путешественников' not in desc
 
 
+@pytest.mark.unit
 def test_page_description_includes_base_text_always() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city)
@@ -253,6 +269,7 @@ def test_page_description_includes_base_text_always() -> None:
     assert 'Зарегистрируйтесь, чтобы отмечать посещённые города.' in dto.page_description
 
 
+@pytest.mark.unit
 def test_collections_str_called_once_per_collection() -> None:
     call_count: dict[str, int] = {}
 
@@ -274,6 +291,7 @@ def test_collections_str_called_once_per_collection() -> None:
 
 
 # Тесты для некоторых других полей — просто проверить, что можно создавать DTO и поля доступны
+@pytest.mark.unit
 def test_fields_are_set_correctly() -> None:
     city = make_city()
     dto = make_city_details_dto(
@@ -305,6 +323,7 @@ def test_fields_are_set_correctly() -> None:
 
 
 # Проверка, что page_title корректно работает с пустой строкой в регионе
+@pytest.mark.unit
 def test_page_title_region_empty_string() -> None:
     city = make_city(region='')
     dto = make_city_details_dto(city=city)
@@ -312,6 +331,7 @@ def test_page_title_region_empty_string() -> None:
 
 
 # Проверка, что page_description корректно работает с пустыми коллекциями
+@pytest.mark.unit
 def test_page_description_empty_collections() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, collections=[])
@@ -321,6 +341,7 @@ def test_page_description_empty_collections() -> None:
 
 
 # Проверка, что page_description не ломается, если популярные месяцы None (должен быть пустой список)
+@pytest.mark.unit
 def test_page_description_popular_months_none() -> None:
     city = make_city()
     dto = make_city_details_dto(city=city, popular_months=None)

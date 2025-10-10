@@ -53,6 +53,7 @@ def mock_aggregates() -> Generator[dict[str, MagicMock], None, None]:
 
 
 @patch('city.services.db.VisitedCity.objects')
+@pytest.mark.integration
 def test_get_all_visited_cities_structure(
     mock_visited_city_objects: Any, mock_aggregates: dict[str, MagicMock]
 ) -> None:
@@ -73,6 +74,7 @@ def test_get_all_visited_cities_structure(
 
 
 @patch('city.services.db.VisitedCity.objects')
+@pytest.mark.integration
 def test_get_all_visited_cities_annotations(
     mock_visited_city_objects: Any, mock_aggregates: dict[str, MagicMock]
 ) -> None:
@@ -93,6 +95,7 @@ def test_get_all_visited_cities_annotations(
 
 
 @patch('city.services.db.City.objects')
+@pytest.mark.integration
 def test_get_number_of_cities_returns_count(mock_city_objects: Any) -> None:
     """
     Тестирует функцию get_number_of_cities, проверяя, что она корректно
@@ -114,6 +117,7 @@ def test_get_number_of_cities_returns_count(mock_city_objects: Any) -> None:
 
 
 @patch('city.services.db.VisitedCity.objects')
+@pytest.mark.integration
 def test_get_number_of_visited_cities_returns_count(mock_visited_city_objects: Any) -> None:
     """
     Тестирует функцию get_number_of_new_visited_cities, проверяя, что она корректно

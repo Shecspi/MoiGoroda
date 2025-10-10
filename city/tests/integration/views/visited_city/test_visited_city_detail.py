@@ -39,6 +39,7 @@ pytestmark = pytest.mark.django_db
 # Тесты с мокированием сервиса (быстрые)
 
 
+@pytest.mark.integration
 def test_visited_city_detail_requires_service_factory() -> None:
     """Проверяет, что view требует установки service_factory."""
     view = VisitedCityDetail()
@@ -48,6 +49,7 @@ def test_visited_city_detail_requires_service_factory() -> None:
         view.dispatch(request, pk=1)
 
 
+@pytest.mark.integration
 def test_visited_city_detail_calls_service_get_city_details() -> None:
     """Проверяет, что view вызывает метод сервиса для получения данных."""
     # Создаем мок сервиса
@@ -98,6 +100,7 @@ def test_visited_city_detail_calls_service_get_city_details() -> None:
     # Это показывает, что для полного тестирования нужны интеграционные тесты
 
 
+@pytest.mark.integration
 def test_visited_city_detail_dto_properties() -> None:
     """Проверяет свойства CityDetailsDTO (без сложных моков)."""
     # Создаем простой мок города
@@ -136,6 +139,7 @@ def test_visited_city_detail_dto_properties() -> None:
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_visited_city_detail_integration_full_flow(django_user_model: Any, client: Client) -> None:
     """ИНТЕГРАЦИОННЫЙ ТЕСТ: Полный цикл просмотра города."""
     from country.models import PartOfTheWorld, Location, Country
@@ -184,6 +188,7 @@ def test_visited_city_detail_integration_full_flow(django_user_model: Any, clien
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_visited_city_detail_integration_nonexistent_city_404(client: Client) -> None:
     """ИНТЕГРАЦИОННЫЙ ТЕСТ: Несуществующий город возвращает 404."""
     user = User.objects.create_user(username='testuser', password='testpass')

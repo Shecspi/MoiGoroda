@@ -12,6 +12,7 @@ from city.models import VisitedCity
 
 
 @pytest.mark.parametrize('sort_name', SORT_FUNCTIONS.keys())
+@pytest.mark.unit
 def test__apply_sort_to_queryset_calls_correct_function(mocker: Any, sort_name: str) -> None:
     """
     Проверяет, что apply_sort_to_queryset вызывает соответствующую функцию из SORT_FUNCTIONS.
@@ -26,6 +27,7 @@ def test__apply_sort_to_queryset_calls_correct_function(mocker: Any, sort_name: 
     assert result == 'sorted_queryset'  # type: ignore
 
 
+@pytest.mark.unit
 def test__apply_sort_to_queryset_raises_for_unknown_sort(mocker: Any) -> None:
     """
     Проверяет, что при неизвестном параметре сортировки вызывается KeyError.
@@ -45,6 +47,7 @@ def test__apply_sort_to_queryset_raises_for_unknown_sort(mocker: Any) -> None:
         ('name_down', ('-city__title',)),
     ],
 )
+@pytest.mark.unit
 def test__name_sorts_call_order_by_correctly(
     mocker: Any, sort_name: str, expected_order_by_args: tuple[str, ...]
 ) -> None:
@@ -69,6 +72,7 @@ def test__name_sorts_call_order_by_correctly(
         ('number_of_visits_down', 'number_of_visits', 'desc'),
     ],
 )
+@pytest.mark.unit
 def test__date_and_count_sorts_use_f_expressions(
     mocker: Any, sort_name: str, field_name: str, direction: str
 ) -> None:
@@ -110,6 +114,7 @@ def test__date_and_count_sorts_use_f_expressions(
         ('number_of_visits_all_users_down', 'number_of_visits_all_users', 'desc'),
     ],
 )
+@pytest.mark.unit
 def test__additional_sorts_use_f_expressions(
     mocker: Any, sort_name: str, field_name: str, direction: str
 ) -> None:
@@ -143,6 +148,7 @@ def test__additional_sorts_use_f_expressions(
     assert result == mock_queryset.order_by.return_value
 
 
+@pytest.mark.unit
 def test__sort_functions_dict_structure() -> None:
     """
     Проверяет, что SORT_FUNCTIONS содержит все ожидаемые функции сортировки.
@@ -168,6 +174,7 @@ def test__sort_functions_dict_structure() -> None:
     assert actual_sorts == expected_sorts
 
 
+@pytest.mark.unit
 def test__sort_functions_are_callable() -> None:
     """
     Проверяет, что все функции в SORT_FUNCTIONS являются вызываемыми.
@@ -176,6 +183,7 @@ def test__sort_functions_are_callable() -> None:
         assert callable(sort_func), f'Функция {sort_name} не является вызываемой'
 
 
+@pytest.mark.unit
 def test__apply_sort_to_queryset_with_none_queryset() -> None:
     """
     Проверяет, что apply_sort_to_queryset корректно обрабатывает None queryset.
@@ -184,6 +192,7 @@ def test__apply_sort_to_queryset_with_none_queryset() -> None:
         apply_sort_to_queryset(None, 'name_up')  # type: ignore
 
 
+@pytest.mark.unit
 def test__apply_sort_to_queryset_with_empty_sort_name() -> None:
     """
     Проверяет, что apply_sort_to_queryset корректно обрабатывает пустое имя сортировки.
@@ -196,6 +205,7 @@ def test__apply_sort_to_queryset_with_empty_sort_name() -> None:
     assert 'Неизвестный параметр сортировки' in str(exc_info.value)
 
 
+@pytest.mark.unit
 def test__apply_sort_to_queryset_with_none_sort_name() -> None:
     """
     Проверяет, что apply_sort_to_queryset корректно обрабатывает None имя сортировки.
@@ -227,6 +237,7 @@ def test__apply_sort_to_queryset_with_none_sort_name() -> None:
         'number_of_visits_all_users_down',
     ],
 )
+@pytest.mark.unit
 def test__all_sort_functions_return_queryset(mocker: Any, sort_name: str) -> None:
     """
     Проверяет, что все функции сортировки возвращают QuerySet.
@@ -240,6 +251,7 @@ def test__all_sort_functions_return_queryset(mocker: Any, sort_name: str) -> Non
     mock_queryset.order_by.assert_called_once()
 
 
+@pytest.mark.unit
 def test__sort_functions_import() -> None:
     """
     Проверяет, что все необходимые функции импортированы корректно.

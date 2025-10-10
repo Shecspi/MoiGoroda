@@ -25,17 +25,20 @@ from country.models import Country
 # Тесты структуры модели
 
 
+@pytest.mark.unit
 def test_city_can_create_model_instance() -> None:
     """Проверяет, что можно создать экземпляр модели City."""
     assert City()
 
 
+@pytest.mark.unit
 def test_city_has_valid_verbose_name() -> None:
     """Проверяет корректные verbose_name и verbose_name_plural."""
     assert City._meta.verbose_name == 'Город'
     assert City._meta.verbose_name_plural == 'Города'
 
 
+@pytest.mark.unit
 def test_city_has_correct_ordering() -> None:
     """Проверяет корректную сортировку модели."""
     assert City._meta.ordering == ['title']
@@ -44,6 +47,7 @@ def test_city_has_correct_ordering() -> None:
 # Тесты полей модели
 
 
+@pytest.mark.unit
 def test_city_has_field_title() -> None:
     """Проверяет поле title модели City."""
     field = City._meta.get_field('title')
@@ -55,6 +59,7 @@ def test_city_has_field_title() -> None:
     assert isinstance(field, models.CharField)
 
 
+@pytest.mark.unit
 def test_city_has_field_country() -> None:
     """Проверяет поле country модели City."""
     field = City._meta.get_field('country')
@@ -67,6 +72,7 @@ def test_city_has_field_country() -> None:
     assert isinstance(field.remote_field.model(), Country)
 
 
+@pytest.mark.unit
 def test_city_has_field_region() -> None:
     """Проверяет поле region модели City."""
     field = City._meta.get_field('region')
@@ -78,6 +84,7 @@ def test_city_has_field_region() -> None:
     assert isinstance(field, models.ForeignKey)
 
 
+@pytest.mark.unit
 def test_city_has_field_population() -> None:
     """Проверяет поле population модели City."""
     field = City._meta.get_field('population')
@@ -88,6 +95,7 @@ def test_city_has_field_population() -> None:
     assert isinstance(field, models.PositiveIntegerField)
 
 
+@pytest.mark.unit
 def test_city_has_field_date_of_foundation() -> None:
     """Проверяет поле date_of_foundation модели City."""
     field = City._meta.get_field('date_of_foundation')
@@ -98,6 +106,7 @@ def test_city_has_field_date_of_foundation() -> None:
     assert isinstance(field, models.PositiveSmallIntegerField)
 
 
+@pytest.mark.unit
 def test_city_has_field_coordinate_width() -> None:
     """Проверяет поле coordinate_width модели City."""
     field = City._meta.get_field('coordinate_width')
@@ -108,6 +117,7 @@ def test_city_has_field_coordinate_width() -> None:
     assert isinstance(field, models.FloatField)
 
 
+@pytest.mark.unit
 def test_city_has_field_coordinate_longitude() -> None:
     """Проверяет поле coordinate_longitude модели City."""
     field = City._meta.get_field('coordinate_longitude')
@@ -118,6 +128,7 @@ def test_city_has_field_coordinate_longitude() -> None:
     assert isinstance(field, models.FloatField)
 
 
+@pytest.mark.unit
 def test_city_has_field_wiki() -> None:
     """Проверяет поле wiki модели City."""
     field = City._meta.get_field('wiki')
@@ -129,6 +140,7 @@ def test_city_has_field_wiki() -> None:
     assert isinstance(field, models.URLField)
 
 
+@pytest.mark.unit
 def test_city_has_field_image() -> None:
     """Проверяет поле image модели City."""
     field = City._meta.get_field('image')
@@ -140,6 +152,7 @@ def test_city_has_field_image() -> None:
     assert isinstance(field, models.URLField)
 
 
+@pytest.mark.unit
 def test_city_has_field_image_source_text() -> None:
     """Проверяет поле image_source_text модели City."""
     field = City._meta.get_field('image_source_text')
@@ -151,6 +164,7 @@ def test_city_has_field_image_source_text() -> None:
     assert isinstance(field, models.CharField)
 
 
+@pytest.mark.unit
 def test_city_has_field_image_source_link() -> None:
     """Проверяет поле image_source_link модели City."""
     field = City._meta.get_field('image_source_link')
@@ -164,12 +178,14 @@ def test_city_has_field_image_source_link() -> None:
 # Тесты методов модели
 
 
+@pytest.mark.unit
 def test_city_str_method() -> None:
     """Проверяет метод __str__ модели."""
     city = City(title='Test City')
     assert str(city) == 'Test City'
 
 
+@pytest.mark.unit
 def test_city_get_absolute_url() -> None:
     """Проверяет метод get_absolute_url модели."""
     city = City()
@@ -182,7 +198,9 @@ def test_city_get_absolute_url() -> None:
 
 
 @pytest.fixture
+@pytest.mark.unit
 @pytest.mark.django_db
+@pytest.mark.unit
 def test_country() -> Country:
     """Фикстура для создания тестовой страны."""
     from country.models import PartOfTheWorld, Location
@@ -194,7 +212,9 @@ def test_country() -> Country:
     )
 
 
+@pytest.mark.unit
 @pytest.mark.django_db
+@pytest.mark.unit
 def test_city_can_create_without_region(test_country: Country) -> None:
     """Проверяет создание города без региона (регион опционален)."""
     city = City.objects.create(
@@ -209,7 +229,9 @@ def test_city_can_create_without_region(test_country: Country) -> None:
     assert city.region is None
 
 
+@pytest.mark.unit
 @pytest.mark.django_db
+@pytest.mark.unit
 def test_city_can_create_with_all_fields(test_country: Country) -> None:
     """Проверяет создание города со всеми полями."""
     from region.models import RegionType, Area, Region
@@ -248,7 +270,9 @@ def test_city_can_create_with_all_fields(test_country: Country) -> None:
     assert city.image == 'https://example.com/image.jpg'
 
 
+@pytest.mark.unit
 @pytest.mark.django_db
+@pytest.mark.unit
 def test_city_ordering(test_country: Country) -> None:
     """Проверяет сортировку городов по названию."""
     City.objects.create(

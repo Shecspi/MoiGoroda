@@ -77,6 +77,7 @@ def setup_db(django_user_model: Any) -> dict[str, Any]:
 # pytestmark уже установлен для всего модуля
 @patch('city.signals.notify_subscribers_on_city_add')
 @patch('city.services.db.set_is_visit_first_for_all_visited_cities')
+@pytest.mark.e2e
 def test_city_create_with_valid_data(
     mock_set_first_visit: MagicMock,
     mock_signal: MagicMock,
@@ -114,6 +115,7 @@ def test_city_create_with_valid_data(
 # pytestmark уже установлен для всего модуля
 @patch('city.signals.notify_subscribers_on_city_add')
 @patch('city.services.db.set_is_visit_first_for_all_visited_cities')
+@pytest.mark.e2e
 def test_city_create_without_optional_fields(
     mock_set_first_visit: MagicMock,
     mock_signal: MagicMock,
@@ -144,6 +146,7 @@ def test_city_create_without_optional_fields(
 # pytestmark уже установлен для всего модуля
 @patch('city.signals.notify_subscribers_on_city_add')
 @patch('city.services.db.set_is_visit_first_for_all_visited_cities')
+@pytest.mark.e2e
 def test_city_create_user_is_automatically_set(
     mock_set_first_visit: MagicMock,
     mock_signal: MagicMock,
@@ -173,6 +176,7 @@ def test_city_create_user_is_automatically_set(
 
 
 # pytestmark уже установлен для всего модуля
+@pytest.mark.e2e
 def test_city_create_without_required_fields(client: Client) -> None:
     """Проверяет обработку формы без обязательных полей."""
     user = User.objects.create_user(username='testuser', password='testpass')
@@ -190,6 +194,7 @@ def test_city_create_without_required_fields(client: Client) -> None:
 
 
 # pytestmark уже установлен для всего модуля
+@pytest.mark.e2e
 def test_city_create_with_invalid_rating(setup_db: dict[str, Any], client: Client) -> None:
     """Проверяет валидацию рейтинга (должен быть 1-5)."""
     client.login(username='testuser', password='testpass')
@@ -212,6 +217,7 @@ def test_city_create_with_invalid_rating(setup_db: dict[str, Any], client: Clien
 
 # pytestmark уже установлен для всего модуля
 @patch('city.signals.notify_subscribers_on_city_add')
+@pytest.mark.e2e
 def test_city_create_duplicate_city_same_date(
     mock_signal: MagicMock,
     setup_db: dict[str, Any],
@@ -251,6 +257,7 @@ def test_city_create_duplicate_city_same_date(
 # pytestmark уже установлен для всего модуля
 @patch('city.signals.notify_subscribers_on_city_add')
 @patch('city.services.db.set_is_visit_first_for_all_visited_cities')
+@pytest.mark.e2e
 def test_city_create_same_city_different_date_allowed(
     mock_set_first_visit: MagicMock,
     mock_signal: MagicMock,
@@ -288,6 +295,7 @@ def test_city_create_same_city_different_date_allowed(
 
 # pytestmark уже установлен для всего модуля
 @patch('city.signals.notify_subscribers_on_city_add')
+@pytest.mark.e2e
 def test_city_create_duplicate_without_date(
     mock_signal: MagicMock,
     setup_db: dict[str, Any],
@@ -326,6 +334,7 @@ def test_city_create_duplicate_without_date(
 
 
 # pytestmark уже установлен для всего модуля
+@pytest.mark.e2e
 def test_city_create_post_guest_redirects_to_login(client: Client) -> None:
     """Проверяет, что неавторизованные пользователи не могут создавать города через POST."""
     form_data: dict[str, Any] = {
@@ -344,6 +353,7 @@ def test_city_create_post_guest_redirects_to_login(client: Client) -> None:
 
 
 # pytestmark уже установлен для всего модуля
+@pytest.mark.e2e
 def test_city_create_with_nonexistent_city_id(client: Client) -> None:
     """Проверяет обработку несуществующего city_id в форме."""
     user = User.objects.create_user(username='testuser', password='testpass')
@@ -368,6 +378,7 @@ def test_city_create_with_nonexistent_city_id(client: Client) -> None:
 # pytestmark уже установлен для всего модуля
 @patch('city.signals.notify_subscribers_on_city_add')
 @patch('city.services.db.set_is_visit_first_for_all_visited_cities')
+@pytest.mark.e2e
 def test_city_create_multiple_visits_different_cities(
     mock_set_first_visit: MagicMock,
     mock_signal: MagicMock,
@@ -425,6 +436,7 @@ def test_city_create_multiple_visits_different_cities(
 # pytestmark уже установлен для всего модуля
 @patch('city.signals.notify_subscribers_on_city_add')
 @patch('city.services.db.set_is_visit_first_for_all_visited_cities')
+@pytest.mark.e2e
 def test_city_create_with_all_rating_values(
     mock_set_first_visit: MagicMock,
     mock_signal: MagicMock,
@@ -464,6 +476,7 @@ def test_city_create_with_all_rating_values(
 @patch('services.logger.info')
 @patch('city.signals.notify_subscribers_on_city_add')
 @patch('city.services.db.set_is_visit_first_for_all_visited_cities')
+@pytest.mark.e2e
 def test_city_create_logs_success(
     mock_set_first_visit: MagicMock,
     mock_signal: MagicMock,
@@ -495,6 +508,7 @@ def test_city_create_logs_success(
 # pytestmark уже установлен для всего модуля
 @patch('city.signals.notify_subscribers_on_city_add')
 @patch('city.services.db.set_is_visit_first_for_all_visited_cities')
+@pytest.mark.e2e
 def test_city_create_different_users_can_add_same_city(
     mock_set_first_visit: MagicMock,
     mock_signal: MagicMock,
@@ -533,6 +547,7 @@ def test_city_create_different_users_can_add_same_city(
 
 
 # pytestmark уже установлен для всего модуля
+@pytest.mark.e2e
 def test_city_create_with_zero_rating(setup_db: dict[str, Any], client: Client) -> None:
     """Проверяет, что рейтинг 0 не принимается."""
     client.login(username='testuser', password='testpass')
@@ -552,6 +567,7 @@ def test_city_create_with_zero_rating(setup_db: dict[str, Any], client: Client) 
 
 
 # pytestmark уже установлен для всего модуля
+@pytest.mark.e2e
 def test_city_create_with_negative_rating(setup_db: dict[str, Any], client: Client) -> None:
     """Проверяет, что отрицательный рейтинг не принимается."""
     client.login(username='testuser', password='testpass')

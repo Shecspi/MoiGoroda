@@ -34,22 +34,26 @@ from country.models import Country
 # Тесты структуры модели
 
 
+@pytest.mark.integration
 def test_visited_city_can_create_model_instance() -> None:
     """Проверяет, что можно создать экземпляр модели VisitedCity."""
     assert VisitedCity()
 
 
+@pytest.mark.integration
 def test_visited_city_has_valid_verbose_name() -> None:
     """Проверяет корректные verbose_name и verbose_name_plural."""
     assert VisitedCity._meta.verbose_name == 'Посещённый город'
     assert VisitedCity._meta.verbose_name_plural == 'Посещённые города'
 
 
+@pytest.mark.integration
 def test_visited_city_has_correct_ordering() -> None:
     """Проверяет корректную сортировку модели."""
     assert VisitedCity._meta.ordering == ['-id']
 
 
+@pytest.mark.integration
 def test_visited_city_has_correct_unique_together() -> None:
     """Проверяет корректное ограничение unique_together."""
     unique_together = list(VisitedCity._meta.unique_together)
@@ -60,6 +64,7 @@ def test_visited_city_has_correct_unique_together() -> None:
 # Тесты полей модели
 
 
+@pytest.mark.integration
 def test_visited_city_has_field_user() -> None:
     """Проверяет поле user модели VisitedCity."""
     field = VisitedCity._meta.get_field('user')
@@ -72,6 +77,7 @@ def test_visited_city_has_field_user() -> None:
     assert isinstance(field.remote_field.model(), User)
 
 
+@pytest.mark.integration
 def test_visited_city_has_field_city() -> None:
     """Проверяет поле city модели VisitedCity."""
     field = VisitedCity._meta.get_field('city')
@@ -84,6 +90,7 @@ def test_visited_city_has_field_city() -> None:
     assert isinstance(field.remote_field.model(), City)
 
 
+@pytest.mark.integration
 def test_visited_city_has_field_date_of_visit() -> None:
     """Проверяет поле date_of_visit модели VisitedCity."""
     field = VisitedCity._meta.get_field('date_of_visit')
@@ -94,6 +101,7 @@ def test_visited_city_has_field_date_of_visit() -> None:
     assert isinstance(field, models.DateField)
 
 
+@pytest.mark.integration
 def test_visited_city_has_field_has_magnet() -> None:
     """Проверяет поле has_magnet модели VisitedCity."""
     field = VisitedCity._meta.get_field('has_magnet')
@@ -105,6 +113,7 @@ def test_visited_city_has_field_has_magnet() -> None:
     assert field.default is False
 
 
+@pytest.mark.integration
 def test_visited_city_has_field_impression() -> None:
     """Проверяет поле impression модели VisitedCity."""
     field = VisitedCity._meta.get_field('impression')
@@ -115,6 +124,7 @@ def test_visited_city_has_field_impression() -> None:
     assert isinstance(field, models.TextField)
 
 
+@pytest.mark.integration
 def test_visited_city_has_field_rating() -> None:
     """Проверяет поле rating модели VisitedCity."""
     field = VisitedCity._meta.get_field('rating')
@@ -133,6 +143,7 @@ def test_visited_city_has_field_rating() -> None:
     )
 
 
+@pytest.mark.integration
 def test_visited_city_has_field_is_first_visit() -> None:
     """Проверяет поле is_first_visit модели VisitedCity."""
     field = VisitedCity._meta.get_field('is_first_visit')
@@ -147,6 +158,7 @@ def test_visited_city_has_field_is_first_visit() -> None:
 # Тесты дополнительных атрибутов полей
 
 
+@pytest.mark.integration
 def test_visited_city_has_help_texts() -> None:
     """Проверяет наличие help_text для всех полей."""
     city_field = VisitedCity._meta.get_field('city')
@@ -162,12 +174,14 @@ def test_visited_city_has_help_texts() -> None:
     assert '1 - плохо, 5 - отлично' in rating_field.help_text
 
 
+@pytest.mark.integration
 def test_visited_city_has_related_name() -> None:
     """Проверяет related_name для поля city."""
     city_field = VisitedCity._meta.get_field('city')
     assert city_field.remote_field.related_name == 'visitedcity'
 
 
+@pytest.mark.integration
 def test_visited_city_has_db_indexes() -> None:
     """Проверяет наличие db_index для соответствующих полей."""
     date_field = VisitedCity._meta.get_field('date_of_visit')
@@ -182,6 +196,7 @@ def test_visited_city_has_db_indexes() -> None:
 # Тесты методов модели
 
 
+@pytest.mark.integration
 def test_visited_city_str_method() -> None:
     """Проверяет метод __str__ модели."""
     visited_city = VisitedCity()
@@ -194,6 +209,7 @@ def test_visited_city_str_method() -> None:
     assert str(visited_city) == 'Test City'
 
 
+@pytest.mark.integration
 def test_visited_city_get_absolute_url() -> None:
     """Проверяет метод get_absolute_url модели."""
     visited_city = VisitedCity()
@@ -207,6 +223,7 @@ def test_visited_city_get_absolute_url() -> None:
 
 @pytest.fixture
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_user() -> User:
     """Фикстура для создания тестового пользователя."""
     return User.objects.create_user(username='testuser', password='testpass')
@@ -214,6 +231,7 @@ def test_user() -> User:
 
 @pytest.fixture
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_country() -> Country:
     """Фикстура для создания тестовой страны."""
     return Country.objects.create(name='Test Country', code='TC')
@@ -221,6 +239,7 @@ def test_country() -> Country:
 
 @pytest.fixture
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city(test_country: Country) -> City:
     """Фикстура для создания тестового города."""
     return City.objects.create(
@@ -233,6 +252,7 @@ def test_city(test_country: Country) -> City:
 
 @pytest.mark.django_db
 @patch('city.signals.notify_subscribers_on_city_add')
+@pytest.mark.integration
 def test_visited_city_can_create_instance(
     mock_signal: MagicMock, test_user: User, test_city: City
 ) -> None:
@@ -258,6 +278,7 @@ def test_visited_city_can_create_instance(
 
 @pytest.mark.django_db
 @patch('city.signals.notify_subscribers_on_city_add')
+@pytest.mark.integration
 def test_visited_city_rating_validation_min_value(
     mock_signal: MagicMock, test_user: User, test_city: City
 ) -> None:
@@ -274,6 +295,7 @@ def test_visited_city_rating_validation_min_value(
 
 @pytest.mark.django_db
 @patch('city.signals.notify_subscribers_on_city_add')
+@pytest.mark.integration
 def test_visited_city_rating_validation_max_value(
     mock_signal: MagicMock, test_user: User, test_city: City
 ) -> None:
@@ -290,6 +312,7 @@ def test_visited_city_rating_validation_max_value(
 
 @pytest.mark.django_db
 @patch('city.signals.notify_subscribers_on_city_add')
+@pytest.mark.integration
 def test_visited_city_rating_validation_valid_values(
     mock_signal: MagicMock, test_user: User, test_city: City
 ) -> None:
@@ -302,6 +325,7 @@ def test_visited_city_rating_validation_valid_values(
 
 @pytest.mark.django_db
 @patch('city.signals.notify_subscribers_on_city_add')
+@pytest.mark.integration
 def test_visited_city_unique_together_constraint(
     mock_signal: MagicMock, test_user: User, test_city: City
 ) -> None:
@@ -320,6 +344,7 @@ def test_visited_city_unique_together_constraint(
 
 @pytest.mark.django_db
 @patch('city.signals.notify_subscribers_on_city_add')
+@pytest.mark.integration
 def test_visited_city_default_values(
     mock_signal: MagicMock, test_user: User, test_city: City
 ) -> None:

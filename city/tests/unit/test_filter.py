@@ -13,6 +13,7 @@ from city.services.filter import (
 )
 
 
+@pytest.mark.unit
 def test__filter_has_magnet_applies_correct_filter(mocker: Any) -> None:
     """Фильтр возвращает только города с сувенирами (has_souvenir=True)."""
     queryset = mocker.Mock(spec=QuerySet)
@@ -24,6 +25,7 @@ def test__filter_has_magnet_applies_correct_filter(mocker: Any) -> None:
     assert result == 'filtered_result'  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_has_no_magnet_applies_correct_filter(mocker: Any) -> None:
     """Фильтр возвращает только города без сувениров (has_souvenir=False)."""
     queryset = mocker.Mock(spec=QuerySet)
@@ -35,6 +37,7 @@ def test__filter_has_no_magnet_applies_correct_filter(mocker: Any) -> None:
     assert result == 'filtered_result'  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_current_year_calls_filter_by_year_with_correct_year(mocker: Any) -> None:
     """Фильтр текущего года вызывает filter_by_year с текущим годом."""
     mock_date = mocker.patch('city.services.filter.date')
@@ -50,6 +53,7 @@ def test__filter_current_year_calls_filter_by_year_with_correct_year(mocker: Any
     assert result == 'filtered'  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_last_year_calls_filter_by_year_with_correct_year(mocker: Any) -> None:
     """Фильтр прошлого года вызывает filter_by_year с прошлым годом."""
     mock_date = mocker.patch('city.services.filter.date')
@@ -65,6 +69,7 @@ def test__filter_last_year_calls_filter_by_year_with_correct_year(mocker: Any) -
     assert result == 'filtered'  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_by_year_applies_subqueries_correctly(mocker: Any) -> None:
     """filter_by_year применяет нужные Subquery, аннотации и исключения."""
     mock_queryset = mocker.Mock(spec=QuerySet)
@@ -91,6 +96,7 @@ def test__filter_by_year_applies_subqueries_correctly(mocker: Any) -> None:
     filtered.annotate.assert_called_once()
 
 
+@pytest.mark.unit
 def test__apply_filter_to_queryset_dispatches_correct_function(mocker: Any) -> None:
     """apply_filter_to_queryset вызывает правильную функцию из FILTER_FUNCTIONS."""
     mock_filter = mocker.Mock(return_value='filtered')
@@ -103,6 +109,7 @@ def test__apply_filter_to_queryset_dispatches_correct_function(mocker: Any) -> N
     assert result == 'filtered'  # type: ignore
 
 
+@pytest.mark.unit
 def test__apply_filter_to_queryset_raises_for_unknown_filter() -> None:
     """apply_filter_to_queryset выбрасывает KeyError, если фильтр не зарегистрирован."""
     with pytest.raises(KeyError, match='Неизвестный фильтр: unknown'):
@@ -110,6 +117,7 @@ def test__apply_filter_to_queryset_raises_for_unknown_filter() -> None:
 
 
 @pytest.mark.parametrize('filter_name', FILTER_FUNCTIONS.keys())
+@pytest.mark.unit
 def test__all_filters_are_callable_and_registered(mocker: Any, filter_name: str) -> None:
     """Каждая функция-фильтр из FILTER_FUNCTIONS вызывается без ошибок."""
     mock_func = mocker.Mock(return_value='filtered')
@@ -122,6 +130,7 @@ def test__all_filters_are_callable_and_registered(mocker: Any, filter_name: str)
     assert result == 'filtered'  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_by_year_with_different_years(mocker: Any) -> None:
     """Тест filter_by_year с разными годами."""
     mock_queryset = mocker.Mock(spec=QuerySet)
@@ -148,6 +157,7 @@ def test__filter_by_year_with_different_years(mocker: Any) -> None:
         assert result == final_annotated
 
 
+@pytest.mark.unit
 def test__filter_by_year_subquery_calls(mocker: Any) -> None:
     """Тест детального вызова Subquery в filter_by_year."""
     mock_queryset = mocker.Mock(spec=QuerySet)
@@ -175,18 +185,21 @@ def test__filter_by_year_subquery_calls(mocker: Any) -> None:
     assert result == final_annotated
 
 
+@pytest.mark.unit
 def test__apply_filter_to_queryset_with_empty_filter_name() -> None:
     """Тест apply_filter_to_queryset с пустым именем фильтра."""
     with pytest.raises(KeyError, match='Неизвестный фильтр: '):
         apply_filter_to_queryset(QuerySet(), user_id=1, filter_name='')  # type: ignore
 
 
+@pytest.mark.unit
 def test__apply_filter_to_queryset_with_none_filter_name() -> None:
     """Тест apply_filter_to_queryset с None именем фильтра."""
     with pytest.raises(KeyError, match='Неизвестный фильтр: None'):
         apply_filter_to_queryset(QuerySet(), user_id=1, filter_name=None)  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_has_magnet_with_different_user_ids(mocker: Any) -> None:
     """Тест filter_has_magnet с разными user_id."""
     queryset = mocker.Mock(spec=QuerySet)
@@ -201,6 +214,7 @@ def test__filter_has_magnet_with_different_user_ids(mocker: Any) -> None:
         assert result == 'filtered_result'  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_has_no_magnet_with_different_user_ids(mocker: Any) -> None:
     """Тест filter_has_no_magnet с разными user_id."""
     queryset = mocker.Mock(spec=QuerySet)
@@ -215,6 +229,7 @@ def test__filter_has_no_magnet_with_different_user_ids(mocker: Any) -> None:
         assert result == 'filtered_result'  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_current_year_edge_cases(mocker: Any) -> None:
     """Тест filter_current_year с граничными случаями."""
     mock_date = mocker.patch('city.services.filter.date')
@@ -233,6 +248,7 @@ def test__filter_current_year_edge_cases(mocker: Any) -> None:
         assert result == 'filtered'  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_last_year_edge_cases(mocker: Any) -> None:
     """Тест filter_last_year с граничными случаями."""
     mock_date = mocker.patch('city.services.filter.date')
@@ -251,6 +267,7 @@ def test__filter_last_year_edge_cases(mocker: Any) -> None:
         assert result == 'filtered'  # type: ignore
 
 
+@pytest.mark.unit
 def test__filter_by_year_with_edge_case_years(mocker: Any) -> None:
     """Тест filter_by_year с граничными годами."""
     mock_queryset = mocker.Mock(spec=QuerySet)
@@ -277,6 +294,7 @@ def test__filter_by_year_with_edge_case_years(mocker: Any) -> None:
         assert result == final_annotated
 
 
+@pytest.mark.unit
 def test__filter_by_year_with_different_user_ids(mocker: Any) -> None:
     """Тест filter_by_year с разными user_id."""
     mock_queryset = mocker.Mock(spec=QuerySet)
@@ -303,6 +321,7 @@ def test__filter_by_year_with_different_user_ids(mocker: Any) -> None:
         assert result == final_annotated
 
 
+@pytest.mark.unit
 def test__filter_functions_keys_are_strings() -> None:
     """Тест, что ключи в FILTER_FUNCTIONS являются строками."""
     for key in FILTER_FUNCTIONS.keys():
@@ -310,17 +329,20 @@ def test__filter_functions_keys_are_strings() -> None:
         assert len(key) > 0
 
 
+@pytest.mark.unit
 def test__filter_functions_values_are_callable() -> None:
     """Тест, что значения в FILTER_FUNCTIONS являются вызываемыми."""
     for value in FILTER_FUNCTIONS.values():
         assert callable(value)
 
 
+@pytest.mark.unit
 def test__filter_functions_not_empty() -> None:
     """Тест, что FILTER_FUNCTIONS не пустой."""
     assert len(FILTER_FUNCTIONS) > 0
 
 
+@pytest.mark.unit
 def test__filter_functions_expected_keys() -> None:
     """Тест, что FILTER_FUNCTIONS содержит ожидаемые ключи."""
     expected_keys = {'magnet', 'no_magnet', 'current_year', 'last_year'}

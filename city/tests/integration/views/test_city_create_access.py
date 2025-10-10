@@ -25,6 +25,7 @@ from django.urls import reverse
 
 @pytest.fixture
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_user() -> User:
     """Фикстура для создания тестового пользователя."""
     return User.objects.create_user(username='testuser', password='testpass')
@@ -34,6 +35,7 @@ def test_user() -> User:
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city_create_guest_access_redirects_to_login(client: Client) -> None:
     """Проверяет, что неавторизованные пользователи перенаправляются на страницу входа."""
     response = client.get(reverse('city-create'))
@@ -41,6 +43,7 @@ def test_city_create_guest_access_redirects_to_login(client: Client) -> None:
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city_create_guest_access_shows_login_template(client: Client) -> None:
     """Проверяет, что неавторизованные пользователи видят страницу входа после редиректа."""
     response = client.get(reverse('city-create'), follow=True)
@@ -49,6 +52,7 @@ def test_city_create_guest_access_shows_login_template(client: Client) -> None:
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city_create_authenticated_user_access(test_user: User, client: Client) -> None:
     """Проверяет, что авторизованные пользователи имеют доступ к странице создания города."""
     client.login(username='testuser', password='testpass')
@@ -59,6 +63,7 @@ def test_city_create_authenticated_user_access(test_user: User, client: Client) 
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city_create_page_context(test_user: User, client: Client) -> None:
     """Проверяет контекст страницы создания города."""
     client.login(username='testuser', password='testpass')
@@ -71,6 +76,7 @@ def test_city_create_page_context(test_user: User, client: Client) -> None:
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city_create_with_valid_city_id_parameter(test_user: User, client: Client) -> None:
     """Проверяет предзаполнение формы при передаче валидного city_id."""
     from country.models import Country
@@ -94,6 +100,7 @@ def test_city_create_with_valid_city_id_parameter(test_user: User, client: Clien
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city_create_with_invalid_city_id_parameter(test_user: User, client: Client) -> None:
     """Проверяет обработку невалидного city_id (не число)."""
     client.login(username='testuser', password='testpass')
@@ -105,6 +112,7 @@ def test_city_create_with_invalid_city_id_parameter(test_user: User, client: Cli
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city_create_with_nonexistent_city_id_parameter(test_user: User, client: Client) -> None:
     """Проверяет обработку несуществующего city_id."""
     client.login(username='testuser', password='testpass')
@@ -119,6 +127,7 @@ def test_city_create_with_nonexistent_city_id_parameter(test_user: User, client:
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city_create_form_has_all_required_fields(test_user: User, client: Client) -> None:
     """Проверяет наличие всех обязательных полей в форме."""
     client.login(username='testuser', password='testpass')
@@ -137,6 +146,7 @@ def test_city_create_form_has_all_required_fields(test_user: User, client: Clien
 
 
 @pytest.mark.django_db
+@pytest.mark.integration
 def test_city_create_form_field_properties(test_user: User, client: Client) -> None:
     """Проверяет свойства полей формы."""
     client.login(username='testuser', password='testpass')

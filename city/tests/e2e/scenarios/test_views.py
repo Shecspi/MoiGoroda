@@ -49,6 +49,7 @@ def rf() -> RequestFactory:
     return RequestFactory()
 
 
+@pytest.mark.e2e
 def test_visited_city_detail_context(
     rf: RequestFactory,
     fake_service_factory: Callable[[HttpRequest], Any],
@@ -68,6 +69,7 @@ def test_visited_city_detail_context(
     fake_service.get_city_details.assert_any_call(1, request.user)
 
 
+@pytest.mark.e2e
 def test_visited_city_detail_improperly_configured(rf: RequestFactory) -> None:
     request = rf.get('/city/1/')
     view = VisitedCityDetail()
@@ -76,6 +78,7 @@ def test_visited_city_detail_improperly_configured(rf: RequestFactory) -> None:
         view.dispatch(request, pk=1)
 
 
+@pytest.mark.e2e
 def test_visited_city_detail_service_raises(
     rf: RequestFactory,
     fake_service_factory: Callable[[HttpRequest], Any],
@@ -99,6 +102,7 @@ def test_visited_city_detail_service_raises(
         pass
 
 
+@pytest.mark.e2e
 def test_visited_city_detail_unauthenticated_user(
     rf: RequestFactory,
     fake_service_factory: Callable[[HttpRequest], Any],
@@ -120,6 +124,7 @@ def test_visited_city_detail_unauthenticated_user(
     fake_service.get_city_details.assert_any_call(1, user)
 
 
+@pytest.mark.e2e
 def test_visited_city_detail_get_object_called(
     rf: RequestFactory,
     fake_service_factory: Callable[[HttpRequest], Any],
@@ -139,6 +144,7 @@ def test_visited_city_detail_get_object_called(
     get_object_mock.assert_called()
 
 
+@pytest.mark.e2e
 def test_visited_city_detail_context_extra_fields(
     rf: RequestFactory,
     fake_service_factory: Callable[[HttpRequest], Any],

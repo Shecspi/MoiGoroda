@@ -105,29 +105,17 @@ class TestMultipleUsersInteraction:
     """Тесты взаимодействия нескольких пользователей."""
 
     @pytest.mark.django_db
-    def test_user_can_access_another_users_city(self, setup_multiple_cities, client):
-        """
-        Пользователь может получить доступ к городам другого пользователя для обновления.
-        TODO: Это проблема безопасности - требуется добавить проверку владельца в VisitedCity_Update view.
-        """
+    def test_user_cannot_access_another_users_city(self, setup_multiple_cities, client):
+        """Пользователь не должен иметь доступ к городам другого пользователя."""
         client.login(username='username1', password='password')
 
-        # В текущей реализации user1 может получить доступ к городу user2
+        # Попытка получить доступ к городу пользователя 2
         response = client.get(reverse('city-update', kwargs={'pk': 3}))
-        assert response.status_code == 200  # Должен быть 404
+        assert response.status_code == 404
 
-        # И может обновить его
-        visited_city = VisitedCity.objects.get(pk=3)
-        response = client.post(
-            reverse('city-update', kwargs={'pk': 3}),
-            data={
-                'city': visited_city.city.id,
-                'country': visited_city.city.country.id,
-                'region': visited_city.city.region.id if visited_city.city.region else '',
-                'rating': 1,
-            },
-        )
-        assert response.status_code == 302  # Должен быть 404
+        # Попытка обновить город пользователя 2
+        response = client.post(reverse('city-update', kwargs={'pk': 3}), data={'rating': 1})
+        assert response.status_code == 404
 
     @pytest.mark.django_db
     def test_user_can_only_delete_own_cities(self, setup_multiple_cities, client):

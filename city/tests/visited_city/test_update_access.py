@@ -163,35 +163,21 @@ class TestUpdateAccessOwner:
 
 
 class TestUpdateAccessNonOwner:
-    """
-    Тесты доступа к обновлению для авторизованных пользователей-не владельцев.
-
-    ПРИМЕЧАНИЕ: В текущей реализации нет проверки владельца записи для update view.
-    Это потенциальная проблема безопасности, которая требует исправления.
-    Тесты документируют текущее поведение системы.
-    """
+    """Тесты доступа к обновлению для авторизованных пользователей-не владельцев."""
 
     @pytest.mark.django_db
-    def test_non_owner_get_shows_form(self, setup, client):
-        """
-        GET запрос от не-владельца показывает форму.
-        TODO: Должен возвращать 404, требуется добавить проверку владельца в view.
-        """
+    def test_non_owner_get_returns_404(self, setup, client):
+        """GET запрос от не-владельца должен возвращать 404."""
         client.login(username='username2', password='password')
         response = client.get(reverse('city-update', kwargs={'pk': 1}))
 
-        # В текущей реализации возвращает 200, хотя должен 404
-        assert response.status_code == 200
+        assert response.status_code == 404
 
     @pytest.mark.django_db
-    def test_non_owner_post_can_update(self, setup, client):
-        """
-        POST запрос от не-владельца может обновить запись.
-        TODO: Должен возвращать 404, требуется добавить проверку владельца в view.
-        """
+    def test_non_owner_post_returns_404(self, setup, client):
+        """POST запрос от не-владельца должен возвращать 404."""
         client.login(username='username2', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
-        original_rating = visited_city.rating
 
         response = client.post(
             reverse('city-update', kwargs={'pk': 1}),
@@ -203,11 +189,24 @@ class TestUpdateAccessNonOwner:
             },
         )
 
-        # В текущей реализации обновление происходит
-        assert response.status_code == 302
-        updated_city = VisitedCity.objects.get(pk=1)
-        assert updated_city.rating == 5
-        assert updated_city.rating != original_rating
+        assert response.status_code == 404
+
+    @pytest.mark.django_db
+    def test_non_owner_cannot_update_others_city(self, setup, client):
+        """Не-владелец не должен иметь возможность обновить чужую запись."""
+        client.login(username='username2', password='password')
+        original_rating = VisitedCity.objects.get(pk=1).rating
+
+        try:
+            client.post(
+                reverse('city-update', kwargs={'pk': 1}),
+                data={'rating': 5},
+            )
+        except Exception:  # noqa: S110
+            pass  # Ожидаем 404
+
+        updated_rating = VisitedCity.objects.get(pk=1).rating
+        assert original_rating == updated_rating
 
 
 class TestUpdateEdgeCases:

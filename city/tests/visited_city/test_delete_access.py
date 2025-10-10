@@ -14,7 +14,9 @@ from typing import Any
 
 import pytest
 from django.contrib.auth.models import User
+from django.test import Client
 from django.urls import reverse
+from pytest import LogCaptureFixture
 
 from city.models import VisitedCity
 
@@ -23,15 +25,15 @@ class TestDeleteAccessUnauthenticated:
     """Тесты доступа к удалению для неавторизованных пользователей."""
 
     @pytest.mark.django_db
-    def test_guest_get_redirects_to_login(self, setup: None, client: Any) -> None:
+    def test_guest_get_redirects_to_login(self, setup: Any, client: Client) -> None:
         """GET запрос от гостя должен перенаправлять на страницу входа."""
         response = client.get(reverse('city-delete', kwargs={'pk': 1}))
 
         assert response.status_code == 302
-        assert '/account/signin' in response.url
+        assert "/account/signin" in response.url  # type: ignore[attr-defined]
 
     @pytest.mark.django_db
-    def test_guest_get_follow_shows_signin_page(self, setup: None, client: Any) -> None:
+    def test_guest_get_follow_shows_signin_page(self, setup: Any, client: Client) -> None:
         """GET запрос от гостя с follow должен показывать страницу входа."""
         response = client.get(reverse('city-delete', kwargs={'pk': 1}), follow=True)
 
@@ -39,15 +41,15 @@ class TestDeleteAccessUnauthenticated:
         assert 'account/signin.html' in (t.name for t in response.templates)
 
     @pytest.mark.django_db
-    def test_guest_post_redirects_to_login(self, setup: None, client: Any) -> None:
+    def test_guest_post_redirects_to_login(self, setup: Any, client: Client) -> None:
         """POST запрос от гостя должен перенаправлять на страницу входа."""
         response = client.post(reverse('city-delete', kwargs={'pk': 1}))
 
         assert response.status_code == 302
-        assert '/account/signin' in response.url
+        assert "/account/signin" in response.url  # type: ignore[attr-defined]
 
     @pytest.mark.django_db
-    def test_guest_post_follow_shows_signin_page(self, setup: None, client: Any) -> None:
+    def test_guest_post_follow_shows_signin_page(self, setup: Any, client: Client) -> None:
         """POST запрос от гостя с follow должен показывать страницу входа."""
         response = client.post(reverse('city-delete', kwargs={'pk': 1}), follow=True)
 
@@ -55,7 +57,7 @@ class TestDeleteAccessUnauthenticated:
         assert 'account/signin.html' in (t.name for t in response.templates)
 
     @pytest.mark.django_db
-    def test_guest_cannot_delete_city(self, setup: None, client: Any) -> None:
+    def test_guest_cannot_delete_city(self, setup: Any, client: Client) -> None:
         """Гость не должен иметь возможность удалить запись."""
         qty_before = VisitedCity.objects.count()
         client.post(reverse('city-delete', kwargs={'pk': 1}))
@@ -68,7 +70,7 @@ class TestDeleteAccessOwner:
     """Тесты доступа к удалению для авторизованных пользователей-владельцев."""
 
     @pytest.mark.django_db
-    def test_owner_get_forbidden(self, setup: None, caplog: Any, client: Any) -> None:
+    def test_owner_get_forbidden(self, setup: Any, caplog: LogCaptureFixture, client: Client) -> None:
         """GET запрос от владельца должен возвращать 403 Forbidden."""
         client.login(username='username1', password='password')
         response = client.get(reverse('city-delete', kwargs={'pk': 1}))
@@ -78,7 +80,7 @@ class TestDeleteAccessOwner:
         assert '(Visited city) Attempt to access the GET method' in caplog.records[0].getMessage()
 
     @pytest.mark.django_db
-    def test_owner_post_deletes_successfully(self, setup: None, caplog: Any, client: Any) -> None:
+    def test_owner_post_deletes_successfully(self, setup: Any, caplog: LogCaptureFixture, client: Client) -> None:
         """POST запрос от владельца должен успешно удалить запись."""
         client.login(username='username1', password='password')
         user = User.objects.get(username='username1')
@@ -93,7 +95,7 @@ class TestDeleteAccessOwner:
         assert '(Visited city) Deleting the visited city #1' in caplog.records[0].getMessage()
 
     @pytest.mark.django_db
-    def test_owner_post_redirects_to_city_detail(self, setup: None, client: Any) -> None:
+    def test_owner_post_redirects_to_city_detail(self, setup: Any, client: Client) -> None:
         """После удаления должен быть редирект на страницу города."""
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
@@ -102,10 +104,10 @@ class TestDeleteAccessOwner:
         response = client.post(reverse('city-delete', kwargs={'pk': 1}))
 
         assert response.status_code == 302
-        assert f'/city/{city_id}' in response.url
+        assert f'/city/{city_id}' in response.url  # type: ignore[attr-defined]
 
     @pytest.mark.django_db
-    def test_owner_post_removes_from_database(self, setup: None, client: Any) -> None:
+    def test_owner_post_removes_from_database(self, setup: Any, client: Client) -> None:
         """После удаления запись должна отсутствовать в БД."""
         client.login(username='username1', password='password')
 
@@ -119,7 +121,7 @@ class TestDeleteAccessNonOwner:
     """Тесты доступа к удалению для авторизованных пользователей-не владельцев."""
 
     @pytest.mark.django_db
-    def test_non_owner_get_forbidden(self, setup: None, client: Any) -> None:
+    def test_non_owner_get_forbidden(self, setup: Any, client: Client) -> None:
         """GET запрос от не-владельца должен возвращать 403 Forbidden."""
         client.login(username='username2', password='password')
         response = client.get(reverse('city-delete', kwargs={'pk': 1}))
@@ -127,7 +129,7 @@ class TestDeleteAccessNonOwner:
         assert response.status_code == 403
 
     @pytest.mark.django_db
-    def test_non_owner_post_returns_404(self, setup: None, caplog: Any, client: Any) -> None:
+    def test_non_owner_post_returns_404(self, setup: Any, caplog: LogCaptureFixture, client: Client) -> None:
         """POST запрос от не-владельца должен возвращать 404."""
         client.login(username='username2', password='password')
         response = client.post(reverse('city-delete', kwargs={'pk': 1}))
@@ -140,7 +142,7 @@ class TestDeleteAccessNonOwner:
         )
 
     @pytest.mark.django_db
-    def test_non_owner_cannot_delete_others_city(self, setup: None, client: Any) -> None:
+    def test_non_owner_cannot_delete_others_city(self, setup: Any, client: Client) -> None:
         """Не-владелец не должен иметь возможность удалить чужую запись."""
         client.login(username='username2', password='password')
         qty_before = VisitedCity.objects.count()
@@ -158,7 +160,7 @@ class TestDeleteEdgeCases:
     """Тесты граничных случаев при удалении."""
 
     @pytest.mark.django_db
-    def test_delete_nonexistent_city(self, setup: None, client: Any) -> None:
+    def test_delete_nonexistent_city(self, setup: Any, client: Client) -> None:
         """Попытка удалить несуществующий город должна возвращать 404."""
         client.login(username='username1', password='password')
         response = client.post(reverse('city-delete', kwargs={'pk': 9999}))
@@ -166,12 +168,12 @@ class TestDeleteEdgeCases:
         assert response.status_code == 404
 
     @pytest.mark.django_db
-    def test_delete_with_invalid_pk(self, setup: None, client: Any) -> None:
+    def test_delete_with_invalid_pk(self, setup: Any, client: Client) -> None:
         """Попытка удалить с некорректным pk должна возвращать 404."""
         client.login(username='username1', password='password')
 
         try:
-            response = client.post(reverse('city-delete', kwargs={'pk': 'invalid'}))  # type: ignore[misc]
+            response = client.post(reverse('city-delete', kwargs={'pk': 'invalid'}))
             assert response.status_code == 404
         except Exception:  # noqa: S110
             # Может быть ValueError при парсинге URL

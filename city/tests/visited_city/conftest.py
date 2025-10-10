@@ -5,14 +5,13 @@
 from typing import Any
 
 import pytest
-from django.contrib.auth.models import User
 
 from city.models import City, VisitedCity
 from country.models import Country
 from region.models import Area, Region, RegionType
 
 
-def create_user(django_user_model: Any, user_id: int) -> User:
+def create_user(django_user_model: Any, user_id: int) -> Any:
     """Создает пользователя с заданным ID."""
     return django_user_model.objects.create_user(
         id=user_id, username=f'username{user_id}', password='password'
@@ -63,7 +62,7 @@ def create_city(region: Region, country: Country, city_id: int = 1, title: str =
 
 
 def create_visited_city(
-    user: User,
+    user: Any,
     city: City,
     visited_city_id: int = 1,
     date_of_visit: str = '2022-02-02',

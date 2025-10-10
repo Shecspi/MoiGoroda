@@ -29,7 +29,7 @@ class TestUpdateAccessUnauthenticated:
         response = client.get(reverse('city-update', kwargs={'pk': 1}))
 
         assert response.status_code == 302
-        assert "/account/signin" in response.url  # type: ignore[attr-defined]
+        assert '/account/signin' in response.url  # type: ignore[attr-defined]
 
     @pytest.mark.django_db
     def test_guest_get_follow_shows_signin_page(self, setup: Any, client: Client) -> None:
@@ -45,7 +45,7 @@ class TestUpdateAccessUnauthenticated:
         response = client.post(reverse('city-update', kwargs={'pk': 1}))
 
         assert response.status_code == 302
-        assert "/account/signin" in response.url  # type: ignore[attr-defined]
+        assert '/account/signin' in response.url  # type: ignore[attr-defined]
 
     @pytest.mark.django_db
     def test_guest_post_follow_shows_signin_page(self, setup: Any, client: Client) -> None:
@@ -146,7 +146,9 @@ class TestUpdateAccessOwner:
         assert f'/city/{city_id}' in response.url  # type: ignore[attr-defined]
 
     @pytest.mark.django_db
-    def test_owner_post_logs_update(self, setup: Any, caplog: LogCaptureFixture, client: Client) -> None:
+    def test_owner_post_logs_update(
+        self, setup: Any, caplog: LogCaptureFixture, client: Client
+    ) -> None:
         """Обновление должно логироваться."""
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)

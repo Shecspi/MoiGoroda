@@ -298,7 +298,7 @@ class TestEdgeCasesAndErrorHandling:
 
         response = client.get(reverse('city-update', kwargs={'pk': 1}))
         assert response.status_code == 302
-        assert "/account/signin" in response.url  # type: ignore[attr-defined]
+        assert '/account/signin' in response.url  # type: ignore[attr-defined]
 
     @pytest.mark.django_db
     def test_concurrent_update_attempts(self, setup: Any, client: Client) -> None:

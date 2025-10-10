@@ -30,7 +30,7 @@ class TestDeleteAccessUnauthenticated:
         response = client.get(reverse('city-delete', kwargs={'pk': 1}))
 
         assert response.status_code == 302
-        assert "/account/signin" in response.url  # type: ignore[attr-defined]
+        assert '/account/signin' in response.url  # type: ignore[attr-defined]
 
     @pytest.mark.django_db
     def test_guest_get_follow_shows_signin_page(self, setup: Any, client: Client) -> None:
@@ -46,7 +46,7 @@ class TestDeleteAccessUnauthenticated:
         response = client.post(reverse('city-delete', kwargs={'pk': 1}))
 
         assert response.status_code == 302
-        assert "/account/signin" in response.url  # type: ignore[attr-defined]
+        assert '/account/signin' in response.url  # type: ignore[attr-defined]
 
     @pytest.mark.django_db
     def test_guest_post_follow_shows_signin_page(self, setup: Any, client: Client) -> None:
@@ -70,7 +70,9 @@ class TestDeleteAccessOwner:
     """Тесты доступа к удалению для авторизованных пользователей-владельцев."""
 
     @pytest.mark.django_db
-    def test_owner_get_forbidden(self, setup: Any, caplog: LogCaptureFixture, client: Client) -> None:
+    def test_owner_get_forbidden(
+        self, setup: Any, caplog: LogCaptureFixture, client: Client
+    ) -> None:
         """GET запрос от владельца должен возвращать 403 Forbidden."""
         client.login(username='username1', password='password')
         response = client.get(reverse('city-delete', kwargs={'pk': 1}))
@@ -80,7 +82,9 @@ class TestDeleteAccessOwner:
         assert '(Visited city) Attempt to access the GET method' in caplog.records[0].getMessage()
 
     @pytest.mark.django_db
-    def test_owner_post_deletes_successfully(self, setup: Any, caplog: LogCaptureFixture, client: Client) -> None:
+    def test_owner_post_deletes_successfully(
+        self, setup: Any, caplog: LogCaptureFixture, client: Client
+    ) -> None:
         """POST запрос от владельца должен успешно удалить запись."""
         client.login(username='username1', password='password')
         user = User.objects.get(username='username1')
@@ -129,7 +133,9 @@ class TestDeleteAccessNonOwner:
         assert response.status_code == 403
 
     @pytest.mark.django_db
-    def test_non_owner_post_returns_404(self, setup: Any, caplog: LogCaptureFixture, client: Client) -> None:
+    def test_non_owner_post_returns_404(
+        self, setup: Any, caplog: LogCaptureFixture, client: Client
+    ) -> None:
         """POST запрос от не-владельца должен возвращать 404."""
         client.login(username='username2', password='password')
         response = client.post(reverse('city-delete', kwargs={'pk': 1}))

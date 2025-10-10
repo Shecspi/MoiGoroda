@@ -165,12 +165,22 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
 
      > Доступ только для авторизованных пользователей (LoginRequiredMixin).
      > Доступ только к тем городам, которые пользователь уже посетил (обрабатывается в методе dispatch).
-       При попытке получить доступ к непосещённому городу - возвращаем ошибку 403.
+       При попытке получить доступ к непосещённому городу - возвращаем ошибку 404.
     """
 
     model = VisitedCity
     form_class = VisitedCity_Create_Form
     template_name = 'city/city_create.html'
+
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
+        """Проверяем права доступа перед обработкой запроса."""
+        if not get_visited_city(request.user.pk, self.kwargs['pk']):
+            logger.warning(
+                request,
+                f'(Visited city) Attempt to update a non-existent visited city #{self.kwargs["pk"]}',
+            )
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> dict[str, Any]:
         """

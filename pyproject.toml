@@ -70,7 +70,13 @@ quote-style = "single"
 
 # PyTest
 [tool.pytest.ini_options]
-addopts = "--import-mode=importlib"
+addopts = "--import-mode=importlib --strict-markers"
 DJANGO_SETTINGS_MODULE = "MoiGoroda.settings"
 python_files = ["test_*"]
 python_functions = ["test_*"]
+markers = [
+    "unit: Быстрые unit-тесты без БД (моки, чистая логика, изолированные компоненты)",
+    "integration: Интеграционные тесты с БД (тестирование одного компонента с реальной БД)",
+    "e2e: End-to-end тесты (полные сценарии взаимодействия нескольких компонентов)",
+    "slow: Медленные тесты (запускать только в CI/CD)",
+]

@@ -28,9 +28,9 @@ class TestVisitedCityServiceInit:
         mock_city_repo = Mock()
         mock_vc_repo = Mock()
         mock_request = Mock()
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
-        
+
         assert service.city_repo == mock_city_repo
         assert service.visited_city_repo == mock_vc_repo
         assert service.request == mock_request
@@ -51,12 +51,12 @@ class TestVisitedCityServiceGetCityDetails:
         mock_vc_repo = Mock()
         mock_request = Mock()
         mock_user = Mock()
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
-        
+
         with pytest.raises(Http404):
             service.get_city_details(city_id=999, user=mock_user)
-        
+
         # Проверяем что было залогировано предупреждение
         mock_logger.warning.assert_called_once()
         assert '999' in str(mock_logger.warning.call_args)
@@ -70,7 +70,7 @@ class TestVisitedCityServiceGetCityDetails:
         # Настройка моков
         mock_city = Mock()
         mock_city.country = Mock(id=1, code='RU')
-        
+
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
         mock_city_repo.get_number_of_cities.return_value = 100
@@ -83,7 +83,7 @@ class TestVisitedCityServiceGetCityDetails:
         mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
-        
+
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 4.5
         mock_vc_repo.get_popular_months.return_value = [1, 5, 12]
@@ -91,16 +91,16 @@ class TestVisitedCityServiceGetCityDetails:
         mock_vc_repo.count_user_visits.return_value = 0
         mock_vc_repo.count_all_visits.return_value = 100
         mock_vc_repo.get_number_of_users_who_visit_city.return_value = 50
-        
+
         mock_collection.filter.return_value = []
-        
+
         mock_request = Mock()
         mock_user = Mock(is_authenticated=True)
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
-        
+
         result = service.get_city_details(city_id=1, user=mock_user)
-        
+
         assert isinstance(result, CityDetailsDTO)
         assert result.city == mock_city
         assert result.average_rating == 4.5
@@ -114,7 +114,7 @@ class TestVisitedCityServiceGetCityDetails:
         """Метод логирует просмотр города."""
         mock_city = Mock()
         mock_city.country = Mock(id=1, code='RU')
-        
+
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
         mock_city_repo.get_number_of_cities.return_value = 100
@@ -127,7 +127,7 @@ class TestVisitedCityServiceGetCityDetails:
         mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
-        
+
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 0
         mock_vc_repo.get_popular_months.return_value = []
@@ -135,15 +135,15 @@ class TestVisitedCityServiceGetCityDetails:
         mock_vc_repo.count_user_visits.return_value = 0
         mock_vc_repo.count_all_visits.return_value = 0
         mock_vc_repo.get_number_of_users_who_visit_city.return_value = 0
-        
+
         mock_collection.filter.return_value = []
-        
+
         mock_request = Mock()
         mock_user = Mock(is_authenticated=False)
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
         service.get_city_details(city_id=42, user=mock_user)
-        
+
         # Проверяем логирование
         mock_logger.info.assert_called_once()
         assert '42' in str(mock_logger.info.call_args)
@@ -156,7 +156,7 @@ class TestVisitedCityServiceGetCityDetails:
         """Для неаутентифицированного пользователя не запрашиваются его визиты."""
         mock_city = Mock()
         mock_city.country = Mock(id=1, code='RU')
-        
+
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
         mock_city_repo.get_number_of_cities.return_value = 100
@@ -169,23 +169,23 @@ class TestVisitedCityServiceGetCityDetails:
         mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
-        
+
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 0
         mock_vc_repo.get_popular_months.return_value = []
-        
+
         mock_collection.filter.return_value = []
-        
+
         mock_request = Mock()
         mock_user = Mock(is_authenticated=False)
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
         result = service.get_city_details(city_id=1, user=mock_user)
-        
+
         # Для неаутентифицированного пользователя не должны вызываться
         mock_vc_repo.get_user_visits.assert_not_called()
         mock_vc_repo.count_user_visits.assert_not_called()
-        
+
         # Проверяем что вернулись пустые значения
         assert result.visits == []
         assert result.number_of_visits == 0
@@ -198,7 +198,7 @@ class TestVisitedCityServiceGetCityDetails:
         """Для аутентифицированного пользователя запрашиваются его визиты."""
         mock_city = Mock()
         mock_city.country = Mock(id=1, code='RU')
-        
+
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
         mock_city_repo.get_number_of_cities.return_value = 100
@@ -211,7 +211,7 @@ class TestVisitedCityServiceGetCityDetails:
         mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
-        
+
         mock_visits = [Mock(), Mock()]
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 4.5
@@ -220,19 +220,19 @@ class TestVisitedCityServiceGetCityDetails:
         mock_vc_repo.count_user_visits.return_value = 2
         mock_vc_repo.count_all_visits.return_value = 100
         mock_vc_repo.get_number_of_users_who_visit_city.return_value = 50
-        
+
         mock_collection.filter.return_value = []
-        
+
         mock_request = Mock()
         mock_user = Mock(is_authenticated=True)
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
         result = service.get_city_details(city_id=1, user=mock_user)
-        
+
         # Для аутентифицированного пользователя должны вызываться
         mock_vc_repo.get_user_visits.assert_called_once_with(1, mock_user)
         mock_vc_repo.count_user_visits.assert_called_once_with(1, mock_user)
-        
+
         # Проверяем возвращённые данные
         assert result.visits == mock_visits
         assert result.number_of_visits == 2
@@ -250,9 +250,9 @@ class TestVisitedCityServicePopularMonths:
         """Популярные месяцы сортируются и переводятся в названия."""
         mock_city = Mock()
         mock_city.country = Mock(id=1, code='RU')
-        
+
         mock_city_repo = self._create_mock_city_repo(mock_city)
-        
+
         # Возвращаем месяцы в неправильном порядке: 12, 1, 5
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 0
@@ -261,29 +261,27 @@ class TestVisitedCityServicePopularMonths:
         mock_vc_repo.count_user_visits.return_value = 0
         mock_vc_repo.count_all_visits.return_value = 0
         mock_vc_repo.get_number_of_users_who_visit_city.return_value = 0
-        
+
         mock_collection.filter.return_value = []
-        
+
         mock_request = Mock()
         mock_user = Mock(is_authenticated=False)
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
         result = service.get_city_details(city_id=1, user=mock_user)
-        
+
         # Проверяем что месяцы отсортированы в правильном порядке
         assert result.popular_months == ['Январь', 'Май', 'Декабрь']
 
     @patch('city.services.visited_city_service.logger')
     @patch('city.services.visited_city_service.Collection.objects')
-    def test_popular_months_empty(
-        self, mock_collection: MagicMock, mock_logger: MagicMock
-    ) -> None:
+    def test_popular_months_empty(self, mock_collection: MagicMock, mock_logger: MagicMock) -> None:
         """Пустой список популярных месяцев."""
         mock_city = Mock()
         mock_city.country = Mock(id=1, code='RU')
-        
+
         mock_city_repo = self._create_mock_city_repo(mock_city)
-        
+
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 0
         mock_vc_repo.get_popular_months.return_value = []
@@ -291,15 +289,15 @@ class TestVisitedCityServicePopularMonths:
         mock_vc_repo.count_user_visits.return_value = 0
         mock_vc_repo.count_all_visits.return_value = 0
         mock_vc_repo.get_number_of_users_who_visit_city.return_value = 0
-        
+
         mock_collection.filter.return_value = []
-        
+
         mock_request = Mock()
         mock_user = Mock(is_authenticated=False)
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
         result = service.get_city_details(city_id=1, user=mock_user)
-        
+
         assert result.popular_months == []
 
     @patch('city.services.visited_city_service.logger')
@@ -310,9 +308,9 @@ class TestVisitedCityServicePopularMonths:
         """Дубликаты месяцев удаляются."""
         mock_city = Mock()
         mock_city.country = Mock(id=1, code='RU')
-        
+
         mock_city_repo = self._create_mock_city_repo(mock_city)
-        
+
         # Возвращаем дубликаты
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 0
@@ -321,15 +319,15 @@ class TestVisitedCityServicePopularMonths:
         mock_vc_repo.count_user_visits.return_value = 0
         mock_vc_repo.count_all_visits.return_value = 0
         mock_vc_repo.get_number_of_users_who_visit_city.return_value = 0
-        
+
         mock_collection.filter.return_value = []
-        
+
         mock_request = Mock()
         mock_user = Mock(is_authenticated=False)
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
         result = service.get_city_details(city_id=1, user=mock_user)
-        
+
         # Должно быть только 2 уникальных месяца
         assert len(result.popular_months) == 2
         assert result.popular_months == ['Май', 'Декабрь']
@@ -363,7 +361,7 @@ class TestVisitedCityServiceCollections:
         """Коллекции фильтруются по городу."""
         mock_city = Mock()
         mock_city.country = Mock(id=1, code='RU')
-        
+
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
         mock_city_repo.get_number_of_cities.return_value = 0
@@ -376,7 +374,7 @@ class TestVisitedCityServiceCollections:
         mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
         mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
-        
+
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 0
         mock_vc_repo.get_popular_months.return_value = []
@@ -384,16 +382,16 @@ class TestVisitedCityServiceCollections:
         mock_vc_repo.count_user_visits.return_value = 0
         mock_vc_repo.count_all_visits.return_value = 0
         mock_vc_repo.get_number_of_users_who_visit_city.return_value = 0
-        
+
         mock_collections = [Mock(), Mock()]
         mock_collection.filter.return_value = mock_collections
-        
+
         mock_request = Mock()
         mock_user = Mock(is_authenticated=False)
-        
+
         service = VisitedCityService(mock_city_repo, mock_vc_repo, mock_request)
         result = service.get_city_details(city_id=1, user=mock_user)
-        
+
         # Проверяем что коллекции были отфильтрованы по city
         mock_collection.filter.assert_called_once_with(city=mock_city)
         assert len(result.collections) == 2
@@ -422,9 +420,19 @@ class TestVisitedCityServiceMonthNames:
     def test_month_names_all_months_present(self) -> None:
         """Все месяцы присутствуют."""
         expected_months = [
-            '', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+            '',
+            'Январь',
+            'Февраль',
+            'Март',
+            'Апрель',
+            'Май',
+            'Июнь',
+            'Июль',
+            'Август',
+            'Сентябрь',
+            'Октябрь',
+            'Ноябрь',
+            'Декабрь',
         ]
-        
-        assert VisitedCityService.MONTH_NAMES == expected_months
 
+        assert VisitedCityService.MONTH_NAMES == expected_months

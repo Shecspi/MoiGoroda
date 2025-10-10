@@ -16,7 +16,9 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import Any
 from unittest.mock import MagicMock
+
 from rest_framework import serializers
 
 from city.serializers import CitySearchParamsSerializer
@@ -99,7 +101,7 @@ class TestCitySearchParamsSerializer:
 
     def test_empty_data_validation_error(self) -> None:
         """Тест ошибки валидации при пустых данных."""
-        data = {}
+        data: dict[str, Any] = {}
         serializer = CitySearchParamsSerializer(data=data)
 
         assert serializer.is_valid() is False
@@ -219,7 +221,7 @@ class TestCitySearchParamsSerializer:
 
     def test_multiple_validation_errors(self) -> None:
         """Тест множественных ошибок валидации."""
-        data = {}  # Пустые данные
+        data: dict[str, Any] = {}  # Пустые данные
         serializer = CitySearchParamsSerializer(data=data)
 
         assert serializer.is_valid() is False

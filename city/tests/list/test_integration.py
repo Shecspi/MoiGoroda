@@ -10,8 +10,8 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import Any
-from unittest.mock import patch, MagicMock
+from typing import Any, Generator
+from unittest.mock import MagicMock, patch
 
 import pytest
 from django.test import Client
@@ -29,7 +29,7 @@ def authenticated_user(client: Client, django_user_model: Any) -> Any:
 
 
 @pytest.fixture
-def mock_all_dependencies() -> dict[str, MagicMock]:
+def mock_all_dependencies() -> Generator[dict[str, MagicMock], None, None]:
     """Создает моки для всех зависимостей view."""
     with (
         patch('city.views.logger') as mock_logger,

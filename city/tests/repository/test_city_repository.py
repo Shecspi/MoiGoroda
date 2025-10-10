@@ -772,7 +772,7 @@ class TestGetNeighboringCitiesByRankInCountryByVisits:
 
         result = repo.get_neighboring_cities_by_rank_in_country_by_visits(city_id=42)
 
-        assert result == ranked_cities[5:15]
+        assert result == ranked_cities[5:15]  # type: ignore[comparison-overlap]
 
     def test_returns_empty_when_city_not_exists(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат [] при отсутствии города."""
@@ -834,7 +834,7 @@ class TestGetNeighboringCitiesByRankInCountryByUsers:
 
         result = repo.get_neighboring_cities_by_rank_in_country_by_users(city_id=42)
 
-        assert result == ranked_cities[5:15]
+        assert result == ranked_cities[5:15]  # type: ignore[comparison-overlap]
         mock_filter.assert_called_once_with(country_id=1)
 
     def test_returns_empty_when_city_not_exists(self, mocker: Any, repo: CityRepository) -> None:
@@ -898,7 +898,7 @@ class TestGetNeighboringCitiesByRankInRegionByVisits:
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_visits(city_id=42)
 
-        assert result == ranked_cities[5:15]
+        assert result == ranked_cities[5:15]  # type: ignore[comparison-overlap]
         mock_select_related.assert_called_once_with('region')
         mock_select_related.return_value.filter.assert_called_once_with(region_id=7)
 
@@ -920,7 +920,7 @@ class TestGetNeighboringCitiesByRankInRegionByVisits:
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_visits(city_id=42)
 
-        assert result == ranked_cities
+        assert result == ranked_cities  # type: ignore[comparison-overlap]
         mock_select_related.assert_called_once_with('country')
         mock_select_related.return_value.filter.assert_called_once_with(country_id=1)
 
@@ -968,7 +968,7 @@ class TestGetNeighboringCitiesByRankInRegionByUsers:
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_users(city_id=42)
 
-        assert result == ranked_cities[5:15]
+        assert result == ranked_cities[5:15]  # type: ignore[comparison-overlap]
         mock_select_related.assert_called_once_with('region')
         mock_select_related.return_value.filter.assert_called_once_with(region_id=7)
 
@@ -990,7 +990,7 @@ class TestGetNeighboringCitiesByRankInRegionByUsers:
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_users(city_id=42)
 
-        assert result == ranked_cities
+        assert result == ranked_cities  # type: ignore[comparison-overlap]
         mock_select_related.assert_called_once_with('country')
         mock_select_related.return_value.filter.assert_called_once_with(country_id=1)
 

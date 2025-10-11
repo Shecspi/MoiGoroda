@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 from django.urls import reverse
 from django.contrib.auth.models import User
 from unittest.mock import patch, Mock
@@ -19,7 +20,7 @@ from account.models import ShareSettings
 
 
 @pytest.fixture
-def create_test_user(django_user_model):
+def create_test_user(django_user_model: Any) -> Any:
     """Создаёт тестового пользователя"""
     return django_user_model.objects.create_user(
         username='testuser', email='test@example.com', password='password123'
@@ -31,7 +32,7 @@ def create_test_user(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_get_request_authenticated(client, create_test_user):
+def test_statistics_view_get_request_authenticated(client: Any, create_test_user: Any) -> None:
     """Тест GET запроса на страницу статистики для авторизованного пользователя"""
     client.force_login(create_test_user)
 
@@ -48,7 +49,7 @@ def test_statistics_view_get_request_authenticated(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_get_request_unauthenticated(client):
+def test_statistics_view_get_request_unauthenticated(client: Any) -> None:
     """Тест что неавторизованный пользователь перенаправляется"""
     response = client.get(reverse('stats'))
 
@@ -59,7 +60,7 @@ def test_statistics_view_get_request_unauthenticated(client):
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_statistics_view_logs_access(mock_logger, client, create_test_user):
+def test_statistics_view_logs_access(mock_logger: Any, client: Any, create_test_user: Any) -> None:
     """Тест что доступ к статистике логируется"""
     client.force_login(create_test_user)
 
@@ -77,7 +78,7 @@ def test_statistics_view_logs_access(mock_logger, client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_no_visited_cities_shows_fake_data(client, create_test_user):
+def test_statistics_view_no_visited_cities_shows_fake_data(client: Any, create_test_user: Any) -> None:
     """Тест что при отсутствии посещённых городов показываются фейковые данные"""
     client.force_login(create_test_user)
 
@@ -92,7 +93,7 @@ def test_statistics_view_no_visited_cities_shows_fake_data(client, create_test_u
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_with_visited_cities_shows_real_data(client, create_test_user):
+def test_statistics_view_with_visited_cities_shows_real_data(client: Any, create_test_user: Any) -> None:
     """Тест что при наличии посещённых городов показываются реальные данные"""
     client.force_login(create_test_user)
 
@@ -113,7 +114,7 @@ def test_statistics_view_with_visited_cities_shows_real_data(client, create_test
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_share_settings_not_exist(client, create_test_user):
+def test_statistics_view_share_settings_not_exist(client: Any, create_test_user: Any) -> None:
     """Тест контекста настроек публикации когда ShareSettings не существует"""
     client.force_login(create_test_user)
 
@@ -136,7 +137,7 @@ def test_statistics_view_share_settings_not_exist(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_share_settings_exist_all_false(client, create_test_user):
+def test_statistics_view_share_settings_exist_all_false(client: Any, create_test_user: Any) -> None:
     """Тест контекста настроек публикации когда все настройки выключены"""
     client.force_login(create_test_user)
 
@@ -168,7 +169,7 @@ def test_statistics_view_share_settings_exist_all_false(client, create_test_user
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_share_settings_exist_all_true(client, create_test_user):
+def test_statistics_view_share_settings_exist_all_true(client: Any, create_test_user: Any) -> None:
     """Тест контекста настроек публикации когда все настройки включены"""
     client.force_login(create_test_user)
 
@@ -200,7 +201,7 @@ def test_statistics_view_share_settings_exist_all_true(client, create_test_user)
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_context_data(client, create_test_user):
+def test_statistics_view_context_data(client: Any, create_test_user: Any) -> None:
     """Тест наличия необходимых данных в контексте"""
     client.force_login(create_test_user)
 
@@ -222,7 +223,7 @@ def test_statistics_view_context_data(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_save_share_settings_get_request_returns_404(client, create_test_user):
+def test_save_share_settings_get_request_returns_404(client: Any, create_test_user: Any) -> None:
     """Тест что GET запрос на save_share_settings возвращает 404"""
     client.force_login(create_test_user)
 
@@ -232,7 +233,7 @@ def test_save_share_settings_get_request_returns_404(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_save_share_settings_unauthenticated(client):
+def test_save_share_settings_unauthenticated(client: Any) -> None:
     """Тест что неавторизованный пользователь перенаправляется"""
     response = client.post(reverse('save_share_settings'))
 
@@ -243,7 +244,7 @@ def test_save_share_settings_unauthenticated(client):
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_save_share_settings_all_enabled(mock_logger, client, create_test_user):
+def test_save_share_settings_all_enabled(mock_logger: Any, client: Any, create_test_user: Any) -> None:
     """Тест сохранения настроек со всеми включёнными флагами"""
     client.force_login(create_test_user)
 
@@ -273,7 +274,7 @@ def test_save_share_settings_all_enabled(mock_logger, client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_save_share_settings_all_disabled(client, create_test_user):
+def test_save_share_settings_all_disabled(client: Any, create_test_user: Any) -> None:
     """Тест сохранения настроек со всеми выключенными флагами"""
     client.force_login(create_test_user)
 
@@ -296,8 +297,8 @@ def test_save_share_settings_all_disabled(client, create_test_user):
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
 def test_save_share_settings_main_on_but_all_others_off_returns_fail(
-    mock_logger, client, create_test_user
-):
+    mock_logger: Any, client: Any, create_test_user: Any
+) -> None:
     """Тест что основной флаг включён, но все дополнительные выключены - возвращается ошибка"""
     client.force_login(create_test_user)
 
@@ -319,8 +320,8 @@ def test_save_share_settings_main_on_but_all_others_off_returns_fail(
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
 def test_save_share_settings_main_off_but_others_on_corrects_to_all_off(
-    mock_logger, client, create_test_user
-):
+    mock_logger: Any, client: Any, create_test_user: Any
+) -> None:
     """Тест что если основной флаг выключен, то все остальные тоже выключаются"""
     client.force_login(create_test_user)
 
@@ -350,7 +351,7 @@ def test_save_share_settings_main_off_but_others_on_corrects_to_all_off(
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_save_share_settings_partial_flags(client, create_test_user):
+def test_save_share_settings_partial_flags(client: Any, create_test_user: Any) -> None:
     """Тест сохранения настроек с частично включёнными флагами"""
     client.force_login(create_test_user)
 
@@ -377,7 +378,7 @@ def test_save_share_settings_partial_flags(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_save_share_settings_update_existing(client, create_test_user):
+def test_save_share_settings_update_existing(client: Any, create_test_user: Any) -> None:
     """Тест обновления существующих настроек"""
     client.force_login(create_test_user)
 
@@ -418,7 +419,7 @@ def test_save_share_settings_update_existing(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_save_share_settings_creates_new_if_not_exists(client, create_test_user):
+def test_save_share_settings_creates_new_if_not_exists(client: Any, create_test_user: Any) -> None:
     """Тест создания новых настроек если они не существуют"""
     client.force_login(create_test_user)
 

@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 from django.contrib.auth.models import User
 
 from account.models import ShareSettings, UserConsent
@@ -15,7 +16,7 @@ from account.models import ShareSettings, UserConsent
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_share_settings_str_method(django_user_model):
+def test_share_settings_str_method(django_user_model: Any) -> None:
     """Тест строкового представления модели ShareSettings"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     share_settings = ShareSettings.objects.create(user=user)
@@ -26,18 +27,18 @@ def test_share_settings_str_method(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_share_settings_get_absolute_url(django_user_model):
+def test_share_settings_get_absolute_url(django_user_model: Any) -> None:
     """Тест метода get_absolute_url модели ShareSettings"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     share_settings = ShareSettings.objects.create(user=user)
 
     expected_url = f'/share/{share_settings.pk}/'
-    assert share_settings.get_absolute_url() == expected_url
+    assert share_settings.get_absolute_url() == expected_url  # type: ignore[no-untyped-call]
 
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_share_settings_create_with_all_flags_true(django_user_model):
+def test_share_settings_create_with_all_flags_true(django_user_model: Any) -> None:
     """Тест создания ShareSettings со всеми флагами True"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
 
@@ -59,7 +60,7 @@ def test_share_settings_create_with_all_flags_true(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_share_settings_update(django_user_model):
+def test_share_settings_update(django_user_model: Any) -> None:
     """Тест обновления ShareSettings"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
 
@@ -82,7 +83,7 @@ def test_share_settings_update(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_user_consent_create(django_user_model):
+def test_user_consent_create(django_user_model: Any) -> None:
     """Тест создания UserConsent"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
 
@@ -102,7 +103,7 @@ def test_user_consent_create(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_user_consent_with_false_consent(django_user_model):
+def test_user_consent_with_false_consent(django_user_model: Any) -> None:
     """Тест создания UserConsent с согласием False"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
 
@@ -117,7 +118,7 @@ def test_user_consent_with_false_consent(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_share_settings_one_per_user(django_user_model):
+def test_share_settings_one_per_user(django_user_model: Any) -> None:
     """Тест что для каждого пользователя может быть только одна запись ShareSettings"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
 
@@ -142,7 +143,7 @@ def test_share_settings_one_per_user(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_multiple_user_consents_for_user(django_user_model):
+def test_multiple_user_consents_for_user(django_user_model: Any) -> None:
     """Тест что для пользователя может быть несколько UserConsent (история изменений)"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
 
@@ -156,7 +157,7 @@ def test_multiple_user_consents_for_user(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_share_settings_cascade_delete(django_user_model):
+def test_share_settings_cascade_delete(django_user_model: Any) -> None:
     """Тест что при удалении пользователя удаляются и его ShareSettings"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     ShareSettings.objects.create(user=user, can_share=True)
@@ -170,7 +171,7 @@ def test_share_settings_cascade_delete(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_user_consent_cascade_delete(django_user_model):
+def test_user_consent_cascade_delete(django_user_model: Any) -> None:
     """Тест что при удалении пользователя удаляются и его UserConsent"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     UserConsent.objects.create(user=user, policy_version='1.0')

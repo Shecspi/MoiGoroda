@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 from django.urls import reverse
 from unittest.mock import patch
 
@@ -20,7 +21,7 @@ from account.models import ShareSettings
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_enable_all_share_settings_flow(mock_logger, client, django_user_model):
+def test_enable_all_share_settings_flow(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Включение всех настроек публикации -> Проверка -> Скачивание отчёта
     """
@@ -89,7 +90,7 @@ def test_enable_all_share_settings_flow(mock_logger, client, django_user_model):
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_partial_share_settings_flow(mock_logger, client, django_user_model):
+def test_partial_share_settings_flow(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Включение части настроек публикации
     """
@@ -134,7 +135,7 @@ def test_partial_share_settings_flow(mock_logger, client, django_user_model):
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_enable_then_disable_share_settings_flow(mock_logger, client, django_user_model):
+def test_enable_then_disable_share_settings_flow(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Включение настроек -> Выключение -> Проверка
     """
@@ -162,14 +163,14 @@ def test_enable_then_disable_share_settings_flow(mock_logger, client, django_use
     # Шаг 4: Проверяем БД
     db_settings.refresh_from_db()
     assert db_settings.can_share is False
-    assert db_settings.can_share_dashboard is False
+    assert db_settings.can_share_dashboard is False  # type: ignore[unreachable]
     assert db_settings.can_share_city_map is False
 
 
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_invalid_settings_then_correct_flow(mock_logger, client, django_user_model):
+def test_invalid_settings_then_correct_flow(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Попытка некорректной настройки -> Ошибка -> Исправление -> Успех
     """
@@ -204,7 +205,7 @@ def test_invalid_settings_then_correct_flow(mock_logger, client, django_user_mod
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_update_existing_share_settings_flow(mock_logger, client, django_user_model):
+def test_update_existing_share_settings_flow(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Создание настроек -> Обновление -> Проверка что запись одна
     """
@@ -240,7 +241,7 @@ def test_update_existing_share_settings_flow(mock_logger, client, django_user_mo
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_share_settings_persist_after_logout_and_login(mock_logger, client, django_user_model):
+def test_share_settings_persist_after_logout_and_login(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Настройка публикации -> Выход -> Вход -> Проверка сохранения
     """
@@ -278,7 +279,7 @@ def test_share_settings_persist_after_logout_and_login(mock_logger, client, djan
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_multiple_users_independent_share_settings(mock_logger, client, django_user_model):
+def test_multiple_users_independent_share_settings(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Настройки публикации независимы для разных пользователей
     """
@@ -334,7 +335,7 @@ def test_multiple_users_independent_share_settings(mock_logger, client, django_u
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_share_settings_with_subscription_integration(mock_logger, client, django_user_model):
+def test_share_settings_with_subscription_integration(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Настройки публикации влияют на отображение в подписках
     """
@@ -382,7 +383,7 @@ def test_share_settings_with_subscription_integration(mock_logger, client, djang
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_complete_share_settings_journey(mock_logger, client):
+def test_complete_share_settings_journey(mock_logger: Any, client: Any) -> None:
     """
     E2E тест: Полный путь пользователя с настройками публикации
     Регистрация -> Просмотр статистики -> Включение настроек -> Изменение -> Выключение

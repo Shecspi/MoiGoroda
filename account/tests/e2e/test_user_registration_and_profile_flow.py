@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 from django.urls import reverse
 from django.contrib.auth.models import User
 from unittest.mock import patch
@@ -21,7 +22,7 @@ from account.models import UserConsent
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_complete_user_registration_and_profile_update_flow(mock_logger, client):
+def test_complete_user_registration_and_profile_update_flow(mock_logger: Any, client: Any) -> None:
     """
     E2E тест: Регистрация пользователя -> Вход -> Обновление профиля -> Выход
     """
@@ -100,7 +101,7 @@ def test_complete_user_registration_and_profile_update_flow(mock_logger, client)
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_registration_with_invalid_data_then_correction(mock_logger, client):
+def test_registration_with_invalid_data_then_correction(mock_logger: Any, client: Any) -> None:
     """
     E2E тест: Попытка регистрации с невалидными данными -> Исправление -> Успешная регистрация
     """
@@ -131,7 +132,7 @@ def test_registration_with_invalid_data_then_correction(mock_logger, client):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_change_password_flow(client, django_user_model):
+def test_change_password_flow(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Вход -> Изменение пароля -> Выход -> Вход с новым паролем
     """
@@ -177,7 +178,7 @@ def test_change_password_flow(client, django_user_model):
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_registration_duplicate_email_handling(mock_logger, client, django_user_model):
+def test_registration_duplicate_email_handling(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Регистрация пользователя -> Попытка регистрации с тем же email
     """
@@ -220,7 +221,7 @@ def test_registration_duplicate_email_handling(mock_logger, client, django_user_
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_profile_update_preserves_authentication(client, django_user_model):
+def test_profile_update_preserves_authentication(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Обновление профиля не разлогинивает пользователя
     """
@@ -255,7 +256,7 @@ def test_profile_update_preserves_authentication(client, django_user_model):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_authenticated_user_cannot_access_signup_or_signin(client, django_user_model):
+def test_authenticated_user_cannot_access_signup_or_signin(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Авторизованный пользователь не может попасть на страницы регистрации/входа
     """
@@ -276,7 +277,7 @@ def test_authenticated_user_cannot_access_signup_or_signin(client, django_user_m
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_unauthenticated_user_redirected_to_signin_from_profile(client):
+def test_unauthenticated_user_redirected_to_signin_from_profile(client: Any) -> None:
     """
     E2E тест: Неавторизованный пользователь перенаправляется на вход при попытке доступа к профилю
     """
@@ -296,7 +297,7 @@ def test_unauthenticated_user_redirected_to_signin_from_profile(client):
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_full_user_journey_with_password_change(mock_logger, client):
+def test_full_user_journey_with_password_change(mock_logger: Any, client: Any) -> None:
     """
     E2E тест: Полный путь пользователя - регистрация -> профиль -> изменение пароля -> выход -> вход
     """

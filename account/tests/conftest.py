@@ -8,13 +8,14 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 
 
 # Общие фикстуры для всех тестов приложения account
 
 
 @pytest.fixture
-def api_client():
+def api_client() -> Any:
     """Фикстура для API клиента (если понадобится в будущем)"""
     from rest_framework.test import APIClient
 

@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 from account.dto import SubscribedUserDTO, SubscriberUserDTO
 
 
@@ -15,7 +16,7 @@ from account.dto import SubscribedUserDTO, SubscriberUserDTO
 
 
 @pytest.mark.unit
-def test_subscribed_user_dto_creation():
+def test_subscribed_user_dto_creation() -> None:
     """Тест создания SubscribedUserDTO"""
     dto = SubscribedUserDTO(id=1, username='testuser')
 
@@ -24,7 +25,7 @@ def test_subscribed_user_dto_creation():
 
 
 @pytest.mark.unit
-def test_subscribed_user_dto_fields():
+def test_subscribed_user_dto_fields() -> None:
     """Тест наличия всех полей в SubscribedUserDTO"""
     dto = SubscribedUserDTO(id=10, username='user123')
 
@@ -33,7 +34,7 @@ def test_subscribed_user_dto_fields():
 
 
 @pytest.mark.unit
-def test_subscribed_user_dto_immutability():
+def test_subscribed_user_dto_immutability() -> None:
     """Тест неизменяемости dataclass (frozen=False, поэтому можно изменять)"""
     dto = SubscribedUserDTO(id=1, username='testuser')
 
@@ -43,7 +44,7 @@ def test_subscribed_user_dto_immutability():
 
 
 @pytest.mark.unit
-def test_subscribed_user_dto_equality():
+def test_subscribed_user_dto_equality() -> None:
     """Тест сравнения двух SubscribedUserDTO"""
     dto1 = SubscribedUserDTO(id=1, username='testuser')
     dto2 = SubscribedUserDTO(id=1, username='testuser')
@@ -54,7 +55,7 @@ def test_subscribed_user_dto_equality():
 
 
 @pytest.mark.unit
-def test_subscribed_user_dto_repr():
+def test_subscribed_user_dto_repr() -> None:
     """Тест строкового представления SubscribedUserDTO"""
     dto = SubscribedUserDTO(id=1, username='testuser')
 
@@ -65,7 +66,7 @@ def test_subscribed_user_dto_repr():
 
 
 @pytest.mark.unit
-def test_subscribed_user_dto_with_different_types():
+def test_subscribed_user_dto_with_different_types() -> None:
     """Тест создания SubscribedUserDTO с разными типами данных"""
     # С int id
     dto1 = SubscribedUserDTO(id=999, username='user999')
@@ -81,7 +82,7 @@ def test_subscribed_user_dto_with_different_types():
 
 
 @pytest.mark.unit
-def test_subscriber_user_dto_creation():
+def test_subscriber_user_dto_creation() -> None:
     """Тест создания SubscriberUserDTO"""
     dto = SubscriberUserDTO(id=1, username='testuser', can_subscribe=True)
 
@@ -91,7 +92,7 @@ def test_subscriber_user_dto_creation():
 
 
 @pytest.mark.unit
-def test_subscriber_user_dto_fields():
+def test_subscriber_user_dto_fields() -> None:
     """Тест наличия всех полей в SubscriberUserDTO"""
     dto = SubscriberUserDTO(id=10, username='user123', can_subscribe=False)
 
@@ -101,7 +102,7 @@ def test_subscriber_user_dto_fields():
 
 
 @pytest.mark.unit
-def test_subscriber_user_dto_can_subscribe_false():
+def test_subscriber_user_dto_can_subscribe_false() -> None:
     """Тест SubscriberUserDTO с can_subscribe=False"""
     dto = SubscriberUserDTO(id=1, username='testuser', can_subscribe=False)
 
@@ -109,7 +110,7 @@ def test_subscriber_user_dto_can_subscribe_false():
 
 
 @pytest.mark.unit
-def test_subscriber_user_dto_can_subscribe_true():
+def test_subscriber_user_dto_can_subscribe_true() -> None:
     """Тест SubscriberUserDTO с can_subscribe=True"""
     dto = SubscriberUserDTO(id=1, username='testuser', can_subscribe=True)
 
@@ -117,7 +118,7 @@ def test_subscriber_user_dto_can_subscribe_true():
 
 
 @pytest.mark.unit
-def test_subscriber_user_dto_equality():
+def test_subscriber_user_dto_equality() -> None:
     """Тест сравнения двух SubscriberUserDTO"""
     dto1 = SubscriberUserDTO(id=1, username='testuser', can_subscribe=True)
     dto2 = SubscriberUserDTO(id=1, username='testuser', can_subscribe=True)
@@ -128,7 +129,7 @@ def test_subscriber_user_dto_equality():
 
 
 @pytest.mark.unit
-def test_subscriber_user_dto_repr():
+def test_subscriber_user_dto_repr() -> None:
     """Тест строкового представления SubscriberUserDTO"""
     dto = SubscriberUserDTO(id=1, username='testuser', can_subscribe=True)
 
@@ -140,7 +141,7 @@ def test_subscriber_user_dto_repr():
 
 
 @pytest.mark.unit
-def test_subscriber_user_dto_immutability():
+def test_subscriber_user_dto_immutability() -> None:
     """Тест изменяемости SubscriberUserDTO"""
     dto = SubscriberUserDTO(id=1, username='testuser', can_subscribe=True)
 
@@ -150,7 +151,7 @@ def test_subscriber_user_dto_immutability():
 
 
 @pytest.mark.unit
-def test_subscriber_user_dto_with_different_values():
+def test_subscriber_user_dto_with_different_values() -> None:
     """Тест SubscriberUserDTO с различными значениями"""
     # Минимальные значения
     dto1 = SubscriberUserDTO(id=0, username='', can_subscribe=False)
@@ -168,17 +169,17 @@ def test_subscriber_user_dto_with_different_values():
 
 
 @pytest.mark.unit
-def test_dto_types_are_different():
+def test_dto_types_are_different() -> None:
     """Тест что SubscribedUserDTO и SubscriberUserDTO - разные типы"""
     dto1 = SubscribedUserDTO(id=1, username='user')
     dto2 = SubscriberUserDTO(id=1, username='user', can_subscribe=True)
 
-    assert type(dto1) != type(dto2)
-    assert dto1 != dto2
+    assert type(dto1) != type(dto2)  # type: ignore[comparison-overlap]
+    assert dto1 != dto2  # type: ignore[comparison-overlap]
 
 
 @pytest.mark.unit
-def test_dto_can_be_used_in_collections():
+def test_dto_can_be_used_in_collections() -> None:
     """Тест использования DTO в коллекциях"""
     subscribed_list = [
         SubscribedUserDTO(id=1, username='user1'),
@@ -197,7 +198,7 @@ def test_dto_can_be_used_in_collections():
 
 
 @pytest.mark.unit
-def test_dto_in_set():
+def test_dto_in_set() -> None:
     """Тест что DTO могут быть использованы в списках и других коллекциях"""
     dto1 = SubscribedUserDTO(id=1, username='user1')
     dto2 = SubscribedUserDTO(id=2, username='user2')

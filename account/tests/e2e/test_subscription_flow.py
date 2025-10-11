@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 from django.urls import reverse
 
 from account.models import ShareSettings
@@ -19,7 +20,7 @@ from subscribe.infrastructure.models import Subscribe
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_subscribe_and_view_in_profile_flow(client, django_user_model):
+def test_subscribe_and_view_in_profile_flow(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Создание двух пользователей -> Подписка -> Просмотр подписки в профиле
     """
@@ -59,7 +60,7 @@ def test_subscribe_and_view_in_profile_flow(client, django_user_model):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_mutual_subscriptions_flow(client, django_user_model):
+def test_mutual_subscriptions_flow(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Взаимные подписки двух пользователей
     """
@@ -88,7 +89,7 @@ def test_mutual_subscriptions_flow(client, django_user_model):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_subscription_with_share_settings_flow(client, django_user_model):
+def test_subscription_with_share_settings_flow(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Подписка -> Настройка публикации подписчиком -> Проверка can_subscribe
     """
@@ -122,7 +123,7 @@ def test_subscription_with_share_settings_flow(client, django_user_model):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_multiple_subscriptions_flow(client, django_user_model):
+def test_multiple_subscriptions_flow(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Один пользователь подписывается на нескольких
     """
@@ -155,7 +156,7 @@ def test_multiple_subscriptions_flow(client, django_user_model):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_subscription_deletion_flow(client, django_user_model):
+def test_subscription_deletion_flow(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Создание подписки -> Удаление подписки -> Проверка
     """
@@ -180,7 +181,7 @@ def test_subscription_deletion_flow(client, django_user_model):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_subscription_with_mixed_share_settings_flow(client, django_user_model):
+def test_subscription_with_mixed_share_settings_flow(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Несколько подписчиков с разными настройками публикации
     """
@@ -217,7 +218,7 @@ def test_subscription_with_mixed_share_settings_flow(client, django_user_model):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_subscription_visibility_after_profile_update(client, django_user_model):
+def test_subscription_visibility_after_profile_update(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Подписка -> Обновление профиля -> Подписка всё ещё видна
     """
@@ -252,7 +253,7 @@ def test_subscription_visibility_after_profile_update(client, django_user_model)
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_subscription_chain_flow(client, django_user_model):
+def test_subscription_chain_flow(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Цепочка подписок A -> B -> C -> A
     """
@@ -287,7 +288,7 @@ def test_subscription_chain_flow(client, django_user_model):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_no_subscriptions_shows_zero_counts(client, django_user_model):
+def test_no_subscriptions_shows_zero_counts(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Пользователь без подписок видит нули в профиле
     """
@@ -307,7 +308,7 @@ def test_no_subscriptions_shows_zero_counts(client, django_user_model):
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_complete_subscription_lifecycle(client, django_user_model):
+def test_complete_subscription_lifecycle(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Полный жизненный цикл подписки
     Регистрация -> Подписка -> Настройка публикации -> Проверка -> Отписка

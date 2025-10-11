@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 from django.urls import reverse
 from django.contrib.auth.models import User
 from unittest.mock import patch
@@ -19,7 +20,7 @@ from account.models import UserConsent
 
 
 @pytest.fixture
-def user_data():
+def user_data() -> dict[str, Any]:
     """Данные для создания пользователя"""
     return {
         'username': 'testuser',
@@ -36,7 +37,7 @@ def user_data():
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signup_view_get_request(client):
+def test_signup_view_get_request(client: Any) -> None:
     """Тест GET запроса на страницу регистрации"""
     response = client.get(reverse('signup'))
 
@@ -47,7 +48,7 @@ def test_signup_view_get_request(client):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signup_view_authenticated_user_redirect(client, django_user_model):
+def test_signup_view_authenticated_user_redirect(client: Any, django_user_model: Any) -> None:
     """Тест что авторизованный пользователь перенаправляется со страницы регистрации"""
     user = django_user_model.objects.create_user(username='existinguser', password='password123')
     client.force_login(user)
@@ -61,7 +62,7 @@ def test_signup_view_authenticated_user_redirect(client, django_user_model):
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_signup_view_post_valid_data(mock_logger, client, user_data):
+def test_signup_view_post_valid_data(mock_logger: Any, client: Any, user_data: dict[str, Any]) -> None:
     """Тест успешной регистрации пользователя"""
     response = client.post(reverse('signup'), data=user_data, follow=True)
 
@@ -89,7 +90,7 @@ def test_signup_view_post_valid_data(mock_logger, client, user_data):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signup_view_post_invalid_data(client):
+def test_signup_view_post_invalid_data(client: Any) -> None:
     """Тест регистрации с невалидными данными"""
     invalid_data = {
         'username': 'testuser',
@@ -108,7 +109,7 @@ def test_signup_view_post_invalid_data(client):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signup_view_duplicate_email(client, user_data, django_user_model):
+def test_signup_view_duplicate_email(client: Any, user_data: dict[str, Any], django_user_model: Any) -> None:
     """Тест регистрации с уже существующим email"""
     # Создаём пользователя с таким же email
     django_user_model.objects.create_user(
@@ -125,7 +126,7 @@ def test_signup_view_duplicate_email(client, user_data, django_user_model):
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_signup_view_ip_address_saved(mock_logger, client, user_data):
+def test_signup_view_ip_address_saved(mock_logger: Any, client: Any, user_data: dict[str, Any]) -> None:
     """Тест что IP адрес сохраняется при регистрации"""
     # Устанавливаем IP адрес через заголовок
     client.post(reverse('signup'), data=user_data, HTTP_X_FORWARDED_FOR='192.168.1.1,10.0.0.1')
@@ -140,7 +141,7 @@ def test_signup_view_ip_address_saved(mock_logger, client, user_data):
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_signup_view_ip_address_remote_addr(mock_logger, client, user_data):
+def test_signup_view_ip_address_remote_addr(mock_logger: Any, client: Any, user_data: dict[str, Any]) -> None:
     """Тест что IP адрес сохраняется из REMOTE_ADDR если нет X-Forwarded-For"""
     client.post(reverse('signup'), data=user_data, REMOTE_ADDR='10.0.0.2')
 
@@ -155,7 +156,7 @@ def test_signup_view_ip_address_remote_addr(mock_logger, client, user_data):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signin_view_get_request(client):
+def test_signin_view_get_request(client: Any) -> None:
     """Тест GET запроса на страницу входа"""
     response = client.get(reverse('signin'))
 
@@ -166,7 +167,7 @@ def test_signin_view_get_request(client):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signin_view_authenticated_user_redirect(client, django_user_model):
+def test_signin_view_authenticated_user_redirect(client: Any, django_user_model: Any) -> None:
     """Тест что авторизованный пользователь перенаправляется со страницы входа"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     client.force_login(user)
@@ -179,7 +180,7 @@ def test_signin_view_authenticated_user_redirect(client, django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signin_view_post_valid_credentials(client, django_user_model):
+def test_signin_view_post_valid_credentials(client: Any, django_user_model: Any) -> None:
     """Тест успешной авторизации"""
     django_user_model.objects.create_user(username='testuser', password='password123')
 
@@ -193,7 +194,7 @@ def test_signin_view_post_valid_credentials(client, django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signin_view_post_invalid_credentials(client, django_user_model):
+def test_signin_view_post_invalid_credentials(client: Any, django_user_model: Any) -> None:
     """Тест авторизации с неверными учётными данными"""
     django_user_model.objects.create_user(username='testuser', password='password123')
 
@@ -209,7 +210,7 @@ def test_signin_view_post_invalid_credentials(client, django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signin_view_post_nonexistent_user(client):
+def test_signin_view_post_nonexistent_user(client: Any) -> None:
     """Тест авторизации несуществующего пользователя"""
     response = client.post(
         reverse('signin'), data={'username': 'nonexistent', 'password': 'password123'}
@@ -225,7 +226,7 @@ def test_signin_view_post_nonexistent_user(client):
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_signup_success_view(mock_logger, client, django_user_model):
+def test_signup_success_view(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """Тест страницы успешной регистрации через реальную регистрацию"""
     # Регистрируем пользователя
     signup_data = {
@@ -247,7 +248,7 @@ def test_signup_success_view(mock_logger, client, django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_change_view_get_request(client, django_user_model):
+def test_password_change_view_get_request(client: Any, django_user_model: Any) -> None:
     """Тест GET запроса на страницу изменения пароля"""
     user = django_user_model.objects.create_user(username='testuser', password='oldpassword123')
     client.force_login(user)
@@ -261,7 +262,7 @@ def test_password_change_view_get_request(client, django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_change_view_unauthenticated(client):
+def test_password_change_view_unauthenticated(client: Any) -> None:
     """Тест что неавторизованный пользователь перенаправляется"""
     response = client.get(reverse('password_change_form'))
 
@@ -271,7 +272,7 @@ def test_password_change_view_unauthenticated(client):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_change_view_post_valid_data(client, django_user_model):
+def test_password_change_view_post_valid_data(client: Any, django_user_model: Any) -> None:
     """Тест успешного изменения пароля"""
     user = django_user_model.objects.create_user(username='testuser', password='oldpassword123')
     client.force_login(user)
@@ -295,7 +296,7 @@ def test_password_change_view_post_valid_data(client, django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_change_view_post_invalid_old_password(client, django_user_model):
+def test_password_change_view_post_invalid_old_password(client: Any, django_user_model: Any) -> None:
     """Тест изменения пароля с неверным старым паролем"""
     user = django_user_model.objects.create_user(username='testuser', password='oldpassword123')
     client.force_login(user)
@@ -323,7 +324,7 @@ def test_password_change_view_post_invalid_old_password(client, django_user_mode
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_change_done_view(client, django_user_model):
+def test_password_change_done_view(client: Any, django_user_model: Any) -> None:
     """Тест страницы успешного изменения пароля"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     client.force_login(user)
@@ -337,7 +338,7 @@ def test_password_change_done_view(client, django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_change_done_view_unauthenticated(client):
+def test_password_change_done_view_unauthenticated(client: Any) -> None:
     """Тест что неавторизованный пользователь не может просмотреть страницу"""
     response = client.get(reverse('password_change_done'))
 
@@ -349,7 +350,7 @@ def test_password_change_done_view_unauthenticated(client):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_reset_view_get_request(client):
+def test_password_reset_view_get_request(client: Any) -> None:
     """Тест GET запроса на страницу восстановления пароля"""
     response = client.get(reverse('reset_password'))
 
@@ -359,7 +360,7 @@ def test_password_reset_view_get_request(client):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_reset_view_post_valid_email(client, django_user_model):
+def test_password_reset_view_post_valid_email(client: Any, django_user_model: Any) -> None:
     """Тест отправки письма для восстановления пароля"""
     django_user_model.objects.create_user(
         username='testuser', email='test@example.com', password='password123'
@@ -373,7 +374,7 @@ def test_password_reset_view_post_valid_email(client, django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_reset_done_view(client):
+def test_password_reset_done_view(client: Any) -> None:
     """Тест страницы после отправки письма для восстановления пароля"""
     response = client.get(reverse('password_reset_done'))
 
@@ -388,7 +389,7 @@ def test_password_reset_done_view(client):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_logout_view(client, django_user_model):
+def test_logout_view(client: Any, django_user_model: Any) -> None:
     """Тест выхода из системы"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     client.force_login(user)

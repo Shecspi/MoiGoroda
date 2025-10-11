@@ -7,8 +7,9 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-import openpyxl
+import openpyxl  # type: ignore[import-untyped]
 import pytest
+from typing import Any
 import json
 from io import StringIO, BytesIO
 
@@ -49,24 +50,24 @@ def complex_report() -> list[tuple[str, ...]]:
 
 
 @pytest.mark.unit
-def test_txt_serializer_content_type():
+def test_txt_serializer_content_type() -> None:
     """Тест метода content_type для TxtSerializer"""
     serializer = TxtSerializer()
     assert serializer.content_type() == 'text/txt'
 
 
 @pytest.mark.unit
-def test_txt_serializer_filetype():
+def test_txt_serializer_filetype() -> None:
     """Тест метода filetype для TxtSerializer"""
     serializer = TxtSerializer()
     assert serializer.filetype() == 'txt'
 
 
 @pytest.mark.unit
-def test_txt_serializer_convert(sample_report):
+def test_txt_serializer_convert(sample_report: list[tuple[str, ...]]) -> None:
     """Тест метода convert для TxtSerializer"""
     serializer = TxtSerializer()
-    result = serializer.convert(sample_report)
+    result = serializer.convert(sample_report)  # type: ignore[arg-type]
 
     assert isinstance(result, StringIO)
     result.seek(0)
@@ -81,28 +82,28 @@ def test_txt_serializer_convert(sample_report):
 
 
 @pytest.mark.unit
-def test_txt_serializer_get_max_length(sample_report):
+def test_txt_serializer_get_max_length(sample_report: list[tuple[str, ...]]) -> None:
     """Тест приватного метода __get_max_length для TxtSerializer"""
     serializer = TxtSerializer()
-    result = serializer._TxtSerializer__get_max_length(sample_report)
+    result = serializer._TxtSerializer__get_max_length(sample_report)  # type: ignore[attr-defined]
     assert result == [6, 17, 20]
 
 
 @pytest.mark.unit
-def test_txt_serializer_get_formatted_row():
+def test_txt_serializer_get_formatted_row() -> None:
     """Тест приватного метода __get_formated_row для TxtSerializer"""
     serializer = TxtSerializer()
-    formatted_row = serializer._TxtSerializer__get_formated_row(
+    formatted_row = serializer._TxtSerializer__get_formated_row(  # type: ignore[attr-defined]
         ('Жуков', 'Калужская область', '10'), [6, 17, 20]
     )
     assert formatted_row == 'Жуков      Калужская область     10                       \n'
 
 
 @pytest.mark.unit
-def test_txt_serializer_empty_report(empty_report):
+def test_txt_serializer_empty_report(empty_report: list[tuple[str, ...]]) -> None:
     """Тест TxtSerializer с пустым отчётом"""
     serializer = TxtSerializer()
-    result = serializer.convert(empty_report)
+    result = serializer.convert(empty_report)  # type: ignore[arg-type]
 
     assert isinstance(result, StringIO)
     result.seek(0)
@@ -112,10 +113,10 @@ def test_txt_serializer_empty_report(empty_report):
 
 
 @pytest.mark.unit
-def test_txt_serializer_complex_report(complex_report):
+def test_txt_serializer_complex_report(complex_report: list[tuple[str, ...]]) -> None:
     """Тест TxtSerializer со сложным отчётом"""
     serializer = TxtSerializer()
-    result = serializer.convert(complex_report)
+    result = serializer.convert(complex_report)  # type: ignore[arg-type]
 
     assert isinstance(result, StringIO)
     result.seek(0)
@@ -130,21 +131,21 @@ def test_txt_serializer_complex_report(complex_report):
 
 
 @pytest.mark.unit
-def test_csv_serializer_content_type():
+def test_csv_serializer_content_type() -> None:
     """Тест метода content_type для CsvSerializer"""
     serializer = CsvSerializer()
     assert serializer.content_type() == 'text/csv'
 
 
 @pytest.mark.unit
-def test_csv_serializer_filetype():
+def test_csv_serializer_filetype() -> None:
     """Тест метода filetype для CsvSerializer"""
     serializer = CsvSerializer()
     assert serializer.filetype() == 'csv'
 
 
 @pytest.mark.unit
-def test_csv_serializer_convert(sample_report):
+def test_csv_serializer_convert(sample_report: list[tuple[str, ...]]) -> None:
     """Тест метода convert для CsvSerializer"""
     serializer = CsvSerializer()
     result = serializer.convert(sample_report)
@@ -160,7 +161,7 @@ def test_csv_serializer_convert(sample_report):
 
 
 @pytest.mark.unit
-def test_csv_serializer_empty_report(empty_report):
+def test_csv_serializer_empty_report(empty_report: list[tuple[str, ...]]) -> None:
     """Тест CsvSerializer с пустым отчётом"""
     serializer = CsvSerializer()
     result = serializer.convert(empty_report)
@@ -172,7 +173,7 @@ def test_csv_serializer_empty_report(empty_report):
 
 
 @pytest.mark.unit
-def test_csv_serializer_complex_report(complex_report):
+def test_csv_serializer_complex_report(complex_report: list[tuple[str, ...]]) -> None:
     """Тест CsvSerializer со сложным отчётом"""
     serializer = CsvSerializer()
     result = serializer.convert(complex_report)
@@ -187,7 +188,7 @@ def test_csv_serializer_complex_report(complex_report):
 
 
 @pytest.mark.unit
-def test_csv_serializer_special_characters():
+def test_csv_serializer_special_characters() -> None:
     """Тест CsvSerializer с специальными символами"""
     serializer = CsvSerializer()
     report = [
@@ -207,21 +208,21 @@ def test_csv_serializer_special_characters():
 
 
 @pytest.mark.unit
-def test_xls_serializer_content_type():
+def test_xls_serializer_content_type() -> None:
     """Тест метода content_type для XlsSerializer"""
     serializer = XlsSerializer()
     assert serializer.content_type() == 'application/vnd.ms-excel'
 
 
 @pytest.mark.unit
-def test_xls_serializer_filetype():
+def test_xls_serializer_filetype() -> None:
     """Тест метода filetype для XlsSerializer"""
     serializer = XlsSerializer()
     assert serializer.filetype() == 'xls'
 
 
 @pytest.mark.unit
-def test_xls_serializer_convert(sample_report):
+def test_xls_serializer_convert(sample_report: list[tuple[str, ...]]) -> None:
     """Тест метода convert для XlsSerializer"""
     serializer = XlsSerializer()
     result = serializer.convert(sample_report)
@@ -249,7 +250,7 @@ def test_xls_serializer_convert(sample_report):
 
 
 @pytest.mark.unit
-def test_xls_serializer_empty_report(empty_report):
+def test_xls_serializer_empty_report(empty_report: list[tuple[str, ...]]) -> None:
     """Тест XlsSerializer с пустым отчётом"""
     serializer = XlsSerializer()
     result = serializer.convert(empty_report)
@@ -270,7 +271,7 @@ def test_xls_serializer_empty_report(empty_report):
 
 
 @pytest.mark.unit
-def test_xls_serializer_complex_report(complex_report):
+def test_xls_serializer_complex_report(complex_report: list[tuple[str, ...]]) -> None:
     """Тест XlsSerializer со сложным отчётом"""
     serializer = XlsSerializer()
     result = serializer.convert(complex_report)
@@ -291,21 +292,21 @@ def test_xls_serializer_complex_report(complex_report):
 
 
 @pytest.mark.unit
-def test_json_serializer_content_type():
+def test_json_serializer_content_type() -> None:
     """Тест метода content_type для JsonSerializer"""
     serializer = JsonSerializer()
     assert serializer.content_type() == 'application/json'
 
 
 @pytest.mark.unit
-def test_json_serializer_filetype():
+def test_json_serializer_filetype() -> None:
     """Тест метода filetype для JsonSerializer"""
     serializer = JsonSerializer()
     assert serializer.filetype() == 'json'
 
 
 @pytest.mark.unit
-def test_json_serializer_convert(sample_report):
+def test_json_serializer_convert(sample_report: list[tuple[str, ...]]) -> None:
     """Тест метода convert для JsonSerializer"""
     serializer = JsonSerializer()
     result = serializer.convert(sample_report)
@@ -335,7 +336,7 @@ def test_json_serializer_convert(sample_report):
 
 
 @pytest.mark.unit
-def test_json_serializer_valid_json(sample_report):
+def test_json_serializer_valid_json(sample_report: list[tuple[str, ...]]) -> None:
     """Тест что JsonSerializer генерирует валидный JSON"""
     serializer = JsonSerializer()
     result = serializer.convert(sample_report)
@@ -350,7 +351,7 @@ def test_json_serializer_valid_json(sample_report):
 
 
 @pytest.mark.unit
-def test_json_serializer_empty_report(empty_report):
+def test_json_serializer_empty_report(empty_report: list[tuple[str, ...]]) -> None:
     """Тест JsonSerializer с пустым отчётом"""
     serializer = JsonSerializer()
     result = serializer.convert(empty_report)
@@ -365,7 +366,7 @@ def test_json_serializer_empty_report(empty_report):
 
 
 @pytest.mark.unit
-def test_json_serializer_complex_report(complex_report):
+def test_json_serializer_complex_report(complex_report: list[tuple[str, ...]]) -> None:
     """Тест JsonSerializer со сложным отчётом"""
     serializer = JsonSerializer()
     result = serializer.convert(complex_report)
@@ -381,7 +382,7 @@ def test_json_serializer_complex_report(complex_report):
 
 
 @pytest.mark.unit
-def test_json_serializer_unicode():
+def test_json_serializer_unicode() -> None:
     """Тест JsonSerializer с unicode символами"""
     serializer = JsonSerializer()
     report = [
@@ -401,7 +402,7 @@ def test_json_serializer_unicode():
 
 
 @pytest.mark.unit
-def test_all_serializers_implement_interface():
+def test_all_serializers_implement_interface() -> None:
     """Тест что все сериализаторы реализуют необходимые методы"""
     serializers = [TxtSerializer(), CsvSerializer(), XlsSerializer(), JsonSerializer()]
 
@@ -415,7 +416,7 @@ def test_all_serializers_implement_interface():
 
 
 @pytest.mark.unit
-def test_all_serializers_return_correct_types(sample_report):
+def test_all_serializers_return_correct_types(sample_report: list[tuple[str, ...]]) -> None:
     """Тест что все сериализаторы возвращают правильные типы"""
     txt_serializer = TxtSerializer()
     csv_serializer = CsvSerializer()
@@ -423,7 +424,7 @@ def test_all_serializers_return_correct_types(sample_report):
     xls_serializer = XlsSerializer()
 
     # Текстовые сериализаторы возвращают StringIO
-    assert isinstance(txt_serializer.convert(sample_report), StringIO)
+    assert isinstance(txt_serializer.convert(sample_report), StringIO)  # type: ignore[arg-type]
     assert isinstance(csv_serializer.convert(sample_report), StringIO)
     assert isinstance(json_serializer.convert(sample_report), StringIO)
 

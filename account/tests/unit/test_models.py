@@ -8,10 +8,11 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 
 
 @pytest.mark.unit
-def test_share_settings_default_values():
+def test_share_settings_default_values() -> None:
     """Тест значений по умолчанию для модели ShareSettings"""
     from account.models import ShareSettings
 
@@ -27,7 +28,7 @@ def test_share_settings_default_values():
 
 
 @pytest.mark.unit
-def test_user_consent_default_consent_given():
+def test_user_consent_default_consent_given() -> None:
     """Тест значения по умолчанию для поля consent_given модели UserConsent"""
     from account.models import UserConsent
 
@@ -39,7 +40,7 @@ def test_user_consent_default_consent_given():
 
 
 @pytest.mark.unit
-def test_share_settings_meta_verbose_name():
+def test_share_settings_meta_verbose_name() -> None:
     """Тест verbose_name модели ShareSettings"""
     from account.models import ShareSettings
 
@@ -48,7 +49,7 @@ def test_share_settings_meta_verbose_name():
 
 
 @pytest.mark.unit
-def test_share_settings_field_types():
+def test_share_settings_field_types() -> None:
     """Тест типов полей модели ShareSettings"""
     from account.models import ShareSettings
     from django.db import models
@@ -63,7 +64,7 @@ def test_share_settings_field_types():
 
 
 @pytest.mark.unit
-def test_user_consent_field_types():
+def test_user_consent_field_types() -> None:
     """Тест типов полей модели UserConsent"""
     from account.models import UserConsent
     from django.db import models

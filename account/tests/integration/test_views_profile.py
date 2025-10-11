@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 from django.urls import reverse
 from django.contrib.auth.models import User
 from unittest.mock import patch
@@ -20,7 +21,7 @@ from subscribe.infrastructure.models import Subscribe
 
 
 @pytest.fixture
-def create_test_user(django_user_model):
+def create_test_user(django_user_model: Any) -> Any:
     """Создаёт тестового пользователя"""
     return django_user_model.objects.create_user(
         username='testuser', email='test@example.com', password='password123'
@@ -28,7 +29,7 @@ def create_test_user(django_user_model):
 
 
 @pytest.fixture
-def create_multiple_users(django_user_model):
+def create_multiple_users(django_user_model: Any) -> Any:
     """Создаёт несколько тестовых пользователей"""
     user1 = django_user_model.objects.create_user(
         username='user1', email='user1@test.com', password='password123'
@@ -47,7 +48,7 @@ def create_multiple_users(django_user_model):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_get_request_authenticated(client, create_test_user):
+def test_profile_view_get_request_authenticated(client: Any, create_test_user: Any) -> None:
     """Тест GET запроса на страницу профиля для авторизованного пользователя"""
     client.force_login(create_test_user)
     response = client.get(reverse('profile'))
@@ -59,7 +60,7 @@ def test_profile_view_get_request_authenticated(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_get_request_unauthenticated(client):
+def test_profile_view_get_request_unauthenticated(client: Any) -> None:
     """Тест что неавторизованный пользователь перенаправляется"""
     response = client.get(reverse('profile'))
 
@@ -69,7 +70,7 @@ def test_profile_view_get_request_unauthenticated(client):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_displays_user_data(client, create_test_user):
+def test_profile_view_displays_user_data(client: Any, create_test_user: Any) -> None:
     """Тест что страница профиля отображает данные пользователя"""
     create_test_user.first_name = 'John'
     create_test_user.last_name = 'Doe'
@@ -90,7 +91,7 @@ def test_profile_view_displays_user_data(client, create_test_user):
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.profile.logger')
-def test_profile_view_post_valid_data(mock_logger, client, create_test_user):
+def test_profile_view_post_valid_data(mock_logger: Any, client: Any, create_test_user: Any) -> None:
     """Тест успешного обновления профиля"""
     client.force_login(create_test_user)
 
@@ -118,7 +119,7 @@ def test_profile_view_post_valid_data(mock_logger, client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_post_invalid_data(client, create_test_user):
+def test_profile_view_post_invalid_data(client: Any, create_test_user: Any) -> None:
     """Тест обновления профиля с невалидными данными"""
     client.force_login(create_test_user)
 
@@ -138,7 +139,7 @@ def test_profile_view_post_invalid_data(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_shows_subscribed_users(client, create_multiple_users):
+def test_profile_view_shows_subscribed_users(client: Any, create_multiple_users: Any) -> None:
     """Тест что страница профиля показывает подписки пользователя"""
     users = create_multiple_users
 
@@ -161,7 +162,7 @@ def test_profile_view_shows_subscribed_users(client, create_multiple_users):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_shows_subscriber_users(client, create_multiple_users):
+def test_profile_view_shows_subscriber_users(client: Any, create_multiple_users: Any) -> None:
     """Тест что страница профиля показывает подписчиков пользователя"""
     users = create_multiple_users
 
@@ -184,7 +185,7 @@ def test_profile_view_shows_subscriber_users(client, create_multiple_users):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_no_subscriptions(client, create_test_user):
+def test_profile_view_no_subscriptions(client: Any, create_test_user: Any) -> None:
     """Тест что страница профиля корректно отображается без подписок"""
     client.force_login(create_test_user)
     response = client.get(reverse('profile'))
@@ -196,7 +197,7 @@ def test_profile_view_no_subscriptions(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_context_data(client, create_test_user):
+def test_profile_view_context_data(client: Any, create_test_user: Any) -> None:
     """Тест наличия необходимых данных в контексте"""
     client.force_login(create_test_user)
     response = client.get(reverse('profile'))
@@ -210,7 +211,7 @@ def test_profile_view_context_data(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_post_with_only_required_fields(client, create_test_user):
+def test_profile_view_post_with_only_required_fields(client: Any, create_test_user: Any) -> None:
     """Тест обновления профиля с только обязательными полями"""
     client.force_login(create_test_user)
 
@@ -233,7 +234,7 @@ def test_profile_view_post_with_only_required_fields(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_post_duplicate_username(client, create_multiple_users):
+def test_profile_view_post_duplicate_username(client: Any, create_multiple_users: Any) -> None:
     """Тест обновления профиля с уже существующим username"""
     users = create_multiple_users
     client.force_login(users['user1'])
@@ -260,7 +261,7 @@ def test_profile_view_post_duplicate_username(client, create_multiple_users):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_subscriber_with_share_settings(client, create_multiple_users):
+def test_profile_view_subscriber_with_share_settings(client: Any, create_multiple_users: Any) -> None:
     """Тест отображения can_subscribe для подписчиков с настройками публикации"""
     users = create_multiple_users
 
@@ -280,7 +281,7 @@ def test_profile_view_subscriber_with_share_settings(client, create_multiple_use
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_success_url_redirect(client, create_test_user):
+def test_profile_view_success_url_redirect(client: Any, create_test_user: Any) -> None:
     """Тест редиректа после успешного обновления профиля"""
     client.force_login(create_test_user)
 
@@ -299,7 +300,7 @@ def test_profile_view_success_url_redirect(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_get_object_uses_session_user(client, create_multiple_users):
+def test_profile_view_get_object_uses_session_user(client: Any, create_multiple_users: Any) -> None:
     """Тест что Profile использует пользователя из сессии, а не из URL"""
     users = create_multiple_users
     client.force_login(users['user1'])
@@ -315,7 +316,7 @@ def test_profile_view_get_object_uses_session_user(client, create_multiple_users
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_form_helper_present(client, create_test_user):
+def test_profile_view_form_helper_present(client: Any, create_test_user: Any) -> None:
     """Тест наличия crispy form helper"""
     client.force_login(create_test_user)
     response = client.get(reverse('profile'))
@@ -327,7 +328,7 @@ def test_profile_view_form_helper_present(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_preserves_password(client, create_test_user):
+def test_profile_view_preserves_password(client: Any, create_test_user: Any) -> None:
     """Тест что обновление профиля не изменяет пароль"""
     client.force_login(create_test_user)
     original_password = create_test_user.password

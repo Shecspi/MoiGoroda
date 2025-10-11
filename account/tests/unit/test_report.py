@@ -10,6 +10,7 @@ Licensed under the Apache License, Version 2.0
 from datetime import date
 
 import pytest
+from typing import Any
 
 from account.report import CityReport, RegionReport, AreaReport
 
@@ -18,7 +19,7 @@ from account.report import CityReport, RegionReport, AreaReport
 
 
 @pytest.mark.unit
-def test_city_report_with_grouped_cities(mocker):
+def test_city_report_with_grouped_cities(mocker: Any) -> None:
     """Тест CityReport с группировкой городов"""
     # Мокаем зависимости
     mock_get_unique_cities = mocker.patch('account.report.get_unique_visited_cities')
@@ -73,7 +74,7 @@ def test_city_report_with_grouped_cities(mocker):
 
 
 @pytest.mark.unit
-def test_city_report_without_grouping(mocker):
+def test_city_report_without_grouping(mocker: Any) -> None:
     """Тест CityReport без группировки городов"""
     mock_get_all_cities = mocker.patch('account.report.get_all_visited_cities')
 
@@ -104,7 +105,7 @@ def test_city_report_without_grouping(mocker):
 
 
 @pytest.mark.unit
-def test_city_report_no_visited_cities(mocker):
+def test_city_report_no_visited_cities(mocker: Any) -> None:
     """Тест CityReport без посещённых городов"""
     mock_get_all_cities = mocker.patch('account.report.get_all_visited_cities')
 
@@ -123,7 +124,7 @@ def test_city_report_no_visited_cities(mocker):
 
 
 @pytest.mark.unit
-def test_city_report_city_without_region(mocker):
+def test_city_report_city_without_region(mocker: Any) -> None:
     """Тест CityReport с городом без региона"""
     mock_get_all_cities = mocker.patch('account.report.get_all_visited_cities')
 
@@ -146,7 +147,7 @@ def test_city_report_city_without_region(mocker):
 
 
 @pytest.mark.unit
-def test_city_report_without_dates(mocker):
+def test_city_report_without_dates(mocker: Any) -> None:
     """Тест CityReport с городом без дат посещения"""
     mock_get_unique_cities = mocker.patch('account.report.get_unique_visited_cities')
     mock_apply_sort = mocker.patch('account.report.apply_sort_to_queryset')
@@ -175,7 +176,7 @@ def test_city_report_without_dates(mocker):
 
 
 @pytest.mark.unit
-def test_region_report_with_regions(mocker):
+def test_region_report_with_regions(mocker: Any) -> None:
     """Тест RegionReport с регионами"""
     mock_get_regions = mocker.patch('account.report.get_all_region_with_visited_cities')
 
@@ -203,7 +204,7 @@ def test_region_report_with_regions(mocker):
 
 
 @pytest.mark.unit
-def test_region_report_empty_regions(mocker):
+def test_region_report_empty_regions(mocker: Any) -> None:
     """Тест RegionReport с пустым списком регионов"""
     mock_get_regions = mocker.patch('account.report.get_all_region_with_visited_cities')
     mock_get_regions.return_value = []
@@ -222,7 +223,7 @@ def test_region_report_empty_regions(mocker):
 
 
 @pytest.mark.unit
-def test_region_report_no_visited_cities(mocker):
+def test_region_report_no_visited_cities(mocker: Any) -> None:
     """Тест RegionReport с регионом без посещённых городов"""
     mock_get_regions = mocker.patch('account.report.get_all_region_with_visited_cities')
 
@@ -248,7 +249,7 @@ def test_region_report_no_visited_cities(mocker):
 
 
 @pytest.mark.unit
-def test_region_report_division_by_zero(mocker):
+def test_region_report_division_by_zero(mocker: Any) -> None:
     """Тест RegionReport с делением на ноль"""
     mock_get_regions = mocker.patch('account.report.get_all_region_with_visited_cities')
 
@@ -265,7 +266,7 @@ def test_region_report_division_by_zero(mocker):
 
 
 @pytest.mark.unit
-def test_region_report_multiple_regions(mocker):
+def test_region_report_multiple_regions(mocker: Any) -> None:
     """Тест RegionReport с несколькими регионами"""
     mock_get_regions = mocker.patch('account.report.get_all_region_with_visited_cities')
 
@@ -284,12 +285,12 @@ def test_region_report_multiple_regions(mocker):
     report = RegionReport(1).get_report()
 
     assert len(report) == 3
-    assert report[1] == ('Регион 1 область', 2, 2, '100%', 0)
-    assert report[2] == ('Регион 2 область', 3, 1, '33%', 2)
+    assert report[1] == ('Регион 1 область', 2, 2, '100%', 0) # type: ignore[comparison-overlap]
+    assert report[2] == ('Регион 2 область', 3, 1, '33%', 2) # type: ignore[comparison-overlap]
 
 
 @pytest.mark.unit
-def test_region_report_percentage_rounding(mocker):
+def test_region_report_percentage_rounding(mocker: Any) -> None:
     """Тест округления процентов в RegionReport"""
     mock_get_regions = mocker.patch('account.report.get_all_region_with_visited_cities')
 
@@ -309,7 +310,7 @@ def test_region_report_percentage_rounding(mocker):
 
 
 @pytest.mark.unit
-def test_area_report_with_areas(mocker):
+def test_area_report_with_areas(mocker: Any) -> None:
     """Тест AreaReport с федеральными округами"""
     mock_get_areas = mocker.patch('account.report.get_visited_areas')
 
@@ -335,7 +336,7 @@ def test_area_report_with_areas(mocker):
 
 
 @pytest.mark.unit
-def test_area_report_empty_area(mocker):
+def test_area_report_empty_area(mocker: Any) -> None:
     """Тест AreaReport с пустым списком округов"""
     mock_get_areas = mocker.patch('account.report.get_visited_areas')
     mock_get_areas.return_value = []
@@ -354,7 +355,7 @@ def test_area_report_empty_area(mocker):
 
 
 @pytest.mark.unit
-def test_area_report_no_visited_regions(mocker):
+def test_area_report_no_visited_regions(mocker: Any) -> None:
     """Тест AreaReport с округом без посещённых регионов"""
     mock_get_areas = mocker.patch('account.report.get_visited_areas')
 
@@ -367,11 +368,11 @@ def test_area_report_no_visited_regions(mocker):
 
     report = AreaReport(1).get_report()
 
-    assert report[1] == ('Округ 2', 2, 0, '0%', 2)
+    assert report[1] == ('Округ 2', 2, 0, '0%', 2) # type: ignore[comparison-overlap]
 
 
 @pytest.mark.unit
-def test_area_report_zero_division(mocker):
+def test_area_report_zero_division(mocker: Any) -> None:
     """Тест AreaReport с делением на ноль"""
     mock_get_areas = mocker.patch('account.report.get_visited_areas')
 
@@ -388,7 +389,7 @@ def test_area_report_zero_division(mocker):
 
 
 @pytest.mark.unit
-def test_area_report_rounding_percentage(mocker):
+def test_area_report_rounding_percentage(mocker: Any) -> None:
     """Тест округления процентов в AreaReport"""
     mock_get_areas = mocker.patch('account.report.get_visited_areas')
 
@@ -405,7 +406,7 @@ def test_area_report_rounding_percentage(mocker):
 
 
 @pytest.mark.unit
-def test_area_report_multiple_areas(mocker):
+def test_area_report_multiple_areas(mocker: Any) -> None:
     """Тест AreaReport с несколькими округами"""
     mock_get_areas = mocker.patch('account.report.get_visited_areas')
 
@@ -424,15 +425,15 @@ def test_area_report_multiple_areas(mocker):
     report = AreaReport(1).get_report()
 
     assert len(report) == 3
-    assert report[1] == ('Округ 1', 2, 1, '50%', 1)
-    assert report[2] == ('Округ 2', 2, 0, '0%', 2)
+    assert report[1] == ('Округ 1', 2, 1, '50%', 1) # type: ignore[comparison-overlap]
+    assert report[2] == ('Округ 2', 2, 0, '0%', 2) # type: ignore[comparison-overlap]
 
 
 # ===== Тесты на общие характеристики =====
 
 
 @pytest.mark.unit
-def test_all_reports_implement_interface():
+def test_all_reports_implement_interface() -> None:
     """Тест что все отчёты реализуют интерфейс Report"""
     reports = [CityReport(1), RegionReport(1), AreaReport(1)]
 
@@ -442,7 +443,7 @@ def test_all_reports_implement_interface():
 
 
 @pytest.mark.unit
-def test_reports_accept_user_id():
+def test_reports_accept_user_id() -> None:
     """Тест что все отчёты принимают user_id"""
     city_report = CityReport(123)
     region_report = RegionReport(456)
@@ -454,7 +455,7 @@ def test_reports_accept_user_id():
 
 
 @pytest.mark.unit
-def test_city_report_accepts_group_city_parameter():
+def test_city_report_accepts_group_city_parameter() -> None:
     """Тест что CityReport принимает параметр group_city"""
     report_with_grouping = CityReport(1, group_city=True)
     report_without_grouping = CityReport(1, group_city=False)

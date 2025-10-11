@@ -8,8 +8,9 @@ Licensed under the Apache License, Version 2.0
 """
 
 import json
-import openpyxl
+import openpyxl  # type: ignore[import-untyped]
 import pytest
+from typing import Any
 from io import BytesIO
 from django.urls import reverse
 from unittest.mock import patch, Mock
@@ -19,7 +20,7 @@ from unittest.mock import patch, Mock
 
 
 @pytest.fixture
-def create_test_user(django_user_model):
+def create_test_user(django_user_model: Any) -> Any:
     """Создаёт тестового пользователя"""
     return django_user_model.objects.create_user(
         username='testuser', email='test@example.com', password='password123'
@@ -27,7 +28,7 @@ def create_test_user(django_user_model):
 
 
 @pytest.fixture
-def mock_city_report():
+def mock_city_report() -> list[tuple[str, ...]]:
     """Мокаем отчёт с городами"""
     return [
         ('Город', 'Регион', 'Дата посещения', 'Наличие сувенира', 'Оценка'),
@@ -41,7 +42,7 @@ def mock_city_report():
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_download_view_get_request_not_allowed(client, create_test_user):
+def test_download_view_get_request_not_allowed(client: Any, create_test_user: Any) -> None:
     """Тест что GET запрос на download не разрешён"""
     client.force_login(create_test_user)
 
@@ -52,7 +53,7 @@ def test_download_view_get_request_not_allowed(client, create_test_user):
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_download_view_unauthenticated(client):
+def test_download_view_unauthenticated(client: Any) -> None:
     """Тест что неавторизованный пользователь перенаправляется"""
     response = client.post(reverse('download'))
 
@@ -64,7 +65,7 @@ def test_download_view_unauthenticated(client):
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_txt_format(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_txt_format(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест скачивания отчёта в формате TXT"""
     client.force_login(create_test_user)
 
@@ -94,7 +95,7 @@ def test_download_view_txt_format(mock_logger, mock_report_class, client, create
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_csv_format(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_csv_format(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест скачивания отчёта в формате CSV"""
     client.force_login(create_test_user)
 
@@ -123,7 +124,7 @@ def test_download_view_csv_format(mock_logger, mock_report_class, client, create
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_json_format(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_json_format(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест скачивания отчёта в формате JSON"""
     client.force_login(create_test_user)
 
@@ -153,7 +154,7 @@ def test_download_view_json_format(mock_logger, mock_report_class, client, creat
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_xls_format(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_xls_format(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест скачивания отчёта в формате XLS"""
     client.force_login(create_test_user)
 
@@ -184,7 +185,7 @@ def test_download_view_xls_format(mock_logger, mock_report_class, client, create
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.download.logger')
-def test_download_view_invalid_reporttype(mock_logger, client, create_test_user):
+def test_download_view_invalid_reporttype(mock_logger: Any, client: Any, create_test_user: Any) -> None:
     """Тест скачивания с невалидным типом отчёта"""
     client.force_login(create_test_user)
 
@@ -201,7 +202,7 @@ def test_download_view_invalid_reporttype(mock_logger, client, create_test_user)
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_invalid_filetype(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_invalid_filetype(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест скачивания с невалидным типом файла"""
     client.force_login(create_test_user)
 
@@ -223,8 +224,8 @@ def test_download_view_invalid_filetype(mock_logger, mock_report_class, client, 
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
 def test_download_view_with_group_city_false(
-    mock_logger, mock_report_class, client, create_test_user
-):
+    mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any
+) -> None:
     """Тест скачивания с group_city=False"""
     client.force_login(create_test_user)
 
@@ -247,8 +248,8 @@ def test_download_view_with_group_city_false(
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
 def test_download_view_with_group_city_true(
-    mock_logger, mock_report_class, client, create_test_user
-):
+    mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any
+) -> None:
     """Тест скачивания с group_city=True"""
     client.force_login(create_test_user)
 
@@ -269,7 +270,7 @@ def test_download_view_with_group_city_true(
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_filename_format(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_filename_format(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест формата имени файла при скачивании"""
     client.force_login(create_test_user)
 
@@ -293,7 +294,7 @@ def test_download_view_filename_format(mock_logger, mock_report_class, client, c
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_multiple_downloads(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_multiple_downloads(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест нескольких последовательных скачиваний"""
     client.force_login(create_test_user)
 
@@ -320,7 +321,7 @@ def test_download_view_multiple_downloads(mock_logger, mock_report_class, client
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_empty_report(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_empty_report(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест скачивания пустого отчёта"""
     client.force_login(create_test_user)
 
@@ -345,7 +346,7 @@ def test_download_view_empty_report(mock_logger, mock_report_class, client, crea
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_logs_success(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_logs_success(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест что успешное скачивание логируется"""
     client.force_login(create_test_user)
 
@@ -367,7 +368,7 @@ def test_download_view_logs_success(mock_logger, mock_report_class, client, crea
 @pytest.mark.django_db
 @patch('account.views.download.CityReport')
 @patch('account.views.download.logger')
-def test_download_view_missing_parameters(mock_logger, mock_report_class, client, create_test_user):
+def test_download_view_missing_parameters(mock_logger: Any, mock_report_class: Any, client: Any, create_test_user: Any) -> None:
     """Тест скачивания с отсутствующими параметрами"""
     client.force_login(create_test_user)
 

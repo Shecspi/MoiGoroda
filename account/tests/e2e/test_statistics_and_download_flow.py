@@ -7,11 +7,10 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-import json
 import pytest
 from typing import Any
 from django.urls import reverse
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 from account.models import ShareSettings
 
@@ -78,7 +77,9 @@ def test_view_statistics_and_download_report_flow(client: Any, django_user_model
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_statistics_shows_fake_data_then_real_data_after_visit(client: Any, django_user_model: Any) -> None:
+def test_statistics_shows_fake_data_then_real_data_after_visit(
+    client: Any, django_user_model: Any
+) -> None:
     """
     E2E тест: Статистика без посещений показывает фейковые данные -> После добавления посещения показывает реальные данные
     """
@@ -110,7 +111,9 @@ def test_statistics_shows_fake_data_then_real_data_after_visit(client: Any, djan
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_configure_share_settings_and_verify_flow(mock_logger: Any, client: Any, django_user_model: Any) -> None:
+def test_configure_share_settings_and_verify_flow(
+    mock_logger: Any, client: Any, django_user_model: Any
+) -> None:
     """
     E2E тест: Настройка параметров публикации статистики -> Проверка сохранения -> Повторный просмотр
     """
@@ -245,7 +248,9 @@ def test_unauthenticated_user_cannot_access_statistics_or_download(client: Any) 
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_share_settings_validation_flow(mock_logger: Any, client: Any, django_user_model: Any) -> None:
+def test_share_settings_validation_flow(
+    mock_logger: Any, client: Any, django_user_model: Any
+) -> None:
     """
     E2E тест: Проверка валидации настроек публикации (нельзя включить основной без дополнительных)
     """
@@ -277,7 +282,9 @@ def test_share_settings_validation_flow(mock_logger: Any, client: Any, django_us
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_statistics_page_persists_through_multiple_visits(client: Any, django_user_model: Any) -> None:
+def test_statistics_page_persists_through_multiple_visits(
+    client: Any, django_user_model: Any
+) -> None:
     """
     E2E тест: Многократный доступ к статистике сохраняет настройки
     """

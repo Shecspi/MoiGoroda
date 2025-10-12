@@ -9,6 +9,7 @@ Licensed under the Apache License, Version 2.0
 
 import pytest
 from typing import Any
+from unittest.mock import patch
 from django.urls import reverse
 
 from account.models import ShareSettings
@@ -381,7 +382,3 @@ def test_complete_subscription_lifecycle(client: Any, django_user_model: Any) ->
     # Шаг 7: Проверяем, что подписки больше нет
     response = client.get(reverse('profile'))
     assert response.context['number_of_subscriber_users'] == 0
-
-
-# Импортируем patch для последних тестов
-from unittest.mock import patch

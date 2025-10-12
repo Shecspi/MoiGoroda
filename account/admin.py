@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 from __future__ import annotations
 
-from typing import Any
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin

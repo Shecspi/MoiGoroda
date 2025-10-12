@@ -8,7 +8,6 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
-from typing import Any
 from account.dto import SubscribedUserDTO, SubscriberUserDTO
 
 
@@ -174,7 +173,7 @@ def test_dto_types_are_different() -> None:
     dto1 = SubscribedUserDTO(id=1, username='user')
     dto2 = SubscriberUserDTO(id=1, username='user', can_subscribe=True)
 
-    assert type(dto1) != type(dto2)  # type: ignore[comparison-overlap]
+    assert type(dto1) is not type(dto2)  # type: ignore[comparison-overlap]
     assert dto1 != dto2  # type: ignore[comparison-overlap]
 
 

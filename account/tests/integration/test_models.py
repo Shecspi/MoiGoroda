@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 import pytest
 from typing import Any
-from django.contrib.auth.models import User
 
 from account.models import ShareSettings, UserConsent
 
@@ -33,7 +32,7 @@ def test_share_settings_get_absolute_url(django_user_model: Any) -> None:
     share_settings = ShareSettings.objects.create(user=user)
 
     expected_url = f'/share/{share_settings.pk}/'
-    assert share_settings.get_absolute_url() == expected_url  
+    assert share_settings.get_absolute_url() == expected_url
 
 
 @pytest.mark.integration

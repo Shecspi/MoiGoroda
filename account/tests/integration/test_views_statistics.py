@@ -10,8 +10,7 @@ Licensed under the Apache License, Version 2.0
 import pytest
 from typing import Any
 from django.urls import reverse
-from django.contrib.auth.models import User
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 from account.models import ShareSettings
 
@@ -78,7 +77,9 @@ def test_statistics_view_logs_access(mock_logger: Any, client: Any, create_test_
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_no_visited_cities_shows_fake_data(client: Any, create_test_user: Any) -> None:
+def test_statistics_view_no_visited_cities_shows_fake_data(
+    client: Any, create_test_user: Any
+) -> None:
     """Тест что при отсутствии посещённых городов показываются фейковые данные"""
     client.force_login(create_test_user)
 
@@ -93,7 +94,9 @@ def test_statistics_view_no_visited_cities_shows_fake_data(client: Any, create_t
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_with_visited_cities_shows_real_data(client: Any, create_test_user: Any) -> None:
+def test_statistics_view_with_visited_cities_shows_real_data(
+    client: Any, create_test_user: Any
+) -> None:
     """Тест что при наличии посещённых городов показываются реальные данные"""
     client.force_login(create_test_user)
 
@@ -244,7 +247,9 @@ def test_save_share_settings_unauthenticated(client: Any) -> None:
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.statistics.logger')
-def test_save_share_settings_all_enabled(mock_logger: Any, client: Any, create_test_user: Any) -> None:
+def test_save_share_settings_all_enabled(
+    mock_logger: Any, client: Any, create_test_user: Any
+) -> None:
     """Тест сохранения настроек со всеми включёнными флагами"""
     client.force_login(create_test_user)
 

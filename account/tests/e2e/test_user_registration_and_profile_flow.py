@@ -178,7 +178,9 @@ def test_change_password_flow(client: Any, django_user_model: Any) -> None:
 @pytest.mark.e2e
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_registration_duplicate_email_handling(mock_logger: Any, client: Any, django_user_model: Any) -> None:
+def test_registration_duplicate_email_handling(
+    mock_logger: Any, client: Any, django_user_model: Any
+) -> None:
     """
     E2E тест: Регистрация пользователя -> Попытка регистрации с тем же email
     """
@@ -256,7 +258,9 @@ def test_profile_update_preserves_authentication(client: Any, django_user_model:
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_authenticated_user_cannot_access_signup_or_signin(client: Any, django_user_model: Any) -> None:
+def test_authenticated_user_cannot_access_signup_or_signin(
+    client: Any, django_user_model: Any
+) -> None:
     """
     E2E тест: Авторизованный пользователь не может попасть на страницы регистрации/входа
     """

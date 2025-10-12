@@ -62,7 +62,9 @@ def test_signup_view_authenticated_user_redirect(client: Any, django_user_model:
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_signup_view_post_valid_data(mock_logger: Any, client: Any, user_data: dict[str, Any]) -> None:
+def test_signup_view_post_valid_data(
+    mock_logger: Any, client: Any, user_data: dict[str, Any]
+) -> None:
     """Тест успешной регистрации пользователя"""
     response = client.post(reverse('signup'), data=user_data, follow=True)
 
@@ -109,7 +111,9 @@ def test_signup_view_post_invalid_data(client: Any) -> None:
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_signup_view_duplicate_email(client: Any, user_data: dict[str, Any], django_user_model: Any) -> None:
+def test_signup_view_duplicate_email(
+    client: Any, user_data: dict[str, Any], django_user_model: Any
+) -> None:
     """Тест регистрации с уже существующим email"""
     # Создаём пользователя с таким же email
     django_user_model.objects.create_user(
@@ -126,7 +130,9 @@ def test_signup_view_duplicate_email(client: Any, user_data: dict[str, Any], dja
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_signup_view_ip_address_saved(mock_logger: Any, client: Any, user_data: dict[str, Any]) -> None:
+def test_signup_view_ip_address_saved(
+    mock_logger: Any, client: Any, user_data: dict[str, Any]
+) -> None:
     """Тест что IP адрес сохраняется при регистрации"""
     # Устанавливаем IP адрес через заголовок
     client.post(reverse('signup'), data=user_data, HTTP_X_FORWARDED_FOR='192.168.1.1,10.0.0.1')
@@ -141,7 +147,9 @@ def test_signup_view_ip_address_saved(mock_logger: Any, client: Any, user_data: 
 @pytest.mark.integration
 @pytest.mark.django_db
 @patch('account.views.access.logger_email')
-def test_signup_view_ip_address_remote_addr(mock_logger: Any, client: Any, user_data: dict[str, Any]) -> None:
+def test_signup_view_ip_address_remote_addr(
+    mock_logger: Any, client: Any, user_data: dict[str, Any]
+) -> None:
     """Тест что IP адрес сохраняется из REMOTE_ADDR если нет X-Forwarded-For"""
     client.post(reverse('signup'), data=user_data, REMOTE_ADDR='10.0.0.2')
 
@@ -296,7 +304,9 @@ def test_password_change_view_post_valid_data(client: Any, django_user_model: An
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_password_change_view_post_invalid_old_password(client: Any, django_user_model: Any) -> None:
+def test_password_change_view_post_invalid_old_password(
+    client: Any, django_user_model: Any
+) -> None:
     """Тест изменения пароля с неверным старым паролем"""
     user = django_user_model.objects.create_user(username='testuser', password='oldpassword123')
     client.force_login(user)

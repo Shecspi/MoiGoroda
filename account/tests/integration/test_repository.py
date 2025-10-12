@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 import pytest
 from typing import Any
-from django.contrib.auth.models import User
 
 from account.models import ShareSettings
 from account.dto import SubscriberUserDTO, SubscribedUserDTO

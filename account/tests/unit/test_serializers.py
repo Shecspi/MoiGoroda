@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 import openpyxl  # type: ignore[import-untyped]
 import pytest
-from typing import Any
 import json
 from io import StringIO, BytesIO
 

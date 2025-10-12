@@ -10,7 +10,6 @@ Licensed under the Apache License, Version 2.0
 import pytest
 from typing import Any
 from django.urls import reverse
-from django.contrib.auth.models import User
 from unittest.mock import patch
 
 from account.models import ShareSettings
@@ -261,7 +260,9 @@ def test_profile_view_post_duplicate_username(client: Any, create_multiple_users
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_subscriber_with_share_settings(client: Any, create_multiple_users: Any) -> None:
+def test_profile_view_subscriber_with_share_settings(
+    client: Any, create_multiple_users: Any
+) -> None:
     """Тест отображения can_subscribe для подписчиков с настройками публикации"""
     users = create_multiple_users
 

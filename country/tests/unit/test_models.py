@@ -177,4 +177,3 @@ class TestCountryModelMethods:
         # assert str(visited) == str(country)
         # Пропускаем этот тест до исправления бага в модели
         assert visited.country == country
-

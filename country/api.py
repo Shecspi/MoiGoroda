@@ -7,11 +7,14 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from django.db.models import Count, Q
-from rest_framework import generics
+from typing import Any
+
+from django.db.models import Count, Q, QuerySet
+from rest_framework import generics, status
 import rest_framework.exceptions as drf_exc
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from country.models import Country, VisitedCountry, PartOfTheWorld, Location
@@ -25,24 +28,24 @@ from country.serializers import (
 from services import logger
 
 
-class GetPartsOfTheWorld(generics.ListAPIView):
+class GetPartsOfTheWorld(generics.ListAPIView):  # type: ignore[type-arg]
     queryset = PartOfTheWorld.objects.all()
     http_method_names = ['get']
     serializer_class = PartOfTheWorldSerializer
 
 
-class GetLocations(generics.ListAPIView):
+class GetLocations(generics.ListAPIView):  # type: ignore[type-arg]
     queryset = Location.objects.all()
     http_method_names = ['get']
     serializer_class = LocationSerializer
 
 
-class GetAllCountry(generics.ListAPIView):
+class GetAllCountry(generics.ListAPIView):  # type: ignore[type-arg]
     queryset = Country.objects.all()
     http_method_names = ['get']
     serializer_class = CountrySerializer
 
-    def get(self, *args, **kwargs):
+    def get(self, *args: Any, **kwargs: Any) -> Response:
         from_page = (
             self.request.GET.get('from') if self.request.GET.get('from') else 'unknown location'
         )
@@ -51,15 +54,15 @@ class GetAllCountry(generics.ListAPIView):
             self.request,
             f'(API: Country): Successful request for a list of all countries from {from_page}',
         )
-        return super().get(self, *args, **kwargs)
+        return super().get(*args, **kwargs)
 
 
-class GetVisitedCountry(generics.ListAPIView):
+class GetVisitedCountry(generics.ListAPIView):  # type: ignore[type-arg]
     http_method_names = ['get']
     permission_classes = [IsAuthenticated]
     serializer_class = VisitedCountrySerializer
 
-    def get(self, *args, **kwargs):
+    def get(self, *args: Any, **kwargs: Any) -> Response:
         from_page = (
             self.request.GET.get('from') if self.request.GET.get('from') else 'unknown location'
         )
@@ -68,18 +71,18 @@ class GetVisitedCountry(generics.ListAPIView):
             self.request,
             f'(API: Country): Successful request for a list of visited countries from {from_page}',
         )
-        return super().get(self, *args, **kwargs)
+        return super().get(*args, **kwargs)
 
-    def get_queryset(self):
-        return VisitedCountry.objects.filter(user=self.request.user)
+    def get_queryset(self) -> QuerySet[VisitedCountry]:
+        return VisitedCountry.objects.filter(user=self.request.user)  # type: ignore[misc]
 
 
-class AddVisitedCountry(generics.CreateAPIView):
+class AddVisitedCountry(generics.CreateAPIView):  # type: ignore[type-arg]
     http_method_names = ['post']
     permission_classes = [IsAuthenticated]
     serializer_class = VisitedCountrySerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         from_page = request.data.get('from') if request.data.get('from') else 'unknown location'
 
         serializer = VisitedCountrySerializer(data=request.data, context={'request': request})
@@ -100,14 +103,15 @@ class AddVisitedCountry(generics.CreateAPIView):
         return Response({'status': 'success', 'country': serializer.data})
 
 
-class DeleteVisitedCountry(generics.DestroyAPIView):
+class DeleteVisitedCountry(generics.DestroyAPIView):  # type: ignore[type-arg]
     http_method_names = ['delete']
     permission_classes = [IsAuthenticated]
     serializer_class = VisitedCountrySerializer
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         from_page = request.data.get('from') if request.data.get('from') else 'unknown location'
-        code = kwargs.get('code').upper()
+        code_value = kwargs.get('code')
+        code = code_value.upper() if code_value else ''
 
         try:
             country = Country.objects.get(code=code)
@@ -120,7 +124,7 @@ class DeleteVisitedCountry(generics.DestroyAPIView):
 
         # В таблице VisitedCountry не должно быть больше одного элемента
         # с одинаковыми полями user и country, поэтому дополнительную проверку на это можно не делать.
-        visited_country = VisitedCountry.objects.filter(user=request.user, country=country)
+        visited_country = VisitedCountry.objects.filter(user=request.user, country=country)  # type: ignore[misc]
 
         # delete() к несуществующей записи не создаёт исключений, поэтому обработка исключений не требуется
         visited_country.delete()
@@ -133,20 +137,20 @@ class DeleteVisitedCountry(generics.DestroyAPIView):
         return Response(status=204)
 
 
-class RecieveUnknownCountries(generics.GenericAPIView):
-    def post(self, *args, **kwargs):
+class RecieveUnknownCountries(generics.GenericAPIView):  # type: ignore[type-arg]
+    def post(self, *args: Any, **kwargs: Any) -> Response:
         logger.warning(
             self.request,
             f'(API Country) Difference between lists of countries in Yandex and local DB. Unknown countries from '
-            f'Yandex: {self.request.POST.get('unknown_from_yandex')}. Unknown countries from local DB: '
-            f'{self.request.POST.get('unknown_to_yandex')}.',
+            f'Yandex: {self.request.POST.get("unknown_from_yandex")}. Unknown countries from local DB: '
+            f'{self.request.POST.get("unknown_to_yandex")}.',
         )
 
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-def country_list_with_visited_cities(request):
+def country_list_with_visited_cities(request: Request) -> Response:
     """
     Возвращает список стран.
     Для авторизованного пользователя - все посещённые.
@@ -170,6 +174,6 @@ def country_list_with_visited_cities(request):
             .distinct()
         )
     else:
-        queryset = Country.objects.filter(city__isnull=False).distinct().order_by('name')
+        queryset = Country.objects.filter(city__isnull=False).distinct().order_by('name')  # type: ignore[assignment]
     serializer = CountrySimpleSerializer(queryset, many=True)
     return Response(serializer.data)

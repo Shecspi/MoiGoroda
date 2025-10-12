@@ -64,4 +64,3 @@ class TestOtherModelsAdmin:
     def test_location_registered(self) -> None:
         """Проверяет что Location зарегистрирована."""
         assert Location in admin.site._registry
-

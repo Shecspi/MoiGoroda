@@ -33,4 +33,3 @@ def location(part_of_the_world: PartOfTheWorld) -> Location:
 def user() -> User:
     """Создает тестового пользователя."""
     return User.objects.create_user(username='testuser', password='testpass')
-

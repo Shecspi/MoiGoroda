@@ -38,4 +38,3 @@ class TestCountryView:
         assert 'page_description' in context
         assert context['page_title'] == 'Карта стран мира'
         assert context['page_description'] == 'Карта стран мира'
-

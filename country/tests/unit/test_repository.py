@@ -139,4 +139,3 @@ class TestGetCountriesWithNewVisitedCityInYear:
         visited_city_mock.objects.filter.assert_called_once_with(
             user_id=100, date_of_visit__year=2023, is_first_visit=True
         )
-

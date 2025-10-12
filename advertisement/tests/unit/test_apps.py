@@ -8,7 +8,6 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
-from typing import Any
 
 
 @pytest.mark.unit
@@ -42,4 +41,3 @@ def test_advertisement_config_inherits_from_app_config() -> None:
     from django.apps import AppConfig
 
     assert issubclass(AdvertisementConfig, AppConfig)
-

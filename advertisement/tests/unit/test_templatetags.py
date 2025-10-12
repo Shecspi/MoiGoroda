@@ -8,9 +8,8 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
-from typing import Any
 from unittest.mock import Mock, patch
-from datetime import datetime, date, timedelta
+from datetime import datetime
 
 
 @pytest.mark.unit
@@ -101,10 +100,9 @@ def test_get_excluded_users_with_multiple_users() -> None:
 @pytest.mark.unit
 def test_get_excluded_users_template_tag_registered() -> None:
     """Тест что get_excluded_users зарегистрирован как template tag"""
-    from advertisement.templatetags.excluded_users import register, get_excluded_users
+    from advertisement.templatetags.excluded_users import register
 
     # Проверяем, что функция зарегистрирована
     assert hasattr(register, 'tags')
     # get_excluded_users должен быть в зарегистрированных тегах
     assert 'get_excluded_users' in register.tags
-

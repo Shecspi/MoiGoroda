@@ -95,8 +95,8 @@ def test_advertisement_exception_multiple_for_same_user(django_user_model: Any) 
     deadline1 = date.today() + timedelta(days=10)
     deadline2 = date.today() + timedelta(days=20)
 
-    exception1 = AdvertisementException.objects.create(user=user, deadline=deadline1)
-    exception2 = AdvertisementException.objects.create(user=user, deadline=deadline2)
+    _exception1 = AdvertisementException.objects.create(user=user, deadline=deadline1)
+    _exception2 = AdvertisementException.objects.create(user=user, deadline=deadline2)
 
     # Проверяем, что оба исключения существуют
     assert AdvertisementException.objects.filter(user=user).count() == 2
@@ -114,9 +114,9 @@ def test_advertisement_exception_query_optimization(django_user_model: Any) -> N
     AdvertisementException.objects.create(user=user2, deadline=deadline)
 
     # Проверяем, что values_list возвращает только ID
-    user_ids = AdvertisementException.objects.filter(
-        deadline__gte=date.today()
-    ).values_list('user__id', flat=True)
+    user_ids = AdvertisementException.objects.filter(deadline__gte=date.today()).values_list(
+        'user__id', flat=True
+    )
 
     # Проверяем содержимое
     assert set(user_ids) == {user1.id, user2.id}
@@ -126,7 +126,6 @@ def test_advertisement_exception_query_optimization(django_user_model: Any) -> N
 @pytest.mark.django_db
 def test_advertisement_exception_ordering() -> None:
     """Тест что исключения можно упорядочить по дате"""
-    from django.contrib.auth.models import User
 
     user1 = User.objects.create_user(username='user1', password='password123')
     user2 = User.objects.create_user(username='user2', password='password123')
@@ -178,4 +177,3 @@ def test_advertisement_exception_delete(django_user_model: Any) -> None:
 
     # Проверяем, что удалено
     assert not AdvertisementException.objects.filter(id=exception_id).exists()
-

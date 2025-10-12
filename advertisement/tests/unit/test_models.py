@@ -8,7 +8,6 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
-from typing import Any
 
 
 @pytest.mark.unit
@@ -50,7 +49,7 @@ def test_advertisement_exception_has_required_fields() -> None:
     """Тест наличия всех обязательных полей в модели"""
     from advertisement.models import AdvertisementException
 
-    exception = AdvertisementException()
+    _exception = AdvertisementException()
 
     # Проверяем наличие полей через _meta
     field_names = [f.name for f in AdvertisementException._meta.get_fields()]
@@ -67,4 +66,3 @@ def test_advertisement_exception_on_delete_cascade() -> None:
 
     user_field = AdvertisementException._meta.get_field('user')
     assert user_field.remote_field.on_delete == CASCADE
-

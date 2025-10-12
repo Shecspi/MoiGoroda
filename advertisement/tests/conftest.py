@@ -8,7 +8,6 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
-from typing import Any
 from datetime import date, timedelta
 
 
@@ -31,4 +30,3 @@ def past_deadline() -> date:
 def today_deadline() -> date:
     """Фикстура с сегодняшней датой"""
     return date.today()
-

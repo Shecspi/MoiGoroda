@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0
 
 import pytest
 from typing import Any
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 from django.contrib.auth.models import User
 
 from advertisement.models import AdvertisementException
@@ -199,5 +199,3 @@ def test_get_excluded_users_performance_with_many_records(django_user_model: Any
 
 
 # Импорт Mock в конце файла
-from unittest.mock import Mock
-

@@ -10,8 +10,8 @@ Licensed under the Apache License, Version 2.0
 import pytest
 from typing import Any
 from datetime import date, timedelta
+from unittest.mock import Mock
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import User
 
 from advertisement.models import AdvertisementException
 from advertisement.admin import AdvertisementExceptionAdmin
@@ -50,7 +50,7 @@ def test_advertisement_exception_admin_search_fields() -> None:
 def test_advertisement_exception_admin_has_permissions(django_user_model: Any) -> None:
     """Тест что AdvertisementExceptionAdmin имеет стандартные permissions"""
     admin_instance = AdvertisementExceptionAdmin(AdvertisementException, AdminSite())
-    
+
     # Проверяем, что методы существуют
     assert hasattr(admin_instance, 'has_add_permission')
     assert hasattr(admin_instance, 'has_change_permission')
@@ -102,8 +102,3 @@ def test_advertisement_exception_admin_display_deadline_field(django_user_model:
     exception = AdvertisementException.objects.create(user=user, deadline=deadline)
 
     assert exception.deadline == date(2024, 12, 31)
-
-
-# Импорт Mock для тестов
-from unittest.mock import Mock
-

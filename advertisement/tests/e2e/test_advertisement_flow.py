@@ -10,7 +10,6 @@ Licensed under the Apache License, Version 2.0
 import pytest
 from typing import Any
 from datetime import date, timedelta
-from django.contrib.auth.models import User
 
 from advertisement.models import AdvertisementException
 from advertisement.templatetags.excluded_users import get_excluded_users
@@ -231,4 +230,3 @@ def test_mixed_active_and_expired_exceptions_flow(django_user_model: Any) -> Non
     # Шаг 4: Проверяем общее количество
     assert AdvertisementException.objects.count() == 3
     assert len(excluded_users) >= 2
-

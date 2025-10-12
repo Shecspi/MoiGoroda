@@ -23,10 +23,9 @@ Licensed under the Apache License, Version 2.0
 
 from datetime import date
 from typing import Any
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
-from django.contrib.auth.models import User
 from django.test import Client, RequestFactory
 from django.urls import reverse
 

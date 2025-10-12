@@ -49,7 +49,6 @@ class VisitedCityService(AbstractVisitedCityService):
             )
             raise Http404
 
-        country_id = city.country.id
         country_code = city.country.code
 
         # --- Средний рейтинг ---

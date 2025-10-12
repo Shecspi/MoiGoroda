@@ -7,14 +7,13 @@ E2E тесты для сценариев с подписками.
 - Взаимодействие между пользователями через подписки
 """
 
-from datetime import date
 from typing import Any
 
 import pytest
 from django.test import Client
 from django.urls import reverse
 
-from city.models import City, VisitedCity
+from city.models import City
 from country.models import Country, Location, PartOfTheWorld
 from region.models import Area, Region, RegionType
 from subscribe.infrastructure.models import Subscribe

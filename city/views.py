@@ -13,7 +13,6 @@ from dataclasses import asdict
 from typing import Any, NoReturn, Callable
 
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import User
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest, HttpResponseBase
 from django.shortcuts import render, redirect

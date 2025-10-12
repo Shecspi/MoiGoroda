@@ -1,7 +1,6 @@
 from typing import Any
 import pytest
 from django.db.models import QuerySet, Q
-from unittest.mock import Mock
 from city.services.filter import (
     filter_has_magnet,
     filter_has_no_magnet,

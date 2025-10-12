@@ -77,7 +77,7 @@ class TestPagination:
         # Создаем 10 городов (меньше чем paginate_by=24)
         mock_cities = create_mock_visited_cities(10)
 
-        empty_qs = VisitedCity.objects.none()
+        _empty_qs = VisitedCity.objects.none()
         mock_get_unique_visited_cities.return_value = mock_cities
         mock_apply_sort.return_value = mock_cities
         mock_get_number_of_cities.return_value = 100

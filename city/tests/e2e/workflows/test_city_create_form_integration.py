@@ -179,7 +179,7 @@ def test_city_create_user_is_automatically_set(
 @pytest.mark.e2e
 def test_city_create_without_required_fields(client: Client) -> None:
     """Проверяет обработку формы без обязательных полей."""
-    user = User.objects.create_user(username='testuser', password='testpass')
+    _user = User.objects.create_user(username='testuser', password='testpass')
     client.login(username='testuser', password='testpass')
 
     # Отправляем форму без обязательных полей
@@ -356,7 +356,7 @@ def test_city_create_post_guest_redirects_to_login(client: Client) -> None:
 @pytest.mark.e2e
 def test_city_create_with_nonexistent_city_id(client: Client) -> None:
     """Проверяет обработку несуществующего city_id в форме."""
-    user = User.objects.create_user(username='testuser', password='testpass')
+    _user = User.objects.create_user(username='testuser', password='testpass')
     client.login(username='testuser', password='testpass')
 
     form_data = {

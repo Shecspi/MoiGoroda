@@ -27,7 +27,7 @@ class TestUpdateFormValidation:
         """Обновление с валидными данными должно быть успешным."""
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
-        
+
         response = client.post(
             reverse('city-update', kwargs={'pk': 1}),
             data={
@@ -37,10 +37,10 @@ class TestUpdateFormValidation:
                 'date_of_visit': '2023-05-15',
                 'has_magnet': True,
                 'rating': 4,
-                'impression': 'Great city!'
-            }
+                'impression': 'Great city!',
+            },
         )
-        
+
         assert response.status_code == 302
         updated = VisitedCity.objects.get(pk=1)
         assert updated.rating == 4
@@ -52,16 +52,16 @@ class TestUpdateFormValidation:
         """Обновление без указания города должно возвращать ошибку."""
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
-        
+
         response = client.post(
             reverse('city-update', kwargs={'pk': 1}),
             data={
                 'country': visited_city.city.country.id,
                 'region': visited_city.city.region.id if visited_city.city.region else '',
                 'rating': 4,
-            }
+            },
         )
-        
+
         assert response.status_code == 200
         assert 'form' in response.context
         assert response.context['form'].errors
@@ -72,16 +72,16 @@ class TestUpdateFormValidation:
         """Обновление без указания рейтинга должно возвращать ошибку."""
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
-        
+
         response = client.post(
             reverse('city-update', kwargs={'pk': 1}),
             data={
                 'city': visited_city.city.id,
                 'country': visited_city.city.country.id,
                 'region': visited_city.city.region.id if visited_city.city.region else '',
-            }
+            },
         )
-        
+
         assert response.status_code == 200
         assert 'form' in response.context
         assert response.context['form'].errors
@@ -92,7 +92,7 @@ class TestUpdateFormValidation:
         """Тестирование граничных значений рейтинга."""
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
-        
+
         # Минимальное значение
         response = client.post(
             reverse('city-update', kwargs={'pk': 1}),
@@ -101,11 +101,11 @@ class TestUpdateFormValidation:
                 'country': visited_city.city.country.id,
                 'region': visited_city.city.region.id if visited_city.city.region else '',
                 'rating': 1,
-            }
+            },
         )
         assert response.status_code == 302
         assert VisitedCity.objects.get(pk=1).rating == 1
-        
+
         # Максимальное значение
         response = client.post(
             reverse('city-update', kwargs={'pk': 1}),
@@ -114,7 +114,7 @@ class TestUpdateFormValidation:
                 'country': visited_city.city.country.id,
                 'region': visited_city.city.region.id if visited_city.city.region else '',
                 'rating': 5,
-            }
+            },
         )
         assert response.status_code == 302
         assert VisitedCity.objects.get(pk=1).rating == 5
@@ -125,7 +125,7 @@ class TestUpdateFormValidation:
         """Обновление без даты посещения должно быть успешным (поле опциональное)."""
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
-        
+
         response = client.post(
             reverse('city-update', kwargs={'pk': 1}),
             data={
@@ -134,9 +134,9 @@ class TestUpdateFormValidation:
                 'region': visited_city.city.region.id if visited_city.city.region else '',
                 'rating': 4,
                 'date_of_visit': '',
-            }
+            },
         )
-        
+
         assert response.status_code == 302
 
     @pytest.mark.integration
@@ -145,7 +145,7 @@ class TestUpdateFormValidation:
         """Обновление без впечатлений должно быть успешным (поле опциональное)."""
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
-        
+
         response = client.post(
             reverse('city-update', kwargs={'pk': 1}),
             data={
@@ -154,9 +154,9 @@ class TestUpdateFormValidation:
                 'region': visited_city.city.region.id if visited_city.city.region else '',
                 'rating': 4,
                 'impression': '',
-            }
+            },
         )
-        
+
         assert response.status_code == 302
 
     @pytest.mark.integration
@@ -165,7 +165,7 @@ class TestUpdateFormValidation:
         """Тест обновления с неотмеченным чекбоксом has_magnet."""
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
-        
+
         response = client.post(
             reverse('city-update', kwargs={'pk': 1}),
             data={
@@ -174,9 +174,9 @@ class TestUpdateFormValidation:
                 'region': visited_city.city.region.id if visited_city.city.region else '',
                 'rating': 4,
                 # has_magnet не передаем - должно быть False
-            }
+            },
         )
-        
+
         assert response.status_code == 302
         assert VisitedCity.objects.get(pk=1).has_magnet is False
 
@@ -191,10 +191,10 @@ class TestUpdateFormPrefill:
         """Форма должна быть предзаполнена существующими данными."""
         client.login(username='username1', password='password')
         response = client.get(reverse('city-update', kwargs={'pk': 1}))
-        
+
         visited_city = VisitedCity.objects.get(pk=1)
         form = response.context['form']
-        
+
         assert form.initial['city'] == visited_city.city.id
         assert form.initial['country'] == visited_city.city.country.id
 
@@ -205,7 +205,7 @@ class TestUpdateFormPrefill:
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
         response = client.get(reverse('city-update', kwargs={'pk': 1}))
-        
+
         assert response.context['form'].instance.rating == visited_city.rating
 
     @pytest.mark.integration
@@ -215,5 +215,5 @@ class TestUpdateFormPrefill:
         client.login(username='username1', password='password')
         visited_city = VisitedCity.objects.get(pk=1)
         response = client.get(reverse('city-update', kwargs={'pk': 1}))
-        
+
         assert response.context['form'].instance.has_magnet == visited_city.has_magnet

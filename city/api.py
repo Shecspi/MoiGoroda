@@ -11,7 +11,6 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any
 
-from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import User
 import rest_framework.exceptions as drf_exc
 from django.db.models import QuerySet

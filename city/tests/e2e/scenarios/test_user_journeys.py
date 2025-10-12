@@ -75,7 +75,7 @@ class TestCompleteUserJourney:
         self, setup_full_db: dict[str, Any], client: Client
     ) -> None:
         """E2E: Создание множества городов → Фильтрация → Сортировка → Пагинация."""
-        user = setup_full_db['user']
+        _user = setup_full_db['user']
         cities = setup_full_db['cities'][:5]  # Берём 5 городов
         country = setup_full_db['country']
         region = setup_full_db['region']
@@ -329,7 +329,7 @@ class TestPaginationScenarios:
         self, setup_full_db: dict[str, Any], client: Client
     ) -> None:
         """E2E: Создание 30 городов → Проверка пагинации."""
-        user = setup_full_db['user']
+        _user = setup_full_db['user']
         country = setup_full_db['country']
         region = setup_full_db['region']
 
@@ -387,7 +387,7 @@ class TestEdgeCaseJourneys:
         client.login(username='testuser', password='testpass')
 
         # Создаём два посещения
-        response1 = client.post(
+        _response1 = client.post(
             reverse('city-create'),
             data={
                 'country': country.id,
@@ -398,7 +398,7 @@ class TestEdgeCaseJourneys:
             },
         )
 
-        response2 = client.post(
+        _response2 = client.post(
             reverse('city-create'),
             data={
                 'country': country.id,

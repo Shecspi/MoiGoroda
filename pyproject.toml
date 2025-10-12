@@ -67,6 +67,9 @@ django_settings_module = "MoiGoroda.settings"
 
 [tool.ruff]
 line-length = 100
+exclude = [
+    "*/migrations/*",
+]
 
 [tool.ruff.format]
 quote-style = "single"

@@ -7,10 +7,8 @@
 
 import pytest
 from typing import Any
-from unittest.mock import MagicMock
 from pytest_mock import MockerFixture
 
-from city.models import VisitedCity
 from city.repository.visited_city_repository import VisitedCityRepository
 
 

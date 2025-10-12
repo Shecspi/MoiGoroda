@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from datetime import date
-from typing import Any, Type
+from typing import Type
 from unittest.mock import MagicMock
 import pytest
 from django.contrib.auth.models import User

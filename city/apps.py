@@ -15,4 +15,4 @@ class CityConfig(AppConfig):
     name = 'city'
 
     def ready(self) -> None:
-        import city.signals
+        pass

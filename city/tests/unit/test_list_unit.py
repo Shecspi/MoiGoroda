@@ -10,7 +10,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import Any
 from unittest.mock import Mock, patch, MagicMock
 
 import pytest

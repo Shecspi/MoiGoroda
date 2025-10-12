@@ -7,7 +7,7 @@
 
 import pytest
 from typing import Any
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock
 
 from city.models import City
 from city.repository.city_repository import CityRepository
@@ -197,9 +197,7 @@ class TestGetNumberOfCitiesInRegionByCity:
 
     def test_returns_zero_when_multiple_objects(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат 0 при дубликатах."""
-        mock_get = mocker.patch(
-            'city.models.City.objects.get', side_effect=City.MultipleObjectsReturned
-        )
+        _ = mocker.patch('city.models.City.objects.get', side_effect=City.MultipleObjectsReturned)
 
         result = repo.get_number_of_cities_in_region_by_city(city_id=123)
 

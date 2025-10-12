@@ -19,7 +19,7 @@ Licensed under the Apache License, Version 2.0
 
 from datetime import date
 from typing import Any
-from unittest.mock import MagicMock, Mock
+from unittest.mock import Mock
 
 import pytest
 from django.contrib.auth.models import User
@@ -94,7 +94,7 @@ def test_visited_city_detail_calls_service_get_city_details() -> None:
     with pytest.raises(Http404):
         # Вызовет 404, так как City с id=1 не существует в БД
         # Но это нормально - мы проверяем что сервис вызывается
-        response = view(request, pk=1)
+        _response = view(request, pk=1)
 
     # В реальном случае сервис был бы вызван, но из-за 404 на уровне DetailView это не происходит
     # Это показывает, что для полного тестирования нужны интеграционные тесты
@@ -168,7 +168,7 @@ def test_visited_city_detail_integration_full_flow(django_user_model: Any, clien
     # Создаем посещение
     from city.models import VisitedCity
 
-    visited = VisitedCity.objects.create(
+    _visited = VisitedCity.objects.create(
         user=user, city=city, date_of_visit=date(2024, 1, 15), rating=5
     )
 
@@ -191,7 +191,7 @@ def test_visited_city_detail_integration_full_flow(django_user_model: Any, clien
 @pytest.mark.integration
 def test_visited_city_detail_integration_nonexistent_city_404(client: Client) -> None:
     """ИНТЕГРАЦИОННЫЙ ТЕСТ: Несуществующий город возвращает 404."""
-    user = User.objects.create_user(username='testuser', password='testpass')
+    _user = User.objects.create_user(username='testuser', password='testpass')
     client.login(username='testuser', password='testpass')
 
     response = client.get(reverse('city-selected', kwargs={'pk': 99999}))

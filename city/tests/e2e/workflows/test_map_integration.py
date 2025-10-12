@@ -11,7 +11,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from typing import Any, Generator
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock
 
 import pytest
 from django.test import Client

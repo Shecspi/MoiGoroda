@@ -94,7 +94,7 @@ class TestCleanRatingValidation:
             
             result = form.clean_rating()
             
-            assert result == int(rating)
+            assert str(result) == rating 
 
     def test_clean_rating_invalid_too_low(self, setup_data: dict[str, Any]) -> None:
         """Значение 0 невалидно."""
@@ -327,7 +327,7 @@ class TestFormInitQuerysetLogic:
         form = VisitedCity_Create_Form(request=request, initial={'country': country_kz.id})
         
         # Проверяем что queryset для region отфильтрован
-        region_queryset = form.fields['region'].queryset
+        region_queryset = form.fields['region'].queryset # type: ignore[attr-defined]
         regions_list = list(region_queryset)
         
         # Все регионы должны быть из Казахстана
@@ -348,7 +348,7 @@ class TestFormInitQuerysetLogic:
         form = VisitedCity_Create_Form(data=data, request=request)
         
         # Queryset для city должен быть отфильтрован
-        city_queryset = form.fields['city'].queryset
+        city_queryset = form.fields['city'].queryset # type: ignore[attr-defined]
         cities_list = list(city_queryset)
         
         # Должны быть только города из этого региона
@@ -370,7 +370,7 @@ class TestFormInitQuerysetLogic:
         assert form.initial.get('region') == region_ru.id
         
         # Queryset городов должен быть отфильтрован по региону
-        city_queryset = form.fields['city'].queryset
+        city_queryset = form.fields['city'].queryset # type: ignore[attr-defined]
         assert moscow in list(city_queryset)
 
     def test_init_without_errors_empties_city_queryset(
@@ -383,7 +383,7 @@ class TestFormInitQuerysetLogic:
         form = VisitedCity_Create_Form(request=request)
         
         # Без ошибок форма должна иметь пустой queryset городов
-        city_queryset = form.fields['city'].queryset
+        city_queryset = form.fields['city'].queryset # type: ignore[attr-defined]
         assert city_queryset.count() == 0
 
 
@@ -399,7 +399,7 @@ class TestFormFieldsConfiguration:
         
         form = VisitedCity_Create_Form(request=request)
         
-        choices = form.fields['rating'].choices
+        choices = form.fields['rating'].choices # type: ignore[attr-defined]
         assert len(choices) == 5
         assert ('1', '1') in choices
         assert ('5', '5') in choices

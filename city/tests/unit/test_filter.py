@@ -113,7 +113,7 @@ def test__apply_filter_to_queryset_dispatches_correct_function(mocker: Any) -> N
 def test__apply_filter_to_queryset_raises_for_unknown_filter() -> None:
     """apply_filter_to_queryset выбрасывает KeyError, если фильтр не зарегистрирован."""
     with pytest.raises(KeyError, match='Неизвестный фильтр: unknown'):
-        apply_filter_to_queryset(QuerySet(), user_id=1, filter_name='unknown')  # type: ignore
+        apply_filter_to_queryset(QuerySet(), user_id=1, filter_name='unknown')
 
 
 @pytest.mark.parametrize('filter_name', FILTER_FUNCTIONS.keys())
@@ -189,7 +189,7 @@ def test__filter_by_year_subquery_calls(mocker: Any) -> None:
 def test__apply_filter_to_queryset_with_empty_filter_name() -> None:
     """Тест apply_filter_to_queryset с пустым именем фильтра."""
     with pytest.raises(KeyError, match='Неизвестный фильтр: '):
-        apply_filter_to_queryset(QuerySet(), user_id=1, filter_name='')  # type: ignore
+        apply_filter_to_queryset(QuerySet(), user_id=1, filter_name='')
 
 
 @pytest.mark.unit

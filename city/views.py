@@ -7,9 +7,13 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from __future__ import annotations
+
 from dataclasses import asdict
 from typing import Any, NoReturn, Callable
 
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import User
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest, HttpResponseBase
 from django.shortcuts import render, redirect
@@ -46,7 +50,7 @@ from services.morphology import to_prepositional
 from subscribe.repository import is_user_has_subscriptions, get_all_subscriptions
 
 
-class VisitedCity_Create(LoginRequiredMixin, CreateView):
+class VisitedCity_Create(LoginRequiredMixin, CreateView):  # type: ignore[type-arg]
     """
     Отображает форму для добавления посещённого города и производит обработку этой формы.
 
@@ -66,7 +70,7 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
 
         if city_id:
             try:
-                city_id = int(city_id)
+                city_id_int = int(city_id)
             except (ValueError, TypeError):
                 logger.warning(
                     self.request,
@@ -75,7 +79,7 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
                 return initial
 
             try:
-                city = City.objects.get(id=city_id)
+                city = City.objects.get(id=city_id_int)
             except City.DoesNotExist:
                 logger.warning(
                     self.request, f'(Visited city) City with id={city_id} does not exist'
@@ -93,14 +97,15 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):
         form_kwargs['request'] = self.request
         return form_kwargs
 
-    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:  # type: ignore[type-arg]
         """
         Добавляет в данные формы ID авторизованного пользователя.
         """
         form.instance.user = self.request.user
         response = super().form_valid(form)
 
-        set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
+        if self.object and isinstance(self.request.user, AbstractBaseUser):
+            set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
 
         logger.info(self.request, '(Visited city) Adding a visited city')
         return response
@@ -128,13 +133,16 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):  # type: ignore
     model = VisitedCity
 
     def get_success_url(self) -> str:
-        return reverse_lazy(
-            'city-selected',
-            kwargs={'pk': VisitedCity.objects.get(pk=self.kwargs['pk']).city.pk},
+        return str(
+            reverse_lazy(
+                'city-selected',
+                kwargs={'pk': VisitedCity.objects.get(pk=self.kwargs['pk']).city.pk},
+            )
         )
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        if not get_visited_city(self.request.user.pk, self.kwargs['pk']):
+        user_id = self.request.user.pk
+        if user_id is None or not get_visited_city(user_id, self.kwargs['pk']):
             logger.warning(
                 self.request,
                 f'(Visited city) Attempt to delete a non-existent visited city #{self.kwargs["pk"]}',
@@ -149,7 +157,8 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):  # type: ignore
 
     def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         response = super().delete(request, *args, **kwargs)
-        set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
+        if isinstance(self.request.user, AbstractBaseUser):
+            set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
 
         return response
 
@@ -159,7 +168,7 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):  # type: ignore
         raise PermissionDenied()
 
 
-class VisitedCity_Update(LoginRequiredMixin, UpdateView):
+class VisitedCity_Update(LoginRequiredMixin, UpdateView):  # type: ignore[type-arg]
     """
     Отображает страницу с формой для редактирования посещённого города, а также обрабатывает эту форму.
 
@@ -174,7 +183,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset: QuerySet[VisitedCity] | None = None) -> VisitedCity:
         """Получаем объект и проверяем, что он принадлежит текущему пользователю."""
-        obj = super().get_object(queryset)
+        obj: VisitedCity = super().get_object(queryset)
         if obj.user != self.request.user:
             logger.warning(
                 self.request,
@@ -208,9 +217,10 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         logger.info(self.request, f'(Visited city) Updating the visited city #{self.kwargs["pk"]}')
         return reverse('city-selected', kwargs={'pk': self.object.city.id})
 
-    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:  # type: ignore[type-arg]
         response = super().form_valid(form)
-        set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
+        if isinstance(self.request.user, AbstractBaseUser):
+            set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
 
         return response
 
@@ -224,7 +234,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):
         return context
 
 
-class VisitedCityDetail(DetailView):
+class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
     """
     Отображает детальную страницу с информацией о конкретном городе.
 
@@ -244,8 +254,8 @@ class VisitedCityDetail(DetailView):
     template_name = 'city/city_selected.html'
     context_object_name = 'city'
 
-    service: AbstractVisitedCityService = None
-    service_factory: Callable[[HttpRequest], AbstractVisitedCityService] = None
+    service: AbstractVisitedCityService | None = None
+    service_factory: Callable[[HttpRequest], AbstractVisitedCityService] | None = None
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         """
@@ -262,7 +272,10 @@ class VisitedCityDetail(DetailView):
         Формирует контекст для шаблона, расширяя базовый контекст данными,
         полученными из сервиса по деталям города и метаданным страницы.
         """
-        city_dto = self.service.get_city_details(self.kwargs['pk'], self.request.user)
+        if self.service is None:
+            raise ImproperlyConfigured('Service is not initialized')
+
+        city_dto = self.service.get_city_details(self.kwargs['pk'], self.request.user)  # type: ignore[arg-type]
 
         context = super().get_context_data(**kwargs)
         context = {
@@ -278,7 +291,7 @@ class VisitedCityDetail(DetailView):
 class VisitedCity_Map(LoginRequiredMixin, TemplateView):
     template_name = 'city/city_all__map.html'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         # Если в URL передан несуществующий код страны, то перенаправляем пользователя на страницу всех городов
         country_code = self.request.GET.get('country')
         if country_code and not Country.objects.filter(code=country_code).exists():
@@ -286,9 +299,7 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
 
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(
-        self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any
-    ) -> dict[str, Any]:
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         country_code = self.request.GET.get('country')
@@ -298,6 +309,8 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
         logger.info(self.request, '(Visited city) Viewing the map of visited cities')
 
         user_id = self.request.user.pk
+        if user_id is None:
+            raise Http404('User must be authenticated')
 
         number_of_cities = get_number_of_cities()
         number_of_visited_cities = get_number_of_new_visited_cities(user_id)
@@ -330,7 +343,7 @@ class VisitedCity_Map(LoginRequiredMixin, TemplateView):
         return context
 
 
-class VisitedCity_List(LoginRequiredMixin, ListView):
+class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
     """
     Отображает список всех посещённых городов пользователя.
 
@@ -367,7 +380,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         self.has_subscriptions: bool = False
         self.all_visited_cities: QuerySet[VisitedCity] | None = None
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         # Если в URL передан несуществующий код страны, то перенаправляем пользователя на страницу всех городов
         country_code = self.request.GET.get('country')
         if country_code and not Country.objects.filter(code=country_code).exists():
@@ -377,6 +390,8 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet[VisitedCity]:
         self.user_id = self.request.user.pk
+        if self.user_id is None:
+            raise Http404('User must be authenticated')
         self.filter = self.request.GET.get('filter')
         self.country_code = self.request.GET.get('country')
 
@@ -402,7 +417,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         """
         Применяет фильтр к набору данных, если параметр `filter` указан.
         """
-        if self.filter:
+        if self.filter and self.queryset is not None and self.user_id is not None:
             try:
                 self.queryset = apply_filter_to_queryset(self.queryset, self.user_id, self.filter)
             except KeyError:
@@ -414,21 +429,23 @@ class VisitedCity_List(LoginRequiredMixin, ListView):
         self.sort = (
             self.request.GET.get('sort') if self.request.GET.get('sort') else 'last_visit_date_down'
         )
-        try:
-            self.queryset = apply_sort_to_queryset(self.queryset, self.sort)
-        except KeyError:
-            logger.warning(
-                self.request, f"(Visited city) Unexpected value of the sorting '{self.sort}'"
-            )
-            self.sort = 'last_visit_date_down'
-        else:
-            if self.sort != 'last_visit_date_down':
-                logger.info(self.request, f"(Visited city) Using sorting '{self.sort}'")
+        if self.queryset is not None and self.sort is not None:
+            try:
+                self.queryset = apply_sort_to_queryset(self.queryset, self.sort)
+            except KeyError:
+                logger.warning(
+                    self.request, f"(Visited city) Unexpected value of the sorting '{self.sort}'"
+                )
+                self.sort = 'last_visit_date_down'
+            else:
+                if self.sort != 'last_visit_date_down':
+                    logger.info(self.request, f"(Visited city) Using sorting '{self.sort}'")
 
-    def get_context_data(
-        self, *, object_list: QuerySet[dict] | None = None, **kwargs: Any
-    ) -> dict[str, Any]:
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        if self.user_id is None:
+            raise Http404('User must be authenticated')
 
         number_of_cities = get_number_of_cities()
         number_of_cities_in_country = get_number_of_cities(self.country_code)
@@ -474,7 +491,7 @@ def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:
     """
     region_id = request.GET.get('region')
     try:
-        cities = City.objects.filter(region_id=region_id).order_by('title')
+        cities = City.objects.filter(region_id=region_id).order_by('title')  # type: ignore[misc]
     except ValueError:
         logger.info(request, "(Visited city) Couldn't find cities in the requested region")
         cities = None

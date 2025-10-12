@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Sequence, Any
 
 from django.contrib.auth.base_user import AbstractBaseUser
 
 from city.models import City
-from typing import Sequence
 
 
 class AbstractCityRepository(ABC):
@@ -24,7 +24,7 @@ class AbstractCityRepository(ABC):
         pass
 
     @abstractmethod
-    def get_rank_in_country_by_users(self, city_id) -> int:
+    def get_rank_in_country_by_users(self, city_id: int) -> int:
         pass
 
     @abstractmethod
@@ -36,19 +36,27 @@ class AbstractCityRepository(ABC):
         pass
 
     @abstractmethod
-    def get_neighboring_cities_by_rank_in_region_by_users(self, city_id: int) -> list[City]:
+    def get_neighboring_cities_by_rank_in_region_by_users(
+        self, city_id: int
+    ) -> list[dict[str, Any]]:
         pass
 
     @abstractmethod
-    def get_neighboring_cities_by_rank_in_region_by_visits(self, city_id: int) -> list[City]:
+    def get_neighboring_cities_by_rank_in_region_by_visits(
+        self, city_id: int
+    ) -> list[dict[str, Any]]:
         pass
 
     @abstractmethod
-    def get_neighboring_cities_by_rank_in_country_by_visits(self, city_id: int) -> list[City]:
+    def get_neighboring_cities_by_rank_in_country_by_visits(
+        self, city_id: int
+    ) -> list[dict[str, Any]]:
         pass
 
     @abstractmethod
-    def get_neighboring_cities_by_rank_in_country_by_users(self, city_id: int) -> list[City]:
+    def get_neighboring_cities_by_rank_in_country_by_users(
+        self, city_id: int
+    ) -> list[dict[str, Any]]:
         pass
 
 
@@ -70,7 +78,7 @@ class AbstractVisitedCityRepository(ABC):
         pass
 
     @abstractmethod
-    def get_user_visits(self, city_id: int, user: AbstractBaseUser) -> Sequence[dict]:
+    def get_user_visits(self, city_id: int, user: AbstractBaseUser) -> Sequence[dict[str, Any]]:
         pass
 
     @abstractmethod

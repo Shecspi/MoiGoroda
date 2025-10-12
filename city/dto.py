@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Sequence
 
 from city.models import City
 from collection.models import Collection
@@ -10,7 +10,7 @@ class CityDetailsDTO:
     city: City
     average_rating: float
     popular_months: list[str]
-    visits: list[dict[str, Any]]
+    visits: Sequence[dict[str, Any]]
     collections: list[Collection]
     # Количество
     number_of_visits: int
@@ -23,10 +23,10 @@ class CityDetailsDTO:
     rank_in_country_by_users: int
     rank_in_region_by_visits: int
     rank_in_region_by_users: int
-    neighboring_cities_by_rank_in_country_by_visits: list[City]
-    neighboring_cities_by_rank_in_country_by_users: list[City]
-    neighboring_cities_by_rank_in_region_by_visits: list[City]
-    neighboring_cities_by_rank_in_region_by_users: list[City]
+    neighboring_cities_by_rank_in_country_by_visits: list[dict[str, Any]]
+    neighboring_cities_by_rank_in_country_by_users: list[dict[str, Any]]
+    neighboring_cities_by_rank_in_region_by_visits: list[dict[str, Any]]
+    neighboring_cities_by_rank_in_region_by_users: list[dict[str, Any]]
 
     @property
     def page_title(self) -> str:
@@ -45,7 +45,7 @@ class CityDetailsDTO:
             desc += f'Входит в коллекцию «{self.collections[0]}». '
         elif len(self.collections) >= 2:
             desc += (
-                f"Входит в коллекции {', '.join(['«' + str(c) + '»' for c in self.collections])}. "
+                f'Входит в коллекции {", ".join(["«" + str(c) + "»" for c in self.collections])}. '
             )
 
         if self.average_rating:

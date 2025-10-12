@@ -73,7 +73,7 @@ def test_visited_city_detail_context(
 def test_visited_city_detail_improperly_configured(rf: RequestFactory) -> None:
     request = rf.get('/city/1/')
     view = VisitedCityDetail()
-    view.service_factory = None  # type: ignore
+    view.service_factory = None
     with pytest.raises(ImproperlyConfigured):
         view.dispatch(request, pk=1)
 

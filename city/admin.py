@@ -7,10 +7,13 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from admin_auto_filters.filters import AutocompleteFilter
+from typing import Any
+
+from admin_auto_filters.filters import AutocompleteFilter  # type: ignore[import-untyped]
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
-from django.db.models import Q, Count
+from django.db.models import Q, Count, QuerySet
+from django.http import HttpRequest
 
 from .models import City, VisitedCity
 
@@ -19,13 +22,13 @@ class HasImageFilter(SimpleListFilter):
     title = 'Фотография'
     parameter_name = 'has_image'
 
-    def lookups(self, request, model_admin):
-        return (
+    def lookups(self, request: HttpRequest, model_admin: Any) -> list[tuple[str, str]]:
+        return [
             ('yes', 'С фотографией'),
             ('no', 'Без фотографии'),
-        )
+        ]
 
-    def queryset(self, request, queryset):
+    def queryset(self, request: HttpRequest, queryset: QuerySet[City]) -> QuerySet[City]:
         value = self.value()
         if value == 'yes':
             return queryset.exclude(image__isnull=True).exclude(image__exact='')
@@ -38,13 +41,13 @@ class HasWikiLinkFilter(SimpleListFilter):
     title = 'Ссылка на Wikipedia'
     parameter_name = 'has_wiki_link'
 
-    def lookups(self, request, model_admin):
-        return (
+    def lookups(self, request: HttpRequest, model_admin: Any) -> list[tuple[str, str]]:
+        return [
             ('yes', 'С ссылкой'),
             ('no', 'Без ссылки'),
-        )
+        ]
 
-    def queryset(self, request, queryset):
+    def queryset(self, request: HttpRequest, queryset: QuerySet[City]) -> QuerySet[City]:
         value = self.value()
         if value == 'yes':
             return queryset.exclude(wiki__isnull=True).exclude(wiki__exact='')
@@ -57,13 +60,13 @@ class HasCoordinatesFilter(SimpleListFilter):
     title = 'Координаты'
     parameter_name = 'has_coordinates'
 
-    def lookups(self, request, model_admin):
-        return (
+    def lookups(self, request: HttpRequest, model_admin: Any) -> list[tuple[str, str]]:
+        return [
             ('yes', 'С координатами'),
             ('no', 'Без координат'),
-        )
+        ]
 
-    def queryset(self, request, queryset):
+    def queryset(self, request: HttpRequest, queryset: QuerySet[City]) -> QuerySet[City]:
         value = self.value()
         if value == 'yes':
             return queryset.exclude(coordinate_width=0).exclude(coordinate_longitude=0)
@@ -73,7 +76,7 @@ class HasCoordinatesFilter(SimpleListFilter):
 
 
 @admin.register(City)
-class CityAdmin(admin.ModelAdmin):
+class CityAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = (
         'id',
         'title',
@@ -97,40 +100,40 @@ class CityAdmin(admin.ModelAdmin):
         ('Координаты', {'fields': ['coordinate_width', 'coordinate_longitude']}),
     ]
 
-    def get_queryset(self, request):
+    def get_queryset(self, request: HttpRequest) -> QuerySet[City]:
         qs = super().get_queryset(request)
-        return qs.annotate(visits_count=Count('visitedcity'))
+        return qs.annotate(visits_count=Count('visitedcity'))  # type: ignore[no-any-return]
 
-    def is_wiki_link(self, obj):
+    def is_wiki_link(self, obj: City) -> bool:
         return bool(obj.wiki)
 
-    def is_coordinates(self, obj):
+    def is_coordinates(self, obj: City) -> bool:
         return bool(obj.coordinate_width and obj.coordinate_longitude)
 
-    def exists_image(self, obj):
+    def exists_image(self, obj: City) -> bool:
         return bool(obj.image)
 
-    def number_visits(self, obj):
-        return obj.visits_count
+    def number_visits(self, obj: City) -> int:
+        return obj.visits_count  # type: ignore[attr-defined,no-any-return]
 
-    is_wiki_link.short_description = 'Ссылка на Wiki'
-    is_wiki_link.boolean = True
-    is_coordinates.short_description = 'Координаты'
-    is_coordinates.boolean = True
-    exists_image.short_description = 'Фотография'
-    exists_image.boolean = True
-    exists_image.admin_order_field = 'image'
-    number_visits.short_description = 'Кол-во посещений'
-    number_visits.admin_order_field = 'visits_count'
+    is_wiki_link.short_description = 'Ссылка на Wiki'  # type: ignore[attr-defined]
+    is_wiki_link.boolean = True  # type: ignore[attr-defined]
+    is_coordinates.short_description = 'Координаты'  # type: ignore[attr-defined]
+    is_coordinates.boolean = True  # type: ignore[attr-defined]
+    exists_image.short_description = 'Фотография'  # type: ignore[attr-defined]
+    exists_image.boolean = True  # type: ignore[attr-defined]
+    exists_image.admin_order_field = 'image'  # type: ignore[attr-defined]
+    number_visits.short_description = 'Кол-во посещений'  # type: ignore[attr-defined]
+    number_visits.admin_order_field = 'visits_count'  # type: ignore[attr-defined]
 
 
-class UserFilter(AutocompleteFilter):
+class UserFilter(AutocompleteFilter):  # type: ignore[misc]
     title = 'Пользователь'
     field_name = 'user'
 
 
 @admin.register(VisitedCity)
-class VisitedCityAdmin(admin.ModelAdmin):
+class VisitedCityAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = (
         'id',
         'city',

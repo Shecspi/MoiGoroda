@@ -136,7 +136,9 @@ class TestUniqueVisitedCitiesFunctions:
         cities = get_unique_visited_cities(user.id, country_code='RU')
 
         assert cities.count() == 1
-        assert cities.first().city == moscow
+        first_city = cities.first()
+        assert first_city is not None
+        assert first_city.city == moscow
 
     def test_get_unique_visited_cities_annotations(self, setup_data: dict[str, Any]) -> None:
         """Проверка аннотаций в результате."""
@@ -164,12 +166,13 @@ class TestUniqueVisitedCitiesFunctions:
         city = cities.first()
 
         # Проверяем наличие аннотаций
+        assert city is not None
         assert hasattr(city, 'number_of_visits')
         assert hasattr(city, 'average_rating')
         assert hasattr(city, 'has_souvenir')
 
         assert city.number_of_visits == 2
-        assert city.has_souvenir is True  # Хотя бы одно посещение с магнитом
+        assert city.has_souvenir is True
 
 
 @pytest.mark.django_db
@@ -456,7 +459,7 @@ class TestTimeSeriesFunctions:
         stats = get_number_of_total_visited_cities_in_several_month(user.id)
 
         # Результат зависит от текущей даты, просто проверим что функция работает
-        assert isinstance(stats, list) or hasattr(stats, '__iter__')
+        assert hasattr(stats, '__iter__')
 
     def test_get_number_of_new_visited_cities_in_several_month(
         self, setup_data: dict[str, Any]
@@ -471,4 +474,4 @@ class TestTimeSeriesFunctions:
 
         stats = get_number_of_new_visited_cities_in_several_month(user.id)
 
-        assert isinstance(stats, list) or hasattr(stats, '__iter__')
+        assert hasattr(stats, '__iter__')

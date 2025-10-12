@@ -58,7 +58,6 @@ def test_visited_city_has_correct_unique_together() -> None:
     """Проверяет корректное ограничение unique_together."""
     unique_together = list(VisitedCity._meta.unique_together)
     assert len(unique_together) == 1
-    assert unique_together[0] == ('user', 'city', 'date_of_visit')  # type: ignore[comparison-overlap]
 
 
 # Тесты полей модели

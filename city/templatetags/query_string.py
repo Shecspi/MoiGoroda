@@ -1,10 +1,12 @@
+from typing import Any
+
 from django import template
 
 register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def update_query(context, **kwargs):
+def update_query(context: dict[str, Any], **kwargs: Any) -> str:
     """
     Возвращает текущий GET-запрос с обновлёнными параметрами.
     Пример использования: {% update_query page=3 %}
@@ -23,4 +25,4 @@ def update_query(context, **kwargs):
         else:
             query[k] = v
 
-    return query.urlencode()
+    return str(query.urlencode())

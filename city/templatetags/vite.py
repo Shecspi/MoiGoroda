@@ -1,15 +1,17 @@
 import json
 from pathlib import Path
+from typing import Any
+
 from django import template
 from django.conf import settings
-from django.utils.safestring import mark_safe
+from django.utils.safestring import mark_safe, SafeString
 
 register = template.Library()
 
-_manifest = None
+_manifest: dict[str, Any] | None = None
 
 
-def get_manifest():
+def get_manifest() -> dict[str, Any]:
     global _manifest
     if _manifest is None:
         manifest_path = Path(settings.BASE_DIR) / 'static/js/manifest.json'
@@ -22,7 +24,7 @@ def get_manifest():
 
 
 @register.simple_tag
-def vite_asset(name):
+def vite_asset(name: str) -> SafeString:
     if settings.DEBUG:
         return mark_safe(f'<script type="module" src="http://localhost:5173/{name}"></script>')
 

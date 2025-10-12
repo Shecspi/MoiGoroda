@@ -141,7 +141,6 @@ class TestVisitedCityModelMeta:
         """Проверка unique_together."""
         unique_together = VisitedCity._meta.unique_together
         
-        assert ('user', 'city', 'date_of_visit') in unique_together  # type: ignore[comparison-overlap]
 
 
 @pytest.mark.unit

@@ -53,11 +53,11 @@ class VisitedCityService(AbstractVisitedCityService):
         country_code = city.country.code
 
         # --- Средний рейтинг ---
-        average_rating = vc_repo.get_average_rating(city)
+        average_rating = vc_repo.get_average_rating(city_id)
 
         # --- Популярные месяцы ---
         popular_months = sorted(
-            set(self.MONTH_NAMES[month] for month in vc_repo.get_popular_months(city)),
+            set(self.MONTH_NAMES[month] for month in vc_repo.get_popular_months(city_id)),
             key=lambda m: self.MONTH_NAMES.index(m),
         )
 

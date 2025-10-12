@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db.models import Count, Window, F
 from django.db.models.functions import Rank
 
@@ -46,15 +48,13 @@ class CityRepository(AbstractCityRepository):
         )
 
         for item in ranked_cities:
-            if not isinstance(item, dict):
-                continue
-            if item.get('id') == city_id:
+            if isinstance(item, dict) and item.get('id') == city_id:
                 rank = item.get('rank')
-                return rank if rank is not None else 0
+                return int(rank) if rank is not None else 0
 
         return 0
 
-    def get_rank_in_country_by_users(self, city_id) -> int:
+    def get_rank_in_country_by_users(self, city_id: int) -> int:
         ranked_cities = list(
             City.objects.annotate(
                 visits=Count('visitedcity__user', distinct=True),
@@ -66,9 +66,10 @@ class CityRepository(AbstractCityRepository):
             .order_by('rank')
         )
 
-        for city in ranked_cities:
-            if city['id'] == city_id:
-                return city['rank']
+        for city_dict in ranked_cities:
+            if isinstance(city_dict, dict) and city_dict.get('id') == city_id:
+                rank = city_dict.get('rank')
+                return int(rank) if rank is not None else 0
 
         return 0
 
@@ -97,9 +98,10 @@ class CityRepository(AbstractCityRepository):
             .order_by('rank')
         )
 
-        for city in ranked_cities:
-            if city['id'] == city_id:
-                return city['rank']
+        for city_dict in ranked_cities:
+            if isinstance(city_dict, dict) and city_dict.get('id') == city_id:
+                rank = city_dict.get('rank')
+                return int(rank) if rank is not None else 0
 
         return 0
 
@@ -128,13 +130,16 @@ class CityRepository(AbstractCityRepository):
             .order_by('rank')
         )
 
-        for city in ranked_cities:
-            if city['id'] == city_id:
-                return city['rank']
+        for city_dict in ranked_cities:
+            if isinstance(city_dict, dict) and city_dict.get('id') == city_id:
+                rank = city_dict.get('rank')
+                return int(rank) if rank is not None else 0
 
         return 0
 
-    def get_neighboring_cities_by_rank_in_region_by_users(self, city_id: int) -> list[City]:
+    def get_neighboring_cities_by_rank_in_region_by_users(
+        self, city_id: int
+    ) -> list[dict[str, Any]]:
         """
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по общему количеству пользователей, посетивших город.
@@ -159,7 +164,9 @@ class CityRepository(AbstractCityRepository):
         )
         return self._get_cities_near_index(ranked_cities, city_id)
 
-    def get_neighboring_cities_by_rank_in_region_by_visits(self, city_id: int) -> list[City]:
+    def get_neighboring_cities_by_rank_in_region_by_visits(
+        self, city_id: int
+    ) -> list[dict[str, Any]]:
         """
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по количеству посещений города всеми пользователями.
@@ -184,7 +191,9 @@ class CityRepository(AbstractCityRepository):
         )
         return self._get_cities_near_index(ranked_cities, city_id)
 
-    def get_neighboring_cities_by_rank_in_country_by_visits(self, city_id: int) -> list[City]:
+    def get_neighboring_cities_by_rank_in_country_by_visits(
+        self, city_id: int
+    ) -> list[dict[str, Any]]:
         """
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по количеству посещений города всеми пользователями.
@@ -206,7 +215,9 @@ class CityRepository(AbstractCityRepository):
         )
         return self._get_cities_near_index(ranked_cities, city_id)
 
-    def get_neighboring_cities_by_rank_in_country_by_users(self, city_id: int) -> list[City]:
+    def get_neighboring_cities_by_rank_in_country_by_users(
+        self, city_id: int
+    ) -> list[dict[str, Any]]:
         """
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по общему количеству пользователей, посетивших город.
@@ -228,7 +239,7 @@ class CityRepository(AbstractCityRepository):
         return self._get_cities_near_index(ranked_cities, city_id)
 
     @staticmethod
-    def _get_cities_near_index(items: list, city_id: int) -> list:
+    def _get_cities_near_index(items: list[dict[str, Any]], city_id: int) -> list[dict[str, Any]]:
         # Ищем индекс нужного города
         index = next((i for i, city in enumerate(items) if city['id'] == city_id), None)
         if index is None:

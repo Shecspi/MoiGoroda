@@ -446,42 +446,42 @@ class TestGetRankInCountryByUsers:
 
         assert result == 2
 
-    def test_returns_none_when_rank_is_none(self, mocker: Any, repo: CityRepository) -> None:
-        """Проверяет возврат None при rank=None."""
+    def test_returns_zero_when_rank_is_none(self, mocker: Any, repo: CityRepository) -> None:
+        """Проверяет возврат 0 при rank=None."""
         ranked_data = [{'id': 5, 'rank': None}]
         mock_queryset = mocker.patch('city.models.City.objects.annotate')
         mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
 
         result = repo.get_rank_in_country_by_users(city_id=5)
 
-        assert result is None
+        assert result == 0
 
-    def test_raises_key_error_when_id_missing(self, mocker: Any, repo: CityRepository) -> None:
-        """Проверяет выбрасывание KeyError при отсутствии 'id'."""
+    def test_returns_zero_when_id_missing(self, mocker: Any, repo: CityRepository) -> None:
+        """Проверяет возврат 0 при отсутствии 'id' в данных."""
         ranked_data = [{'rank': 1}]
         mock_queryset = mocker.patch('city.models.City.objects.annotate')
         mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
 
-        with pytest.raises(KeyError):
-            repo.get_rank_in_country_by_users(city_id=5)
+        result = repo.get_rank_in_country_by_users(city_id=5)
+        assert result == 0
 
-    def test_raises_key_error_when_rank_missing(self, mocker: Any, repo: CityRepository) -> None:
-        """Проверяет выбрасывание KeyError при отсутствии 'rank'."""
+    def test_returns_zero_when_rank_missing(self, mocker: Any, repo: CityRepository) -> None:
+        """Проверяет возврат 0 при отсутствии 'rank' в данных."""
         ranked_data = [{'id': 5}]
         mock_queryset = mocker.patch('city.models.City.objects.annotate')
         mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
 
-        with pytest.raises(KeyError):
-            repo.get_rank_in_country_by_users(city_id=5)
+        result = repo.get_rank_in_country_by_users(city_id=5)
+        assert result == 0
 
-    def test_raises_type_error_when_non_dict(self, mocker: Any, repo: CityRepository) -> None:
-        """Проверяет выбрасывание TypeError при некорректных данных."""
+    def test_returns_zero_for_non_dict(self, mocker: Any, repo: CityRepository) -> None:
+        """Проверяет возврат 0 при некорректных данных (не словарь)."""
         ranked_data = ['not a dict', 123]
         mock_queryset = mocker.patch('city.models.City.objects.annotate')
         mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
 
-        with pytest.raises(TypeError):
-            repo.get_rank_in_country_by_users(city_id=5)
+        result = repo.get_rank_in_country_by_users(city_id=5)
+        assert result == 0
 
 
 # =============================================================================
@@ -632,7 +632,7 @@ class TestGetRankInRegionByUsers:
         assert result == 0
 
     def test_handles_none_rank(self, mocker: Any, repo: CityRepository, mock_city: Mock) -> None:
-        """Проверяет обработку rank=None."""
+        """Проверяет обработку rank=None (возвращает 0)."""
         mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = [{'id': 42, 'rank': None}]
 
@@ -643,12 +643,12 @@ class TestGetRankInRegionByUsers:
 
         result = repo.get_rank_in_region_by_users(city_id=42)
 
-        assert result is None
+        assert result == 0
 
-    def test_raises_key_error_when_id_missing(
+    def test_returns_zero_when_id_missing(
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
-        """Проверяет выбрасывание KeyError при отсутствии 'id'."""
+        """Проверяет возврат 0 при отсутствии 'id' в данных."""
         mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = [{'rank': 1}]
 
@@ -657,13 +657,13 @@ class TestGetRankInRegionByUsers:
         mock_select_related = mocker.patch('city.models.City.objects.select_related')
         mock_select_related.return_value.filter.return_value = mock_queryset
 
-        with pytest.raises(KeyError):
-            repo.get_rank_in_region_by_users(city_id=42)
+        result = repo.get_rank_in_region_by_users(city_id=42)
+        assert result == 0
 
-    def test_raises_key_error_when_rank_missing(
+    def test_returns_zero_when_rank_missing(
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
-        """Проверяет выбрасывание KeyError при отсутствии 'rank'."""
+        """Проверяет возврат 0 при отсутствии 'rank' в данных."""
         mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = [{'id': 42}]
 
@@ -672,8 +672,8 @@ class TestGetRankInRegionByUsers:
         mock_select_related = mocker.patch('city.models.City.objects.select_related')
         mock_select_related.return_value.filter.return_value = mock_queryset
 
-        with pytest.raises(KeyError):
-            repo.get_rank_in_region_by_users(city_id=42)
+        result = repo.get_rank_in_region_by_users(city_id=42)
+        assert result == 0
 
 
 # =============================================================================
@@ -781,7 +781,7 @@ class TestGetNeighboringCitiesByRankInCountryByVisits:
 
         result = repo.get_neighboring_cities_by_rank_in_country_by_visits(city_id=42)
 
-        assert result == ranked_cities[5:15]  # type: ignore[comparison-overlap]
+        assert result == ranked_cities[5:15]
 
     def test_returns_empty_when_city_not_exists(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат [] при отсутствии города."""
@@ -844,7 +844,7 @@ class TestGetNeighboringCitiesByRankInCountryByUsers:
 
         result = repo.get_neighboring_cities_by_rank_in_country_by_users(city_id=42)
 
-        assert result == ranked_cities[5:15]  # type: ignore[comparison-overlap]
+        assert result == ranked_cities[5:15]
         mock_filter.assert_called_once_with(country_id=1)
 
     def test_returns_empty_when_city_not_exists(self, mocker: Any, repo: CityRepository) -> None:
@@ -909,7 +909,7 @@ class TestGetNeighboringCitiesByRankInRegionByVisits:
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_visits(city_id=42)
 
-        assert result == ranked_cities[5:15]  # type: ignore[comparison-overlap]
+        assert result == ranked_cities[5:15]
         mock_select_related.assert_called_once_with('region')
         mock_select_related.return_value.filter.assert_called_once_with(region_id=7)
 
@@ -931,7 +931,7 @@ class TestGetNeighboringCitiesByRankInRegionByVisits:
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_visits(city_id=42)
 
-        assert result == ranked_cities  # type: ignore[comparison-overlap]
+        assert result == ranked_cities
         mock_select_related.assert_called_once_with('country')
         mock_select_related.return_value.filter.assert_called_once_with(country_id=1)
 
@@ -980,7 +980,7 @@ class TestGetNeighboringCitiesByRankInRegionByUsers:
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_users(city_id=42)
 
-        assert result == ranked_cities[5:15]  # type: ignore[comparison-overlap]
+        assert result == ranked_cities[5:15]
         mock_select_related.assert_called_once_with('region')
         mock_select_related.return_value.filter.assert_called_once_with(region_id=7)
 
@@ -1002,7 +1002,7 @@ class TestGetNeighboringCitiesByRankInRegionByUsers:
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_users(city_id=42)
 
-        assert result == ranked_cities  # type: ignore[comparison-overlap]
+        assert result == ranked_cities
         mock_select_related.assert_called_once_with('country')
         mock_select_related.return_value.filter.assert_called_once_with(country_id=1)
 

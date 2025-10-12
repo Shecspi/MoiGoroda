@@ -14,5 +14,5 @@ class CityConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'city'
 
-    def ready(self):
+    def ready(self) -> None:
         import city.signals

@@ -2,8 +2,6 @@
 Юнит-тесты для моделей приложения collection.
 """
 
-from typing import Any
-
 import pytest
 from django.db import models
 

@@ -2,8 +2,6 @@
 Интеграционные тесты для API приложения collection.
 """
 
-from typing import Any
-
 import pytest
 from django.test import Client
 from rest_framework import status

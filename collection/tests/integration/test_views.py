@@ -6,12 +6,12 @@ from typing import Any
 
 import pytest
 from django.contrib.auth.models import User
-from django.test import Client, RequestFactory
+from django.test import Client
 from django.urls import reverse
 
 from city.models import City, VisitedCity
 from collection.models import Collection
-from collection.views import CollectionList, CollectionSelected_List, get_url_params
+from collection.views import get_url_params
 from country.models import Country
 from region.models import Region
 

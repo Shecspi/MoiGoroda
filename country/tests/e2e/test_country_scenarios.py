@@ -33,7 +33,11 @@ class TestCountryFullWorkflow:
         france = Country.objects.create(name='Франция', code='FR')
 
         region_ru = Region.objects.create(
-            title='Москва', country=russia, type=region_type, iso3166='RU-E2E', full_name='г. Москва'
+            title='Москва',
+            country=russia,
+            type=region_type,
+            iso3166='RU-E2E',
+            full_name='г. Москва',
         )
         region_de = Region.objects.create(
             title='Берлин', country=germany, type=region_type, iso3166='DE-E2E', full_name='Берлин'
@@ -197,4 +201,3 @@ class TestCountryFullWorkflow:
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not VisitedCountry.objects.filter(user=user, country=russia).exists()
-

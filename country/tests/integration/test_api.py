@@ -146,18 +146,14 @@ class TestAddVisitedCountryAPI:
         assert response.status_code == status.HTTP_200_OK
         assert VisitedCountry.objects.filter(user=user, country__code='RU').exists()
 
-    def test_returns_error_for_non_existent_country(
-        self, client: Client, user: User
-    ) -> None:
+    def test_returns_error_for_non_existent_country(self, client: Client, user: User) -> None:
         """Проверяет ошибку при попытке добавить несуществующую страну."""
         client.force_login(user)
         response = client.post('/api/country/add', {'code': 'XX'})
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_returns_error_for_already_visited_country(
-        self, client: Client, user: User
-    ) -> None:
+    def test_returns_error_for_already_visited_country(self, client: Client, user: User) -> None:
         """Проверяет ошибку при попытке добавить уже посещенную страну."""
         country = Country.objects.create(name='Россия', code='RU')
         VisitedCountry.objects.create(country=country, user=user)
@@ -195,9 +191,7 @@ class TestDeleteVisitedCountryAPI:
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not VisitedCountry.objects.filter(user=user, country=country).exists()
 
-    def test_returns_404_for_non_existent_country(
-        self, client: Client, user: User
-    ) -> None:
+    def test_returns_404_for_non_existent_country(self, client: Client, user: User) -> None:
         """Проверяет ошибку 404 для несуществующей страны."""
         client.force_login(user)
         response = client.delete('/api/country/delete/XX')
@@ -240,7 +234,11 @@ class TestCountryListWithVisitedCitiesAPI:
         france = Country.objects.create(name='Франция', code='FR')  # Без городов
 
         region_ru = Region.objects.create(
-            title='Москва', country=russia, type=region_type, iso3166='RU-API', full_name='г. Москва'
+            title='Москва',
+            country=russia,
+            type=region_type,
+            iso3166='RU-API',
+            full_name='г. Москва',
         )
         region_de = Region.objects.create(
             title='Берлин', country=germany, type=region_type, iso3166='DE-API', full_name='Берлин'
@@ -296,4 +294,3 @@ class TestCountryListWithVisitedCitiesAPI:
         data = response.json()
         # Первой должна быть Россия (есть посещенные города)
         assert data[0]['code'] == 'RU'
-

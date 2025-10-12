@@ -5,7 +5,7 @@
 import pytest
 from django.contrib.auth.models import User
 
-from country.models import Country, PartOfTheWorld, Location
+from country.models import PartOfTheWorld, Location
 from region.models import RegionType
 
 

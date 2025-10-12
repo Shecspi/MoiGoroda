@@ -31,7 +31,11 @@ class TestGetCountriesWithVisitedCity:
         germany = Country.objects.create(name='Германия', code='DE')
 
         region_ru = Region.objects.create(
-            title='Москва', country=russia, type=region_type, iso3166='RU-MOW-T', full_name='г. Москва'
+            title='Москва',
+            country=russia,
+            type=region_type,
+            iso3166='RU-MOW-T',
+            full_name='г. Москва',
         )
         region_de = Region.objects.create(
             title='Берлин', country=germany, type=region_type, iso3166='DE-BE-T', full_name='Берлин'
@@ -110,7 +114,7 @@ class TestGetCountriesWithVisitedCity:
         countries = get_countries_with_visited_city(user.id)
 
         # Россия должна быть первой (2 посещенных города)
-        assert countries.first() == russia 
+        assert countries.first() == russia
 
 
 @pytest.mark.django_db
@@ -122,7 +126,11 @@ class TestGetCountriesWithVisitedCityInYear:
         """Проверяет фильтрацию посещений по году."""
         russia = Country.objects.create(name='Россия', code='RU')
         region = Region.objects.create(
-            title='Москва', country=russia, type=region_type, iso3166='RU-2024', full_name='г. Москва'
+            title='Москва',
+            country=russia,
+            type=region_type,
+            iso3166='RU-2024',
+            full_name='г. Москва',
         )
 
         moscow = City.objects.create(
@@ -156,7 +164,11 @@ class TestGetCountriesWithNewVisitedCityInYear:
         """Проверяет что учитываются только первые посещения."""
         russia = Country.objects.create(name='Россия', code='RU')
         region = Region.objects.create(
-            title='Москва', country=russia, type=region_type, iso3166='RU-2025', full_name='г. Москва'
+            title='Москва',
+            country=russia,
+            type=region_type,
+            iso3166='RU-2025',
+            full_name='г. Москва',
         )
 
         moscow = City.objects.create(
@@ -190,16 +202,22 @@ class TestGetCountriesWithNewVisitedCityInYear:
 class TestGetListOfCountriesWithVisitedRegions:
     """Интеграционные тесты для get_list_of_countries_with_visited_regions."""
 
-    def test_returns_countries_with_visited_regions(
-        self, user: User, region_type: Any
-    ) -> None:
+    def test_returns_countries_with_visited_regions(self, user: User, region_type: Any) -> None:
         """Проверяет что возвращаются страны с посещенными регионами."""
         russia = Country.objects.create(name='Россия', code='RU')
         region1 = Region.objects.create(
-            title='Москва', country=russia, type=region_type, iso3166='RU-REG', full_name='г. Москва'
+            title='Москва',
+            country=russia,
+            type=region_type,
+            iso3166='RU-REG',
+            full_name='г. Москва',
         )
         region2 = Region.objects.create(
-            title='Санкт-Петербург', country=russia, type=region_type, iso3166='RU-SPE-R', full_name='г. Санкт-Петербург'
+            title='Санкт-Петербург',
+            country=russia,
+            type=region_type,
+            iso3166='RU-SPE-R',
+            full_name='г. Санкт-Петербург',
         )
 
         moscow = City.objects.create(
@@ -223,13 +241,17 @@ class TestGetListOfCountriesWithVisitedRegions:
         countries = get_list_of_countries_with_visited_regions(user.id)
 
         assert countries.count() == 1
-        assert countries.first() == russia 
+        assert countries.first() == russia
 
     def test_filters_by_year(self, user: User, region_type: Any) -> None:
         """Проверяет фильтрацию по году."""
         russia = Country.objects.create(name='Россия', code='RU')
         region = Region.objects.create(
-            title='Москва', country=russia, type=region_type, iso3166='RU-YEAR', full_name='г. Москва'
+            title='Москва',
+            country=russia,
+            type=region_type,
+            iso3166='RU-YEAR',
+            full_name='г. Москва',
         )
 
         moscow = City.objects.create(
@@ -249,4 +271,3 @@ class TestGetListOfCountriesWithVisitedRegions:
 
         assert countries_2023.count() == 1
         assert countries_2024.count() == 0
-

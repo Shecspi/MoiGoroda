@@ -2,8 +2,6 @@
 Интеграционные тесты для views приложения country.
 """
 
-from typing import Any
-
 import pytest
 from django.contrib.auth.models import User
 from django.test import Client
@@ -58,4 +56,3 @@ class TestCountryView:
         response = client.get(reverse('country_map'))
 
         assert response.status_code == 200
-

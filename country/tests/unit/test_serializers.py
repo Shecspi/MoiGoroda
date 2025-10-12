@@ -2,14 +2,12 @@
 Юнит-тесты для сериализаторов приложения country.
 """
 
-from typing import Any
 from unittest.mock import Mock
 
 import pytest
 from django.contrib.auth.models import User
-from rest_framework.exceptions import ValidationError
 
-from country.models import Country, VisitedCountry, PartOfTheWorld, Location
+from country.models import Country, VisitedCountry
 from country.serializers import (
     PartOfTheWorldSerializer,
     LocationSerializer,
@@ -101,9 +99,7 @@ class TestVisitedCountrySerializerValidation:
         """Проверяет валидацию с несуществующим кодом страны."""
         user = User.objects.create_user(username='testuser', password='testpass')
         context = {'request': Mock(user=user)}
-        serializer = VisitedCountrySerializer(
-            data={'code': 'XX'}, context=context
-        )
+        serializer = VisitedCountrySerializer(data={'code': 'XX'}, context=context)
 
         assert not serializer.is_valid()
         assert 'code' in serializer.errors
@@ -113,9 +109,7 @@ class TestVisitedCountrySerializerValidation:
         Country.objects.create(name='Россия', code='RU')
         user = User.objects.create_user(username='testuser', password='testpass')
         context = {'request': Mock(user=user)}
-        serializer = VisitedCountrySerializer(
-            data={'code': 'RU'}, context=context
-        )
+        serializer = VisitedCountrySerializer(data={'code': 'RU'}, context=context)
 
         assert serializer.is_valid()
 
@@ -126,9 +120,7 @@ class TestVisitedCountrySerializerValidation:
         VisitedCountry.objects.create(country=country, user=user)
 
         context = {'request': Mock(user=user)}
-        serializer = VisitedCountrySerializer(
-            data={'code': 'RU'}, context=context
-        )
+        serializer = VisitedCountrySerializer(data={'code': 'RU'}, context=context)
 
         assert not serializer.is_valid()
         assert 'code' in serializer.errors
@@ -139,9 +131,7 @@ class TestVisitedCountrySerializerValidation:
         user = User.objects.create_user(username='testuser', password='testpass')
 
         context = {'request': Mock(user=user)}
-        serializer = VisitedCountrySerializer(
-            data={'code': 'RU'}, context=context
-        )
+        serializer = VisitedCountrySerializer(data={'code': 'RU'}, context=context)
         serializer.is_valid(raise_exception=True)
 
         visited_country = serializer.save(user=user)
@@ -149,4 +139,3 @@ class TestVisitedCountrySerializerValidation:
         assert visited_country.country == country
         assert visited_country.user == user
         assert VisitedCountry.objects.count() == 1
-

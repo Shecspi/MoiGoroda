@@ -24,7 +24,7 @@ def test_get_excluded_users_returns_tuple() -> None:
 
         from advertisement.templatetags.excluded_users import get_excluded_users
 
-        result = get_excluded_users()  # type: ignore[no-untyped-call]
+        result = get_excluded_users()
 
         assert isinstance(result, tuple)
 
@@ -43,7 +43,7 @@ def test_get_excluded_users_filters_by_current_date() -> None:
 
             from advertisement.templatetags.excluded_users import get_excluded_users
 
-            get_excluded_users()  # type: ignore[no-untyped-call]
+            get_excluded_users()
 
             # Проверяем, что фильтр вызван с deadline__gte
             mock_model.objects.filter.assert_called_once_with(deadline__gte=mock_now)
@@ -60,7 +60,7 @@ def test_get_excluded_users_returns_user_ids() -> None:
 
         from advertisement.templatetags.excluded_users import get_excluded_users
 
-        result = get_excluded_users()  # type: ignore[no-untyped-call]
+        result = get_excluded_users()
 
         assert result == (1, 2, 3)
         mock_queryset.values_list.assert_called_once_with('user__id', flat=True)
@@ -76,7 +76,7 @@ def test_get_excluded_users_returns_empty_tuple_when_no_exceptions() -> None:
 
         from advertisement.templatetags.excluded_users import get_excluded_users
 
-        result = get_excluded_users()  # type: ignore[no-untyped-call]
+        result = get_excluded_users()
 
         assert result == ()
         assert len(result) == 0
@@ -92,7 +92,7 @@ def test_get_excluded_users_with_multiple_users() -> None:
 
         from advertisement.templatetags.excluded_users import get_excluded_users
 
-        result = get_excluded_users()  # type: ignore[no-untyped-call]
+        result = get_excluded_users()
 
         assert result == (10, 20, 30, 40, 50)
         assert len(result) == 5

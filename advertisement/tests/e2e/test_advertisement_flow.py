@@ -29,7 +29,7 @@ def test_create_exception_and_check_exclusion_flow(django_user_model: Any) -> No
     user = django_user_model.objects.create_user(username='testuser', password='password123')
 
     # Шаг 2: Проверяем, что пользователь не в списке исключённых
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user.id not in excluded_users
 
     # Шаг 3: Создаём исключение для пользователя
@@ -37,14 +37,14 @@ def test_create_exception_and_check_exclusion_flow(django_user_model: Any) -> No
     exception = AdvertisementException.objects.create(user=user, deadline=deadline)
 
     # Шаг 4: Проверяем, что пользователь теперь в списке исключённых
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user.id in excluded_users
 
     # Шаг 5: Удаляем исключение
     exception.delete()
 
     # Шаг 6: Проверяем, что пользователь больше не в списке
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user.id not in excluded_users
 
 
@@ -62,7 +62,7 @@ def test_exception_expiration_flow(django_user_model: Any) -> None:
     exception = AdvertisementException.objects.create(user=user, deadline=future_deadline)
 
     # Шаг 3: Проверяем, что пользователь в списке
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user.id in excluded_users
 
     # Шаг 4: Изменяем deadline на прошедшую дату (имитация истечения срока)
@@ -71,7 +71,7 @@ def test_exception_expiration_flow(django_user_model: Any) -> None:
     exception.save()
 
     # Шаг 5: Проверяем, что пользователь больше не в списке
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user.id not in excluded_users
 
 
@@ -87,7 +87,7 @@ def test_multiple_users_exception_management_flow(django_user_model: Any) -> Non
     user3 = django_user_model.objects.create_user(username='user3', password='password123')
 
     # Шаг 2: Проверяем, что никто не исключён
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert len(excluded_users) == 0
 
     # Шаг 3: Добавляем исключения для user1 и user2
@@ -96,7 +96,7 @@ def test_multiple_users_exception_management_flow(django_user_model: Any) -> Non
     AdvertisementException.objects.create(user=user2, deadline=deadline)
 
     # Шаг 4: Проверяем список исключённых
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert len(excluded_users) == 2
     assert user1.id in excluded_users
     assert user2.id in excluded_users
@@ -106,7 +106,7 @@ def test_multiple_users_exception_management_flow(django_user_model: Any) -> Non
     AdvertisementException.objects.create(user=user3, deadline=deadline)
 
     # Шаг 6: Проверяем, что все три пользователя исключены
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert len(excluded_users) == 3
     assert user1.id in excluded_users
     assert user2.id in excluded_users
@@ -129,7 +129,7 @@ def test_user_deletion_removes_exception_flow(django_user_model: Any) -> None:
 
     # Шаг 3: Проверяем, что исключение существует
     assert AdvertisementException.objects.filter(user_id=user_id).exists()
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user_id in excluded_users
 
     # Шаг 4: Удаляем пользователя
@@ -137,7 +137,7 @@ def test_user_deletion_removes_exception_flow(django_user_model: Any) -> None:
 
     # Шаг 5: Проверяем, что исключение тоже удалилось
     assert not AdvertisementException.objects.filter(user_id=user_id).exists()
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user_id not in excluded_users
 
 
@@ -153,7 +153,7 @@ def test_update_exception_deadline_flow(django_user_model: Any) -> None:
     exception = AdvertisementException.objects.create(user=user, deadline=initial_deadline)
 
     # Шаг 2: Проверяем, что пользователь в списке
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user.id in excluded_users
 
     # Шаг 3: Обновляем deadline на прошедшую дату
@@ -161,7 +161,7 @@ def test_update_exception_deadline_flow(django_user_model: Any) -> None:
     exception.save()
 
     # Шаг 4: Проверяем, что пользователь больше не в списке
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user.id not in excluded_users
 
     # Шаг 5: Обновляем deadline на будущую дату
@@ -169,7 +169,7 @@ def test_update_exception_deadline_flow(django_user_model: Any) -> None:
     exception.save()
 
     # Шаг 6: Проверяем, что пользователь снова в списке
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert user.id in excluded_users
 
 
@@ -196,7 +196,7 @@ def test_multiple_exceptions_for_single_user_flow(django_user_model: Any) -> Non
     assert exceptions_count == 3
 
     # Шаг 4: Проверяем, что в списке исключённых ID встречается трижды
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
     assert excluded_users.count(user.id) == 3
 
 
@@ -221,7 +221,7 @@ def test_mixed_active_and_expired_exceptions_flow(django_user_model: Any) -> Non
     AdvertisementException.objects.create(user=user3, deadline=future_deadline)
 
     # Шаг 3: Проверяем список исключённых
-    excluded_users = get_excluded_users()  # type: ignore[no-untyped-call]
+    excluded_users = get_excluded_users()
 
     # Должны быть только user2 и user3 (deadline >= сегодня)
     assert user1.id not in excluded_users

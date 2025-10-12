@@ -58,6 +58,9 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 strict_concatenate = true
+exclude = [
+    "^.*/migrations/.*\\.py$",
+]
 
 [tool.django-stubs]
 django_settings_module = "MoiGoroda.settings"

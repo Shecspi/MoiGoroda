@@ -285,8 +285,8 @@ def test_region_report_multiple_regions(mocker: Any) -> None:
     report = RegionReport(1).get_report()
 
     assert len(report) == 3
-    assert report[1] == ('Регион 1 область', 2, 2, '100%', 0) # type: ignore[comparison-overlap]
-    assert report[2] == ('Регион 2 область', 3, 1, '33%', 2) # type: ignore[comparison-overlap]
+    assert report[1] == ('Регион 1 область', 2, 2, '100%', 0)
+    assert report[2] == ('Регион 2 область', 3, 1, '33%', 2)
 
 
 @pytest.mark.unit
@@ -368,7 +368,7 @@ def test_area_report_no_visited_regions(mocker: Any) -> None:
 
     report = AreaReport(1).get_report()
 
-    assert report[1] == ('Округ 2', 2, 0, '0%', 2) # type: ignore[comparison-overlap]
+    assert report[1] == ('Округ 2', 2, 0, '0%', 2)
 
 
 @pytest.mark.unit
@@ -425,8 +425,8 @@ def test_area_report_multiple_areas(mocker: Any) -> None:
     report = AreaReport(1).get_report()
 
     assert len(report) == 3
-    assert report[1] == ('Округ 1', 2, 1, '50%', 1) # type: ignore[comparison-overlap]
-    assert report[2] == ('Округ 2', 2, 0, '0%', 2) # type: ignore[comparison-overlap]
+    assert report[1] == ('Округ 1', 2, 1, '50%', 1)
+    assert report[2] == ('Округ 2', 2, 0, '0%', 2)
 
 
 # ===== Тесты на общие характеристики =====

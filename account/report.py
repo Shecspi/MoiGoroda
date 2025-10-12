@@ -22,7 +22,7 @@ class Report(ABC):
     def __init__(self, user_id: int) -> None: ...
 
     @abstractmethod
-    def get_report(self) -> list[tuple]: ...
+    def get_report(self) -> list[tuple[str | int | float, ...]]: ...
 
 
 class CityReport(Report):
@@ -30,7 +30,9 @@ class CityReport(Report):
         self.user_id = user_id
         self.group_city = group_city
 
-    def get_report(self) -> list[tuple]:
+    def get_report(self) -> list[tuple[str | int | float, ...]]:
+        result: list[tuple[str | int | float, ...]]
+
         if self.group_city:
             all_visited_cities = get_unique_visited_cities(self.user_id)
             sorted_visited_cities = apply_sort_to_queryset(
@@ -54,11 +56,11 @@ class CityReport(Report):
                         city.city.title,
                         str(city.city.region) if city.city.region else 'Нет региона',
                         str(city.city.country),
-                        city.number_of_visits,
-                        str(city.first_visit_date) if city.first_visit_date else 'Не указана',
-                        str(city.last_visit_date) if city.last_visit_date else 'Не указана',
-                        '+' if city.has_souvenir else '-',
-                        city.average_rating if city.average_rating else '',
+                        city.number_of_visits,  # type: ignore[attr-defined]
+                        str(city.first_visit_date) if city.first_visit_date else 'Не указана',  # type: ignore[attr-defined]
+                        str(city.last_visit_date) if city.last_visit_date else 'Не указана',  # type: ignore[attr-defined]
+                        '+' if city.has_souvenir else '-',  # type: ignore[attr-defined]
+                        city.average_rating if city.average_rating else '',  # type: ignore[attr-defined]
                     ),
                 )
         else:
@@ -95,9 +97,9 @@ class RegionReport(Report):
     def __init__(self, user_id: int) -> None:
         self.user_id = user_id
 
-    def get_report(self) -> list[tuple[str, ...]]:
+    def get_report(self) -> list[tuple[str | int | float, ...]]:
         regions = get_all_region_with_visited_cities(self.user_id)
-        result = [
+        result: list[tuple[str | int | float, ...]] = [
             (
                 'Регион',
                 'Всего городов',
@@ -108,8 +110,8 @@ class RegionReport(Report):
         ]
         for region in regions:
             title = region
-            num_total_cities = region.num_total
-            num_visited_cities = region.num_visited
+            num_total_cities = region.num_total  # type: ignore[attr-defined]
+            num_visited_cities = region.num_visited  # type: ignore[attr-defined]
             try:
                 ratio_visited_cities = f'{(num_visited_cities / num_total_cities):.0%}'
             except ZeroDivisionError:
@@ -131,9 +133,9 @@ class AreaReport(Report):
     def __init__(self, user_id: int) -> None:
         self.user_id = user_id
 
-    def get_report(self) -> list[tuple[str, ...]]:
+    def get_report(self) -> list[tuple[str | int | float, ...]]:
         areas = get_visited_areas(self.user_id)
-        result = [
+        result: list[tuple[str | int | float, ...]] = [
             (
                 'Федеральный округ',
                 'Всего регионов, шт',

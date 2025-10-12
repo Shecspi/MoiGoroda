@@ -67,7 +67,7 @@ def test_txt_serializer_filetype() -> None:
 def test_txt_serializer_convert(sample_report: list[tuple[str, ...]]) -> None:
     """Тест метода convert для TxtSerializer"""
     serializer = TxtSerializer()
-    result = serializer.convert(sample_report)  # type: ignore[arg-type]
+    result = serializer.convert(sample_report)
 
     assert isinstance(result, StringIO)
     result.seek(0)
@@ -103,7 +103,7 @@ def test_txt_serializer_get_formatted_row() -> None:
 def test_txt_serializer_empty_report(empty_report: list[tuple[str, ...]]) -> None:
     """Тест TxtSerializer с пустым отчётом"""
     serializer = TxtSerializer()
-    result = serializer.convert(empty_report)  # type: ignore[arg-type]
+    result = serializer.convert(empty_report)
 
     assert isinstance(result, StringIO)
     result.seek(0)
@@ -116,7 +116,7 @@ def test_txt_serializer_empty_report(empty_report: list[tuple[str, ...]]) -> Non
 def test_txt_serializer_complex_report(complex_report: list[tuple[str, ...]]) -> None:
     """Тест TxtSerializer со сложным отчётом"""
     serializer = TxtSerializer()
-    result = serializer.convert(complex_report)  # type: ignore[arg-type]
+    result = serializer.convert(complex_report)
 
     assert isinstance(result, StringIO)
     result.seek(0)
@@ -424,7 +424,7 @@ def test_all_serializers_return_correct_types(sample_report: list[tuple[str, ...
     xls_serializer = XlsSerializer()
 
     # Текстовые сериализаторы возвращают StringIO
-    assert isinstance(txt_serializer.convert(sample_report), StringIO)  # type: ignore[arg-type]
+    assert isinstance(txt_serializer.convert(sample_report), StringIO)
     assert isinstance(csv_serializer.convert(sample_report), StringIO)
     assert isinstance(json_serializer.convert(sample_report), StringIO)
 

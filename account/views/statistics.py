@@ -7,10 +7,12 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import Any
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
@@ -34,16 +36,19 @@ class Statistics(LoginRequiredMixin, TemplateView):
 
     template_name = 'account/statistics/statistics.html'
 
-    def get(self, *args, **kwargs):
-        logger.info(
-            self.request, f'Viewing stats: {self.request.user.username} ({self.request.user.email})'
-        )
+    def get(self, *args: Any, **kwargs: Any) -> HttpResponse:
+        user = self.request.user
+        if isinstance(user, User):
+            logger.info(self.request, f'Viewing stats: {user.username} ({user.email})')
 
         return super().get(*args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         user_id = self.request.user.pk
+
+        if user_id is None:
+            raise Http404
 
         number_of_visited_cities = get_number_of_visited_cities(user_id)
         if number_of_visited_cities == 0:
@@ -56,7 +61,7 @@ class Statistics(LoginRequiredMixin, TemplateView):
         # --- Настройки "Поделиться статистикой" --- #
         ##############################################
         try:
-            obj = ShareSettings.objects.get(user=self.request.user)
+            obj = ShareSettings.objects.get(user_id=user_id)
         except ShareSettings.DoesNotExist:
             share_settings = {
                 'switch_share_general': False,
@@ -90,7 +95,7 @@ class Statistics(LoginRequiredMixin, TemplateView):
 
 
 @login_required()
-def save_share_settings(request):
+def save_share_settings(request: HttpRequest) -> JsonResponse:
     """
     Производит проверку данных, переданных из формы настроек "Поделиться статистикой" и сохраняет их в БД.
     В таблице для каждого пользователя может быть только одна запись с настройками.

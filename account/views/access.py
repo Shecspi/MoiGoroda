@@ -7,7 +7,10 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from __future__ import annotations
+
 import logging
+from typing import Any
 
 from django.urls import reverse_lazy
 from django.contrib.auth import login
@@ -16,6 +19,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.generic import CreateView
 from django.contrib.auth.views import LoginView, PasswordResetDoneView, PasswordChangeView
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 
 from MoiGoroda.settings import PRIVACY_POLICY_VERSION
 from account.forms import SignUpForm, SignInForm
@@ -24,7 +28,7 @@ from account.models import UserConsent
 logger_email = logging.getLogger(__name__)
 
 
-class SignUp(CreateView):
+class SignUp(CreateView):  # type: ignore[type-arg]
     """
     Отображает и обрабатывает форму регистрации.
 
@@ -35,13 +39,13 @@ class SignUp(CreateView):
     success_url = reverse_lazy('signup_success')
     template_name = 'account/signup.html'
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         if self.request.user.is_authenticated:
             return redirect('city-all-list')
 
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form):
+    def form_valid(self, form: SignUpForm) -> HttpResponse:
         user = User.objects.create_user(
             username=form.cleaned_data['username'],
             password=form.cleaned_data['password1'],
@@ -59,18 +63,18 @@ class SignUp(CreateView):
             user=user,
             consent_given=True,
             ip_address=ip,
-            policy_version=PRIVACY_POLICY_VERSION,
+            policy_version=PRIVACY_POLICY_VERSION or '1.0',
         )
 
         logger_email.info(
-            f"Registration of a new user: {form.cleaned_data['username']} ({form.cleaned_data['email']}). "
-            f"Total numbers of users: {User.objects.count()}"
+            f'Registration of a new user: {form.cleaned_data["username"]} ({form.cleaned_data["email"]}). '
+            f'Total numbers of users: {User.objects.count()}'
         )
         login(self.request, user)
 
         return redirect('city-all-list')
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Регистрация'
@@ -92,13 +96,13 @@ class SignIn(LoginView):
     form_class = SignInForm
     template_name = 'account/signin.html'
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         if self.request.user.is_authenticated:
             return redirect('city-all-list')
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Вход'
@@ -110,14 +114,14 @@ class SignIn(LoginView):
         return context
 
 
-def signup_success(request):
+def signup_success(request: HttpRequest) -> HttpResponse:
     return render(request, 'account/signup_success.html')
 
 
 class MyPasswordChangeView(PasswordChangeView):
     template_name = 'account/profile__password_change_form.html'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Изменение пароля'
@@ -131,7 +135,7 @@ class MyPasswordChangeView(PasswordChangeView):
 class MyPasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
     template_name = 'account/profile__password_change_done.html'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         context['page_title'] = 'Изменение пароля'

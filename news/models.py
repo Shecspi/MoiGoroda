@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0
 
 from django.contrib.auth.models import User
 from django.db import models
-from mdeditor.fields import MDTextField
+from mdeditor.fields import MDTextField  # type: ignore[import-untyped]
 
 
 class News(models.Model):
@@ -38,5 +38,5 @@ class News(models.Model):
         verbose_name = 'Новость'
         verbose_name_plural = 'Новости'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title

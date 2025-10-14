@@ -251,7 +251,7 @@ def test_place_serializer_update_editable_fields() -> None:
         'longitude': 88.8888,  # Это поле не должно обновиться
     }
 
-    serializer.update(mock_place, validated_data)  # type: ignore[no-untyped-call]
+    serializer.update(mock_place, validated_data)
 
     # Проверяем, что save был вызван
     assert mock_place.save.called
@@ -283,7 +283,7 @@ def test_place_serializer_update_ignores_non_editable_fields() -> None:
         'longitude': 88.8888,
     }
 
-    serializer.update(mock_place, validated_data)  # type: ignore[no-untyped-call]
+    serializer.update(mock_place, validated_data)
 
     # Проверяем, что save был вызван (метод update всегда вызывает save)
     assert mock_place.save.called

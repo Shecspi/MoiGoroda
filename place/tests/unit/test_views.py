@@ -42,7 +42,7 @@ def test_place_view_calls_render(mock_render: Any) -> None:
     mock_request.user.is_authenticated = True
 
     # Вызываем функцию
-    views.place(mock_request)  # type: ignore
+    views.place(mock_request)
 
     # Проверяем, что render был вызван
     mock_render.assert_called_once()

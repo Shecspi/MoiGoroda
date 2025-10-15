@@ -31,4 +31,4 @@ def get_number_of_visited_cities(user_id: int) -> int:
     """
     Возвращает количество городов, посещённых пользователем с user_id.
     """
-    return get_all_visited_cities(user_id).count()
+    return VisitedCity.objects.filter(user_id=user_id).count()

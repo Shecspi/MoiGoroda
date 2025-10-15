@@ -53,6 +53,6 @@ def __get_client_ip(request: HttpRequest) -> str:
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = request.META.get('REMOTE_ADDR')
-        return ip
+        return str(ip) if ip else 'X.X.X.X'
     except Exception:
         return 'X.X.X.X'

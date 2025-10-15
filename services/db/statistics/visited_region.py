@@ -8,6 +8,8 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import Any
+
 from django.db.models.functions import Cast
 from django.db.models import Q, F, Count, QuerySet, FloatField
 
@@ -27,8 +29,8 @@ def get_number_of_visited_regions(user_id: int) -> int:
     """
     return (
         Region.objects.all()
-        .exclude(visitedcity__city=None)
-        .exclude(~Q(visitedcity__user__id=user_id))
+        .exclude(city__visitedcity__city=None)
+        .exclude(~Q(city__visitedcity__user__id=user_id))
         .count()
     )
 
@@ -41,11 +43,11 @@ def get_number_of_finished_regions(user_id: int) -> int:
     return get_all_visited_regions(user_id).filter(total_cities=F('visited_cities')).count()
 
 
-def get_number_of_half_finished_regions(user_id: int):
+def get_number_of_half_finished_regions(user_id: int) -> int:
     return get_all_visited_regions(user_id).filter(ratio_visited__gte=50).count()
 
 
-def get_all_visited_regions(user_id: int) -> QuerySet:
+def get_all_visited_regions(user_id: int) -> QuerySet[Any]:
     return (
         Region.objects.all()
         .annotate(
@@ -64,7 +66,7 @@ def get_all_visited_regions(user_id: int) -> QuerySet:
             )
             * 100,
         )
-        .exclude(visitedcity__city=None)
-        .exclude(~Q(visitedcity__user_id=user_id))
+        .exclude(city__visitedcity__city=None)
+        .exclude(~Q(city__visitedcity__user_id=user_id))
         .order_by('-ratio_visited', '-visited_cities')
     )

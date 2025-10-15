@@ -33,62 +33,62 @@ def apply_sort_to_queryset(
     return func(queryset)
 
 
-def sort_for_not_authenticated(queryset: QuerySet) -> QuerySet[City]:
+def sort_for_not_authenticated(queryset: QuerySet[City]) -> QuerySet[City]:
     """Сортирует по названию (А → Я)."""
     return queryset.order_by('title')
 
 
-def sort_by_name_up(queryset: QuerySet) -> QuerySet:
+def sort_by_name_up(queryset: QuerySet[City]) -> QuerySet[City]:
     """Сортирует по названию (А → Я)."""
     return queryset.order_by('title', '-is_visited')
 
 
-def sort_by_name_down(queryset: QuerySet) -> QuerySet:
+def sort_by_name_down(queryset: QuerySet[City]) -> QuerySet[City]:
     """Сортирует по названию (Я → А)."""
     return queryset.order_by('-title', '-is_visited')
 
 
-def sort_by_first_visit_date_down(queryset: QuerySet) -> QuerySet:
+def sort_by_first_visit_date_down(queryset: QuerySet[City]) -> QuerySet[City]:
     """Сначала города с более поздней датой первого посещения"""
     return queryset.order_by('-is_visited', F('first_visit_date').desc(nulls_last=True))
 
 
-def sort_by_first_visit_date_up(queryset: QuerySet) -> QuerySet:
+def sort_by_first_visit_date_up(queryset: QuerySet[City]) -> QuerySet[City]:
     """Сначала города без указания даты, далее давно посещённые и в конце недавно посещённые"""
     return queryset.order_by('-is_visited', F('first_visit_date').asc(nulls_first=True))
 
 
-def sort_by_last_visit_date_down(queryset: QuerySet) -> QuerySet:
+def sort_by_last_visit_date_down(queryset: QuerySet[City]) -> QuerySet[City]:
     """Сначала города с более поздней датой последнего посещения"""
     return queryset.order_by('-is_visited', F('last_visit_date').desc(nulls_last=True))
 
 
-def sort_by_last_visit_date_up(queryset: QuerySet) -> QuerySet:
+def sort_by_last_visit_date_up(queryset: QuerySet[City]) -> QuerySet[City]:
     """Сначала города без указания даты, далее давно посещённые и в конце недавно посещённые"""
     return queryset.order_by('-is_visited', F('last_visit_date').asc(nulls_first=True))
 
 
-def sort_date_of_foundation_down(queryset: QuerySet) -> QuerySet:
+def sort_date_of_foundation_down(queryset: QuerySet[City]) -> QuerySet[City]:
     return queryset.order_by(F('date_of_foundation').desc(nulls_last=True), 'title')
 
 
-def sort_date_of_foundation_up(queryset: QuerySet) -> QuerySet:
+def sort_date_of_foundation_up(queryset: QuerySet[City]) -> QuerySet[City]:
     return queryset.order_by(F('date_of_foundation').asc(nulls_last=True), 'title')
 
 
-def number_of_users_who_visit_city_down(queryset: QuerySet) -> QuerySet:
+def number_of_users_who_visit_city_down(queryset: QuerySet[City]) -> QuerySet[City]:
     return queryset.order_by(F('number_of_users_who_visit_city').desc(nulls_last=True), 'title')
 
 
-def number_of_users_who_visit_city_up(queryset: QuerySet) -> QuerySet:
+def number_of_users_who_visit_city_up(queryset: QuerySet[City]) -> QuerySet[City]:
     return queryset.order_by(F('number_of_users_who_visit_city').asc(nulls_last=True), 'title')
 
 
-def number_of_visits_all_users_down(queryset: QuerySet) -> QuerySet:
+def number_of_visits_all_users_down(queryset: QuerySet[City]) -> QuerySet[City]:
     return queryset.order_by(F('number_of_visits_all_users').desc(nulls_last=True), 'title')
 
 
-def number_of_visits_all_users_up(queryset: QuerySet) -> QuerySet:
+def number_of_visits_all_users_up(queryset: QuerySet[City]) -> QuerySet[City]:
     return queryset.order_by(F('number_of_visits_all_users').asc(nulls_last=True), 'title')
 
 

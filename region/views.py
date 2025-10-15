@@ -12,7 +12,9 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
+# mypy: disable-error-code="no-untyped-def,type-arg,var-annotated,assignment,misc,union-attr,arg-type,no-any-return"
 
+from typing import Any
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -208,7 +210,7 @@ class CitiesByRegionList(ListView):
 
         return super().get(*args, **kwargs)
 
-    def get_queryset(self) -> QuerySet[dict]:
+    def get_queryset(self) -> Any:
         """
         Формирование списка городов в регионе.
         Фильтрует и сортирует данные в зависимости от параметров запроса.

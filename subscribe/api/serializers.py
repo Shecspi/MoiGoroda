@@ -1,8 +1,7 @@
-from typing import Any
 from rest_framework import serializers
 
 
-class NotificationSerializer(serializers.Serializer[dict[str, Any]]):
+class NotificationSerializer(serializers.Serializer):  # type: ignore[type-arg]
     id = serializers.IntegerField()
     city_id = serializers.IntegerField()
     city_title = serializers.CharField()

@@ -1,23 +1,26 @@
-import pytest
+from typing import Any
 from datetime import datetime
+
+import pytest
+
 from subscribe.domain.entities import Notification
 from subscribe.application.services import NotificationService
 
 
 @pytest.fixture
-def mock_repo(mocker):
+def mock_repo(mocker: Any) -> Any:
     """Мокаем репозиторий."""
     return mocker.Mock()
 
 
 @pytest.fixture
-def service(mock_repo):
+def service(mock_repo: Any) -> NotificationService:
     """Сервис с замоканным репозиторием."""
     return NotificationService(repo=mock_repo)
 
 
 @pytest.fixture
-def sample_notification():
+def sample_notification() -> Notification:
     """Пример уведомления."""
     return Notification(
         id=1,
@@ -34,7 +37,9 @@ def sample_notification():
     )
 
 
-def test_list_notifications(service, mock_repo, sample_notification):
+def test_list_notifications(
+    service: NotificationService, mock_repo: Any, sample_notification: Notification
+) -> None:
     """Сервис должен возвращать список уведомлений из репозитория."""
     mock_repo.list_for_user.return_value = [sample_notification]
 
@@ -44,7 +49,9 @@ def test_list_notifications(service, mock_repo, sample_notification):
     mock_repo.list_for_user.assert_called_once_with(1)
 
 
-def test_mark_notification_as_read_when_unread(service, mock_repo, sample_notification):
+def test_mark_notification_as_read_when_unread(
+    service: NotificationService, mock_repo: Any, sample_notification: Notification
+) -> None:
     """Если уведомление не прочитано, оно должно стать прочитанным."""
     mock_repo.get_for_user.return_value = sample_notification
 
@@ -57,8 +64,8 @@ def test_mark_notification_as_read_when_unread(service, mock_repo, sample_notifi
 
 
 def test_mark_notification_as_read_only_updates_read_fields(
-    service, mock_repo, sample_notification
-):
+    service: NotificationService, mock_repo: Any, sample_notification: Notification
+) -> None:
     """Проверяем, что обновляются только is_read и read_at."""
     mock_repo.get_for_user.return_value = sample_notification
     original = sample_notification.__dict__.copy()
@@ -71,7 +78,9 @@ def test_mark_notification_as_read_only_updates_read_fields(
             assert getattr(sample_notification, field) == original[field]
 
 
-def test_mark_notification_as_read_when_already_read(service, mock_repo, sample_notification):
+def test_mark_notification_as_read_when_already_read(
+    service: NotificationService, mock_repo: Any, sample_notification: Notification
+) -> None:
     """Если уведомление уже прочитано, повторно обновлять не нужно."""
     sample_notification.is_read = True
     sample_notification.read_at = datetime(2024, 1, 1)
@@ -85,7 +94,7 @@ def test_mark_notification_as_read_when_already_read(service, mock_repo, sample_
     mock_repo.update_read_status.assert_not_called()
 
 
-def test_delete_notification(service, mock_repo):
+def test_delete_notification(service: NotificationService, mock_repo: Any) -> None:
     """Сервис должен удалять уведомление через репозиторий."""
     service.delete_notification(user_id=1, notification_id=1)
 

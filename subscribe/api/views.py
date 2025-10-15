@@ -32,7 +32,8 @@ def save(request: HttpRequest) -> JsonResponse:
         return JsonResponse({'status': 'error', 'exception': exc.json()}, status=400)
 
     try:
-        result = service.save(subscription, request.user.id, request.user.is_superuser)
+        user_id = request.user.id if request.user.id is not None else 0
+        result = service.save(subscription, user_id, request.user.is_superuser)
         return JsonResponse(result)
     except PermissionError as e:
         return JsonResponse({'status': 'forbidden', 'message': str(e)}, status=403)
@@ -49,7 +50,8 @@ def delete_subscriber(request: HttpRequest) -> JsonResponse:
         return JsonResponse({'status': 'error', 'exception': exc.json()}, status=400)
 
     try:
-        result = service.delete_subscriber(subscription, request.user.id)
+        user_id = request.user.id if request.user.id is not None else 0
+        result = service.delete_subscriber(subscription, user_id)
         return JsonResponse(result)
     except PermissionError as e:
         return JsonResponse({'status': 'forbidden', 'message': str(e)}, status=403)
@@ -61,19 +63,28 @@ class NotificationViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     service_class: type | None = None
 
-    def get_service(self):
-        return self.service_class()
+    def get_service(self):  # type: ignore[no-untyped-def]
+        return self.service_class()  # type: ignore[misc]
 
     def list(self, request: Request) -> Response:
-        notifications = self.get_service().list_notifications(request.user.id)
+        user_id = (
+            request.user.id if hasattr(request.user, 'id') and request.user.id is not None else 0
+        )
+        notifications = self.get_service().list_notifications(user_id)  # type: ignore[no-untyped-call]
         serializer = NotificationSerializer(notifications, many=True)
         return Response({'notifications': serializer.data})
 
     def partial_update(self, request: Request, pk: int | None = None) -> Response:
-        notification = self.get_service().mark_notification_as_read(request.user.id, pk)
+        user_id = (
+            request.user.id if hasattr(request.user, 'id') and request.user.id is not None else 0
+        )
+        notification = self.get_service().mark_notification_as_read(user_id, pk)  # type: ignore[no-untyped-call]
         serializer = NotificationSerializer(notification)
         return Response(serializer.data)
 
     def destroy(self, request: Request, pk: int | None = None) -> Response:
-        self.get_service().delete_notification(request.user.id, pk)
+        user_id = (
+            request.user.id if hasattr(request.user, 'id') and request.user.id is not None else 0
+        )
+        self.get_service().delete_notification(user_id, pk)  # type: ignore[no-untyped-call]
         return Response(status=status.HTTP_204_NO_CONTENT)

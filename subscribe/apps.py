@@ -5,7 +5,6 @@ class SubscribeConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'subscribe'
 
-    def ready(self):
+    def ready(self) -> None:
         # Импортируем все модели, чтобы Django их зарегистрировал
-        import subscribe.infrastructure.models
-        import subscribe.infrastructure.models
+        pass

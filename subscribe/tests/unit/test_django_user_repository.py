@@ -1,7 +1,8 @@
+# mypy: disable-error-code="no-untyped-def,no-any-return,attr-defined,return-value"
 from subscribe.infrastructure.django_repository import DjangoUserRepository
 
 
-def test_exists_returns_true_when_user_found(mocker):
+def test_exists_returns_true_when_user_found(mocker) -> None:
     repo = DjangoUserRepository()
 
     mock_queryset = mocker.Mock()
@@ -19,7 +20,7 @@ def test_exists_returns_true_when_user_found(mocker):
     mock_queryset.exists.assert_called_once_with()
 
 
-def test_exists_returns_false_when_user_not_found(mocker):
+def test_exists_returns_false_when_user_not_found(mocker) -> None:
     repo = DjangoUserRepository()
 
     mock_queryset = mocker.Mock()

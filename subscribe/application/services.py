@@ -25,7 +25,9 @@ class SubscriptionService:
         self.share_settings_repo = share_settings_repo
         self.subscribe_repo = subscribe_repo
 
-    def save(self, request: SubscriptionRequest, current_user_id: int, is_superuser: bool):
+    def save(
+        self, request: SubscriptionRequest, current_user_id: int, is_superuser: bool
+    ) -> dict[str, str]:
         if request.from_id != current_user_id:
             raise PermissionError('Нельзя оформлять подписки за других пользователей')
 
@@ -45,7 +47,9 @@ class SubscriptionService:
                 self.subscribe_repo.delete(request.from_id, request.to_id)
             return {'status': 'unsubscribed'}
 
-    def delete_subscriber(self, request: DeleteSubscriberRequest, current_user_id: int):
+    def delete_subscriber(
+        self, request: DeleteSubscriberRequest, current_user_id: int
+    ) -> dict[str, str]:
         if not self.user_repo.exists(request.user_id):
             raise ValueError('Передан неверный ID пользователя')
 

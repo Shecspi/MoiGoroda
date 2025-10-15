@@ -19,7 +19,7 @@ from subscribe.api.views import (
 
 
 class InjectedNotificationViewSet(NotificationViewSet):
-    service_class = staticmethod(get_notification_service)
+    service_class = staticmethod(get_notification_service)  # type: ignore[assignment]
 
 
 router = DefaultRouter()

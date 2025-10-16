@@ -36,7 +36,7 @@ handler404 = 'MoiGoroda.error_handlers.page404'
 handler500 = 'MoiGoroda.error_handlers.page500'
 
 if settings.DEBUG:
-    import debug_toolbar
+    import debug_toolbar  # type: ignore[import-untyped]
 
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),

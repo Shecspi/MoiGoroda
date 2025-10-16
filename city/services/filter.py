@@ -36,7 +36,7 @@ def filter_has_magnet(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet
     (которое является обобщённым для всех одинаковых посещённых городов),
     поэтому именно по нему происходит фильтрация.
     """
-    return queryset.filter(has_souvenir=True)
+    return queryset.filter(has_souvenir=True)  # type: ignore[misc]
 
 
 def filter_has_no_magnet(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet[VisitedCity]:
@@ -47,7 +47,7 @@ def filter_has_no_magnet(queryset: QuerySet[VisitedCity], user_id: int) -> Query
     (которое является обобщённым для всех одинаковых посещённых городов),
     поэтому именно по нему происходит фильтрация.
     """
-    return queryset.filter(has_souvenir=False)
+    return queryset.filter(has_souvenir=False)  # type: ignore[misc]
 
 
 def filter_current_year(queryset: QuerySet[VisitedCity], user_id: int) -> QuerySet[VisitedCity]:

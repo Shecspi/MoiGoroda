@@ -20,7 +20,7 @@ class PartOfTheWorld(models.Model):
         verbose_name = 'Часть света'
         verbose_name_plural = 'Части света'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -36,7 +36,7 @@ class Location(models.Model):
         verbose_name = 'Расположение'
         verbose_name_plural = 'Расположения'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -58,7 +58,7 @@ class Country(models.Model):
         verbose_name = 'Страна'
         verbose_name_plural = 'Страны'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -76,5 +76,5 @@ class VisitedCountry(models.Model):
         verbose_name_plural = 'Посещенные страны'
         unique_together = ('country', 'user')
 
-    def __str__(self):
-        return self.country
+    def __str__(self) -> str:
+        return str(self.country)

@@ -1,5 +1,7 @@
 import calendar
 import datetime
+from typing import Any
+from datetime import date
 
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.postgres.aggregates import ArrayAgg
@@ -28,7 +30,7 @@ class ExtractYearFromArray(Func):
     function = 'EXTRACT'
     template = '%(function)s(YEAR FROM unnest(%(expressions)s))'
 
-    def __init__(self, expression, **extra):
+    def __init__(self, expression: Any, **extra: Any) -> None:
         expressions = [expression]
         super().__init__(*expressions, **extra)
 
@@ -278,8 +280,8 @@ def get_number_of_total_visited_cities_by_year(user_id: int, year: int) -> int:
     """
     result = 0
     for city in get_unique_visited_cities(user_id):
-        if city.visit_dates:
-            for visit_date in city.visit_dates:
+        if city.visit_dates:  # type: ignore[attr-defined]
+            for visit_date in city.visit_dates:  # type: ignore[attr-defined]
                 if visit_date.year == year:
                     result += 1
     return result
@@ -297,18 +299,18 @@ def get_number_of_new_visited_cities_by_year(user_id: int, year: int) -> int:
     return result
 
 
-def get_last_10_new_visited_cities(user_id: int) -> QuerySet:
+def get_last_10_new_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     """
     Возвращает последние 10 посещённых городов пользователя с ID, указанным в user_id.
     """
     return (
         get_unique_visited_cities(user_id)
-        .exclude(first_visit_date=None)
+        .exclude(first_visit_date=None)  # type: ignore[misc]
         .order_by('-first_visit_date')[:10]
     )
 
 
-def get_number_of_total_visited_cities_in_several_years(user_id: int):
+def get_number_of_total_visited_cities_in_several_years(user_id: int) -> QuerySet[Any]:
     """
     Возвращает общее количество посещённых городов за каждый год.
     """
@@ -322,7 +324,7 @@ def get_number_of_total_visited_cities_in_several_years(user_id: int):
     )
 
 
-def get_number_of_new_visited_cities_in_several_years(user_id: int):
+def get_number_of_new_visited_cities_in_several_years(user_id: int) -> QuerySet[Any]:
     """
     Возвращает количество новых посещённых городов за каждый год.
     """
@@ -351,7 +353,7 @@ def _get_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     )
 
 
-def get_number_of_total_visited_cities_in_several_month(user_id: int):
+def get_number_of_total_visited_cities_in_several_month(user_id: int) -> QuerySet[Any]:
     """
     Возвращает статистику по количеству посещённых городов за каждый месяц (последние 24 месяца).
     """
@@ -371,7 +373,7 @@ def get_number_of_total_visited_cities_in_several_month(user_id: int):
     )
 
 
-def get_number_of_new_visited_cities_in_several_month(user_id: int):
+def get_number_of_new_visited_cities_in_several_month(user_id: int) -> QuerySet[Any]:
     return (
         _get_visited_cities(user_id)
         .filter(is_first_visit=True)
@@ -388,7 +390,7 @@ def get_number_of_visits_by_city(city_id: int, user_id: int) -> int:
     return VisitedCity.objects.filter(city_id=city_id, user=user_id).count()
 
 
-def get_first_visit_date_by_city(city_id: int, user_id: int) -> datetime.date:
+def get_first_visit_date_by_city(city_id: int, user_id: int) -> date:
     first_visit_date_subquery = (
         VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
         .values('city')
@@ -396,15 +398,17 @@ def get_first_visit_date_by_city(city_id: int, user_id: int) -> datetime.date:
         .values('first_visit_date')
     )
 
-    return (
+    result = (
         VisitedCity.objects.filter(city_id=city_id, user=user_id)
         .annotate(first_visit_date=Subquery(first_visit_date_subquery))
         .first()
-        .first_visit_date
     )
+    if result is None:
+        raise ValueError(f'No visit found for city_id={city_id}, user_id={user_id}')
+    return result.first_visit_date  # type: ignore[no-any-return]
 
 
-def get_last_visit_date_by_city(city_id: int, user_id: int) -> datetime.date:
+def get_last_visit_date_by_city(city_id: int, user_id: int) -> date:
     first_visit_date_subquery = (
         VisitedCity.objects.filter(user_id=user_id, city=OuterRef('city__id'))
         .values('city')
@@ -412,20 +416,22 @@ def get_last_visit_date_by_city(city_id: int, user_id: int) -> datetime.date:
         .values('last_visit_date')
     )
 
-    return (
+    result = (
         VisitedCity.objects.filter(city_id=city_id, user=user_id)
         .annotate(last_visit_date=Subquery(first_visit_date_subquery))
         .first()
-        .last_visit_date
     )
+    if result is None:
+        raise ValueError(f'No visit found for city_id={city_id}, user_id={user_id}')
+    return result.last_visit_date  # type: ignore[no-any-return]
 
 
-def set_is_visit_first_for_all_visited_cities(city_id: int, user: AbstractBaseUser):
+def set_is_visit_first_for_all_visited_cities(city_id: int, user: AbstractBaseUser) -> None:
     """
     Обновляет "is_first_visit" на True для посещения с самой ранней датой или без даты вообще.
     Для всех остальных посещений "is_first_visit" устанавливаем в False.
     """
-    cities = VisitedCity.objects.filter(city_id=city_id, user=user).order_by(
+    cities = VisitedCity.objects.filter(city_id=city_id, user=user).order_by(  # type: ignore[misc]
         F('date_of_visit').asc(nulls_first=True)
     )
 
@@ -435,7 +441,7 @@ def set_is_visit_first_for_all_visited_cities(city_id: int, user: AbstractBaseUs
     first_id = cities[0].id
 
     # Массовое обновление всех is_first_visit = False
-    VisitedCity.objects.filter(city_id=city_id, user=user).exclude(id=first_id).update(
+    VisitedCity.objects.filter(city_id=city_id, user=user).exclude(id=first_id).update(  # type: ignore[misc]
         is_first_visit=False
     )
 
@@ -470,9 +476,9 @@ def get_rank_by_visits_of_city(city_id: int, country_id: int | None = False) -> 
         .order_by('rank')
     )
 
-    for city in ranked_cities:
-        if city['id'] == city_id:
-            return city['rank']
+    for city_dict in ranked_cities:
+        if city_dict['id'] == city_id:
+            return int(city_dict['rank'])
 
     return 0
 
@@ -491,9 +497,9 @@ def get_rank_by_users_of_city(city_id: int, country_id: int | None = False) -> i
         .order_by('rank')
     )
 
-    for city in ranked_cities:
-        if city['id'] == city_id:
-            return city['rank']
+    for city_dict in ranked_cities:
+        if city_dict['id'] == city_id:
+            return int(city_dict['rank'])
 
     return 0
 
@@ -523,9 +529,9 @@ def get_rank_by_visits_of_city_in_region(city_id: int, is_country_filter: bool =
         .order_by('rank')
     )
 
-    for city in ranked_cities:
-        if city['id'] == city_id:
-            return city['rank']
+    for city_dict in ranked_cities:
+        if city_dict['id'] == city_id:
+            return int(city_dict['rank'])
 
     return 0
 
@@ -556,14 +562,16 @@ def get_rank_by_users_of_city_in_region(city_id: int, is_country_filter: bool = 
         .order_by('rank')
     )
 
-    for city in ranked_cities:
-        if city['id'] == city_id:
-            return city['rank']
+    for city_dict in ranked_cities:
+        if city_dict['id'] == city_id:
+            return int(city_dict['rank'])
 
     return 0
 
 
-def _get_cities_near_index(items: list, city_id: int, window_size: int = 10) -> list:
+def _get_cities_near_index(
+    items: list[dict[str, Any]], city_id: int, window_size: int = 10
+) -> list[dict[str, Any]]:
     # Ищем индекс нужного города
     index = next((i for i, city in enumerate(items) if city['id'] == city_id), None)
     if index is None:
@@ -579,7 +587,9 @@ def _get_cities_near_index(items: list, city_id: int, window_size: int = 10) -> 
     return items[start:end]
 
 
-def get_neighboring_cities_by_visits_rank(city_id: int, is_country_filter: bool = False):
+def get_neighboring_cities_by_visits_rank(
+    city_id: int, is_country_filter: bool = False
+) -> list[dict[str, Any]]:
     """
     Возвращает список 10 городов, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
@@ -603,7 +613,9 @@ def get_neighboring_cities_by_visits_rank(city_id: int, is_country_filter: bool 
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_neighboring_cities_in_region_by_visits_rank(city_id: int, is_country_filter: bool = False):
+def get_neighboring_cities_in_region_by_visits_rank(
+    city_id: int, is_country_filter: bool = False
+) -> list[dict[str, Any]]:
     """
     Возвращает список 10 городов конкретного региона, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
@@ -628,7 +640,9 @@ def get_neighboring_cities_in_region_by_visits_rank(city_id: int, is_country_fil
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_neighboring_cities_by_users_rank(city_id: int, is_country_filter: bool = False):
+def get_neighboring_cities_by_users_rank(
+    city_id: int, is_country_filter: bool = False
+) -> list[dict[str, Any]]:
     """
     Возвращает список 10 городов, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
@@ -652,7 +666,9 @@ def get_neighboring_cities_by_users_rank(city_id: int, is_country_filter: bool =
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_neighboring_cities_in_region_by_users_rank(city_id: int, is_country_filter: bool = False):
+def get_neighboring_cities_in_region_by_users_rank(
+    city_id: int, is_country_filter: bool = False
+) -> list[dict[str, Any]]:
     """
     Возвращает список 10 городов конкретного региона, которые располагаются близко к искомому городу.
     Выборка происходит по общему количеству посещений города всеми пользователями.
@@ -691,5 +707,5 @@ def get_not_visited_cities(user_id: int, country_code: str | None = None) -> Que
     return queryset.exclude(id__in=visited_cities)
 
 
-def get_number_of_visited_countries(user_id: int):
+def get_number_of_visited_countries(user_id: int) -> int:
     return get_unique_visited_cities(user_id).values('city__country').distinct().count()

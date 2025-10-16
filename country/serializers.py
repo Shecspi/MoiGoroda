@@ -27,13 +27,13 @@ class ValidatedData(TypedDict):
     user: User
 
 
-class PartOfTheWorldSerializer(serializers.ModelSerializer):
+class PartOfTheWorldSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     class Meta:
         model = PartOfTheWorld
         fields = '__all__'
 
 
-class LocationSerializer(serializers.ModelSerializer):
+class LocationSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     """Сериалайзер для модели Location"""
 
     class Meta:
@@ -41,7 +41,7 @@ class LocationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CountrySerializer(serializers.ModelSerializer):
+class CountrySerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     """Сериалайзер для модели Country"""
 
     to_delete = serializers.SerializerMethodField(read_only=True)
@@ -57,7 +57,7 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CountrySimpleSerializer(serializers.ModelSerializer):
+class CountrySimpleSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     number_of_visited_cities = serializers.IntegerField(read_only=True)
     number_of_cities = serializers.IntegerField(read_only=True)
 
@@ -66,7 +66,7 @@ class CountrySimpleSerializer(serializers.ModelSerializer):
         fields = ['id', 'code', 'name', 'number_of_visited_cities', 'number_of_cities']
 
 
-class VisitedCountrySerializer(serializers.ModelSerializer):
+class VisitedCountrySerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     """Сериалайзер для модели VisitedCountry"""
 
     code = serializers.CharField(source='country.code', max_length=2, min_length=2)

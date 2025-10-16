@@ -1,15 +1,17 @@
+from typing import Any
+
 from rest_framework import serializers
 
 from place.models import Place, TagOSM, Category
 
 
-class TagOSMSerializer(serializers.ModelSerializer):
+class TagOSMSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     class Meta:
         model = TagOSM
         fields = '__all__'
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     tags_detail = TagOSMSerializer(many=True, source='tags', read_only=True)
 
     class Meta:
@@ -22,10 +24,10 @@ class CategorySerializer(serializers.ModelSerializer):
         }
 
 
-class PlaceSerializer(serializers.ModelSerializer):
+class PlaceSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     category_detail = CategorySerializer(source='category', read_only=True)
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict[str, Any]) -> Place:
         """
         Добавляет поле user в сохраняемую модель.
         """
@@ -41,9 +43,9 @@ class PlaceSerializer(serializers.ModelSerializer):
             if 'user' in validated_data:
                 validated_data.pop('user')
             return Place.objects.create(user=self.context['request'].user, **validated_data)
-        return super(PlaceSerializer, self).create(validated_data)
+        return super(PlaceSerializer, self).create(validated_data)  # type: ignore[no-any-return]
 
-    def update(self, instance, validated_data):
+    def update(self, instance: Place, validated_data: dict[str, Any]) -> Place:
         # Поля, доступные для редактирования
         editable_fields = ['name', 'category']
 

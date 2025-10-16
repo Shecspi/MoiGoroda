@@ -12,7 +12,7 @@ class AdvertisementException(models.Model):
         null=False, blank=False, verbose_name='Дата, до которой реклама не показывается'
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.user)
 
     class Meta:

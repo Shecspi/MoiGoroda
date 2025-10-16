@@ -36,15 +36,13 @@ def get_subscriber_users(user_id: int) -> list[SubscriberUserDTO]:
     result = []
 
     for subscribe in subscribed_users:
-        share_settings = ShareSettings.objects.filter(user=subscribe.subscribe_from)
+        share_settings = ShareSettings.objects.filter(user=subscribe.subscribe_from).first()
 
         result.append(
             SubscriberUserDTO(
                 id=subscribe.subscribe_from.id,
                 username=subscribe.subscribe_from.username,
-                can_subscribe=share_settings.first().can_share
-                if share_settings.exists()
-                else False,
+                can_subscribe=share_settings.can_share if share_settings else False,
             )
         )
 

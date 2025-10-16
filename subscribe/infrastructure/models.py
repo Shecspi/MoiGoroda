@@ -22,7 +22,7 @@ class Subscribe(models.Model):
         null=False,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Подписка {self.subscribe_from} на {self.subscribe_to}'
 
     class Meta:

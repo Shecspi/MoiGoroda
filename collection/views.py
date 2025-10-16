@@ -29,23 +29,23 @@ from services.word_modifications.visited import modification__visited
 from utils.CollectionListMixin import CollectionListMixin
 
 
-class CollectionList(CollectionListMixin, ListView):
+class CollectionList(CollectionListMixin, ListView):  # type: ignore[type-arg]
     model = Collection
     paginate_by = 16
     template_name = 'collection/collection__list.html'
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         # Список ID городов из таблицы City, которые посещены пользователем
-        self.visited_cities = None
+        self.visited_cities: Any = None
         self.sort: str = ''
         self.filter: str = ''
         self.qty_of_collections: int = 0
         self.qty_of_started_colelctions: int = 0
         self.qty_of_finished_colelctions: int = 0
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         if self.request.user.is_authenticated:
             queryset = Collection.objects.prefetch_related('city').annotate(
                 qty_of_cities=Count('city', distinct=True),
@@ -64,7 +64,7 @@ class CollectionList(CollectionListMixin, ListView):
         else:
             queryset = Collection.objects.prefetch_related('city').annotate(
                 qty_of_cities=Count('city', distinct=True)
-            )
+            )  # type: ignore[assignment]
 
         logger.info(self.request, '(Collections) Viewing the collection list')
 
@@ -77,9 +77,40 @@ class CollectionList(CollectionListMixin, ListView):
                 if collection.qty_of_visited_cities == collection.qty_of_cities:
                     self.qty_of_finished_colelctions += 1
 
+        # Применение фильтра
+        filter_value = self.request.GET.get('filter')
+        self.filter = filter_value if filter_value else ''
+        if self.filter:
+            try:
+                queryset = self.apply_filter_to_queryset(queryset, self.filter)
+                logger.info(self.request, f"(Collections) Using the filter '{self.filter}'")
+            except KeyError:
+                self.filter = ''
+                logger.warning(
+                    self.request, f"(Collections) Unexpected value of the filter '{filter_value}'"
+                )
+
+        # Применение сортировки
+        sort_value = self.request.GET.get('sort')
+        if self.request.user.is_authenticated:
+            self.sort = sort_value if sort_value else 'default_auth'
+        else:
+            self.sort = sort_value if sort_value else 'default_guest'
+
+        try:
+            queryset = self.apply_sort_to_queryset(queryset, self.sort)
+            if sort_value:
+                logger.info(self.request, f"(Collections) Using the sort '{self.sort}'")
+        except KeyError:
+            logger.warning(
+                self.request, f"(Collections) Unexpected value of the sort '{sort_value}'"
+            )
+            self.sort = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
+            queryset = self.apply_sort_to_queryset(queryset, self.sort)
+
         return queryset
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         context['sort'] = self.sort
@@ -115,24 +146,24 @@ class CollectionList(CollectionListMixin, ListView):
         return context
 
 
-class CollectionSelected_List(ListView):
+class CollectionSelected_List(ListView):  # type: ignore[type-arg]
     model = Collection
     paginate_by = 16
 
     list_or_map: str = 'list'
 
-    def __init__(self, list_or_map: str):
+    def __init__(self, list_or_map: str) -> None:
         super().__init__()
 
-        self.pk = None
-        self.filter = ''
-        self.cities = None
-        self.qty_of_cities = None
-        self.collection_title = ''
+        self.pk: int | None = None
+        self.filter: str = ''
+        self.cities: Any = None
+        self.qty_of_cities: int | None = None
+        self.collection_title: Any = ''
         self.list_or_map = list_or_map
-        self.qty_of_visited_cities = None
+        self.qty_of_visited_cities: int | None = None
 
-    def get(self, *args: Any, **kwargs: Any):
+    def get(self, *args: Any, **kwargs: Any) -> Any:
         self.pk = self.kwargs['pk']
 
         # При обращении к несуществующей коллекции выдаём 404
@@ -148,7 +179,7 @@ class CollectionSelected_List(ListView):
 
         return super().get(*args, **kwargs)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         """
         Получает из базы данных все города коллекции, как посещённые так и нет,
         и возвращает Queryset, состоящий из полей:
@@ -167,21 +198,23 @@ class CollectionSelected_List(ListView):
             * `rating` - рейтинг от 1 до 5
         """
         self.cities = get_all_cities_from_collection(
-            self.pk, self.request.user if self.request.user.is_authenticated else None
+            self.pk,  # type: ignore[arg-type]
+            self.request.user if self.request.user.is_authenticated else None,
         )
-        self.qty_of_visited_cities = sum([1 if city.is_visited else 0 for city in self.cities])  # type: ignore[attr-defined]
+        self.qty_of_visited_cities = sum([1 if city.is_visited else 0 for city in self.cities])
         self.qty_of_cities = len(self.cities)
 
         # Определяем фильтрацию
         if self.request.user.is_authenticated:
-            self.filter = self.request.GET.get('filter') if self.request.GET.get('filter') else ''
+            filter_value = self.request.GET.get('filter')
+            self.filter = filter_value if filter_value else ''
             if self.filter:
                 try:
                     self.cities = apply_filter_to_queryset(self.cities, self.filter)
                 except KeyError:
                     logger.warning(
                         self.request,
-                        f"(Collection #{self.pk}) Unexpected value of the filter - {self.request.GET.get('filter')}",
+                        f'(Collection #{self.pk}) Unexpected value of the filter - {self.request.GET.get("filter")}',
                     )
                 else:
                     logger.info(
@@ -211,8 +244,9 @@ class CollectionSelected_List(ListView):
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
 
         if self.request.user.is_authenticated:
-            context['change__city'] = modification__city(self.qty_of_visited_cities)
-            context['change__visited'] = modification__visited(self.qty_of_visited_cities)
+            qty = self.qty_of_visited_cities if self.qty_of_visited_cities is not None else 0
+            context['change__city'] = modification__city(qty)
+            context['change__visited'] = modification__visited(qty)
             context['url_for_filter_visited'] = get_url_params(
                 'visited' if self.filter != 'visited' else ''
             )
@@ -238,6 +272,7 @@ class CollectionSelected_List(ListView):
             return [
                 'collection/collection_selected__map.html',
             ]
+        return []
 
 
 def get_url_params(filter_value: str | None) -> str:

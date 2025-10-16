@@ -23,7 +23,7 @@ pymorphy3 = "^2.0.4"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^2.17.4"
-django-stubs = "^4.2.3"
+django-stubs = "^5.2.7"
 djangorestframework-stubs = "<3.16.3"
 django-debug-toolbar = "^4.1.0"
 mypy = "^1.8.0"
@@ -58,19 +58,32 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 strict_concatenate = true
+exclude = [
+    "^.*/migrations/.*\\.py$",
+    "^manage\\.py$",
+]
 
 [tool.django-stubs]
 django_settings_module = "MoiGoroda.settings"
 
 [tool.ruff]
 line-length = 100
+exclude = [
+    "*/migrations/*",
+]
 
 [tool.ruff.format]
 quote-style = "single"
 
 # PyTest
 [tool.pytest.ini_options]
-addopts = "--import-mode=importlib"
+addopts = "--import-mode=importlib --strict-markers"
 DJANGO_SETTINGS_MODULE = "MoiGoroda.settings"
 python_files = ["test_*"]
 python_functions = ["test_*"]
+markers = [
+    "unit: Быстрые unit-тесты без БД (моки, чистая логика, изолированные компоненты)",
+    "integration: Интеграционные тесты с БД (тестирование одного компонента с реальной БД)",
+    "e2e: End-to-end тесты (полные сценарии взаимодействия нескольких компонентов)",
+    "slow: Медленные тесты (запускать только в CI/CD)",
+]

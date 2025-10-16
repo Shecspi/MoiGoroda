@@ -5,7 +5,7 @@ from subscribe.infrastructure.models import Subscribe
 
 
 @admin.register(Subscribe)
-class SubscribeAdmin(admin.ModelAdmin):
+class SubscribeAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = (
         'id',
         'subscribe_from',
@@ -14,5 +14,5 @@ class SubscribeAdmin(admin.ModelAdmin):
 
 
 @admin.register(VisitedCityNotification)
-class VisitedCityNotificationAdmin(admin.ModelAdmin):
+class VisitedCityNotificationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = ('id', 'recipient', 'sender', 'city', 'is_read', 'created_at', 'read_at')

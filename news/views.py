@@ -22,7 +22,7 @@ from services import logger
 from services.db.news_repo import annotate_news_as_read
 
 
-class NewsList(ListView):
+class NewsList(ListView):  # type: ignore[type-arg]
     """
     Отображает список всех новостей с разделением по страницам.
     """
@@ -47,7 +47,7 @@ class NewsList(ListView):
 
         return queryset
 
-    def get_context_data(
+    def get_context_data(  # type: ignore[override]
         self, *, object_list: QuerySet[News] | None = None, **kwargs: Any
     ) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

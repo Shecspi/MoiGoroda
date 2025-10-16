@@ -33,10 +33,10 @@ class ShareSettings(models.Model):
         blank=True, null=False, default=False, verbose_name='Разрешить подписываться'
     )
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse('share', kwargs={'pk': self.pk})
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Параметры публикации статистики пользователя {self.user}'
 
     class Meta:

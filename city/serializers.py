@@ -63,7 +63,7 @@ class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
 class NotVisitedCitySerializer(serializers.ModelSerializer[City]):
     lat = serializers.CharField(source='coordinate_width', read_only=True)
     lon = serializers.CharField(source='coordinate_longitude', read_only=True)
-    region: serializers.StringRelatedField = serializers.StringRelatedField()
+    region: Any = serializers.StringRelatedField()
     country = serializers.CharField(source='country.name', read_only=True)
 
     class Meta:

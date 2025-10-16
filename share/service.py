@@ -2,7 +2,7 @@ import json
 from typing import Any
 
 from django.contrib.auth.models import User
-from django.http import Http404
+from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -19,24 +19,30 @@ from subscribe.repository import is_subscribed
 
 
 class ShareService:
-    def __init__(self, request, user_id: int, requested_page: str | None, country_code: str | None):
+    def __init__(
+        self,
+        request: HttpRequest,
+        user_id: int,
+        requested_page: str | None,
+        country_code: str | None,
+    ) -> None:
         self.request = request
         self.user_id = user_id
         self.requested_page = requested_page
         self.country_code = country_code
-        self.displayed_page = None
+        self.displayed_page: TypeOfSharedPage | None = None
 
-        self.country = None
-        self.country_id = None
+        self.country: str | None = None
+        self.country_id: int | None = None
 
-        self.settings = None
+        self.settings: ShareSettings | None = None
 
-    def handle_redirects_if_needed(self):
+    def handle_redirects_if_needed(self) -> HttpResponseRedirect | None:
         if self.requested_page == TypeOfSharedPage.region_map and not self.country_code:
             return redirect(reverse('share', kwargs={'pk': self.user_id}) + 'region_map?country=RU')
         return None
 
-    def check_permissions_and_get_settings(self):
+    def check_permissions_and_get_settings(self) -> None:
         if not ShareSettings.objects.filter(user=self.user_id).exists():
             raise Http404('No sharing settings found.')
 
@@ -49,20 +55,24 @@ class ShareService:
         ):
             raise Http404('User has disabled all sharing options.')
 
-    def determine_displayed_page(self):
+    def determine_displayed_page(self) -> TypeOfSharedPage:
+        if self.settings is None:
+            raise Http404('Settings not initialized.')
         self.displayed_page = get_displayed_page(self.requested_page, self.settings)
         if not self.displayed_page:
             raise Http404('No available page to display.')
         return self.displayed_page
 
-    def maybe_redirect_to_valid_page(self):
+    def maybe_redirect_to_valid_page(self) -> HttpResponseRedirect | None:
         if self.displayed_page != self.requested_page:
+            if self.displayed_page is None:
+                return None
             # if self.displayed_page == TypeOfSharedPage.dashboard:
             #     return redirect('share', pk=self.user_id, requested_page=self.displayed_page.value)
             return redirect('share', pk=self.user_id, requested_page=self.displayed_page.value)
         return None
 
-    def resolve_country_if_needed(self):
+    def resolve_country_if_needed(self) -> None:
         if self.displayed_page == TypeOfSharedPage.region_map:
             try:
                 country = Country.objects.get(code=self.country_code)
@@ -72,7 +82,11 @@ class ShareService:
                 raise Http404('Country does not exist.')
 
     def get_context(self) -> dict[str, Any]:
+        if self.settings is None:
+            raise Http404('Settings not initialized.')
+
         user = User.objects.get(pk=self.user_id)
+        current_user_id = self.request.user.id if self.request.user.is_authenticated else 0
         context: dict[str, Any] = {
             'country_code': self.country_code,
             'username': user.username,
@@ -82,7 +96,7 @@ class ShareService:
             'can_share_city_map': self.settings.can_share_city_map,
             'can_share_region_map': self.settings.can_share_region_map,
             'can_subscribe': self.settings.can_subscribe,
-            'is_subscribed': is_subscribed(self.request.user.id, self.user_id),
+            'is_subscribed': is_subscribed(current_user_id, self.user_id),
             'page_title': f'Статистика пользователя {user.username}',
             'page_description': f'Статистика посещённых городов и регионов пользователя {user.username}',
         }
@@ -112,7 +126,9 @@ class ShareService:
         return f'share/{self.displayed_page}.html'
 
 
-def get_displayed_page(requested_page: str, settings: ShareSettings) -> TypeOfSharedPage | None:
+def get_displayed_page(
+    requested_page: str | None, settings: ShareSettings
+) -> TypeOfSharedPage | None:
     """
     Возвращает страницу, которую нужно отобразить на основе запроса и доступных настроек.
     Приоритет: сначала пробуем запрошенную, затем альтернативные по заранее заданному порядку.

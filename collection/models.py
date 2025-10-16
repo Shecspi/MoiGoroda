@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.db import models
-from django.shortcuts import reverse
+from django.urls import reverse
 
 from city.models import City
 
@@ -21,11 +21,11 @@ class Collection(models.Model):
     )
     city = models.ManyToManyField(City, related_name='collections_list')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
-    def get_absolute_url(self):
-        return reverse('collection-detail-list', kwargs={'pk': self.pk})
+    def get_absolute_url(self) -> str:
+        return str(reverse('collection-detail-list', kwargs={'pk': self.pk}))
 
     class Meta:
         ordering = ['title']

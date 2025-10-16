@@ -9,9 +9,10 @@ Licensed under the Apache License, Version 2.0
 """
 
 import datetime
+from typing import Any
 
 from services.calculate import calculate_ratio
-from services.db.statistics.visited_city import *
+from services.db.statistics.visited_city import get_number_of_cities
 from services.db.statistics.visited_region import get_number_of_regions
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
@@ -21,7 +22,7 @@ from services.word_modifications.region import (
 )
 
 
-def get_fake_statistics() -> dict:
+def get_fake_statistics() -> dict[str, Any]:
     """
     Возвращает словарь, в котором находятся поддельные данные для использования на странице личной статистики.
     """

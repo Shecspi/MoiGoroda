@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from region.models import Region
@@ -7,7 +8,7 @@ from region.serializers import RegionSerializer, RegionSearchParamsSerializer
 
 
 @api_view(['GET'])
-def region_list_by_country(request):
+def region_list_by_country(request: Request) -> Response:
     country_id = request.GET.get('country_id')
     if not country_id:
         return Response(
@@ -22,7 +23,7 @@ def region_list_by_country(request):
 
 
 @api_view(['GET'])
-def search_region(request):
+def search_region(request: Request) -> Response:
     serializer = RegionSearchParamsSerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)
 

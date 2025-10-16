@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Any
 
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models import Avg, F, Count
@@ -22,7 +22,7 @@ class VisitedCityRepository(AbstractVisitedCityRepository):
         """
         Возвращает количество посещений города city указанным пользователем user.
         """
-        return VisitedCity.objects.filter(city_id=city_id, user=user).count()
+        return VisitedCity.objects.filter(city_id=city_id, user=user).count()  # type: ignore[misc]
 
     def count_all_visits(self, city_id: int) -> int:
         """
@@ -43,17 +43,18 @@ class VisitedCityRepository(AbstractVisitedCityRepository):
             .values_list('month', flat=True)[:3]
         )
 
-    def get_user_visits(self, city_id: int, user: AbstractBaseUser) -> Sequence[dict]:
+    def get_user_visits(self, city_id: int, user: AbstractBaseUser) -> Sequence[dict[str, Any]]:
         """
         Возвращает список всех посещений города city пользователем user.
         Возвращаются поля id, date_of_visit, rating, impression, city__title.
         """
-        return list(
-            VisitedCity.objects.filter(user=user, city_id=city_id)
+        queryset = (
+            VisitedCity.objects.filter(user=user, city_id=city_id)  # type: ignore[misc]
             .select_related('city')
             .order_by(F('date_of_visit').desc(nulls_last=True))
             .values('id', 'date_of_visit', 'rating', 'impression', 'city__title')
         )
+        return list(queryset)  # type: ignore[arg-type]
 
     def get_number_of_users_who_visit_city(self, city_id: int) -> int:
         """

@@ -1,111 +1,174 @@
 name: Deploy to the server
 on:
-  push:
-    branches: ["master"]
-  release:
-    types: [published]
+    push:
+        branches: ["master"]
+    release:
+        types: [published]
 
 jobs:
-  changelog:
-    name: Generate changelog
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    changelog:
+        name: Generate changelog
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-      - name: Generate a changelog
-        uses: orhun/git-cliff-action@v4
-        with:
-          config: cliff.toml
-          args: --verbose
-        env:
-          OUTPUT: CHANGELOG.md
-          GITHUB_REPO: ${{ github.repository }}
+            - name: Generate a changelog
+              uses: orhun/git-cliff-action@v4
+              with:
+                  config: cliff.toml
+                  args: --verbose
+              env:
+                  OUTPUT: CHANGELOG.md
+                  GITHUB_REPO: ${{ github.repository }}
 
-      - name: Commit the genereted changelog
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-          set +e
-          git switch master
-          git add CHANGELOG.md
-          git commit -m "Обновление CHANGELOG.md"
-          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git master
-#  test:
-#    needs: changelog
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v1
-#
-#      - name: Set up Python
-#        uses: actions/setup-python@v1
-#        with:
-#          python-version: '3.12'
-#
-#      - name: Create .env file
-#        run: cp MoiGoroda/.env.example MoiGoroda/.env
-#
-#      - name: Poetry install
-#        uses: snok/install-poetry@v1
-#        with:
-#          version: 1.8.2
-#          virtualenvs-create: true
-#          virtualenvs-in-project: true
-#
-#      - name: Set up Poetry
-#        run: poetry install --no-interaction --no-root && poetry install --no-interaction
-#
-#      - name: Test with pytest
-#        run: poetry run python manage.py migrate && poetry run pytest
-  deploy:
-#    needs: test
-    runs-on: [self-hosted, prod]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Get all git tags
-        run: git fetch --tags --force
-        
-      - name: Deploy to the server
-        run: |
-          : # Переходим в папку с проектом
-          cd ${{ secrets.PROD__PROJECT_PATH }}
-          
-          git pull origin master
-          git checkout master
-          
-          : # Устанавливаем необходимую версию Python, если она ещё не установлена
-          if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
-          
-          : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
-          : # которая указана в .python-version
-          if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
-          poetry env use $(cat .python-version)
-          poetry lock
-          poetry install --only main
-          
-          : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
-          : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
-          : # Имя папки может меняться, поэтому нужен такой ход.
-          rm -f ~/gunicorn
-          ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
-          
-          poetry run python3 manage.py migrate
-          
-          # Собираем JS файлы
-          cd frontend
-          npm ci
-          npm run build
-          cd ../
-          
-          : # Производим сборку статичных файлов
-          chmod +x ./scripts/collectstatic.sh
-          ./scripts/collectstatic.sh
-          chmod -x ./scripts/collectstatic.sh
-          
-          : # Перезагружаем сервер
-          chmod +x ./scripts/restart.sh
-          export SUDO_PASSWORD=${{ secrets.PROD__SUDO_PASSWORD }}
-          ./scripts/restart.sh
-          chmod -x ./scripts/restart.sh
+            - name: Commit the genereted changelog
+              run: |
+                  git config user.name 'github-actions[bot]'
+                  git config user.email 'github-actions[bot]@users.noreply.github.com'
+                  set +e
+                  git switch master
+                  git add CHANGELOG.md
+                  git commit -m "Обновление CHANGELOG.md"
+                  git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git master
+
+    test:
+        name: Run tests
+        needs: changelog
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Create .env file
+              run: cp MoiGoroda/.env.example MoiGoroda/.env
+
+            - name: Install Poetry
+              uses: snok/install-poetry@v1
+              with:
+                  version: 1.8.2
+                  virtualenvs-create: true
+                  virtualenvs-in-project: true
+
+            - name: Install dependencies
+              run: poetry install --no-interaction --with test
+
+            - name: Run migrations
+              run: poetry run python manage.py migrate
+
+            - name: Run tests
+              run: poetry run pytest
+
+    mypy:
+        name: Type checking with mypy
+        needs: changelog
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install Poetry
+              uses: snok/install-poetry@v1
+              with:
+                  version: 1.8.2
+                  virtualenvs-create: true
+                  virtualenvs-in-project: true
+
+            - name: Install dependencies
+              run: poetry install --no-interaction --with dev
+
+            - name: Run mypy
+              run: poetry run mypy .
+
+    ruff:
+        name: Linting with ruff
+        needs: changelog
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install Poetry
+              uses: snok/install-poetry@v1
+              with:
+                  version: 1.8.2
+                  virtualenvs-create: true
+                  virtualenvs-in-project: true
+
+            - name: Install dependencies
+              run: poetry install --no-interaction --with dev
+
+            - name: Run ruff check
+              run: poetry run ruff check .
+
+            - name: Run ruff format check
+              run: poetry run ruff format --check .
+
+    deploy:
+        name: Deploy to server
+        needs: [test, mypy, ruff]
+        runs-on: [self-hosted, prod]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Get all git tags
+              run: git fetch --tags --force
+
+            - name: Deploy to the server
+              run: |
+                  : # Переходим в папку с проектом
+                  cd ${{ secrets.PROD__PROJECT_PATH }}
+
+                  git pull origin master
+                  git checkout master
+
+                  : # Устанавливаем необходимую версию Python, если она ещё не установлена
+                  if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
+
+                  : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
+                  : # которая указана в .python-version
+                  if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
+                  poetry env use $(cat .python-version)
+                  poetry lock
+                  poetry install --only main
+
+                  : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
+                  : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
+                  : # Имя папки может меняться, поэтому нужен такой ход.
+                  rm -f ~/gunicorn
+                  ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
+
+                  poetry run python3 manage.py migrate
+
+                  # Собираем JS файлы
+                  cd frontend
+                  npm ci
+                  npm run build
+                  cd ../
+
+                  : # Производим сборку статичных файлов
+                  chmod +x ./scripts/collectstatic.sh
+                  ./scripts/collectstatic.sh
+                  chmod -x ./scripts/collectstatic.sh
+
+                  : # Перезагружаем сервер
+                  chmod +x ./scripts/restart.sh
+                  export SUDO_PASSWORD=${{ secrets.PROD__SUDO_PASSWORD }}
+                  ./scripts/restart.sh
+                  chmod -x ./scripts/restart.sh

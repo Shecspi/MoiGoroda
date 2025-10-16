@@ -44,7 +44,7 @@ def filter_visited(queryset: QuerySet[City]) -> QuerySet[City]:
     :param queryset: QuerySet объектов City.
     :return: QuerySet с городами, у которых is_visited=True.
     """
-    return queryset.filter(is_visited=True)
+    return queryset.filter(is_visited=True)  # type: ignore[misc]
 
 
 def filter_not_visited(queryset: QuerySet[City]) -> QuerySet[City]:
@@ -54,7 +54,7 @@ def filter_not_visited(queryset: QuerySet[City]) -> QuerySet[City]:
     :param queryset: QuerySet объектов City.
     :return: QuerySet с городами, у которых is_visited=False.
     """
-    return queryset.filter(is_visited=False)
+    return queryset.filter(is_visited=False)  # type: ignore[misc]
 
 
 FILTER_FUNCTIONS: dict[str, Callable[[QuerySet[City]], QuerySet[City]]] = {

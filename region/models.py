@@ -35,7 +35,7 @@ class Area(models.Model):
         verbose_name = 'Федеральный округ'
         verbose_name_plural = 'Федеральные округа'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
 
@@ -47,7 +47,7 @@ class RegionType(models.Model):
         verbose_name_plural = 'Типы регионов'
         ordering = ['title']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
 
@@ -79,8 +79,8 @@ class Region(models.Model):
         verbose_name_plural = 'Регионы'
         unique_together = ('title', 'type')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.full_name
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse('region-selected-list', kwargs={'pk': self.pk})

@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
 # Application definition
 
@@ -333,6 +333,8 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = 'unsafe-none'
 URL_GEO_POLYGONS = os.getenv('URL_GEO_POLYGONS')
 PRIVACY_POLICY_VERSION = os.getenv('PRIVACY_POLICY_VERSION')
 
-ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS = ' '.join(
-    os.getenv('ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS').split(',')
+ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS = (
+    ' '.join(os.getenv('ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS', '').split(','))
+    if os.getenv('ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS')
+    else ''
 )

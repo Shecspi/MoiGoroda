@@ -39,7 +39,7 @@ class DjangoSubscribeRepository(AbstractSubscribeRepository):
     def check(self, from_id: int, to_id: int) -> bool:
         return Subscribe.objects.filter(subscribe_from_id=from_id, subscribe_to_id=to_id).exists()
 
-    def get_all(self, from_id: int):
+    def get_all(self, from_id: int) -> list[dict[str, int | str]]:
         return [
             {'to_id': s.subscribe_to_id, 'username': s.subscribe_to.username}
             for s in Subscribe.objects.filter(subscribe_from_id=from_id).select_related(
@@ -137,12 +137,13 @@ class DjangoNotificationRepository(AbstractNotificationRepository):
         Returns:
             Notification: Доменная сущность уведомления.
         """
+        region = obj.city.region
         return Notification(
             id=obj.id,
             city_id=obj.city_id,
             city_title=obj.city.title,
-            region_id=obj.city.region.id,
-            region_title=obj.city.region.full_name,
+            region_id=region.id if region else 0,
+            region_title=region.full_name if region else '',
             country_code=obj.city.country.code,
             country_title=obj.city.country.name,
             is_read=obj.is_read,

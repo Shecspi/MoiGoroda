@@ -12,7 +12,9 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
+# mypy: disable-error-code="no-untyped-def,type-arg,var-annotated,assignment,misc,union-attr,arg-type,no-any-return"
 
+from typing import Any
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -35,10 +37,9 @@ from region.services.db import (
 from region.services.filter import apply_filter_to_queryset
 from region.services.sort import apply_sort_to_queryset
 from services.morphology import to_genitive
-from utils.RegionListMixin import RegionListMixin
 
 
-class RegionList(RegionListMixin, ListView):
+class RegionList(ListView):
     """
     Отображает список всех регионов с указанием количества городов в регионе.
     Для авторизованных пользователей также указывается количество посещённых городов с прогресс-баром.
@@ -208,7 +209,7 @@ class CitiesByRegionList(ListView):
 
         return super().get(*args, **kwargs)
 
-    def get_queryset(self) -> QuerySet[dict]:
+    def get_queryset(self) -> Any:
         """
         Формирование списка городов в регионе.
         Фильтрует и сортирует данные в зависимости от параметров запроса.

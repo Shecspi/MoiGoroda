@@ -8,13 +8,15 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import Any
+
 from django.db.models import Count, F, FloatField, Q, QuerySet
 from django.db.models.functions import Cast
 
 from region.models import Area
 
 
-def get_visited_areas(user_id: int) -> QuerySet:
+def get_visited_areas(user_id: int) -> QuerySet[Any]:
     """
     Возвращает последовательность федеральных округов из БД, которая имеет дополнительные поля:
      - total_regions: количество регионов в федеральном округе;
@@ -30,7 +32,7 @@ def get_visited_areas(user_id: int) -> QuerySet:
             total_regions=Count('region', distinct=True),
             # Добавляем в QuerySet количество посещённых регионов в округе
             visited_regions=Count(
-                'region', filter=Q(region__visitedcity__user__id=user_id), distinct=True
+                'region', filter=Q(region__city__visitedcity__user__id=user_id), distinct=True
             ),
             # Добавляем в QuerySet процентное соотношение посещённых регионов.
             # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.

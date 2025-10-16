@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 from region.services.db import (
     get_all_region_with_visited_cities,
@@ -6,9 +7,6 @@ from region.services.db import (
     get_number_of_visited_regions,
     get_number_of_finished_regions,
 )
-from services.word_modifications.city import *
-from services.word_modifications.region import *
-from services.word_modifications.visited import *
 from city.services.db import (
     get_number_of_new_visited_cities,
     get_number_of_total_visited_cities_by_year,
@@ -28,7 +26,7 @@ from country.repository import (
 )
 
 
-def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
+def get_info_for_statistic_cards_and_charts(user_id: int) -> dict[str, Any]:
     """
     Получает из БД большое количество информации по посещённым городам,
     регионам и округам и возвращает это в виде словаря.
@@ -123,7 +121,9 @@ def get_info_for_statistic_cards_and_charts(user_id: int) -> dict:
     list_of_countries_with_all_visited_regions = [
         country
         for country in list_of_countries_with_visited_regions
-        if country.number_of_regions > 0
+        if hasattr(country, 'number_of_regions')
+        and hasattr(country, 'number_of_visited_regions')
+        and country.number_of_regions > 0
         and country.number_of_regions == country.number_of_visited_regions
     ]
 

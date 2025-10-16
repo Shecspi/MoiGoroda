@@ -6,11 +6,12 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 
 @login_required
-def place(request):
+def place(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         'place/map.html',

@@ -7,7 +7,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def get_excluded_users():
+def get_excluded_users() -> tuple[int, ...]:
     user_ids = tuple(
         AdvertisementException.objects.filter(deadline__gte=datetime.now()).values_list(
             'user__id', flat=True

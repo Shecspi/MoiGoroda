@@ -25,7 +25,7 @@ def is_subscribed(subscribe_from_id: int, subscribe_to_id: int) -> bool:
         return True
 
 
-def get_all_subscriptions(from_id: int) -> list:
+def get_all_subscriptions(from_id: int) -> list[dict[str, int | str]]:
     subscriptions = Subscribe.objects.filter(subscribe_from_id=from_id)
 
     return [

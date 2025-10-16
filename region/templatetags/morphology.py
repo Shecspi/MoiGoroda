@@ -13,37 +13,37 @@ register = template.Library()
 
 
 @register.filter
-def nominative(value):
+def nominative(value: str) -> str:
     return to_nominative(value)
 
 
 @register.filter
-def genitive(value):
+def genitive(value: str) -> str:
     return to_genitive(value)
 
 
 @register.filter
-def dative(value):
+def dative(value: str) -> str:
     return to_dative(value)
 
 
 @register.filter
-def accusative(value):
+def accusative(value: str) -> str:
     return to_accusative(value)
 
 
 @register.filter
-def instrumental(value):
+def instrumental(value: str) -> str:
     return to_instrumental(value)
 
 
 @register.filter
-def prepositional(value):
+def prepositional(value: str) -> str:
     return to_prepositional(value)
 
 
 @register.filter
-def plural_by_num(word, number):
+def plural_by_num(word: str, number: int) -> str:
     """
     Склоняет слово в зависимости от числительного.
     Пример: {{ "страна"|plural_by_num:5 }} → "стран"

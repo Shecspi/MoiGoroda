@@ -11,7 +11,8 @@ from typing import Any, Literal
 
 from django.views.generic import TemplateView
 
-from share.service import ShareService, TypeOfSharedPage
+from share.service import ShareService
+from share.structs import TypeOfSharedPage
 
 
 class Share(TemplateView):
@@ -44,7 +45,7 @@ class Share(TemplateView):
         self.is_subscribed: bool = False
         self.country_code: str | None = None
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: Any, *args: Any, **kwargs: Any) -> Any:
         self.service = ShareService(
             request,
             user_id=kwargs['pk'],
@@ -66,9 +67,9 @@ class Share(TemplateView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         super().get_context_data(**kwargs)
         return self.service.get_context()
 
-    def get_template_names(self) -> str:
-        return self.service.get_template_name()
+    def get_template_names(self) -> list[str]:
+        return [self.service.get_template_name()]

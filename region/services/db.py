@@ -8,7 +8,9 @@ Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
 """
+# mypy: disable-error-code="misc,arg-type,type-arg"
 
+from typing import Any
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
@@ -215,7 +217,7 @@ def get_number_of_finished_regions(user_id: int, country_id: int | None = None) 
     return queryset.filter(num_total=F('num_visited')).count()
 
 
-def get_visited_areas(user_id: int) -> QuerySet:
+def get_visited_areas(user_id: int) -> QuerySet[Any]:
     """
     Возвращает последовательность федеральных округов из БД, которая имеет дополнительные поля:
      - total_regions: количество регионов в федеральном округе;
@@ -231,7 +233,7 @@ def get_visited_areas(user_id: int) -> QuerySet:
             total_regions=Count('region', distinct=True),
             # Добавляем в QuerySet количество посещённых регионов в округе
             visited_regions=Count(
-                'region', filter=Q(region__visitedcity__user__id=user_id), distinct=True
+                'region', filter=Q(region__city__visitedcity__user__id=user_id), distinct=True
             ),
             # Добавляем в QuerySet процентное соотношение посещённых регионов.
             # Без Cast(..., output_field=...) деление F() на F() выдаёт int, то есть очень сильно теряется точность.

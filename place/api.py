@@ -15,7 +15,7 @@ class GetCategory(generics.ListAPIView[Category]):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
     serializer_class = CategorySerializer
-    queryset = Category.objects.all().order_by('name')
+    queryset = Category.objects.all().order_by('name')  # type: ignore[assignment]
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         logger.info(

@@ -13,22 +13,22 @@ from abc import ABC, abstractmethod
 from io import StringIO, BytesIO
 from typing import Sequence
 
-import openpyxl
+import openpyxl  # type: ignore[import-untyped]
 
 
 class Serializer(ABC):
     @abstractmethod
-    def convert(self, report): ...
+    def convert(self, report: Sequence[tuple[str | int | float, ...]]) -> StringIO | BytesIO: ...
 
     @abstractmethod
-    def content_type(self): ...
+    def content_type(self) -> str: ...
 
     @abstractmethod
-    def filetype(self): ...
+    def filetype(self) -> str: ...
 
 
 class TxtSerializer(Serializer):
-    def convert(self, report: list[tuple[str]]) -> StringIO:
+    def convert(self, report: Sequence[tuple[str | int | float, ...]]) -> StringIO:
         buffer = StringIO()
         number_of_symbols = self.__get_max_length(report)
         for report_line in report:
@@ -36,7 +36,7 @@ class TxtSerializer(Serializer):
         return buffer
 
     @staticmethod
-    def __get_max_length(row: Sequence[Sequence]) -> list[int]:
+    def __get_max_length(row: Sequence[Sequence[str | int | float]]) -> list[int]:
         """
         Определяет максимальную длину элементов, расположенных в одном столбике многомерного массива.
         Возвращает список с максимальными длинами для каждого столбика.
@@ -48,7 +48,9 @@ class TxtSerializer(Serializer):
         return number_of_symbols
 
     @staticmethod
-    def __get_formated_row(row: Sequence, number_of_symbols: Sequence[int]) -> str:
+    def __get_formated_row(
+        row: Sequence[str | int | float], number_of_symbols: Sequence[int]
+    ) -> str:
         formated_row = ''
         for index, value in enumerate(row):
             formated_row += f'{value:<{number_of_symbols[index] + 5}}'
@@ -62,7 +64,7 @@ class TxtSerializer(Serializer):
 
 
 class CsvSerializer(Serializer):
-    def convert(self, report: list[tuple]) -> StringIO:
+    def convert(self, report: Sequence[tuple[str | int | float, ...]]) -> StringIO:
         csv_buffer = StringIO()
         csv_writer = csv.writer(csv_buffer, delimiter=',', lineterminator='\n')
         for line in report:
@@ -77,7 +79,7 @@ class CsvSerializer(Serializer):
 
 
 class XlsSerializer(Serializer):
-    def convert(self, report: list[tuple]) -> BytesIO:
+    def convert(self, report: Sequence[tuple[str | int | float, ...]]) -> BytesIO:
         workbook = openpyxl.Workbook()
         buffer = BytesIO()
         worksheet = workbook.active
@@ -95,7 +97,7 @@ class XlsSerializer(Serializer):
 
 
 class JsonSerializer(Serializer):
-    def convert(self, report: list[tuple]) -> StringIO:
+    def convert(self, report: Sequence[tuple[str | int | float, ...]]) -> StringIO:
         buffer = StringIO()
         json.dump(report, buffer, indent=4, ensure_ascii=False)
         return buffer

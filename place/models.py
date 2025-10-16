@@ -14,7 +14,7 @@ class TagOSM(models.Model):
         max_length=255, blank=False, null=False, unique=False, verbose_name='Название'
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     class Meta:
@@ -28,7 +28,7 @@ class Category(models.Model):
     )
     tags = models.ManyToManyField(TagOSM, blank=True, verbose_name='Теги OpenStreetMap')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     class Meta:

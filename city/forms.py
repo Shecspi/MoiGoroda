@@ -9,9 +9,9 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any
 
-from crispy_forms.bootstrap import InlineRadios
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Submit, HTML
+from crispy_forms.bootstrap import InlineRadios  # type: ignore[import-untyped]
+from crispy_forms.helper import FormHelper  # type: ignore[import-untyped]
+from crispy_forms.layout import Layout, Row, Column, Submit, HTML  # type: ignore[import-untyped]
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
@@ -21,7 +21,7 @@ from country.models import Country
 from region.models import Region
 
 
-class VisitedCity_Create_Form(ModelForm):
+class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
     CHOICES = [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5')]
     rating = forms.ChoiceField(
         label='Оценка города',
@@ -84,20 +84,22 @@ class VisitedCity_Create_Form(ModelForm):
         # По-умолчанию элемент <select> для выбора городов - пустой, пока не будет выбран регион.
         # Но при загрузке страницы после возникновения ошибки - поле заполняется списком городов.
         if not self.errors:
-            self.fields['city'].queryset = City.objects.none()
+            self.fields['city'].queryset = City.objects.none()  # type: ignore[attr-defined]
 
         # Код ниже необходим для корректной обработки формы после подгрузки списка городов.
         # Так как по-умолчанию список городов is None, поэтому его нужно дозагрузить при проверке формы
         if 'region' in self.data:
-            region_id = int(self.data.get('region'))
-            self.fields['city'].queryset = City.objects.filter(region_id=region_id).order_by(
-                'title'
-            )
+            region_id_str = self.data.get('region')
+            if region_id_str:
+                region_id = int(region_id_str)
+                self.fields['city'].queryset = City.objects.filter(region_id=region_id).order_by(  # type: ignore[attr-defined]
+                    'title'
+                )
             # Если форма не отправлена (GET) и есть выбранный город через initial
         elif self.initial.get('city'):
             try:
                 selected_city = City.objects.get(pk=self.initial['city'])
-                self.fields['city'].queryset = City.objects.filter(
+                self.fields['city'].queryset = City.objects.filter(  # type: ignore[attr-defined]
                     region=selected_city.region
                 ).order_by('title')
                 self.initial['region'] = (
@@ -106,26 +108,26 @@ class VisitedCity_Create_Form(ModelForm):
             except City.DoesNotExist:
                 pass
         elif self.instance.pk:
-            self.fields['city'].queryset = self.instance.region.city_set.order_by('title')
+            self.fields['city'].queryset = self.instance.region.city_set.order_by('title')  # type: ignore[attr-defined]
 
         # Ограничиваем список регионов только регионами выбранной страны
         # По умолчанию отображаем показываем регионы России
         country_id = self.initial.get('country')
         if country_id:
             try:
-                country_id = int(country_id)
-                self.fields['region'].queryset = Region.objects.filter(
-                    country_id=country_id
+                country_id_int = int(country_id)
+                self.fields['region'].queryset = Region.objects.filter(  # type: ignore[attr-defined]
+                    country_id=country_id_int
                 ).order_by('title')
 
-                if not self.fields['region'].queryset.exists():
+                if not self.fields['region'].queryset.exists():  # type: ignore[attr-defined]
                     self.fields['region'].disabled = True
                 else:
                     self.fields['region'].disabled = False
             except (ValueError, TypeError):
-                self.fields['region'].queryset = Region.objects.none()
+                self.fields['region'].queryset = Region.objects.none()  # type: ignore[attr-defined]
         else:
-            self.fields['region'].queryset = Region.objects.filter(country_id=171)
+            self.fields['region'].queryset = Region.objects.filter(country_id=171)  # type: ignore[attr-defined]
 
         # По-умолчанию делаем Россию выбранной страной
         if not self.initial.get('country'):
@@ -135,15 +137,15 @@ class VisitedCity_Create_Form(ModelForm):
             except Country.DoesNotExist:
                 pass
 
-        self.fields['region'].empty_label = 'Выберите регион'
-        self.fields['city'].empty_label = 'Выберите город'
+        self.fields['region'].empty_label = 'Выберите регион'  # type: ignore[attr-defined]
+        self.fields['city'].empty_label = 'Выберите город'  # type: ignore[attr-defined]
 
     def clean_city(self) -> City:
         """
         Проверка корректности заполнения поля 'City'.
         Не допускается создание записей с одинаковыми 'user', 'region', 'city' и 'date_of_visit'.
         """
-        city = self.cleaned_data['city']
+        city: City = self.cleaned_data['city']
         date_of_visit = self.cleaned_data['date_of_visit']
 
         # Для того чтобы во время редактирования не проверялось существование аналогичной записи,
@@ -157,7 +159,7 @@ class VisitedCity_Create_Form(ModelForm):
 
         if db_city.exists():
             raise ValidationError(
-                f'Город "{city}" уже был отмечен Вами как посещённый {date_of_visit.strftime('%d.%m.%Y') if date_of_visit else "без указания даты"}'
+                f'Город "{city}" уже был отмечен Вами как посещённый {date_of_visit.strftime("%d.%m.%Y") if date_of_visit else "без указания даты"}'
             )
 
         return city
@@ -172,4 +174,4 @@ class VisitedCity_Create_Form(ModelForm):
         if rating < 1 or rating > 5:
             raise ValidationError('Оценка должна быть в диапазоне от 1 до 5.')
 
-        return rating
+        return str(rating)

@@ -7,12 +7,16 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from __future__ import annotations
+
 from datetime import timedelta, date, timezone
+from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, OuterRef, Subquery
 from django.contrib.auth.models import User
 from django.db.models.functions import TruncDay, TruncDate
+from django.http import HttpRequest, HttpResponseBase
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
@@ -22,13 +26,13 @@ from city.models import VisitedCity
 class Dashboard(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         if not self.request.user.is_superuser:
             return redirect('main_page')
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         # Всего пользователей
@@ -36,7 +40,7 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 
         # Количество регистраций вчера
         context['qty_registrations_yesteday'] = User.objects.filter(
-            date_joined__contains=date.today() - timedelta(days=1)
+            date_joined__date=date.today() - timedelta(days=1)
         ).count()
 
         # Количество регистраций за неделю (не учитывая сегодня)

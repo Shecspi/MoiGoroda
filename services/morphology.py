@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pymorphy3 import MorphAnalyzer
+from pymorphy3 import MorphAnalyzer  # type: ignore[import-untyped]
 
 morph = MorphAnalyzer()
 

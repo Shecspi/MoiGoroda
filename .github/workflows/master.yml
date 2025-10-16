@@ -38,6 +38,22 @@ jobs:
         name: Run tests
         needs: changelog
         runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:15
+                env:
+                    POSTGRES_USER: test_user
+                    POSTGRES_PASSWORD: test_password
+                    POSTGRES_DB: test_db
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -48,7 +64,16 @@ jobs:
                   python-version: "3.12"
 
             - name: Create .env file
-              run: cp MoiGoroda/.env.example MoiGoroda/.env
+              run: |
+                  cp MoiGoroda/.env.example MoiGoroda/.env
+                  # Настраиваем PostgreSQL для тестов
+                  sed -i 's/DATABASE_ENGINE=django.db.backends.sqlite3/DATABASE_ENGINE=django.db.backends.postgresql/' MoiGoroda/.env
+                  sed -i 's/DATABASE_NAME=db_name/DATABASE_NAME=test_db/' MoiGoroda/.env
+                  sed -i 's/DATABASE_USER=user_name/DATABASE_USER=test_user/' MoiGoroda/.env
+                  sed -i 's/DATABASE_PASSWORD=password/DATABASE_PASSWORD=test_password/' MoiGoroda/.env
+                  sed -i 's/DATABASE_HOST=127.0.0.1/DATABASE_HOST=localhost/' MoiGoroda/.env
+                  # Устанавливаем переменную для тестового режима
+                  echo "TESTING=True" >> MoiGoroda/.env
 
             - name: Install Poetry
               uses: snok/install-poetry@v1

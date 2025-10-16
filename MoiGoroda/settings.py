@@ -16,10 +16,11 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Загружаем .env файл из директории с settings.py
+load_dotenv(Path(__file__).resolve().parent / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -114,8 +115,19 @@ DATABASES = {
     }
 }
 
-if 'test' in sys.argv:
-    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3', 'NAME': 'mydatabase'}
+# Определяем, запущены ли тесты (через manage.py test, pytest или переменную окружения)
+TESTING = 'test' in sys.argv or 'pytest' in sys.modules or os.getenv('TESTING') == 'True'
+
+if TESTING:
+    # Включаем DEBUG для тестов, чтобы работал vite_asset с dev URL
+    DEBUG = True
+
+    # Используем SQLite только если БД не настроена в .env или явно указана SQLite
+    if (
+        not os.getenv('DATABASE_ENGINE')
+        or os.getenv('DATABASE_ENGINE') == 'django.db.backends.sqlite3'
+    ):
+        DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3', 'NAME': 'mydatabase'}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

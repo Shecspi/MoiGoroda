@@ -37,10 +37,9 @@ from region.services.db import (
 from region.services.filter import apply_filter_to_queryset
 from region.services.sort import apply_sort_to_queryset
 from services.morphology import to_genitive
-from utils.RegionListMixin import RegionListMixin
 
 
-class RegionList(RegionListMixin, ListView):
+class RegionList(ListView):
     """
     Отображает список всех регионов с указанием количества городов в регионе.
     Для авторизованных пользователей также указывается количество посещённых городов с прогресс-баром.

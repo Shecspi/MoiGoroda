@@ -21,9 +21,16 @@
 
 - *(place)* Список категорий теперь возращается в алфавитном порядке ([45fe481](https://github.com/Shecspi/MoiGoroda/commit/45fe481f3b58e3d444ac94dfe1a40505f6899bca))
 
+- Добавлена проверка владельца записи в VisitedCity_Update ([8cae5eb](https://github.com/Shecspi/MoiGoroda/commit/8cae5eb8f62463a9ba3ab4bf0bd6bbd142ef8ada))
+
 - Добавлена проверка владельца записи в VisitedCity_Update ([12b8aaa](https://github.com/Shecspi/MoiGoroda/commit/12b8aaa84c2b953e51803c014f651ee2e9c01eae))
 
 - Добавлена проверка владельца записи в VisitedCity_Update ([5f6bb2a](https://github.com/Shecspi/MoiGoroda/commit/5f6bb2aae4eba04dab4bcfe46c75c59474117271))
+
+
+#### 🚜 Рефакторинг
+
+- Рефакторинг тестов и улучшения инфраструктуры проекта ([88a3c03](https://github.com/Shecspi/MoiGoroda/commit/88a3c038bc27b682a6eb3d9b73ff19a15cba26bd))
 
 
 #### 🎨 Дизайн

@@ -118,16 +118,29 @@ DATABASES = {
 # Определяем, запущены ли тесты (через manage.py test, pytest или переменную окружения)
 TESTING = 'test' in sys.argv or 'pytest' in sys.modules or os.getenv('TESTING') == 'True'
 
+# Временная диагностика
+print("=" * 60)
+print("🔧 SETTINGS.PY ЗАГРУЖАЕТСЯ")
+print(f"  'test' in sys.argv: {'test' in sys.argv}")
+print(f"  'pytest' in sys.modules: {'pytest' in sys.modules}")
+print(f"  os.getenv('TESTING'): {os.getenv('TESTING')}")
+print(f"  TESTING variable: {TESTING}")
+print(f"  DEBUG before TESTING block: {DEBUG}")
+print("=" * 60)
+
 if TESTING:
     # Включаем DEBUG для тестов, чтобы работал vite_asset с dev URL
     DEBUG = True
-
+    print(f"✅ TESTING=True, DEBUG установлен в: {DEBUG}")
+    
     # Используем SQLite только если БД не настроена в .env или явно указана SQLite
     if (
         not os.getenv('DATABASE_ENGINE')
         or os.getenv('DATABASE_ENGINE') == 'django.db.backends.sqlite3'
     ):
         DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3', 'NAME': 'mydatabase'}
+else:
+    print(f"❌ TESTING=False, DEBUG остается: {DEBUG}")
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

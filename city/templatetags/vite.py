@@ -25,6 +25,15 @@ def get_manifest() -> dict[str, Any]:
 
 @register.simple_tag
 def vite_asset(name: str) -> SafeString:
+    # Временная диагностика для отладки
+    import os
+    import sys
+    print(f"🔍 vite_asset called for: {name}")
+    print(f"  settings.DEBUG: {settings.DEBUG}")
+    print(f"  os.getenv('DEBUG'): {os.getenv('DEBUG')}")
+    print(f"  os.getenv('TESTING'): {os.getenv('TESTING')}")
+    print(f"  'pytest' in sys.modules: {'pytest' in sys.modules}")
+    
     if settings.DEBUG:
         return mark_safe(f'<script type="module" src="http://localhost:5173/{name}"></script>')
 

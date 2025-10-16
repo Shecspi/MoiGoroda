@@ -97,7 +97,7 @@ jobs:
               run: poetry run python manage.py migrate
 
             - name: Run tests
-              run: poetry run pytest account/tests/e2e/test_share_settings_flow.py::test_enable_all_share_settings_flow -v
+              run: poetry run pytest account/tests/e2e/test_share_settings_flow.py::test_enable_all_share_settings_flow -v -s
 
     mypy:
         name: Type checking with mypy

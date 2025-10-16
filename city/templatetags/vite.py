@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -25,12 +26,9 @@ def get_manifest() -> dict[str, Any]:
 
 @register.simple_tag
 def vite_asset(name: str) -> SafeString:
-    import os
-    
-    # Django test runner принудительно устанавливает DEBUG=False
-    # Поэтому проверяем также TESTING из переменных окружения
+    # Django test runner принудительно устанавливает DEBUG=False, проверяем TESTING
     is_testing = os.getenv('TESTING') == 'True'
-    
+
     if settings.DEBUG or is_testing:
         return mark_safe(f'<script type="module" src="http://localhost:5173/{name}"></script>')
 

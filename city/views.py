@@ -149,13 +149,13 @@ class VisitedCity_Delete(LoginRequiredMixin, DeleteView):  # type: ignore
             raise Http404
 
         self.object = self.get_object()
-        self.city_id = self.object.city.id
 
         logger.info(self.request, f'(Visited city) Deleting the visited city #{self.kwargs["pk"]}')
-        return self.delete(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
-    def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        response = super().delete(request, *args, **kwargs)
+    def form_valid(self, form: Any) -> HttpResponse:
+        """Выполняет удаление объекта и дополнительную логику обновления флагов посещения."""
+        response = super().form_valid(form)
         if isinstance(self.request.user, AbstractBaseUser):
             set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
 

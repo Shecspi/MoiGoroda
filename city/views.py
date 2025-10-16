@@ -180,17 +180,6 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):  # type: ignore[type-a
     form_class = VisitedCity_Create_Form
     template_name = 'city/city_create.html'
 
-    def get_object(self, queryset: QuerySet[VisitedCity] | None = None) -> VisitedCity:
-        """Получаем объект и проверяем, что он принадлежит текущему пользователю."""
-        obj: VisitedCity = super().get_object(queryset)
-        if obj.user != self.request.user:
-            logger.warning(
-                self.request,
-                f'(Visited city) Attempt to update a non-existent visited city #{self.kwargs["pk"]}',
-            )
-            raise Http404
-        return obj
-
     def get_initial(self) -> dict[str, Any]:
         """
         Устанавливает значения формы по умолчанию.

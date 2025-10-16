@@ -90,9 +90,7 @@ class TestGetAllRegions:
         assert hasattr(region_with_count, 'num_total')
         assert region_with_count.num_total >= 1
 
-    def test_orders_by_title(
-        self, test_country: Any, test_region_type: Any
-    ) -> None:
+    def test_orders_by_title(self, test_country: Any, test_region_type: Any) -> None:
         """Тест сортировки по title"""
         Region.objects.create(
             title='Я',
@@ -128,7 +126,11 @@ class TestGetNumberOfRegions:
         initial_count = get_number_of_regions(None)
 
         Region.objects.create(
-            title='Test', full_name='Test', country=test_country, type=test_region_type, iso3166='RU-T1'
+            title='Test',
+            full_name='Test',
+            country=test_country,
+            type=test_region_type,
+            iso3166='RU-T1',
         )
 
         assert get_number_of_regions(None) == initial_count + 1
@@ -397,4 +399,3 @@ class TestGetNumberVisitedAreas:
 
         count = get_number_visited_areas(test_user.id)
         assert count >= 1
-

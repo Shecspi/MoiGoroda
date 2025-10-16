@@ -156,4 +156,3 @@ def test_modification__city_negative() -> None:
     # Функция не обрабатывает отрицательные числа специально
     assert modification__city(-1) == 'город'
     assert modification__city(-5) == 'городов'
-

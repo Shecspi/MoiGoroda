@@ -60,6 +60,7 @@ strict_equality = true
 strict_concatenate = true
 exclude = [
     "^.*/migrations/.*\\.py$",
+    "^manage\\.py$",
 ]
 
 [tool.django-stubs]

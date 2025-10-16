@@ -103,4 +103,3 @@ def test_modification__region__prepositional_case_102() -> None:
 def test_modification__region__prepositional_case_1000() -> None:
     """Тест модификации слова 'регион' (предложный падеж) для числа 1000"""
     assert modification__region__prepositional_case(1000) == 'регионах'
-

@@ -158,4 +158,3 @@ class TestRegionSearchParamsSerializer:
         serializer = RegionSearchParamsSerializer(data=data)
         assert not serializer.is_valid()
         assert 'country' in serializer.errors
-

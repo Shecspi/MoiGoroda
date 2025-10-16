@@ -74,4 +74,3 @@ class TestMorphologyFilters:
         for result in [result_nom, result_gen, result_dat, result_acc, result_inst, result_prep]:
             assert isinstance(result, str)
             assert len(result) > 0
-

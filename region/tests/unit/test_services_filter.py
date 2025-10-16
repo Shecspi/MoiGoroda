@@ -246,9 +246,7 @@ class TestFilterLastYear:
 class TestApplyFilterToQueryset:
     """Тесты для функции apply_filter_to_queryset"""
 
-    def test_raises_key_error_for_unknown_filter(
-        self, test_user: User, test_region: Any
-    ) -> None:
+    def test_raises_key_error_for_unknown_filter(self, test_user: User, test_region: Any) -> None:
         """Тест что выбрасывается KeyError для неизвестного фильтра"""
         from region.services.db import get_all_cities_in_region
 
@@ -291,4 +289,3 @@ class TestFilterFunctionsDict:
         """Тест что все значения в FILTER_FUNCTIONS являются callable"""
         for func in FILTER_FUNCTIONS.values():
             assert callable(func)
-

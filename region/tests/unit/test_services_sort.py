@@ -30,9 +30,7 @@ from region.services.sort import (
 class TestSortByName:
     """Тесты для сортировки по названию"""
 
-    def test_sort_by_name_up(
-        self, test_user: User, test_country: Any, test_region: Any
-    ) -> None:
+    def test_sort_by_name_up(self, test_user: User, test_country: Any, test_region: Any) -> None:
         """Тест сортировки по названию от А до Я"""
         city_a = City.objects.create(
             title='А-город',
@@ -60,9 +58,7 @@ class TestSortByName:
         cities = list(sorted_qs.values_list('title', flat=True))
         assert cities[0] == 'А-город'
 
-    def test_sort_by_name_down(
-        self, test_user: User, test_country: Any, test_region: Any
-    ) -> None:
+    def test_sort_by_name_down(self, test_user: User, test_country: Any, test_region: Any) -> None:
         """Тест сортировки по названию от Я до А"""
         city_a = City.objects.create(
             title='А-город',
@@ -132,7 +128,9 @@ class TestSortByVisitDate:
             sorted_qs.filter(first_visit_date__isnull=False).values('title', 'first_visit_date')
         )
         if len(cities_with_dates) >= 2:
-            assert cities_with_dates[0]['first_visit_date'] >= cities_with_dates[1]['first_visit_date']
+            assert (
+                cities_with_dates[0]['first_visit_date'] >= cities_with_dates[1]['first_visit_date']
+            )
 
     def test_sort_by_last_visit_date_up(
         self, test_user: User, test_country: Any, test_region: Any
@@ -170,7 +168,9 @@ class TestSortByVisitDate:
             sorted_qs.filter(last_visit_date__isnull=False).values('title', 'last_visit_date')
         )
         if len(cities_with_dates) >= 2:
-            assert cities_with_dates[0]['last_visit_date'] <= cities_with_dates[1]['last_visit_date']
+            assert (
+                cities_with_dates[0]['last_visit_date'] <= cities_with_dates[1]['last_visit_date']
+            )
 
 
 @pytest.mark.unit
@@ -268,4 +268,3 @@ class TestSortFunctionsDict:
         """Тест что все значения в SORT_FUNCTIONS являются callable"""
         for func in SORT_FUNCTIONS.values():
             assert callable(func)
-

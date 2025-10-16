@@ -1,9 +1,10 @@
 from datetime import datetime
+from typing import Any
 
 from django.db.models import QuerySet
 
 
-def filter_validation(filter_value: str, valid_filters: tuple) -> str | bool:
+def filter_validation(filter_value: str, valid_filters: tuple[str, ...]) -> str | bool:
     """
     Проверяет, что значение `filter_value` является одним из значений кортежа `valid_filters`.
     """
@@ -13,7 +14,7 @@ def filter_validation(filter_value: str, valid_filters: tuple) -> str | bool:
         return False
 
 
-def apply_filter(queryset: QuerySet, filter_value: str) -> QuerySet:
+def apply_filter(queryset: QuerySet[Any], filter_value: str) -> QuerySet[Any]:
     """
     Добавляет к `queryset` фильтрация, на основе `filter_value`.
     Не проверяет корреткность `filter_value`.

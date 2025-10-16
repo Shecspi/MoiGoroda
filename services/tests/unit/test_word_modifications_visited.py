@@ -95,4 +95,3 @@ def test_modification__visited_negative() -> None:
     """Тест модификации слова для отрицательных чисел"""
     assert modification__visited(-1) == 'посещён'
     assert modification__visited(-2) == 'посещено'
-

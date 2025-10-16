@@ -1,4 +1,3 @@
-
 from django import template
 from services.morphology import (
     to_nominative,

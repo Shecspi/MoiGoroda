@@ -29,19 +29,19 @@ from services import logger
 
 
 class GetPartsOfTheWorld(generics.ListAPIView):  # type: ignore[type-arg]
-    queryset = PartOfTheWorld.objects.all()
+    queryset = PartOfTheWorld.objects.all()  # type: ignore[assignment]
     http_method_names = ['get']
     serializer_class = PartOfTheWorldSerializer
 
 
 class GetLocations(generics.ListAPIView):  # type: ignore[type-arg]
-    queryset = Location.objects.all()
+    queryset = Location.objects.all()  # type: ignore[assignment]
     http_method_names = ['get']
     serializer_class = LocationSerializer
 
 
 class GetAllCountry(generics.ListAPIView):  # type: ignore[type-arg]
-    queryset = Country.objects.all()
+    queryset = Country.objects.all()  # type: ignore[assignment]
     http_method_names = ['get']
     serializer_class = CountrySerializer
 
@@ -73,7 +73,7 @@ class GetVisitedCountry(generics.ListAPIView):  # type: ignore[type-arg]
         )
         return super().get(*args, **kwargs)
 
-    def get_queryset(self) -> QuerySet[VisitedCountry]:
+    def get_queryset(self) -> QuerySet[VisitedCountry]:  # type: ignore[override]
         return VisitedCountry.objects.filter(user=self.request.user)  # type: ignore[misc]
 
 

@@ -260,12 +260,16 @@ class TestEmbeddedMapView:
 
     def test_renders_embedded_map(self, client: Client) -> None:
         """Тест рендеринга встроенной карты"""
-        response = client.get(reverse('region-embedded-map', kwargs={'quality': 'low', 'iso3166': 'RU-MOS'}))
+        response = client.get(
+            reverse('region-embedded-map', kwargs={'quality': 'low', 'iso3166': 'RU-MOS'})
+        )
         assert response.status_code == 200
 
     def test_sets_csp_header(self, client: Client) -> None:
         """Тест что устанавливается Content-Security-Policy заголовок"""
-        response = client.get(reverse('region-embedded-map', kwargs={'quality': 'low', 'iso3166': 'RU-MOS'}))
+        response = client.get(
+            reverse('region-embedded-map', kwargs={'quality': 'low', 'iso3166': 'RU-MOS'})
+        )
         assert 'Content-Security-Policy' in response
 
     def test_accepts_different_quality_levels(self, client: Client) -> None:
@@ -275,4 +279,3 @@ class TestEmbeddedMapView:
                 reverse('region-embedded-map', kwargs={'quality': quality, 'iso3166': 'RU-MOS'})
             )
             assert response.status_code == 200
-

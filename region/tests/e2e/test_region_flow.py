@@ -191,7 +191,8 @@ def test_region_sorting_workflow(
 
     # Шаг 2: Сортировка по дате последнего посещения
     response = client.get(
-        reverse('region-selected-list', kwargs={'pk': test_region.pk}) + '?sort=last_visit_date_down'
+        reverse('region-selected-list', kwargs={'pk': test_region.pk})
+        + '?sort=last_visit_date_down'
     )
     assert response.status_code == 200
     assert response.context['sort'] == 'last_visit_date_down'
@@ -283,4 +284,3 @@ def test_unauthenticated_user_region_workflow(
     # Не должно быть информации о посещениях
     assert 'number_of_visited_cities' in response.context
     assert response.context['number_of_visited_cities'] == 0
-

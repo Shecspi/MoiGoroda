@@ -10,6 +10,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from datetime import datetime
+from typing import Any
 
 from django.db.models import QuerySet, F
 
@@ -41,7 +42,7 @@ class VisitedCityMixin:
         return '&'.join(url_params)
 
     @staticmethod
-    def apply_filter_to_queryset(queryset: QuerySet, filter_value: str) -> QuerySet:
+    def apply_filter_to_queryset(queryset: QuerySet[Any], filter_value: str) -> QuerySet[Any]:
         match filter_value:
             case 'magnet':
                 queryset = queryset.filter(has_magnet=False)
@@ -55,7 +56,7 @@ class VisitedCityMixin:
         return queryset
 
     @staticmethod
-    def apply_sort_to_queryset(queryset: QuerySet, sort_value: str) -> QuerySet:
+    def apply_sort_to_queryset(queryset: QuerySet[Any], sort_value: str) -> QuerySet[Any]:
         """
         Производит сортировку QuerySet на основе данных в 'sort_value'.
 

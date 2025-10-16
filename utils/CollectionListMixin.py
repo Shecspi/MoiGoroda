@@ -1,10 +1,12 @@
+from typing import Any
+
 from django.db.models import F, QuerySet
 from utils.SortFilterMixin import SortFilterMixin
 
 
 class CollectionListMixin(SortFilterMixin):
     @staticmethod
-    def apply_filter_to_queryset(queryset: QuerySet, filter_value: str) -> QuerySet:
+    def apply_filter_to_queryset(queryset: QuerySet[Any], filter_value: str) -> QuerySet[Any]:
         """
         Производит фильтрацию 'queryset' на основе значения 'filter'.
 
@@ -26,7 +28,7 @@ class CollectionListMixin(SortFilterMixin):
         return queryset
 
     @staticmethod
-    def apply_sort_to_queryset(queryset: QuerySet, sort_value: str) -> QuerySet:
+    def apply_sort_to_queryset(queryset: QuerySet[Any], sort_value: str) -> QuerySet[Any]:
         """
         Производит сортировку QuerySet на основе данных в 'sort_value'.
 

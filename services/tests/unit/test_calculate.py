@@ -126,5 +126,3 @@ def test_calculate_ratio_precision() -> None:
     result = calculate_ratio(1, 3)
     # Результат должен быть округлён до целого
     assert result in [33, 34]  # Зависит от реализации округления
-
-

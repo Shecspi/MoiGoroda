@@ -121,4 +121,3 @@ class TestRegionAdmin:
         admin_instance = RegionAdmin(Region, admin.site)
         count = admin_instance.get_qty_of_cities(test_region)
         assert count >= 1
-

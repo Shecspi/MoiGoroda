@@ -92,9 +92,7 @@ class TestRegionListByCountryAPI:
 class TestSearchRegionAPI:
     """Тесты для API endpoint search_region"""
 
-    def test_searches_regions_by_query(
-        self, test_country: Any, test_region_type: Any
-    ) -> None:
+    def test_searches_regions_by_query(self, test_country: Any, test_region_type: Any) -> None:
         """Тест поиска регионов по запросу"""
         Region.objects.create(
             title='Московская',
@@ -125,9 +123,7 @@ class TestSearchRegionAPI:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_searches_case_insensitive(
-        self, test_country: Any, test_region_type: Any
-    ) -> None:
+    def test_searches_case_insensitive(self, test_country: Any, test_region_type: Any) -> None:
         """Тест что поиск регистронезависимый"""
         Region.objects.create(
             title='Московская',
@@ -143,9 +139,7 @@ class TestSearchRegionAPI:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) >= 1
 
-    def test_filters_by_country_code(
-        self, test_country: Any, test_region_type: Any
-    ) -> None:
+    def test_filters_by_country_code(self, test_country: Any, test_region_type: Any) -> None:
         """Тест фильтрации по коду страны"""
         from country.models import Country
 
@@ -181,9 +175,7 @@ class TestSearchRegionAPI:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 0
 
-    def test_returns_full_name_in_results(
-        self, test_country: Any, test_region_type: Any
-    ) -> None:
+    def test_returns_full_name_in_results(self, test_country: Any, test_region_type: Any) -> None:
         """Тест что в результатах возвращается полное название"""
         Region.objects.create(
             title='Московская',
@@ -199,9 +191,7 @@ class TestSearchRegionAPI:
         assert response.status_code == status.HTTP_200_OK
         assert response.data[0]['title'] == 'Московская область'
 
-    def test_returns_region_id_in_results(
-        self, test_country: Any, test_region_type: Any
-    ) -> None:
+    def test_returns_region_id_in_results(self, test_country: Any, test_region_type: Any) -> None:
         """Тест что в результатах возвращается ID региона"""
         region = Region.objects.create(
             title='Московская',
@@ -216,4 +206,3 @@ class TestSearchRegionAPI:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data[0]['id'] == region.id
-

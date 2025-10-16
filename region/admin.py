@@ -7,7 +7,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-
 from admin_auto_filters.filters import AutocompleteFilter  # type: ignore[import-untyped]
 from django.contrib import admin
 

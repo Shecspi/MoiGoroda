@@ -85,11 +85,19 @@ jobs:
             - name: Install dependencies
               run: poetry install --no-interaction --with test
 
+            - name: Debug settings
+              run: |
+                  echo "=== Проверка .env файла ==="
+                  cat MoiGoroda/.env | grep -E "DEBUG|TESTING|DATABASE"
+                  echo ""
+                  echo "=== Запуск диагностического скрипта ==="
+                  poetry run python test_settings_debug.py
+
             - name: Run migrations
               run: poetry run python manage.py migrate
 
             - name: Run tests
-              run: poetry run pytest
+              run: poetry run pytest account/tests/e2e/test_share_settings_flow.py::test_enable_all_share_settings_flow -v
 
     mypy:
         name: Type checking with mypy

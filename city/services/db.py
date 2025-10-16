@@ -205,7 +205,9 @@ def get_number_of_cities(country_code: str | None = None) -> int:
     return queryset.count()
 
 
-def _get_all_countries_with_visited_city(queryset: QuerySet[VisitedCity]) -> QuerySet[Country]:
+def _get_all_countries_with_visited_city(
+    queryset: QuerySet[VisitedCity, VisitedCity],
+) -> QuerySet[Country, Country]:
     # Подзапрос: сколько уникальных городов в каждой стране посетил пользователь
     visited_counts_subquery = (
         queryset.filter(city__country=OuterRef('pk'))
@@ -310,7 +312,7 @@ def get_last_10_new_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     )
 
 
-def get_number_of_total_visited_cities_in_several_years(user_id: int) -> QuerySet[Any]:
+def get_number_of_total_visited_cities_in_several_years(user_id: int) -> QuerySet[Any, Any]:
     """
     Возвращает общее количество посещённых городов за каждый год.
     """
@@ -324,7 +326,7 @@ def get_number_of_total_visited_cities_in_several_years(user_id: int) -> QuerySe
     )
 
 
-def get_number_of_new_visited_cities_in_several_years(user_id: int) -> QuerySet[Any]:
+def get_number_of_new_visited_cities_in_several_years(user_id: int) -> QuerySet[Any, Any]:
     """
     Возвращает количество новых посещённых городов за каждый год.
     """
@@ -353,7 +355,7 @@ def _get_visited_cities(user_id: int) -> QuerySet[VisitedCity]:
     )
 
 
-def get_number_of_total_visited_cities_in_several_month(user_id: int) -> QuerySet[Any]:
+def get_number_of_total_visited_cities_in_several_month(user_id: int) -> QuerySet[Any, Any]:
     """
     Возвращает статистику по количеству посещённых городов за каждый месяц (последние 24 месяца).
     """
@@ -373,7 +375,7 @@ def get_number_of_total_visited_cities_in_several_month(user_id: int) -> QuerySe
     )
 
 
-def get_number_of_new_visited_cities_in_several_month(user_id: int) -> QuerySet[Any]:
+def get_number_of_new_visited_cities_in_several_month(user_id: int) -> QuerySet[Any, Any]:
     return (
         _get_visited_cities(user_id)
         .filter(is_first_visit=True)
@@ -693,7 +695,7 @@ def get_neighboring_cities_in_region_by_users_rank(
     return _get_cities_near_index(ranked_cities, city_id)
 
 
-def get_not_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[City]:
+def get_not_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[City, City]:
     """
     Возвращает QuerySet объектов City, которые пользователь с ID user_id не отметил, как посещённые.
     Для этого берётся список всех городов, которые есть в БД, и из него убираются уже посещённые пользователем города.

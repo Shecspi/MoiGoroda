@@ -19,7 +19,9 @@ from city.models import VisitedCity, City
 from collection.models import Collection
 
 
-def get_all_cities_from_collection(collection_id: int, user: User | None = None) -> QuerySet[City]:
+def get_all_cities_from_collection(
+    collection_id: int, user: User | None = None
+) -> QuerySet[City, City]:
     """
     Возвращает все города в коллекции с ID = collection_id.
     Если указан user, то возвращаемый QuerySet аннотируется дополнительными полями.

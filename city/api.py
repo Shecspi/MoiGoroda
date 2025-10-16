@@ -192,7 +192,7 @@ class GetNotVisitedCities(generics.ListAPIView):  # type: ignore[type-arg]
         )
         return super().get(*args, **kwargs)
 
-    def get_queryset(self) -> QuerySet[City]:  # type: ignore[override]
+    def get_queryset(self) -> QuerySet[City, City]:  # type: ignore[override]
         user_pk = self.request.user.pk
         if user_pk is None:
             return City.objects.none()

@@ -73,7 +73,7 @@ class GetVisitedCountry(generics.ListAPIView):  # type: ignore[type-arg]
         )
         return super().get(*args, **kwargs)
 
-    def get_queryset(self) -> QuerySet[VisitedCountry]:  # type: ignore[override]
+    def get_queryset(self) -> QuerySet[VisitedCountry, VisitedCountry]:  # type: ignore[override]
         return VisitedCountry.objects.filter(user=self.request.user)  # type: ignore[misc]
 
 

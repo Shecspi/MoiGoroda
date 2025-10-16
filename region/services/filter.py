@@ -51,8 +51,8 @@ class ArrayLength(Func):
 
 
 def apply_filter_to_queryset(
-    queryset: QuerySet[City], user: AbstractBaseUser, filter_name: str
-) -> QuerySet[City] | NoReturn:
+    queryset: QuerySet[City, City], user: AbstractBaseUser, filter_name: str
+) -> QuerySet[City, City] | NoReturn:
     """
     Оставляет в queryset только значения, удовлетворяющие фильтру filter.
     Вызывает соответствующую функцию фильтрации из FILTER_FUNCTIONS.
@@ -69,7 +69,9 @@ def apply_filter_to_queryset(
     return func(queryset, user)
 
 
-def filter_has_magnet(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
+def filter_has_magnet(
+    queryset: QuerySet[City, City], user: AbstractBaseUser
+) -> QuerySet[City, City]:
     """
     Фильтр оставляет только посещённые города, из которых имеется сувенир.
 
@@ -78,7 +80,9 @@ def filter_has_magnet(queryset: QuerySet[City], user: AbstractBaseUser) -> Query
     return queryset.filter(has_magnet=True, is_visited=True)
 
 
-def filter_has_no_magnet(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
+def filter_has_no_magnet(
+    queryset: QuerySet[City, City], user: AbstractBaseUser
+) -> QuerySet[City, City]:
     """
     Фильтр оставляет только посещённые города, из которых нет сувенира.
 
@@ -87,7 +91,7 @@ def filter_has_no_magnet(queryset: QuerySet[City], user: AbstractBaseUser) -> Qu
     return queryset.filter(has_magnet=False, is_visited=True)
 
 
-def filter_visited(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
+def filter_visited(queryset: QuerySet[City, City], user: AbstractBaseUser) -> QuerySet[City, City]:
     """
     Фильтр оставляет только посещённые города.
 
@@ -96,7 +100,9 @@ def filter_visited(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet
     return queryset.filter(is_visited=True)
 
 
-def filter_not_visited(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
+def filter_not_visited(
+    queryset: QuerySet[City, City], user: AbstractBaseUser
+) -> QuerySet[City, City]:
     """
     Фильтр оставляет только не посещённые города.
 
@@ -105,7 +111,9 @@ def filter_not_visited(queryset: QuerySet[City], user: AbstractBaseUser) -> Quer
     return queryset.filter(is_visited=False)
 
 
-def filter_by_year(queryset: QuerySet[City], user: AbstractBaseUser, year: int) -> QuerySet[City]:
+def filter_by_year(
+    queryset: QuerySet[City, City], user: AbstractBaseUser, year: int
+) -> QuerySet[City, City]:
     return (
         queryset.annotate(
             visit_dates=ArrayAgg(
@@ -128,7 +136,9 @@ def filter_by_year(queryset: QuerySet[City], user: AbstractBaseUser, year: int) 
     )
 
 
-def filter_current_year(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
+def filter_current_year(
+    queryset: QuerySet[City, City], user: AbstractBaseUser
+) -> QuerySet[City, City]:
     """
     Фильтр оставляет только города, посещённые в текущем году.
     Также обновляет поля visit_dates, first_visit_date, last_visit_date и number_of_visits,
@@ -138,7 +148,9 @@ def filter_current_year(queryset: QuerySet[City], user: AbstractBaseUser) -> Que
     return filter_by_year(queryset, user, current_year)
 
 
-def filter_last_year(queryset: QuerySet[City], user: AbstractBaseUser) -> QuerySet[City]:
+def filter_last_year(
+    queryset: QuerySet[City, City], user: AbstractBaseUser
+) -> QuerySet[City, City]:
     """
     Фильтр оставляет только города, посещённые в прошлом году.
     Также обновляет поля visit_dates, first_visit_date и last_visit_date,
@@ -148,7 +160,9 @@ def filter_last_year(queryset: QuerySet[City], user: AbstractBaseUser) -> QueryS
     return filter_by_year(queryset, user, previous_year)
 
 
-FILTER_FUNCTIONS: dict[str, Callable[[QuerySet[City], AbstractBaseUser], QuerySet[City]]] = {
+FILTER_FUNCTIONS: dict[
+    str, Callable[[QuerySet[City, City], AbstractBaseUser], QuerySet[City, City]]
+] = {
     'magnet': filter_has_magnet,
     'no_magnet': filter_has_no_magnet,
     'current_year': filter_current_year,

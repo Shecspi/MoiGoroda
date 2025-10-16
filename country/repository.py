@@ -7,8 +7,8 @@ from region.models import Region
 
 
 def _annotate_countries_with_visited_city_counts(
-    queryset: QuerySet[VisitedCity],
-) -> QuerySet[Country]:
+    queryset: QuerySet[VisitedCity, VisitedCity],
+) -> QuerySet[Country, Country]:
     """
     Аннотирует подзапрос `queryset` двумя дополнительными полями:
      - `total_cities` с количеством городов в этой стране;
@@ -33,7 +33,7 @@ def _annotate_countries_with_visited_city_counts(
     )
 
 
-def get_countries_with_visited_city(user_id: int) -> QuerySet[Country]:
+def get_countries_with_visited_city(user_id: int) -> QuerySet[Country, Country]:
     """
     Возвращает перечень стран, в городах которых был пользователь `user_id`.
     Для каждой страны добавляются поля:
@@ -44,7 +44,7 @@ def get_countries_with_visited_city(user_id: int) -> QuerySet[Country]:
     return _annotate_countries_with_visited_city_counts(queryset)
 
 
-def get_countries_with_visited_city_in_year(user_id: int, year: int) -> QuerySet[Country]:
+def get_countries_with_visited_city_in_year(user_id: int, year: int) -> QuerySet[Country, Country]:
     """
     Возвращает перечень стран, в городах которых был пользователь `user_id` за год `year` (включая повторные посещения).
     Для каждой страны добавляются поля `total_cities` с количеством городов в этой стране и
@@ -54,7 +54,9 @@ def get_countries_with_visited_city_in_year(user_id: int, year: int) -> QuerySet
     return _annotate_countries_with_visited_city_counts(queryset)
 
 
-def get_countries_with_new_visited_city_in_year(user_id: int, year: int) -> QuerySet[Country]:
+def get_countries_with_new_visited_city_in_year(
+    user_id: int, year: int
+) -> QuerySet[Country, Country]:
     """
     Возвращает перечень стран, в городах которых впервые был пользователь `user_id` за год `year`.
     Для каждой страны добавляются поля `total_cities` с количеством городов в этой стране и
@@ -68,7 +70,7 @@ def get_countries_with_new_visited_city_in_year(user_id: int, year: int) -> Quer
 
 def get_list_of_countries_with_visited_regions(
     user_id: int, year: int | None = None
-) -> QuerySet[Country]:
+) -> QuerySet[Country, Country]:
     # Подзапрос для количества всех регионов в стране
     regions_in_country = (
         Region.objects.filter(country=OuterRef('pk'))

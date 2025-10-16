@@ -16,7 +16,7 @@ from django.db.models.functions import Cast
 from region.models import Area
 
 
-def get_visited_areas(user_id: int) -> QuerySet[Any]:
+def get_visited_areas(user_id: int) -> QuerySet[Any, Any]:
     """
     Возвращает последовательность федеральных округов из БД, которая имеет дополнительные поля:
      - total_regions: количество регионов в федеральном округе;

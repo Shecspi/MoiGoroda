@@ -39,7 +39,7 @@ from city.models import City, VisitedCity
 from region.models import Region, Area
 
 
-def get_all_regions(country_id: int | None = None) -> QuerySet[Region]:
+def get_all_regions(country_id: int | None = None) -> QuerySet[Region, Region]:
     """
     Возвращает QuerySet со всеми регионами и количеством городов в каждом из них.
     """
@@ -68,7 +68,7 @@ def get_number_of_regions(country_id: int | None) -> int:
 
 def get_all_region_with_visited_cities(
     user_id: int, country_id: int | None = None
-) -> QuerySet[Region]:
+) -> QuerySet[Region, Region]:
     """
     Возвращает QuerySet со всеми регионами, количеством городов в каждом из них и
     количеством посещённых городов пользователем с ID равным user_id.
@@ -103,7 +103,7 @@ def get_all_region_with_visited_cities(
 def get_all_cities_in_region(
     user: AbstractBaseUser,
     region_id: int,
-) -> QuerySet[City]:
+) -> QuerySet[City, City]:
     # Подзапрос для вычисления среднего рейтинга посещений города пользователем
     average_rating_subquery = (
         VisitedCity.objects.filter(city_id=OuterRef('pk'), user=user)
@@ -217,7 +217,7 @@ def get_number_of_finished_regions(user_id: int, country_id: int | None = None) 
     return queryset.filter(num_total=F('num_visited')).count()
 
 
-def get_visited_areas(user_id: int) -> QuerySet[Any]:
+def get_visited_areas(user_id: int) -> QuerySet[Any, Any]:
     """
     Возвращает последовательность федеральных округов из БД, которая имеет дополнительные поля:
      - total_regions: количество регионов в федеральном округе;

@@ -77,6 +77,37 @@ class CollectionList(CollectionListMixin, ListView):  # type: ignore[type-arg]
                 if collection.qty_of_visited_cities == collection.qty_of_cities:
                     self.qty_of_finished_colelctions += 1
 
+        # Применение фильтра
+        filter_value = self.request.GET.get('filter')
+        self.filter = filter_value if filter_value else ''
+        if self.filter:
+            try:
+                queryset = self.apply_filter_to_queryset(queryset, self.filter)
+                logger.info(self.request, f"(Collections) Using the filter '{self.filter}'")
+            except KeyError:
+                self.filter = ''
+                logger.warning(
+                    self.request, f"(Collections) Unexpected value of the filter '{filter_value}'"
+                )
+
+        # Применение сортировки
+        sort_value = self.request.GET.get('sort')
+        if self.request.user.is_authenticated:
+            self.sort = sort_value if sort_value else 'default_auth'
+        else:
+            self.sort = sort_value if sort_value else 'default_guest'
+
+        try:
+            queryset = self.apply_sort_to_queryset(queryset, self.sort)
+            if sort_value:
+                logger.info(self.request, f"(Collections) Using the sort '{self.sort}'")
+        except KeyError:
+            logger.warning(
+                self.request, f"(Collections) Unexpected value of the sort '{sort_value}'"
+            )
+            self.sort = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
+            queryset = self.apply_sort_to_queryset(queryset, self.sort)
+
         return queryset
 
     def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:

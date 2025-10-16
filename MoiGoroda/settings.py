@@ -115,14 +115,14 @@ DATABASES = {
     }
 }
 
-# Определяем, запущены ли тесты (через manage.py test, pytest или переменную окружения)
+# Определяем, запущены ли тесты
 TESTING = 'test' in sys.argv or 'pytest' in sys.modules or os.getenv('TESTING') == 'True'
 
 if TESTING:
-    # Включаем DEBUG для тестов, чтобы работал vite_asset с dev URL
+    # Django test runner переопределит DEBUG=False, поэтому vite_asset проверяет TESTING напрямую
     DEBUG = True
 
-    # Используем SQLite только если БД не настроена в .env или явно указана SQLite
+    # Используем SQLite для тестов, если не указана другая БД в .env
     if (
         not os.getenv('DATABASE_ENGINE')
         or os.getenv('DATABASE_ENGINE') == 'django.db.backends.sqlite3'

@@ -1,13 +1,14 @@
 name: Deploy to the server
 on:
     push:
-        branches: ["master"]
+        branches: ["master", "fix-ci-tests"]
     release:
         types: [published]
 
 jobs:
     changelog:
         name: Generate changelog
+        if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -36,7 +37,6 @@ jobs:
 
     test:
         name: Run tests
-        needs: changelog
         runs-on: ubuntu-latest
 
         services:
@@ -93,7 +93,6 @@ jobs:
 
     mypy:
         name: Type checking with mypy
-        needs: changelog
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -119,7 +118,6 @@ jobs:
 
     ruff:
         name: Linting with ruff
-        needs: changelog
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -148,6 +146,7 @@ jobs:
 
     deploy:
         name: Deploy to server
+        if: github.ref == 'refs/heads/master'
         needs: [test, mypy, ruff]
         runs-on: [self-hosted, prod]
         steps:

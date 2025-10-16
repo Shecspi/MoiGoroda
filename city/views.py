@@ -180,15 +180,16 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):  # type: ignore[type-a
     form_class = VisitedCity_Create_Form
     template_name = 'city/city_create.html'
 
-    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
-        """Проверяем права доступа перед обработкой запроса."""
-        if not get_visited_city(request.user.pk, self.kwargs['pk']):
+    def get_object(self, queryset: QuerySet[VisitedCity] | None = None) -> VisitedCity:
+        """Получаем объект и проверяем, что он принадлежит текущему пользователю."""
+        obj: VisitedCity = super().get_object(queryset)
+        if obj.user != self.request.user:
             logger.warning(
-                request,
+                self.request,
                 f'(Visited city) Attempt to update a non-existent visited city #{self.kwargs["pk"]}',
             )
             raise Http404
-        return super().dispatch(request, *args, **kwargs)
+        return obj
 
     def get_initial(self) -> dict[str, Any]:
         """

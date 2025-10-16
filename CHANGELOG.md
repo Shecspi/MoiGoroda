@@ -38,6 +38,30 @@
 - *(news)* Улучшен дизайн изображений на карточке новости для отделения изображения от фона и умещения его в размеры карточки ([2d1ba39](https://github.com/Shecspi/MoiGoroda/commit/2d1ba390360969a66ca162d736f55f67d7b35d87))
 
 
+#### CI
+
+- Разрешить запуск тестов для ветки fix-ci-tests без деплоя ([b2b5c17](https://github.com/Shecspi/MoiGoroda/commit/b2b5c170d6cbc7bc56d5d98e4a2cde9788cdebe3))
+
+
+#### Cleanup
+
+- Удалены отладочные элементы, упрощены комментарии ([033d526](https://github.com/Shecspi/MoiGoroda/commit/033d5264a3ab2248b2e63348250e757dee7aeb6c))
+
+
+#### Debug
+
+- Добавлен диагностический скрипт + запуск только одного теста ([cfd27d4](https://github.com/Shecspi/MoiGoroda/commit/cfd27d4db1ec63b82d90a6f1fd80fa91a1ba7295))
+
+- Добавлена диагностика в vite_asset для отладки DEBUG ([0e3a35a](https://github.com/Shecspi/MoiGoroda/commit/0e3a35af4c24f0b1dd55683a2a6d57034576f54d))
+
+- Добавлена диагностика загрузки settings.py ([c73db2b](https://github.com/Shecspi/MoiGoroda/commit/c73db2bf73ecdd2881d107867be7f0f0715f8a49))
+
+
+#### Fix
+
+- Исправлена работа vite_asset в тестах (Django принудительно устанавливает DEBUG=False) ([be7cfa8](https://github.com/Shecspi/MoiGoroda/commit/be7cfa868a47ca1aa0f5dc55798a009f781ed6cb))
+
+
 ## [ 2.5 ] - 2025-09-05
 
 #### 🚀 Новые функции

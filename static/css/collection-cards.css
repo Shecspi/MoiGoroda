@@ -23,6 +23,7 @@
 
 .page-header-divider {
     width: 80px;
+    max-width: 80px;
     height: 4px;
     background: linear-gradient(90deg, #3498db 0%, #2c3e50 100%);
     margin: 0 auto;
@@ -793,7 +794,7 @@ body:has(.page-header-section) .footer a:hover i.fa-telegram {
     }
 
     .page-header-divider {
-        width: 60px;
+        max-width: 60px;
     }
 
     /* Растягиваем контейнер поиска на всю ширину */

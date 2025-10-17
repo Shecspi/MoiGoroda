@@ -29,6 +29,10 @@
 
 - Добавлена проверка владельца записи в VisitedCity_Update ([5f6bb2a](https://github.com/Shecspi/MoiGoroda/commit/5f6bb2aae4eba04dab4bcfe46c75c59474117271))
 
+- *(collection)* Исправлен z-index элементов поиска для корректного отображения сайдбара ([179b69b](https://github.com/Shecspi/MoiGoroda/commit/179b69b93cdb31034aea85cb3a575c2254388c8b))
+
+- *(collection)* Исправлена анимация page-header-divider (убрано ужимание после расширения) ([b791ffd](https://github.com/Shecspi/MoiGoroda/commit/b791ffd8d3467211f965c08e213dbcd2ae767c3c))
+
 
 #### 🚜 Рефакторинг
 

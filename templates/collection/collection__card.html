@@ -1,5 +1,20 @@
 <div class="col">
-    <div class="card h-100 text-center shadow" id="section-collection-card_{{ forloop.counter }}">
+    <div class="card h-100 text-center shadow position-relative" id="section-collection-card_{{ forloop.counter }}">
+        {% if user.is_authenticated %}
+            <!-- Звездочка для избранного -->
+            <div class="position-absolute top-0 start-0 m-2" style="z-index: 10;">
+                <button class="btn btn-link p-0 favorite-star" 
+                        data-collection-id="{{ collection.id }}"
+                        data-is-favorite="{% if collection.is_favorite %}true{% else %}false{% endif %}"
+                        aria-label="Добавить в избранное"
+                        title="{% if collection.is_favorite %}Удалить из избранного{% else %}Добавить в избранное{% endif %}"
+                        style="text-decoration: none; color: #ffc107;">
+                    <i class="fa-star {% if collection.is_favorite %}fas{% else %}far{% endif %}" style="font-size: 1.5rem;"></i>
+                </button>
+            </div>
+            <!-- ^^^ Звездочка для избранного -->
+        {% endif %}
+
         <div class="card-body">
             <!-- Название коллекции -->
             <h4 id="subsection-collection-title_{{ forloop.counter }}">

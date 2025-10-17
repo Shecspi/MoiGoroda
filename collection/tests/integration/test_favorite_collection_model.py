@@ -30,9 +30,7 @@ class TestFavoriteCollectionModelIntegration:
         """Создает тестовую коллекцию."""
         return Collection.objects.create(title='Золотое кольцо')
 
-    def test_create_and_save_favorite_collection(
-        self, user: User, collection: Collection
-    ) -> None:
+    def test_create_and_save_favorite_collection(self, user: User, collection: Collection) -> None:
         """Проверяет создание и сохранение избранной коллекции в БД."""
         favorite = FavoriteCollection.objects.create(user=user, collection=collection)
 
@@ -53,9 +51,7 @@ class TestFavoriteCollectionModelIntegration:
         expected_str = f'{user.username} - {collection.title}'
         assert str(favorite) == expected_str
 
-    def test_unique_together_constraint(
-        self, user: User, collection: Collection
-    ) -> None:
+    def test_unique_together_constraint(self, user: User, collection: Collection) -> None:
         """Проверяет unique_together constraint на уровне БД."""
         FavoriteCollection.objects.create(user=user, collection=collection)
 
@@ -84,9 +80,7 @@ class TestFavoriteCollectionModelIntegration:
 
         assert FavoriteCollection.objects.filter(user=user).count() == 3
 
-    def test_cascade_delete_on_user_deletion(
-        self, user: User, collection: Collection
-    ) -> None:
+    def test_cascade_delete_on_user_deletion(self, user: User, collection: Collection) -> None:
         """Проверяет CASCADE при удалении пользователя."""
         favorite = FavoriteCollection.objects.create(user=user, collection=collection)
         favorite_id = favorite.id
@@ -123,14 +117,14 @@ class TestFavoriteCollectionModelIntegration:
         assert favorites[1].id == favorite2.id
         assert favorites[2].id == favorite1.id
 
-    def test_related_name_favorite_collections(
-        self, user: User, collection: Collection
-    ) -> None:
+    def test_related_name_favorite_collections(self, user: User, collection: Collection) -> None:
         """Проверяет related_name='favorite_collections' для User."""
         FavoriteCollection.objects.create(user=user, collection=collection)
 
         assert user.favorite_collections.count() == 1
-        assert user.favorite_collections.first().collection == collection
+        first_favorite = user.favorite_collections.first()
+        assert first_favorite is not None
+        assert first_favorite.collection == collection
 
     def test_related_name_favorited_by(
         self, user: User, another_user: User, collection: Collection
@@ -159,4 +153,3 @@ class TestFavoriteCollectionModelIntegration:
 
         another_user_favorites = FavoriteCollection.objects.filter(user=another_user)
         assert another_user_favorites.count() == 1
-

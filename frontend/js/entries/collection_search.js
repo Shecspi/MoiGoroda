@@ -3,6 +3,54 @@ import { pluralize } from "../components/search_services.js";
 
 window.onload = async () => {
     const inputEl = document.querySelector("#collection-search");
+    const clearBtn = document.querySelector(".search-clear");
+    const overlay = document.querySelector("#search-overlay");
+    
+    // Показать/скрыть кнопку очистки
+    const toggleClearButton = () => {
+        if (inputEl.value.length > 0) {
+            clearBtn.classList.remove("d-none");
+        } else {
+            clearBtn.classList.add("d-none");
+        }
+    };
+    
+    // Обработчик ввода текста
+    inputEl.addEventListener("input", toggleClearButton);
+    
+    // Обработчик клика на кнопку очистки
+    clearBtn.addEventListener("click", () => {
+        inputEl.value = "";
+        toggleClearButton();
+        inputEl.focus();
+    });
+
+    // Показать/скрыть overlay при фокусе
+    inputEl.addEventListener("focus", () => {
+        overlay.classList.add("active");
+    });
+
+    inputEl.addEventListener("blur", () => {
+        // Небольшая задержка, чтобы пользователь мог кликнуть по результатам
+        setTimeout(() => {
+            overlay.classList.remove("active");
+        }, 150);
+    });
+
+    // Скрыть overlay при клике на него
+    overlay.addEventListener("click", () => {
+        inputEl.blur();
+        overlay.classList.remove("active");
+    });
+
+    // Снять фокус при нажатии Esc
+    inputEl.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            inputEl.blur();
+            overlay.classList.remove("active");
+        }
+    });
+    
     const config = {
         selector: () => inputEl,
         placeHolder: "Начните вводить название коллекции...",

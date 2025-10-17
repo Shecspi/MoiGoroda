@@ -22,14 +22,13 @@ class TestFavoriteCollectionModel:
     def test_meta_options(self) -> None:
         """Проверяет настройки Meta модели."""
         meta = FavoriteCollection._meta
-        
+
         # Проверяем ordering
         assert meta.ordering == ['-created_at']
-        
+
         # Проверяем verbose_name
         assert meta.verbose_name == 'Избранная коллекция'
         assert meta.verbose_name_plural == 'Избранные коллекции'
-        
+
         # Проверяем unique_together
         assert ('user', 'collection') in meta.unique_together
-

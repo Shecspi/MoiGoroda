@@ -1,6 +1,6 @@
 <div class="col">
     <div
-        class="card h-100 text-center shadow"
+        class="card h-100 text-center shadow collection-card{% if collection.is_favorite %} is-favorite{% endif %}"
         id="section-collection-card_{{ forloop.counter }}"
     >
         <div class="card-body">
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <div class="card-footer" style="background: none; border-top: none">
+        <div class="card-footer">
             <!-- Количество городов -->
             <div class="text-center">
                 <small class="text-body-secondary">

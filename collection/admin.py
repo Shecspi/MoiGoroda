@@ -7,13 +7,18 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import TYPE_CHECKING
+
 from django.contrib import admin
 
 from collection.models import Collection, FavoriteCollection
 
+if TYPE_CHECKING:
+    pass
+
 
 @admin.register(Collection)
-class CollectionAdmin(admin.ModelAdmin):
+class CollectionAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     """Админ-панель для модели Collection."""
 
     list_display = ('title', 'get_cities_count')
@@ -27,7 +32,7 @@ class CollectionAdmin(admin.ModelAdmin):
 
 
 @admin.register(FavoriteCollection)
-class FavoriteCollectionAdmin(admin.ModelAdmin):
+class FavoriteCollectionAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     """Админ-панель для модели FavoriteCollection."""
 
     list_display = ('user', 'collection', 'created_at')

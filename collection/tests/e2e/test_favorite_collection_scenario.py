@@ -203,4 +203,3 @@ class TestFavoriteCollectionScenario:
         assert response.status_code == 400
         data = response.json()
         assert 'detail' in data
-

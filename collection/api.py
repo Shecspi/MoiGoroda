@@ -75,9 +75,7 @@ def favorite_collection_toggle(request: Request, collection_id: int) -> Response
     try:
         collection = Collection.objects.get(id=collection_id)
     except ObjectDoesNotExist:
-        return Response(
-            {'detail': 'Коллекция не найдена'}, status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({'detail': 'Коллекция не найдена'}, status=status.HTTP_404_NOT_FOUND)
 
     user = cast(User, request.user)
 

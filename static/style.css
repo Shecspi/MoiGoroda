@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
 
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     font-weight: 300;
     background: #fff;
 }
@@ -12,7 +12,7 @@ body.simple {
 }
 
 .logo-navbar {
-    font-family: 'Pacifico', cursive;
+    font-family: "Pacifico", cursive;
     font-size: 40px;
 }
 
@@ -20,7 +20,6 @@ body.simple {
     min-height: 100vh;
     width: 100%;
 }
-
 
 /*------------ Map ------------*/
 #map {
@@ -30,7 +29,7 @@ body.simple {
 
 #map div.load {
     padding: 20px 20px;
-    font: 18px 'Roboto', sans-serif;
+    font: 18px "Roboto", sans-serif;
     font-weight: 300;
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
@@ -39,7 +38,7 @@ body.simple {
 
 #map div.error {
     padding: 20px 20px;
-    font: 18px 'Roboto', sans-serif;
+    font: 18px "Roboto", sans-serif;
     font-weight: 300;
     background: rgb(245, 198, 203);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
@@ -56,11 +55,11 @@ body.simple {
     border: 2px solid rgba(0, 0, 0, 0.2);
     cursor: auto;
     font-size: 20px;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
 }
 
 .custom-control-for-map:hover {
-    background-color: #F4F4F4;
+    background-color: #f4f4f4;
 }
 
 /* Убирает баг leaflet.js, когда при клике на полигон появляется рамка вокруг него */
@@ -128,7 +127,6 @@ body.simple {
     color: #333;
 }
 
-
 /*------------ Sidebar ------------*/
 
 #sidebar {
@@ -140,7 +138,7 @@ body.simple {
 }
 
 .sidebar-logo {
-    font-family: 'Pacifico', cursive;
+    font-family: "Pacifico", cursive;
     font-size: 30px;
 }
 
@@ -168,7 +166,7 @@ body.simple {
     color: #fff;
 }
 
-@media(max-width: 1199px) {
+@media (max-width: 1199px) {
     #sidebar {
         margin-left: -300px;
         position: fixed;
@@ -181,7 +179,7 @@ body.simple {
     }
 }
 
-@media(min-width: 1200px) {
+@media (min-width: 1200px) {
     #section-content {
         padding-left: 300px;
     }
@@ -191,7 +189,8 @@ body.simple {
     position: relative;
     font-weight: bold;
     color: #198754;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 15' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 18 Q50 14 100 18 T200 17 T300 18 T400 16' stroke='%23ccf5e7' stroke-width='45' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center bottom;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 15' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 18 Q50 14 100 18 T200 17 T300 18 T400 16' stroke='%23ccf5e7' stroke-width='45' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+        no-repeat center bottom;
     background-size: 100% 55px;
 }
 
@@ -199,7 +198,8 @@ body.simple {
     position: relative;
     font-weight: bold;
     color: #198754;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q150 10 300 20 T600 20 T900 20 T1200 20' stroke='%23ccf5e7' stroke-width='60' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center bottom;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q150 10 300 20 T600 20 T900 20 T1200 20' stroke='%23ccf5e7' stroke-width='60' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+        no-repeat center bottom;
     background-size: 100% 45px;
     border-radius: 15px;
 }
@@ -211,7 +211,6 @@ body.simple {
     padding-bottom: 15px;
     transition: all 0.3s ease;
 }
-
 
 /*------------ Sign In and Sign Up pages ------------*/
 
@@ -246,7 +245,6 @@ body.simple {
 
     .box-area {
         margin: 0;
-
     }
 
     .left-box {
@@ -335,7 +333,7 @@ div#main-background {
 }
 
 .index-logo {
-    font-family: 'Pacifico', cursive;
+    font-family: "Pacifico", cursive;
 }
 
 /*------------ Всплывающие подсдказки ------------*/
@@ -383,7 +381,7 @@ div#main-background {
         border-radius: 3px;
     }
 
-    &+.bs-callout {
+    & + .bs-callout {
         margin-top: -5px;
     }
 }
@@ -448,4 +446,172 @@ p {
     border-radius: 5px;
     padding: 5px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   TOAST NOTIFICATIONS STYLES (GLOBAL)
+   ======================================== */
+
+/* Основные стили для toast уведомлений */
+.toast {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), 0 8px 16px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Заголовок toast уведомления */
+.toast-header {
+    background: linear-gradient(135deg, #f1f3f4 0%, #e2e6ea 100%) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 16px 16px 0 0;
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Тело toast уведомления */
+.toast-body {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+    border-radius: 0 0 16px 16px;
+    padding: 1rem 1.25rem;
+    color: #495057;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Успешные toast уведомления */
+#toast-success {
+    background: linear-gradient(135deg, #d1f4dd 0%, #b3e5c5 100%);
+    border: 1px solid rgba(25, 135, 84, 0.3);
+}
+
+#toast-success .toast-header {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%) !important;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#toast-success .toast-body {
+    background: #f0fdf4 !important;
+    color: #0f5132;
+}
+
+/* Опасные toast уведомления */
+#toast-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c2c7 100%);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+#toast-danger .toast-header {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#toast-danger .toast-body {
+    background: #fef2f2 !important;
+    color: #842029;
+}
+
+/* Кнопка закрытия */
+.toast .btn-close-custom {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    opacity: 0.9;
+    transition: all 0.3s ease;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.toast .btn-close-custom i {
+    color: #ffffff;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.toast .btn-close-custom:hover {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+.toast .btn-close-custom:hover i {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+/* Анимация появления */
+.toast.show {
+    animation: toastSlideIn 0.4s ease-out;
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Адаптация toast для мобильных устройств */
+@media (max-width: 576px) {
+    .toast {
+        max-width: calc(100vw - 2rem) !important;
+        margin: 0 1rem;
+        border-radius: 12px;
+    }
+
+    .toast-header {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .toast-body {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .toast .btn-close-custom {
+        font-size: 1rem;
+    }
+
+    /* Контейнер toast */
+    .position-fixed.bottom-0.end-0 {
+        right: 0 !important;
+        bottom: 0 !important;
+        padding: 0.5rem !important;
+    }
+}
+
+/* Адаптация toast для очень маленьких экранов */
+@media (max-width: 330px) {
+    .toast {
+        max-width: calc(100vw - 1rem) !important;
+        margin: 0 0.5rem;
+    }
+
+    .toast-header {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .toast-body {
+        padding: 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .toast .btn-close-custom {
+        font-size: 0.9rem;
+    }
+
+    .position-fixed.bottom-0.end-0 {
+        padding: 0.25rem !important;
+    }
 }

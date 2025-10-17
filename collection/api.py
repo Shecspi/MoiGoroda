@@ -7,14 +7,17 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import Any
+from typing import Any, cast
 
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from collection.models import Collection
+from collection.models import Collection, FavoriteCollection
 from collection.serializers import CollectionSearchParamsSerializer
 
 
@@ -53,3 +56,52 @@ def collection_search(request: Request) -> Response:
     ]
 
     return Response(collection_list, status=status.HTTP_200_OK)
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def favorite_collection_toggle(request: Request, collection_id: int) -> Response:
+    """
+    Добавляет или удаляет коллекцию из избранного пользователя.
+
+    POST - добавить коллекцию в избранное
+    DELETE - удалить коллекцию из избранного
+
+    :param request: DRF Request с авторизованным пользователем
+    :param collection_id: ID коллекции
+    :return: Response с результатом операции
+    """
+    # Проверяем существование коллекции
+    try:
+        collection = Collection.objects.get(id=collection_id)
+    except ObjectDoesNotExist:
+        return Response({'detail': 'Коллекция не найдена'}, status=status.HTTP_404_NOT_FOUND)
+
+    user = cast(User, request.user)
+
+    if request.method == 'POST':
+        # Добавление в избранное
+        if FavoriteCollection.objects.filter(user=user, collection=collection).exists():
+            return Response(
+                {'detail': 'Коллекция уже находится в избранном'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        FavoriteCollection.objects.create(user=user, collection=collection)
+        return Response({'is_favorite': True}, status=status.HTTP_201_CREATED)
+
+    elif request.method == 'DELETE':
+        # Удаление из избранного
+        try:
+            favorite = FavoriteCollection.objects.get(user=user, collection=collection)
+            favorite.delete()
+            return Response({'is_favorite': False}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(
+                {'detail': 'Коллекция не находится в избранном'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    return Response(
+        {'detail': 'Метод не поддерживается'}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+    )

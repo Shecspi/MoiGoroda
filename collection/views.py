@@ -13,6 +13,8 @@ from typing import Any
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import (
     Count,
+    Exists,
+    OuterRef,
     Q,
 )
 from django.http import Http404
@@ -21,7 +23,7 @@ from django.views.generic import ListView
 
 from city.models import VisitedCity
 from collection.filter import apply_filter_to_queryset
-from collection.models import Collection
+from collection.models import Collection, FavoriteCollection
 from collection.services import get_all_cities_from_collection
 from services import logger
 from services.word_modifications.city import modification__city
@@ -47,6 +49,11 @@ class CollectionList(CollectionListMixin, ListView):  # type: ignore[type-arg]
 
     def get_queryset(self) -> Any:
         if self.request.user.is_authenticated:
+            # Создаём подзапрос для проверки, находится ли коллекция в избранном
+            favorite_subquery = FavoriteCollection.objects.filter(
+                user=self.request.user, collection=OuterRef('pk')
+            )
+
             queryset = Collection.objects.prefetch_related('city').annotate(
                 qty_of_cities=Count('city', distinct=True),
                 qty_of_visited_cities=Count(
@@ -56,6 +63,7 @@ class CollectionList(CollectionListMixin, ListView):  # type: ignore[type-arg]
                         city__visitedcity__is_first_visit=True,
                     ),
                 ),
+                is_favorite=Exists(favorite_subquery),
             )
 
             self.visited_cities = VisitedCity.objects.filter(user=self.request.user).values_list(

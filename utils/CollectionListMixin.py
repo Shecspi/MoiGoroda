@@ -53,7 +53,8 @@ class CollectionListMixin(SortFilterMixin):
             case 'progress_up':
                 queryset = queryset.order_by('-qty_of_visited_cities')
             case 'default_auth':
-                queryset = queryset.order_by('-qty_of_visited_cities', 'title')
+                # Для авторизованных пользователей: сначала избранные, затем по прогрессу, затем по алфавиту
+                queryset = queryset.order_by('-is_favorite', '-qty_of_visited_cities', 'title')
             case 'default_guest':
                 queryset = queryset.order_by('-qty_of_cities', 'title')
             case _:

@@ -4,19 +4,38 @@
 
 {% block content %}
     <link rel="stylesheet" href="{% static 'css/autoComplete.css' %}?ver={{ PROJECT_VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/star-burst.css' %}?ver={{ PROJECT_VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/collection-cards.css' %}?ver={{ PROJECT_VERSION }}">
 
-    <h1 class="display-5 text-center mt-3 mx-3" id="block-page_header">
-        Коллекции городов
-    </h1>
-
-    <div class="row mx-3 my-3 y-3 g-3 align-items-center" id="toolbar">
-        <div class="col-12 col-lg-6 ms-auto">
-            <input id="collection-search" type="text" class="form-control w-100" placeholder="Поиск коллекции...">
-        </div>
+    <div class="page-header-section text-center mt-4 mb-2 mx-3">
+        <h1 class="page-header-title display-4 fw-bold mb-2" id="block-page_header">
+            Коллекции городов
+        </h1>
+        <p class="page-header-subtitle text-muted mb-3">
+            Исследуйте тематические подборки городов и отслеживайте свой прогресс
+        </p>
+        <div class="page-header-divider"></div>
     </div>
 
     <!-- Карточки с коллекциями -->
     {% if object_list %}
+        <div class="row mx-3 my-3 y-3 g-3 align-items-center justify-content-center" id="toolbar">
+            <div class="col-12 col-lg-8 col-xl-6">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input 
+                        id="collection-search" 
+                        type="text" 
+                        class="form-control search-input" 
+                        placeholder="Найти коллекцию..."
+                    >
+                    <i class="fas fa-times search-clear d-none"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Overlay для затемнения страницы -->
+        <div class="search-overlay" id="search-overlay"></div>
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
             {% for collection in object_list %}
                 {% include 'collection/collection__card.html' %}
@@ -25,7 +44,7 @@
     {% else %}
         <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
             <div class="col-xl-8">
-                <div class="alert alert-danger p-5 text-center" role="alert">
+                <div class="alert alert-danger" role="alert">
                     На данный момент в сервисе нет ни одной коллекции городов
                 </div>
             </div>
@@ -42,4 +61,5 @@
     <!-- ^^^ Пагинация -->
 
     {% vite_asset 'js/entries/collection_search.js' %}
+    {% vite_asset 'js/entries/collection_favorite.js' %}
 {% endblock %}

@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const collectionId = button.dataset.collectionId;
             const isFavorite = button.dataset.isFavorite === 'true';
             const icon = button.querySelector('i');
+            const textSpan = button.querySelector('.favorite-text');
 
             // Определяем метод запроса
             const method = isFavorite ? 'DELETE' : 'POST';
@@ -35,16 +36,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Обновляем состояние кнопки
                     button.dataset.isFavorite = data.is_favorite ? 'true' : 'false';
                     
-                    // Переключаем иконку
+                    // Переключаем иконку, текст и цвет
                     if (data.is_favorite) {
                         icon.classList.remove('far');
                         icon.classList.add('fas');
-                        button.setAttribute('title', 'Удалить из избранного');
+                        textSpan.textContent = 'Удалить из избранного';
+                        button.style.color = '#dc3545'; // красный для удаления
                         showSuccessToast('Успешно', 'Коллекция добавлена в избранное');
                     } else {
                         icon.classList.remove('fas');
                         icon.classList.add('far');
-                        button.setAttribute('title', 'Добавить в избранное');
+                        textSpan.textContent = 'Добавить в избранное';
+                        button.style.color = '#6c757d'; // серый для добавления
                         showSuccessToast('Успешно', 'Коллекция удалена из избранного');
                     }
                 } else {

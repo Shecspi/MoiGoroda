@@ -73,7 +73,7 @@ class TestFavoriteCollectionAPI:
         """Проверяет что добавление в избранное требует авторизации."""
         response = client.post(f'/api/collection/favorite/{collection.id}')
 
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_remove_from_favorites_requires_authentication(
         self, client: Client, collection: Collection
@@ -81,7 +81,7 @@ class TestFavoriteCollectionAPI:
         """Проверяет что удаление из избранного требует авторизации."""
         response = client.delete(f'/api/collection/favorite/{collection.id}')
 
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_add_to_favorites_nonexistent_collection_returns_404(
         self, client: Client, user: User
@@ -139,9 +139,7 @@ class TestFavoriteCollectionAPI:
 
         assert response.status_code == status.HTTP_201_CREATED
         assert FavoriteCollection.objects.filter(user=user, collection=collection).exists()
-        assert FavoriteCollection.objects.filter(
-            user=another_user, collection=collection
-        ).exists()
+        assert FavoriteCollection.objects.filter(user=another_user, collection=collection).exists()
 
     def test_user_can_have_multiple_favorite_collections(
         self, client: Client, user: User, collection: Collection, another_collection: Collection
@@ -177,4 +175,3 @@ class TestFavoriteCollectionAPI:
         # PATCH не разрешен
         response_patch = client.patch(f'/api/collection/favorite/{collection.id}')
         assert response_patch.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
-

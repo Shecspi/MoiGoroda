@@ -53,6 +53,7 @@ export default defineConfig({
         profile: path.resolve(entriesDir, 'profile.js'),
         notification: path.resolve(entriesDir, 'notification.js'),
         collection_search: path.resolve(entriesDir, 'collection_search.js'),
+        collection_favorite: path.resolve(entriesDir, 'collection_favorite.js'),
         city_search: path.resolve(entriesDir, 'city_search.js'),
       }
     }

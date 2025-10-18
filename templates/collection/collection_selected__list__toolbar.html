@@ -1,84 +1,82 @@
 <!-- Панель инструментов -->
-<div class="row mx-3 my-3 g-3" id="toolbar">
-    <!-- Статистика посещёния -->
-    <div class="col-xl-3 order-xl-1" id="block-statistic">
-        <div class="card text-center shadow h-100">
-            <div class="card-body d-grid bg-warning-subtle" id="block-statistic">
-                <div class="align-self-center">
-                    {% if user.is_authenticated %}
-                        {{ change__visited|title }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
-                        {{ change__city }} из {{ qty_of_cities }}
-                    {% else %}
-                        Городов в коллекции: <span class="fs-4 fw-medium">{{ qty_of_cities }}</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+<div class="mx-3 my-3 d-flex flex-wrap gap-3 align-items-center" id="toolbar">
+    <!-- Статистика -->
+    <div class="d-flex flex-wrap gap-3 align-items-center" id="block-statistic">
+        {% if user.is_authenticated %}
+            <span class="toolbar-badge toolbar-badge-warning">
+                {{ change__visited|title }} <strong>{{ qty_of_visited_cities }}</strong> {{ change__city }} из {{ qty_of_cities }}
+            </span>
+        {% else %}
+            <span class="toolbar-badge toolbar-badge-warning">
+                Городов в коллекции: <strong>{{ qty_of_cities }}</strong>
+            </span>
+        {% endif %}
     </div>
-    <!-- ^^^ Статистика посещёния -->
+    <!-- ^^^ Статистика -->
 
-    <!-- Посмотреть на карте -->
-    <div class="col-xl-3 order-xl-4" id="section-show_map">
-        <div class="card text-center shadow h-100">
-            <div class="card-body d-grid bg-success-subtle">
-                <a href="{% url 'collection-detail-map' pk %}" class="btn btn-outline-success align-self-center">
-                    <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
+    <!-- Кнопки действий -->
+    <div class="d-flex flex-wrap justify-content-center align-items-center gap-3" id="section-buttons">
+        <!-- Посмотреть на карте -->
+        <a href="{% url 'collection-detail-map' pk %}" 
+           class="btn btn-outline-success d-flex align-items-center gap-2"
+           id="section-show_map">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span>Посмотреть на карте</span>
+        </a>
+        <!-- ^^^ Посмотреть на карте -->
+
+        <!-- Посмотреть посещённые -->
+        {% if user.is_authenticated and qty_of_visited_cities > 0 %}
+            {% if filter == 'visited' %}
+                <a class="btn btn-primary d-flex align-items-center gap-2"
+                   href="{% url 'collection-detail-list' pk %}"
+                   id="section-filter">
+                    <i class="fa-regular fa-square-check"></i>
+                    <span>Посещённые</span>
                 </a>
-            </div>
-        </div>
-    </div>
-    <!-- ^^^ Посмотреть на карте -->
+            {% else %}
+                <a class="btn btn-outline-primary d-flex align-items-center gap-2"
+                   href="{% url 'collection-detail-list' pk %}?{{ url_for_filter_visited }}"
+                   id="section-filter">
+                    <i class="fa-regular fa-square-check"></i>
+                    <span>Посещённые</span>
+                </a>
+            {% endif %}
+        {% else %}
+            <button class="btn btn-outline-primary d-flex align-items-center gap-2 disabled"
+                    id="section-filter">
+                <i class="fa-regular fa-square-check"></i>
+                <span>Посещённые</span>
+            </button>
+        {% endif %}
+        <!-- ^^^ Посмотреть посещённые -->
 
-    <!-- Посмотреть посещённые -->
-    <div class="col-xl-3 order-xl-2">
-        <div class="card text-center shadow h-100" id="section-filter">
-            <div class="card-body d-grid bg-primary-subtle">
-                {% if user.is_authenticated and qty_of_visited_cities > 0 %}
-                    {% if filter == 'visited' %}
-                         <a class="btn btn-primary d-block align-self-center"
-                            href="{% url 'collection-detail-list' pk %}">
-                             <i class="fa-regular fa-square-check"></i>&nbsp;&nbsp;&nbsp;Посмотреть посещённые
-                         </a>
-                    {% else %}
-                        <a class="btn btn-outline-primary d-block align-self-center"
-                            href="{% url 'collection-detail-list' pk %}?{{ url_for_filter_visited }}">
-                             <i class="fa-regular fa-square-check"></i>&nbsp;&nbsp;&nbsp;Посмотреть посещённые
-                         </a>
-                    {% endif %}
-                {% else %}
-                    <button class="btn btn-outline-primary d-block align-self-center disabled">
-                         <i class="fa-regular fa-square-check"></i>&nbsp;&nbsp;&nbsp;Посмотреть посещённые
-                     </button>
-                {% endif %}
-            </div>
-        </div>
+        <!-- Посмотреть непосещённые -->
+        {% if user.is_authenticated and qty_of_visited_cities > 0 %}
+            {% if filter == 'not_visited' %}
+                <a class="btn btn-secondary d-flex align-items-center gap-2"
+                   href="{% url 'collection-detail-list' pk %}"
+                   id="section-sorting">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                    <span>Непосещённые</span>
+                </a>
+            {% else %}
+                <a class="btn btn-outline-secondary d-flex align-items-center gap-2"
+                   href="{% url 'collection-detail-list' pk %}?{{ url_for_filter_not_visited }}"
+                   id="section-sorting">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                    <span>Непосещённые</span>
+                </a>
+            {% endif %}
+        {% else %}
+            <button class="btn btn-outline-secondary d-flex align-items-center gap-2 disabled"
+                    id="section-sorting">
+                <i class="fa-regular fa-circle-xmark"></i>
+                <span>Непосещённые</span>
+            </button>
+        {% endif %}
+        <!-- ^^^ Посмотреть непосещённые -->
     </div>
-    <!-- ^^^ Посмотреть посещённые -->
-
-    <!-- Посмотреть непосещённые -->
-    <div class="col-xl-3 order-xl-3">
-        <div class="card text-center shadow h-100" id="section-sorting">
-            <div class="card-body d-grid bg-secondary-subtle">
-                {% if user.is_authenticated and qty_of_visited_cities > 0 %}
-                    {% if filter == 'not_visited' %}
-                        <a class="btn btn-secondary d-block align-self-center"
-                           href="{% url 'collection-detail-list' pk %}">
-                            <i class="fa-regular fa-circle-xmark"></i>&nbsp;&nbsp;&nbsp;Посмотреть непосещённые
-                        </a>
-                    {% else %}
-                        <a class="btn btn-outline-secondary d-block align-self-center"
-                           href="{% url 'collection-detail-list' pk %}?{{ url_for_filter_not_visited }}">
-                            <i class="fa-regular fa-circle-xmark"></i>&nbsp;&nbsp;&nbsp;Посмотреть непосещённые
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <a class="btn btn-outline-secondary d-block align-self-center disabled">
-                        <i class="fa-regular fa-circle-xmark"></i>&nbsp;&nbsp;&nbsp;Посмотреть непосещённые
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <!-- ^^^ Посмотреть непосещённые -->
+    <!-- ^^^ Кнопки действий -->
 </div>
 <!-- ^^^ Панель инструментов -->

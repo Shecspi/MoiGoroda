@@ -1,0 +1,875 @@
+/* ================================================
+   Новый глобальный дизайн для MoiGoroda
+   ================================================ */
+
+/* Стили для страницы городов коллекции */
+
+/* Стильный заголовок страницы */
+.page-header {
+    position: relative;
+    text-align: center;
+    margin: 2rem 1.5rem;
+}
+
+.page-header h1 {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.page-header-divider {
+    width: 80px;
+    max-width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db 0%, #2c3e50 100%);
+    margin: 0 auto;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+/* Компактный Toolbar (панель инструментов) */
+#toolbar {
+    margin: 2rem 1.5rem 1.5rem 1.5rem;
+    justify-content: space-between;
+}
+
+/* Когда элементы переносятся на несколько строк - центрируем */
+@media (max-width: 1024px) {
+    #toolbar {
+        justify-content: center;
+    }
+}
+
+/* Бейджи статистики */
+.toolbar-badge {
+    padding: 0.65rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.toolbar-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.toolbar-badge strong {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.toolbar-badge-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #92400e;
+}
+
+.toolbar-badge-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #1e40af;
+}
+
+.toolbar-badge-success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #065f46;
+}
+
+/* Стили для кнопок в toolbar */
+#toolbar .btn {
+    font-weight: 500;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border-width: 1.5px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#toolbar .btn:not(.disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+#toolbar .btn i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* Более мягкие цвета для кнопок */
+#toolbar .btn-outline-success {
+    border-color: rgba(16, 185, 129, 0.6);
+    color: #059669;
+}
+
+#toolbar .btn-outline-success:hover {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.8);
+}
+
+#toolbar .btn-outline-primary {
+    border-color: rgba(59, 130, 246, 0.6);
+    color: #2563eb;
+}
+
+#toolbar .btn-outline-primary:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.8);
+}
+
+#toolbar .btn-primary {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.7);
+    color: #1e40af;
+}
+
+#toolbar .btn-outline-secondary {
+    border-color: rgba(107, 114, 128, 0.6);
+    color: #4b5563;
+}
+
+#toolbar .btn-outline-secondary:hover {
+    background-color: rgba(107, 114, 128, 0.1);
+    border-color: rgba(107, 114, 128, 0.8);
+}
+
+#toolbar .btn-secondary {
+    background-color: rgba(107, 114, 128, 0.15);
+    border-color: rgba(107, 114, 128, 0.7);
+    color: #374151;
+}
+
+/* Стили заголовка страницы */
+.page-header-title {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+}
+
+/* Универсальные стили для карточек (города, коллекции и т.д.) */
+.city-card .card,
+.collection-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.city-card .card:hover,
+.collection-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+    border-color: rgba(0, 123, 255, 0.3);
+}
+
+/* Посещённые города */
+.city-card.visited .card {
+    background: linear-gradient(135deg, #f9fef9 0%, #f1f8f4 100%);
+    border: 1px solid rgba(34, 197, 94, 0.15);
+}
+
+/* Непосещённые города */
+.city-card.not-visited .card {
+    background: linear-gradient(135deg, #fefaf9 0%, #fef5f5 100%);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+/* Избранные коллекции */
+.collection-card.is-favorite {
+    background: linear-gradient(135deg, #fffbf0 0%, #fef7e0 100%);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.city-card .card-body,
+.collection-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Универсальные стили для заголовков карточек */
+.city-card h4,
+.collection-card .card-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0.5rem 0 1rem 0;
+    line-height: 1.3;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+}
+
+.city-card h4 > *,
+.collection-card .card-title > * {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.city-card h4 a,
+.collection-card h4 a {
+    position: relative;
+    display: inline-block;
+    text-decoration: none !important;
+    color: #2471a3 !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    line-height: 1.2;
+    vertical-align: baseline;
+    transform: translateY(0.15em);
+}
+
+.city-card h4 a::after,
+.collection-card h4 a::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 50%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(52, 152, 219, 0.6) 50%,
+        transparent 100%
+    );
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.city-card h4 a:hover,
+.city-card h4 a:focus,
+.collection-card h4 a:hover,
+.collection-card h4 a:focus {
+    color: #3498db !important;
+    outline: none;
+}
+
+.city-card h4 a:hover::after,
+.city-card h4 a:focus::after,
+.collection-card h4 a:hover::after,
+.collection-card h4 a:focus::after {
+    width: 100%;
+}
+
+/* Иконки статуса города */
+.city-status-icon {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.city-status-icon i {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Универсальные стили для бейджей */
+.city-card .badge,
+.collection-card .badge {
+    border-radius: 8px;
+    font-size: 0.8rem;
+    padding: 0.45em 0.7em;
+    margin: 0.2em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    line-height: 1;
+    vertical-align: middle;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 1.8em;
+}
+
+/* Улучшенные цвета для посещённых городов */
+.city-card .bg-success-subtle,
+.collection-card .bg-success-subtle {
+    background: linear-gradient(135deg, #d1e7dd 0%, #badbcc 100%) !important;
+    color: #0f5132 !important;
+    border: 1px solid #a3cfbb;
+}
+
+/* Улучшенные цвета для непосещённых городов */
+.city-card .bg-danger-subtle,
+.collection-card .bg-danger-subtle {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c2c7 100%) !important;
+    color: #842029 !important;
+    border: 1px solid #f1aeb5;
+}
+
+/* Улучшенные цвета для количества посещений */
+.city-card .badge.bg-secondary-subtle,
+.collection-card .bg-secondary-subtle {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+    color: #1e40af !important;
+    border: 1px solid #93c5fd;
+}
+
+/* Подзаголовок (регион/страна) */
+.city-card .card-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.city-card .card-subtitle a {
+    color: #2471a3 !important;
+    text-decoration: none !important;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.city-card .card-subtitle a::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 50%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(52, 152, 219, 0.6) 50%,
+        transparent 100%
+    );
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.city-card .card-subtitle a:hover,
+.city-card .card-subtitle a:focus {
+    color: #3498db !important;
+    text-decoration: none !important;
+    outline: none;
+}
+
+.city-card .card-subtitle a:hover::after,
+.city-card .card-subtitle a:focus::after {
+    width: 100%;
+}
+
+/* Даты посещений */
+.city-visit-dates {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+/* Универсальный footer карточки */
+.city-card .card-footer,
+.collection-card .card-footer {
+    background: none !important;
+    border-top: none !important;
+    padding: 1rem 1.5rem 1.25rem 1.5rem;
+}
+
+/* Статистика в footer */
+.city-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.city-stats .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.city-stats .stat-item:hover {
+    color: #3498db;
+    transform: scale(1.1);
+}
+
+.city-stats .stat-item i {
+    font-size: 1.1rem;
+}
+
+/* Рейтинг */
+.city-rating i {
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.city-rating i:hover {
+    transform: scale(1.2);
+}
+
+/* Сувенир */
+.city-souvenir {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Пустое состояние */
+.empty-state {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #cbd5e0;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    color: #495057;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 3rem 2rem;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+}
+
+.empty-state::before {
+    content: "🏙️";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 8rem;
+    opacity: 0.05;
+    z-index: 0;
+}
+
+.empty-state::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        #3498db 50%,
+        transparent 100%
+    );
+}
+
+/* Улучшенный прогресс-бар для коллекций */
+.collection-card .progress {
+    height: 10px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.collection-card .progress-bar {
+    background: linear-gradient(90deg, #28a745, #20c997);
+    border-radius: 12px;
+    transition: width 0.6s ease;
+    position: relative;
+}
+
+.collection-card .progress-bar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Стилизация текста статистики */
+.collection-card .card-footer .text-body-secondary {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6c757d;
+    letter-spacing: 0.3px;
+}
+
+/* Анимации */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes expandWidth {
+    from {
+        width: 0;
+    }
+    to {
+        width: 80px;
+    }
+}
+
+.page-header h1 {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.page-header-divider {
+    animation: expandWidth 0.8s ease-out 0.3s backwards;
+}
+
+#toolbar {
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+#toolbar .toolbar-badge {
+    animation: fadeInUp 0.5s ease-out 0.3s backwards;
+}
+
+#toolbar .btn {
+    animation: fadeInUp 0.5s ease-out backwards;
+}
+
+#toolbar .btn:nth-child(1) {
+    animation-delay: 0.4s;
+}
+#toolbar .btn:nth-child(2) {
+    animation-delay: 0.45s;
+}
+#toolbar .btn:nth-child(3) {
+    animation-delay: 0.5s;
+}
+
+.city-card,
+.collection-card {
+    animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.city-card:nth-child(1),
+.collection-card:nth-child(1) {
+    animation-delay: 0.05s;
+}
+.city-card:nth-child(2),
+.collection-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+.city-card:nth-child(3),
+.collection-card:nth-child(3) {
+    animation-delay: 0.15s;
+}
+.city-card:nth-child(4),
+.collection-card:nth-child(4) {
+    animation-delay: 0.2s;
+}
+.city-card:nth-child(5),
+.collection-card:nth-child(5) {
+    animation-delay: 0.25s;
+}
+.city-card:nth-child(6),
+.collection-card:nth-child(6) {
+    animation-delay: 0.3s;
+}
+.city-card:nth-child(7),
+.collection-card:nth-child(7) {
+    animation-delay: 0.35s;
+}
+.city-card:nth-child(8),
+.collection-card:nth-child(8) {
+    animation-delay: 0.4s;
+}
+.city-card:nth-child(9),
+.collection-card:nth-child(9) {
+    animation-delay: 0.45s;
+}
+.city-card:nth-child(10),
+.collection-card:nth-child(10) {
+    animation-delay: 0.5s;
+}
+.city-card:nth-child(11),
+.collection-card:nth-child(11) {
+    animation-delay: 0.55s;
+}
+.city-card:nth-child(12),
+.collection-card:nth-child(12) {
+    animation-delay: 0.6s;
+}
+
+/* Анимация прогресс-бара */
+.collection-card .progress-bar {
+    animation: progressFill 1.2s ease-out;
+}
+
+@keyframes progressFill {
+    from {
+        width: 0 !important;
+    }
+}
+
+/* Пульсация бейджей */
+.city-card .badge,
+.collection-card .badge {
+    animation: subtlePulse 2s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+.city-card:hover .badge,
+.collection-card:hover .badge {
+    animation: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 2rem;
+    }
+
+    .page-header-title {
+        font-size: 2rem;
+    }
+
+    .page-header-divider {
+        max-width: 60px;
+    }
+
+    #toolbar {
+        margin: 1.5rem 1rem 1rem 1rem;
+        gap: 1rem !important;
+    }
+
+    .toolbar-badge {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.85rem;
+    }
+
+    .toolbar-badge strong {
+        font-size: 1rem;
+    }
+
+    #toolbar .btn {
+        padding: 0.45rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    #toolbar .btn i {
+        font-size: 0.95rem;
+    }
+
+    /* Кнопки переносятся по одной при уменьшении ширины */
+    #section-buttons {
+        flex-basis: 100%;
+    }
+
+    .city-card h4,
+    .collection-card .card-title {
+        font-size: 1.2rem;
+    }
+
+    .city-stats {
+        gap: 1rem;
+    }
+
+    .city-card .badge,
+    .collection-card .badge {
+        font-size: 0.75rem;
+        padding: 0.4em 0.8em;
+        min-width: 2.5em;
+        border-radius: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-header {
+        margin: 1.5rem 1rem;
+    }
+
+    .page-header-title {
+        font-size: 1.75rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+
+    #toolbar {
+        gap: 1rem !important;
+        margin-bottom: 1rem;
+    }
+
+    .toolbar-badge {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .toolbar-badge strong {
+        font-size: 0.95rem;
+    }
+
+    #toolbar .btn {
+        font-size: 0.8rem;
+        padding: 0.45rem 0.7rem;
+    }
+
+    #toolbar .btn i {
+        font-size: 0.9rem;
+    }
+
+    /* Статистика на всю ширину */
+    #block-statistic {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Кнопки переносятся по одной, но не растягиваются */
+    #section-buttons {
+        justify-content: center !important;
+    }
+
+    .city-card .card-body,
+    .collection-card .card-body {
+        padding: 1rem;
+    }
+
+    .city-card .card-footer,
+    .collection-card .card-footer {
+        padding: 0.75rem 1rem;
+    }
+
+    .city-card .badge,
+    .collection-card .badge {
+        font-size: 0.7rem;
+        padding: 0.35em 0.75em;
+        min-width: 2.5em;
+        border-radius: 12px;
+    }
+}
+
+/* Accessibility: уменьшение анимаций для пользователей с prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .city-card:hover,
+    .collection-card:hover {
+        transform: none !important;
+    }
+
+    .city-stats .stat-item:hover {
+        transform: none !important;
+    }
+
+    .city-rating i:hover {
+        transform: none !important;
+    }
+}
+
+/* Дополнительная адаптивность для очень маленьких экранов (330px) */
+@media (max-width: 330px) {
+    .page-header-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Универсальные стили футера */
+.footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-top: 2px solid #dee2e6;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+    margin-top: 4rem !important;
+    padding: 2.5rem 0 !important;
+    position: relative;
+    animation: fadeInUp 0.8s ease-out 0.4s backwards;
+}
+
+.footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        #3498db 50%,
+        transparent 100%
+    );
+}
+
+.footer .text-muted {
+    color: #495057 !important;
+    font-size: 0.95rem;
+    line-height: 1.8;
+}
+
+.footer a {
+    color: #2c3e50 !important;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.footer a:hover {
+    color: #3498db !important;
+}
+
+.footer .fw-bold a {
+    color: #2c3e50 !important;
+}
+
+.footer i {
+    font-size: 1.5rem;
+    color: #6c757d !important;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.footer a:hover i.fa-github {
+    color: #2c3e50 !important;
+    transform: scale(1.15) rotate(5deg);
+}
+
+.footer a:hover i.fa-youtube {
+    color: #e74c3c !important;
+    transform: scale(1.15);
+}
+
+.footer a:hover i.fa-telegram {
+    color: #3498db !important;
+    transform: scale(1.15);
+}

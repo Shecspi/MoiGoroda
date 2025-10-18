@@ -31,257 +31,6 @@
     box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
 }
 
-/* Стильная строка поиска */
-.search-wrapper {
-    position: relative;
-    max-width: 100%;
-    z-index: 100;
-}
-
-.search-input {
-    padding: 0.875rem 3rem 0.875rem 3rem;
-    border: 2px solid #e9ecef;
-    border-radius: 50px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    background: #ffffff;
-}
-
-.search-input:focus {
-    border-color: #3498db;
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.2);
-    outline: none;
-    transform: translateY(-1px);
-}
-
-.search-input::placeholder {
-    color: #adb5bd;
-    font-weight: 400;
-}
-
-.search-icon {
-    position: absolute;
-    left: 1.25rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c757d;
-    font-size: 1.1rem;
-    pointer-events: none;
-    z-index: 10;
-    transition: color 0.3s ease;
-}
-
-.search-input:focus ~ .search-icon {
-    color: #3498db;
-}
-
-.search-clear {
-    position: absolute;
-    right: 1.25rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c757d;
-    font-size: 1rem;
-    cursor: pointer;
-    z-index: 10;
-    transition: color 0.2s ease;
-    padding: 0.5rem;
-}
-
-.search-clear:hover {
-    color: #dc3545;
-}
-
-/* Overlay для затемнения страницы */
-.search-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 50;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    pointer-events: none;
-}
-
-.search-overlay.active {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-}
-
-/* Стилизация выпадающего списка автокомплита */
-#autoComplete_list_1 {
-    background: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 16px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem 0.5rem 0.5rem;
-    max-height: 320px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 101;
-    isolation: isolate;
-    clip-path: inset(0 round 16px);
-}
-
-/* Стилизованная полоса прокрутки */
-#autoComplete_list_1::-webkit-scrollbar {
-    width: 8px;
-}
-
-#autoComplete_list_1::-webkit-scrollbar-track {
-    background: #f8f9fa;
-    border-radius: 0 16px 16px 0;
-}
-
-#autoComplete_list_1::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #3498db 0%, #2c3e50 100%);
-    border-radius: 10px;
-    transition: background 0.3s ease;
-}
-
-#autoComplete_list_1::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #2980b9 0%, #1c2833 100%);
-}
-
-/* Для Firefox */
-#autoComplete_list_1 {
-    scrollbar-width: thin;
-    scrollbar-color: #3498db #f8f9fa;
-}
-
-#autoComplete_list_1 .autoComplete_result {
-    padding: 0.75rem 1.25rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
-}
-
-#autoComplete_list_1 .autoComplete_result:hover,
-#autoComplete_list_1 .autoComplete_result[aria-selected="true"] {
-    background: linear-gradient(
-        90deg,
-        rgba(52, 152, 219, 0.12) 0%,
-        rgba(52, 152, 219, 0.05) 100%
-    );
-    border-left-color: #3498db;
-    box-shadow: inset 0 0 0 1px rgba(52, 152, 219, 0.2);
-}
-
-#autoComplete_list_1 .autoComplete_result mark {
-    background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 600;
-}
-
-/* Заголовок списка результатов */
-#autoComplete_list_1 p.dropdown-item {
-    background: linear-gradient(135deg, #f1f3f4 0%, #e2e6ea 100%);
-    padding: 0.625rem 1.25rem;
-    margin: 0 0 0.5rem 0;
-    border-radius: 12px;
-    border: 1px solid #ced4da;
-    font-size: 0.875rem;
-    color: #495057;
-    font-weight: 500;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-#autoComplete_list_1 p.dropdown-item strong {
-    color: #3498db;
-    font-weight: 600;
-}
-
-/* Сообщение "нет результатов" */
-#autoComplete_list_1 .autoComplete_result[aria-selected="false"] {
-    color: #6c757d;
-    font-style: italic;
-    padding: 1rem 1.25rem;
-}
-
-/* Стилизация пагинации для страницы коллекций */
-body:has(.page-header-section) #section-pagination {
-    margin: 2rem 0;
-}
-
-body:has(.page-header-section) #section-pagination .btn-group {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-body:has(.page-header-section) #section-pagination .btn {
-    border: none;
-    padding: 0.75rem 1.25rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border-radius: 0;
-}
-
-body:has(.page-header-section) #section-pagination .btn:first-child {
-    border-radius: 16px 0 0 16px;
-}
-
-body:has(.page-header-section) #section-pagination .btn:last-child {
-    border-radius: 0 16px 16px 0;
-}
-
-body:has(.page-header-section) #section-pagination .btn-outline-danger {
-    background: linear-gradient(135deg, #f8d7da 0%, #f5c2c7 100%);
-    color: #721c24;
-    border: 1px solid #f1aeb5;
-}
-
-body:has(.page-header-section) #section-pagination .btn-outline-danger:hover {
-    background: linear-gradient(135deg, #f5c2c7 0%, #f1aeb5 100%);
-    color: #721c24;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
-}
-
-body:has(.page-header-section) #section-pagination .btn-outline-success {
-    background: linear-gradient(135deg, #d1e7dd 0%, #badbcc 100%);
-    color: #0f5132;
-    border: 1px solid #a3cfbb;
-}
-
-body:has(.page-header-section) #section-pagination .btn-outline-success:hover {
-    background: linear-gradient(135deg, #badbcc 0%, #a3cfbb 100%);
-    color: #0f5132;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
-}
-
-body:has(.page-header-section) #section-pagination .btn-outline-dark {
-    background: linear-gradient(135deg, #e2e3e5 0%, #d3d4d6 100%);
-    color: #41464b;
-    border: 1px solid #c4c8cc;
-    font-size: 0.95rem;
-}
-
-body:has(.page-header-section) #section-pagination .btn-outline-secondary {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    color: #6c757d;
-    border: 1px solid #dee2e6;
-    opacity: 0.7;
-}
-
-body:has(.page-header-section) #section-pagination .btn i {
-    font-size: 0.9rem;
-}
-
 /* Современные карточки коллекций */
 .collection-card {
     background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%);
@@ -459,73 +208,6 @@ body:has(.page-header-section) .alert-danger::before {
     z-index: 0;
 }
 
-/* Стилизация футера страницы */
-body:has(.page-header-section) .footer {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-top: 2px solid #dee2e6;
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
-    margin-top: 4rem !important;
-    padding: 2.5rem 0 !important;
-    position: relative;
-}
-
-body:has(.page-header-section) .footer::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        #3498db 50%,
-        transparent 100%
-    );
-}
-
-body:has(.page-header-section) .footer .text-muted {
-    color: #495057 !important;
-    font-size: 0.95rem;
-    line-height: 1.8;
-}
-
-body:has(.page-header-section) .footer a {
-    color: #2c3e50 !important;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-body:has(.page-header-section) .footer a:hover {
-    color: #3498db !important;
-}
-
-body:has(.page-header-section) .footer .fw-bold a {
-    color: #2c3e50 !important;
-}
-
-body:has(.page-header-section) .footer i {
-    font-size: 1.5rem;
-    color: #6c757d !important;
-    transition: all 0.3s ease;
-}
-
-body:has(.page-header-section) .footer a:hover i.fa-github {
-    color: #2c3e50 !important;
-    transform: scale(1.15) rotate(5deg);
-}
-
-body:has(.page-header-section) .footer a:hover i.fa-youtube {
-    color: #e74c3c !important;
-    transform: scale(1.15);
-}
-
-body:has(.page-header-section) .footer a:hover i.fa-telegram {
-    color: #3498db !important;
-    transform: scale(1.15);
-}
-
 /* ========================================
    МИКРОАНИМАЦИИ
    ======================================== */
@@ -642,27 +324,6 @@ body:has(.page-header-section) .footer a:hover i.fa-telegram {
     }
 }
 
-/* Анимация появления поля поиска */
-.search-wrapper {
-    animation: slideDown 0.6s ease-out 0.2s backwards;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Плавное появление футера */
-.footer {
-    animation: fadeInUp 0.8s ease-out 0.4s backwards;
-}
-
 /* Hover эффект для заголовка коллекции */
 .collection-card h4 a {
     position: relative;
@@ -696,11 +357,6 @@ body:has(.page-header-section) .footer a:hover i.fa-telegram {
 
 .collection-card h4 a:hover::after {
     width: 100%;
-}
-
-/* Анимация для overlay */
-.search-overlay {
-    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 /* Плавное появление toast уведомлений */
@@ -738,21 +394,6 @@ body:has(.page-header-section) .footer a:hover i.fa-telegram {
         font-size: 0.95rem;
     }
 
-    .search-input {
-        padding: 0.75rem 2.75rem 0.75rem 2.75rem;
-        font-size: 0.95rem;
-    }
-
-    .search-icon {
-        left: 1rem;
-        font-size: 1rem;
-    }
-
-    .search-clear {
-        right: 1rem;
-        font-size: 0.9rem;
-    }
-
     .collection-card {
         margin-bottom: 1rem;
     }
@@ -764,21 +405,6 @@ body:has(.page-header-section) .footer a:hover i.fa-telegram {
     .collection-card .badge {
         font-size: 0.7rem;
         padding: 0.3em 0.5em;
-    }
-
-    /* Адаптация пагинации для мобильных */
-    body:has(.page-header-section) #section-pagination .btn {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.85rem;
-    }
-
-    body:has(.page-header-section) #section-pagination .btn i {
-        font-size: 0.8rem;
-    }
-
-    /* Скрываем текст в кнопках пагинации, оставляем только иконки */
-    body:has(.page-header-section) #section-pagination .btn span {
-        display: none;
     }
 }
 
@@ -803,43 +429,6 @@ body:has(.page-header-section) .footer a:hover i.fa-telegram {
         padding-left: 0.5rem !important;
         padding-right: 0.5rem !important;
     }
-
-    .search-wrapper {
-        padding: 0;
-        width: 100%;
-    }
-
-    .search-input {
-        padding: 0.65rem 2.5rem 0.65rem 2.5rem;
-        font-size: 0.9rem;
-        border-radius: 40px;
-        width: 100%;
-    }
-
-    .search-icon {
-        left: 0.875rem;
-        font-size: 0.95rem;
-    }
-
-    .search-clear {
-        right: 0.875rem;
-        font-size: 0.85rem;
-        padding: 0.4rem;
-    }
-
-    /* Ещё более компактная пагинация для очень узких экранов */
-    body:has(.page-header-section) #section-pagination .btn {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
-    }
-
-    body:has(.page-header-section) #section-pagination .btn i {
-        font-size: 0.75rem;
-    }
-
-    body:has(.page-header-section) #section-pagination .btn-group {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    }
 }
 
 /* Адаптация для очень маленьких экранов */
@@ -858,40 +447,6 @@ body:has(.page-header-section) .footer a:hover i.fa-telegram {
         padding-right: 0.25rem !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
-    }
-
-    /* Ещё более компактное поле поиска */
-    .search-wrapper {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    .search-input {
-        padding: 0.6rem 2rem 0.6rem 2rem;
-        font-size: 0.85rem;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    .search-icon {
-        left: 0.6rem;
-        font-size: 0.85rem;
-    }
-
-    .search-clear {
-        right: 0.6rem;
-        font-size: 0.75rem;
-        padding: 0.35rem;
-    }
-
-    /* Исправляем min-width для autocomplete на маленьких экранах */
-    .autoComplete_wrapper {
-        min-width: auto !important;
-        width: 100% !important;
-        max-width: 100% !important;
     }
 
     /* Ещё меньше заголовок */

@@ -1,0 +1,153 @@
+/* Стили пагинации для всего приложения */
+
+/* Основные стили пагинации */
+.pagination-container {
+    margin: 2rem 0;
+    animation: fadeInUp 0.6s ease-out 0.4s backwards;
+}
+
+.pagination-group {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.pagination-btn,
+.pagination-info {
+    border: none;
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-radius: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.pagination-btn span,
+.pagination-info span {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+    transform: translateY(0.05em);
+}
+
+.pagination-btn i,
+.pagination-info i {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.pagination-group .btn:first-child {
+    border-radius: 16px 0 0 16px;
+}
+
+.pagination-group .btn:last-child {
+    border-radius: 0 16px 16px 0;
+}
+
+/* Цвета кнопок пагинации */
+.pagination-btn.btn-outline-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c2c7 100%);
+    color: #721c24;
+    border: 1px solid #f1aeb5;
+}
+
+.pagination-btn.btn-outline-danger:hover {
+    background: linear-gradient(135deg, #f5c2c7 0%, #f1aeb5 100%);
+    color: #721c24;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
+}
+
+.pagination-btn.btn-outline-success {
+    background: linear-gradient(135deg, #d1e7dd 0%, #badbcc 100%);
+    color: #0f5132;
+    border: 1px solid #a3cfbb;
+}
+
+.pagination-btn.btn-outline-success:hover {
+    background: linear-gradient(135deg, #badbcc 0%, #a3cfbb 100%);
+    color: #0f5132;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
+}
+
+.pagination-info.btn-outline-dark {
+    background: linear-gradient(135deg, #e2e3e5 0%, #d3d4d6 100%);
+    color: #41464b;
+    border: 1px solid #c4c8cc;
+    font-size: 0.95rem;
+}
+
+.pagination-btn.btn-outline-secondary {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    opacity: 0.7;
+}
+
+.pagination-btn i,
+.pagination-info i {
+    font-size: 0.9rem;
+}
+
+/* Адаптивные стили для мобильных устройств */
+@media (max-width: 768px) {
+    .pagination-btn,
+    .pagination-info {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .pagination-btn i,
+    .pagination-info i {
+        font-size: 0.8rem;
+    }
+
+    /* Скрываем текст в кнопках пагинации, оставляем только иконки */
+    .pagination-btn span {
+        display: none;
+    }
+
+    /* Скрываем только слово "Страница", оставляя цифры */
+    .pagination-info-full {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Ещё более компактная пагинация для очень узких экранов */
+    .pagination-btn,
+    .pagination-info {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .pagination-btn i,
+    .pagination-info i {
+        font-size: 0.75rem;
+    }
+
+    .pagination-group {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Accessibility: уменьшение анимаций для пользователей с prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .pagination-container {
+        animation: none;
+    }
+
+    .pagination-btn,
+    .pagination-info {
+        transition: none;
+    }
+
+    .pagination-btn:hover {
+        transform: none;
+    }
+}

@@ -1,15 +1,24 @@
 {% extends 'base.html' %}
 {% load morphology %}
 {% load vite %}
+{% load static %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3 mx-3" id="section-page_header">
-      {% if country_name %}
-        Список посещённых городов в {{ country_name|prepositional }}
-      {% else %}
-        Список посещённых городов
-      {% endif %}
-    </h1>
+    <!-- Подключение нового дизайна -->
+    <link rel="stylesheet" href="{% static 'css/style2.css' %}?ver={{ PROJECT_VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/city-card.css' %}?ver={{ PROJECT_VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/pagination.css' %}?ver={{ PROJECT_VERSION }}">
+
+    <div class="page-header-section text-center mt-4 mb-2 mx-3">
+        <h1 class="page-header-title display-4 fw-bold mb-2" id="section-page_header">
+            {% if country_name %}
+                Список посещённых городов в {{ country_name|prepositional }}
+            {% else %}
+                Список посещённых городов
+            {% endif %}
+        </h1>
+        <div class="page-header-divider"></div>
+    </div>
 
     {% if not DEBUG %}
     {% include 'advertisement/rtb_banner.html' %}
@@ -17,31 +26,31 @@
 
     {% include 'city/city_all__list__toolbar.html' %}
 
-    <!-- Карточки с регионами -->
+    <!-- Карточки с городами -->
     {% if object_list %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mb-3 g-3" style="margin-top: 1rem;" id="list-content">
             {% for city in object_list %}
                 {% include 'city/city__card.html' %}
             {% endfor %}
         </div>
     {% else %}
         {% if qty_of_visited_cities > 0 %}
-            <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
+            <div class="row mx-3 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto" style="margin-top: 1rem;">
                 <div class="col-xl-8">
-                    <div class="alert alert-warning p-5 text-center fs-3" role="alert" id="section-info_box">
+                    <div class="empty-state" role="alert" id="section-info_box">
                         {% if filter %}
                             По заданным условиям фильтрации не найдено ни одного города
                         {% else %}
                             Вы не посетили ни одного города в {{ country_name|prepositional }}.<br>
-                            Можете посмотреть <a href="{% url 'city-all-map' %}?country={{ country_code }}" class="link-dark link-underline-dark link-underline-opacity-25 link-underline-opacity-100-hover link-offset-2">все города {{ country_name|genitive }} на карте</a>.
+                            Можете посмотреть <a href="{% url 'city-all-map' %}?country={{ country_code }}">все города {{ country_name|genitive }} на карте</a>.
                         {% endif %}
                     </div>
                 </div>
             </div>
         {% else %}
-            <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
+            <div class="row mx-3 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto" style="margin-top: 1rem;">
                 <div class="col-xl-8">
-                    <div class="alert alert-danger p-5 text-center fs-3" role="alert" id="section-info_box">
+                    <div class="empty-state" role="alert" id="section-info_box">
                         На данный момент Вы не сохранили ни одного посещённого города.<br>
                         Нажмите кнопку "Добавить город" и начните пользоваться сервисом.
                     </div>

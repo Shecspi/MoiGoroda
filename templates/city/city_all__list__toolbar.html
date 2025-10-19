@@ -4,40 +4,44 @@
 {% load filters %}
 
 <link rel="stylesheet" href="{% static 'css/autoComplete.css' %}?ver={{ PROJECT_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/select-field.css' %}?ver={{ PROJECT_VERSION }}">
 
 <!-- Панель инструментов -->
-<div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 justify-content-between align-items-center" id="toolbar">
+<div class="mx-3 my-3 d-flex flex-wrap gap-3 justify-content-between align-items-center" id="toolbar">
     <!-- Статистика посещёния -->
-    <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
-        <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-            Всего посещено {{ qty_of_visited_cities }} {{ "города"|plural_by_num:qty_of_visited_cities }}
+    <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center" id="section-stats">
+        <span class="toolbar-badge toolbar-badge-success">
+            Всего посещено <strong>{{ qty_of_visited_cities }}</strong> {{ "города"|plural_by_num:qty_of_visited_cities }}
         </span>
         {% if country_code %}
-            <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
-                В {{ country_name|prepositional }}: {{ number_of_visited_cities_in_country }} из {{ number_of_cities_in_country }}
+            <span class="toolbar-badge toolbar-badge-info">
+                В {{ country_name|prepositional }}: <strong>{{ number_of_visited_cities_in_country }}</strong> из {{ number_of_cities_in_country }}
             </span>
         {% else %}
-            <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
-                Стран: {{ number_of_visited_countries }}
+            <span class="toolbar-badge toolbar-badge-info">
+                Стран: <strong>{{ number_of_visited_countries }}</strong>
             </span>
         {% endif %}
     </div>
 
     <!-- Фильтры -->
-    <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-small-buttons">
-        <div class="flex-grow-1">
-            <input id="city-search" type="text" class="form-control w-100" placeholder="Поиск города...">
+    <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-buttons">
+        <div class="flex-grow-1 search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input id="city-search" type="text" class="form-control search-input" placeholder="Поиск города...">
         </div>
 
         <div class="flex-grow-1" style="min-width: 250px;">
-            <select class="form-select w-100" id="id_country"></select>
+            <select class="form-select" id="id_country"></select>
         </div>
 
-        <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" class="btn btn-outline-success align-self-center">
-            <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте
+        <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
+           class="btn btn-outline-success d-flex align-items-center gap-2">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span>Посмотреть на карте</span>
         </a>
 
-        <button class="align-self-center btn {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 justify-content-start align-items-center position-relative"
+        <button class="btn {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 align-items-center position-relative"
                 type="button"
                 id="btnOpenFilterSortPanel"
                 data-bs-tooltip="tooltip"
@@ -46,7 +50,7 @@
                 data-bs-target="#offcanvasRight"
                 aria-controls="offcanvasRight">
             <i class="fa-solid fa-sliders"></i>
-            Фильтры и сортировка
+            <span>Фильтры и сортировка</span>
             {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
                 <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
                     <span class="visually-hidden">Применена фильтрация или сортировка</span>
@@ -57,6 +61,9 @@
     <!-- ^^^ Фильтры -->
 </div>
 <!-- ^^^ Панель инструментов -->
+
+<!-- Overlay для затемнения страницы при поиске -->
+<div class="search-overlay" id="search-overlay"></div>
 
 {% with defaultFilter='no_filter' defaultSort='last_visit_date_down' %}
 <div class="offcanvas offcanvas-end"

@@ -1,1 +1,1 @@
-import 'choices.js/public/assets/styles/choices.min.css';
+// import 'choices.js/public/assets/styles/choices.min.css';

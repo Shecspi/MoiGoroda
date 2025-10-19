@@ -1,0 +1,135 @@
+/* Стили для выпадающих списков (select) с Choices.js */
+
+/* Базовый контейнер Choices */
+#toolbar .choices {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+/* Основное поле выбора */
+#toolbar .choices__inner {
+    border: 1.5px solid rgba(107, 114, 128, 0.3);
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #374151;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    min-height: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Hover состояние */
+#toolbar .choices:hover .choices__inner {
+    border-color: rgba(107, 114, 128, 0.5);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Focus состояние */
+#toolbar .choices.is-focused .choices__inner,
+#toolbar .choices.is-open .choices__inner {
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Стрелка выпадающего списка */
+#toolbar .choices__inner::after {
+    content: "";
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 12px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    border: none;
+    margin: 0;
+    pointer-events: none;
+}
+
+/* Скрываем стандартную стрелку Choices.js */
+#toolbar .choices[data-type*="select-one"]::after {
+    display: none;
+}
+
+/* Текст выбранного элемента */
+#toolbar .choices__item--selectable {
+    padding-right: 2rem;
+}
+
+/* Выпадающий список */
+#toolbar .choices__list--dropdown {
+    border: 1.5px solid rgba(107, 114, 128, 0.3);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    margin-top: 0.25rem;
+    z-index: 10;
+}
+
+/* Элементы списка */
+#toolbar .choices__list--dropdown .choices__item {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: #374151;
+    transition: all 0.2s ease;
+}
+
+/* Hover для элементов списка */
+#toolbar .choices__list--dropdown .choices__item--selectable.is-highlighted {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #1e40af;
+}
+
+/* Disabled состояние */
+#toolbar .choices.is-disabled .choices__inner {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Адаптивность для планшетов */
+@media (max-width: 768px) {
+    #toolbar .choices__inner {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.85rem;
+    }
+
+    #toolbar .choices__list--dropdown .choices__item {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 576px) {
+    #toolbar .choices__inner {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    #toolbar .choices__list--dropdown .choices__item {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Анимация появления */
+#toolbar .choices {
+    animation: fadeInUp 0.5s ease-out 0.35s backwards;
+}
+
+/* Отключение анимаций для пользователей с настройками специальных возможностей */
+@media (prefers-reduced-motion: reduce) {
+    #toolbar .choices {
+        animation: none !important;
+    }
+
+    #toolbar .choices__inner {
+        transition: none !important;
+    }
+}

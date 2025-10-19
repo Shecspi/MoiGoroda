@@ -1,8 +1,8 @@
 <!-- Шапка сайта, отображаемая только на маленьких экранах -->
-<nav class="navbar navbar-expand-md bg-light d-xl-none">
+<nav class="navbar navbar-expand-md navbar-small-screens d-xl-none">
     <div class="container-fluid">
-        <div class="d-flex justify-content-between d-block">
-            <button class="btn btn-outline-secondary px-3 py-0 position-relative" id="sidebar-button-open">
+        <div class="d-flex justify-content-between align-items-center w-100 position-relative">
+            <button class="btn position-relative" id="sidebar-button-open">
                 <i class="fa-solid fa-bars-staggered"></i>
                 <!-- Уведомление о наличии бейджика с новостями в меню -->
                 {# Для этого у родительского элемента проставлен класс position-relative #}
@@ -13,7 +13,14 @@
                 {% endif %}
                 <!-- ^^^ Уведомление о наличии бейджика с новостями в меню -->
             </button>
-            <a class="navbar-brand sidebar-logo mx-3" href="#">Мои&nbsp;&nbsp;<i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;города</a>
+            <a class="navbar-brand sidebar-logo position-absolute start-50 translate-middle-x" href="{% url 'main_page' %}">
+                Мои&nbsp;&nbsp;<i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;города
+            </a>
+            {% if user.is_authenticated %}
+                <div class="notification-icon-wrapper" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                    <i class="fa-solid fa-bell notification-icon"></i>
+                </div>
+            {% endif %}
         </div>
     </div>
 </nav>

@@ -806,6 +806,530 @@
     }
 }
 
+/* Стили для навбара на маленьких экранах */
+.navbar-small-screens {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+    border-bottom: 2px solid #e9ecef;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.navbar-small-screens .container-fluid {
+    padding: 0 1rem;
+}
+
+.navbar-small-screens .btn {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #495057;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-small-screens .btn:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: #212529;
+}
+
+.navbar-small-screens .btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-small-screens .btn i {
+    font-size: 1.1rem;
+    color: #495057;
+    transition: color 0.3s ease;
+}
+
+.navbar-small-screens .btn:hover i {
+    color: #212529;
+}
+
+.navbar-small-screens .sidebar-logo {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    letter-spacing: -0.5px;
+    transition: all 0.3s ease;
+}
+
+.navbar-small-screens .sidebar-logo:hover {
+    transform: scale(1.05);
+}
+
+.navbar-small-screens .sidebar-logo i {
+    background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1.2rem;
+    margin: 0 0.25rem;
+}
+
+/* Стили для иконки уведомлений в навбаре */
+.navbar-small-screens .notification-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-small-screens .notification-icon-wrapper:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-small-screens .notification-icon {
+    font-size: 1.1rem;
+    color: #495057;
+    transition: color 0.3s ease;
+}
+
+.navbar-small-screens .notification-icon-wrapper:hover .notification-icon {
+    color: #212529;
+}
+
+/* Стили для уведомления о новых новостях */
+.navbar-small-screens .position-relative .bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+    animation: pulseOpacity 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    }
+}
+
+/* Адаптивные стили для навбара */
+@media (max-width: 576px) {
+    .navbar-small-screens {
+        padding: 0.5rem 0;
+    }
+
+    .navbar-small-screens .container-fluid {
+        padding: 0 0.75rem;
+    }
+
+    .navbar-small-screens .btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .navbar-small-screens .btn i {
+        font-size: 1rem;
+    }
+
+    .navbar-small-screens .notification-icon-wrapper {
+        padding: 0.6rem 0.8rem;
+    }
+
+    .navbar-small-screens .notification-icon {
+        font-size: 1rem;
+    }
+
+    .navbar-small-screens .sidebar-logo {
+        font-size: 1.1rem;
+    }
+
+    .navbar-small-screens .sidebar-logo i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 330px) {
+    .navbar-small-screens .sidebar-logo {
+        font-size: 1rem;
+    }
+
+    .navbar-small-screens .sidebar-logo i {
+        font-size: 0.9rem;
+    }
+}
+
+/* Универсальные стили сайдбара */
+.sidebar {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-right: 2px solid #e9ecef;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Стилизация полосы прокрутки в сайдбаре */
+.sidebar::-webkit-scrollbar {
+    width: 28px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(108, 117, 125, 0.4);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(108, 117, 125, 0.6);
+}
+
+/* Для Firefox */
+.sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(108, 117, 125, 0.4) #f8f9fa;
+}
+
+/* Шапка сайдбара */
+.sidebar .header-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #dee2e6;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.sidebar .sidebar-logo {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    letter-spacing: -0.5px;
+    margin: 0;
+}
+
+.sidebar .sidebar-logo i {
+    background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sidebar #sidebar-button-close {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #495057;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar #sidebar-button-close:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: #212529;
+}
+
+/* Пункты меню */
+.sidebar ul li a {
+    color: #495057;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    margin: 0.25rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar ul li a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #3498db;
+    opacity: 0.5;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+    background: linear-gradient(
+        90deg,
+        rgba(52, 152, 219, 0.12) 0%,
+        rgba(52, 152, 219, 0.05) 100%
+    );
+    color: #2c3e50;
+    transform: translateX(3px);
+}
+
+.sidebar ul li a:hover::before {
+    transform: scaleY(1);
+}
+
+.sidebar ul li a.active {
+    background: linear-gradient(
+        90deg,
+        rgba(52, 152, 219, 0.3) 0%,
+        rgba(52, 152, 219, 0.15) 100%
+    );
+    color: #1a2332;
+    font-weight: 600;
+    box-shadow: 0 2px 12px rgba(52, 152, 219, 0.3);
+    border: 1px solid rgba(52, 152, 219, 0.25);
+}
+
+.sidebar ul li a.active::before {
+    transform: scaleY(1);
+    opacity: 1;
+    width: 4px;
+}
+
+/* Иконки в меню */
+.sidebar ul li a i {
+    color: #6c757d;
+    transition: color 0.3s ease, transform 0.3s ease;
+    display: inline-block;
+}
+
+.sidebar ul li a:hover i {
+    color: #3498db;
+    transform: scale(1.1);
+}
+
+.sidebar ul li a.active i {
+    color: #3498db;
+}
+
+/* Разделители */
+.sidebar hr {
+    border-color: #dee2e6;
+    opacity: 0.6;
+    margin: 0.75rem 1rem;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        #dee2e6 50%,
+        transparent 100%
+    );
+    height: 1px;
+    border: none;
+}
+
+/* Заголовки секций */
+.sidebar ul li span.text-muted {
+    color: #6c757d !important;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Специальные стили для ссылки "Поддержать разработчика" */
+.sidebar ul li a.text-danger {
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+.sidebar ul li a.text-danger:hover {
+    background: linear-gradient(
+        90deg,
+        rgba(220, 53, 69, 0.12) 0%,
+        rgba(220, 53, 69, 0.05) 100%
+    );
+}
+
+.sidebar ul li a.text-danger::before {
+    background: #dc3545;
+    opacity: 0.5;
+}
+
+.sidebar ul li a.text-danger i {
+    color: #dc3545;
+}
+
+/* Выравнивание для пункта меню с бейджем */
+.sidebar ul li a:has(.badge) {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+}
+
+.sidebar ul li a:has(.badge) > span {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1.5;
+}
+
+/* Бейдж "Новые" в новостях */
+.sidebar .badge.bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    font-size: 0.75rem;
+    padding: 0.4em 0.7em;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+    animation: pulseOpacity 2s infinite;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    line-height: 1;
+    margin: 0;
+    align-self: center;
+}
+
+/* Анимация для opacity и анимированной тени */
+@keyframes pulseOpacity {
+    0% {
+        opacity: 1;
+        box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3),
+            0 0 0 0 rgba(220, 53, 69, 0.4);
+    }
+    50% {
+        opacity: 0.8;
+        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.5),
+            0 0 12px rgba(220, 53, 69, 0.12);
+    }
+    100% {
+        opacity: 1;
+        box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3),
+            0 0 0 0 rgba(220, 53, 69, 0.4);
+    }
+}
+
+.sidebar .badge.bg-danger {
+    color: #ffffff !important;
+}
+
+.sidebar .badge.bg-danger i {
+    color: #ffffff !important;
+    line-height: 1;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Отступ для заголовка чтобы иконка уведомлений не перекрывала текст */
+@media (min-width: 1200px) {
+    .page-header-title {
+        padding-right: 6rem;
+    }
+}
+
+/* Плавающая панель уведомлений для больших экранов */
+.notification-floating-panel {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.notification-floating-panel .notification-icon-wrapper {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid #dee2e6 !important;
+    border-radius: 16px;
+    padding: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Обеспечиваем яркую границу даже с Bootstrap классами */
+.notification-floating-panel
+    .notification-icon-wrapper.border-secondary-subtle {
+    border-color: #dee2e6 !important;
+}
+
+.notification-floating-panel .notification-icon-wrapper:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-color: #dee2e6;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.notification-floating-panel .notification-icon {
+    font-size: 1.5rem;
+    color: #495057;
+    transition: color 0.3s ease;
+}
+
+.notification-floating-panel
+    .notification-icon-wrapper:hover
+    .notification-icon {
+    color: #3498db;
+}
+
+.notification-floating-panel .notification-badge {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    width: 1rem;
+    height: 1rem;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    animation: pulseOpacity 2s infinite;
+}
+
+/* Адаптивность для плавающей панели */
+@media (max-width: 1400px) {
+    .notification-floating-panel {
+        top: 1.5rem;
+        right: 1.5rem;
+    }
+
+    .notification-floating-panel .notification-icon-wrapper {
+        padding: 0.875rem;
+    }
+
+    .notification-floating-panel .notification-icon {
+        font-size: 1.3rem;
+    }
+}
+
 /* Универсальные стили футера */
 .footer {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);

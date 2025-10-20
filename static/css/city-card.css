@@ -80,12 +80,15 @@
     width: 0;
     height: 2px;
     bottom: -2px;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     background: linear-gradient(
         90deg,
-        rgba(52, 152, 219, 0.8) 0%,
+        transparent 0%,
+        rgba(52, 152, 219, 0.6) 15%,
         rgba(41, 128, 185, 1) 50%,
-        rgba(52, 152, 219, 0.8) 100%
+        rgba(52, 152, 219, 0.6) 85%,
+        transparent 100%
     );
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -180,12 +183,15 @@
     width: 0;
     height: 2px;
     bottom: -2px;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     background: linear-gradient(
         90deg,
-        rgba(52, 152, 219, 0.8) 0%,
+        transparent 0%,
+        rgba(52, 152, 219, 0.6) 15%,
         rgba(41, 128, 185, 1) 50%,
-        rgba(52, 152, 219, 0.8) 100%
+        rgba(52, 152, 219, 0.6) 85%,
+        transparent 100%
     );
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }

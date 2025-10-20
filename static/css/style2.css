@@ -220,51 +220,7 @@
     vertical-align: middle;
 }
 
-.city-card h4 a,
-.collection-card h4 a {
-    position: relative;
-    display: inline-block;
-    text-decoration: none !important;
-    color: #2471a3 !important;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    line-height: 1.2;
-    vertical-align: baseline;
-    transform: translateY(0.15em);
-}
-
-.city-card h4 a::after,
-.collection-card h4 a::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -2px;
-    left: 50%;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(52, 152, 219, 0.6) 50%,
-        transparent 100%
-    );
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
-}
-
-.city-card h4 a:hover,
-.city-card h4 a:focus,
-.collection-card h4 a:hover,
-.collection-card h4 a:focus {
-    color: #3498db !important;
-    outline: none;
-}
-
-.city-card h4 a:hover::after,
-.city-card h4 a:focus::after,
-.collection-card h4 a:hover::after,
-.collection-card h4 a:focus::after {
-    width: 100%;
-}
+/* Стили для ссылок в заголовках карточек вынесены в city-card.css */
 
 /* Иконки статуса города */
 .city-status-icon {
@@ -323,47 +279,7 @@
     border: 1px solid #93c5fd;
 }
 
-/* Подзаголовок (регион/страна) */
-.city-card .card-subtitle {
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-
-.city-card .card-subtitle a {
-    color: #2471a3 !important;
-    text-decoration: none !important;
-    position: relative;
-    transition: color 0.3s ease;
-}
-
-.city-card .card-subtitle a::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -2px;
-    left: 50%;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(52, 152, 219, 0.6) 50%,
-        transparent 100%
-    );
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
-}
-
-.city-card .card-subtitle a:hover,
-.city-card .card-subtitle a:focus {
-    color: #3498db !important;
-    text-decoration: none !important;
-    outline: none;
-}
-
-.city-card .card-subtitle a:hover::after,
-.city-card .card-subtitle a:focus::after {
-    width: 100%;
-}
+/* Стили для подзаголовков карточек вынесены в city-card.css */
 
 /* Даты посещений */
 .city-visit-dates {

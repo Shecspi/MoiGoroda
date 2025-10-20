@@ -329,9 +329,10 @@ body:has(.page-header-section) .alert-danger::before {
     position: relative;
     display: inline-block;
     text-decoration: none !important;
-    color: #2c3e50 !important;
+    color: #2471a3 !important;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
+    transform: translateY(0.1em);
 }
 
 .collection-card h4 a::after {
@@ -341,21 +342,26 @@ body:has(.page-header-section) .alert-danger::before {
     height: 2px;
     bottom: -2px;
     left: 50%;
+    transform: translateX(-50%);
     background: linear-gradient(
         90deg,
         transparent 0%,
-        rgba(52, 152, 219, 0.6) 50%,
+        rgba(52, 152, 219, 0.6) 15%,
+        rgba(41, 128, 185, 1) 50%,
+        rgba(52, 152, 219, 0.6) 85%,
         transparent 100%
     );
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.collection-card h4 a:hover {
+.collection-card h4 a:hover,
+.collection-card h4 a:focus {
     color: #3498db !important;
+    outline: none;
 }
 
-.collection-card h4 a:hover::after {
+.collection-card h4 a:hover::after,
+.collection-card h4 a:focus::after {
     width: 100%;
 }
 

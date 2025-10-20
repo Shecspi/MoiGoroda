@@ -1,43 +1,51 @@
 {% load query_string %}
 {% if page_obj.has_other_pages %}
-    <div class="text-center my-2" id="section-pagination">
-        <div class="btn-group mb-3 shadow" role="group">
+    <div class="pagination-container text-center my-2">
+        <div class="pagination-group btn-group mb-3 shadow" role="group">
             {% if page_obj.has_previous %}
                 <a href="?{% update_query page=1 %}"
-                   class="btn btn-outline-danger" id="link-to_first_page">
+                   class="pagination-btn btn btn-outline-danger">
                     <i class="fa-solid fa-angles-left"></i>
+                    <span>В начало</span>
                 </a>
                 <a href="?{% update_query page=page_obj.previous_page_number %}"
-                   class="btn btn-outline-danger" id="link-to_prev_page">
+                   class="pagination-btn btn btn-outline-danger">
                     <i class="fa-solid fa-angle-left"></i>
+                    <span>Назад</span>
                 </a>
             {% else %}
-                <button class="btn btn-outline-secondary" disabled id="link-to_first_page">
+                <button class="pagination-btn btn btn-outline-secondary" disabled>
                     <i class="fa-solid fa-angles-left"></i>
+                    <span>В начало</span>
                 </button>
-                <button class="btn btn-outline-secondary" disabled id="link-to_prev_page">
+                <button class="pagination-btn btn btn-outline-secondary" disabled>
                     <i class="fa-solid fa-angle-left"></i>
+                    <span>Назад</span>
                 </button>
             {% endif %}
 
-            <button class="btn btn-outline-dark" disabled id="pagination-info">
-                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            <button class="pagination-info btn btn-outline-dark" disabled>
+                <span class="pagination-info-full">Страница </span>{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
             </button>
 
             {% if page_obj.has_next %}
                 <a href="?{% update_query page=page_obj.next_page_number %}"
-                   class="btn btn-outline-success" id="link-to_next_page">
+                   class="pagination-btn btn btn-outline-success">
+                    <span>Вперёд</span>
                     <i class="fa-solid fa-angle-right"></i>
                 </a>
                 <a href="?{% update_query page=page_obj.paginator.num_pages %}"
-                   class="btn btn-outline-success" id="link-to_last_page">
+                   class="pagination-btn btn btn-outline-success">
+                    <span>В конец</span>
                     <i class="fa-solid fa-angles-right"></i>
                 </a>
             {% else %}
-                <button class="btn btn-outline-secondary" disabled id="link-to_next_page">
+                <button class="pagination-btn btn btn-outline-secondary" disabled>
+                    <span>Вперёд</span>
                     <i class="fa-solid fa-angle-right"></i>
                 </button>
-                <button class="btn btn-outline-secondary" disabled id="link-to_last_page">
+                <button class="pagination-btn btn btn-outline-secondary" disabled>
+                    <span>В конец</span>
                     <i class="fa-solid fa-angles-right"></i>
                 </button>
             {% endif %}

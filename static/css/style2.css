@@ -1320,3 +1320,581 @@
     color: #3498db !important;
     transform: scale(1.15);
 }
+
+/* Стили для страницы детализации города */
+.city-detail-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+    border: none !important;
+    transition: all 0.3s ease;
+}
+
+.city-detail-card:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Кнопки на странице детализации города */
+.city-detail-card .btn {
+    font-weight: 500;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    border-width: 1.5px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.city-detail-card .btn:not(.disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* Бейджи коллекций */
+.city-detail-card .badge-hover-success {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+    color: #166534 !important;
+    border: 1.5px solid rgba(34, 197, 94, 0.3) !important;
+    border-radius: 10px !important;
+    padding: 0.5rem 0.9rem !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.city-detail-card .badge-hover-success:hover {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
+    border-color: rgba(34, 197, 94, 0.5) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(34, 197, 94, 0.15);
+}
+
+/* Звёзды рейтинга */
+.city-detail-card .fa-star {
+    transition: transform 0.2s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.city-detail-card .fa-star:hover {
+    transform: scale(1.1);
+}
+
+/* Маленькие кнопки на панели инструментов карты */
+.small-btn-for-toolbar {
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    border: 1.5px solid;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.small-btn-for-toolbar:not(.disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.small-btn-for-toolbar.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Primary вариант */
+.small-btn-primary {
+    border-color: rgba(59, 130, 246, 0.6);
+    color: #2563eb;
+}
+
+.small-btn-primary:hover:not(.disabled) {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.8);
+}
+
+.small-btn-primary:active:not(.disabled),
+.small-btn-primary.active {
+    background-color: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.9);
+    color: #1e40af;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.15);
+}
+
+/* Когда JavaScript добавляет класс btn-primary (активное состояние) */
+.small-btn-for-toolbar.btn-primary,
+.small-btn-primary.btn-primary {
+    background-color: rgba(59, 130, 246, 0.25) !important;
+    border-color: rgba(59, 130, 246, 1) !important;
+    color: #1e40af !important;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Убираем стили btn-outline-primary когда кнопка в неактивном состоянии */
+.small-btn-primary.btn-outline-primary {
+    background-color: transparent !important;
+}
+
+/* Success вариант */
+.small-btn-success {
+    border-color: rgba(16, 185, 129, 0.6);
+    color: #059669;
+}
+
+.small-btn-success:hover:not(.disabled) {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.8);
+}
+
+.small-btn-success:active:not(.disabled),
+.small-btn-success.active {
+    background-color: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.9);
+    color: #065f46;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+}
+
+/* Когда JavaScript добавляет класс btn-success (активное состояние) */
+.small-btn-for-toolbar.btn-success,
+.small-btn-success.btn-success {
+    background-color: rgba(16, 185, 129, 0.25) !important;
+    border-color: rgba(16, 185, 129, 1) !important;
+    color: #065f46 !important;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Убираем стили btn-outline-success когда кнопка в неактивном состоянии */
+.small-btn-success.btn-outline-success {
+    background-color: transparent !important;
+}
+
+/* Danger вариант */
+.small-btn-danger {
+    border-color: rgba(239, 68, 68, 0.6);
+    color: #dc2626;
+}
+
+.small-btn-danger:hover:not(.disabled) {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.8);
+}
+
+.small-btn-danger:active:not(.disabled),
+.small-btn-danger.active {
+    background-color: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.9);
+    color: #991b1b;
+    box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.15);
+}
+
+/* Когда JavaScript добавляет класс btn-danger (активное состояние) */
+.small-btn-for-toolbar.btn-danger,
+.small-btn-danger.btn-danger {
+    background-color: rgba(239, 68, 68, 0.25) !important;
+    border-color: rgba(239, 68, 68, 1) !important;
+    color: #991b1b !important;
+    box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Убираем стили btn-outline-danger когда кнопка в неактивном состоянии */
+.small-btn-danger.btn-outline-danger {
+    background-color: transparent !important;
+}
+
+/* Focus состояние для маленьких кнопок */
+.small-btn-for-toolbar:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(107, 114, 128, 0.15);
+}
+
+/* Стили для модального окна помощи */
+.modern-modal {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.modern-modal-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #dee2e6;
+    padding: 1.25rem 1.5rem;
+}
+
+.modern-modal-header .modal-title {
+    color: #212529;
+}
+
+.modern-modal-header .modal-title i {
+    color: #6c757d;
+}
+
+.modern-modal-body {
+    padding: 1.5rem;
+    background-color: #ffffff;
+    max-height: calc(100vh - 200px);
+}
+
+.modern-modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+
+/* Стилизация скроллбара в модальном окне */
+.modern-modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modern-modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modern-modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.modern-modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+/* Для Firefox */
+.modern-modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f1f1f1;
+}
+
+/* Элементы списка в модальном окне помощи */
+.help-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.help-item:hover {
+    background-color: #f8f9fa;
+}
+
+.help-icon {
+    flex-shrink: 0;
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.help-text {
+    flex: 1;
+    line-height: 1.6;
+    color: #495057;
+}
+
+.help-divider {
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        #dee2e6 50%,
+        transparent 100%
+    );
+    margin: 0.5rem 0;
+}
+
+/* Стилизация alert в модальном окне */
+.modern-modal-body .alert-info {
+    background: linear-gradient(135deg, #e7f3ff 0%, #d0e8ff 100%);
+    border: 1px solid #b3d9ff;
+    border-radius: 10px;
+    color: #004085;
+    padding: 0.75rem 1rem;
+}
+
+.modern-modal-body .alert-info i {
+    color: #0056b3;
+}
+
+/* Стили для списка подписок */
+.subscriptions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.subscription-item {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.subscription-item:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.subscription-item .form-check {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    padding-left: 0;
+}
+
+.subscription-item .form-check-input {
+    width: 2.5rem;
+    height: 1.25rem;
+    cursor: pointer;
+    border-radius: 1rem;
+    margin-right: 0.75rem;
+    margin-left: 0;
+    flex-shrink: 0;
+    position: relative;
+    float: none;
+}
+
+.subscription-item .form-check-input:checked {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.subscription-item .form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+    border-color: #10b981;
+}
+
+.subscription-label {
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #374151;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.subscription-label i {
+    color: #6b7280;
+}
+
+/* Стили для модального окна добавления города */
+.modern-modal-body h4 {
+    color: #1f2937;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.modern-modal-body .form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.modern-modal-body .form-control,
+.modern-modal-body .form-select {
+    border-radius: 8px;
+    border: 1.5px solid #d1d5db;
+    padding: 0.625rem 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.modern-modal-body .form-control:focus,
+.modern-modal-body .form-select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+}
+
+.modern-modal-body .input-group-text {
+    background-color: #f3f4f6;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modern-modal-body .input-group-text:hover {
+    background-color: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.modern-modal-body .form-text {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Стилизация радио-кнопок для рейтинга */
+.modern-modal-body .form-check-inline {
+    margin-right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modern-modal-body .form-check-input[type="radio"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    border: 2px solid #d1d5db;
+    margin-top: 0;
+    margin-right: 0;
+    flex-shrink: 0;
+}
+
+.modern-modal-body .form-check-input[type="radio"]:checked {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.modern-modal-body .form-check-input[type="radio"]:focus {
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+}
+
+.modern-modal-body .form-check-label {
+    cursor: pointer;
+    font-weight: 500;
+    color: #374151;
+    user-select: none;
+}
+
+/* Стилизация чекбокса */
+.modern-modal-body .form-check:not(.form-check-inline) {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.modern-modal-body .form-check > div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modern-modal-body .form-check-input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    margin-top: 0;
+    margin-right: 0;
+    flex-shrink: 0;
+}
+
+.modern-modal-body .form-check-input[type="checkbox"]:checked {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.modern-modal-body .form-check-input[type="checkbox"]:focus {
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+}
+
+.modern-modal-body .form-check .form-text {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+/* Стилизация textarea */
+.modern-modal-body textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Стили для кнопок в модальных окнах */
+.modern-modal-footer .btn {
+    font-weight: 500;
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
+    border-width: 1.5px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modern-modal-footer .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.modern-modal-footer .btn-success {
+    background-color: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.modern-modal-footer .btn-success:hover {
+    background-color: #059669;
+    border-color: #059669;
+}
+
+.modern-modal-footer .btn-success:active {
+    background-color: #047857;
+    border-color: #047857;
+}
+
+.modern-modal-footer .btn-secondary {
+    background-color: #6b7280;
+    border-color: #6b7280;
+    color: white;
+}
+
+.modern-modal-footer .btn-secondary:hover {
+    background-color: #4b5563;
+    border-color: #4b5563;
+}
+
+.modern-modal-footer .btn-secondary:active {
+    background-color: #374151;
+    border-color: #374151;
+}
+
+/* Универсальные стили для ссылок в приложении */
+.app-link {
+    color: #0d3d6b !important;
+    text-decoration: none !important;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.app-link::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(52, 152, 219, 0.6) 15%,
+        rgba(41, 128, 185, 1) 50%,
+        rgba(52, 152, 219, 0.6) 85%,
+        transparent 100%
+    );
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-link:hover,
+.app-link:focus {
+    color: #2874a6 !important;
+    outline: none;
+}
+
+.app-link:hover::after,
+.app-link:focus::after {
+    width: 100%;
+}

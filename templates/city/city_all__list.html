@@ -42,7 +42,7 @@
                             По заданным условиям фильтрации не найдено ни одного города
                         {% else %}
                             Вы не посетили ни одного города в {{ country_name|prepositional }}.<br>
-                            Можете посмотреть <a href="{% url 'city-all-map' %}?country={{ country_code }}">все города {{ country_name|genitive }} на карте</a>.
+                            Можете посмотреть <a href="{% url 'city-all-map' %}?country={{ country_code }}" class="app-link">все города {{ country_name|genitive }} на карте</a>.
                         {% endif %}
                     </div>
                 </div>

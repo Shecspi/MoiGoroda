@@ -6,6 +6,8 @@
 {% load mathfilters %}
 
 {% block content %}
+    <!-- Подключение нового дизайна -->
+    <link rel="stylesheet" href="{% static 'css/style2.css' %}?ver={{ PROJECT_VERSION }}">
 
 {% if not DEBUG %}
     {% if not user.is_authenticated %}
@@ -13,9 +15,12 @@
     {% endif %}
 {% endif %}
 
-<h1 class="display-5 text-center mt-4 mb-4 fw-bold" id="section-page_header">
-    {{ city.title }}
-</h1>
+<div class="page-header-section text-center mt-4 mb-2 mx-3">
+    <h1 class="page-header-title display-4 fw-bold mb-2" id="section-page_header">
+        {{ city.title }}
+    </h1>
+    <div class="page-header-divider"></div>
+</div>
 
 {% if not user.is_authenticated %}
     {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
@@ -24,7 +29,7 @@
 <div class="container mb-5 mt-3">
     <div class="row justify-content-center" id="city-selected-content">
         <div class="col-12">
-            <div class="card shadow-lg rounded-4 border-0">
+            <div class="card city-detail-card">
                 <div class="card-body p-4">
                     <div class="row">
                          <div class="col-12 col-lg-6 text-center mb-3" id="section-city_image">
@@ -32,7 +37,7 @@
                                 <img src="{{ city.image }}"
                                      alt="Фото города {{ city.title }}"
                                      class="img-fluid rounded-3 shadow city-image"
-                                     onerror="this.onerror=null; this.src='{% static 'image/city_placeholder.png' %}';">
+                                     onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
                              {% else %}
                                 <img src="{% static 'image/city_placeholder.png' %}"
                                      alt="Фото города {{ city.title }}"
@@ -43,7 +48,7 @@
                                     Источник изображения:<br>
                                     {% if city.image_source_link %}
                                         <a href="{{ city.image_source_link }}"
-                                           class="link-offset-2 link-underline-dark link-dark link-underline-opacity-75-hover link-opacity-75-hover"
+                                           class="app-link"
                                            target="_blank">{{ city.image_source_text }}</a>
                                     {% else %}
                                         {{ city.image_source_text }}
@@ -60,7 +65,7 @@
                                             role="button"
                                             data-bs-toggle="modal"
                                             data-bs-target="#cityStatisticModal">
-                                        <i class="fa-solid fa-map-location-dot"></i>
+                                        <i class="fa-solid fa-chart-simple"></i>
                                         Статистика города
                                     </button>
 
@@ -161,7 +166,7 @@
                                 <div class="col-12 d-flex justify-content-end mt-3">
                                     {% if city.wiki %}
                                         <a href="{{ city.wiki }}"
-                                           class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover"
+                                           class="app-link"
                                            target="_blank">
                                             <i class="fa-brands fa-wikipedia-w me-2"></i>Больше информации о городе на Wikipedia
                                         </a>

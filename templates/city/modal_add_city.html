@@ -9,15 +9,16 @@
          aria-labelledby="modal_add_city_label"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="modal_add_city_label">
-                            <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить посещённый город
+            <div class="modal-content modern-modal">
+                <div class="modal-header modern-modal-header">
+                        <h1 class="modal-title fs-5 fw-semibold d-flex align-items-center gap-2" id="modal_add_city_label">
+                            <i class="fa-solid fa-city"></i>
+                            <span>Добавить посещённый город</span>
                         </h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
                 </div>
 
-                <div class="modal-body">
+                <div class="modal-body modern-modal-body">
                     <h4>
                         <span id="city-title-in-modal"></span>, <small id="region-title-in-modal" class="text-body-secondary"></small>
                     </h4>
@@ -44,11 +45,13 @@
                     </div>
 
                     <div class="mt-4 form-check">
-                        <input type="checkbox"
-                               class="form-check-input"
-                               name="has_magnet"
-                               id="magnet-checkbox">
-                        <label class="form-check-label" for="magnet-checkbox">Наличие сувенира из города</label>
+                        <div>
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   name="has_magnet"
+                                   id="magnet-checkbox">
+                            <label class="form-check-label" for="magnet-checkbox">Наличие сувенира из города</label>
+                        </div>
                         <div id="magnet-help" class="form-text">
                             Отметьте этот пункт, если у Вас в коллекции есть сувенир из города.
                             В списке городов можно будет отфильтровать только те города,
@@ -91,14 +94,14 @@
                     </div>
                 </div>
 
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
+                <div class="modal-footer modern-modal-footer justify-content-between">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
 
                     <button class="btn btn-success"
                             type="submit"
                             id='btn_add-visited-city'
                             data-url="{% url 'api__add_visited_city' %}">
-                        Добавить
+                        <i class="fa-solid fa-plus me-2"></i>Добавить
                     </button>
                 </div>
             </div>

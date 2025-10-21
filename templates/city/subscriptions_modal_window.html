@@ -5,52 +5,48 @@
      tabindex="-1"
      aria-labelledby="subscriptions_modal_label"
      aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="subscriptions_modal_label">
-                    <i class="fa-solid fa-bell"></i>&nbsp;&nbsp;&nbsp;Ваши подписки
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modern-modal">
+            <div class="modal-header modern-modal-header">
+                <h1 class="modal-title fs-5 fw-semibold d-flex align-items-center gap-2" id="subscriptions_modal_label">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Ваши подписки</span>
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
 
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col">
-                        Выберите пользователей, чьи города Вы хотите посмотреть на карте вместе со своими.
-                    </div>
-                </div>
+            <div class="modal-body modern-modal-body">
+                <p class="mb-3 text-muted">
+                    Выберите пользователей, чьи города Вы хотите посмотреть на карте вместе со своими.
+                </p>
 
-                <div class="row mt-3">
-                    <div class="col">
-                        <div class="list-group">
-                            {% for subscription in subscriptions %}
-                                <div class="form-check form-switch mt-1">
-                                    <input class="form-check-input checkbox_username"
-                                           type="checkbox"
-                                           name="users"
-                                           value="{{ subscription.to_id }}"
-                                           role="switch"
-                                           id="switch{{ subscription.to_id }}">
-                                    <label class="form-check-label mx-3"
-                                           for="switch{{ subscription.to_id }}">
-                                        {{ subscription.username }}
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+                <div class="subscriptions-list">
+                    {% for subscription in subscriptions %}
+                        <label class="subscription-item" for="switch{{ subscription.to_id }}">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input checkbox_username"
+                                       type="checkbox"
+                                       name="users"
+                                       value="{{ subscription.to_id }}"
+                                       role="switch"
+                                       id="switch{{ subscription.to_id }}">
+                                <span class="subscription-label">
+                                    <i class="fa-solid fa-user me-2"></i>{{ subscription.username }}
+                                </span>
+                            </div>
+                        </label>
+                    {% endfor %}
                 </div>
             </div>
 
-            <div class="modal-footer justify-content-between">
+            <div class="modal-footer modern-modal-footer justify-content-between">
                 <button class="btn btn-success"
                         id='btn_show-subscriptions-cities'
                         data-url="{% url 'api__get_visited_cities_from_subscriptions' %}{% if country_id %}?country={{ country_id }}{% endif %}">
-                    Применить
+                    <i class="fa-solid fa-check me-2"></i>Применить
                 </button>
 
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
             </div>
         </div>
     </div>

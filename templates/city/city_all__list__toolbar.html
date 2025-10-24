@@ -7,6 +7,7 @@
 {% vite_css 'css/select-field' %}
 {% vite_css 'css/components/badge' %}
 {% vite_css 'css/components/button' %}
+{% vite_css 'css/components/radio' %}
 
 <!-- Панель инструментов -->
 <div class="mx-3 my-3 d-flex flex-wrap gap-3 justify-content-between align-items-center" id="toolbar">
@@ -86,67 +87,62 @@
     <div class="offcanvas-body">
         <h6>Фильтры</h6>
 
-        <div class="form-check">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-primary"
                    type="radio"
                    name="filter"
                    value="no_filter"
                    {% if filter is None or not filter|in_list:"no_magnet,magnet,current_year,last_year" %}checked{% endif %}
                    id="filterNoFilter">
-            <label class="form-check-label"
-                   for="filterNoFilter">
+            <label for="filterNoFilter">
                 Без фильтрации
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-primary"
                    type="radio"
                    name="filter"
                    value="no_magnet"
                    {% if filter == 'no_magnet' %}checked{% endif %}
                    id="filterNoMagnet">
-            <label class="form-check-label"
-                   for="filterNoMagnet">
+            <label for="filterNoMagnet">
                 Без сувенира
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-primary"
                    type="radio"
                    name="filter"
                    value="magnet"
                    {% if filter == 'magnet' %}checked{% endif %}
                    id="filterMagnet">
-            <label class="form-check-label"
-                   for="filterMagnet">
+            <label for="filterMagnet">
                 С сувениром
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-primary"
                    type="radio"
                    name="filter"
                    value="current_year"
                    {% if filter == 'current_year' %}checked{% endif %}
                    id="filterCurrentYear">
-            <label class="form-check-label"
-                   for="filterCurrentYear">
+            <label for="filterCurrentYear">
                 В этом году
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-primary"
                    type="radio"
                    name="filter"
                    value="last_year"
                    {% if filter == 'last_year' %}checked{% endif %}
                    id="filterLastYear">
-            <label class="form-check-label"
-                   for="filterLastYear">
+            <label for="filterLastYear">
                 В прошлом году
             </label>
         </div>
@@ -155,184 +151,170 @@
 
         <h6>Сортировка</h6>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="name_down"
                    {% if sort == 'name_down' or not sort|in_list:"name_down,name_up,first_visit_date_down,first_visit_date_up,last_visit_date_down,last_visit_date_up" %}checked{% endif %}
                    id="sortNameDown">
-            <label class="form-check-label"
-                   for="sortNameDown">
+            <label for="sortNameDown">
                 По названию (убывание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="name_up"
                    {% if sort == 'name_up' %}checked{% endif %}
                    id="sortNameUp">
-            <label class="form-check-label"
-                   for="sortNameUp">
+            <label for="sortNameUp">
                 По названию (возрастание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="first_visit_date_down"
                    {% if sort == 'first_visit_date_down' %}checked{% endif %}
                    id="sortFirstVisitDateDown">
-            <label class="form-check-label"
-                   for="sortFirstVisitDateDown">
+            <label for="sortFirstVisitDateDown">
                 По дате первого посещения (убывание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="first_visit_date_up"
                    {% if sort == 'first_visit_date_up' %}checked{% endif %}
                    id="sortFirstVisitDateUp">
-            <label class="form-check-label"
-                   for="sortFirstVisitDateUp">
+            <label for="sortFirstVisitDateUp">
                 По дате первого посещения (возрастание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="last_visit_date_down"
                    {% if sort == 'last_visit_date_down' %}checked{% endif %}
                    id="sortLastVisitDateDown">
-            <label class="form-check-label"
-                   for="sortLastVisitDateDown">
+            <label for="sortLastVisitDateDown">
                 По дате последнего посещения (убывание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="last_visit_date_up"
                    {% if sort == 'last_visit_date_up' %}checked{% endif %}
                    id="sortLastVisitDateUp">
-            <label class="form-check-label"
-                   for="sortLastVisitDateUp">
+            <label for="sortLastVisitDateUp">
                 По дате последнего посещения (возрастание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="number_of_visits_down"
                    {% if sort == 'number_of_visits_down' %}checked{% endif %}
                    id="sortNumberOfVisitsDown">
-            <label class="form-check-label"
-                   for="sortNumberOfVisitsDown">
+            <label for="sortNumberOfVisitsDown">
                 По количеству посещений (убывание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="number_of_visits_up"
                    {% if sort == 'number_of_visits_up' %}checked{% endif %}
                    id="sortNumberOfVisitsUp">
-            <label class="form-check-label"
-                   for="sortNumberOfVisitsUp">
+            <label for="sortNumberOfVisitsUp">
                 По количеству посещений (возрастание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="date_of_foundation_down"
                    {% if sort == 'date_of_foundation_down' %}checked{% endif %}
                    id="sortDateOfFoundationDown">
-            <label class="form-check-label"
-                   for="sortDateOfFoundationDown">
+            <label for="sortDateOfFoundationDown">
                 По дате основания (убывание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="date_of_foundation_up"
                    {% if sort == 'date_of_foundation_up' %}checked{% endif %}
                    id="sortDateOfFoundationUp">
-            <label class="form-check-label"
-                   for="sortDateOfFoundationUp">
+            <label for="sortDateOfFoundationUp">
                 По дате основания (возрастание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="number_of_users_who_visit_city_down"
                    {% if sort == 'number_of_users_who_visit_city_down' %}checked{% endif %}
                    id="sortNumberOfUsersWhoVisitCityDown">
-            <label class="form-check-label"
-                   for="sortNumberOfUsersWhoVisitCityDown">
+            <label for="sortNumberOfUsersWhoVisitCityDown">
                 По количеству посетивших пользователей (убывание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="number_of_users_who_visit_city_up"
                    {% if sort == 'number_of_users_who_visit_city_up' %}checked{% endif %}
                    id="sortNumberOfUsersWhoVisitCityUp">
-            <label class="form-check-label"
-                   for="sortNumberOfUsersWhoVisitCityUp">
+            <label for="sortNumberOfUsersWhoVisitCityUp">
                 По количеству посетивших пользователей (возрастание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="number_of_visits_all_users_down"
                    {% if sort == 'number_of_visits_all_users_down' %}checked{% endif %}
                    id="sortNumberOfVisitsAllUsersDown">
-            <label class="form-check-label"
-                   for="sortNumberOfVisitsAllUsersDown">
+            <label for="sortNumberOfVisitsAllUsersDown">
                 По общему количеству посещений (убывание)
             </label>
         </div>
 
-        <div class="form-check mt-2">
-            <input class="form-check-input"
+        <div class="mg-radio-item mb-3">
+            <input class="mg-radio mg-radio-danger"
                    type="radio"
                    name="sort"
                    value="number_of_visits_all_users_up"
                    {% if sort == 'number_of_visits_all_users_up' %}checked{% endif %}
                    id="sortNumberOfVisitsAllUsersUp">
-            <label class="form-check-label"
-                   for="sortNumberOfVisitsAllUsersUp">
+            <label for="sortNumberOfVisitsAllUsersUp">
                 По общему количеству посещений (возрастание)
             </label>
         </div>

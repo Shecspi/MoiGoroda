@@ -74,6 +74,7 @@ export default defineConfig({
         'css/components/card': path.resolve(__dirname, 'css/components/card.css'),
         'css/components/link': path.resolve(__dirname, 'css/components/link.css'),
         'css/components/typography': path.resolve(__dirname, 'css/components/typography.css'),
+        'css/components/progress': path.resolve(__dirname, 'css/components/progress.css'),
       }
     }
   }

@@ -1,0 +1,299 @@
+/*
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+*/
+
+/* Базовые стили для бейджей */
+.mg-badge {
+    padding: 0.65rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: inline-block;
+    border: 1px solid transparent;
+    text-decoration: none;
+    line-height: 1.2;
+}
+
+.mg-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+.mg-badge strong {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+/* Варианты цветов */
+
+/* Success (зеленый) */
+.mg-badge.mg-badge-success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #065f46;
+}
+
+.mg-badge.mg-badge-success:hover {
+    background: linear-gradient(135deg, #a7f3d0 0%, #86efac 100%);
+    border-color: rgba(16, 185, 129, 0.5);
+    color: #064e3b;
+}
+
+/* Info (синий) */
+.mg-badge.mg-badge-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #1e40af;
+}
+
+.mg-badge.mg-badge-info:hover {
+    background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: #1e3a8a;
+}
+
+/* Warning (желтый) */
+.mg-badge.mg-badge-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #92400e;
+}
+
+.mg-badge.mg-badge-warning:hover {
+    background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #78350f;
+}
+
+/* Danger (красный) */
+.mg-badge.mg-badge-danger {
+    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #991b1b;
+}
+
+.mg-badge.mg-badge-danger:hover {
+    background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #7f1d1d;
+}
+
+/* Secondary (серый) */
+.mg-badge.mg-badge-secondary {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-color: rgba(107, 114, 128, 0.3);
+    color: #374151;
+}
+
+.mg-badge.mg-badge-secondary:hover {
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    border-color: rgba(107, 114, 128, 0.5);
+    color: #1f2937;
+}
+
+/* Primary (основной) */
+.mg-badge.mg-badge-primary {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #1e40af;
+}
+
+.mg-badge.mg-badge-primary:hover {
+    background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: #1e3a8a;
+}
+
+/* Размеры */
+
+/* Маленький */
+.mg-badge.mg-badge-sm {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 8px;
+}
+
+.mg-badge.mg-badge-sm strong {
+    font-size: 0.95rem;
+}
+
+/* Большой */
+.mg-badge.mg-badge-lg {
+    padding: 0.875rem 1.5rem;
+    font-size: 1.1rem;
+    border-radius: 16px;
+}
+
+.mg-badge.mg-badge-lg strong {
+    font-size: 1.3rem;
+}
+
+/* Очень большой */
+.mg-badge.mg-badge-xl {
+    padding: 1rem 1.75rem;
+    font-size: 1.2rem;
+    border-radius: 20px;
+}
+
+.mg-badge.mg-badge-xl strong {
+    font-size: 1.4rem;
+}
+
+/* Специальные варианты */
+
+/* Плоский (без градиента) */
+.mg-badge.mg-badge-flat {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+    box-shadow: none;
+}
+
+.mg-badge.mg-badge-flat.mg-badge-success {
+    background: #d1fae5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+.mg-badge.mg-badge-flat.mg-badge-info {
+    background: #dbeafe;
+    border-color: #bfdbfe;
+    color: #1e40af;
+}
+
+.mg-badge.mg-badge-flat.mg-badge-warning {
+    background: #fef3c7;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.mg-badge.mg-badge-flat.mg-badge-danger {
+    background: #fecaca;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.mg-badge.mg-badge-flat.mg-badge-secondary {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #374151;
+}
+
+.mg-badge.mg-badge-flat.mg-badge-primary {
+    background: #dbeafe;
+    border-color: #bfdbfe;
+    color: #1e40af;
+}
+
+/* С анимацией пульсации */
+.mg-badge.mg-badge-pulse {
+    animation: mg-badge-pulse 2s ease-in-out infinite;
+}
+
+@keyframes mg-badge-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+/* С анимацией свечения */
+.mg-badge.mg-badge-glow {
+    animation: mg-badge-glow 2s ease-in-out infinite;
+}
+
+@keyframes mg-badge-glow {
+    0%,
+    100% {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .mg-badge {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.85rem;
+    }
+
+    .mg-badge strong {
+        font-size: 1rem;
+    }
+
+    .mg-badge.mg-badge-sm {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    .mg-badge.mg-badge-sm strong {
+        font-size: 0.9rem;
+    }
+
+    .mg-badge.mg-badge-lg {
+        padding: 0.75rem 1.25rem;
+        font-size: 1rem;
+    }
+
+    .mg-badge.mg-badge-lg strong {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .mg-badge {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .mg-badge strong {
+        font-size: 0.95rem;
+    }
+
+    .mg-badge.mg-badge-sm {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .mg-badge.mg-badge-sm strong {
+        font-size: 0.85rem;
+    }
+
+    .mg-badge.mg-badge-lg {
+        padding: 0.65rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .mg-badge.mg-badge-lg strong {
+        font-size: 1.1rem;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .mg-badge {
+        transition: none;
+    }
+
+    .mg-badge:hover {
+        transform: none;
+    }
+
+    .mg-badge.mg-badge-pulse,
+    .mg-badge.mg-badge-glow {
+        animation: none;
+    }
+}

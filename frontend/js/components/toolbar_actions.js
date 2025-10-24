@@ -50,36 +50,36 @@ export class ToolbarActions {
         // - element... - Непосредственно сам HTML-элемент, чтобы иметь доступ к его параметрам.
         this.btnShowSubscriptionCities = new Button(
             'btn_show-subscriptions-cities',
-            'btn-success',
-            'btn-outline-success'
+            'mg-btn-success',
+            'mg-btn-outline-success'
         )
         this.elementShowSubscriptionCities = this.btnShowSubscriptionCities.get_element();
 
         this.btnShowPlaces = new Button(
             'btn_show-places',
-            'btn-primary',
-            'btn-outline-primary'
+            'mg-btn-primary',
+            'mg-btn-outline-primary'
         );
         this.elementShowPlaces = this.btnShowPlaces.get_element();
 
         this.btnShowNotVisitedCities = new Button(
             'btn_show-not-visited-cities',
-            'btn-danger',
-            'btn-outline-danger'
+            'mg-btn-danger',
+            'mg-btn-outline-danger'
         )
         this.elementShowNotVisitedCities = this.btnShowNotVisitedCities.get_element();
 
         this.btnShowVisitedCitiesPreviousYear = new Button(
             'btn_show-visited-cities-previous-year',
-            'btn-primary',
-            'btn-outline-primary'
+            'mg-btn-primary',
+            'mg-btn-outline-primary'
         )
         this.elementShowVisitedCitiesPreviousYear = this.btnShowVisitedCitiesPreviousYear.get_element();
 
         this.btnShowVisitedCitiesCurrentYear = new Button(
             'btn_show-visited-cities-current-year',
-            'btn-success',
-            'btn-outline-success'
+            'mg-btn-success',
+            'mg-btn-outline-success'
         )
         this.elementShowVisitedCitiesCurrentYear = this.btnShowVisitedCitiesCurrentYear.get_element();
 

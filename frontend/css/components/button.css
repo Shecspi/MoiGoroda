@@ -1,0 +1,283 @@
+/*----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------*/
+
+/* Базовый компонент кнопки */
+
+/* Базовые стили кнопки */
+.mg-btn {
+    font-weight: 500;
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
+    border-width: 1.5px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.mg-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+.mg-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.mg-btn:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mg-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.mg-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Варианты цветов */
+
+/* Primary (синий) */
+.mg-btn.mg-btn-primary {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #1e40af;
+}
+
+.mg-btn.mg-btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: #1e3a8a;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.mg-btn.mg-btn-primary:active:not(:disabled) {
+    background-color: rgba(29, 78, 216, 0.3);
+    border-color: #1d4ed8;
+    box-shadow: 0 2px 6px rgba(29, 78, 216, 0.4);
+}
+
+/* Success (зеленый) */
+.mg-btn.mg-btn-success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #065f46;
+}
+
+.mg-btn.mg-btn-success:hover:not(:disabled) {
+    background: linear-gradient(135deg, #a7f3d0 0%, #86efac 100%);
+    border-color: rgba(16, 185, 129, 0.5);
+    color: #064e3b;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.mg-btn.mg-btn-success:active:not(:disabled) {
+    background-color: rgba(6, 95, 70, 0.3);
+    border-color: #065f46;
+    box-shadow: 0 2px 6px rgba(6, 95, 70, 0.4);
+}
+
+/* Secondary (серый) */
+.mg-btn.mg-btn-secondary {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-color: rgba(107, 114, 128, 0.3);
+    color: #374151;
+}
+
+.mg-btn.mg-btn-secondary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    border-color: rgba(107, 114, 128, 0.5);
+    color: #1f2937;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+.mg-btn.mg-btn-secondary:active:not(:disabled) {
+    background-color: rgba(55, 65, 81, 0.3);
+    border-color: #374151;
+    box-shadow: 0 2px 6px rgba(55, 65, 81, 0.4);
+}
+
+/* Danger (красный) */
+.mg-btn.mg-btn-danger {
+    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #991b1b;
+}
+
+.mg-btn.mg-btn-danger:hover:not(:disabled) {
+    background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #7f1d1d;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.mg-btn.mg-btn-danger:active:not(:disabled) {
+    background-color: rgba(153, 27, 27, 0.3);
+    border-color: #991b1b;
+    box-shadow: 0 2px 6px rgba(153, 27, 27, 0.4);
+}
+
+/* Warning (желтый) */
+.mg-btn.mg-btn-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #92400e;
+}
+
+.mg-btn.mg-btn-warning:hover:not(:disabled) {
+    background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #78350f;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.mg-btn.mg-btn-warning:active:not(:disabled) {
+    background-color: rgba(180, 83, 9, 0.3);
+    border-color: #b45309;
+    box-shadow: 0 2px 6px rgba(180, 83, 9, 0.4);
+}
+
+/* Outline варианты */
+
+.mg-btn.mg-btn-outline-primary {
+    background-color: transparent;
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #1e40af;
+}
+
+.mg-btn.mg-btn-outline-primary:hover:not(:disabled) {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: #1e3a8a;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.mg-btn.mg-btn-outline-success {
+    background-color: transparent;
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #065f46;
+}
+
+.mg-btn.mg-btn-outline-success:hover:not(:disabled) {
+    background-color: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.5);
+    color: #064e3b;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.mg-btn.mg-btn-outline-secondary {
+    background-color: transparent;
+    border-color: rgba(107, 114, 128, 0.3);
+    color: #374151;
+}
+
+.mg-btn.mg-btn-outline-secondary:hover:not(:disabled) {
+    background-color: rgba(107, 114, 128, 0.15);
+    border-color: rgba(107, 114, 128, 0.5);
+    color: #1f2937;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+}
+
+.mg-btn.mg-btn-outline-danger {
+    background-color: transparent;
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #991b1b;
+}
+
+.mg-btn.mg-btn-outline-danger:hover:not(:disabled) {
+    background-color: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #7f1d1d;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.mg-btn.mg-btn-outline-warning {
+    background-color: transparent;
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #92400e;
+}
+
+.mg-btn.mg-btn-outline-warning:hover:not(:disabled) {
+    background-color: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #78350f;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+/* Размеры */
+
+.mg-btn.mg-btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 8px;
+}
+
+.mg-btn.mg-btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 12px;
+}
+
+.mg-btn.mg-btn-xl {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 14px;
+}
+
+/* Иконки в кнопках */
+.mg-btn i {
+    margin-right: 0.5rem;
+    font-size: 1em;
+}
+
+.mg-btn.mg-btn-icon-only {
+    padding: 0.625rem;
+    min-width: 2.5rem;
+}
+
+.mg-btn.mg-btn-icon-only i {
+    margin-right: 0;
+}
+
+/* Блочная кнопка */
+.mg-btn.mg-btn-block {
+    width: 100%;
+    display: flex;
+}
+
+/* Кнопка-ссылка */
+.mg-btn.mg-btn-link {
+    background-color: transparent;
+    border-color: transparent;
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+.mg-btn.mg-btn-link:hover:not(:disabled) {
+    background-color: transparent;
+    border-color: transparent;
+    color: #1d4ed8;
+    text-decoration: none;
+}

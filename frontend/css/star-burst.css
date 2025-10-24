@@ -1,0 +1,26 @@
+@keyframes starBurst {
+    0% {
+        transform: translate(-50%, -50%) scale(1.2)
+            rotate(var(--star-rotation, 0deg)) translateX(0px);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0.1)
+            rotate(var(--star-rotation, 0deg)) translateX(80px);
+        opacity: 0;
+    }
+}
+
+.star-burst {
+    position: absolute;
+    pointer-events: none;
+    color: #dc3545;
+    animation: starBurst 0.8s ease-out forwards;
+    text-shadow: 0 0 10px rgba(220, 53, 69, 0.8);
+    z-index: 1000;
+}
+
+.favorite-star {
+    position: relative;
+    overflow: visible;
+}

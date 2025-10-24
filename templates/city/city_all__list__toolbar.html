@@ -3,22 +3,24 @@
 {% load static %}
 {% load filters %}
 
-<link rel="stylesheet" href="{% static 'css/autoComplete.css' %}?ver={{ PROJECT_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/select-field.css' %}?ver={{ PROJECT_VERSION }}">
+{% vite_css 'css/autoComplete' %}
+{% vite_css 'css/select-field' %}
+{% vite_css 'css/components/badge' %}
+{% vite_css 'css/components/button' %}
 
 <!-- Панель инструментов -->
 <div class="mx-3 my-3 d-flex flex-wrap gap-3 justify-content-between align-items-center" id="toolbar">
     <!-- Статистика посещёния -->
     <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center" id="section-stats">
-        <span class="toolbar-badge toolbar-badge-success">
+        <span class="mg-badge mg-badge-success">
             Всего посещено <strong>{{ qty_of_visited_cities }}</strong> {{ "города"|plural_by_num:qty_of_visited_cities }}
         </span>
         {% if country_code %}
-            <span class="toolbar-badge toolbar-badge-info">
+            <span class="mg-badge mg-badge-info">
                 В {{ country_name|prepositional }}: <strong>{{ number_of_visited_cities_in_country }}</strong> из {{ number_of_cities_in_country }}
             </span>
         {% else %}
-            <span class="toolbar-badge toolbar-badge-info">
+            <span class="mg-badge mg-badge-info">
                 Стран: <strong>{{ number_of_visited_countries }}</strong>
             </span>
         {% endif %}
@@ -36,12 +38,12 @@
         </div>
 
         <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
-           class="btn btn-outline-success d-flex align-items-center gap-2">
+           class="mg-btn mg-btn-outline-success d-flex align-items-center gap-2">
             <i class="fa-solid fa-map-location-dot"></i>
             <span>Посмотреть на карте</span>
         </a>
 
-        <button class="btn {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}btn-primary{% else %}btn-outline-primary{% endif %} d-flex gap-2 align-items-center position-relative"
+        <button class="mg-btn {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %} d-flex gap-2 align-items-center position-relative"
                 type="button"
                 id="btnOpenFilterSortPanel"
                 data-bs-tooltip="tooltip"
@@ -339,12 +341,12 @@
 
         <div class="d-grid gap-2">
             <button type="submit"
-                    class="btn btn-primary"
+                    class="mg-btn mg-btn-primary"
                     id="applyFilters"
                     data-filter="{{ filter|default:defaultFilter }}"
                     data-sort="{{ sort|default:defaultSort }}">Применить</button>
             <button type="button"
-                    class="btn btn-secondary"
+                    class="mg-btn mg-btn-secondary"
                     id="resetFilters"
                     data-filter="{{ filter|default:defaultFilter }}"
                     data-sort="{{ sort|default:defaultSort }}">

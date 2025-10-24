@@ -5,8 +5,12 @@
 
 {% block content %}
     <!-- Подключение нового дизайна -->
-    <link rel="stylesheet" href="{% static 'css/style2.css' %}?ver={{ PROJECT_VERSION }}">
-    <link rel="stylesheet" href="{% static 'css/select-field.css' %}?ver={{ PROJECT_VERSION }}">
+    {% vite_css 'css/style2' %}
+    {% vite_css 'css/select-field' %}
+    {% vite_css 'css/components/checkbox' %}
+    {% vite_css 'css/components/button' %}
+    {% vite_css 'css/components/badge' %}
+    {% vite_css 'css/subscriptions-modal' %}
 
     <div class="page-header-section text-center mt-4 mb-2 mx-3">
         <h1 class="page-header-title display-4 fw-bold mb-2" id="section-page_header">

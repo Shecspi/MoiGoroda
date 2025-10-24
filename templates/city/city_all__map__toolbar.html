@@ -22,7 +22,7 @@
         </div>
 
         <!-- Помощь -->
-        <button class="btn btn-outline-secondary d-flex gap-2 justify-content-start align-items-center"
+        <button class="mg-btn mg-btn-outline-secondary"
                 id="btn_help"
                 data-bs-toggle="modal"
                 data-bs-target="#modal_help"
@@ -35,7 +35,7 @@
 
         <div class="d-flex gap-1 justify-content-center align-items-center">
             <!-- В прошлом году -->
-            <button class="align-self-center small-btn-for-toolbar small-btn-primary
+            <button class="mg-btn mg-btn-outline-primary mg-btn-sm mg-btn-icon-only
                            {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
                     id="btn_show-visited-cities-previous-year"
                     data-type="show"
@@ -46,7 +46,7 @@
             <!-- ^^^ В прошлом году -->
 
             <!-- В этом году -->
-            <button class="align-self-center small-btn-for-toolbar small-btn-success me-3
+            <button class="mg-btn mg-btn-outline-success mg-btn-sm mg-btn-icon-only me-3
                       {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
                     id="btn_show-visited-cities-current-year"
                     data-type="show"
@@ -59,7 +59,7 @@
 
         <div class="d-flex gap-1 justify-content-center align-items-center">
             <!-- Показать маркеры посещённых мест -->
-            <button class="align-self-center small-btn-for-toolbar small-btn-primary"
+            <button class="mg-btn mg-btn-outline-primary mg-btn-sm mg-btn-icon-only"
                     id="btn_show-places"
                     data-type="show"
                     data-bs-toggle="tooltip"
@@ -69,7 +69,7 @@
             <!-- ^^^ Показать маркеры посещённых мест -->
 
             <!-- Показать непосещённые города -->
-            <button class="align-self-center small-btn-for-toolbar small-btn-danger"
+            <button class="mg-btn mg-btn-outline-danger mg-btn-sm mg-btn-icon-only"
                     id="btn_show-not-visited-cities"
                     data-url="{% url 'api__get_not_visited_cities' %}{% if country_code %}?country={{ country_code }}{% endif %}"
                     data-type="show"
@@ -80,7 +80,7 @@
             <!-- ^^^ Показать непосещённые города -->
 
             <!-- Подписки -->
-            <button class="align-self-center small-btn-for-toolbar small-btn-success{% if not is_user_has_subscriptions %} disabled{% endif %}"
+            <button class="mg-btn mg-btn-outline-success mg-btn-sm mg-btn-icon-only{% if not is_user_has_subscriptions %} disabled{% endif %}"
                     id="btn_open_modal_with_subscriptions"
                     data-bs-toggle="modal"
                     data-bs-target="#subscriptions_modal_window"
@@ -92,7 +92,7 @@
         </div>
 
         <a href="{% url 'city-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
-           class="btn btn-outline-success d-flex align-items-center gap-2">
+           class="mg-btn mg-btn-outline-success">
             <i class="fa-solid fa-list-ol"></i>
             <span>Посмотреть список</span>
         </a>

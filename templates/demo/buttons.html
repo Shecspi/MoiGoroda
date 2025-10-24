@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load vite %}
+
+{% block content %}
+    {% vite_css 'css/components/button' %}
+    
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-5">Демо компонента mg-btn</h1>
+                
+                <!-- Solid кнопки -->
+                <div class="mb-5">
+                    <h2>Solid кнопки</h2>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <button class="mg-btn mg-btn-primary">Primary</button>
+                        <button class="mg-btn mg-btn-success">Success</button>
+                        <button class="mg-btn mg-btn-secondary">Secondary</button>
+                        <button class="mg-btn mg-btn-danger">Danger</button>
+                        <button class="mg-btn mg-btn-warning">Warning</button>
+                    </div>
+                </div>
+
+                <!-- Outline кнопки -->
+                <div class="mb-5">
+                    <h2>Outline кнопки</h2>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <button class="mg-btn mg-btn-outline-primary">Primary</button>
+                        <button class="mg-btn mg-btn-outline-success">Success</button>
+                        <button class="mg-btn mg-btn-outline-secondary">Secondary</button>
+                        <button class="mg-btn mg-btn-outline-danger">Danger</button>
+                        <button class="mg-btn mg-btn-outline-warning">Warning</button>
+                    </div>
+                </div>
+
+                <!-- Размеры -->
+                <div class="mb-5">
+                    <h2>Размеры</h2>
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-4">
+                        <button class="mg-btn mg-btn-sm mg-btn-primary">Small</button>
+                        <button class="mg-btn mg-btn-primary">Normal</button>
+                        <button class="mg-btn mg-btn-lg mg-btn-primary">Large</button>
+                        <button class="mg-btn mg-btn-xl mg-btn-primary">Extra Large</button>
+                    </div>
+                </div>
+
+                <!-- С иконками -->
+                <div class="mb-5">
+                    <h2>С иконками</h2>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <button class="mg-btn mg-btn-success">
+                            <i class="fa-solid fa-check"></i> Применить
+                        </button>
+                        <button class="mg-btn mg-btn-outline-danger">
+                            <i class="fa-solid fa-trash"></i> Удалить
+                        </button>
+                        <button class="mg-btn mg-btn-primary">
+                            <i class="fa-solid fa-plus"></i> Добавить
+                        </button>
+                        <button class="mg-btn mg-btn-secondary">
+                            <i class="fa-solid fa-edit"></i> Редактировать
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Только иконки -->
+                <div class="mb-5">
+                    <h2>Только иконки</h2>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-primary">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                        <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-outline-success">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-outline-danger">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                        <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-outline-secondary">
+                            <i class="fa-solid fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Блочные кнопки -->
+                <div class="mb-5">
+                    <h2>Блочные кнопки</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <button class="mg-btn mg-btn-block mg-btn-primary">Блочная Primary</button>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <button class="mg-btn mg-btn-block mg-btn-outline-success">Блочная Success</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ссылки как кнопки -->
+                <div class="mb-5">
+                    <h2>Ссылки как кнопки</h2>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <a href="#" class="mg-btn mg-btn-primary">Ссылка Primary</a>
+                        <a href="#" class="mg-btn mg-btn-outline-success">Ссылка Success</a>
+                        <a href="#" class="mg-btn mg-btn-link mg-btn-primary">Ссылка Link</a>
+                    </div>
+                </div>
+
+                <!-- Отключенные кнопки -->
+                <div class="mb-5">
+                    <h2>Отключенные кнопки</h2>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <button class="mg-btn mg-btn-primary" disabled>Disabled Primary</button>
+                        <button class="mg-btn mg-btn-outline-success" disabled>Disabled Success</button>
+                        <button class="mg-btn mg-btn-danger" disabled>Disabled Danger</button>
+                    </div>
+                </div>
+
+                <!-- Состояния (активные) -->
+                <div class="mb-5">
+                    <h2>Активные состояния</h2>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <button class="mg-btn mg-btn-primary" style="background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%); border-color: rgba(59, 130, 246, 0.5); color: #1e3a8a;">Активная Primary</button>
+                        <button class="mg-btn mg-btn-success" style="background: linear-gradient(135deg, #a7f3d0 0%, #86efac 100%); border-color: rgba(16, 185, 129, 0.5); color: #064e3b;">Активная Success</button>
+                    </div>
+                </div>
+
+                <!-- Код использования -->
+                <div class="mb-5">
+                    <h2>Примеры кода</h2>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Базовое использование:</h5>
+                            <pre><code>&lt;button class="mg-btn mg-btn-primary"&gt;Кнопка&lt;/button&gt;</code></pre>
+                            
+                            <h5>Outline вариант:</h5>
+                            <pre><code>&lt;button class="mg-btn mg-btn-outline-success"&gt;Outline&lt;/button&gt;</code></pre>
+                            
+                            <h5>С размерами:</h5>
+                            <pre><code>&lt;button class="mg-btn mg-btn-lg mg-btn-primary"&gt;Большая кнопка&lt;/button&gt;</code></pre>
+                            
+                            <h5>С иконками:</h5>
+                            <pre><code>&lt;button class="mg-btn mg-btn-success"&gt;&lt;i class="fa-solid fa-check"&gt;&lt;/i&gt; Применить&lt;/button&gt;</code></pre>
+                            
+                            <h5>Только иконка:</h5>
+                            <pre><code>&lt;button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-primary"&gt;&lt;i class="fa-solid fa-plus"&gt;&lt;/i&gt;&lt;/button&gt;</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

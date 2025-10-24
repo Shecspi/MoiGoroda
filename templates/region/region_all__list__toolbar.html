@@ -1,8 +1,9 @@
 {% load morphology %}
 {% load static %}
+{% load vite %}
 
 <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.9/dist/autoComplete.min.js"></script>
-<link rel="stylesheet" href="{% static 'css/autoComplete.css' %}?ver={{ PROJECT_VERSION }}">
+{% vite_css 'css/autoComplete' %}
 
 <!-- Панель инструментов -->
 <div class="row mx-3 my-3 y-3 g-3 align-items-center" id="toolbar">

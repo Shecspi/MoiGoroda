@@ -22,31 +22,29 @@
 
                 <div class="subscriptions-list">
                     {% for subscription in subscriptions %}
-                        <label class="subscription-item" for="switch{{ subscription.to_id }}">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input checkbox_username"
-                                       type="checkbox"
-                                       name="users"
-                                       value="{{ subscription.to_id }}"
-                                       role="switch"
-                                       id="switch{{ subscription.to_id }}">
-                                <span class="subscription-label">
-                                    <i class="fa-solid fa-user me-2"></i>{{ subscription.username }}
-                                </span>
-                            </div>
-                        </label>
+                        <div class="subscription-item">
+                            <input class="mg-switch mg-switch-primary checkbox_username"
+                                   type="checkbox"
+                                   name="users"
+                                   value="{{ subscription.to_id }}"
+                                   role="switch"
+                                   id="switch{{ subscription.to_id }}">
+                            <label class="subscription-label" for="switch{{ subscription.to_id }}">
+                                <i class="fa-solid fa-user me-2"></i>{{ subscription.username }}
+                            </label>
+                        </div>
                     {% endfor %}
                 </div>
             </div>
 
             <div class="modal-footer modern-modal-footer justify-content-between">
-                <button class="btn btn-success"
+                <button class="mg-btn mg-btn-success"
                         id='btn_show-subscriptions-cities'
                         data-url="{% url 'api__get_visited_cities_from_subscriptions' %}{% if country_id %}?country={{ country_id }}{% endif %}">
-                    <i class="fa-solid fa-check me-2"></i>Применить
+                    <i class="fa-solid fa-check"></i>Применить
                 </button>
 
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="mg-btn mg-btn-secondary" data-bs-dismiss="modal">Закрыть</button>
             </div>
         </div>
     </div>

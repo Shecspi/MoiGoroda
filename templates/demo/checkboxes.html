@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load vite %}
+
+{% block content %}
+    {% vite_css 'css/components/checkbox' %}
+    
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-5">Демо компонента mg-switch</h1>
+                
+                <!-- Базовые чекбоксы -->
+                <div class="mb-5">
+                    <h2>Базовые переключатели</h2>
+                    <div class="d-flex flex-wrap gap-4 mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch" id="switch1">
+                            <label for="switch1">Обычный переключатель</label>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch" id="switch2" checked>
+                            <label for="switch2">Включенный переключатель</label>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch" id="switch3" disabled>
+                            <label for="switch3">Отключенный переключатель</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Цветовые варианты -->
+                <div class="mb-5">
+                    <h2>Цветовые варианты</h2>
+                    <div class="d-flex flex-wrap gap-4 mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch mg-switch-primary" id="switch-primary">
+                            <label for="switch-primary">Primary (синий)</label>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch" id="switch-success" checked>
+                            <label for="switch-success">Success (зеленый)</label>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch mg-switch-warning" id="switch-warning">
+                            <label for="switch-warning">Warning (желтый)</label>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch mg-switch-danger" id="switch-danger">
+                            <label for="switch-danger">Danger (красный)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Размеры -->
+                <div class="mb-5">
+                    <h2>Размеры</h2>
+                    <div class="d-flex flex-wrap gap-4 align-items-center mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch mg-switch-sm" id="switch-sm">
+                            <label for="switch-sm">Маленький</label>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch" id="switch-normal" checked>
+                            <label for="switch-normal">Обычный</label>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch mg-switch-lg" id="switch-lg">
+                            <label for="switch-lg">Большой</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- С текстом -->
+                <div class="mb-5">
+                    <h2>С текстом и описанием</h2>
+                    <div class="d-flex flex-wrap gap-4 mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch checkbox_username" id="switch-user1">
+                            <label for="switch-user1">Иван Петров</label>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch checkbox_username" id="switch-user2" checked>
+                            <label for="switch-user2">Мария Сидорова</label>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="mg-switch checkbox_username" id="switch-user3">
+                            <label for="switch-user3">Алексей Козлов</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Интерактивные примеры -->
+                <div class="mb-5">
+                    <h2>Интерактивные примеры</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Настройки уведомлений</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span>Email уведомления</span>
+                                        <input type="checkbox" class="mg-switch mg-switch-primary" id="notif-email" checked>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span>SMS уведомления</span>
+                                        <input type="checkbox" class="mg-switch" id="notif-sms">
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Push уведомления</span>
+                                        <input type="checkbox" class="mg-switch mg-switch-warning" id="notif-push" checked>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Настройки приватности</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span>Публичный профиль</span>
+                                        <input type="checkbox" class="mg-switch" id="privacy-public">
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span>Показывать статистику</span>
+                                        <input type="checkbox" class="mg-switch mg-switch-primary" id="privacy-stats" checked>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Разрешить подписки</span>
+                                        <input type="checkbox" class="mg-switch" id="privacy-subscribe" checked>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Код использования -->
+                <div class="mb-5">
+                    <h2>Примеры кода</h2>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Базовое использование:</h5>
+                            <pre><code>&lt;input type="checkbox" class="mg-switch" id="switch1"&gt;
+&lt;label for="switch1"&gt;Текст переключателя&lt;/label&gt;</code></pre>
+                            
+                            <h5>С цветовыми вариантами:</h5>
+                            <pre><code>&lt;input type="checkbox" class="mg-switch mg-switch-primary" id="switch2"&gt;
+&lt;input type="checkbox" class="mg-switch mg-switch-warning" id="switch3"&gt;
+&lt;input type="checkbox" class="mg-switch mg-switch-danger" id="switch4"&gt;</code></pre>
+                            
+                            <h5>С размерами:</h5>
+                            <pre><code>&lt;input type="checkbox" class="mg-switch mg-switch-sm" id="switch5"&gt;
+&lt;input type="checkbox" class="mg-switch" id="switch6"&gt;
+&lt;input type="checkbox" class="mg-switch mg-switch-lg" id="switch7"&gt;</code></pre>
+                            
+                            <h5>С состоянием:</h5>
+                            <pre><code>&lt;input type="checkbox" class="mg-switch" id="switch8" checked&gt;
+&lt;input type="checkbox" class="mg-switch" id="switch9" disabled&gt;</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,3 +1,12 @@
+"""
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
 import json
 import os
 from pathlib import Path
@@ -47,3 +56,37 @@ def vite_asset(name: str) -> SafeString:
     tags.append(f'<script type="module" src="{settings.STATIC_URL}js/{entry["file"]}"></script>')
 
     return mark_safe('\n'.join(tags))
+
+
+@register.simple_tag
+def vite_css(name: str) -> SafeString:
+    """
+    Подключает только CSS файл из Vite сборки без JS.
+    Используется для страниц, где нужны только стили.
+
+    Args:
+        name: Имя CSS entry в vite.config.js (например, 'css/style')
+
+    Returns:
+        HTML тег <link> для подключения CSS
+    """
+    # Django test runner принудительно устанавливает DEBUG=False, проверяем TESTING
+    is_testing = os.getenv('TESTING') == 'True'
+
+    if settings.DEBUG or is_testing:
+        # В dev режиме подключаем CSS из frontend/css/ через Django staticfiles
+        # Django находит их через STATICFILES_DIRS
+        # Используем полный путь для файлов в подпапках
+        return mark_safe(f'<link rel="stylesheet" href="{settings.STATIC_URL}{name}.css">')
+
+    manifest = get_manifest()
+    entry = manifest.get(f'{name}.css')
+    if not entry:
+        raise ValueError(f"CSS asset '{name}.css' not found in manifest.json")
+
+    # Vite создаёт для CSS entry объект с полем 'file', содержащим путь к минифицированному CSS
+    css_file = entry.get('file')
+    if not css_file:
+        raise ValueError(f"CSS file not found for '{name}' in manifest.json")
+
+    return mark_safe(f'<link rel="stylesheet" href="{settings.STATIC_URL}js/{css_file}">')

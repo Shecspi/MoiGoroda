@@ -1,4 +1,5 @@
 {% load static %}
+{% load vite %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -31,7 +32,7 @@
     <!-- /Yandex.Metrika counter -->
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'style.css' %}?ver={{ PROJECT_VERSION }}">
+    {% vite_css 'css/style' %}
     <link rel="shortcut icon" type="image/png" href="{% static "favicon.ico" %}">
 
     <script src="https://code.jquery.com/jquery-3.2.1.js"></script>

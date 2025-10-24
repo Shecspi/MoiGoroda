@@ -4,10 +4,10 @@
 
 {% block content %}
     <!-- Подключение нового дизайна -->
-    <link rel="stylesheet" href="{% static 'css/style2.css' %}?ver={{ PROJECT_VERSION }}">
-    <link rel="stylesheet" href="{% static 'css/pagination.css' %}?ver={{ PROJECT_VERSION }}">
-    <link rel="stylesheet" href="{% static 'css/autoComplete.css' %}?ver={{ PROJECT_VERSION }}">
-    <link rel="stylesheet" href="{% static 'css/star-burst.css' %}?ver={{ PROJECT_VERSION }}">
+    {% vite_css 'css/style2' %}
+    {% vite_css 'css/pagination' %}
+    {% vite_css 'css/autoComplete' %}
+    {% vite_css 'css/star-burst' %}
 
     <div class="page-header-section text-center mt-4 mb-2 mx-3">
         <h1 class="page-header-title display-4 fw-bold mb-2" id="block-page_header">

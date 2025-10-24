@@ -5,9 +5,10 @@
 {% load static %}
 {% load mathfilters %}
 
+
 {% block content %}
     <!-- Подключение нового дизайна -->
-    <link rel="stylesheet" href="{% static 'css/style2.css' %}?ver={{ PROJECT_VERSION }}">
+    {% vite_css 'css/style2' %}
 
 {% if not DEBUG %}
     {% if not user.is_authenticated %}

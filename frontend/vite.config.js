@@ -71,6 +71,7 @@ export default defineConfig({
         'css/components/button': path.resolve(__dirname, 'css/components/button.css'),
         'css/components/badge': path.resolve(__dirname, 'css/components/badge.css'),
         'css/components/radio': path.resolve(__dirname, 'css/components/radio.css'),
+        'css/components/card': path.resolve(__dirname, 'css/components/card.css'),
       }
     }
   }

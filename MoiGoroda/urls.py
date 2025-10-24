@@ -56,6 +56,11 @@ if settings.DEBUG:
             TemplateView.as_view(template_name='demo/checkboxes.html'),
             name='demo-checkboxes',
         ),
+        path(
+            'demo/radio/',
+            TemplateView.as_view(template_name='demo/radio.html'),
+            name='demo-radio',
+        ),
     ] + urlpatterns
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

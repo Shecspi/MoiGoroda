@@ -1,0 +1,277 @@
+/*----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------*/
+
+/* Переиспользуемые стили для радио-кнопок */
+
+/* Базовая радио-кнопка */
+.mg-radio {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    margin: 0;
+    appearance: none;
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    border: 1px solid rgba(107, 114, 128, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mg-radio::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(0, 0, 0, 0.15);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+}
+
+.mg-radio:checked {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-color: rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+}
+
+.mg-radio:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+    border: 2px solid rgba(16, 185, 129, 0.4);
+}
+
+.mg-radio:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.mg-radio:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-radio:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mg-radio:checked:hover {
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Стили для лейблов */
+label[for] {
+    cursor: pointer;
+    user-select: none;
+}
+
+label[for]:hover {
+    color: #1f2937;
+}
+
+/* Варианты цветов для радио-кнопок */
+.mg-radio.mg-radio-primary:checked {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+}
+
+.mg-radio.mg-radio-primary:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    border: 2px solid rgba(59, 130, 246, 0.4);
+}
+
+.mg-radio.mg-radio-primary:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.mg-radio.mg-radio-primary:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-radio.mg-radio-primary:checked:hover {
+    box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+}
+
+.mg-radio.mg-radio-warning:checked {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
+}
+
+.mg-radio.mg-radio-warning:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+    border: 2px solid rgba(245, 158, 11, 0.4);
+}
+
+.mg-radio.mg-radio-warning:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.mg-radio.mg-radio-warning:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-radio.mg-radio-warning:checked:hover {
+    box-shadow: 0 6px 12px rgba(245, 158, 11, 0.3);
+}
+
+.mg-radio.mg-radio-danger:checked {
+    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.2);
+}
+
+.mg-radio.mg-radio-danger:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+    border: 2px solid rgba(239, 68, 68, 0.4);
+}
+
+.mg-radio.mg-radio-danger:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.mg-radio.mg-radio-danger:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-radio.mg-radio-danger:checked:hover {
+    box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+}
+
+.mg-radio.mg-radio-secondary:checked {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-color: rgba(107, 114, 128, 0.3);
+    box-shadow: 0 4px 8px rgba(107, 114, 128, 0.2);
+}
+
+.mg-radio.mg-radio-secondary:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+    box-shadow: 0 2px 6px rgba(107, 114, 128, 0.3);
+    border: 2px solid rgba(107, 114, 128, 0.4);
+}
+
+.mg-radio.mg-radio-secondary:focus {
+    box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.2);
+}
+
+.mg-radio.mg-radio-secondary:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-radio.mg-radio-secondary:checked:hover {
+    box-shadow: 0 6px 12px rgba(107, 114, 128, 0.3);
+}
+
+.mg-radio.mg-radio-dark:checked {
+    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+    border-color: rgba(17, 24, 39, 0.3);
+    box-shadow: 0 4px 8px rgba(17, 24, 39, 0.2);
+}
+
+.mg-radio.mg-radio-dark:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+    box-shadow: 0 2px 6px rgba(17, 24, 39, 0.3);
+    border: 2px solid rgba(17, 24, 39, 0.4);
+}
+
+.mg-radio.mg-radio-dark:focus {
+    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.2);
+}
+
+.mg-radio.mg-radio-dark:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-radio.mg-radio-dark:checked:hover {
+    box-shadow: 0 6px 12px rgba(17, 24, 39, 0.3);
+}
+
+/* Размеры радио-кнопок */
+.mg-radio.mg-radio-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+.mg-radio.mg-radio-sm::before {
+    width: 0.375rem;
+    height: 0.375rem;
+}
+
+.mg-radio.mg-radio-lg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.mg-radio.mg-radio-lg::before {
+    width: 0.625rem;
+    height: 0.625rem;
+}
+
+/* Стили для групп радио-кнопок */
+.mg-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.mg-radio-group.mg-radio-group-horizontal {
+    flex-direction: row;
+    gap: 1.5rem;
+}
+
+.mg-radio-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mg-radio-item label {
+    margin: 0;
+    font-weight: 500;
+    color: #374151;
+    transition: color 0.2s ease;
+}
+
+.mg-radio-item:hover label {
+    color: #1f2937;
+}
+
+.mg-radio-item.mg-radio-item-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.mg-radio-item.mg-radio-item-disabled .mg-radio {
+    cursor: not-allowed;
+}
+
+.mg-radio-item.mg-radio-item-disabled label {
+    cursor: not-allowed;
+    color: #9ca3af;
+}

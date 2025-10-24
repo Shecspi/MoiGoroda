@@ -70,6 +70,7 @@ export default defineConfig({
         'css/components/checkbox': path.resolve(__dirname, 'css/components/checkbox.css'),
         'css/components/button': path.resolve(__dirname, 'css/components/button.css'),
         'css/components/badge': path.resolve(__dirname, 'css/components/badge.css'),
+        'css/components/radio': path.resolve(__dirname, 'css/components/radio.css'),
       }
     }
   }

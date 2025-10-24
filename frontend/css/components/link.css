@@ -1,0 +1,393 @@
+/*
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+*/
+
+/* Базовые стили для ссылок */
+.mg-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    display: inline-block;
+    position: relative;
+}
+
+.mg-link:hover {
+    color: #1d4ed8;
+    text-decoration: none;
+    background-color: rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.mg-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.mg-link:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-link:focus:not(:focus-visible):not(:hover) {
+    color: #3b82f6;
+    background-color: transparent;
+}
+
+.mg-link:active {
+    transform: translateY(0);
+    background-color: rgba(59, 130, 246, 0.15);
+}
+
+.mg-link:visited {
+    color: #3b82f6;
+}
+
+/* Варианты цветов */
+
+/* Primary (синий) */
+.mg-link.mg-link-primary {
+    color: #3b82f6;
+}
+
+.mg-link.mg-link-primary:hover {
+    color: #1d4ed8;
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.mg-link.mg-link-primary:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.mg-link.mg-link-primary:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-link.mg-link-primary:focus:not(:focus-visible):not(:hover) {
+    color: #3b82f6;
+    background-color: transparent;
+}
+
+.mg-link.mg-link-primary:active {
+    background-color: rgba(59, 130, 246, 0.15);
+}
+
+.mg-link.mg-link-primary:visited {
+    color: #3b82f6;
+}
+
+/* Success (зеленый) */
+.mg-link.mg-link-success {
+    color: #10b981;
+}
+
+.mg-link.mg-link-success:hover {
+    color: #059669;
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+.mg-link.mg-link-success:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.mg-link.mg-link-success:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-link.mg-link-success:focus:not(:focus-visible):not(:hover) {
+    color: #10b981;
+    background-color: transparent;
+}
+
+.mg-link.mg-link-success:active {
+    background-color: rgba(16, 185, 129, 0.15);
+}
+
+.mg-link.mg-link-success:visited {
+    color: #10b981;
+}
+
+/* Warning (желтый) */
+.mg-link.mg-link-warning {
+    color: #f59e0b;
+}
+
+.mg-link.mg-link-warning:hover {
+    color: #d97706;
+    background-color: rgba(245, 158, 11, 0.1);
+}
+
+.mg-link.mg-link-warning:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.mg-link.mg-link-warning:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-link.mg-link-warning:focus:not(:focus-visible):not(:hover) {
+    color: #f59e0b;
+    background-color: transparent;
+}
+
+.mg-link.mg-link-warning:active {
+    background-color: rgba(245, 158, 11, 0.15);
+}
+
+/* Danger (красный) */
+.mg-link.mg-link-danger {
+    color: #ef4444;
+}
+
+.mg-link.mg-link-danger:hover {
+    color: #dc2626;
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.mg-link.mg-link-danger:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.mg-link.mg-link-danger:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-link.mg-link-danger:focus:not(:focus-visible):not(:hover) {
+    color: #ef4444;
+    background-color: transparent;
+}
+
+.mg-link.mg-link-danger:active {
+    background-color: rgba(239, 68, 68, 0.15);
+}
+
+/* Info (голубой) */
+.mg-link.mg-link-info {
+    color: #06b6d4;
+}
+
+.mg-link.mg-link-info:hover {
+    color: #0891b2;
+    background-color: rgba(6, 182, 212, 0.1);
+}
+
+.mg-link.mg-link-info:focus {
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+}
+
+.mg-link.mg-link-info:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-link.mg-link-info:focus:not(:focus-visible):not(:hover) {
+    color: #06b6d4;
+    background-color: transparent;
+}
+
+.mg-link.mg-link-info:active {
+    background-color: rgba(6, 182, 212, 0.15);
+}
+
+/* Secondary (серый) */
+.mg-link.mg-link-secondary {
+    color: #6b7280;
+}
+
+.mg-link.mg-link-secondary:hover {
+    color: #374151;
+    background-color: rgba(107, 114, 128, 0.1);
+}
+
+.mg-link.mg-link-secondary:focus {
+    box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.2);
+}
+
+.mg-link.mg-link-secondary:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-link.mg-link-secondary:focus:not(:focus-visible):not(:hover) {
+    color: #6b7280;
+    background-color: transparent;
+}
+
+.mg-link.mg-link-secondary:active {
+    background-color: rgba(107, 114, 128, 0.15);
+}
+
+/* Dark (темный) */
+.mg-link.mg-link-dark {
+    color: #374151;
+}
+
+.mg-link.mg-link-dark:hover {
+    color: #1f2937;
+    background-color: rgba(55, 65, 81, 0.1);
+}
+
+.mg-link.mg-link-dark:focus {
+    box-shadow: 0 0 0 3px rgba(55, 65, 81, 0.2);
+}
+
+.mg-link.mg-link-dark:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-link.mg-link-dark:focus:not(:focus-visible):not(:hover) {
+    color: #374151;
+    background-color: transparent;
+}
+
+.mg-link.mg-link-dark:active {
+    background-color: rgba(55, 65, 81, 0.15);
+}
+
+/* Размеры */
+
+/* Маленький */
+.mg-link.mg-link-sm {
+    font-size: 0.875rem;
+    padding: 0.125rem 0.375rem;
+    margin: -0.125rem -0.375rem;
+}
+
+/* Большой */
+.mg-link.mg-link-lg {
+    font-size: 1.125rem;
+    padding: 0.375rem 0.75rem;
+    margin: -0.375rem -0.75rem;
+}
+
+/* Специальные варианты */
+
+/* Плоская ссылка (без фона при hover) */
+.mg-link.mg-link-flat:hover {
+    background-color: transparent;
+    transform: none;
+}
+
+/* Ссылка с подчеркиванием */
+.mg-link.mg-link-underline {
+    text-decoration: underline;
+}
+
+.mg-link.mg-link-underline:hover {
+    text-decoration: none;
+}
+
+/* Ссылка с иконкой */
+.mg-link.mg-link-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+/* Ссылка-кнопка */
+.mg-link.mg-link-button {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #374151;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.mg-link.mg-link-button:hover {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #1f2937;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mg-link.mg-link-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ссылка-кнопка с цветами */
+.mg-link.mg-link-button.mg-link-primary {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #1e40af;
+}
+
+.mg-link.mg-link-button.mg-link-primary:hover {
+    background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: #1e3a8a;
+}
+
+.mg-link.mg-link-button.mg-link-success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #065f46;
+}
+
+.mg-link.mg-link-button.mg-link-success:hover {
+    background: linear-gradient(135deg, #a7f3d0 0%, #86efac 100%);
+    border-color: rgba(16, 185, 129, 0.5);
+    color: #064e3b;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .mg-link {
+        padding: 0.375rem 0.625rem;
+        margin: -0.375rem -0.625rem;
+    }
+
+    .mg-link.mg-link-sm {
+        padding: 0.25rem 0.5rem;
+        margin: -0.25rem -0.5rem;
+    }
+
+    .mg-link.mg-link-lg {
+        padding: 0.5rem 1rem;
+        margin: -0.5rem -1rem;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .mg-link {
+        transition: none;
+    }
+
+    .mg-link:hover {
+        transform: none;
+    }
+}
+
+/* Специальные стили для карточек */
+.mg-card .mg-link {
+    color: inherit;
+    font-weight: inherit;
+}
+
+.mg-card .mg-link:hover {
+    color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.mg-card .mg-link:focus {
+    color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.mg-card .mg-link:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+.mg-card .mg-link:focus:not(:focus-visible):not(:hover) {
+    color: inherit;
+    background-color: transparent;
+}

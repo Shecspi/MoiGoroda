@@ -1,42 +1,41 @@
 {% load mathfilters %}
 {% load humanize %}
+{% load vite %}
+
+{% vite_css 'css/components/card' %}
+{% vite_css 'css/components/badge' %}
+{% vite_css 'css/components/link' %}
 
 <div class="col city-card visited" id="city_card_{{ forloop.counter }}">
-    <div class="card h-100 text-center" id="section-city_{{ forloop.counter }}">
-        <div class="card-body d-flex flex-column">
-            <!-- Название города -->
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="city-status-icon" data-bs-toggle="tooltip"
-                     data-bs-title="Город {{ city }} посещён">
-                    <i class="fa-regular fa-square-check text-success"></i>
-                </div>
+    <div class="mg-card mg-card-success" id="section-city_{{ forloop.counter }}">
+        <div class="mg-card-badge mg-card-badge-success"
+             data-bs-toggle="tooltip"
+              data-bs-title="Город {{ city }} посещён">
+            {{ city.number_of_visits }}
+        </div>
 
-                <h4 id="subsection-city-title_{{ forloop.counter }}">
-                    <a href="{{ city.city.get_absolute_url }}">
-                        {{ city }}
-                    </a>
-                </h4>
+        <!-- Название города -->
+        <div class="mg-card-header">
+            <h5 class="mg-card-title" id="subsection-city-title_{{ forloop.counter }}">
+                <a href="{{ city.city.get_absolute_url }}" class="mg-link">
+                    {{ city }}
+                </a>
+            </h5>
+            <p class="mg-card-subtitle">
+                {% if city.city.region %}
+                    <a href="{{ city.city.region.get_absolute_url }}" class="mg-link mg-link-secondary">{{ city.city.region }}</a><br>
+                {% endif %}
+                <a href="{% url 'city-all-list' %}?country={{ city.city.country.code }}" class="mg-link mg-link-secondary">
+                    {{ city.city.country }}
+                </a>
+            </p>
+        </div>
+        <!-- ^^^ Название города -->
 
-                <span class="badge bg-secondary-subtle text-secondary-emphasis"
-                      data-bs-toggle="tooltip"
-                      data-bs-title="Количество посещений города {{ city }}">
-                    {{ city.number_of_visits }}
-                </span>
-            </div>
-            <!-- ^^^ Название города -->
-
-            <!-- Регион, страна и год основания -->
-            <div id="subsection-city-region_{{ forloop.counter }}" class="mt-2">
-                <small class="card-subtitle text-muted">
-                    {% if city.city.region %}
-                        <a href="{{ city.city.region.get_absolute_url }}">{{ city.city.region }}</a><br>
-                    {% endif %}
-                    <a href="{% url 'city-all-list' %}?country={{ city.city.country.code }}">
-                        {{ city.city.country }}
-                    </a>
-                </small><br>
-
-                <small class="card-subtitle text-muted">
+        <div class="mg-card-body d-flex flex-column">
+            <!-- Год основания -->
+            <div id="subsection-city-region_{{ forloop.counter }}" class="mb-3 text-center">
+                <small class="mg-card-subtitle">
                     {% if city.city.date_of_foundation %}
                         Основан в {{ city.city.date_of_foundation }} году
                     {% else %}
@@ -44,10 +43,9 @@
                     {% endif %}
                 </small>
             </div>
-            <!-- ^^^ Регион и год основания -->
 
             <!-- Даты посещений -->
-            <div class="city-visit-dates d-flex flex-column justify-content-center align-items-center flex-grow-1 mt-3"
+            <div class="city-visit-dates d-flex flex-column justify-content-center align-items-center flex-grow-1 mb-3"
                  id="subsection-city-date_of_visit_{{ forloop.counter }}">
                 {% if city.visit_dates %}
                     {% if city.visit_dates|length == 1 %}
@@ -90,28 +88,25 @@
                     </small>
                 {% endif %}
             </div>
-            <!-- ^^^ Даты посещений -->
-        </div>
 
-        <div class="card-footer">
-            <!-- Количество посещений -->
-            <div class="city-stats">
-                <div class="stat-item"
+            <!-- Статистика посещений -->
+            <div class="city-stats d-flex justify-content-between mb-3">
+                <div class="stat-item d-flex align-items-center"
                      data-bs-toggle="tooltip"
                      data-bs-title="Количество пользователей, посетивших город {{ city }}">
-                    <i class="fa-solid fa-users"></i>
+                    <i class="fa-solid fa-users me-2"></i>
                     <span>{{ city.number_of_users_who_visit_city }}</span>
                 </div>
-                <div class="stat-item"
+                <div class="stat-item d-flex align-items-center"
                      data-bs-toggle="tooltip"
                      data-bs-title="Общее количество посещений города {{ city }}">
-                    <i class="fa-solid fa-shoe-prints"></i>
+                    <i class="fa-solid fa-shoe-prints me-2"></i>
                     <span>{{ city.number_of_visits_all_users }}</span>
                 </div>
             </div>
-            <!-- ^^^ Количество посещений -->
 
-            <div class="d-flex justify-content-between mt-3">
+            <!-- Рейтинг и сувенир -->
+            <div class="d-flex justify-content-between align-items-center">
                 <!-- Рейтинг -->
                 <div class="city-rating" id="subsection-city-rating_{{ forloop.counter }}"
                      data-bs-toggle="tooltip"
@@ -132,7 +127,6 @@
                         {% endfor %}
                     </small>
                 </div>
-                <!-- ^^^ Рейтинг -->
 
                 <!-- Наличие сувенира -->
                 <div class="city-souvenir"
@@ -141,18 +135,17 @@
                     {% if city.has_souvenir %}
                         <small>
                             <span class="text-success">
-                                Сувенир <i class="fa-regular fa-square-check"></i>
+                                <i class="fa-regular fa-square-check me-1"></i>Сувенир
                             </span>
                         </small>
                     {% else %}
                         <small>
                             <span class="text-danger">
-                                Сувенир <i class="fa-regular fa-square-minus"></i>
+                                <i class="fa-regular fa-square-minus me-1"></i>Сувенир
                             </span>
                         </small>
                     {% endif %}
                 </div>
-                <!-- ^^^ Наличие сувенира -->
             </div>
         </div>
     </div>

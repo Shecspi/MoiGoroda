@@ -61,6 +61,16 @@ if settings.DEBUG:
             TemplateView.as_view(template_name='demo/radio.html'),
             name='demo-radio',
         ),
+        path(
+            'demo/cards/',
+            TemplateView.as_view(template_name='demo/cards.html'),
+            name='demo-cards',
+        ),
+        path(
+            'demo/links/',
+            TemplateView.as_view(template_name='demo/links.html'),
+            name='demo-links',
+        ),
     ] + urlpatterns
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

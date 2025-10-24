@@ -1,0 +1,232 @@
+{% extends 'base-simple.html' %}
+{% load static %}
+{% load vite %}
+
+{% block title %}Демо ссылок - MoiGoroda{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h1 class="text-center mb-5">Демо компонента mg-link</h1>
+            
+            <!-- Подключение CSS -->
+            {% vite_css 'css/components/link' %}
+            {% vite_css 'css/components/card' %}
+            
+            <!-- Базовые ссылки -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Базовые ссылки</h3>
+                </div>
+                <div class="card-body">
+                    <p>Это обычный текст с <a href="#" class="mg-link">ссылкой</a> внутри.</p>
+                    <p>Ссылка с <a href="#" class="mg-link mg-link-primary">основным цветом</a> и <a href="#" class="mg-link mg-link-success">успешным цветом</a>.</p>
+                    <p>Также есть <a href="#" class="mg-link mg-link-warning">предупреждающая</a> и <a href="#" class="mg-link mg-link-danger">опасная</a> ссылки.</p>
+                </div>
+            </div>
+
+            <!-- Размеры ссылок -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Размеры ссылок</h3>
+                </div>
+                <div class="card-body">
+                    <p>Маленькая ссылка: <a href="#" class="mg-link mg-link-sm">Маленькая ссылка</a></p>
+                    <p>Обычная ссылка: <a href="#" class="mg-link">Обычная ссылка</a></p>
+                    <p>Большая ссылка: <a href="#" class="mg-link mg-link-lg">Большая ссылка</a></p>
+                </div>
+            </div>
+
+            <!-- Специальные варианты -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Специальные варианты</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Плоские ссылки</h5>
+                            <p>Ссылка без фона: <a href="#" class="mg-link mg-link-flat">Плоская ссылка</a></p>
+                            
+                            <h5>Ссылки с подчеркиванием</h5>
+                            <p>С подчеркиванием: <a href="#" class="mg-link mg-link-underline">Подчеркнутая ссылка</a></p>
+                            
+                            <h5>Ссылки с иконками</h5>
+                            <p><a href="#" class="mg-link mg-link-icon">
+                                <i class="fa-solid fa-external-link-alt"></i>
+                                Ссылка с иконкой
+                            </a></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Ссылки-кнопки</h5>
+                            <p><a href="#" class="mg-link mg-link-button">Обычная кнопка-ссылка</a></p>
+                            <p><a href="#" class="mg-link mg-link-button mg-link-primary">Primary кнопка-ссылка</a></p>
+                            <p><a href="#" class="mg-link mg-link-button mg-link-success">Success кнопка-ссылка</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ссылки в карточках -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Ссылки в карточках</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="mg-card">
+                                <div class="mg-card-header">
+                                    <h5 class="mg-card-title">
+                                        <a href="#" class="mg-link">Название города</a>
+                                    </h5>
+                                    <p class="mg-card-subtitle">
+                                        <a href="#" class="mg-link mg-link-secondary">Регион</a>, 
+                                        <a href="#" class="mg-link mg-link-secondary">Страна</a>
+                                    </p>
+                                </div>
+                                <div class="mg-card-body">
+                                    <p>Год основания: <a href="#" class="mg-link mg-link-info">2023</a></p>
+                                    <p>Посещен: <a href="#" class="mg-link mg-link-success">15.06.2023</a></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="mg-card">
+                                <div class="mg-card-header">
+                                    <h5 class="mg-card-title">
+                                        <a href="#" class="mg-link">Другой город</a>
+                                    </h5>
+                                    <p class="mg-card-subtitle">
+                                        <a href="#" class="mg-link mg-link-secondary">Другой регион</a>, 
+                                        <a href="#" class="mg-link mg-link-secondary">Другая страна</a>
+                                    </p>
+                                </div>
+                                <div class="mg-card-body">
+                                    <p>Год основания: <a href="#" class="mg-link mg-link-info">2021</a></p>
+                                    <p>Посещен: <a href="#" class="mg-link mg-link-success">22.08.2023</a></p>
+                                    <p>Рейтинг: <a href="#" class="mg-link mg-link-warning">4.5/5</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Все цветовые варианты -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Все цветовые варианты</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><a href="#" class="mg-link mg-link-primary">Primary ссылка</a></p>
+                            <p><a href="#" class="mg-link mg-link-success">Success ссылка</a></p>
+                            <p><a href="#" class="mg-link mg-link-warning">Warning ссылка</a></p>
+                            <p><a href="#" class="mg-link mg-link-danger">Danger ссылка</a></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><a href="#" class="mg-link mg-link-info">Info ссылка</a></p>
+                            <p><a href="#" class="mg-link mg-link-secondary">Secondary ссылка</a></p>
+                            <p><a href="#" class="mg-link mg-link-dark">Dark ссылка</a></p>
+                            <p><a href="#" class="mg-link">Default ссылка</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Примеры использования -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Примеры использования</h3>
+                </div>
+                <div class="card-body">
+                    <h5>В навигации:</h5>
+                    <nav class="mb-4">
+                        <a href="#" class="mg-link me-3">Главная</a>
+                        <a href="#" class="mg-link me-3">Города</a>
+                        <a href="#" class="mg-link me-3">Регионы</a>
+                        <a href="#" class="mg-link me-3">Статистика</a>
+                    </nav>
+
+                    <h5>В списках:</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="mg-link mg-link-icon">
+                            <i class="fa-solid fa-map-marker-alt"></i>
+                            Москва, Россия
+                        </a></li>
+                        <li><a href="#" class="mg-link mg-link-icon">
+                            <i class="fa-solid fa-map-marker-alt"></i>
+                            Санкт-Петербург, Россия
+                        </a></li>
+                        <li><a href="#" class="mg-link mg-link-icon">
+                            <i class="fa-solid fa-map-marker-alt"></i>
+                            Новосибирск, Россия
+                        </a></li>
+                    </ul>
+
+                    <h5>В таблицах:</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Город</th>
+                                    <th>Страна</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><a href="#" class="mg-link">Москва</a></td>
+                                    <td><a href="#" class="mg-link mg-link-secondary">Россия</a></td>
+                                    <td>
+                                        <a href="#" class="mg-link mg-link-sm">Просмотр</a> | 
+                                        <a href="#" class="mg-link mg-link-sm mg-link-danger">Удалить</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#" class="mg-link">Лондон</a></td>
+                                    <td><a href="#" class="mg-link mg-link-secondary">Великобритания</a></td>
+                                    <td>
+                                        <a href="#" class="mg-link mg-link-sm">Просмотр</a> | 
+                                        <a href="#" class="mg-link mg-link-sm mg-link-danger">Удалить</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Код примеров -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Примеры кода</h3>
+                </div>
+                <div class="card-body">
+                    <h5>Базовое использование:</h5>
+                    <pre><code>&lt;a href="#" class="mg-link"&gt;Обычная ссылка&lt;/a&gt;
+&lt;a href="#" class="mg-link mg-link-primary"&gt;Primary ссылка&lt;/a&gt;
+&lt;a href="#" class="mg-link mg-link-success"&gt;Success ссылка&lt;/a&gt;</code></pre>
+
+                    <h5>Размеры:</h5>
+                    <pre><code>&lt;a href="#" class="mg-link mg-link-sm"&gt;Маленькая ссылка&lt;/a&gt;
+&lt;a href="#" class="mg-link"&gt;Обычная ссылка&lt;/a&gt;
+&lt;a href="#" class="mg-link mg-link-lg"&gt;Большая ссылка&lt;/a&gt;</code></pre>
+
+                    <h5>Специальные варианты:</h5>
+                    <pre><code>&lt;a href="#" class="mg-link mg-link-flat"&gt;Плоская ссылка&lt;/a&gt;
+&lt;a href="#" class="mg-link mg-link-underline"&gt;С подчеркиванием&lt;/a&gt;
+&lt;a href="#" class="mg-link mg-link-icon"&gt;
+    &lt;i class="fa-solid fa-external-link-alt"&gt;&lt;/i&gt;
+    С иконкой
+&lt;/a&gt;
+&lt;a href="#" class="mg-link mg-link-button"&gt;Ссылка-кнопка&lt;/a&gt;</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

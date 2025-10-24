@@ -70,9 +70,10 @@ export default defineConfig({
         'css/components/checkbox': path.resolve(__dirname, 'css/components/checkbox.css'),
         'css/components/button': path.resolve(__dirname, 'css/components/button.css'),
         'css/components/badge': path.resolve(__dirname, 'css/components/badge.css'),
-                'css/components/radio': path.resolve(__dirname, 'css/components/radio.css'),
-                'css/components/card': path.resolve(__dirname, 'css/components/card.css'),
-                'css/components/link': path.resolve(__dirname, 'css/components/link.css'),
+        'css/components/radio': path.resolve(__dirname, 'css/components/radio.css'),
+        'css/components/card': path.resolve(__dirname, 'css/components/card.css'),
+        'css/components/link': path.resolve(__dirname, 'css/components/link.css'),
+        'css/components/typography': path.resolve(__dirname, 'css/components/typography.css'),
       }
     }
   }

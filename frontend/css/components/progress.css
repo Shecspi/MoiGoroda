@@ -299,6 +299,31 @@
     animation: progressStripes 1s linear infinite;
 }
 
+/* Цветовые варианты для полосатых прогресс-баров */
+.mg-progress.mg-progress-striped .mg-progress-bar.mg-progress-primary {
+    background-color: #3498db;
+}
+
+.mg-progress.mg-progress-striped .mg-progress-bar.mg-progress-success {
+    background-color: #10b981;
+}
+
+.mg-progress.mg-progress-striped .mg-progress-bar.mg-progress-warning {
+    background-color: #f59e0b;
+}
+
+.mg-progress.mg-progress-striped .mg-progress-bar.mg-progress-danger {
+    background-color: #ef4444;
+}
+
+.mg-progress.mg-progress-striped .mg-progress-bar.mg-progress-info {
+    background-color: #06b6d4;
+}
+
+.mg-progress.mg-progress-striped .mg-progress-bar.mg-progress-secondary {
+    background-color: #6b7280;
+}
+
 @keyframes progressStripes {
     0% {
         background-position: 0 0;

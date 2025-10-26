@@ -7,84 +7,12 @@
 {% vite_css 'css/components/button' %}
 {% vite_css 'css/components/card' %}
 {% vite_css 'css/components/typography' %}
-
-<style>
-    .demo-nav {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 3rem;
-        border: 1px solid #dee2e6;
-    }
-    
-    .demo-nav h2 {
-        color: #495057;
-        margin-bottom: 1.5rem;
-        font-weight: 600;
-        font-size: 1rem;
-        text-align: center;
-    }
-    
-    .demo-nav-links {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        justify-content: center;
-    }
-    
-    .demo-hero {
-        background: #f8f9fa;
-        border-radius: 16px;
-        padding: 3rem 2rem;
-        margin-bottom: 3rem;
-        text-align: center;
-        border: 1px solid #dee2e6;
-    }
-    
-    .demo-hero h1 {
-        color: #212529;
-        margin-bottom: 1rem;
-        font-size: 2.5rem;
-        font-weight: 700;
-    }
-    
-    .demo-hero p {
-        color: #6c757d;
-        font-size: 1.125rem;
-        margin: 0;
-    }
-    
-    .demo-subsection {
-        background: #ffffff;
-        border: 2px dashed #d0d7de;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .demo-page-wrapper {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1rem;
-    }
-</style>
+{% vite_css 'css/demo' %}
 
 <div class="container mt-4">
 <div class="demo-page-wrapper">
     <!-- Навигация -->
-    <div class="demo-nav">
-        <h2 class="mg-heading-5 mb-3">📚 Демо компонентов</h2>
-        <div class="demo-nav-links">
-            <a href="{% url 'demo-badges' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-badges' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Бейджи</a>
-            <a href="{% url 'demo-buttons' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-buttons' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Кнопки</a>
-            <a href="{% url 'demo-cards' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-cards' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Карточки</a>
-            <a href="{% url 'demo-checkboxes' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-checkboxes' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Чекбоксы</a>
-            <a href="{% url 'demo-links' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-links' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Ссылки</a>
-            <a href="{% url 'demo-progress' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-progress' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Прогресс</a>
-            <a href="{% url 'demo-radio' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-radio' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Радио</a>
-            <a href="{% url 'demo-typography' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-typography' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Типографика</a>
-        </div>
-    </div>
+    {% include 'demo/partials/nav.html' %}
     
     <!-- Hero секция -->
     <div class="demo-hero">

@@ -4,12 +4,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.9/dist/autoComplete.min.js"></script>
 {% vite_css 'css/autoComplete' %}
+{% vite_css 'css/components/badge' %}
+{% vite_css 'css/components/button' %}
 
 <!-- Панель инструментов -->
 <div class="row mx-3 my-3 y-3 g-3 align-items-center" id="toolbar">
     <!-- Статистика посещёния -->
     <div class="col-12 col-lg-auto col-xl-12 col-xxl-auto">
-        <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
+        <span class="mg-badge mg-badge-success">
             {% if user.is_authenticated %}
                 Посещено: {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
             {% else %}
@@ -31,7 +33,7 @@
 
             <div class="col-12 col-lg-auto text-end">
                 <a href="{% url 'region-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-                   class="btn btn-outline-success"
+                   class="mg-btn mg-btn-outline-success"
                    data-bs-toggle="tooltip"
                    data-bs-title="Посмотреть регионы {{ country_name|prepositional|title}} на карте">
                     <i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;&nbsp;Посмотреть на карте

@@ -1,0 +1,224 @@
+{% extends 'base-simple.html' %}
+{% load vite %}
+
+{% block title %}Демо типографии - MoiGoroda{% endblock %}
+
+{% block content %}
+{% vite_css 'css/components/typography' %}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mg-heading-1">Демо компонентов типографии</h1>
+            <p class="mg-text">Демонстрация всех компонентов типографии с префиксом <span class="mg-code">mg-</span>.</p>
+        </div>
+    </div>
+
+    <!-- Заголовки -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Заголовки</h2>
+            <div class="bg-light p-4 rounded">
+                <h1 class="mg-heading-1">Заголовок 1 (mg-heading-1)</h1>
+                <h2 class="mg-heading-2">Заголовок 2 (mg-heading-2)</h2>
+                <h3 class="mg-heading-3">Заголовок 3 (mg-heading-3)</h3>
+                <h4 class="mg-heading-4">Заголовок 4 (mg-heading-4)</h4>
+                <h5 class="mg-heading-5">Заголовок 5 (mg-heading-5)</h5>
+                <h6 class="mg-heading-6">Заголовок 6 (mg-heading-6)</h6>
+            </div>
+        </div>
+    </div>
+
+    <!-- Текст -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Текст</h2>
+            <div class="bg-light p-4 rounded">
+                <p class="mg-text-xl">Большой текст (mg-text-xl)</p>
+                <p class="mg-text-lg">Увеличенный текст (mg-text-lg)</p>
+                <p class="mg-text">Обычный текст (mg-text)</p>
+                <p class="mg-text-sm">Маленький текст (mg-text-sm)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Выделения текста -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Выделения текста</h2>
+            <div class="bg-light p-4 rounded">
+                <p class="mg-text">
+                    Это <span class="mg-text-highlight">выделенный текст</span> с желтым фоном.
+                </p>
+                <p class="mg-text">
+                    Это <span class="mg-text-accent">акцентный текст</span> с синим фоном.
+                </p>
+                <p class="mg-text">
+                    Это <span class="mg-text-success">успешный текст</span> с зеленым фоном.
+                </p>
+                <p class="mg-text">
+                    Это <span class="mg-text-warning">предупреждающий текст</span> с оранжевым фоном.
+                </p>
+                <p class="mg-text">
+                    Это <span class="mg-text-danger">опасный текст</span> с красным фоном.
+                </p>
+                <p class="mg-text">
+                    Это <span class="mg-text-info">информационный текст</span> с голубым фоном.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Код -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Код</h2>
+            <div class="bg-light p-4 rounded">
+                <p class="mg-text">
+                    Используйте класс <span class="mg-code">mg-code</span> для инлайн кода.
+                </p>
+                <div class="mg-code-block">
+function example() {
+    console.log("Это блок кода с классом mg-code-block");
+    return true;
+}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Цитаты -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Цитаты</h2>
+            <div class="bg-light p-4 rounded">
+                <blockquote class="mg-quote">
+                    Путешествие — это единственная трата, которая делает вас богаче.
+                    <footer class="mg-quote-footer">— Анонимный путешественник</footer>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+
+    <!-- Списки -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Списки</h2>
+            <div class="bg-light p-4 rounded">
+                <h3 class="mg-heading-3">Маркированный список</h3>
+                <ul class="mg-list">
+                    <li class="mg-list-item">Первый элемент списка</li>
+                    <li class="mg-list-item">Второй элемент списка</li>
+                    <li class="mg-list-item">Третий элемент списка</li>
+                </ul>
+
+                <h3 class="mg-heading-3">Нумерованный список</h3>
+                <ol class="mg-list-numbered">
+                    <li class="mg-list-item">Первый элемент</li>
+                    <li class="mg-list-item">Второй элемент</li>
+                    <li class="mg-list-item">Третий элемент</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Разделители -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Разделители</h2>
+            <div class="bg-light p-4 rounded">
+                <p class="mg-text">Текст перед разделителем</p>
+                <hr class="mg-divider">
+                <p class="mg-text">Текст после обычного разделителя</p>
+                <hr class="mg-divider-thick">
+                <p class="mg-text">Текст после толстого разделителя</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Метки -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Метки</h2>
+            <div class="bg-light p-4 rounded">
+                <span class="mg-label mg-label-primary">Primary</span>
+                <span class="mg-label mg-label-success">Success</span>
+                <span class="mg-label mg-label-warning">Warning</span>
+                <span class="mg-label mg-label-danger">Danger</span>
+                <span class="mg-label mg-label-info">Info</span>
+                <span class="mg-label mg-label-secondary">Secondary</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подписи -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Подписи</h2>
+            <div class="bg-light p-4 rounded">
+                <div class="text-center">
+                    <div class="bg-white p-3 rounded border">
+                        <h4 class="mg-heading-4">Пример изображения</h4>
+                        <p class="mg-text-sm">Здесь могло бы быть изображение</p>
+                    </div>
+                    <p class="mg-caption">Подпись к изображению с классом mg-caption</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Комбинированный пример -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Комбинированный пример</h2>
+            <div class="bg-light p-4 rounded">
+                <h3 class="mg-heading-3">Статья о путешествиях</h3>
+                <p class="mg-text">
+                    Путешествия — это <span class="mg-text-highlight">лучший способ</span> 
+                    познать мир и себя. Каждое новое место открывает перед нами 
+                    <span class="mg-text-accent">уникальные возможности</span> для роста.
+                </p>
+                
+                <blockquote class="mg-quote">
+                    Мир — это книга, и те, кто не путешествуют, читают только одну страницу.
+                    <footer class="mg-quote-footer">— Святой Августин</footer>
+                </blockquote>
+
+                <p class="mg-text">
+                    В нашем приложении <span class="mg-code">MoiGoroda</span> вы можете:
+                </p>
+
+                <ul class="mg-list">
+                    <li class="mg-list-item">Отмечать посещённые города</li>
+                    <li class="mg-list-item">Создавать коллекции путешествий</li>
+                    <li class="mg-list-item">Делиться своими достижениями</li>
+                </ul>
+
+                <hr class="mg-divider">
+
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="mg-label mg-label-success">Готово</span>
+                    <span class="mg-label mg-label-info">В разработке</span>
+                    <span class="mg-label mg-label-warning">Планируется</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Код примеры -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mg-heading-2">Примеры использования</h2>
+            <div class="bg-light p-4 rounded">
+                <h3 class="mg-heading-3">HTML код</h3>
+                <div class="mg-code-block">
+&lt;h1 class="mg-heading-1"&gt;Заголовок&lt;/h1&gt;
+&lt;p class="mg-text"&gt;Обычный текст с &lt;span class="mg-text-highlight"&gt;выделением&lt;/span&gt;&lt;/p&gt;
+&lt;blockquote class="mg-quote"&gt;Цитата&lt;/blockquote&gt;
+&lt;span class="mg-label mg-label-success"&gt;Метка&lt;/span&gt;
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

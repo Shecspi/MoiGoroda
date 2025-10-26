@@ -71,6 +71,16 @@ if settings.DEBUG:
             TemplateView.as_view(template_name='demo/links.html'),
             name='demo-links',
         ),
+        path(
+            'demo/typography/',
+            TemplateView.as_view(template_name='demo/typography.html'),
+            name='demo-typography',
+        ),
+        path(
+            'demo/progress/',
+            TemplateView.as_view(template_name='demo/progress.html'),
+            name='demo-progress',
+        ),
     ] + urlpatterns
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

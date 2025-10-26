@@ -5,20 +5,17 @@
 
 {% block content %}
     <!-- Подключение нового дизайна -->
-    {% vite_css 'css/style2' %}
+    {% comment %} {% vite_css 'css/style2' %} {% endcomment %}
     {% vite_css 'css/city-card' %}
     {% vite_css 'css/pagination' %}
 
-    <div class="page-header-section text-center mt-4 mb-2 mx-3">
-        <h1 class="page-header-title display-4 fw-bold mb-2" id="section-page_header">
-            {% if country_name %}
-                Список посещённых городов в {{ country_name|prepositional }}
-            {% else %}
-                Список посещённых городов
-            {% endif %}
-        </h1>
-        <div class="page-header-divider"></div>
-    </div>
+    <h1 class="mg-heading-1 text-center mt-4 mb-2 mx-3" id="section-page_header">
+        {% if country_name %}
+            Список посещённых городов в {{ country_name|prepositional }}
+        {% else %}
+            Список посещённых городов
+        {% endif %}
+    </h1>
 
     {% if not DEBUG %}
     {% include 'advertisement/rtb_banner.html' %}

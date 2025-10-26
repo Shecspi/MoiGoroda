@@ -1,14 +1,19 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base-simple.html' %}
 {% load vite %}
 
+{% block title %}Демо кнопок - MoiGoroda{% endblock %}
+
 {% block content %}
-    {% vite_css 'css/components/button' %}
-    
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="text-center mb-5">Демо компонента mg-btn</h1>
+{% vite_css 'css/components/button' %}
+{% vite_css 'css/components/typography' %}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mg-heading-1">Демо компонентов кнопок</h1>
+            <p class="mg-text">Демонстрация всех компонентов кнопок с префиксом <span class="mg-code">mg-</span>.</p>
+        </div>
+    </div>
                 
                 <!-- Solid кнопки -->
                 <div class="mb-5">

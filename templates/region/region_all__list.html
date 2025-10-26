@@ -4,7 +4,13 @@
 {% load morphology %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3 mx-3" id="section-page-header">
+    {% vite_css 'css/components/typography' %}
+    {% vite_css 'css/components/card' %}
+    {% vite_css 'css/components/progress' %}
+    {% vite_css 'css/components/typography' %}
+    {% vite_css 'css/components/link' %}
+
+    <h1 class="mg-heading-1 text-center mt-4 mb-2 mx-3">
         {{ page_title }}
     </h1>
 

@@ -5,154 +5,296 @@
 
 {% block content %}
 {% vite_css 'css/components/button' %}
+{% vite_css 'css/components/card' %}
 {% vite_css 'css/components/typography' %}
 
+<style>
+    .demo-nav {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 3rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .demo-nav h2 {
+        color: #495057;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        text-align: center;
+    }
+    
+    .demo-nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+    
+    .demo-hero {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        border: 1px solid #dee2e6;
+    }
+    
+    .demo-hero h1 {
+        color: #212529;
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    .demo-hero p {
+        color: #6c757d;
+        font-size: 1.125rem;
+        margin: 0;
+    }
+    
+    .demo-subsection {
+        background: #ffffff;
+        border: 2px dashed #d0d7de;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .demo-page-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+</style>
+
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mg-heading-1">Демо компонентов кнопок</h1>
-            <p class="mg-text">Демонстрация всех компонентов кнопок с префиксом <span class="mg-code">mg-</span>.</p>
+<div class="demo-page-wrapper">
+    <!-- Навигация -->
+    <div class="demo-nav">
+        <h2 class="mg-heading-5 mb-3">📚 Демо компонентов</h2>
+        <div class="demo-nav-links">
+            <a href="{% url 'demo-badges' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-badges' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Бейджи</a>
+            <a href="{% url 'demo-buttons' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-buttons' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Кнопки</a>
+            <a href="{% url 'demo-cards' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-cards' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Карточки</a>
+            <a href="{% url 'demo-checkboxes' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-checkboxes' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Чекбоксы</a>
+            <a href="{% url 'demo-links' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-links' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Ссылки</a>
+            <a href="{% url 'demo-progress' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-progress' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Прогресс</a>
+            <a href="{% url 'demo-radio' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-radio' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Радио</a>
+            <a href="{% url 'demo-typography' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-typography' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Типографика</a>
         </div>
     </div>
-                
-                <!-- Solid кнопки -->
-                <div class="mb-5">
-                    <h2>Solid кнопки</h2>
-                    <div class="d-flex flex-wrap gap-3 mb-4">
-                        <button class="mg-btn mg-btn-primary">Primary</button>
-                        <button class="mg-btn mg-btn-success">Success</button>
-                        <button class="mg-btn mg-btn-secondary">Secondary</button>
-                        <button class="mg-btn mg-btn-danger">Danger</button>
-                        <button class="mg-btn mg-btn-warning">Warning</button>
-                    </div>
-                </div>
+    
+    <!-- Hero секция -->
+    <div class="demo-hero">
+        <h1>🔘 Кнопки</h1>
+        <p>Интерактивные элементы управления для всех типов действий</p>
+    </div>
 
-                <!-- Outline кнопки -->
-                <div class="mb-5">
-                    <h2>Outline кнопки</h2>
-                    <div class="d-flex flex-wrap gap-3 mb-4">
-                        <button class="mg-btn mg-btn-outline-primary">Primary</button>
-                        <button class="mg-btn mg-btn-outline-success">Success</button>
-                        <button class="mg-btn mg-btn-outline-secondary">Secondary</button>
-                        <button class="mg-btn mg-btn-outline-danger">Danger</button>
-                        <button class="mg-btn mg-btn-outline-warning">Warning</button>
-                    </div>
+    <!-- Solid кнопки -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🎯 Solid кнопки</h2>
+            <p class="text-muted">Сплошные кнопки с градиентным фоном</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
+                    <button class="mg-btn mg-btn-primary">Primary</button>
+                    <button class="mg-btn mg-btn-success">Success</button>
+                    <button class="mg-btn mg-btn-secondary">Secondary</button>
+                    <button class="mg-btn mg-btn-danger">Danger</button>
+                    <button class="mg-btn mg-btn-warning">Warning</button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Размеры -->
-                <div class="mb-5">
-                    <h2>Размеры</h2>
-                    <div class="d-flex flex-wrap gap-3 align-items-center mb-4">
-                        <button class="mg-btn mg-btn-sm mg-btn-primary">Small</button>
-                        <button class="mg-btn mg-btn-primary">Normal</button>
-                        <button class="mg-btn mg-btn-lg mg-btn-primary">Large</button>
-                        <button class="mg-btn mg-btn-xl mg-btn-primary">Extra Large</button>
-                    </div>
+    <!-- Outline кнопки -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🔲 Outline кнопки</h2>
+            <p class="text-muted">Кнопки с контуром и прозрачным фоном</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
+                    <button class="mg-btn mg-btn-outline-primary">Primary</button>
+                    <button class="mg-btn mg-btn-outline-success">Success</button>
+                    <button class="mg-btn mg-btn-outline-secondary">Secondary</button>
+                    <button class="mg-btn mg-btn-outline-danger">Danger</button>
+                    <button class="mg-btn mg-btn-outline-warning">Warning</button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- С иконками -->
-                <div class="mb-5">
-                    <h2>С иконками</h2>
-                    <div class="d-flex flex-wrap gap-3 mb-4">
-                        <button class="mg-btn mg-btn-success">
-                            <i class="fa-solid fa-check"></i> Применить
-                        </button>
-                        <button class="mg-btn mg-btn-outline-danger">
-                            <i class="fa-solid fa-trash"></i> Удалить
-                        </button>
-                        <button class="mg-btn mg-btn-primary">
-                            <i class="fa-solid fa-plus"></i> Добавить
-                        </button>
-                        <button class="mg-btn mg-btn-secondary">
-                            <i class="fa-solid fa-edit"></i> Редактировать
-                        </button>
-                    </div>
+    <!-- Размеры -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">📏 Размеры</h2>
+            <p class="text-muted">Различные размеры для любого контекста</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                    <button class="mg-btn mg-btn-sm mg-btn-primary">Small</button>
+                    <button class="mg-btn mg-btn-primary">Normal</button>
+                    <button class="mg-btn mg-btn-lg mg-btn-primary">Large</button>
+                    <button class="mg-btn mg-btn-xl mg-btn-primary">Extra Large</button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Только иконки -->
-                <div class="mb-5">
-                    <h2>Только иконки</h2>
-                    <div class="d-flex flex-wrap gap-3 mb-4">
-                        <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-primary">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                        <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-outline-success">
-                            <i class="fa-solid fa-check"></i>
-                        </button>
-                        <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-outline-danger">
-                            <i class="fa-solid fa-times"></i>
-                        </button>
-                        <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-outline-secondary">
-                            <i class="fa-solid fa-edit"></i>
-                        </button>
-                    </div>
+    <!-- С иконками -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🎨 С иконками</h2>
+            <p class="text-muted">Кнопки с иконками для улучшенной читаемости</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
+                    <button class="mg-btn mg-btn-success">
+                        <i class="fa-solid fa-check"></i> Применить
+                    </button>
+                    <button class="mg-btn mg-btn-outline-danger">
+                        <i class="fa-solid fa-trash"></i> Удалить
+                    </button>
+                    <button class="mg-btn mg-btn-primary">
+                        <i class="fa-solid fa-plus"></i> Добавить
+                    </button>
+                    <button class="mg-btn mg-btn-secondary">
+                        <i class="fa-solid fa-edit"></i> Редактировать
+                    </button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Блочные кнопки -->
-                <div class="mb-5">
-                    <h2>Блочные кнопки</h2>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <button class="mg-btn mg-btn-block mg-btn-primary">Блочная Primary</button>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <button class="mg-btn mg-btn-block mg-btn-outline-success">Блочная Success</button>
-                        </div>
-                    </div>
+    <!-- Только иконки -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🔘 Только иконки</h2>
+            <p class="text-muted">Компактные кнопки только с иконками</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
+                    <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-primary">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-outline-success">
+                        <i class="fa-solid fa-check"></i>
+                    </button>
+                    <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-outline-danger">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                    <button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-outline-secondary">
+                        <i class="fa-solid fa-edit"></i>
+                    </button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Ссылки как кнопки -->
-                <div class="mb-5">
-                    <h2>Ссылки как кнопки</h2>
-                    <div class="d-flex flex-wrap gap-3 mb-4">
-                        <a href="#" class="mg-btn mg-btn-primary">Ссылка Primary</a>
-                        <a href="#" class="mg-btn mg-btn-outline-success">Ссылка Success</a>
-                        <a href="#" class="mg-btn mg-btn-link mg-btn-primary">Ссылка Link</a>
+    <!-- Блочные кнопки -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">📦 Блочные кнопки</h2>
+            <p class="text-muted">Кнопки на всю ширину контейнера</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <button class="mg-btn mg-btn-block mg-btn-primary">Блочная Primary</button>
                     </div>
-                </div>
-
-                <!-- Отключенные кнопки -->
-                <div class="mb-5">
-                    <h2>Отключенные кнопки</h2>
-                    <div class="d-flex flex-wrap gap-3 mb-4">
-                        <button class="mg-btn mg-btn-primary" disabled>Disabled Primary</button>
-                        <button class="mg-btn mg-btn-outline-success" disabled>Disabled Success</button>
-                        <button class="mg-btn mg-btn-danger" disabled>Disabled Danger</button>
-                    </div>
-                </div>
-
-                <!-- Состояния (активные) -->
-                <div class="mb-5">
-                    <h2>Активные состояния</h2>
-                    <div class="d-flex flex-wrap gap-3 mb-4">
-                        <button class="mg-btn mg-btn-primary" style="background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%); border-color: rgba(59, 130, 246, 0.5); color: #1e3a8a;">Активная Primary</button>
-                        <button class="mg-btn mg-btn-success" style="background: linear-gradient(135deg, #a7f3d0 0%, #86efac 100%); border-color: rgba(16, 185, 129, 0.5); color: #064e3b;">Активная Success</button>
-                    </div>
-                </div>
-
-                <!-- Код использования -->
-                <div class="mb-5">
-                    <h2>Примеры кода</h2>
-                    <div class="card">
-                        <div class="card-body">
-                            <h5>Базовое использование:</h5>
-                            <pre><code>&lt;button class="mg-btn mg-btn-primary"&gt;Кнопка&lt;/button&gt;</code></pre>
-                            
-                            <h5>Outline вариант:</h5>
-                            <pre><code>&lt;button class="mg-btn mg-btn-outline-success"&gt;Outline&lt;/button&gt;</code></pre>
-                            
-                            <h5>С размерами:</h5>
-                            <pre><code>&lt;button class="mg-btn mg-btn-lg mg-btn-primary"&gt;Большая кнопка&lt;/button&gt;</code></pre>
-                            
-                            <h5>С иконками:</h5>
-                            <pre><code>&lt;button class="mg-btn mg-btn-success"&gt;&lt;i class="fa-solid fa-check"&gt;&lt;/i&gt; Применить&lt;/button&gt;</code></pre>
-                            
-                            <h5>Только иконка:</h5>
-                            <pre><code>&lt;button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-primary"&gt;&lt;i class="fa-solid fa-plus"&gt;&lt;/i&gt;&lt;/button&gt;</code></pre>
-                        </div>
+                    <div class="col-md-6 mb-3">
+                        <button class="mg-btn mg-btn-block mg-btn-outline-success">Блочная Success</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Ссылки как кнопки -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🔗 Ссылки как кнопки</h2>
+            <p class="text-muted">Навигационные элементы в стиле кнопок</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#" class="mg-btn mg-btn-primary">Ссылка Primary</a>
+                    <a href="#" class="mg-btn mg-btn-outline-success">Ссылка Success</a>
+                    <a href="#" class="mg-btn mg-btn-link mg-btn-primary">Ссылка Link</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Отключенные кнопки -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🚫 Отключенные кнопки</h2>
+            <p class="text-muted">Состояние недоступности</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
+                    <button class="mg-btn mg-btn-primary" disabled>Disabled Primary</button>
+                    <button class="mg-btn mg-btn-outline-success" disabled>Disabled Success</button>
+                    <button class="mg-btn mg-btn-danger" disabled>Disabled Danger</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Состояния (активные) -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">✨ Активные состояния</h2>
+            <p class="text-muted">Визуальная индикация активного состояния</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
+                    <button class="mg-btn mg-btn-primary" style="background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%); border-color: rgba(59, 130, 246, 0.5); color: #1e3a8a;">Активная Primary</button>
+                    <button class="mg-btn mg-btn-success" style="background: linear-gradient(135deg, #a7f3d0 0%, #86efac 100%); border-color: rgba(16, 185, 129, 0.5); color: #064e3b;">Активная Success</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Код использования -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">💻 Примеры кода</h2>
+            <p class="text-muted">Готовые примеры для интеграции</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <h3 class="mg-heading-3">Базовое использование:</h3>
+                <pre class="mg-code-block"><code>&lt;button class="mg-btn mg-btn-primary"&gt;Кнопка&lt;/button&gt;</code></pre>
+                
+                <h3 class="mg-heading-3">Outline вариант:</h3>
+                <pre class="mg-code-block"><code>&lt;button class="mg-btn mg-btn-outline-success"&gt;Outline&lt;/button&gt;</code></pre>
+                
+                <h3 class="mg-heading-3">С размерами:</h3>
+                <pre class="mg-code-block"><code>&lt;button class="mg-btn mg-btn-lg mg-btn-primary"&gt;Большая кнопка&lt;/button&gt;</code></pre>
+                
+                <h3 class="mg-heading-3">С иконками:</h3>
+                <pre class="mg-code-block"><code>&lt;button class="mg-btn mg-btn-success"&gt;&lt;i class="fa-solid fa-check"&gt;&lt;/i&gt; Применить&lt;/button&gt;</code></pre>
+                
+                <h3 class="mg-heading-3">Только иконка:</h3>
+                <pre class="mg-code-block"><code>&lt;button class="mg-btn mg-btn-sm mg-btn-icon-only mg-btn-primary"&gt;&lt;i class="fa-solid fa-plus"&gt;&lt;/i&gt;&lt;/button&gt;</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 {% endblock %}

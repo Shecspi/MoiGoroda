@@ -74,8 +74,8 @@ Licensed under the Apache License, Version 2.0
     border-color: rgba(59, 130, 246, 0.2);
 }
 
-.mg-card.mg-card-primary .mg-card-header,
-.mg-card.mg-card-primary .mg-card-footer {
+.mg-card.mg-card-primary > .mg-card-header,
+.mg-card.mg-card-primary > .mg-card-footer {
     background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
 }
 
@@ -88,8 +88,8 @@ Licensed under the Apache License, Version 2.0
     border-color: rgba(16, 185, 129, 0.2);
 }
 
-.mg-card.mg-card-success .mg-card-header,
-.mg-card.mg-card-success .mg-card-footer {
+.mg-card.mg-card-success > .mg-card-header,
+.mg-card.mg-card-success > .mg-card-footer {
     background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
 }
 
@@ -102,8 +102,8 @@ Licensed under the Apache License, Version 2.0
     border-color: rgba(245, 158, 11, 0.2);
 }
 
-.mg-card.mg-card-warning .mg-card-header,
-.mg-card.mg-card-warning .mg-card-footer {
+.mg-card.mg-card-warning > .mg-card-header,
+.mg-card.mg-card-warning > .mg-card-footer {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
 }
 
@@ -116,8 +116,8 @@ Licensed under the Apache License, Version 2.0
     border-color: rgba(239, 68, 68, 0.2);
 }
 
-.mg-card.mg-card-danger .mg-card-header,
-.mg-card.mg-card-danger .mg-card-footer {
+.mg-card.mg-card-danger > .mg-card-header,
+.mg-card.mg-card-danger > .mg-card-footer {
     background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
 }
 
@@ -130,8 +130,8 @@ Licensed under the Apache License, Version 2.0
     border-color: rgba(107, 114, 128, 0.2);
 }
 
-.mg-card.mg-card-secondary .mg-card-header,
-.mg-card.mg-card-secondary .mg-card-footer {
+.mg-card.mg-card-secondary > .mg-card-header,
+.mg-card.mg-card-secondary > .mg-card-footer {
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 }
 
@@ -145,8 +145,8 @@ Licensed under the Apache License, Version 2.0
     color: #f9fafb;
 }
 
-.mg-card.mg-card-dark .mg-card-header,
-.mg-card.mg-card-dark .mg-card-footer {
+.mg-card.mg-card-dark > .mg-card-header,
+.mg-card.mg-card-dark > .mg-card-footer {
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
 }
 

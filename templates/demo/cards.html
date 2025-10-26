@@ -1,489 +1,595 @@
 {% extends 'base-simple.html' %}
-{% load static %}
 {% load vite %}
 
 {% block title %}Демо карточек - MoiGoroda{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <h1 class="text-center mb-5">Демо компонента mg-card</h1>
-            
-            <!-- Подключение CSS -->
-            {% vite_css 'css/components/card' %}
-            
-            <!-- Базовые карточки -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Базовые карточки</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Заголовок карточки</h5>
-                                    <p class="mg-card-subtitle">Подзаголовок карточки</p>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Это содержимое карточки. Здесь может быть любой контент: текст, изображения, кнопки и другие элементы.</p>
-                                </div>
-                                <div class="mg-card-footer">
-                                    <small class="text-muted">Футер карточки</small>
-                                </div>
+{% vite_css 'css/components/card' %}
+{% vite_css 'css/components/button' %}
+{% vite_css 'css/components/typography' %}
+
+<style>
+    .demo-nav {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 3rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .demo-nav h2 {
+        color: #495057;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        text-align: center;
+    }
+    
+    .demo-nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+    
+    .demo-hero {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        border: 1px solid #dee2e6;
+    }
+    
+    .demo-hero h1 {
+        color: #212529;
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    .demo-hero p {
+        color: #6c757d;
+        font-size: 1.125rem;
+        margin: 0;
+    }
+    
+    .demo-subsection {
+        background: #ffffff;
+        border: 2px dashed #d0d7de;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .demo-page-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+</style>
+
+<div class="container mt-4">
+<div class="demo-page-wrapper">
+    <!-- Навигация -->
+    <div class="demo-nav">
+        <h2 class="mg-heading-5 mb-3">📚 Демо компонентов</h2>
+        <div class="demo-nav-links">
+            <a href="{% url 'demo-badges' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-badges' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Бейджи</a>
+            <a href="{% url 'demo-buttons' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-buttons' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Кнопки</a>
+            <a href="{% url 'demo-cards' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-cards' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Карточки</a>
+            <a href="{% url 'demo-checkboxes' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-checkboxes' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Чекбоксы</a>
+            <a href="{% url 'demo-links' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-links' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Ссылки</a>
+            <a href="{% url 'demo-progress' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-progress' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Прогресс</a>
+            <a href="{% url 'demo-radio' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-radio' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Радио</a>
+            <a href="{% url 'demo-typography' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-typography' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Типографика</a>
+        </div>
+    </div>
+    
+    <!-- Hero секция -->
+    <div class="demo-hero">
+        <h1>🃏 Карточки</h1>
+        <p>Универсальные контейнеры для группировки контента</p>
+    </div>
+
+    <!-- Базовые карточки -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🎯 Базовые карточки</h2>
+            <p class="text-muted">Структура и основные компоненты карточки</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Заголовок карточки</div>
+                                <p class="mg-card-subtitle">Подзаголовок карточки</p>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Это содержимое карточки. Здесь может быть любой контент: текст, изображения, кнопки и другие элементы.</p>
+                            </div>
+                            <div class="mg-card-footer">
+                                <small class="text-muted">Футер карточки</small>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Простая карточка</h5>
-                                    <p>Карточка без заголовка и футера, только с основным содержимым.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Простая карточка</div>
+                                <p>Карточка без заголовка и футера, только с основным содержимым.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Обычные карточки (естественная высота) -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Обычные карточки (естественная высота)</h3>
-                    <p class="mb-0 text-muted">Карточки имеют естественную высоту в зависимости от содержимого</p>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Короткая карточка</h5>
-                                    <p class="mg-card-subtitle">Мало контента</p>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Короткое содержимое.</p>
-                                </div>
+    <!-- Обычные карточки (естественная высота) -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">📏 Обычные карточки (естественная высота)</h2>
+            <p class="text-muted">Карточки имеют естественную высоту в зависимости от содержимого</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Короткая карточка</div>
+                                <p class="mg-card-subtitle">Мало контента</p>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Короткое содержимое.</p>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Средняя карточка</h5>
-                                    <p class="mg-card-subtitle">Среднее количество контента</p>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Это содержимое карточки средней длины. Здесь может быть любой контент: текст, изображения, кнопки и другие элементы.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Средняя карточка</div>
+                                <p class="mg-card-subtitle">Среднее количество контента</p>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Это содержимое карточки средней длины. Здесь может быть любой контент: текст, изображения, кнопки и другие элементы.</p>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Длинная карточка</h5>
-                                    <p class="mg-card-subtitle">Много контента</p>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Эта карточка имеет много содержимого. Обратите внимание, как карточки автоматически подстраиваются под размер контента.</p>
-                                    <p>Дополнительный абзац для демонстрации разной высоты карточек.</p>
-                                    <p>Еще один абзац, чтобы показать, как карточка растет по высоте.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Длинная карточка</div>
+                                <p class="mg-card-subtitle">Много контента</p>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Эта карточка имеет много содержимого. Обратите внимание, как карточки автоматически подстраиваются под размер контента.</p>
+                                <p>Дополнительный абзац для демонстрации разной высоты карточек.</p>
+                                <p>Еще один абзац, чтобы показать, как карточка растет по высоте.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Карточки с равной высотой -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Карточки с равной высотой</h3>
-                    <p class="mb-0 text-muted">Все карточки в ряду имеют одинаковую высоту (класс mg-card-equal-height)</p>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="mg-card mg-card-equal-height">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Короткая карточка</h5>
-                                    <p class="mg-card-subtitle">Мало контента</p>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Короткое содержимое.</p>
-                                </div>
+    <!-- Карточки с равной высотой -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">📐 Карточки с равной высотой</h2>
+            <p class="text-muted">Все карточки в ряду имеют одинаковую высоту (класс mg-card-equal-height)</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="mg-card mg-card-equal-height">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Короткая карточка</div>
+                                <p class="mg-card-subtitle">Мало контента</p>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Короткое содержимое.</p>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="mg-card mg-card-equal-height">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Средняя карточка</h5>
-                                    <p class="mg-card-subtitle">Среднее количество контента</p>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Это содержимое карточки средней длины. Здесь может быть любой контент: текст, изображения, кнопки и другие элементы.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="mg-card mg-card-equal-height">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Средняя карточка</div>
+                                <p class="mg-card-subtitle">Среднее количество контента</p>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Это содержимое карточки средней длины. Здесь может быть любой контент: текст, изображения, кнопки и другие элементы.</p>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="mg-card mg-card-equal-height">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Длинная карточка</h5>
-                                    <p class="mg-card-subtitle">Много контента</p>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Эта карточка имеет много содержимого. Обратите внимание, как карточки автоматически подстраиваются под размер контента.</p>
-                                    <p>Дополнительный абзац для демонстрации разной высоты карточек.</p>
-                                    <p>Еще один абзац, чтобы показать, как карточка растет по высоте.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="mg-card mg-card-equal-height">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Длинная карточка</div>
+                                <p class="mg-card-subtitle">Много контента</p>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Эта карточка имеет много содержимого. Обратите внимание, как карточки автоматически подстраиваются под размер контента.</p>
+                                <p>Дополнительный абзац для демонстрации разной высоты карточек.</p>
+                                <p>Еще один абзац, чтобы показать, как карточка растет по высоте.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Цветовые варианты -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Цветовые варианты</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="mg-card mg-card-primary">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Primary карточка</h5>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Синяя карточка для основных элементов.</p>
-                                </div>
+    <!-- Цветовые варианты -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🎨 Цветовые варианты</h2>
+            <p class="text-muted">Различные цветовые схемы для разных контекстов</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="mg-card mg-card-primary">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Primary карточка</div>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Синяя карточка для основных элементов.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="mg-card mg-card-success">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Success карточка</h5>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Зеленая карточка для успешных действий.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="mg-card mg-card-success">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Success карточка</div>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Зеленая карточка для успешных действий.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="mg-card mg-card-warning">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Warning карточка</h5>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Желтая карточка для предупреждений.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="mg-card mg-card-warning">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Warning карточка</div>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Желтая карточка для предупреждений.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="mg-card mg-card-danger">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Danger карточка</h5>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Красная карточка для ошибок.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="mg-card mg-card-danger">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Danger карточка</div>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Красная карточка для ошибок.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="mg-card mg-card-secondary">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Secondary карточка</h5>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Серая карточка для второстепенных элементов.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="mg-card mg-card-secondary">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Secondary карточка</div>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Серая карточка для второстепенных элементов.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="mg-card mg-card-dark">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Dark карточка</h5>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Темная карточка для особых случаев.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="mg-card mg-card-dark">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Dark карточка</div>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Темная карточка для особых случаев.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Размеры -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Размеры</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="mg-card mg-card-sm">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Маленькая карточка</h5>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Компактная карточка с уменьшенными отступами.</p>
-                                </div>
+    <!-- Размеры -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">📐 Размеры</h2>
+            <p class="text-muted">Адаптивные размеры для любого контекста</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="mg-card mg-card-sm">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Маленькая карточка</div>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Компактная карточка с уменьшенными отступами.</p>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Обычная карточка</h5>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Стандартная карточка с обычными отступами.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Обычная карточка</div>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Стандартная карточка с обычными отступами.</p>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="mg-card mg-card-lg">
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">Большая карточка</h5>
-                                </div>
-                                <div class="mg-card-body">
-                                    <p>Просторная карточка с увеличенными отступами.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="mg-card mg-card-lg">
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">Большая карточка</div>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Просторная карточка с увеличенными отступами.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Карточки с изображениями -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Карточки с изображениями</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="mg-card">
-                                <img src="https://via.placeholder.com/300x200/3b82f6/ffffff?text=Изображение" class="mg-card-img" alt="Пример">
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Карточка с изображением</h5>
-                                    <p>Карточка с изображением в заголовке.</p>
-                                </div>
+    <!-- Карточки с изображениями -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🖼️ Карточки с изображениями</h2>
+            <p class="text-muted">Визуальная привлекательность с изображениями</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="mg-card">
+                            <img src="https://via.placeholder.com/300x200/3b82f6/ffffff?text=Изображение" class="mg-card-img" alt="Пример">
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Карточка с изображением</div>
+                                <p>Карточка с изображением в заголовке.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="mg-card mg-card-success">
-                                <img src="https://via.placeholder.com/300x200/10b981/ffffff?text=Успех" class="mg-card-img" alt="Пример">
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Цветная карточка</h5>
-                                    <p>Карточка с цветным фоном и изображением.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="mg-card mg-card-success">
+                            <img src="https://via.placeholder.com/300x200/10b981/ffffff?text=Успех" class="mg-card-img" alt="Пример">
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Цветная карточка</div>
+                                <p>Карточка с цветным фоном и изображением.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="mg-card mg-card-sm">
-                                <img src="https://via.placeholder.com/300x150/ef4444/ffffff?text=Маленькая" class="mg-card-img" alt="Пример">
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Маленькая с изображением</h5>
-                                    <p>Компактная карточка с изображением.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="mg-card mg-card-sm">
+                            <img src="https://via.placeholder.com/300x150/ef4444/ffffff?text=Маленькая" class="mg-card-img" alt="Пример">
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Маленькая с изображением</div>
+                                <p>Компактная карточка с изображением.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Статусные индикаторы и бейджики -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Статусные индикаторы и бейджики</h3>
-                </div>
-                <div class="card-body">
-                    <h5>Круглые индикаторы:</h5>
-                    <div class="row mb-4">
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-status mg-card-status-success"></div>
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Активная</h5>
-                                    <p>Карточка с зеленым статусным индикатором.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-status mg-card-status-warning"></div>
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Предупреждение</h5>
-                                    <p>Карточка с желтым статусным индикатором.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-status mg-card-status-danger"></div>
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Ошибка</h5>
-                                    <p>Карточка с красным статусным индикатором.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-status mg-card-status-info"></div>
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Информация</h5>
-                                    <p>Карточка с синим статусным индикатором.</p>
-                                </div>
+    <!-- Статусные индикаторы и бейджики -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🎭 Статусные индикаторы и бейджики</h2>
+            <p class="text-muted">Визуальные индикаторы статуса и метки</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <h3 class="mg-heading-3">Круглые индикаторы:</h3>
+                <div class="row mb-4">
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-status mg-card-status-success"></div>
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Активная</div>
+                                <p>Карточка с зеленым статусным индикатором.</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <h5>Маленькие бейджики:</h5>
-                    <div class="row">
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-badge mg-card-badge-success">Посещен</div>
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Успех</h5>
-                                    <p>Карточка с зеленым бейджиком.</p>
-                                </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-status mg-card-status-warning"></div>
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Предупреждение</div>
+                                <p>Карточка с желтым статусным индикатором.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-badge mg-card-badge-warning">В процессе</div>
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Предупреждение</h5>
-                                    <p>Карточка с желтым бейджиком.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-status mg-card-status-danger"></div>
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Ошибка</div>
+                                <p>Карточка с красным статусным индикатором.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-badge mg-card-badge-danger">Ошибка</div>
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Ошибка</h5>
-                                    <p>Карточка с красным бейджиком.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <div class="mg-card">
-                                <div class="mg-card-badge mg-card-badge-info">Новое</div>
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Информация</h5>
-                                    <p>Карточка с синим бейджиком.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-status mg-card-status-info"></div>
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Информация</div>
+                                <p>Карточка с синим статусным индикатором.</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Карточки без границ -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Карточки без границ</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="mg-card mg-card-borderless">
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Без границ</h5>
-                                    <p>Карточка без видимых границ, только с тенью.</p>
-                                </div>
+                
+                <h3 class="mg-heading-3">Маленькие бейджики:</h3>
+                <div class="row">
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-badge mg-card-badge-success">Посещен</div>
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Успех</div>
+                                <p>Карточка с зеленым бейджиком.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="mg-card mg-card-borderless mg-card-primary">
-                                <div class="mg-card-body">
-                                    <h5 class="mg-card-title">Цветная без границ</h5>
-                                    <p>Цветная карточка без границ.</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-badge mg-card-badge-warning">В процессе</div>
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Предупреждение</div>
+                                <p>Карточка с желтым бейджиком.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-badge mg-card-badge-danger">Ошибка</div>
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Ошибка</div>
+                                <p>Карточка с красным бейджиком.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="mg-card">
+                            <div class="mg-card-badge mg-card-badge-info">Новое</div>
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Информация</div>
+                                <p>Карточка с синим бейджиком.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Пример использования -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Пример использования</h3>
+    <!-- Карточки без границ -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🔲 Карточки без границ</h2>
+            <p class="text-muted">Минималистичный дизайн без видимых границ</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="mg-card mg-card-borderless">
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Без границ</div>
+                                <p>Карточка без видимых границ, только с тенью.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="mg-card mg-card-borderless mg-card-primary">
+                            <div class="mg-card-body">
+                                <div class="mg-card-title">Цветная без границ</div>
+                                <p>Цветная карточка без границ.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="mg-card mg-card-success">
-                                <div class="mg-card-status mg-card-status-success"></div>
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">
-                                        <a href="#">Город Москва</a>
-                                    </h5>
-                                    <p class="mg-card-subtitle">Россия, Центральный федеральный округ</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пример использования -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🚀 Пример использования</h2>
+            <p class="text-muted">Практические примеры реальных карточек</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="mg-card mg-card-success">
+                            <div class="mg-card-status mg-card-status-success"></div>
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">
+                                    <a href="#">Город Москва</a>
                                 </div>
-                                <div class="mg-card-body">
-                                    <p>Столица России, крупнейший город страны. Посещен 3 раза.</p>
-                                    <div class="d-flex justify-content-between">
-                                        <small class="text-muted">Последний визит: 15.08.2023</small>
-                                        <small class="text-success">✓ Сувенир</small>
+                                <p class="mg-card-subtitle">Россия, Центральный федеральный округ</p>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Столица России, крупнейший город страны. Посещен 3 раза.</p>
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">Последний визит: 15.08.2023</small>
+                                    <small class="text-success">✓ Сувенир</small>
+                                </div>
+                            </div>
+                            <div class="mg-card-footer">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fa-solid fa-star text-warning"></i>
+                                        <i class="fa-solid fa-star text-warning"></i>
+                                        <i class="fa-solid fa-star text-warning"></i>
+                                        <i class="fa-solid fa-star text-warning"></i>
+                                        <i class="fa-regular fa-star text-muted"></i>
                                     </div>
-                                </div>
-                                <div class="mg-card-footer">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="fa-solid fa-star text-warning"></i>
-                                            <i class="fa-solid fa-star text-warning"></i>
-                                            <i class="fa-solid fa-star text-warning"></i>
-                                            <i class="fa-solid fa-star text-warning"></i>
-                                            <i class="fa-regular fa-star text-muted"></i>
-                                        </div>
-                                        <small class="text-muted">4.0/5</small>
-                                    </div>
+                                    <small class="text-muted">4.0/5</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="mg-card mg-card-warning">
-                                <div class="mg-card-status mg-card-status-warning"></div>
-                                <div class="mg-card-header">
-                                    <h5 class="mg-card-title">
-                                        <a href="#">Город Санкт-Петербург</a>
-                                    </h5>
-                                    <p class="mg-card-subtitle">Россия, Северо-Западный федеральный округ</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="mg-card mg-card-warning">
+                            <div class="mg-card-status mg-card-status-warning"></div>
+                            <div class="mg-card-header">
+                                <div class="mg-card-title">
+                                    <a href="#">Город Санкт-Петербург</a>
                                 </div>
-                                <div class="mg-card-body">
-                                    <p>Культурная столица России. Посещен 1 раз.</p>
-                                    <div class="d-flex justify-content-between">
-                                        <small class="text-muted">Последний визит: 22.07.2023</small>
-                                        <small class="text-danger">✗ Нет сувенира</small>
-                                    </div>
+                                <p class="mg-card-subtitle">Россия, Северо-Западный федеральный округ</p>
+                            </div>
+                            <div class="mg-card-body">
+                                <p>Культурная столица России. Посещен 1 раз.</p>
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">Последний визит: 22.07.2023</small>
+                                    <small class="text-danger">✗ Нет сувенира</small>
                                 </div>
-                                <div class="mg-card-footer">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="fa-solid fa-star text-warning"></i>
-                                            <i class="fa-solid fa-star text-warning"></i>
-                                            <i class="fa-solid fa-star text-warning"></i>
-                                            <i class="fa-regular fa-star text-muted"></i>
-                                            <i class="fa-regular fa-star text-muted"></i>
-                                        </div>
-                                        <small class="text-muted">3.0/5</small>
+                            </div>
+                            <div class="mg-card-footer">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fa-solid fa-star text-warning"></i>
+                                        <i class="fa-solid fa-star text-warning"></i>
+                                        <i class="fa-solid fa-star text-warning"></i>
+                                        <i class="fa-regular fa-star text-muted"></i>
+                                        <i class="fa-regular fa-star text-muted"></i>
                                     </div>
+                                    <small class="text-muted">3.0/5</small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Код использования -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Код использования</h3>
-                </div>
-                <div class="card-body">
-                    <h5>HTML:</h5>
-                    <pre><code>&lt;!-- Базовая карточка --&gt;
+    <!-- Код использования -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">💻 Код использования</h2>
+            <p class="text-muted">Готовые примеры для интеграции</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <h3 class="mg-heading-3">HTML:</h3>
+                <pre class="mg-code-block"><code>&lt;!-- Базовая карточка --&gt;
 &lt;div class="mg-card"&gt;
     &lt;div class="mg-card-header"&gt;
         &lt;h5 class="mg-card-title"&gt;Заголовок&lt;/h5&gt;
@@ -515,9 +621,9 @@
         &lt;p&gt;Содержимое&lt;/p&gt;
     &lt;/div&gt;
 &lt;/div&gt;</code></pre>
-                </div>
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

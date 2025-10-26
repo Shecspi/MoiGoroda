@@ -5,22 +5,103 @@
 
 {% block content %}
 {% vite_css 'css/components/badge' %}
+{% vite_css 'css/components/button' %}
+{% vite_css 'css/components/card' %}
 {% vite_css 'css/components/typography' %}
 
+<style>
+    .demo-nav {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 3rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .demo-nav h2 {
+        color: #495057;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        text-align: center;
+    }
+    
+    .demo-nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+    
+    .demo-hero {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        border: 1px solid #dee2e6;
+    }
+    
+    .demo-hero h1 {
+        color: #212529;
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    .demo-hero p {
+        color: #6c757d;
+        font-size: 1.125rem;
+        margin: 0;
+    }
+    
+    .demo-subsection {
+        background: #ffffff;
+        border: 2px dashed #d0d7de;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .demo-page-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+</style>
+
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mg-heading-1">Демо компонентов бейджей</h1>
-            <p class="mg-text">Демонстрация всех компонентов бейджей с префиксом <span class="mg-code">mg-</span>.</p>
+<div class="demo-page-wrapper">
+    <!-- Навигация -->
+    <div class="demo-nav">
+        <h2 class="mg-heading-5 mb-3">📚 Демо компонентов</h2>
+        <div class="demo-nav-links">
+            <a href="{% url 'demo-badges' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-badges' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Бейджи</a>
+            <a href="{% url 'demo-buttons' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-buttons' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Кнопки</a>
+            <a href="{% url 'demo-cards' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-cards' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Карточки</a>
+            <a href="{% url 'demo-checkboxes' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-checkboxes' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Чекбоксы</a>
+            <a href="{% url 'demo-links' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-links' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Ссылки</a>
+            <a href="{% url 'demo-progress' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-progress' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Прогресс</a>
+            <a href="{% url 'demo-radio' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-radio' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Радио</a>
+            <a href="{% url 'demo-typography' %}" class="mg-btn {% if request.resolver_match.url_name == 'demo-typography' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %}">Типографика</a>
         </div>
+    </div>
+    
+    <!-- Hero секция -->
+    <div class="demo-hero">
+        <h1>🏷️ Бейджи</h1>
+        <p>Компактные индикаторы для отображения статуса и категорий</p>
     </div>
 
     <!-- Базовые цвета -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mg-heading-2">Базовые цвета</h2>
-            <div class="bg-light p-4 rounded">
-                <div class="d-flex flex-wrap gap-3 mb-4">
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🎨 Базовые цвета</h2>
+            <p class="text-muted">Основные цветовые варианты бейджей</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
                     <span class="mg-badge mg-badge-primary">Primary</span>
                     <span class="mg-badge mg-badge-success">Success</span>
                     <span class="mg-badge mg-badge-info">Info</span>
@@ -33,11 +114,14 @@
     </div>
 
     <!-- Размеры -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mg-heading-2">Размеры</h2>
-            <div class="bg-light p-4 rounded">
-                <div class="d-flex flex-wrap gap-3 align-items-center mb-4">
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">📏 Размеры</h2>
+            <p class="text-muted">Различные размеры бейджей для любых нужд</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3 align-items-center">
                     <span class="mg-badge mg-badge-sm mg-badge-primary">Small</span>
                     <span class="mg-badge mg-badge-primary">Normal</span>
                     <span class="mg-badge mg-badge-lg mg-badge-primary">Large</span>
@@ -48,11 +132,14 @@
     </div>
 
     <!-- С текстом и числами -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mg-heading-2">С текстом и числами</h2>
-            <div class="bg-light p-4 rounded">
-                <div class="d-flex flex-wrap gap-3 mb-4">
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">📊 С текстом и числами</h2>
+            <p class="text-muted">Бейджи с дополнительным контентом</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
                     <span class="mg-badge mg-badge-success">
                         Всего посещено <strong>25</strong> городов
                     </span>
@@ -71,11 +158,14 @@
     </div>
 
     <!-- Плоские варианты -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mg-heading-2">Плоские варианты (без градиента)</h2>
-            <div class="bg-light p-4 rounded">
-                <div class="d-flex flex-wrap gap-3 mb-4">
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🔲 Плоские варианты (без градиента)</h2>
+            <p class="text-muted">Минималистичный дизайн без градиентов</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
                     <span class="mg-badge mg-badge-flat mg-badge-primary">Primary Flat</span>
                     <span class="mg-badge mg-badge-flat mg-badge-success">Success Flat</span>
                     <span class="mg-badge mg-badge-flat mg-badge-info">Info Flat</span>
@@ -88,11 +178,14 @@
     </div>
 
     <!-- С анимациями -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mg-heading-2">С анимациями</h2>
-            <div class="bg-light p-4 rounded">
-                <div class="d-flex flex-wrap gap-3 mb-4">
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">✨ С анимациями</h2>
+            <p class="text-muted">Привлечение внимания с помощью эффектов</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
                     <span class="mg-badge mg-badge-success mg-badge-pulse">
                         Пульсация
                     </span>
@@ -108,11 +201,14 @@
     </div>
 
     <!-- Комбинированные стили -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mg-heading-2">Комбинированные стили</h2>
-            <div class="bg-light p-4 rounded">
-                <div class="d-flex flex-wrap gap-3 mb-4">
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🎯 Комбинированные стили</h2>
+            <p class="text-muted">Сочетание различных размеров и эффектов</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
                     <span class="mg-badge mg-badge-lg mg-badge-success mg-badge-pulse">
                         Большой с пульсацией
                     </span>
@@ -128,11 +224,14 @@
     </div>
 
     <!-- Ссылки как бейджи -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mg-heading-2">Ссылки как бейджи</h2>
-            <div class="bg-light p-4 rounded">
-                <div class="d-flex flex-wrap gap-3 mb-4">
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🔗 Ссылки как бейджи</h2>
+            <p class="text-muted">Интерактивные бейджи для навигации</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
                     <a href="#" class="mg-badge mg-badge-primary">Ссылка Primary</a>
                     <a href="#" class="mg-badge mg-badge-success">Ссылка Success</a>
                     <a href="#" class="mg-badge mg-badge-info">Ссылка Info</a>
@@ -143,11 +242,14 @@
     </div>
 
     <!-- Адаптивность -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mg-heading-2">Адаптивность (измените размер окна)</h2>
-            <div class="bg-light p-4 rounded">
-                <div class="d-flex flex-wrap gap-3 mb-4">
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">📱 Адаптивность</h2>
+            <p class="text-muted">Отзывчивая верстка для всех устройств (измените размер окна)</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="d-flex flex-wrap gap-3">
                     <span class="mg-badge mg-badge-success">
                         Адаптивный бейдж
                     </span>
@@ -162,24 +264,28 @@
         </div>
     </div>
 
-    <!-- Код использования -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="mg-heading-2">Примеры кода</h2>
-            <div class="bg-light p-4 rounded">
-                <h5 class="mg-heading-3">Базовое использование:</h5>
+    <!-- Примеры кода -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">💻 Примеры кода</h2>
+            <p class="text-muted">Готовые примеры для интеграции</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <h3 class="mg-heading-3">Базовое использование:</h3>
                 <pre class="mg-code-block"><code>&lt;span class="mg-badge mg-badge-success"&gt;Текст бейджа&lt;/span&gt;</code></pre>
                 
-                <h5 class="mg-heading-3">С размерами:</h5>
+                <h3 class="mg-heading-3">С размерами:</h3>
                 <pre class="mg-code-block"><code>&lt;span class="mg-badge mg-badge-lg mg-badge-primary"&gt;Большой бейдж&lt;/span&gt;</code></pre>
                 
-                <h5 class="mg-heading-3">С анимациями:</h5>
+                <h3 class="mg-heading-3">С анимациями:</h3>
                 <pre class="mg-code-block"><code>&lt;span class="mg-badge mg-badge-warning mg-badge-pulse"&gt;Анимированный&lt;/span&gt;</code></pre>
                 
-                <h5 class="mg-heading-3">Плоский вариант:</h5>
+                <h3 class="mg-heading-3">Плоский вариант:</h3>
                 <pre class="mg-code-block"><code>&lt;span class="mg-badge mg-badge-flat mg-badge-info"&gt;Плоский бейдж&lt;/span&gt;</code></pre>
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

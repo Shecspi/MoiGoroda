@@ -281,3 +281,76 @@ Licensed under the Apache License, Version 2.0
     color: #1d4ed8;
     text-decoration: none;
 }
+
+/* Плоские кнопки (без градиента) */
+.mg-btn.mg-btn-flat {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+    box-shadow: none;
+}
+
+.mg-btn.mg-btn-flat.mg-btn-primary {
+    background: #dbeafe;
+    border-color: #bfdbfe;
+    color: #1e40af;
+}
+
+.mg-btn.mg-btn-flat.mg-btn-success {
+    background: #d1fae5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+.mg-btn.mg-btn-flat.mg-btn-warning {
+    background: #fef3c7;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.mg-btn.mg-btn-flat.mg-btn-danger {
+    background: #fecaca;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.mg-btn.mg-btn-flat.mg-btn-secondary {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #374151;
+}
+
+.mg-btn.mg-btn-flat:hover:not(:disabled) {
+    box-shadow: none;
+    transform: translateY(-1px);
+}
+
+.mg-btn.mg-btn-flat.mg-btn-primary:hover:not(:disabled) {
+    background: #bfdbfe;
+    border-color: #93c5fd;
+    color: #1e3a8a;
+}
+
+.mg-btn.mg-btn-flat.mg-btn-success:hover:not(:disabled) {
+    background: #a7f3d0;
+    border-color: #86efac;
+    color: #064e3b;
+}
+
+.mg-btn.mg-btn-flat.mg-btn-warning:hover:not(:disabled) {
+    background: #fde68a;
+    border-color: #fcd34d;
+    color: #78350f;
+}
+
+.mg-btn.mg-btn-flat.mg-btn-danger:hover:not(:disabled) {
+    background: #fca5a5;
+    border-color: #f87171;
+    color: #7f1d1d;
+}
+
+.mg-btn.mg-btn-flat.mg-btn-secondary:hover:not(:disabled) {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+    color: #1f2937;
+}

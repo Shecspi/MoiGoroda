@@ -1,288 +1,316 @@
 {% extends 'base-simple.html' %}
-{% load static %}
 {% load vite %}
 
 {% block title %}Демо радио-кнопок - MoiGoroda{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <h1 class="text-center mb-5">Демо компонента mg-radio</h1>
-            
-            <!-- Подключение CSS -->
-            {% vite_css 'css/components/radio' %}
-            
-            <!-- Базовые радио-кнопки -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Базовые радио-кнопки</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mg-radio-group">
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio" id="radio1" name="basic" value="option1">
-                            <label for="radio1">Опция 1</label>
-                        </div>
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio" id="radio2" name="basic" value="option2" checked>
-                            <label for="radio2">Опция 2 (выбрана)</label>
-                        </div>
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio" id="radio3" name="basic" value="option3">
-                            <label for="radio3">Опция 3</label>
-                        </div>
+{% vite_css 'css/components/radio' %}
+{% vite_css 'css/components/button' %}
+{% vite_css 'css/components/card' %}
+{% vite_css 'css/components/typography' %}
+{% vite_css 'css/demo' %}
+
+<div class="container mt-4">
+<div class="demo-page-wrapper">
+    <!-- Навигация -->
+    {% include 'demo/partials/nav.html' %}
+    
+    <!-- Hero секция -->
+    <div class="demo-hero">
+        <h1>🔘 Радио-кнопки</h1>
+        <p>Компоненты для выбора одной опции из нескольких</p>
+    </div>
+
+    <!-- Базовые радио-кнопки -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🎯 Базовые радио-кнопки</h2>
+            <p class="text-muted">Основные варианты радио-кнопок</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="mg-radio-group">
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio" id="radio1" name="basic" value="option1">
+                        <label for="radio1">Опция 1</label>
+                    </div>
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio" id="radio2" name="basic" value="option2" checked>
+                        <label for="radio2">Опция 2 (выбрана)</label>
+                    </div>
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio" id="radio3" name="basic" value="option3">
+                        <label for="radio3">Опция 3</label>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Цветовые варианты -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Цветовые варианты</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>Success (по умолчанию)</h5>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio" id="success1" name="success" value="1">
-                                    <label for="success1">Success 1</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio" id="success2" name="success" value="2" checked>
-                                    <label for="success2">Success 2</label>
-                                </div>
+    <!-- Цветовые варианты -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🎨 Цветовые варианты</h2>
+            <p class="text-muted">Различные цветовые схемы для разных контекстов</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="mg-heading-3">Success (по умолчанию)</h3>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio" id="success1" name="success" value="1">
+                                <label for="success1">Success 1</label>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>Primary</h5>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-primary" id="primary1" name="primary" value="1">
-                                    <label for="primary1">Primary 1</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-primary" id="primary2" name="primary" value="2" checked>
-                                    <label for="primary2">Primary 2</label>
-                                </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio" id="success2" name="success" value="2" checked>
+                                <label for="success2">Success 2</label>
                             </div>
                         </div>
                     </div>
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <h5>Warning</h5>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-warning" id="warning1" name="warning" value="1">
-                                    <label for="warning1">Warning 1</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-warning" id="warning2" name="warning" value="2" checked>
-                                    <label for="warning2">Warning 2</label>
-                                </div>
+                    <div class="col-md-6">
+                        <h3 class="mg-heading-3">Primary</h3>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-primary" id="primary1" name="primary" value="1">
+                                <label for="primary1">Primary 1</label>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>Danger</h5>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-danger" id="danger1" name="danger" value="1">
-                                    <label for="danger1">Danger 1</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-danger" id="danger2" name="danger" value="2" checked>
-                                    <label for="danger2">Danger 2</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <h5>Secondary</h5>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-secondary" id="secondary1" name="secondary" value="1">
-                                    <label for="secondary1">Secondary 1</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-secondary" id="secondary2" name="secondary" value="2" checked>
-                                    <label for="secondary2">Secondary 2</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>Dark</h5>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-dark" id="dark1" name="dark" value="1">
-                                    <label for="dark1">Dark 1</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-dark" id="dark2" name="dark" value="2" checked>
-                                    <label for="dark2">Dark 2</label>
-                                </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-primary" id="primary2" name="primary" value="2" checked>
+                                <label for="primary2">Primary 2</label>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Размеры -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Размеры</h3>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h3 class="mg-heading-3">Warning</h3>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-warning" id="warning1" name="warning" value="1">
+                                <label for="warning1">Warning 1</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-warning" id="warning2" name="warning" value="2" checked>
+                                <label for="warning2">Warning 2</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="mg-heading-3">Danger</h3>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-danger" id="danger1" name="danger" value="1">
+                                <label for="danger1">Danger 1</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-danger" id="danger2" name="danger" value="2" checked>
+                                <label for="danger2">Danger 2</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <h5>Маленький (sm)</h5>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-sm" id="sm1" name="size-sm" value="1">
-                                    <label for="sm1">Маленький 1</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-sm" id="sm2" name="size-sm" value="2" checked>
-                                    <label for="sm2">Маленький 2</label>
-                                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h3 class="mg-heading-3">Secondary</h3>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-secondary" id="secondary1" name="secondary" value="1">
+                                <label for="secondary1">Secondary 1</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-secondary" id="secondary2" name="secondary" value="2" checked>
+                                <label for="secondary2">Secondary 2</label>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <h5>Обычный (по умолчанию)</h5>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio" id="normal1" name="size-normal" value="1">
-                                    <label for="normal1">Обычный 1</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio" id="normal2" name="size-normal" value="2" checked>
-                                    <label for="normal2">Обычный 2</label>
-                                </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="mg-heading-3">Dark</h3>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-dark" id="dark1" name="dark" value="1">
+                                <label for="dark1">Dark 1</label>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <h5>Большой (lg)</h5>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-lg" id="lg1" name="size-lg" value="1">
-                                    <label for="lg1">Большой 1</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-lg" id="lg2" name="size-lg" value="2" checked>
-                                    <label for="lg2">Большой 2</label>
-                                </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-dark" id="dark2" name="dark" value="2" checked>
+                                <label for="dark2">Dark 2</label>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Горизонтальное расположение -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Горизонтальное расположение</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mg-radio-group mg-radio-group-horizontal">
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio mg-radio-primary" id="hor1" name="horizontal" value="1">
-                            <label for="hor1">Опция A</label>
+    <!-- Размеры -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">📏 Размеры</h2>
+            <p class="text-muted">Различные размеры для любого контекста</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3 class="mg-heading-3">Маленький (sm)</h3>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-sm" id="sm1" name="size-sm" value="1">
+                                <label for="sm1">Маленький 1</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-sm" id="sm2" name="size-sm" value="2" checked>
+                                <label for="sm2">Маленький 2</label>
+                            </div>
                         </div>
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio mg-radio-primary" id="hor2" name="horizontal" value="2" checked>
-                            <label for="hor2">Опция B</label>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="mg-heading-3">Обычный (по умолчанию)</h3>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio" id="normal1" name="size-normal" value="1">
+                                <label for="normal1">Обычный 1</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio" id="normal2" name="size-normal" value="2" checked>
+                                <label for="normal2">Обычный 2</label>
+                            </div>
                         </div>
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio mg-radio-primary" id="hor3" name="horizontal" value="3">
-                            <label for="hor3">Опция C</label>
-                        </div>
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio mg-radio-primary" id="hor4" name="horizontal" value="4">
-                            <label for="hor4">Опция D</label>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="mg-heading-3">Большой (lg)</h3>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-lg" id="lg1" name="size-lg" value="1">
+                                <label for="lg1">Большой 1</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-lg" id="lg2" name="size-lg" value="2" checked>
+                                <label for="lg2">Большой 2</label>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Отключенные радио-кнопки -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Отключенные радио-кнопки</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mg-radio-group">
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio" id="disabled1" name="disabled" value="1" disabled>
-                            <label for="disabled1">Отключенная 1</label>
-                        </div>
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio" id="disabled2" name="disabled" value="2" checked disabled>
-                            <label for="disabled2">Отключенная 2 (выбрана)</label>
-                        </div>
-                        <div class="mg-radio-item">
-                            <input type="radio" class="mg-radio" id="disabled3" name="disabled" value="3" disabled>
-                            <label for="disabled3">Отключенная 3</label>
-                        </div>
+    <!-- Горизонтальное расположение -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">↔️ Горизонтальное расположение</h2>
+            <p class="text-muted">Расположение элементов в ряд</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="mg-radio-group mg-radio-group-horizontal">
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio mg-radio-primary" id="hor1" name="horizontal" value="1">
+                        <label for="hor1">Опция A</label>
+                    </div>
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio mg-radio-primary" id="hor2" name="horizontal" value="2" checked>
+                        <label for="hor2">Опция B</label>
+                    </div>
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio mg-radio-primary" id="hor3" name="horizontal" value="3">
+                        <label for="hor3">Опция C</label>
+                    </div>
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio mg-radio-primary" id="hor4" name="horizontal" value="4">
+                        <label for="hor4">Опция D</label>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Пример использования в форме -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Пример использования в форме</h3>
-                </div>
-                <div class="card-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">Выберите тип аккаунта:</label>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-primary" id="account-basic" name="account-type" value="basic">
-                                    <label for="account-basic">Базовый аккаунт</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-primary" id="account-premium" name="account-type" value="premium" checked>
-                                    <label for="account-premium">Премиум аккаунт</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-primary" id="account-enterprise" name="account-type" value="enterprise">
-                                    <label for="account-enterprise">Корпоративный аккаунт</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Уведомления:</label>
-                            <div class="mg-radio-group">
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-success" id="notify-email" name="notifications" value="email">
-                                    <label for="notify-email">По email</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-success" id="notify-sms" name="notifications" value="sms" checked>
-                                    <label for="notify-sms">По SMS</label>
-                                </div>
-                                <div class="mg-radio-item">
-                                    <input type="radio" class="mg-radio mg-radio-success" id="notify-none" name="notifications" value="none">
-                                    <label for="notify-none">Не уведомлять</label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+    <!-- Отключенные радио-кнопки -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🚫 Отключенные радио-кнопки</h2>
+            <p class="text-muted">Неактивные варианты</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <div class="mg-radio-group">
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio" id="disabled1" name="disabled" value="1" disabled>
+                        <label for="disabled1">Отключенная 1</label>
+                    </div>
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio" id="disabled2" name="disabled" value="2" checked disabled>
+                        <label for="disabled2">Отключенная 2 (выбрана)</label>
+                    </div>
+                    <div class="mg-radio-item">
+                        <input type="radio" class="mg-radio" id="disabled3" name="disabled" value="3" disabled>
+                        <label for="disabled3">Отключенная 3</label>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Код использования -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Код использования</h3>
-                </div>
-                <div class="card-body">
-                    <h5>HTML:</h5>
-                    <pre><code>&lt;!-- Базовая радио-кнопка --&gt;
+    <!-- Пример использования в форме -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">🚀 Пример использования в форме</h2>
+            <p class="text-muted">Практические примеры</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Выберите тип аккаунта:</label>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-primary" id="account-basic" name="account-type" value="basic">
+                                <label for="account-basic">Базовый аккаунт</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-primary" id="account-premium" name="account-type" value="premium" checked>
+                                <label for="account-premium">Премиум аккаунт</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-primary" id="account-enterprise" name="account-type" value="enterprise">
+                                <label for="account-enterprise">Корпоративный аккаунт</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Уведомления:</label>
+                        <div class="mg-radio-group">
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-success" id="notify-email" name="notifications" value="email">
+                                <label for="notify-email">По email</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-success" id="notify-sms" name="notifications" value="sms" checked>
+                                <label for="notify-sms">По SMS</label>
+                            </div>
+                            <div class="mg-radio-item">
+                                <input type="radio" class="mg-radio mg-radio-success" id="notify-none" name="notifications" value="none">
+                                <label for="notify-none">Не уведомлять</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Код использования -->
+    <div class="mg-card mg-card-secondary mb-5">
+        <div class="mg-card-header">
+            <h2 class="mg-heading-2">💻 Примеры кода</h2>
+            <p class="text-muted">Готовые примеры для интеграции</p>
+        </div>
+        <div class="mg-card-body">
+            <div class="demo-subsection">
+                <h3 class="mg-heading-3">HTML:</h3>
+                <pre class="mg-code-block"><code>&lt;!-- Базовая радио-кнопка --&gt;
 &lt;div class="mg-radio-item"&gt;
     &lt;input type="radio" class="mg-radio" id="radio1" name="group" value="1"&gt;
     &lt;label for="radio1"&gt;Опция 1&lt;/label&gt;
@@ -307,9 +335,9 @@
         &lt;label for="radio2"&gt;Опция 2&lt;/label&gt;
     &lt;/div&gt;
 &lt;/div&gt;</code></pre>
-                </div>
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

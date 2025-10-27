@@ -324,18 +324,18 @@ Licensed under the Apache License, Version 2.0
 }
 
 /* Ссылки в карточке */
-.mg-card a {
+.mg-card a:not(.mg-link) {
     color: inherit;
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
-.mg-card a:hover {
+.mg-card a:not(.mg-link):hover {
     color: #3b82f6;
     text-decoration: underline;
 }
 
-.mg-card.mg-card-dark a:hover {
+.mg-card.mg-card-dark a:not(.mg-link):hover {
     color: #60a5fa;
 }
 

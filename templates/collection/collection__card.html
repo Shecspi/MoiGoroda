@@ -1,43 +1,28 @@
 <div class="col">
-    <div
-        class="card h-100 text-center shadow collection-card{% if collection.is_favorite %} is-favorite{% endif %}"
-        id="section-collection-card_{{ forloop.counter }}"
-    >
-        <div class="card-body">
-            <!-- Название коллекции -->
-            <h4 id="subsection-collection-title_{{ forloop.counter }}">
-                <a
-                    href="{{ collection.get_absolute_url }}"
-                    class="link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover"
-                >
-                    {{ collection.title }}
-                </a>
-            </h4>
-            <!-- ^^^ Название коллекции -->
+    <div class="mg-card {% if collection.is_favorite %}mg-card-danger{% else %}mg-card-secondary{% endif %}">
+        <div class="mg-card-body text-center">
+            <a href="{{ collection.get_absolute_url }}" class="mg-link mg-heading-4">
+                {{ collection.title }}
+            </a>
 
             <!-- Список городов -->
-            <div
-                class="mt-3"
-                id="subsection-collection-card_title_{{ forloop.counter }}"
-            >
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
                 {% for city in collection.city.all|slice:"0:10" %}
                     {% if city.id in visited_cities %}
-                        <span class="badge bg-success-subtle text-dark fw-normal">{{ city }}</span>&nbsp;&nbsp;
+                        <a href="{% url 'city-selected' city.id %}" class="mg-btn mg-btn-sm mg-btn-flat mg-btn-success">{{ city }}</a>
                     {% else %}
-                        <span class="badge bg-danger-subtle text-dark fw-normal">{{ city }}</span>&nbsp;&nbsp;
+                        <a href="{% url 'city-selected' city.id %}" class="mg-btn mg-btn-sm mg-btn-flat mg-btn-danger">{{ city }}</a>
                     {% endif %}
                 {% endfor %}
                 {% if collection.qty_of_cities > 10 %}
-                    <span class="badge bg-secondary-subtle text-dark fw-normal">и другие...</span>
+                    <buttob class="mg-btn mg-btn-sm mg-btn-flat mg-btn-secondary">и другие...</span>
                 {% endif %}
                 <!-- ^^^ Список городов -->
             </div>
-        </div>
 
-        <div class="card-footer">
             <!-- Количество городов -->
-            <div class="text-center">
-                <small class="text-body-secondary">
+            <div class="mt-3">
+                <small class="mg-text-sm">
                     {% if user.is_authenticated %}
                         Посещено {{ collection.qty_of_visited_cities }} из {{ collection.qty_of_cities }}
                     {% else %}
@@ -49,37 +34,22 @@
 
             <!-- Прогресс бар посещённых городов -->
             {% if user.is_authenticated %}
-            <div class="progress mt-2">
-                <div
-                    class="progress-bar progress-bar-striped"
-                    role="progressbar"
-                    style="width: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}%"
-                    aria-valuenow="{% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                ></div>
+            <div class="mg-progress mg-progress-primary mg-progress-striped mt-2">
+                <div class="mg-progress-bar mg-progress-success"
+                     style="--percentage: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}; width: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}%"></div>
             </div>
             {% endif %}
             <!-- ^^^ Прогресс бар посещённых городов -->
 
             <!-- Кнопка избранного -->
             {% if user.is_authenticated %}
-            <div class="text-center mt-2">
-                <button
-                    class="btn btn-link p-0 favorite-star"
-                    data-collection-id="{{ collection.id }}"
-                    data-is-favorite="{% if collection.is_favorite %}true{% else %}false{% endif %}"
-                    style="
-                        text-decoration: none;
-                        color: {% if collection.is_favorite %}#dc3545{% else %}#6c757d{% endif %};
-                        font-size: 0.9rem;
-                    "
-                >
-                    <i
-                        class="fa-star {% if collection.is_favorite %}fas{% else %}far{% endif %}"
-                        style="margin-right: 0.25rem"
-                    ></i>
-                    <span class="favorite-text">
+            <div class="mt-3">
+                <button class="mg-btn mg-btn-warning"
+                        data-collection-id="{{ collection.id }}"
+                        data-is-favorite="{% if collection.is_favorite %}true{% else %}false{% endif %}">
+                    <i class="fa-star {% if collection.is_favorite %}fas{% else %}far{% endif %}"
+                        style="margin-right: 0.25rem"></i>
+                    <span>
                         {% if collection.is_favorite %}Удалить из избранного{% else %}Добавить в избранное{% endif %}
                     </span>
                 </button>

@@ -26,14 +26,6 @@ Licensed under the Apache License, Version 2.0
     background-color: rgba(59, 130, 246, 0.1);
 }
 
-/* Исключаем бейджи из стилей ссылок */
-.mg-badge:hover {
-    color: inherit !important;
-    background-color: inherit !important;
-    text-decoration: underline;
-    transform: translateY(-1px);
-}
-
 .mg-link:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);

@@ -10,14 +10,16 @@
 #toolbar .choices__inner {
     border: 1.5px solid rgba(107, 114, 128, 0.3);
     border-radius: 10px;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
     font-weight: 500;
     color: #374151;
     background-color: #ffffff;
     transition: all 0.3s ease;
     min-height: auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    line-height: 1.2;
+    box-sizing: border-box;
 }
 
 /* Hover состояние */
@@ -95,26 +97,26 @@
 /* Адаптивность для планшетов */
 @media (max-width: 768px) {
     #toolbar .choices__inner {
-        padding: 0.45rem 0.9rem;
-        font-size: 0.85rem;
+        padding: 0.6rem 0.9rem;
+        font-size: 0.9rem;
     }
 
     #toolbar .choices__list--dropdown .choices__item {
-        padding: 0.45rem 0.9rem;
-        font-size: 0.85rem;
+        padding: 0.6rem 0.9rem;
+        font-size: 0.9rem;
     }
 }
 
 /* Адаптивность для мобильных устройств */
 @media (max-width: 576px) {
     #toolbar .choices__inner {
-        padding: 0.4rem 0.75rem;
-        font-size: 0.8rem;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.85rem;
     }
 
     #toolbar .choices__list--dropdown .choices__item {
-        padding: 0.4rem 0.75rem;
-        font-size: 0.8rem;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.85rem;
     }
 }
 

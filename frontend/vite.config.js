@@ -76,6 +76,7 @@ export default defineConfig({
         'css/components/typography': path.resolve(__dirname, 'css/components/typography.css'),
         'css/components/progress': path.resolve(__dirname, 'css/components/progress.css'),
         'css/demo': path.resolve(__dirname, 'css/demo.css'),
+        'css/toolbar': path.resolve(__dirname, 'css/toolbar.css'),
       }
     }
   }

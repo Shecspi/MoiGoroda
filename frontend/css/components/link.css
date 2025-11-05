@@ -24,6 +24,13 @@ Licensed under the Apache License, Version 2.0
     color: #1d4ed8;
     text-decoration: none;
     background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Исключаем бейджи из стилей ссылок */
+.mg-badge:hover {
+    color: inherit !important;
+    background-color: inherit !important;
+    text-decoration: underline;
     transform: translateY(-1px);
 }
 
@@ -42,7 +49,6 @@ Licensed under the Apache License, Version 2.0
 }
 
 .mg-link:active {
-    transform: translateY(0);
     background-color: rgba(59, 130, 246, 0.15);
 }
 
@@ -304,12 +310,10 @@ Licensed under the Apache License, Version 2.0
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
     border-color: rgba(0, 0, 0, 0.15);
     color: #1f2937;
-    transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .mg-link.mg-link-button:active {
-    transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -360,10 +364,6 @@ Licensed under the Apache License, Version 2.0
 @media (prefers-reduced-motion: reduce) {
     .mg-link {
         transition: none;
-    }
-
-    .mg-link:hover {
-        transform: none;
     }
 }
 

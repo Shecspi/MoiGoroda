@@ -5,9 +5,10 @@
 {% vite_css 'css/components/card' %}
 {% vite_css 'css/components/badge' %}
 {% vite_css 'css/components/link' %}
+{% vite_css 'css/components/typography' %}
 
 <div class="col city-card visited" id="city_card_{{ forloop.counter }}">
-    <div class="mg-card mg-card-success" id="section-city_{{ forloop.counter }}">
+    <div class="mg-card mg-card" id="section-city_{{ forloop.counter }}">
         <div class="mg-card-badge mg-card-badge-success"
              data-bs-toggle="tooltip"
               data-bs-title="Город {{ city }} посещён">

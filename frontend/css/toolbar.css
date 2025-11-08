@@ -57,11 +57,18 @@ Licensed under the Apache License, Version 2.0
     transition-delay: 0.35s;
 }
 
+/* Кнопка уведомлений */
+#toolbar.toolbar-loaded > button#notification_icon_toolbar {
+    opacity: 1 !important;
+    transform: translateY(0);
+    transition-delay: 0.4s;
+}
+
 /* Кнопка "Фильтры и сортировка" */
 #toolbar.toolbar-loaded > button#btnOpenFilterSortPanel {
     opacity: 1 !important;
     transform: translateY(0);
-    transition-delay: 0.4s;
+    transition-delay: 0.45s;
 }
 
 /* Отключаем анимацию для пользователей с предпочтением reduced motion */

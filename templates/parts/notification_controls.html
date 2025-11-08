@@ -1,0 +1,87 @@
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+{% if user.is_authenticated %}
+<div class="notification-button-wrapper">
+    <button class="mg-btn mg-btn-outline-secondary mg-btn-icon-only"
+            id="notification_icon"
+            data-bs-toggle="modal"
+            data-bs-target="#notificationModal"
+            data-bs-tooltip="tooltip"
+            data-bs-title="Уведомления">
+        <i class="fa-solid fa-bell" id="bell"></i>
+    </button>
+</div>
+
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationModalLabel">Уведомления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body" id="notifications-list">
+                У Вас ещё нет уведомлений
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <button class="btn btn-link link-offset-2 link-underline-dark link-dark link-opacity-75 link-underline-opacity-75 link-opacity-100-hover"
+                        data-bs-target="#whatIsItModal"
+                        data-bs-toggle="modal">
+                    Что это такое?
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="whatIsItModal" tabindex="-1" aria-labelledby="whatIsItModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="whatIsItModalLabel">Как работает система уведомлений?</h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-target="#notificationModal"
+                        data-bs-toggle="modal"
+                        aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body" id="notifications-description">
+                <h5>1. Получение уведомлений</h5>
+                <p>Если вы подписались на пользователя, Вы будете получать уведомления о каждом новом городе, который он добавит <strong>после момента подписки</strong>.</p>
+                <div class="note" role="note">
+                    Важно: уведомления о городах, добавленных до подписки, не присылаются.
+                </div>
+
+                <h5 class="mt-3">2. Отмена подписки владельцем профиля</h5>
+                <p>Пользователь, на которого Вы подписаны, может удалить вас из списка подписчиков. В этом случае вы перестанете получать его новые уведомления и не будете видеть добавленные им города.</p>
+
+                <h5 class="mt-3">3. Управление уведомлениями</h5>
+                <ul>
+                    <li>
+                        <strong>Отметить как прочитанное:</strong> наведите указатель мыши на уведомление или коснитесь его на мобильном устройстве.
+                    </li>
+                    <li>
+                        <strong>Удалить уведомление:</strong> нажмите на иконку корзины. После удаления уведомление восстановить невозможно.
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-target="#notificationModal"
+                        data-bs-toggle="modal">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

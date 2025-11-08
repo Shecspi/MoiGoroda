@@ -5,7 +5,6 @@ const POLL_INTERVAL = 10000;
 
 const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'));
 const notificationButton = document.getElementById('notification_icon');
-const notificationIcon = document.getElementById("bell");
 const notificationsList = document.getElementById('notifications-list');
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -24,9 +23,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     await fetchNotifications();
 });
 
-document.getElementById('notification_icon').addEventListener('click', function () {
-    notificationModal.show();
-});
+if (notificationButton) {
+    notificationButton.addEventListener('click', function () {
+        notificationModal.show();
+    });
+}
 
 async function get_notifications() {
     try {
@@ -52,24 +53,20 @@ async function get_notifications() {
  * Делает иконку с колокольчиком красной
  */
 function make_bell_red() {
-    notificationButton.classList.remove('border-secondary-subtle');
-    notificationButton.classList.remove('bg-secondary-subtle');
-    notificationButton.classList.add('border-danger-subtle');
-    notificationButton.classList.add('bg-danger-subtle');
-    notificationIcon.classList.remove('text-secondary');
-    notificationIcon.classList.add('text-danger');
+    if (notificationButton) {
+        notificationButton.classList.remove('mg-btn-outline-secondary');
+        notificationButton.classList.add('mg-btn-outline-danger');
+    }
 }
 
 /**
  * Делает иконку с колокольчиком серой
  */
 function make_bell_gray() {
-    notificationButton.classList.add('border-secondary-subtle');
-    notificationButton.classList.add('bg-secondary-subtle');
-    notificationButton.classList.remove('border-danger-subtle');
-    notificationButton.classList.remove('bg-danger-subtle');
-    notificationIcon.classList.add('text-secondary');
-    notificationIcon.classList.remove('text-danger');
+    if (notificationButton) {
+        notificationButton.classList.remove('mg-btn-outline-danger');
+        notificationButton.classList.add('mg-btn-outline-secondary');
+    }
 }
 
 function add_notifications_to_list() {

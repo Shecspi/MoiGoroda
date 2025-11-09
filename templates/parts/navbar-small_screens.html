@@ -2,12 +2,11 @@
 <nav class="navbar navbar-expand-md navbar-small-screens d-xl-none">
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center w-100 position-relative">
-            <button class="btn position-relative" id="sidebar-button-open">
+            <button class="mg-btn mg-btn-outline-secondary mg-btn-icon-only position-relative" id="sidebar-button-open" type="button">
                 <i class="fa-solid fa-bars-staggered"></i>
                 <!-- Уведомление о наличии бейджика с новостями в меню -->
-                {# Для этого у родительского элемента проставлен класс position-relative #}
                 {% if has_unread_news %}
-                    <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                    <span class="mg-badge mg-badge-dot mg-badge-danger position-absolute top-0 start-100 translate-middle">
                         <span class="visually-hidden">Новые уведомления</span>
                     </span>
                 {% endif %}
@@ -17,9 +16,13 @@
                 Мои&nbsp;&nbsp;<i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;города
             </a>
             {% if user.is_authenticated %}
-                <div class="notification-icon-wrapper" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                <button class="mg-btn mg-btn-outline-secondary mg-btn-icon-only"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#notificationModal"
+                        aria-label="Открыть уведомления">
                     <i class="fa-solid fa-bell notification-icon"></i>
-                </div>
+                </button>
             {% endif %}
         </div>
     </div>

@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="mt-auto flex flex-col gap-3">
-                    <!-- Статистика посетителей и посецщений -->
+                    <!-- Статистика посетителей и посещений -->
                     <div class="flex flex-wrap items-center justify-center gap-3">
                         <span class="inline-flex items-center gap-x-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-semibold text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-400"
                               title="Количество пользователей, посетивших город {{ city }}">
@@ -117,7 +117,9 @@
                                                     </linearGradient>
                                                 </defs>
                                                 <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"
-                                                      fill="url(#rating-half-star-{{ forloop.counter0 }})" stroke="currentColor" stroke-width="1.5" />
+                                                      fill="#d4d4d8" />
+                                                <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"
+                                                      fill="url(#rating-half-star-{{ forloop.counter0 }})" />
                                             </svg>
                                         {% else %}
                                             <svg class="size-6 text-neutral-300 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

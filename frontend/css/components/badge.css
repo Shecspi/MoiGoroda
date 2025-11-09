@@ -19,6 +19,7 @@ Licensed under the Apache License, Version 2.0
     border: 1px solid transparent;
     text-decoration: none;
     line-height: 1.2;
+    position: relative;
 }
 
 .mg-badge:hover {
@@ -30,6 +31,35 @@ Licensed under the Apache License, Version 2.0
 .mg-badge strong {
     font-size: 1.15rem;
     font-weight: 700;
+}
+
+/* Точечный индикатор (для уведомлений) */
+.mg-badge.mg-badge-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    padding: 0;
+    border-radius: 50%;
+    border-width: 2px;
+    box-shadow: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 0;
+    line-height: 1;
+    aspect-ratio: 1 / 1;
+}
+
+.mg-badge.mg-badge-dot:hover {
+    transform: none;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+}
+
+.mg-badge.mg-badge-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
 }
 
 /* Варианты цветов */
@@ -84,6 +114,11 @@ Licensed under the Apache License, Version 2.0
     background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
     border-color: rgba(239, 68, 68, 0.5);
     color: #7f1d1d;
+}
+
+.mg-badge.mg-badge-dot.mg-badge-danger {
+    background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
+    border-color: rgba(239, 68, 68, 0.4);
 }
 
 /* Secondary (серый) */

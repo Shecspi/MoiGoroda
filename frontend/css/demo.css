@@ -70,3 +70,16 @@ Licensed under the Apache License, Version 2.0
     padding: 0 1rem;
 }
 
+/* Вспомогательные элементы для демонстраций */
+.mg-avatar-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5f5 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-weight: 600;
+    font-size: 1rem;
+}

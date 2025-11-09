@@ -33,9 +33,8 @@
 
     {% include 'city/city_all__list__toolbar.html' %}
 
-    <!-- Карточки с городами -->
     {% if object_list %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mb-3 g-3" style="margin-top: 1rem;" id="list-content">
+        <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
             {% for city in object_list %}
                 {% include 'city/city__card.html' %}
             {% endfor %}

@@ -92,9 +92,9 @@ def vite_css(name: str) -> SafeString:
     manifest = get_manifest()
     entry = manifest.get(f'{name}.css')
 
-    if (settings.DEBUG or is_testing) and not entry:
-        # В dev-режиме, когда ещё не собирали Vite, подключаем исходный CSS.
-        return mark_safe(f'<link rel="stylesheet" href="{settings.STATIC_URL}{name}.css">')
+    if settings.DEBUG or is_testing:
+        # В dev-режиме отдаём CSS напрямую с Vite dev server.
+        return mark_safe(f'<link rel="stylesheet" href="http://localhost:5173/{name}.css">')
 
     if not entry:
         raise ValueError(f"CSS asset '{name}.css' not found in manifest.json")

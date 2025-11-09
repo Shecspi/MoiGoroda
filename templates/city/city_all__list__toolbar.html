@@ -11,45 +11,61 @@
 {% vite_css 'css/toolbar' %}
 
 <!-- Панель инструментов -->
-<div class="mx-3 my-3 flex flex-wrap items-center justify-between gap-3">
-    <!-- Статистика посещёния -->
-    <span class="stat-badge stat-badge-success">
-        <span class="stat-badge-dot"></span>
-        Всего посещено
-        <strong>{{ qty_of_visited_cities }}</strong>
-        {{ "города"|plural_by_num:qty_of_visited_cities }}
-    </span>
-
-    {% if country_code %}
-        <span class="stat-badge stat-badge-info">
-            В {{ country_name|prepositional }}: <strong>{{ number_of_visited_cities_in_country }}</strong> из {{ number_of_cities_in_country }}
+<div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
+    <!-- Статистика -->
+    <div class="toolbar-stats flex flex-wrap items-center gap-3">
+        <span class="stat-badge stat-badge-success">
+            <span class="stat-badge-dot"></span>
+            Всего посещено
+            <strong>{{ qty_of_visited_cities }}</strong>
+            {{ "города"|plural_by_num:qty_of_visited_cities }}
         </span>
-    {% else %}
-        <span class="stat-badge stat-badge-info">
-            Стран: <strong>{{ number_of_visited_countries }}</strong>
-        </span>
-    {% endif %}
 
-    <!-- Поле поиска -->
-        <div class="flex-grow-1 search-wrapper">
+        {% if country_code %}
+            <span class="stat-badge stat-badge-info">
+                В {{ country_name|prepositional }}:
+                <strong>{{ number_of_visited_cities_in_country }}</strong>
+                из {{ number_of_cities_in_country }}
+            </span>
+        {% else %}
+            <span class="stat-badge stat-badge-info">
+                Стран:
+                <strong>{{ number_of_visited_countries }}</strong>
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Поиск -->
+    <div class="relative flex-1 min-w-[220px]">
+        <span class="absolute inset-y-0 start-0 flex items-center ps-4 text-gray-400">
             <i class="fas fa-search search-icon"></i>
-            <input id="city-search" type="text" class="form-control search-input" placeholder="Поиск города...">
+        </span>
+        <input id="city-search"
+               type="text"
+               class="py-3 px-4 ps-11 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 search-input"
+               placeholder="Поиск города...">
         </div>
 
     <!-- Селект страны -->
-    <div class="flex-grow-1 country-select-wrapper" style="min-width: 250px;">
-            <select class="form-select" id="id_country"></select>
+    <div class="flex-1 min-w-[220px] country-select-wrapper">
+        <div class="relative">
+            <select class="py-3 px-4 pe-9 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+                    id="id_country"></select>
+            <span class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 pointer-events-none">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+            </span>
+        </div>
         </div>
 
-    <!-- Кнопка "Посмотреть на карте" -->
+    <!-- Кнопки действий -->
+    <div class="toolbar-actions flex flex-wrap items-center gap-3">
         <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
-       class="mg-btn mg-btn-outline-success">
+           class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-emerald-500 text-emerald-500 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
             <i class="fa-solid fa-map-location-dot"></i>
             <span>Посмотреть на карте</span>
         </a>
 
-    <!-- Кнопка "Фильтры и сортировка" -->
-    <button class="mg-btn {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %} d-flex gap-2 align-items-center position-relative"
+        <button class="relative py-3 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-colors dark:focus:ring-offset-neutral-900 {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}border border-transparent bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400{% else %}border border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-500/10{% endif %}"
                 type="button"
                 id="btnOpenFilterSortPanel"
                 data-bs-tooltip="tooltip"
@@ -60,11 +76,12 @@
             <i class="fa-solid fa-sliders"></i>
             <span>Фильтры и сортировка</span>
             {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
-                <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                    <span class="visually-hidden">Применена фильтрация или сортировка</span>
+                <span class="absolute -right-1.5 -top-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-neutral-900">
+                    <span class="sr-only">Применена фильтрация или сортировка</span>
                 </span>
             {% endif %}
         </button>
+    </div>
 </div>
 <!-- ^^^ Панель инструментов -->
 

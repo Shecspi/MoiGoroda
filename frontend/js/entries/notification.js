@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 if (notificationButton) {
     notificationButton.addEventListener('click', function () {
-        notificationModal.show();
-    });
+    notificationModal.show();
+});
 }
 
 async function get_notifications() {

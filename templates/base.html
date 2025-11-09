@@ -27,3 +27,8 @@
         {% vite_asset 'js/entries/notification.js' %}
     {% endif %}
 {% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    {% vite_asset 'js/entries/preline.js' %}
+{% endblock %}

@@ -56,8 +56,10 @@ export default defineConfig({
         collection_search: path.resolve(entriesDir, 'collection_search.js'),
         collection_favorite: path.resolve(entriesDir, 'collection_favorite.js'),
         city_search: path.resolve(entriesDir, 'city_search.js'),
+        preline: path.resolve(entriesDir, 'preline.js'),
         
         // CSS entries
+        'css/tailwind': path.resolve(__dirname, 'css/tailwind.css'),
         'css/style': path.resolve(__dirname, 'css/style.css'),
         'css/style2': path.resolve(__dirname, 'css/style2.css'),
         'css/autoComplete': path.resolve(__dirname, 'css/autoComplete.css'),

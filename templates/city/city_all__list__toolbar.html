@@ -11,56 +11,60 @@
 {% vite_css 'css/toolbar' %}
 
 <!-- Панель инструментов -->
-<div class="mx-3 my-3 d-flex flex-wrap gap-3 justify-content-between align-items-center" id="toolbar">
+<div class="mx-3 my-3 flex flex-wrap items-center justify-between gap-3">
     <!-- Статистика посещёния -->
-    <span class="mg-badge mg-badge-success">
-        Всего посещено <strong>{{ qty_of_visited_cities }}</strong> {{ "города"|plural_by_num:qty_of_visited_cities }}
+    <span class="stat-badge stat-badge-success">
+        <span class="stat-badge-dot"></span>
+        Всего посещено
+        <strong>{{ qty_of_visited_cities }}</strong>
+        {{ "города"|plural_by_num:qty_of_visited_cities }}
     </span>
+
     {% if country_code %}
-        <span class="mg-badge mg-badge-info">
+        <span class="stat-badge stat-badge-info">
             В {{ country_name|prepositional }}: <strong>{{ number_of_visited_cities_in_country }}</strong> из {{ number_of_cities_in_country }}
         </span>
     {% else %}
-        <span class="mg-badge mg-badge-info">
+        <span class="stat-badge stat-badge-info">
             Стран: <strong>{{ number_of_visited_countries }}</strong>
         </span>
     {% endif %}
 
     <!-- Поле поиска -->
-    <div class="flex-grow-1 search-wrapper">
-        <i class="fas fa-search search-icon"></i>
-        <input id="city-search" type="text" class="form-control search-input" placeholder="Поиск города...">
-    </div>
+        <div class="flex-grow-1 search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input id="city-search" type="text" class="form-control search-input" placeholder="Поиск города...">
+        </div>
 
     <!-- Селект страны -->
     <div class="flex-grow-1 country-select-wrapper" style="min-width: 250px;">
-        <select class="form-select" id="id_country"></select>
-    </div>
+            <select class="form-select" id="id_country"></select>
+        </div>
 
     <!-- Кнопка "Посмотреть на карте" -->
-    <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
+        <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
        class="mg-btn mg-btn-outline-success">
-        <i class="fa-solid fa-map-location-dot"></i>
-        <span>Посмотреть на карте</span>
-    </a>
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span>Посмотреть на карте</span>
+        </a>
 
     <!-- Кнопка "Фильтры и сортировка" -->
     <button class="mg-btn {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}mg-btn-primary{% else %}mg-btn-outline-primary{% endif %} d-flex gap-2 align-items-center position-relative"
-            type="button"
-            id="btnOpenFilterSortPanel"
-            data-bs-tooltip="tooltip"
-            data-bs-title="Открыть панель фильтрации и сортировки городов"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasRight"
-            aria-controls="offcanvasRight">
-        <i class="fa-solid fa-sliders"></i>
-        <span>Фильтры и сортировка</span>
-        {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
-            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                <span class="visually-hidden">Применена фильтрация или сортировка</span>
-            </span>
-        {% endif %}
-    </button>
+                type="button"
+                id="btnOpenFilterSortPanel"
+                data-bs-tooltip="tooltip"
+                data-bs-title="Открыть панель фильтрации и сортировки городов"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasRight"
+                aria-controls="offcanvasRight">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Фильтры и сортировка</span>
+            {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
+                <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                    <span class="visually-hidden">Применена фильтрация или сортировка</span>
+                </span>
+            {% endif %}
+        </button>
 </div>
 <!-- ^^^ Панель инструментов -->
 

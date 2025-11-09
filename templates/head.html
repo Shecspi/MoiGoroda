@@ -57,6 +57,7 @@
     {% vite_css 'css/components/button' %}
     {# Стили для кнопки уведомлений #}
     {% vite_css 'css/notification' %}
+    {% block extra_css %}{% endblock %}
     {# Иконка сайта #}
     <link rel="icon" type="image/svg+xml" href="{% static "image/favicon.svg" %}">
 
@@ -72,6 +73,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
     {# ChartJS для построения графиков #}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    {% block head_scripts %}{% endblock %}
 </head>
 <body>
     {% include 'parts/toast/success.html' %}
@@ -81,5 +83,6 @@
     {% endblock %}
 
     {% vite_asset 'js/entries/enable_tooltips.js' %}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .stat-badge {
+        @apply inline-flex items-center gap-x-2 rounded-full px-3 py-1 text-sm font-medium shadow-sm transition;
+    }
+
+    .stat-badge-success {
+        @apply border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300;
+    }
+
+    .stat-badge-info {
+        @apply border border-sky-200 bg-sky-50 text-sky-700 hover:border-sky-300 hover:bg-sky-100 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-300;
+    }
+
+    .stat-badge-dot {
+        @apply inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full bg-emerald-500 dark:bg-emerald-400;
+    }
+
+    .stat-badge-success strong {
+        @apply font-semibold text-emerald-700 dark:text-emerald-200;
+    }
+    .stat-badge-info strong {
+        @apply font-semibold text-sky-700 dark:text-sky-200;
+    }
+}

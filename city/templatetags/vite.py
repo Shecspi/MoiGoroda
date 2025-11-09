@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from django import template
 from django.conf import settings
@@ -19,17 +19,33 @@ from django.utils.safestring import mark_safe, SafeString
 register = template.Library()
 
 _manifest: dict[str, Any] | None = None
+_manifest_mtime: float | None = None
 
 
 def get_manifest() -> dict[str, Any]:
-    global _manifest
-    if _manifest is None:
-        manifest_path = Path(settings.BASE_DIR) / 'static/js/manifest.json'
+    global _manifest, _manifest_mtime
+
+    manifest_path = Path(settings.BASE_DIR) / 'static/js/manifest.json'
+
+    if settings.DEBUG:
         try:
             with open(manifest_path, 'r') as f:
-                _manifest = json.load(f)
+                return cast(dict[str, Any], json.load(f))
         except FileNotFoundError:
-            _manifest = {}
+            return {}
+
+    try:
+        current_mtime = manifest_path.stat().st_mtime
+    except FileNotFoundError:
+        _manifest = {}
+        _manifest_mtime = None
+        return _manifest
+
+    if _manifest is None or _manifest_mtime != current_mtime:
+        with open(manifest_path, 'r') as f:
+            _manifest = cast(dict[str, Any], json.load(f))
+        _manifest_mtime = current_mtime
+
     return _manifest
 
 
@@ -73,14 +89,13 @@ def vite_css(name: str) -> SafeString:
     # Django test runner принудительно устанавливает DEBUG=False, проверяем TESTING
     is_testing = os.getenv('TESTING') == 'True'
 
-    if settings.DEBUG or is_testing:
-        # В dev режиме подключаем CSS из frontend/css/ через Django staticfiles
-        # Django находит их через STATICFILES_DIRS
-        # Используем полный путь для файлов в подпапках
-        return mark_safe(f'<link rel="stylesheet" href="{settings.STATIC_URL}{name}.css">')
-
     manifest = get_manifest()
     entry = manifest.get(f'{name}.css')
+
+    if (settings.DEBUG or is_testing) and not entry:
+        # В dev-режиме, когда ещё не собирали Vite, подключаем исходный CSS.
+        return mark_safe(f'<link rel="stylesheet" href="{settings.STATIC_URL}{name}.css">')
+
     if not entry:
         raise ValueError(f"CSS asset '{name}.css' not found in manifest.json")
 

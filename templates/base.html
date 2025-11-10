@@ -11,13 +11,13 @@
 
         <div class="flex min-h-screen w-full flex-col xl:pl-80" id="section-content">
             <!-- Навбар для маленьких экранов -->
-            <nav class="xl:hidden border-b border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900">
+            <nav class="xl:hidden fixed top-0 left-0 right-0 z-[10040] border-b border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 items-center justify-between">
                         <!-- Кнопка открытия сайдбара -->
                         <button type="button"
                                 id="sidebar-toggle"
-                                class="relative inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+                                class="relative inline-flex items-center justify-center rounded-lg p-2 text-gray-600 border border-gray-200 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-400 dark:border-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:hover:border-neutral-600"
                                 aria-label="Открыть меню"
                                 aria-expanded="false">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
@@ -32,19 +32,15 @@
                         </button>
 
                         <!-- Логотип -->
-                        <a class="absolute left-1/2 -translate-x-1/2 font-pacifico text-xl text-gray-900 dark:text-white"
+                        <a class="absolute left-1/2 -translate-x-1/2 font-pacifico text-2xl text-gray-900 dark:text-white"
                            href="{% url 'main_page' %}">
-                            Мои&nbsp;&nbsp;
-                            <svg class="inline h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                            </svg>
-                            &nbsp;&nbsp;города
+                           Мои&nbsp;&nbsp;<i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;города
                         </a>
 
                         <!-- Кнопка уведомлений -->
                         {% if user.is_authenticated %}
                             <button type="button"
-                                    class="inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+                                    class="inline-flex items-center justify-center rounded-lg p-2 text-gray-600 border border-gray-200 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-400 dark:border-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:hover:border-neutral-600"
                                     data-hs-overlay="#notificationModal"
                                     aria-label="Открыть уведомления">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
@@ -55,6 +51,9 @@
                     </div>
                 </div>
             </nav>
+
+            <!-- Отступ для фиксированного навбара на мобильных устройствах -->
+            <div class="xl:hidden h-16"></div>
 
             {% block content %}
             {% endblock %}

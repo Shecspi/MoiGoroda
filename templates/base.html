@@ -6,11 +6,55 @@
     {% include 'parts/js_isAuthenticated.html' %}
 
 
-    <div class="main-container d-flex">
+    <div class="flex">
         {% include 'parts/sidebar.html' %}
 
-        <div class="content d-flex flex-column min-vh-100 position-relative" id="section-content">
-            {% include 'parts/navbar-small_screens.html' %}
+        <div class="flex min-h-screen w-full flex-col xl:pl-80" id="section-content">
+            <!-- Навбар для маленьких экранов -->
+            <nav class="xl:hidden border-b border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900">
+                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div class="flex h-16 items-center justify-between">
+                        <!-- Кнопка открытия сайдбара -->
+                        <button type="button"
+                                id="sidebar-toggle"
+                                class="relative inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+                                aria-label="Открыть меню"
+                                aria-expanded="false">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                            <!-- Уведомление о наличии бейджика с новостями в меню -->
+                            {% if has_unread_news %}
+                                <span class="absolute -right-1 -top-1 inline-flex h-3 w-3 rounded-full bg-red-500 ring-2 ring-white dark:ring-neutral-900">
+                                    <span class="sr-only">Новые уведомления</span>
+                                </span>
+                            {% endif %}
+                        </button>
+
+                        <!-- Логотип -->
+                        <a class="absolute left-1/2 -translate-x-1/2 font-pacifico text-xl text-gray-900 dark:text-white"
+                           href="{% url 'main_page' %}">
+                            Мои&nbsp;&nbsp;
+                            <svg class="inline h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                            </svg>
+                            &nbsp;&nbsp;города
+                        </a>
+
+                        <!-- Кнопка уведомлений -->
+                        {% if user.is_authenticated %}
+                            <button type="button"
+                                    class="inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+                                    data-hs-overlay="#notificationModal"
+                                    aria-label="Открыть уведомления">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                                </svg>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
 
             {% block content %}
             {% endblock %}
@@ -19,13 +63,17 @@
         </div>
     </div>
 
+    <!-- Overlay backdrop для маленьких экранов -->
+    <div id="sidebar-backdrop"
+         class="xl:hidden fixed inset-0 z-[10049] bg-gray-900/50 transition-opacity duration-300 opacity-0 pointer-events-none"
+         aria-hidden="true"></div>
+
     {% include 'parts/notification_controls.html' %}
-
-
-    {% vite_asset 'js/entries/sidebar.js' %}
     {% if user.is_authenticated %}
         {% vite_asset 'js/entries/notification.js' %}
     {% endif %}
+
+    {% vite_asset 'js/entries/sidebar.js' %}
 {% endblock %}
 
 {% block extra_js %}

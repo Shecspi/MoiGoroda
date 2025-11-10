@@ -1,181 +1,287 @@
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+
 {% load excluded_users %}
 
 {% get_excluded_users as excluded_users %}
 
 <!-- Сайдбар -->
-<div class="sidebar shadow overflow-y-auto" id="sidebar">
+<aside id="sidebar"
+       class="fixed top-0 left-0 bottom-0 z-[10050] w-80 transition-transform duration-300 bg-white border-r border-gray-200 shadow-lg dark:bg-neutral-900 dark:border-neutral-700 flex flex-col h-full max-h-full">
     <!-- Шапка сайдбара -->
-    <div class="header-box pt-2 pb-2 d-flex justify-content-center">
-        <button class="btn btn-outline-secondary px-3 py-0 d-xl-none position-absolute start-0 ms-2" id="sidebar-button-close">
-            <i class="fa-solid fa-bars-staggered" style="transform: rotate(180deg);;"></i>
-        </button>
-        <h1 class="sidebar-logo px-2 py-2">
-            Мои&nbsp;&nbsp;<i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;города
+    <header class="flex items-baseline justify-between gap-x-2 p-4 border-b border-gray-200 dark:border-neutral-700 shrink-0">
+        <!-- Логотип -->
+        <h1 class="flex-1 font-pacifico text-3xl text-gray-900 dark:text-white text-left leading-none">
+            Мои&nbsp;&nbsp;<i class="fa-solid fa-map-location-dot"></i>&nbsp;&nbsp;города        
         </h1>
-    </div>
+        <!-- Кнопка закрытия (только на маленьких экранах) -->
+        <div class="xl:hidden -me-2 flex items-baseline">
+            <button type="button"
+                    id="sidebar-close"
+                    class="flex justify-center items-center size-6 bg-white border border-gray-200 text-sm text-gray-600 hover:bg-gray-100 rounded-full disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:bg-gray-100 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:hover:text-neutral-200 dark:focus:text-neutral-200"
+                    aria-label="Закрыть меню">
+                <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+                <span class="sr-only">Закрыть</span>
+            </button>
+        </div>
+    </header>
     <!-- ^^^ Шапка сайдбара -->
 
     <!-- Список пунктов меню -->
-    <ul class="list-unstyled px-2">
-        {% if user.is_authenticated %}
+    <nav id="sidebar-nav" class="flex-1 min-h-0 overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 p-2">
+        <ul class="space-y-1">
+            {% if user.is_authenticated %}
+                <li>
+                    <a href="{% url 'city-create' %}"
+                       class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200{% if active_page == 'add_city' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+                        </svg>
+                        Добавить город
+                    </a>
+                </li>
+                <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
+            {% endif %}
+
             <li>
-                <a href="{% url 'city-create' %}" class="text-decoration-none px-3 py-2 d-block{% if active_page == 'add_city' %} active{% endif %}">
-                    <i class="fa-solid fa-city"></i>&nbsp;&nbsp;&nbsp;Добавить город
+                <a href="{{ DONATE_LINK }}"
+                   class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-500/10 dark:hover:text-red-300">
+                    <svg class="h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.93s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
+                    </svg>
+                    Поддержать разработчика
                 </a>
             </li>
-            <hr>
-        {% endif %}
 
-        <li>
-            <a href="{{ DONATE_LINK }}" class="text-decoration-none px-3 py-2 d-block text-danger">
-                <i class="fa-solid fa-ruble-sign"></i>&nbsp;&nbsp;&nbsp;Поддержать разработчика
-            </a>
-        </li>
+            <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
 
-        <hr>
-
-        {% if user.is_authenticated %}
-            <li>
-                <span class="text-muted px-3 py-2 d-block">
-                    Посещённые города
-                </span>
-                <ul class="list-unstyled">
-                    <li>
-                        <a href="{% url 'city-all-list' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'city_list' %} active{% endif %}">
-                            <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Список городов
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'city-all-map' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'city_map' %} active{% endif %}">
-                            <i class="fa-solid fa-location-dot"></i>&nbsp;&nbsp;&nbsp;Карта городов
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'collection-list' %}"
-                           class="text-decoration-none px-3 py-2 ms-4 d-block{% if active_page == 'collection' %} active{% endif %}">
-                            <i class="fa-solid fa-list-check"></i>&nbsp;&nbsp;&nbsp;Коллекции городов
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        <hr>
-        {% endif %}
-        <li>
-            <span class="text-muted px-3 py-2 d-block">
-                Регионы стран
-            </span>
-            <ul class="list-unstyled">
+            {% if user.is_authenticated %}
                 <li>
-                    <a href="{% url 'region-all-list' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'region_list' %} active{% endif %}">
-                        <i class="fa-regular fa-rectangle-list"></i>&nbsp;&nbsp;&nbsp;Список регионов
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'region-all-map' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'region_map' %} active{% endif %}">
-                        <i class="fa-regular fa-map"></i>&nbsp;&nbsp;&nbsp;Карта регионов
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <hr>
-        <li>
-            <span class="text-muted px-3 py-2 d-block">
-                Страны мира
-            </span>
-            <ul class="list-unstyled">
-                <li>
-                    <a href="{% url 'country_map' %}" class="text-decoration-none px-3 py-2 d-block ms-4{% if active_page == 'country_map' %} active{% endif %}">
-                        <i class="fa-solid fa-earth-europe"></i>&nbsp;&nbsp;&nbsp;Карта стран
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <hr>
-        {% if user.is_authenticated %}
-        <li>
-            <a href="{% url 'place_map' %}"
-               class="text-decoration-none px-3 py-2 d-block{% if active_page == 'places' %} active{% endif %}">
-                <i class="fa-solid fa-globe"></i>&nbsp;&nbsp;&nbsp;Мои места
-            </a>
-        </li>
-        <hr>
-        {% endif %}
-        <li id="sidebar_news">
-            <a href="{% url 'news-list' %}"
-               id="sidebar_news_link"
-               class="text-decoration-none px-3 py-2 d-block{% if active_page == 'news' %} active{% endif %}">
-                <span><i class="fa-regular fa-newspaper"></i>&nbsp;&nbsp;&nbsp;Новости</span>
-                {% if has_unread_news %}
-                    <span class="badge bg-danger ms-auto">
-                        <i class="fa-solid fa-comment-dots"></i> Новые
+                    <span class="flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
+                        Посещённые города
                     </span>
-                {% endif %}
-            </a>
-        </li>
+                    <ul class="mt-1 space-y-1">
+                        <li>
+                            <a href="{% url 'city-all-list' %}"
+                               class="flex items-center gap-3 rounded-lg px-3 py-2 pl-6 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200{% if active_page == 'city_list' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 17.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                </svg>
+                                Список городов
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'city-all-map' %}"
+                               class="flex items-center gap-3 rounded-lg px-3 py-2 pl-6 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200{% if active_page == 'city_map' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                </svg>
+                                Карта городов
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'collection-list' %}"
+                               class="flex items-center gap-3 rounded-lg px-3 py-2 pl-6 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200{% if active_page == 'collection' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Коллекции городов
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
+            {% endif %}
 
-        <hr>
-
-        <li>
-            <a href="https://t.me/moi_goroda" class="text-decoration-none px-3 py-2 d-block">
-                <i class="fa-brands fa-telegram"></i>&nbsp;&nbsp;&nbsp;Телеграм-группа проекта
-            </a>
-        </li>
-    
-        <hr>
-
-        {% if user.is_authenticated and user.is_superuser %}
             <li>
-                <a href="{% url 'dashboard' %}" class="text-decoration-none px-3 py-2 d-block">
-                    <i class="fa-solid fa-chart-pie"></i>&nbsp;&nbsp;&nbsp;Dashboard
-                </a>
-            </li>
-        {% endif %}
-        {% if user.is_authenticated and user.is_staff %}
-            <li>
-                <a href="{% url 'admin:index' %}" class="text-decoration-none px-3 py-2 d-block">
-                    <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;&nbsp;Админ-панель
-                </a>
-            </li>
-
-            <hr>
-        {% endif %}
-
-        {% if user.is_authenticated %}
-            <li>
-                <span class="text-muted px-3 py-2 d-block">
-                    <i class="fa-solid fa-user"></i>&nbsp;&nbsp;&nbsp;{{ user.username }}
+                <span class="flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
+                    Регионы стран
                 </span>
-                <ul class="list-unstyled">
+                <ul class="mt-1 space-y-1">
                     <li>
-                        <a href="{% url 'stats' %}" class="text-decoration-none px-3 py-2 ms-4 d-block{% if active_page == 'stats' %} active{% endif %}">
-                            <i class="fa-solid fa-chart-line"></i>&nbsp;&nbsp;&nbsp;Личная статистика
+                        <a href="{% url 'region-all-list' %}"
+                           class="flex items-center gap-3 rounded-lg px-3 py-2 pl-6 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200{% if active_page == 'region_list' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 17.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                            Список регионов
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'profile' %}" class="text-decoration-none px-3 py-2 ms-4 d-block{% if active_page == 'profile' %} active{% endif %}">
-                            <i class="fa-regular fa-address-card"></i>&nbsp;&nbsp;&nbsp;Профиль
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'logout' %}" class="text-decoration-none px-3 py-2 ms-4 d-block">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>&nbsp;&nbsp;&nbsp;Выйти
+                        <a href="{% url 'region-all-map' %}"
+                           class="flex items-center gap-3 rounded-lg px-3 py-2 pl-6 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200{% if active_page == 'region_map' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+                            </svg>
+                            Карта регионов
                         </a>
                     </li>
                 </ul>
             </li>
-        {% else %}
+            <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
+
             <li>
-                <a href="{% url 'signin' %}" class="text-decoration-none px-3 py-2 d-block">
-                    <i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;&nbsp;Войти
+                <span class="flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
+                    Страны мира
+                </span>
+                <ul class="mt-1 space-y-1">
+                    <li>
+                        <a href="{% url 'country_map' %}"
+                           class="flex items-center gap-3 rounded-lg px-3 py-2 pl-6 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200{% if active_page == 'country_map' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+                            </svg>
+                            Карта стран
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
+
+            {% if user.is_authenticated %}
+                <li>
+                    <a href="{% url 'place_map' %}"
+                       class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200{% if active_page == 'places' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+                        </svg>
+                        Мои места
+                    </a>
+                </li>
+                <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
+            {% endif %}
+
+            <li id="sidebar_news">
+                <a href="{% url 'news-list' %}"
+                   id="sidebar_news_link"
+                   class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200{% if active_page == 'news' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                    <span class="flex items-center gap-3">
+                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v4.5H6v-4.5z" />
+                        </svg>
+                        Новости
+                    </span>
+                    {% if has_unread_news %}
+                        <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-500/10 dark:text-red-400">
+                            <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                            Новые
+                        </span>
+                    {% endif %}
                 </a>
             </li>
+
+            <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
+
             <li>
-                <a href="{% url 'signup' %}" class="text-decoration-none px-3 py-2 d-block">
-                    <i class="fa-solid fa-user-plus"></i>&nbsp;&nbsp;&nbsp;Зарегистрироваться
+                <a href="https://t.me/moi_goroda"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200">
+                    <svg class="h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                    </svg>
+                    Телеграм-группа проекта
                 </a>
             </li>
-        {% endif %}
-    </ul>
+
+            <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
+
+            {% if user.is_authenticated and user.is_superuser %}
+                <li>
+                    <a href="{% url 'dashboard' %}"
+                       class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200">
+                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+                        </svg>
+                        Dashboard
+                    </a>
+                </li>
+            {% endif %}
+            {% if user.is_authenticated and user.is_staff %}
+                <li>
+                    <a href="{% url 'admin:index' %}"
+                       class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-200">
+                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655-5.653a2.548 2.548 0 010-3.586l4.94-4.94a2.548 2.548 0 013.586 0l5.653 4.655a2.548 2.548 0 010 3.586l-4.94 4.94a2.548 2.548 0 01-3.586 0z" />
+                        </svg>
+                        Админ-панель
+                    </a>
+                </li>
+                <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
+            {% endif %}
+
+        </ul>
+    </nav>
     <!-- ^^^ Список пунктов меню -->
-</div>
+
+    <!-- Футер сайдбара -->
+    <footer class="mt-auto p-2 border-t border-gray-200 dark:border-neutral-700 shrink-0">
+        {% if user.is_authenticated %}
+            <!-- Dropdown с аккаунтом пользователя -->
+            <div class="hs-dropdown [--strategy:absolute] [--auto-close:inside] relative inline-flex w-full">
+                <button type="button" class="hs-dropdown-toggle w-full inline-flex shrink-0 items-center gap-x-2 p-2 text-start text-sm text-gray-800 rounded-md hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
+                    <svg class="shrink-0 size-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    <span class="truncate">{{ user.username }}</span>
+                    <svg class="shrink-0 size-3.5 ms-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m7 15 5 5 5-5"/>
+                        <path d="m7 9 5-5 5 5"/>
+                    </svg>
+                </button>
+
+                <div class="hs-dropdown-menu hidden transition-[opacity,margin] duration-300 min-w-[15rem] bg-white shadow-lg rounded-lg p-2 mt-2 border border-gray-200 dark:bg-neutral-900 dark:border-neutral-700">
+                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700{% if active_page == 'stats' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}" href="{% url 'stats' %}">
+                        <svg class="shrink-0 size-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                        </svg>
+                        Личная статистика
+                    </a>
+                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700{% if active_page == 'profile' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}" href="{% url 'profile' %}">
+                        <svg class="shrink-0 size-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                        Профиль
+                    </a>
+                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700" href="{% url 'logout' %}">
+                        <svg class="shrink-0 size-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                        </svg>
+                        Выйти
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <!-- Кнопки входа для неавторизованных пользователей -->
+            <div class="space-y-1">
+                <a href="{% url 'signin' %}" class="w-full inline-flex items-center gap-x-2 p-2 text-start text-sm text-gray-800 rounded-md hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
+                    <svg class="shrink-0 size-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                    </svg>
+                    Войти
+                </a>
+                <a href="{% url 'signup' %}" class="w-full inline-flex items-center gap-x-2 p-2 text-start text-sm text-gray-800 rounded-md hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
+                    <svg class="shrink-0 size-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                    </svg>
+                    Зарегистрироваться
+                </a>
+            </div>
+        {% endif %}
+    </footer>
+    <!-- ^^^ Футер сайдбара -->
+</aside>
 <!-- ^^^ Сайдбар -->

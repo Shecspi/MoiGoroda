@@ -17,7 +17,11 @@ module.exports = {
     './node_modules/preline/dist/*.js',
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        pacifico: ['Pacifico', 'cursive'],
+      },
+    },
   },
   darkMode: 'class',
   plugins: [

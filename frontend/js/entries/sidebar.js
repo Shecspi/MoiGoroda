@@ -218,18 +218,14 @@ document.addEventListener('DOMContentLoaded', () => {
       isLarge: isLargeScreen()
     });
     
-    // Удаляем все классы translate, которые могут конфликтовать
-    sidebar.classList.remove('-translate-x-full', 'translate-x-0');
-    
     if (isLargeScreen()) {
       // На больших экранах показываем сайдбар
-      sidebar.style.cssText = sidebar.style.cssText.replace(/transform[^;]*;?/g, '');
       sidebar.style.setProperty('transform', 'translateX(0)', 'important');
       sidebar.setAttribute('data-sidebar-state', 'open');
       sidebar.setAttribute('data-sidebar-large', 'true');
     } else {
-      // На маленьких экранах закрываем сайдбар
-      sidebar.style.cssText = sidebar.style.cssText.replace(/transform[^;]*;?/g, '');
+      // На маленьких экранах сайдбар уже скрыт через inline стиль в HTML
+      // Просто убеждаемся, что он скрыт (на случай, если что-то изменилось)
       sidebar.style.setProperty('transform', 'translateX(-100%)', 'important');
       sidebar.setAttribute('data-sidebar-state', 'closed');
       sidebar.removeAttribute('data-sidebar-large');

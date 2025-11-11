@@ -8,13 +8,14 @@ Licensed under the Apache License, Version 2.0
 {% endcomment %}
 {% if user.is_authenticated %}
 <div class="notification-button-wrapper">
-    <button class="mg-btn mg-btn-outline-secondary mg-btn-icon-only"
-            id="notification_icon"
+    <button type="button"
+            class="relative inline-flex items-center justify-center rounded-lg p-2 text-gray-600 border border-gray-200 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-400 dark:border-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:hover:border-neutral-600 cursor-pointer"
             data-bs-toggle="modal"
             data-bs-target="#notificationModal"
-            data-bs-tooltip="tooltip"
-            data-bs-title="Уведомления">
-        <i class="fa-solid fa-bell" id="bell"></i>
+            aria-label="Открыть уведомления">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+        </svg>
     </button>
 </div>
 

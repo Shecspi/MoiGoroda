@@ -11,12 +11,11 @@ Licensed under the Apache License, Version 2.0
     top: 1.5rem;
     right: 1.5rem;
     z-index: 1050;
-    pointer-events: none;
     display: flex;
 }
 
-.notification-button-wrapper .mg-btn {
-    pointer-events: auto;
+.notification-button-wrapper button {
+    cursor: pointer;
 }
 
 @media (max-width: 1199.98px) {

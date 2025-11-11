@@ -3,8 +3,24 @@ import {getCookie} from '../components/get_cookie.js';
 const notifications = [];
 const POLL_INTERVAL = 10000;
 
-const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'));
-const notificationButton = document.getElementById('notification_icon');
+// Инициализация modal только если элемент существует
+const notificationModalEl = document.getElementById('notificationModal');
+const notificationModal = notificationModalEl ? new bootstrap.Modal(notificationModalEl) : null;
+
+// Находим кнопку уведомлений (может быть в мобильной версии или в версии для больших экранов)
+// Ищем все кнопки уведомлений с data-bs-target="#notificationModal"
+function getVisibleNotificationButton() {
+  const buttons = document.querySelectorAll('button[data-bs-target="#notificationModal"]');
+  for (const button of buttons) {
+    const style = window.getComputedStyle(button);
+    if (style.display !== 'none' && style.visibility !== 'hidden') {
+      return button;
+    }
+  }
+  // Если не нашли видимую кнопку, возвращаем первую с ID notification_icon
+  return document.getElementById('notification_icon') || buttons[0];
+}
+const notificationButton = getVisibleNotificationButton();
 const notificationsList = document.getElementById('notifications-list');
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -23,10 +39,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     await fetchNotifications();
 });
 
-if (notificationButton) {
-    notificationButton.addEventListener('click', function () {
-    notificationModal.show();
-});
+// Bootstrap автоматически обрабатывает клики через data-bs-toggle и data-bs-target
+// Но на всякий случай добавляем обработчик, если modal не открывается автоматически
+if (notificationButton && notificationModal) {
+    notificationButton.addEventListener('click', function (e) {
+        // Если Bootstrap еще не обработал клик, открываем modal вручную
+        if (!notificationModalEl.classList.contains('show')) {
+            notificationModal.show();
+        }
+    });
 }
 
 async function get_notifications() {
@@ -50,23 +71,31 @@ async function get_notifications() {
 }
 
 /**
- * Делает иконку с колокольчиком красной
+ * Делает кнопку уведомлений красной (при наличии непрочитанных уведомлений)
  */
 function make_bell_red() {
-    if (notificationButton) {
-        notificationButton.classList.remove('mg-btn-outline-secondary');
-        notificationButton.classList.add('mg-btn-outline-danger');
-    }
+    // Обновляем все кнопки уведомлений
+    const buttons = document.querySelectorAll('button[data-bs-target="#notificationModal"]');
+    buttons.forEach(button => {
+        // Убираем серые классы
+        button.classList.remove('text-gray-600', 'border-gray-200', 'hover:bg-gray-100', 'hover:text-gray-900', 'hover:border-gray-300', 'dark:text-neutral-400', 'dark:border-neutral-700', 'dark:hover:bg-neutral-800', 'dark:hover:text-neutral-200', 'dark:hover:border-neutral-600');
+        // Добавляем красные классы (фон, текст, граница)
+        button.classList.add('text-red-700', 'bg-red-50', 'border-red-200', 'hover:bg-red-100', 'hover:text-red-800', 'hover:border-red-300', 'dark:text-red-400', 'dark:bg-red-500/10', 'dark:border-red-500/20', 'dark:hover:bg-red-500/20', 'dark:hover:text-red-300', 'dark:hover:border-red-500/30');
+    });
 }
 
 /**
- * Делает иконку с колокольчиком серой
+ * Делает кнопку уведомлений серой (когда нет непрочитанных уведомлений)
  */
 function make_bell_gray() {
-    if (notificationButton) {
-        notificationButton.classList.remove('mg-btn-outline-danger');
-        notificationButton.classList.add('mg-btn-outline-secondary');
-    }
+    // Обновляем все кнопки уведомлений
+    const buttons = document.querySelectorAll('button[data-bs-target="#notificationModal"]');
+    buttons.forEach(button => {
+        // Убираем красные классы
+        button.classList.remove('text-red-700', 'bg-red-50', 'border-red-200', 'hover:bg-red-100', 'hover:text-red-800', 'hover:border-red-300', 'dark:text-red-400', 'dark:bg-red-500/10', 'dark:border-red-500/20', 'dark:hover:bg-red-500/20', 'dark:hover:text-red-300', 'dark:hover:border-red-500/30');
+        // Добавляем серые классы (прозрачный фон, серый текст и граница)
+        button.classList.add('text-gray-600', 'border-gray-200', 'hover:bg-gray-100', 'hover:text-gray-900', 'hover:border-gray-300', 'dark:text-neutral-400', 'dark:border-neutral-700', 'dark:hover:bg-neutral-800', 'dark:hover:text-neutral-200', 'dark:hover:border-neutral-600');
+    });
 }
 
 function add_notifications_to_list() {

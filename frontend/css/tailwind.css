@@ -7,12 +7,13 @@
 @layer components {
     /* Стили для Preline UI tooltip */
     .hs-tooltip-content {
-        @apply opacity-0 invisible transition-opacity duration-200;
+        @apply opacity-0 invisible -translate-y-1 transition-all duration-200 ease-out;
     }
 
     .hs-tooltip.show .hs-tooltip-content {
         opacity: 1 !important;
         visibility: visible !important;
+        transform: translateY(0) !important;
     }
 
     .stat-badge {

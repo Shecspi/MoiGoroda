@@ -1,8 +1,20 @@
+@import "preline/variants.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer components {
+    /* Стили для Preline UI tooltip */
+    .hs-tooltip-content {
+        @apply opacity-0 invisible transition-opacity duration-200;
+    }
+
+    .hs-tooltip.show .hs-tooltip-content {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
     .stat-badge {
         @apply inline-flex items-center gap-x-2 rounded-full px-3 py-1 text-sm font-medium shadow-sm transition;
     }

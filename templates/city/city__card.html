@@ -24,11 +24,15 @@
                         </a>
                     </p>
                 </div>
-                <span class="inline-flex items-center gap-x-1 rounded-full border border-emerald-500 bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 transition dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300"
-                      title="Город {{ city }} посещён">
-                    <i class="fa-solid fa-footprints text-xs"></i>
-                    <span>{{ city.number_of_visits }}</span>
-                </span>
+                <div class="hs-tooltip [--placement:top] relative inline-block">
+                    <span class="hs-tooltip-toggle inline-flex items-center gap-x-1 rounded-full border border-emerald-500 bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 transition dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300">
+                        <i class="fa-solid fa-footprints text-xs"></i>
+                        <span>{{ city.number_of_visits }}</span>
+                    </span>
+                    <span class="hs-tooltip-content" role="tooltip">
+                        Город {{ city }} посещён
+                    </span>
+                </div>
             </div>
 
             <div class="flex flex-1 flex-col gap-3">
@@ -91,21 +95,24 @@
                                 Количество пользователей, посетивших город {{ city }}
                             </span>
                         </div>
-                        <span class="inline-flex items-center gap-x-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400"
-                              title="Общее количество посещений города {{ city }}">
-                            <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
-                                <path d="m9 12 2 2 4-4"></path>
-                            </svg>
-                            <span>{{ city.number_of_visits_all_users }}</span>
-                        </span>
+                        <div class="hs-tooltip [--placement:top] relative inline-block">
+                            <span class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                                    <path d="m9 12 2 2 4-4"></path>
+                                </svg>
+                                <span>{{ city.number_of_visits_all_users }}</span>
+                            </span>
+                            <span class="hs-tooltip-content" role="tooltip">
+                                Общее количество посещений города {{ city }}
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Рейтинг и статус сувенира -->
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center" id="subsection-city-rating_{{ forloop.counter }}"
-                             title="Средний рейтинг города {{ city.title }}">
-                            <div class="flex items-center">
+                        <div class="hs-tooltip [--placement:top] relative inline-block" id="subsection-city-rating_{{ forloop.counter }}">
+                            <div class="hs-tooltip-toggle flex items-center">
                                 {% for i in "12345"|make_list %}
                                     {% with index=forloop.counter %}
                                         {% if city.average_rating >= index %}
@@ -133,18 +140,21 @@
                                     {% endwith %}
                                 {% endfor %}
                             </div>
+                            <span class="hs-tooltip-content" role="tooltip">
+                                Средний рейтинг города {{ city }} на основе всех Ваших оценок
+                            </span>
                         </div>
 
-                        <div title="У Вас {% if city.has_souvenir %}есть сувенир{% else %}нет сувенира{% endif %} из города {{ city.city.title }}">
+                        <div class="hs-tooltip [--placement:top] relative inline-block">
                             {% if city.has_souvenir %}
-                                <span class="inline-flex items-center gap-x-1 rounded-full border border-emerald-500 bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 transition dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300">
+                                <span class="hs-tooltip-toggle inline-flex items-center gap-x-1 rounded-full border border-emerald-500 bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 transition dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300">
                                     <svg class="h-3.5 w-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
                                     <span>Сувенир</span>
                                 </span>
                             {% else %}
-                                <span class="inline-flex items-center gap-x-1 rounded-full border border-rose-500 bg-rose-100 px-3 py-1 text-sm font-semibold text-rose-700 transition dark:border-rose-400 dark:bg-rose-500/10 dark:text-rose-300">
+                                <span class="hs-tooltip-toggle inline-flex items-center gap-x-1 rounded-full border border-rose-500 bg-rose-100 px-3 py-1 text-sm font-semibold text-rose-700 transition dark:border-rose-400 dark:bg-rose-500/10 dark:text-rose-300">
                                     <svg class="h-3.5 w-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <line x1="5" y1="5" x2="19" y2="19"></line>
                                         <line x1="19" y1="5" x2="5" y2="19"></line>
@@ -152,6 +162,9 @@
                                     <span>Сувенир</span>
                                 </span>
                             {% endif %}
+                            <span class="hs-tooltip-content" role="tooltip">
+                                У Вас {% if city.has_souvenir %}есть сувенир{% else %}нет сувенира{% endif %} из города {{ city.city.title }}
+                            </span>
                         </div>
                     </div>
                 </div>

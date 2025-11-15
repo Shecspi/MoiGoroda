@@ -9,9 +9,9 @@ window.onload = async () => {
     // Показать/скрыть кнопку очистки
     const toggleClearButton = () => {
         if (inputEl.value.length > 0) {
-            clearBtn.classList.remove("d-none");
+            clearBtn.classList.remove("hidden");
         } else {
-            clearBtn.classList.add("d-none");
+            clearBtn.classList.add("hidden");
         }
     };
     

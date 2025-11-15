@@ -1,61 +1,83 @@
-<div class="col">
-    <div class="mg-card {% if collection.is_favorite %}mg-card-danger{% else %}mg-card-secondary{% endif %}">
-        <div class="mg-card-body text-center">
-            <a href="{{ collection.get_absolute_url }}" class="mg-link mg-heading-4">
-                {{ collection.title }}
-            </a>
+<div class="h-full">
+    <!-- Карточка коллекции -->
+    <div class="relative flex h-full flex-col gap-3 rounded-2xl border {% if collection.is_favorite %}border-amber-300 bg-amber-50/50 dark:border-amber-600 dark:bg-amber-950/30{% else %}border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900{% endif %} p-4 shadow-sm"
+         id="collection-card-{{ collection.id }}">
+        <div class="flex h-full flex-col gap-3">
+            <!-- Заголовок коллекции -->
+            <div class="text-center">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    <a href="{{ collection.get_absolute_url }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ collection.title }}
+                    </a>
+                </h3>
+            </div>
 
-            <!-- Список городов -->
-            <div class="d-flex flex-wrap gap-2 justify-content-center">
-                {% for city in collection.city.all|slice:"0:10" %}
-                    {% if city.id in visited_cities %}
-                        <a href="{% url 'city-selected' city.id %}" class="mg-btn mg-btn-sm mg-btn-flat mg-btn-success">{{ city }}</a>
-                    {% else %}
-                        <a href="{% url 'city-selected' city.id %}" class="mg-btn mg-btn-sm mg-btn-flat mg-btn-danger">{{ city }}</a>
-                    {% endif %}
-                {% endfor %}
-                {% if collection.qty_of_cities > 10 %}
-                    <buttob class="mg-btn mg-btn-sm mg-btn-flat mg-btn-secondary">и другие...</span>
-                {% endif %}
+            <div class="flex flex-1 flex-col gap-3">
+                <!-- Список городов -->
+                <div class="flex flex-1 flex-col justify-center">
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+                        {% for city in collection.city.all|slice:"0:10" %}
+                            {% if city.id in visited_cities %}
+                                <a href="{% url 'city-selected' city.id %}" class="inline-flex items-center gap-x-0.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600 transition dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400">
+                                    {{ city }}
+                                </a>
+                            {% else %}
+                                <a href="{% url 'city-selected' city.id %}" class="inline-flex items-center gap-x-0.5 rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-600 transition dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-400">
+                                    {{ city }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        {% if collection.qty_of_cities > 10 %}
+                            <span class="inline-flex items-center gap-x-0.5 rounded-full border border-gray-300 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+                                и другие...
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
                 <!-- ^^^ Список городов -->
-            </div>
 
-            <!-- Количество городов -->
-            <div class="mt-3">
-                <small class="mg-text-sm">
+                <div class="mt-auto flex flex-col gap-3">
+                    <!-- Количество городов и прогресс -->
+                    <div class="flex flex-col gap-2">
+                        <div class="text-center">
+                            <p class="text-sm text-gray-600 dark:text-neutral-400">
+                                {% if user.is_authenticated %}
+                                    Посещено {{ collection.qty_of_visited_cities }} из {{ collection.qty_of_cities }}
+                                {% else %}
+                                    Всего городов: {{ collection.qty_of_cities }}
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <!-- Прогресс бар посещённых городов -->
+                        {% if user.is_authenticated %}
+                        <div class="w-full">
+                            <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-neutral-700">
+                                <div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500 ease-out"
+                                     style="width: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}%">
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <!-- ^^^ Количество городов и прогресс -->
+
+                    <!-- Кнопка избранного -->
                     {% if user.is_authenticated %}
-                        Посещено {{ collection.qty_of_visited_cities }} из {{ collection.qty_of_cities }}
-                    {% else %}
-                        Всего городов: {{ collection.qty_of_cities }}
+                    <div class="flex justify-center">
+                        <button class="favorite-star inline-flex items-center gap-x-1 rounded-full border px-3 py-1 text-sm font-semibold transition {% if collection.is_favorite %}border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-600 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20{% else %}border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-600 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20{% endif %}"
+                                data-collection-id="{{ collection.id }}"
+                                data-is-favorite="{% if collection.is_favorite %}true{% else %}false{% endif %}">
+                            <i class="fa-star {% if collection.is_favorite %}fas{% else %}far{% endif %} text-base"></i>
+                            <span class="favorite-text transition-opacity duration-150">
+                                {% if collection.is_favorite %}Удалить из избранного{% else %}Добавить в избранное{% endif %}
+                            </span>
+                        </button>
+                    </div>
                     {% endif %}
-                </small>
+                    <!-- ^^^ Кнопка избранного -->
+                </div>
             </div>
-            <!-- ^^^ Количество городов -->
-
-            <!-- Прогресс бар посещённых городов -->
-            {% if user.is_authenticated %}
-            <div class="mg-progress mg-progress-primary mg-progress-striped mt-2">
-                <div class="mg-progress-bar mg-progress-success"
-                     style="--percentage: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}; width: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}%"></div>
-            </div>
-            {% endif %}
-            <!-- ^^^ Прогресс бар посещённых городов -->
-
-            <!-- Кнопка избранного -->
-            {% if user.is_authenticated %}
-            <div class="mt-3">
-                <button class="mg-btn mg-btn-warning"
-                        data-collection-id="{{ collection.id }}"
-                        data-is-favorite="{% if collection.is_favorite %}true{% else %}false{% endif %}">
-                    <i class="fa-star {% if collection.is_favorite %}fas{% else %}far{% endif %}"
-                        style="margin-right: 0.25rem"></i>
-                    <span>
-                        {% if collection.is_favorite %}Удалить из избранного{% else %}Добавить в избранное{% endif %}
-                    </span>
-                </button>
-            </div>
-            {% endif %}
-            <!-- ^^^ Кнопка избранного -->
         </div>
     </div>
 </div>

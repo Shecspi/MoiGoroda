@@ -2,19 +2,17 @@
 {% load vite %}
 {% load static %}
 
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+    {% vite_css 'css/star-burst' %}
+{% endblock %}
+
 {% block content %}
-    <!-- Подключение нового дизайна -->
+    <!-- Подключение старого дизайна для поиска -->
     {% vite_css 'css/style2' %}
     {% vite_css 'css/pagination' %}
     {% vite_css 'css/autoComplete' %}
-    {% vite_css 'css/star-burst' %}
-    <!-- Подключение компонентов для карточек -->
-    {% vite_css 'css/components/card' %}
-    {% vite_css 'css/components/badge' %}
-    {% vite_css 'css/components/link' %}
-    {% vite_css 'css/components/progress' %}
-    {% vite_css 'css/components/button' %}
-    {% vite_css 'css/components/typography' %}
 
     <div class="page-header-section text-center mt-4 mb-2 mx-3">
         <h1 class="page-header-title display-4 fw-bold mb-2" id="block-page_header">
@@ -45,7 +43,7 @@
         
         <!-- Overlay для затемнения страницы -->
         <div class="search-overlay" id="search-overlay"></div>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
+        <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
             {% for collection in object_list %}
                 {% include 'collection/collection__card.html' %}
             {% endfor %}

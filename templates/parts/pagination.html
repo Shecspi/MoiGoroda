@@ -14,14 +14,14 @@ Licensed under the Apache License, Version 2.0
             <div class="flex items-center justify-center gap-2 overflow-x-auto rounded-2xl border border-gray-200 bg-white px-2 py-1.5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 sm:px-3 sm:py-2">
                 {% if page_obj.has_previous %}
                     <a href="?{% update_query page=1 %}"
-                       class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-200 dark:hover:bg-neutral-800 sm:gap-2 sm:px-3 sm:py-2">
+                       class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-200 dark:hover:bg-neutral-800 dark:focus-visible:ring-offset-neutral-900 sm:gap-2 sm:px-3 sm:py-2">
                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 19 13 12l6-7M11 19 5 12l6-7" />
                         </svg>
                         <span class="hidden sm:inline">В начало</span>
                     </a>
                     <a href="?{% update_query page=page_obj.previous_page_number %}"
-                       class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-200 dark:hover:bg-neutral-800 sm:gap-2 sm:px-3 sm:py-2">
+                       class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-200 dark:hover:bg-neutral-800 dark:focus-visible:ring-offset-neutral-900 sm:gap-2 sm:px-3 sm:py-2">
                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19 9 12l6-7" />
                         </svg>
@@ -48,14 +48,14 @@ Licensed under the Apache License, Version 2.0
 
                 {% if page_obj.has_next %}
                     <a href="?{% update_query page=page_obj.next_page_number %}"
-                       class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-200 dark:hover:bg-neutral-800 sm:gap-2 sm:px-3 sm:py-2">
+                       class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-200 dark:hover:bg-neutral-800 dark:focus-visible:ring-offset-neutral-900 sm:gap-2 sm:px-3 sm:py-2">
                         <span class="hidden sm:inline">Вперёд</span>
                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 6 7-6 7" />
                         </svg>
                     </a>
                     <a href="?{% update_query page=page_obj.paginator.num_pages %}"
-                       class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-neutral-200 dark:hover:bg-neutral-800 sm:gap-2 sm:px-3 sm:py-2">
+                       class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-200 dark:hover:bg-neutral-800 dark:focus-visible:ring-offset-neutral-900 sm:gap-2 sm:px-3 sm:py-2">
                         <span class="hidden sm:inline">В конец</span>
                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m5 5 6 7-6 7m8-14 6 7-6 7" />

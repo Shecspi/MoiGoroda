@@ -3,18 +3,15 @@
 {% load morphology %}
 {% load vite %}
 
-{% block content %}
-    <!-- Подключение нового дизайна -->
-    {% vite_css 'css/style2' %}
-    {% vite_css 'css/select-field' %}
-    {% vite_css 'css/components/checkbox' %}
-    {% vite_css 'css/components/button' %}
-    {% vite_css 'css/components/badge' %}
-    {% vite_css 'css/subscriptions-modal' %}
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
 
-    <div class="page-header-section text-center mt-4 mb-2 mx-3">
-        <div class="page-header-top">
-            <h1 class="page-header-title display-4 fw-bold mb-2" id="section-page_header">
+{% block content %}
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <div class="space-y-3">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
                 {% if country_name %}
                     Карта посещённых городов в {{ country_name|prepositional }}
                 {% else %}
@@ -22,8 +19,7 @@
                 {% endif %}
             </h1>
         </div>
-        <div class="page-header-divider"></div>
-    </div>
+    </header>
 
     {% if not DEBUG %}
     {% include 'advertisement/rtb_banner.html' %}
@@ -36,7 +32,7 @@
     {% include 'city/modal_add_city.html' %}
 
     <!-- Карта -->
-    <div id="map" class="h-100 mt-3"></div>
+    <div id="map" class="mx-3 mb-12 h-[560px] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900"></div>
     <!-- ^^^ Карта -->
 
     {% if not DEBUG %}
@@ -53,5 +49,5 @@
     {% vite_asset 'js/entries/map_city.js' %}
 
     {% include 'parts/toast/danger.html' with error_title="Ошибка соединения с сервером" error_message='Не получилось загрузить список Ваших посещённых городов.' error_id='toast_request_error' %}
-    {% include 'parts/toast/success.html' with title="Успешно" message="Город <span id='city-title-in-toast' class='fw-medium'></span> успешно отмечен как посещённый" %}
+    {% include 'parts/toast/success.html' with title="Успешно" message="Город <span id='city-title-in-toast' class='font-semibold'></span> успешно отмечен как посещённый" %}
 {% endblock %}

@@ -1,100 +1,139 @@
 {% load morphology %}
-<div class="mx-3 my-3 d-flex flex-wrap gap-3 justify-content-between align-items-center" id="toolbar" style="z-index: 1001; position: relative;">
-    <!-- Статистика посещёния -->
-    <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center" id="section-stats">
-        <span class="toolbar-badge toolbar-badge-success">
-            Всего посещено <strong id="number_of_visited_cities">{{ qty_of_visited_cities }}</strong> {{ "города"|plural_by_num:qty_of_visited_cities }}
-        </span>
+
+<div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
+    <!-- Статистика посещений -->
+    <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
+        <div class="hs-tooltip [--placement:top] relative inline-block">
+            <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                <span class="stat-badge-dot"></span>
+                Всего посещено
+                <strong id="number_of_visited_cities">{{ qty_of_visited_cities }}</strong>
+                {{ "города"|plural_by_num:qty_of_visited_cities }}
+            </span>
+            <span class="hs-tooltip-content" role="tooltip">
+                Общее количество городов, которые Вы посетили
+            </span>
+        </div>
         {% if country_code %}
-            <span class="toolbar-badge toolbar-badge-info">
-                В {{ country_name|prepositional }}: <strong>{{ number_of_visited_cities_in_country }}</strong> из {{ number_of_cities_in_country }}
+            <span class="stat-badge stat-badge-info">
+                В {{ country_name|prepositional }}:
+                <strong>{{ number_of_visited_cities_in_country }}</strong>
+                из {{ number_of_cities_in_country }}
             </span>
         {% else %}
-            <span class="toolbar-badge toolbar-badge-info">
-                Стран: <strong>{{ number_of_visited_countries }}</strong>
-            </span>
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-info">
+                    Стран:
+                    <strong>{{ number_of_visited_countries }}</strong>
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Количество стран, в которых Вы посещали города
+                </span>
+            </div>
         {% endif %}
     </div>
 
-    <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-buttons">
-        <div class="flex-grow-1" style="min-width: 250px;">
-            <select class="form-select" id="id_country"></select>
-        </div>
+    <div class="relative grow basis-full self-center md:basis-auto md:min-w-[240px]">
+        <select class="block w-full rounded-xl border border-gray-200 bg-white py-3 pe-10 ps-4 text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+                id="id_country"></select>
+        <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500">
+            <i class="fa-solid fa-chevron-down text-xs"></i>
+        </span>
+    </div>
 
-        <!-- Помощь -->
-        <button class="mg-btn mg-btn-outline-secondary"
+    <!-- Помощь -->
+    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+        <button class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
                 id="btn_help"
                 data-bs-toggle="modal"
-                data-bs-target="#modal_help"
-                data-bs-tooltip="tooltip"
-                data-bs-title="Подробнее о функционале этой страницы">
+                data-bs-target="#modal_help">
             <i class="fa-regular fa-circle-question"></i>
             Помощь
         </button>
-        <!-- ^^^ Помощь -->
+        <span class="hs-tooltip-content" role="tooltip">
+            Открыть подробное описание функций страницы
+        </span>
+    </div>
+    <!-- ^^^ Помощь -->
 
-        <div class="d-flex gap-1 justify-content-center align-items-center">
-            <!-- В прошлом году -->
-            <button class="mg-btn mg-btn-outline-primary mg-btn-sm mg-btn-icon-only
-                           {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
-                    id="btn_show-visited-cities-previous-year"
-                    data-type="show"
-                    data-bs-toggle="tooltip"
-                    data-bs-title="Показать города, посещённые Вами в прошлом году">
-                <i class="fa-solid fa-calendar-week"></i>
-            </button>
-            <!-- ^^^ В прошлом году -->
+    <!-- В прошлом году -->
+    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 text-blue-500 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-40 dark:border-blue-500/40 dark:text-blue-300 dark:hover:bg-blue-500/10"
+                id="btn_show-visited-cities-previous-year"
+                data-type="show"
+                {% if qty_of_visited_cities == 0 %}disabled{% endif %}>
+            <i class="fa-solid fa-calendar-week"></i>
+        </button>
+        <span class="hs-tooltip-content" role="tooltip">
+            Показать города, которые Вы посетили в прошлом году
+        </span>
+    </div>
+    <!-- ^^^ В прошлом году -->
 
-            <!-- В этом году -->
-            <button class="mg-btn mg-btn-outline-success mg-btn-sm mg-btn-icon-only me-3
-                      {% if qty_of_visited_cities == 0 %}disabled{% endif %}"
-                    id="btn_show-visited-cities-current-year"
-                    data-type="show"
-                    data-bs-toggle="tooltip"
-                    data-bs-title="Показать города, посещённые Вами в текущем году">
-                <i class="fa-solid fa-calendar-days"></i>
-            </button>
-            <!-- ^^^ В этом году -->
-        </div>
+    <!-- В этом году -->
+    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-300 disabled:opacity-40 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+                id="btn_show-visited-cities-current-year"
+                data-type="show"
+                {% if qty_of_visited_cities == 0 %}disabled{% endif %}>
+            <i class="fa-solid fa-calendar-days"></i>
+        </button>
+        <span class="hs-tooltip-content" role="tooltip">
+            Показать города, которые Вы посетили в этом году
+        </span>
+    </div>
+    <!-- ^^^ В этом году -->
 
-        <div class="d-flex gap-1 justify-content-center align-items-center">
-            <!-- Показать маркеры посещённых мест -->
-            <button class="mg-btn mg-btn-outline-primary mg-btn-sm mg-btn-icon-only"
-                    id="btn_show-places"
-                    data-type="show"
-                    data-bs-toggle="tooltip"
-                    data-bs-title="Показать маркеры посещённых мест">
-                <i class="fa-solid fa-location-dot"></i>
-            </button>
-            <!-- ^^^ Показать маркеры посещённых мест -->
+    <!-- Показать маркеры посещённых мест -->
+    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-200 text-sky-600 transition hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-sky-500/40 dark:text-sky-300 dark:hover:bg-sky-500/10"
+                id="btn_show-places"
+                data-type="show">
+            <i class="fa-solid fa-location-dot"></i>
+        </button>
+        <span class="hs-tooltip-content" role="tooltip">
+            Показать маркеры посещённых мест на карте
+        </span>
+    </div>
+    <!-- ^^^ Показать маркеры посещённых мест -->
 
-            <!-- Показать непосещённые города -->
-            <button class="mg-btn mg-btn-outline-danger mg-btn-sm mg-btn-icon-only"
-                    id="btn_show-not-visited-cities"
-                    data-url="{% url 'api__get_not_visited_cities' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-                    data-type="show"
-                    data-bs-toggle="tooltip"
-                    data-bs-title="Показать непосещённые города">
-                <i class="fa-solid fa-eye"></i>
-            </button>
-            <!-- ^^^ Показать непосещённые города -->
+    <!-- Показать непосещённые города -->
+    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-200 text-rose-600 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-300 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10"
+                id="btn_show-not-visited-cities"
+                data-url="{% url 'api__get_not_visited_cities' %}{% if country_code %}?country={{ country_code }}{% endif %}"
+                data-type="show">
+            <i class="fa-solid fa-eye"></i>
+        </button>
+        <span class="hs-tooltip-content" role="tooltip">
+            Показать города, где Вы ещё не были
+        </span>
+    </div>
+    <!-- ^^^ Показать непосещённые города -->
 
-            <!-- Подписки -->
-            <button class="mg-btn mg-btn-outline-success mg-btn-sm mg-btn-icon-only{% if not is_user_has_subscriptions %} disabled{% endif %}"
-                    id="btn_open_modal_with_subscriptions"
-                    data-bs-toggle="modal"
-                    data-bs-target="#subscriptions_modal_window"
-                    data-bs-tooltip="tooltip"
-                    data-bs-title="Показать города, посещённые пользователями, на которых Вы подписаны">
-                    <i class="fa-solid fa-bell"></i>
-            </button>
-            <!-- ^^^ Подписки -->
-        </div>
+    <!-- Подписки -->
+    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-amber-200 text-amber-600 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-300 disabled:opacity-40 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10"
+                id="btn_open_modal_with_subscriptions"
+                data-bs-toggle="modal"
+                data-bs-target="#subscriptions_modal_window"
+                {% if not is_user_has_subscriptions %}disabled{% endif %}>
+                <i class="fa-solid fa-bell"></i>
+        </button>
+        <span class="hs-tooltip-content" role="tooltip">
+            Показать города пользователей, на которых вы подписаны
+        </span>
+    </div>
+    <!-- ^^^ Подписки -->
 
-        <a href="{% url 'city-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
-           class="mg-btn mg-btn-outline-success">
+    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+        <a href="{% url 'city-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}"
+           class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
             <i class="fa-solid fa-list-ol"></i>
             <span>Посмотреть список</span>
         </a>
+        <span class="hs-tooltip-content" role="tooltip">
+            Открыть полный список посещённых городов
+        </span>
     </div>
 </div>

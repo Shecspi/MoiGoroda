@@ -25,26 +25,33 @@
     {# Карточки с коллекциями #}
     {% if object_list %}
         {# Поисковый тулбар в стиле Tailwind/Preline #}
-        <div class="mx-3 mb-6 flex justify-center" id="toolbar">
+        <div class="mx-3 mb-6 flex justify-center relative z-[11050]" id="toolbar">
             <div class="w-full max-w-xl">
+                <label for="collection-search" class="sr-only">Поиск коллекций</label>
                 <div class="relative">
                     {# Иконка поиска #}
-                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-neutral-500">
-                        <i class="fas fa-search text-sm"></i>
-                    </span>
+                    <div class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-4 text-gray-400 dark:text-neutral-500">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 7.5 15a7.5 7.5 0 0 0 9.15 1.65Z" />
+                        </svg>
+                    </div>
                     {# Поле ввода #}
                     <input
                         id="collection-search"
                         type="text"
-                        class="block w-full rounded-full border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:placeholder:text-neutral-500"
+                        class="block w-full rounded-2xl border border-gray-200 bg-white py-3 pl-11 pr-12 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:placeholder:text-neutral-500"
                         placeholder="Найти коллекцию..."
                     >
                     {# Кнопка очистки (изначально скрыта) #}
                     <button
+                        id="collection-search-clear"
                         type="button"
-                        class="search-clear hidden absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 transition hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+                        class="hidden absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 transition hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-500 dark:hover:text-neutral-300 dark:focus-visible:ring-offset-neutral-900"
                     >
-                        <i class="fas fa-times text-xs"></i>
+                        <span class="sr-only">Очистить поиск</span>
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 18 12-12M6 6l12 12" />
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -53,7 +60,7 @@
         {# Overlay для затемнения страницы во время поиска #}
         <div
             id="search-overlay"
-            class="fixed inset-0 z-30 bg-gray-900/40 opacity-0 pointer-events-none transition-opacity duration-200"
+            class="fixed inset-0 z-[11000] bg-gray-900/40 opacity-0 pointer-events-none transition-opacity duration-200"
         ></div>
 
         {# Сетка карточек коллекций #}

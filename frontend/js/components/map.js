@@ -70,8 +70,8 @@ function add_fullscreen_control(map) {
  */
 function add_zoom_control(map) {
     const zoomControl = L.control.zoom({
-        zoomInTitle: 'Нажмите, чтобы приблизить карту',
-        zoomOutTitle: 'Нажмите, чтобы отдалить карту'
+        zoomInTitle: 'Приблизить карту',
+        zoomOutTitle: 'Отдалить карту'
     });
     zoomControl.addTo(map);
 }
@@ -94,7 +94,7 @@ function add_attribution(map) {
  * @param map Объект карты, на которую нужно добавить кнопку.
  */
 function add_screenshot_control(map) {
-    new SimpleMapScreenshoter({
+    const screenshotControl = new SimpleMapScreenshoter({
         hideElementsWithSelectors: ['.leaflet-control-container'],
         preventDownload: false,
         hidden: false,
@@ -102,7 +102,18 @@ function add_screenshot_control(map) {
         caption: null,
         position: 'topleft',
         screenName: 'MoiGoroda',
-    }).addTo(map);
+    });
+    screenshotControl.addTo(map);
+    
+    // Добавляем подсказку для кнопки скриншота
+    map.whenReady(() => {
+        setTimeout(() => {
+            const screenshotBtn = document.querySelector('#map .leaflet-control-simpleMapScreenshoter-btn');
+            if (screenshotBtn) {
+                screenshotBtn.setAttribute('title', 'Создать скриншот карты');
+            }
+        }, 100);
+    });
 }
 
 export function addExternalBorderControl(map, countryCode) {
@@ -125,7 +136,7 @@ export function addExternalBorderControl(map, countryCode) {
     }
 
     external_border.onAdd = function (map) {
-        container.title = 'Отобразить внешние границы России';
+        container.title = 'Отобразить внешние границы страны';
 
         container.addEventListener('click', () => {
             if (downloadedExternalBorder === undefined) {
@@ -184,7 +195,7 @@ export function addInternalBorderControl(map, countryCode) {
     }
 
     external_border.onAdd = function (map) {
-        container.title = 'Отобразить границы регионов России';
+        container.title = 'Отобразить границы регионов страны';
 
         container.addEventListener('click', () => {
             if (downloadedInternalBorder === undefined) {

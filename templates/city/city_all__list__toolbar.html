@@ -13,45 +13,57 @@
 <!-- Панель инструментов -->
 <div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
     <!-- Статистика -->
-    <div class="toolbar-stats flex flex-wrap items-center gap-3">
-        <span class="stat-badge stat-badge-success">
-            <span class="stat-badge-dot"></span>
-            Всего посещено
-            <strong>{{ qty_of_visited_cities }}</strong>
-            {{ "города"|plural_by_num:qty_of_visited_cities }}
-        </span>
+    <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
+        <div class="hs-tooltip [--placement:top] relative inline-block">
+            <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                <span class="stat-badge-dot"></span>
+                Всего посещено
+                <strong>{{ qty_of_visited_cities }}</strong>
+                {{ "города"|plural_by_num:qty_of_visited_cities }}
+            </span>
+            <span class="hs-tooltip-content" role="tooltip">
+                Общее количество городов, которые Вы посетили
+            </span>
+        </div>
 
         {% if country_code %}
-            <span class="stat-badge stat-badge-info">
-                В {{ country_name|prepositional }}:
-                <strong>{{ number_of_visited_cities_in_country }}</strong>
-                из {{ number_of_cities_in_country }}
-            </span>
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-info">
+                    В {{ country_name|prepositional }}:
+                    <strong>{{ number_of_visited_cities_in_country }}</strong>
+                    из {{ number_of_cities_in_country }}
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Количество посещённых городов в выбранной стране
+                </span>
+            </div>
         {% else %}
-            <span class="stat-badge stat-badge-info">
-                Стран:
-                <strong>{{ number_of_visited_countries }}</strong>
-            </span>
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-info">
+                    Стран:
+                    <strong>{{ number_of_visited_countries }}</strong>
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Количество стран, в которых Вы посещали города
+                </span>
+            </div>
         {% endif %}
     </div>
 
     <!-- Поиск -->
-    <div class="relative flex-1 min-w-[220px]">
-        <span class="absolute inset-y-0 start-0 flex items-center ps-4 text-gray-400">
-            <i class="fas fa-search search-icon"></i>
-        </span>
+    <div class="relative flex-1 min-w-[220px] self-center">
         <input id="city-search"
                type="text"
-               class="py-3 px-4 ps-11 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 search-input"
-               placeholder="Поиск города...">
+               class="py-2 px-4 ps-11 block w-full border border-gray-200 rounded-xl bg-white text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 search-input"
+               placeholder="Начните вводить название города...">
         </div>
 
     <!-- Селект страны -->
-    <div class="flex-1 min-w-[220px] country-select-wrapper">
+    <div class="flex-1 min-w-[220px] country-select-wrapper self-center">
         <div class="relative">
-            <select class="py-3 px-4 pe-9 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+            <select class="py-2 px-4 pe-9 block w-full border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
                     id="id_country"></select>
-            <span class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 pointer-events-none">
+            <span class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500 pointer-events-none">
                 <i class="fa-solid fa-chevron-down text-xs"></i>
             </span>
         </div>

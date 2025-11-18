@@ -15,11 +15,16 @@
             </span>
         </div>
         {% if country_code %}
-            <span class="stat-badge stat-badge-info">
-                В {{ country_name|prepositional }}:
-                <strong>{{ number_of_visited_cities_in_country }}</strong>
-                из {{ number_of_cities_in_country }}
-            </span>
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-info">
+                    В {{ country_name|prepositional }}:
+                    <strong>{{ number_of_visited_cities_in_country }}</strong>
+                    из {{ number_of_cities_in_country }}
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Количество посещённых городов в выбранной стране
+                </span>
+            </div>
         {% else %}
             <div class="hs-tooltip [--placement:top] relative inline-block">
                 <span class="hs-tooltip-toggle stat-badge stat-badge-info">

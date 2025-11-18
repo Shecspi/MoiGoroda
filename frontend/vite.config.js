@@ -67,6 +67,7 @@ export default defineConfig({
         'css/collection-cards': path.resolve(__dirname, 'css/collection-cards.css'),
         'css/pagination': path.resolve(__dirname, 'css/pagination.css'),
         'css/select-field': path.resolve(__dirname, 'css/select-field.css'),
+        'css/leaflet-controls': path.resolve(__dirname, 'css/leaflet-controls.css'),
         'css/star-burst': path.resolve(__dirname, 'css/star-burst.css'),
         'css/subscriptions-modal': path.resolve(__dirname, 'css/subscriptions-modal.css'),
         'css/components/checkbox': path.resolve(__dirname, 'css/components/checkbox.css'),

@@ -19,22 +19,22 @@
     border: 1px solid #e5e7eb;
     border-radius: 1rem;
     background-color: #ffffff;
-    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08),
-        0 10px 10px -5px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1);
     max-height: 320px;
     overflow-y: auto;
     overscroll-behavior: contain;
-    z-index: 1000;
+    z-index: 1053;
     scrollbar-width: thin;
     scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
 }
 
 .dark .autoComplete_wrapper > ul,
 .dark #autoComplete_list_1 {
-    border-color: rgba(148, 163, 184, 0.35);
-    background-color: rgba(15, 23, 42, 0.95);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75),
-        0 10px 15px -3px rgba(0, 0, 0, 0.35);
+    border-color: #60a5fa;
+    background-color: rgba(15, 23, 42, 0.98);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9),
+        0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.2);
 }
 
 .autoComplete_wrapper > ul::-webkit-scrollbar,

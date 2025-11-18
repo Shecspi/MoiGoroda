@@ -109,7 +109,7 @@ Licensed under the Apache License, Version 2.0
     overflow: hidden; /* убираем скролл у основного контейнера */
     display: flex;
     flex-direction: column;
-    z-index: 10000 !important;
+    z-index: 2000 !important;
 }
 
 .dark #toolbar .choices__list--dropdown,

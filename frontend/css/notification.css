@@ -14,6 +14,11 @@ Licensed under the Apache License, Version 2.0
     display: flex;
 }
 
+/* Backdrop модального окна уведомлений должен быть выше поля ввода города */
+.modal-backdrop {
+    z-index: 1053 !important;
+}
+
 .notification-button-wrapper button {
     cursor: pointer;
 }

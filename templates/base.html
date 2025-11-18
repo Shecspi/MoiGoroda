@@ -11,7 +11,7 @@
 
         <div class="flex min-h-screen w-full flex-col xl:pl-80" id="section-content">
             <!-- Навбар для маленьких экранов -->
-            <nav class="xl:hidden fixed top-0 left-0 right-0 z-[10040] border-b border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900">
+            <nav class="xl:hidden fixed top-0 left-0 right-0 z-[100] border-b border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 items-center justify-between">
                         <!-- Кнопка открытия сайдбара -->
@@ -66,7 +66,7 @@
 
     <!-- Overlay backdrop для маленьких экранов -->
     <div id="sidebar-backdrop"
-         class="xl:hidden fixed inset-0 z-[10049] bg-gray-900/50 transition-opacity duration-300 opacity-0 pointer-events-none"
+         class="xl:hidden fixed inset-0 z-[1049] bg-gray-900/50 transition-opacity duration-300 opacity-0 pointer-events-none"
          aria-hidden="true"></div>
 
     {% include 'parts/notification_controls.html' %}

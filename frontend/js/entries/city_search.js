@@ -132,36 +132,6 @@ export function initializeCitySearch() {
         return null;
     }
 
-    const overlay = document.querySelector("#search-overlay");
-    
-    // Показать/скрыть overlay при фокусе
-    if (overlay) {
-        inputEl.addEventListener("focus", () => {
-            overlay.classList.add("active");
-        });
-
-        inputEl.addEventListener("blur", () => {
-            // Небольшая задержка, чтобы успел сработать клик по результату
-            setTimeout(() => {
-                overlay.classList.remove("active");
-            }, 150);
-        });
-
-        // Скрыть overlay при клике на него
-        overlay.addEventListener("click", () => {
-            inputEl.blur();
-            overlay.classList.remove("active");
-        });
-
-        // Снять фокус при нажатии Esc
-        inputEl.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-                inputEl.blur();
-                overlay.classList.remove("active");
-            }
-        });
-    }
-
     const config = createAutoCompleteConfig(inputEl);
     return new autoComplete(config);
 }

@@ -7,7 +7,7 @@
 @layer components {
     /* Стили для Preline UI tooltip */
     .hs-tooltip-content {
-        @apply absolute inline-block whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-neutral-700 z-[11000] opacity-0 invisible -translate-y-1 transition-all duration-200 ease-out;
+        @apply absolute inline-block whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-neutral-700 z-[10000] opacity-0 invisible -translate-y-1 transition-all duration-200 ease-out;
     }
 
     .hs-tooltip.show .hs-tooltip-content {

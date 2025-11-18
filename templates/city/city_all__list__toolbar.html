@@ -51,7 +51,7 @@
     </div>
 
     <!-- Поиск -->
-    <div class="relative flex-1 min-w-[220px] self-center">
+    <div class="relative flex-1 min-w-[220px] self-center z-[1049]">
         <input id="city-search"
                type="text"
                class="py-2 px-4 ps-11 block w-full border border-gray-200 rounded-xl bg-white text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 search-input"
@@ -59,7 +59,7 @@
         </div>
 
     <!-- Селект страны -->
-    <div class="flex-1 min-w-[220px] country-select-wrapper self-center">
+    <div class="flex-1 min-w-[220px] country-select-wrapper self-center z-[40]">
         <div class="relative">
             <select class="py-2 px-4 pe-9 block w-full border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
                     id="id_country"></select>
@@ -85,10 +85,7 @@
         <div class="hs-tooltip [--placement:top] relative inline-block self-center">
             <button class="hs-tooltip-toggle relative inline-flex items-center gap-x-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition dark:focus:ring-offset-neutral-900 {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}border border-transparent bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400{% else %}border border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-500/10{% endif %}"
                     type="button"
-                    id="btnOpenFilterSortPanel"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasRight"
-                    aria-controls="offcanvasRight">
+                    id="btnOpenFilterSortPanel">
                 <i class="fa-solid fa-sliders"></i>
                 <span>Фильтры и сортировка</span>
                 {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
@@ -105,270 +102,173 @@
 </div>
 <!-- ^^^ Панель инструментов -->
 
-<!-- Overlay для затемнения страницы при поиске -->
-<div class="search-overlay" id="search-overlay"></div>
-
 {% with defaultFilter='no_filter' defaultSort='last_visit_date_down' %}
-<div class="offcanvas offcanvas-end"
-     tabindex="-1"
-     id="offcanvasRight"
-     aria-labelledby="offcanvasRightLabel">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title"
-            id="offcanvasRightLabel">
+<!-- Backdrop -->
+<div class="hs-overlay-backdrop hs-overlay-backdrop-open:opacity-100 hs-overlay-backdrop-open:pointer-events-auto opacity-0 pointer-events-none fixed inset-0 z-[1060] bg-gray-900/50 transition" data-hs-overlay-backdrop="#offcanvasRight"></div>
+
+<div id="offcanvasRight" class="fixed top-0 right-0 translate-x-full transition-transform duration-300 h-full max-w-xs w-full z-[1070] bg-white border-s border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 flex flex-col" tabindex="-1">
+    <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700 shrink-0">
+        <h3 class="font-bold text-gray-800 dark:text-neutral-200">
             Фильтрация и сортировка
-        </h5>
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="offcanvas"
-                aria-label="Закрыть">
+        </h3>
+        <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#offcanvasRight">
+            <span class="sr-only">Закрыть</span>
+            <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m18 6-12 12"></path>
+                <path d="m6 6 12 12"></path>
+            </svg>
         </button>
     </div>
-    <div class="offcanvas-body">
-        <h6>Фильтры</h6>
+    <div class="flex-1 overflow-y-auto p-4">
+        <h6 class="text-sm font-semibold text-gray-800 dark:text-neutral-200 mb-3">Фильтры</h6>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-primary"
-                   type="radio"
-                   name="filter"
-                   value="no_filter"
-                   {% if filter is None or not filter|in_list:"no_magnet,magnet,current_year,last_year" %}checked{% endif %}
-                   id="filterNoFilter">
-            <label for="filterNoFilter">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="no_filter" {% if filter is None or not filter|in_list:"no_magnet,magnet,current_year,last_year" %}checked{% endif %} id="filterNoFilter">
+            <label for="filterNoFilter" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 Без фильтрации
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-primary"
-                   type="radio"
-                   name="filter"
-                   value="no_magnet"
-                   {% if filter == 'no_magnet' %}checked{% endif %}
-                   id="filterNoMagnet">
-            <label for="filterNoMagnet">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="no_magnet" {% if filter == 'no_magnet' %}checked{% endif %} id="filterNoMagnet">
+            <label for="filterNoMagnet" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 Без сувенира
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-primary"
-                   type="radio"
-                   name="filter"
-                   value="magnet"
-                   {% if filter == 'magnet' %}checked{% endif %}
-                   id="filterMagnet">
-            <label for="filterMagnet">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="magnet" {% if filter == 'magnet' %}checked{% endif %} id="filterMagnet">
+            <label for="filterMagnet" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 С сувениром
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-primary"
-                   type="radio"
-                   name="filter"
-                   value="current_year"
-                   {% if filter == 'current_year' %}checked{% endif %}
-                   id="filterCurrentYear">
-            <label for="filterCurrentYear">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="current_year" {% if filter == 'current_year' %}checked{% endif %} id="filterCurrentYear">
+            <label for="filterCurrentYear" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 В этом году
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-primary"
-                   type="radio"
-                   name="filter"
-                   value="last_year"
-                   {% if filter == 'last_year' %}checked{% endif %}
-                   id="filterLastYear">
-            <label for="filterLastYear">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="last_year" {% if filter == 'last_year' %}checked{% endif %} id="filterLastYear">
+            <label for="filterLastYear" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 В прошлом году
             </label>
         </div>
 
-        <hr>
+        <hr class="my-4 border-gray-200 dark:border-neutral-700">
 
-        <h6>Сортировка</h6>
+        <h6 class="text-sm font-semibold text-gray-800 dark:text-neutral-200 mb-3">Сортировка</h6>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="name_down"
-                   {% if sort == 'name_down' or not sort|in_list:"name_down,name_up,first_visit_date_down,first_visit_date_up,last_visit_date_down,last_visit_date_up" %}checked{% endif %}
-                   id="sortNameDown">
-            <label for="sortNameDown">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="name_down" {% if sort == 'name_down' or not sort|in_list:"name_down,name_up,first_visit_date_down,first_visit_date_up,last_visit_date_down,last_visit_date_up" %}checked{% endif %} id="sortNameDown">
+            <label for="sortNameDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По названию (убывание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="name_up"
-                   {% if sort == 'name_up' %}checked{% endif %}
-                   id="sortNameUp">
-            <label for="sortNameUp">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="name_up" {% if sort == 'name_up' %}checked{% endif %} id="sortNameUp">
+            <label for="sortNameUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По названию (возрастание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="first_visit_date_down"
-                   {% if sort == 'first_visit_date_down' %}checked{% endif %}
-                   id="sortFirstVisitDateDown">
-            <label for="sortFirstVisitDateDown">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="first_visit_date_down" {% if sort == 'first_visit_date_down' %}checked{% endif %} id="sortFirstVisitDateDown">
+            <label for="sortFirstVisitDateDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По дате первого посещения (убывание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="first_visit_date_up"
-                   {% if sort == 'first_visit_date_up' %}checked{% endif %}
-                   id="sortFirstVisitDateUp">
-            <label for="sortFirstVisitDateUp">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="first_visit_date_up" {% if sort == 'first_visit_date_up' %}checked{% endif %} id="sortFirstVisitDateUp">
+            <label for="sortFirstVisitDateUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По дате первого посещения (возрастание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="last_visit_date_down"
-                   {% if sort == 'last_visit_date_down' %}checked{% endif %}
-                   id="sortLastVisitDateDown">
-            <label for="sortLastVisitDateDown">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="last_visit_date_down" {% if sort == 'last_visit_date_down' %}checked{% endif %} id="sortLastVisitDateDown">
+            <label for="sortLastVisitDateDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По дате последнего посещения (убывание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="last_visit_date_up"
-                   {% if sort == 'last_visit_date_up' %}checked{% endif %}
-                   id="sortLastVisitDateUp">
-            <label for="sortLastVisitDateUp">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="last_visit_date_up" {% if sort == 'last_visit_date_up' %}checked{% endif %} id="sortLastVisitDateUp">
+            <label for="sortLastVisitDateUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По дате последнего посещения (возрастание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="number_of_visits_down"
-                   {% if sort == 'number_of_visits_down' %}checked{% endif %}
-                   id="sortNumberOfVisitsDown">
-            <label for="sortNumberOfVisitsDown">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_visits_down" {% if sort == 'number_of_visits_down' %}checked{% endif %} id="sortNumberOfVisitsDown">
+            <label for="sortNumberOfVisitsDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По количеству посещений (убывание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="number_of_visits_up"
-                   {% if sort == 'number_of_visits_up' %}checked{% endif %}
-                   id="sortNumberOfVisitsUp">
-            <label for="sortNumberOfVisitsUp">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_visits_up" {% if sort == 'number_of_visits_up' %}checked{% endif %} id="sortNumberOfVisitsUp">
+            <label for="sortNumberOfVisitsUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По количеству посещений (возрастание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="date_of_foundation_down"
-                   {% if sort == 'date_of_foundation_down' %}checked{% endif %}
-                   id="sortDateOfFoundationDown">
-            <label for="sortDateOfFoundationDown">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="date_of_foundation_down" {% if sort == 'date_of_foundation_down' %}checked{% endif %} id="sortDateOfFoundationDown">
+            <label for="sortDateOfFoundationDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По дате основания (убывание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="date_of_foundation_up"
-                   {% if sort == 'date_of_foundation_up' %}checked{% endif %}
-                   id="sortDateOfFoundationUp">
-            <label for="sortDateOfFoundationUp">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="date_of_foundation_up" {% if sort == 'date_of_foundation_up' %}checked{% endif %} id="sortDateOfFoundationUp">
+            <label for="sortDateOfFoundationUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По дате основания (возрастание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="number_of_users_who_visit_city_down"
-                   {% if sort == 'number_of_users_who_visit_city_down' %}checked{% endif %}
-                   id="sortNumberOfUsersWhoVisitCityDown">
-            <label for="sortNumberOfUsersWhoVisitCityDown">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_users_who_visit_city_down" {% if sort == 'number_of_users_who_visit_city_down' %}checked{% endif %} id="sortNumberOfUsersWhoVisitCityDown">
+            <label for="sortNumberOfUsersWhoVisitCityDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По количеству посетивших пользователей (убывание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="number_of_users_who_visit_city_up"
-                   {% if sort == 'number_of_users_who_visit_city_up' %}checked{% endif %}
-                   id="sortNumberOfUsersWhoVisitCityUp">
-            <label for="sortNumberOfUsersWhoVisitCityUp">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_users_who_visit_city_up" {% if sort == 'number_of_users_who_visit_city_up' %}checked{% endif %} id="sortNumberOfUsersWhoVisitCityUp">
+            <label for="sortNumberOfUsersWhoVisitCityUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По количеству посетивших пользователей (возрастание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="number_of_visits_all_users_down"
-                   {% if sort == 'number_of_visits_all_users_down' %}checked{% endif %}
-                   id="sortNumberOfVisitsAllUsersDown">
-            <label for="sortNumberOfVisitsAllUsersDown">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_visits_all_users_down" {% if sort == 'number_of_visits_all_users_down' %}checked{% endif %} id="sortNumberOfVisitsAllUsersDown">
+            <label for="sortNumberOfVisitsAllUsersDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По общему количеству посещений (убывание)
             </label>
         </div>
 
-        <div class="mg-radio-item mb-3">
-            <input class="mg-radio mg-radio-danger"
-                   type="radio"
-                   name="sort"
-                   value="number_of_visits_all_users_up"
-                   {% if sort == 'number_of_visits_all_users_up' %}checked{% endif %}
-                   id="sortNumberOfVisitsAllUsersUp">
-            <label for="sortNumberOfVisitsAllUsersUp">
+        <div class="flex items-center mb-3">
+            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_visits_all_users_up" {% if sort == 'number_of_visits_all_users_up' %}checked{% endif %} id="sortNumberOfVisitsAllUsersUp">
+            <label for="sortNumberOfVisitsAllUsersUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
                 По общему количеству посещений (возрастание)
             </label>
         </div>
 
-        <hr>
-
-        <div class="d-grid gap-2">
+    </div>
+    <div class="p-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">
+        <div class="flex gap-2">
             <button type="submit"
-                    class="mg-btn mg-btn-primary"
+                    class="flex-1 py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"
                     id="applyFilters"
                     data-filter="{{ filter|default:defaultFilter }}"
                     data-sort="{{ sort|default:defaultSort }}">Применить</button>
             <button type="button"
-                    class="mg-btn mg-btn-secondary"
+                    class="flex-1 py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:ring-offset-neutral-800"
                     id="resetFilters"
                     data-filter="{{ filter|default:defaultFilter }}"
                     data-sort="{{ sort|default:defaultSort }}">

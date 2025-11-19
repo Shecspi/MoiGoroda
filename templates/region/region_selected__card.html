@@ -1,182 +1,214 @@
 {% load mathfilters %}
 {% load humanize %}
+{% load vite %}
 
-<div class="col" id="city_card_{{ forloop.counter }}">
-    <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-        <div class="card-body">
-            <!-- Название города -->
-            <div class="d-flex align-items-center {% if user.is_authenticated %}justify-content-between{% else %}justify-content-center{% endif %}">
-                {% if user.is_authenticated %}
-                    {% if city.is_visited %}
-                        <i class="fa-regular fa-square-check text-success fs-4"
-                           data-bs-toggle="tooltip"
-                           data-bs-title="Город {{ city.title }} посещён"></i>
-                    {% else %}
-                        <i class="fa-regular fa-circle-xmark text-danger fs-4"
-                           data-bs-toggle="tooltip"
-                           data-bs-title="Город }ещё не посещён"></i>
-                    {% endif %}
-                {% endif %}
-
-                <h4 id="subsection-city-title_{{ forloop.counter }}">
-                    <a href="{% url 'city-selected' city.id %}"
-                       class="link_to link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                        {{ city.title }}
-                    </a>
-                </h4>
+<div class="h-full" id="city_card_{{ forloop.counter }}">
+    <!-- Карточка города -->
+    <div class="relative flex h-full flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
+         id="section-city_{{ forloop.counter }}">
+        <div class="flex h-full flex-col gap-3">
+            <!-- Заголовок + бейдж количества посещений -->
+            <div class="flex items-start {% if user.is_authenticated %}justify-between{% else %}justify-center{% endif %} gap-3">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white" id="subsection-city-title_{{ forloop.counter }}">
+                        <a href="{% url 'city-selected' city.id %}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                            {{ city.title }}
+                        </a>
+                    </h3>
+                </div>
 
                 {% if user.is_authenticated %}
-                    <span class="badge bg-secondary-subtle text-secondary-emphasis"
-                          data-bs-toggle="tooltip"
-                          data-bs-title="Количество посещений города {{ city.title }}">
-                        {% if city.number_of_visits %}
-                            {{ city.number_of_visits }}
+                    <div class="hs-tooltip [--placement:top] relative inline-block">
+                        {% if city.is_visited %}
+                            <span class="hs-tooltip-toggle inline-flex items-center gap-x-1 rounded-full border border-emerald-500 bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 transition dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300">
+                                <i class="fa-solid fa-footprints text-xs"></i>
+                                <span>{% if city.number_of_visits %}{{ city.number_of_visits }}{% else %}0{% endif %}</span>
+                            </span>
                         {% else %}
-                            0
+                            <span class="hs-tooltip-toggle inline-flex items-center gap-x-1 rounded-full border border-rose-500 bg-rose-100 px-3 py-1 text-sm font-semibold text-rose-700 transition dark:border-rose-400 dark:bg-rose-500/10 dark:text-rose-300">
+                                <i class="fa-solid fa-footprints text-xs"></i>
+                                <span>{% if city.number_of_visits %}{{ city.number_of_visits }}{% else %}0{% endif %}</span>
+                            </span>
                         {% endif %}
-                    </span>
+                        <span class="hs-tooltip-content" role="tooltip">
+                            Количество посещений города {{ city.title }}
+                        </span>
+                    </div>
                 {% endif %}
             </div>
-            <!-- ^^^ Название города -->
 
-            {% if user.is_authenticated %}
-                <!-- Дата посещения -->
-                <div id="subsection-city-date_of_visit_{{ forloop.counter }}"
-                     class="d-flex flex-column justify-content-center align-items-center h-100">
-                    {% if city.visit_dates %}
-                        {% if city.visit_dates|length == 1 %}
-                            <small class="text-muted"
-                                   data-bs-toggle="tooltip"
-                                   data-bs-title="Дата посещения города {{ city.title }}">
-                                {{ city.first_visit_date }}
-                            </small>
-                        {% elif city.visit_dates|length == 2 %}
-                            <small class="text-muted"
-                                   data-bs-toggle="tooltip"
-                                   data-bs-title="Дата первого посещения города {{ city.title }}">
-                                {{ city.first_visit_date }}
-                            </small>
-                            <small class="text-muted"
-                                   data-bs-toggle="tooltip"
-                                   data-bs-title="Дата последнего посещения города {{ city.title }}">
-                                {{ city.last_visit_date }}
-                            </small>
-                        {% else %}
-                            <small class="text-muted"
-                                   data-bs-toggle="tooltip"
-                                   data-bs-title="Дата первого посещения города {{ city.title }}">
-                                {{ city.first_visit_date }}
-                            </small>
-                            <small class="text-muted"
-                                   data-bs-toggle="tooltip"
-                                   data-bs-title="Отображаются только даты первого и последнего посещений города {{ city.title }}. Остальные даты опущены.">
-                                …
-                            </small>
-                            <small class="text-muted"
-                                   data-bs-toggle="tooltip"
-                                   data-bs-title="Дата последнего посещения города {{ city.title }}">
-                                {{ city.last_visit_date }}
-                            </small>
-                        {% endif %}
-                    {% else %}
-                        <small class="text-muted">
-                            Дата посещения не указана
-                        </small>
-                    {% endif %}
-                </div>
-                <!-- ^^^ Дата посещения -->
-            {% endif %}
-        </div>
+            <div class="flex flex-1 flex-col gap-3">
+                {% if not user.is_authenticated %}
+                    <!-- Население и год основания -->
+                    <div class="space-y-1">
+                        <div id="subsection-city-population_{{ forloop.counter }}" class="text-sm text-gray-600 dark:text-neutral-400">
+                            {% if city.population %}
+                                Население <strong class="font-semibold text-gray-900 dark:text-white">{{ city.population|intcomma }}</strong> чел.
+                            {% else %}
+                                Население города неизвестно
+                            {% endif %}
+                        </div>
+                        <div id="subsection-city-date_of_foundation_{{ forloop.counter }}" class="text-sm text-gray-600 dark:text-neutral-400">
+                            {% if city.date_of_foundation %}
+                                Основан в <strong class="font-semibold text-gray-900 dark:text-white">{{ city.date_of_foundation }}</strong> году
+                            {% else %}
+                                Год основания неизвестен
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- ^^^ Население и год основания -->
+                {% endif %}
 
-        <div class="card-footer" style="background: none; border-top: none;">
-            <!-- Население -->
-            <div id="subsection-city-population_{{ forloop.counter }}" class="mt-3">
-                <small class="card-subtitle text-muted">
-                    {% if city.population %}
-                        Население <strong>{{ city.population|intcomma }}</strong> чел.
-                    {% else %}
-                        Население города неизвестно
-                    {% endif %}
-                </small>
-            </div>
-            <!-- ^^^ Население -->
-
-            <!-- Год основания -->
-            <div id="subsection-city-date_of_foundation_{{ forloop.counter }}">
-                <small class="card-subtitle text-muted">
-                    {% if city.date_of_foundation %}
-                        Основан в <strong>{{ city.date_of_foundation }}</strong> году
-                    {% else %}
-                        Год основания неизвестен
-                    {% endif %}
-                </small>
-            </div>
-            <!-- ^^^ Год основания -->
-
-            <!-- Количество посещений -->
-            <div class="d-flex gap-5 justify-content-center mt-3">
-                <div class="d-flex gap-2 align-items-center"
-                     data-bs-toggle="tooltip"
-                     data-bs-title="Количество пользователей, посетивших город {{ city.title }}">
-                    <i class="fa-solid fa-users"></i>
-                    {% if city.number_of_users_who_visit_city %}
-                        {{ city.number_of_users_who_visit_city }}
-                    {% else %}
-                        0
-                    {% endif %}
-                </div>
-                <div class="d-flex gap-2 align-items-center"
-                     data-bs-toggle="tooltip"
-                     data-bs-title="Общее количество посещений города {{ city.title }}">
-                    <i class="fa-solid fa-shoe-prints"></i>
-                    {% if city.number_of_visits_all_users %}
-                        {{ city.number_of_visits_all_users }}
-                    {% else %}
-                        0
-                    {% endif %}
-                </div>
-            </div>
-            <!-- ^^^ Количество посещений -->
-
-            {% if city.is_visited %}
-                <div class="d-flex justify-content-between mt-2">
-                    <!-- Рейтинг -->
-                    <div id="subsection-city-rating_{{ forloop.counter }}">
-                        <small data-bs-toggle="tooltip"
-                               data-bs-title="Средний рейтинг на основе всех Ваших оценок для города {{ city.title }}">
-                            {% for i in '12345'|make_list %}
-                                {% if forloop.counter <= city.rating %}
-                                    <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                {% else %}
-                                    <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
+                {% if user.is_authenticated %}
+                    <!-- Даты посещений -->
+                    <div class="flex flex-1 flex-col justify-center">
+                        <div class="space-y-2">
+                            {% if city.visit_dates %}
+                                <div class="hs-tooltip [--placement:top] relative inline-block w-full">
+                                    <div class="hs-tooltip-toggle flex items-center gap-3 rounded-lg border border-indigo-100 bg-indigo-50/70 px-3 py-2 text-xs text-indigo-700 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
+                                        <span class="inline-flex size-5 items-center justify-center rounded-full bg-white text-indigo-500 shadow-sm dark:bg-indigo-500/20">
+                                            <svg class="size-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6.75 3v2.25M17.25 3v2.25M4.5 9h15M5.25 5.25h13.5A1.5 1.5 0 0 1 20.25 6.75v11.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V6.75a1.5 1.5 0 0 1 1.5-1.5Z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7.5 13.5h.01M12 13.5h.01M16.5 13.5h.01M7.5 17.25h.01M12 17.25h.01M16.5 17.25h.01"/>
+                                            </svg>
+                                        </span>
+                                        <div>
+                                            <p class="font-semibold">
+                                                {% if city.visit_dates|length == 1 %}
+                                                    Дата посещения
+                                                {% else %}
+                                                    Первое посещение
+                                                {% endif %}
+                                            </p>
+                                            <p class="text-xs text-indigo-600/80 dark:text-indigo-300/80">
+                                                {{ city.first_visit_date }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span class="hs-tooltip-content" role="tooltip">
+                                        {% if city.visit_dates|length == 1 %}
+                                            Дата посещения города {{ city.title }}
+                                        {% else %}
+                                            Дата первого посещения города {{ city.title }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                {% if city.visit_dates|length >= 2 %}
+                                    <div class="hs-tooltip [--placement:top] relative inline-block w-full">
+                                        <div class="hs-tooltip-toggle flex items-center gap-3 rounded-lg border border-purple-100 bg-purple-50/80 px-3 py-2 text-xs text-purple-700 shadow-sm dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-300">
+                                            <span class="inline-flex size-5 items-center justify-center rounded-full bg-white text-purple-500 shadow-sm dark:bg-purple-500/20">
+                                                <svg class="size-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.5 3v2.25M7.5 3v2.25M4.5 9h15M5.25 5.25h13.5A1.5 1.5 0 0 1 20.25 6.75v11.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V6.75a1.5 1.5 0 0 1 1.5-1.5Z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m15.25 12.5-3.25 3.25-1.75-1.75"/>
+                                                </svg>
+                                            </span>
+                                            <div>
+                                                <p class="font-semibold">Последнее посещение</p>
+                                                <p class="text-xs text-purple-600/80 dark:text-purple-300/80">
+                                                    {{ city.last_visit_date }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {% if city.visit_dates|length > 2 %}
+                                            <span class="hs-tooltip-content" role="tooltip">
+                                                Отображаются только даты первого и последнего посещений города {{ city.title }}. Остальные даты опущены.
+                                            </span>
+                                        {% else %}
+                                            <span class="hs-tooltip-content" role="tooltip">
+                                                Дата последнего посещения города {{ city.title }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
                                 {% endif %}
-                            {% endfor %}
-                        </small>
+                            {% else %}
+                                <p class="text-sm text-gray-500 dark:text-neutral-400">
+                                    Дата посещения не указана
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
-                    <!-- ^^^ Рейтинг -->
+                {% endif %}
 
-                    <!-- Наличие сувенира -->
-                    <div id="subsection-city-magnet_{{ forloop.counter }}" data-bs-toggle="tooltip"
-                         data-bs-title="У Вас {% if city.has_magnet %}есть сувенир{% else %}нет сувенира{% endif %} из города {{ city.title }}">
-                        {% if city.has_magnet %}
-                            <small>
-                                <span class="text-success">
-                                    Сувенир <i class="fa-regular fa-square-check"></i>
-                                </span>
-                            </small>
-                        {% else %}
-                            <small>
-                                <span class="text-danger">
-                                    Сувенир <i class="fa-regular fa-square-minus"></i>
-                                </span>
-                            </small>
-                        {% endif %}
+                <div class="mt-auto flex flex-col gap-3">
+                    <!-- Статистика посетителей и посещений -->
+                    <div class="flex flex-wrap items-center justify-center gap-3">
+                        <div class="hs-tooltip [--placement:top] relative inline-block">
+                            <span class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-semibold text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-400">
+                                <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                <span>{% if city.number_of_users_who_visit_city %}{{ city.number_of_users_who_visit_city }}{% else %}0{% endif %}</span>
+                            </span>
+                            <span class="hs-tooltip-content" role="tooltip">
+                                Количество пользователей, посетивших город {{ city.title }}
+                            </span>
+                        </div>
+                        <div class="hs-tooltip [--placement:top] relative inline-block">
+                            <span class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                                    <path d="m9 12 2 2 4-4"></path>
+                                </svg>
+                                <span>{% if city.number_of_visits_all_users %}{{ city.number_of_visits_all_users }}{% else %}0{% endif %}</span>
+                            </span>
+                            <span class="hs-tooltip-content" role="tooltip">
+                                Общее количество посещений города {{ city.title }}
+                            </span>
+                        </div>
                     </div>
-                    <!-- ^^^ Наличие сувенира -->
+
+                    {% if city.is_visited %}
+                        <!-- Рейтинг и статус сувенира -->
+                        <div class="flex items-center justify-between">
+                            <div class="hs-tooltip [--placement:top] relative inline-block" id="subsection-city-rating_{{ forloop.counter }}">
+                                <div class="hs-tooltip-toggle flex items-center">
+                                    {% for i in "12345"|make_list %}
+                                        {% with index=forloop.counter %}
+                                            {% if city.rating >= index %}
+                                                <svg class="size-6 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                    <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
+                                                </svg>
+                                            {% else %}
+                                                <svg class="size-6 text-neutral-300 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                    <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
+                                                </svg>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                </div>
+                                <span class="hs-tooltip-content" role="tooltip">
+                                    Средний рейтинг на основе всех Ваших оценок для города {{ city.title }}
+                                </span>
+                            </div>
+
+                            <div class="hs-tooltip [--placement:top] relative inline-block" id="subsection-city-magnet_{{ forloop.counter }}">
+                                {% if city.has_magnet %}
+                                    <span class="hs-tooltip-toggle inline-flex items-center gap-x-1 rounded-full border border-emerald-500 bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 transition dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300">
+                                        <svg class="h-3.5 w-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        <span>Сувенир</span>
+                                    </span>
+                                {% else %}
+                                    <span class="hs-tooltip-toggle inline-flex items-center gap-x-1 rounded-full border border-rose-500 bg-rose-100 px-3 py-1 text-sm font-semibold text-rose-700 transition dark:border-rose-400 dark:bg-rose-500/10 dark:text-rose-300">
+                                        <svg class="h-3.5 w-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <line x1="5" y1="5" x2="19" y2="19"></line>
+                                            <line x1="19" y1="5" x2="5" y2="19"></line>
+                                        </svg>
+                                        <span>Сувенир</span>
+                                    </span>
+                                {% endif %}
+                                <span class="hs-tooltip-content" role="tooltip">
+                                    У Вас {% if city.has_magnet %}есть сувенир{% else %}нет сувенира{% endif %} из города {{ city.title }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
-            {% else %}
-                &nbsp;
-            {% endif %}
+            </div>
         </div>
     </div>
 </div>

@@ -1,10 +1,18 @@
 {% extends 'base.html' %}
+{% load vite %}
 {% load static %}
 
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
+
 {% block content %}
-    <h1 class="display-5 text-center mt-3 mx-3" id="page-header">
-        {{ region_name }} ({{ country_name }})
-    </h1>
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            {{ region_name }} ({{ country_name }})
+        </h1>
+    </header>
 
     {% if not DEBUG %}
         {% if not user.is_authenticated %}
@@ -14,28 +22,30 @@
 
     {% include 'region/region_selected__list__toolbar.html' %}
 
-    <!-- Карточки с регионами -->
     {% if object_list %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3"
-             id="list-content">
+        <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
             {% for city in object_list %}
                 {% include 'region/region_selected__card.html' %}
             {% endfor %}
-
-            <!-- Включение всплывающих подсказок -->
-            <script>$(document).ready(function(){$('[data-bs-toggle="tooltip"]').tooltip();});</script>
-            <!-- ^^^ Включение всплывающих подсказок -->
         </div>
     {% else %}
-        <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
-            <div class="col-xl-8">
-                <div class="alert alert-danger p-5 text-center" role="alert" id="error_message">
+        <div class="mx-3 mb-8 flex items-center justify-center">
+            <div class="w-full max-w-2xl">
+                <div class="rounded-2xl border border-dashed border-red-200 bg-white p-6 text-center shadow-sm dark:border-red-800 dark:bg-neutral-900" role="alert" id="section-error_message">
                     {% if request.GET.filter %}
-                        По заданным параметрам не найдено ни одного посещённого города
+                        <p class="text-sm text-red-600 dark:text-red-400">
+                            По заданным параметрам не найдено ни одного посещённого города
+                        </p>
                     {% else %}
-                        В сервисе "Мои города" для региона {{ region_name }} не сохранено ни одного города.<br>
-                        Произошла ошибка, мы постараемся как можно быстрее исправить её.<br>
-                        Приносим свои извинения за доставленные неудобства.
+                        <p class="text-sm text-red-600 dark:text-red-400">
+                            В сервисе "Мои города" для региона {{ region_name }} не сохранено ни одного города.
+                        </p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+                            Произошла ошибка, мы постараемся как можно быстрее исправить её.
+                        </p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+                            Приносим свои извинения за доставленные неудобства.
+                        </p>
                     {% endif %}
                 </div>
             </div>

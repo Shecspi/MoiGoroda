@@ -30,7 +30,20 @@
         </div>
     </div>
 
-    <div class="hs-tooltip [--placement:top] relative inline-block grow basis-full self-center md:basis-auto md:min-w-[240px]">
+    <div class="flex flex-wrap items-center gap-3 ml-auto sm:order-3">
+        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+            <a href="{% url 'region-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}"
+               class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
+                <i class="fa-solid fa-list-ol"></i>
+                <span>Посмотреть список</span>
+            </a>
+            <span class="hs-tooltip-content" role="tooltip">
+                Посмотреть список регионов {{ country_name|prepositional|title }}
+            </span>
+        </div>
+    </div>
+
+    <div class="hs-tooltip [--placement:top] relative inline-block basis-full self-center sm:basis-auto sm:min-w-[240px] sm:order-2 sm:ml-auto">
         <div class="hs-tooltip-toggle relative w-full">
             <select class="block w-full rounded-xl border border-gray-200 bg-white py-2 pe-10 ps-4 text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
                     id="id_country"></select>
@@ -40,17 +53,6 @@
         </div>
         <span class="hs-tooltip-content" role="tooltip">
             Выберите страну для фильтрации регионов на карте
-        </span>
-    </div>
-
-    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <a href="{% url 'region-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-           class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
-            <i class="fa-solid fa-list-ol"></i>
-            <span>Посмотреть список</span>
-        </a>
-        <span class="hs-tooltip-content" role="tooltip">
-            Посмотреть список регионов {{ country_name|prepositional|title }}
         </span>
     </div>
 </div>

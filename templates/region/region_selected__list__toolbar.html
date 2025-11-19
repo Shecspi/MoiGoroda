@@ -48,8 +48,7 @@
             <div class="hs-tooltip [--placement:top] relative inline-block self-center">
                 <button class="hs-tooltip-toggle relative inline-flex items-center gap-x-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition dark:focus:ring-offset-neutral-900 {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}border border-transparent bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400{% else %}border border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-500/10{% endif %}"
                         type="button"
-                        id="btnOpenFilterSortPanel"
-                        data-hs-overlay="#offcanvasRight">
+                        id="btnOpenFilterSortPanel">
                     <i class="fa-solid fa-sliders"></i>
                     <span>Фильтры и сортировка</span>
                     {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}

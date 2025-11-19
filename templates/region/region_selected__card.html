@@ -96,9 +96,15 @@
                                     </div>
                                 {% endif %}
                             {% else %}
-                                <p class="text-sm text-gray-500 dark:text-neutral-400">
-                                    Дата посещения не указана
-                                </p>
+                                {% if city.number_of_visits %}
+                                    <p class="text-sm text-gray-500 dark:text-neutral-400">
+                                        Дата посещения не указана
+                                    </p>
+                                {% else %}
+                                    <p class="text-sm text-gray-500 dark:text-neutral-400">
+                                        Вы ещё не посетили этот город
+                                    </p>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>

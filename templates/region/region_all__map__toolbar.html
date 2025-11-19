@@ -1,33 +1,56 @@
 {% load morphology %}
 
-<!-- Панель инструментов -->
-<div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 justify-content-between align-items-center" id="toolbar" style="z-index: 1001; position: relative;">
-    <!-- Статистика посещёния -->
-    <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
-        <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-            {% if user.is_authenticated %}
-                {% if qty_of_regions > 0 %}
-                    Посещено {{ qty_of_visited_regions }} {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
+<div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
+    <!-- Статистика посещений -->
+    <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
+        <div class="hs-tooltip [--placement:top] relative inline-block">
+            <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                <span class="stat-badge-dot"></span>
+                {% if user.is_authenticated %}
+                    {% if qty_of_regions > 0 %}
+                        Посещено <strong>{{ qty_of_visited_regions }}</strong> {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
+                    {% else %}
+                        Нет деления на регионы
+                    {% endif %}
                 {% else %}
-                    Нет деления на регионы
+                    Зарегистрируйтесь, чтобы отмечать регионы
                 {% endif %}
-            {% else %}
-                Зарегистрируйтесь, чтобы отмечать регионы
-            {% endif %}
+            </span>
+            <span class="hs-tooltip-content" role="tooltip">
+                {% if user.is_authenticated %}
+                    {% if qty_of_regions > 0 %}
+                        Количество посещённых регионов
+                    {% else %}
+                        В выбранной стране нет административно-территориального деления на регионы
+                    {% endif %}
+                {% else %}
+                    Зарегистрируйтесь, чтобы отмечать посещённые регионы
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <div class="hs-tooltip [--placement:top] relative inline-block grow basis-full self-center md:basis-auto md:min-w-[240px]">
+        <div class="hs-tooltip-toggle relative w-full">
+            <select class="block w-full rounded-xl border border-gray-200 bg-white py-2 pe-10 ps-4 text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+                    id="id_country"></select>
+            <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+            </span>
+        </div>
+        <span class="hs-tooltip-content" role="tooltip">
+            Выберите страну для фильтрации регионов на карте
         </span>
     </div>
 
-    <!-- Фильтры -->
-    <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-small-buttons">
-        <div class="flex-grow-1" style="min-width: 250px;">
-            <select class="form-select w-100" id="id_country"></select>
-        </div>
-
+    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
         <a href="{% url 'region-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-           class="btn btn-outline-success align-self-center"
-            data-bs-toggle="tooltip"
-           data-bs-title="Посмотреть список регионов {{ country_name|prepositional|title}}">
-            <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
+           class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
+            <i class="fa-solid fa-list-ol"></i>
+            <span>Посмотреть список</span>
         </a>
+        <span class="hs-tooltip-content" role="tooltip">
+            Посмотреть список регионов {{ country_name|prepositional|title }}
+        </span>
     </div>
 </div>

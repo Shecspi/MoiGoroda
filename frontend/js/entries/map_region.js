@@ -183,8 +183,9 @@ function createLegendControl(map) {
     const div = L.DomUtil.create('div', 'legend');
     div.style.display = 'none'; // скрываем по умолчанию
     div.innerHTML = `
-      <div class="legend-title">Посещённость городов (%) 
-        <button id="toggle-legend-btn" title="Скрыть легенду" style="float:right; cursor:pointer; background:none; border:none; font-weight:bold;">×</button>
+      <div class="legend-title">
+        <span>Посещённость городов (%)</span>
+        <button id="toggle-legend-btn" class="legend-close-btn" title="Скрыть легенду">×</button>
       </div>
       <div class="legend-item"><span class="color-box" style="background:#bbbbbb"></span>Регион не посещён</div>
       <div class="legend-item"><span class="color-box" style="background:#b8e2b8"></span>1% – 20%</div>
@@ -205,7 +206,7 @@ function createLegendControl(map) {
 
   showBtn.onAdd = function () {
     const div = L.DomUtil.create('div', 'show-legend-btn');
-    div.innerHTML = `<button title="Показать легенду" style="cursor:pointer; padding: 5px 10px;">Показать легенду</button>`;
+    div.innerHTML = `<button class="show-legend-button" title="Показать легенду">Показать легенду</button>`;
     L.DomEvent.disableClickPropagation(div);
 
     div.querySelector('button').addEventListener('click', () => {

@@ -428,3 +428,172 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
 #map .leaflet-control-attribution a:hover {
     text-decoration: underline;
 }
+
+/* Кнопка показа легенды */
+#map .show-legend-btn {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+        0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.dark #map .show-legend-btn {
+    border-color: #404040;
+    background-color: #171717;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3),
+        0 1px 2px -1px rgba(0, 0, 0, 0.2);
+}
+
+#map .show-legend-button {
+    width: 100%;
+    padding: 0.625rem 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+    color: #111827;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.dark #map .show-legend-button {
+    background-color: #171717;
+    color: #e5e7eb;
+}
+
+#map .show-legend-button:hover {
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+.dark #map .show-legend-button:hover {
+    background-color: #262626;
+    color: #e5e7eb;
+}
+
+#map .show-legend-button:active {
+    background-color: #f3f4f6;
+    transform: scale(0.98);
+}
+
+.dark #map .show-legend-button:active {
+    background-color: #404040;
+}
+
+/* Легенда карты */
+#map .legend {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+        0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #111827;
+    width: 250px;
+    max-width: calc(100vw - 2rem);
+}
+
+.dark #map .legend {
+    border-color: #404040;
+    background-color: #171717;
+    color: #e5e7eb;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3),
+        0 1px 2px -1px rgba(0, 0, 0, 0.2);
+}
+
+#map .legend-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #111827;
+}
+
+.dark #map .legend-title {
+    color: #e5e7eb;
+}
+
+#map .legend-title span {
+    flex: 1;
+}
+
+#map .legend-close-btn {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #6b7280;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+}
+
+.dark #map .legend-close-btn {
+    color: #9ca3af;
+}
+
+#map .legend-close-btn:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.dark #map .legend-close-btn:hover {
+    background-color: #262626;
+    color: #e5e7eb;
+}
+
+#map .legend-close-btn:active {
+    background-color: #e5e7eb;
+    transform: scale(0.95);
+}
+
+.dark #map .legend-close-btn:active {
+    background-color: #404040;
+}
+
+#map .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.dark #map .legend-item {
+    color: #d1d5db;
+}
+
+#map .legend-item:last-child {
+    margin-bottom: 0;
+}
+
+#map .color-box {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.dark #map .color-box {
+    border-color: rgba(255, 255, 255, 0.1);
+}

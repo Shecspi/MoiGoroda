@@ -39,10 +39,10 @@
 
                     <!-- Прогресс бар посещённых городов -->
                     {% if user.is_authenticated %}
-                        {% if region.num_visited > 0 %}
+                        {% if region.num_total > 0 %}
                             <div class="w-full">
-                                <div class="h-2 w-full overflow-hidden rounded-full border border-sky-100 bg-sky-50 dark:border-sky-900/40 dark:bg-sky-950/20">
-                                    <div class="h-full rounded-full bg-gradient-to-r transition-all duration-500 ease-out {% if region.num_visited == region.num_total and region.num_total > 0 %}from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500{% else %}from-sky-400/40 to-blue-500/40 dark:from-sky-500/40 dark:to-blue-600/40{% endif %}"
+                                <div class="h-2 w-full overflow-hidden rounded-full border {% if region.num_visited == 0 %}border-red-100 bg-red-50 dark:border-red-900/40 dark:bg-red-950/20{% else %}border-sky-100 bg-sky-50 dark:border-sky-900/40 dark:bg-sky-950/20{% endif %}">
+                                    <div class="h-full rounded-full bg-gradient-to-r transition-all duration-500 ease-out {% if region.num_visited == 0 %}from-red-400 to-red-500 dark:from-red-500 dark:to-red-600{% elif region.num_visited == region.num_total %}from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500{% else %}from-sky-400/40 to-blue-500/40 dark:from-sky-500/40 dark:to-blue-600/40{% endif %}"
                                          style="width: {% widthratio region.num_visited region.num_total 100 %}%"
                                          id="progress_bar_{{ forloop.counter }}">
                                     </div>

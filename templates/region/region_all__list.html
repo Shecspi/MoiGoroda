@@ -3,16 +3,17 @@
 {% load static %}
 {% load morphology %}
 
-{% block content %}
-    {% vite_css 'css/components/typography' %}
-    {% vite_css 'css/components/card' %}
-    {% vite_css 'css/components/progress' %}
-    {% vite_css 'css/components/typography' %}
-    {% vite_css 'css/components/link' %}
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
 
-    <h1 class="mg-heading-1 text-center mt-4 mb-2 mx-3">
-        {{ page_title }}
-    </h1>
+{% block content %}
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            {{ page_title }}
+        </h1>
+    </header>
 
     {% if not DEBUG %}
         {% if not user.is_authenticated %}
@@ -24,28 +25,37 @@
 
     <!-- Карточки с регионами -->
     {% if object_list %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3">
+        <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
             {% for region in object_list %}
                 {% include 'region/region_all__card.html' %}
             {% endfor %}
         </div>
     {% else %}
-        <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto">
-            <div class="col-xl-8">
+        <div class="mx-3 mb-8 flex items-center justify-center">
+            <div class="w-full max-w-2xl">
                 {% if request.GET.filter %}
-                    <div class="alert alert-danger p-5 text-center fs-5" role="alert">
-                        По заданным параметрам не найдено ни одного региона
+                    <div class="rounded-2xl border border-dashed border-red-200 bg-red-50 p-6 text-center shadow-sm dark:border-red-800 dark:bg-red-950/20" role="alert">
+                        <p class="text-sm font-semibold text-red-700 dark:text-red-400">
+                            По заданным параметрам не найдено ни одного региона
+                        </p>
                     </div>
                 {% else %}
-                    <div class="alert alert-secondary p-5 text-center fs-5" role="alert">
-                        В {{ country_name|prepositional|title }} административно-территориальное деление на уровне регионов не предусмотрено.<br>
-                        Вы можете ознакомиться со <a href="{% url 'city-all-list' %}?country={{ country_code }}" class="link-offset-2 link-underline-dark link-dark link-opacity-100 link-underline-opacity-100 link-opacity-75-hover link-underline-opacity-75-hover">списком городов {{ country_name|prepositional|title }}</a>.
+                    <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" role="alert">
+                        <p class="text-sm text-gray-600 dark:text-neutral-300">
+                            В {{ country_name|prepositional|title }} административно-территориальное деление на уровне регионов не предусмотрено.
+                        </p>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-neutral-300">
+                            Вы можете ознакомиться со
+                            <a href="{% url 'city-all-list' %}?country={{ country_code }}" class="font-semibold text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                списком городов {{ country_name|prepositional|title }}
+                            </a>.
+                        </p>
                     </div>
                 {% endif %}
             </div>
         </div>
     {% endif %}
-    <!-- ^^^ Карточки с городами -->
+    <!-- ^^^ Карточки с регионами -->
 
     <!-- Пагинация -->
     {% include 'parts/pagination.html' %}

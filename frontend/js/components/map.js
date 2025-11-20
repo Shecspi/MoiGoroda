@@ -267,9 +267,9 @@ export function addLoadControl(map, label) {
         return this._div;
     };
     load.update = function (props) {
-        this._div.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2">'
-            + '<div class="spinner-border spinner-border-sm" role="status">'
-            + `<span class="visually-hidden">Загрузка...</span></div><div>${label}</div></div>`;
+        this._div.innerHTML = '<div class="flex items-center justify-center gap-2">'
+            + '<div class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">'
+            + `<span class="sr-only">Загрузка...</span></div><div>${label}</div></div>`;
     };
     load.addTo(map);
 

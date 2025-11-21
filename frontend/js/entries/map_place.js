@@ -238,15 +238,14 @@ function handleClickOnMap(map) {
 
                 allMarkers.push(marker);
 
-                let content = '<form>';
-                content += icon_blue_pin(name, lat_marker, lon_marker, type_marker);
-                content += '<p class="mt-3">';
+                let content = '<form id="place-form">';
+                content += generatePopupContentForNewPlace(name, lat_marker, lon_marker, type_marker);
+                content += '<p class="mt-3 flex gap-2">';
                 content += `<button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-add-place" onclick="add_place();">Добавить</button>`;
                 content += '</p>';
+                content += '</form>';
 
-                content += '</form>'
-
-                marker.bindPopup(content);
+                marker.bindPopup(content, {minWidth: 250});
                 marker.openPopup();
 
                 marker.on("dragend", function (e) {
@@ -255,6 +254,39 @@ function handleClickOnMap(map) {
                 });
             });
     });
+}
+
+function generatePopupContentForNewPlace(name, latitude, longitude, place_category) {
+    let content = '<div style="min-width: 250px;">';
+    content += '<p class="text-sm">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Название:</span> ';
+    content += `<input type="text" id="form-name" name="name" value="${name.replace(/"/g, '&quot;')}" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">`;
+    content += '</p>';
+
+    content += '<p class="text-sm mt-2">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ';
+    content += `${latitude}<br>`;
+    content += `<input type="text" id="form-latitude" name="latitude" value="${latitude}" hidden>`;
+    content += `<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ${longitude}`;
+    content += `<input type="text" id="form-longitude" name="longitude" value="${longitude}" hidden>`;
+    content += '</p>';
+
+    content += '<p id="category_select_form" class="text-sm mt-2">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Категория:</span> ';
+    content += '<select name="category" id="form-type-object" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += '<option value="" selected disabled>Выберите категорию...</option>';
+    allCategories.forEach(category => {
+        if (category.name === place_category) {
+            content += `<option value="${category.id}" selected>${category.name}</option>`;
+        } else {
+            content += `<option value="${category.id}">${category.name}</option>`;
+        }
+    });
+    content += '</select>';
+    content += '</p>';
+    content += '</div>';
+
+    return content;
 }
 
 function generatePopupContent(name, latitide, longitude, place_category, id) {
@@ -455,7 +487,7 @@ function addMarkers(categoryName) {
             content += '</p>';
             content += '</form>';
 
-            marker.bindPopup(content);
+            marker.bindPopup(content, {maxWidth: 800});
 
             allMarkers.push(marker);
         }

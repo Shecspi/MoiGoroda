@@ -1,95 +1,221 @@
-<div class="modal fade" id="download_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-     aria-labelledby="download_modal_label" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="share_modal_label"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;&nbsp;Скачать посещённые города</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+{% load vite %}
+<div id="download_modal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center" role="dialog" tabindex="-1" aria-labelledby="download_modal_label">
+    <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <!-- Header -->
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2" id="download_modal_label">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/>
+                    </svg>
+                    Скачать посещённые города
+                </h3>
+                <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#download_modal">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
             </div>
+            <!-- End Header -->
 
-            <form action="{% url 'download' %}" method="POST" id="download_form">
+            <!-- Body -->
+            <form action="{% url 'download' %}" method="POST" id="download_form" class="flex-1 overflow-y-auto">
                 {% csrf_token %}
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col">
-                            <p>Какую информацию Вы хотите скачать?</p>
-                            <div class="row">
-                                <div class="col-4 d-grid">
-                                    <input type="radio" class="btn-check" name="reporttype" value="city" id="city-radio" autocomplete="off" checked>
-                                    <label class="btn btn-outline-primary" for="city-radio">Города</label>
-                                </div>
-{#                                <div class="col-4 d-grid">#}
-{#                                    <input type="radio" class="btn-check" name="reporttype" value="region" id="region-radio" autocomplete="off">#}
-{#                                    <label class="btn btn-outline-primary" for="region-radio">Регионы</label>#}
-{#                                </div>#}
-{#                                <div class="col-4 d-grid">#}
-{#                                    <input type="radio" class="btn-check" name="reporttype" value="area" id="area-radio" autocomplete="off">#}
-{#                                    <label class="btn btn-outline-primary" for="area-radio">Округа</label>#}
-{#                                </div>#}
+                <input type="hidden" name="reporttype" value="city">
+                <div class="p-4">
+                    <!-- Radio buttons for report type -->
+                    <div class="grid space-y-4 mb-4">
+                        <!-- Radio: Города -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <label for="city-radio" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                    Города
+                                </label>
+                                <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Список всех посещённых городов</span>
                             </div>
-                        </div>
-                    </div>
-    
-                    <div class="row mt-4">
-                        <div class="col">
-                            <p>В каком формате?</p>
-                            <div class="row">
-                                <div class="col-3 d-grid">
-                                    <input type="radio" class="btn-check" name="filetype" value="txt" id="txt-radio" autocomplete="off" checked>
-                                    <label class="btn btn-outline-primary" for="txt-radio">
-                                        <i class="fa-regular fa-file"></i>&nbsp;&nbsp;&nbsp;TXT
-                                    </label>
-                                </div>
-                                <div class="col-3 d-grid">
-                                    <input type="radio" class="btn-check" name="filetype" value="csv" id="csv-radio" autocomplete="off">
-                                    <label class="btn btn-outline-primary" for="csv-radio">
-                                        <i class="fa-solid fa-file-csv"></i>&nbsp;&nbsp;&nbsp;CSV
-                                    </label>
-                                </div>
-                                <div class="col-3 d-grid">
-                                    <input type="radio" class="btn-check" name="filetype" value="json" id="json-radio" autocomplete="off">
-                                    <label class="btn btn-outline-primary" for="json-radio">
-                                        <i class="fa-regular fa-file-lines"></i>&nbsp;&nbsp;&nbsp;JSON
-                                    </label>
-                                </div>
-                                <div class="col-3 d-grid">
-                                    <input type="radio" class="btn-check" name="filetype" value="xls" id="xls-radio" autocomplete="off">
-                                    <label class="btn btn-outline-primary" for="xls-radio">
-                                        <i class="fa-regular fa-file-excel"></i>&nbsp;&nbsp;&nbsp;XLS
-                                    </label></div>
-                                </div>
+                            <label for="city-radio" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                                <input type="radio" name="reporttype" value="city" id="city-radio" class="peer sr-only" checked disabled>
+                                <span class="absolute inset-0 bg-blue-600 rounded-full transition-colors duration-200 ease-in-out dark:bg-blue-500"></span>
+                                <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out translate-x-full dark:bg-white"></span>
+                                <!-- Left Icon (Off) -->
+                                <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-white transition-colors duration-200">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </span>
+                                <!-- Right Icon (On) -->
+                                <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-blue-600 transition-colors duration-200">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
                         </div>
                     </div>
 
-                    <div class="form-check form-switch mt-4">
-                        <input class="form-check-input" type="checkbox" role="switch" id="group_city" name="group_city">
-                        <label class="form-check-label" for="group_city">
-                            Группировать города
-                        </label>
-                    </div>
-    
-                    <hr>
-    
-                    <div class="row">
-                        <div class="col d-grid">
-                            <button type="submit" class="btn btn-success">Загрузить</button>
+                    <hr class="my-4 border-gray-200 dark:border-neutral-700">
+                    
+                    <!-- Radio buttons for file type -->
+                    <div class="grid space-y-4 mb-4">
+                        <!-- Radio: TXT -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <label for="txt-radio" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                    TXT
+                                </label>
+                                <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Текстовый формат</span>
+                            </div>
+                            <label for="txt-radio" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                                <input type="radio" name="filetype" value="txt" id="txt-radio" class="peer sr-only" checked>
+                                <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                                <!-- Left Icon (Off) -->
+                                <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </span>
+                                <!-- Right Icon (On) -->
+                                <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
                         </div>
+
+                        <!-- Radio: CSV -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <label for="csv-radio" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                    CSV
+                                </label>
+                                <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Формат табличных данных</span>
+                            </div>
+                            <label for="csv-radio" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                                <input type="radio" name="filetype" value="csv" id="csv-radio" class="peer sr-only">
+                                <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                                <!-- Left Icon (Off) -->
+                                <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </span>
+                                <!-- Right Icon (On) -->
+                                <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Radio: JSON -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <label for="json-radio" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                    JSON
+                                </label>
+                                <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Формат обмена данными</span>
+                            </div>
+                            <label for="json-radio" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                                <input type="radio" name="filetype" value="json" id="json-radio" class="peer sr-only">
+                                <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                                <!-- Left Icon (Off) -->
+                                <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </span>
+                                <!-- Right Icon (On) -->
+                                <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Radio: XLS -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <label for="xls-radio" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                    XLS
+                                </label>
+                                <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Формат Excel</span>
+                            </div>
+                            <label for="xls-radio" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                                <input type="radio" name="filetype" value="xls" id="xls-radio" class="peer sr-only">
+                                <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                                <!-- Left Icon (Off) -->
+                                <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </span>
+                                <!-- Right Icon (On) -->
+                                <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 border-gray-200 dark:border-neutral-700">
+
+                    <!-- Switch: Группировать города -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex-1">
+                            <label for="group_city" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                Группировать города
+                            </label>
+                            <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Города будут сгруппированы по странам в файле</span>
+                        </div>
+                        <label for="group_city" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                            <input type="checkbox" id="group_city" name="group_city" class="peer sr-only">
+                            <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                            <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                            <!-- Left Icon (Off) -->
+                            <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 6 6 18"></path>
+                                    <path d="m6 6 12 12"></path>
+                                </svg>
+                            </span>
+                            <!-- Right Icon (On) -->
+                            <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </span>
+                        </label>
                     </div>
                 </div>
             </form>
+            <!-- End Body -->
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end py-3 px-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">
+                <button type="submit" form="download_form" class="py-2 px-4 w-full sm:w-auto inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 whitespace-nowrap flex-nowrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4 shrink-0" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/>
+                    </svg>
+                    <span>Загрузить</span>
+                </button>
+            </div>
+            <!-- End Footer -->
         </div>
     </div>
 </div>
-
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toast_success_copied" class="toast bg-success-subtle" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header bg-success text-white">
-                <i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;&nbsp;
-                <strong class="me-auto">Скопировано</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Закрыть"></button>
-            </div>
-            <div class="toast-body">
-                Ссылка на страницу со статистикой успешно скопирована.
-            </div>
-        </div>
-    </div>

@@ -1,11 +1,11 @@
-<div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 mx-3 mt-2 mb-3 g-3 px-xxl-5" id="list_cards">
-    <div class="order-md-2 order-lg-1" id="list_last_visited_cities">
+<div class="mx-3 mt-2 mb-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" id="list_cards">
+    <div class="order-2 md:order-1 lg:order-1" id="list_last_visited_cities">
         {% include 'account/statistics/table/last_10_new_cities.html' %}
     </div>
-    <div class="order-md-1 order-lg-2" id="list_most_popular_regions">
+    <div class="order-1 md:order-2 lg:order-2" id="list_most_popular_regions">
         {% include 'account/statistics/table/popular_regions.html' %}
     </div>
-    <div class="order-md-3 order-lg-3" id="list_areas">
+    <div class="order-3 md:order-3 lg:order-3" id="list_areas">
         {% include 'account/statistics/table/popular_areas.html' %}
     </div>
 </div>

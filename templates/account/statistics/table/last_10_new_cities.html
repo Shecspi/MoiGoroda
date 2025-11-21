@@ -1,30 +1,36 @@
-<div class="card shadow mb-3">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-            <h4 class="align-self-center mb-0">
+<div class="mb-6 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+    <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-0">
                 Последние новые города
             </h4>
-            <i class="fa-regular fa-circle-question fs-4 text-body-secondary opacity_until_hover"
-               data-bs-toggle="tooltip"
-               data-bs-title="Отображается 5 последних новых посещённых городов"></i>
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <button type="button" class="hs-tooltip-toggle inline-flex items-center justify-center size-6 text-sm font-semibold rounded-full border border-transparent text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/>
+                    </svg>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Отображается 5 последних новых посещённых городов
+                </span>
+            </div>
         </div>
 
         {% if cities.last_10_visited_cities %}
             {###   Список последних новых посещённых городов   ###}
-            <ul class="list-group list-group-flush mt-3">
+            <ul class="divide-y divide-gray-200 dark:divide-neutral-700">
                 {% for city in cities.last_10_visited_cities %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between small">
+                    <li class="py-3">
+                        <div class="flex justify-between items-center text-sm">
                             {% if fake_statistics %}
-                                {{ city.title }}
+                                <span class="text-gray-900 dark:text-white">{{ city.title }}</span>
                             {% else %}
                                 <a href="{% url 'city-selected' city.city.id %}"
-                                   class="link-offset-2 link-underline-dark link-dark
-                                          link-underline-opacity-50-hover link-opacity-50-hover">
+                                   class="text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
                                     {{ city.city.title }}
                                 </a>
                             {% endif %}
-                            <span class="text-end">
+                            <span class="text-right text-gray-600 dark:text-neutral-400">
                                 {% if city.first_visit_date %}
                                     {{ city.first_visit_date }}
                                 {% else %}
@@ -38,21 +44,18 @@
             {### ^^^ Список последних посещённых городов ^^^ ###}
 
             {###   Ссылка "Посмотреть все"   ###}
-            <ul class="list-group list-group-flush mt-3">
-                <li class="list-group-item">
-                    <div class="d-flex justify-content-end small">
-                        <a href="{% url 'city-all-list' %}"
-                           class="link-offset-2 link-underline-dark link-dark
-                                  link-underline-opacity-50-hover link-opacity-50-hover">
-                            Посмотреть все
-                        </a>
-                    </div>
-                </li>
-            </ul>
+            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-neutral-700">
+                <div class="flex justify-end text-sm">
+                    <a href="{% url 'city-all-list' %}"
+                       class="text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                        Посмотреть все
+                    </a>
+                </div>
+            </div>
             {### ^^^ Ссылка "Посмотреть все" ^^^ ###}
         {% else %}
-            <div class="alert alert-danger text-center mt-3" role="alert" id="section-alert_no_regions">
-                Не добавлено ни одного посещённого города
+            <div class="mt-3 rounded-lg border border-red-200 bg-red-50 p-4 text-center dark:border-red-800 dark:bg-red-500/10" role="alert" id="section-alert_no_regions">
+                <p class="text-sm text-red-800 dark:text-red-200">Не добавлено ни одного посещённого города</p>
             </div>
         {% endif %}
     </div>

@@ -1,17 +1,30 @@
 {% extends 'base.html' %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3 mx-3" id="block-page_header">
-        Личная статистика
-    </h1>
+    <header class="mx-3 mt-10 mb-8 text-center" id="block-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            Личная статистика
+        </h1>
+    </header>
 
     {% if fake_statistics %}
         {% include 'account/statistics/parts/info_about_fake_statistics.html' %}
     {% else %}
         {% include 'account/statistics/parts/toolbar.html' %}
-        {% include 'account/statistics/parts/share_modal.html' %}
-        {% include 'account/statistics/parts/download_modal.html' %}
     {% endif %}
 
     {% include 'account/statistics/all_cards_and_charts.html' %}
+{% endblock %}
+
+{% block modals %}
+    {% if not fake_statistics %}
+        {% include 'account/statistics/parts/share_modal.html' %}
+        {% include 'account/statistics/parts/download_modal.html' %}
+    {% endif %}
 {% endblock %}

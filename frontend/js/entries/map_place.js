@@ -41,7 +41,21 @@ Promise.all([...allPromises]).then(([places, categories]) => {
     const select_filter_by_category = document.getElementById('dropdown-menu-filter-category')
 
     button.disabled = false;
-    button.innerHTML = '<i class="fa-solid fa-layer-group"></i>';
+    // Убираем спиннер
+    const spinner = button.querySelector('span[role="status"]');
+    if (spinner) {
+        spinner.remove();
+    }
+    // Показываем иконку
+    const iconContainer = document.getElementById('btn-filter-category-icon');
+    if (iconContainer) {
+        iconContainer.classList.remove('hidden');
+    }
+    // Показываем текст на кнопке
+    const buttonText = document.getElementById('btn-filter-category-text');
+    if (buttonText) {
+        buttonText.classList.remove('hidden');
+    }
 
     categories.forEach(category => {
         allCategories.push(category);
@@ -50,30 +64,76 @@ Promise.all([...allPromises]).then(([places, categories]) => {
         });
 
         const filter_by_category_item = document.createElement('a');
-        filter_by_category_item.classList.add('dropdown-item');
+        filter_by_category_item.classList.add('flex', 'items-center', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
         filter_by_category_item.innerHTML = category.name;
         filter_by_category_item.style.cursor = 'pointer';
         filter_by_category_item.addEventListener('click', () => {
             updateMarkers(category.name);
             updateBlockQtyPlaces(allMarkers.length);
         });
-        select_filter_by_category.appendChild(document.createElement('li').appendChild(filter_by_category_item))
+        const li = document.createElement('li');
+        li.appendChild(filter_by_category_item);
+        select_filter_by_category.appendChild(li);
     });
 
     // Добавляем пункт "Все категории"
     const divider = document.createElement('hr');
-    divider.classList.add('dropdown-divider')
-    select_filter_by_category.appendChild(document.createElement('li').appendChild(divider));
+    divider.classList.add('my-2', 'border-gray-200', 'dark:border-neutral-700');
+    const dividerLi = document.createElement('li');
+    dividerLi.appendChild(divider);
+    select_filter_by_category.appendChild(dividerLi);
 
     const all_categories = document.createElement('a');
-    all_categories.classList.add('dropdown-item');
+    all_categories.classList.add('flex', 'items-center', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
     all_categories.innerHTML = 'Показать все категории';
     all_categories.style.cursor = 'pointer';
-    select_filter_by_category.appendChild(document.createElement('li').appendChild(all_categories));
+    const allCategoriesLi = document.createElement('li');
+    allCategoriesLi.appendChild(all_categories);
+    select_filter_by_category.appendChild(allCategoriesLi);
     all_categories.addEventListener('click', () => {
         updateMarkers('__all__');
         updateBlockQtyPlaces(allMarkers.length);
     });
+
+    // Инициализируем Preline UI dropdown после добавления элементов
+    const dropdownElement = button.closest('.hs-dropdown');
+    const dropdownMenu = select_filter_by_category;
+    
+    // Убираем класс hidden и используем opacity для анимации
+    dropdownMenu.classList.remove('hidden');
+    dropdownMenu.classList.add('opacity-0', 'pointer-events-none');
+    
+    // Добавляем обработчик клика для открытия/закрытия dropdown
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Переключаем видимость меню
+        const isHidden = dropdownMenu.classList.contains('opacity-0');
+        if (isHidden) {
+            dropdownMenu.classList.remove('opacity-0', 'pointer-events-none');
+            dropdownMenu.classList.add('opacity-100');
+            button.setAttribute('aria-expanded', 'true');
+        } else {
+            dropdownMenu.classList.remove('opacity-100');
+            dropdownMenu.classList.add('opacity-0', 'pointer-events-none');
+            button.setAttribute('aria-expanded', 'false');
+        }
+    });
+    
+    // Закрываем dropdown при клике вне его
+    document.addEventListener('click', function(e) {
+        if (!dropdownElement.contains(e.target)) {
+            dropdownMenu.classList.remove('opacity-100');
+            dropdownMenu.classList.add('opacity-0', 'pointer-events-none');
+            button.setAttribute('aria-expanded', 'false');
+        }
+    });
+    
+    // Инициализируем Preline UI dropdown для правильной работы
+    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+        window.HSStaticMethods.autoInit();
+    }
 
     // Расставляем метки
     places.forEach(place => {
@@ -92,12 +152,9 @@ Promise.all([...allPromises]).then(([places, categories]) => {
 });
 
 function updateBlockQtyPlaces(qty_places) {
-    const block_qty_places = document.getElementById('block-qty_places');
+    const block_qty_places_text = document.getElementById('block-qty_places-text');
 
-    block_qty_places.classList.remove('placeholder');
-    block_qty_places.classList.remove('placeholder-lg');
-    block_qty_places.classList.remove('bg-secondary');
-    block_qty_places.innerHTML = `Отмечено мест: <span class="fs-4 fw-medium">${qty_places}</span>`;
+    block_qty_places_text.innerHTML = `Отмечено мест: <strong>${qty_places}</strong>`;
 }
 
 function loadCategoriesFromServer() {
@@ -182,9 +239,9 @@ function handleClickOnMap(map) {
                 allMarkers.push(marker);
 
                 let content = '<form>';
-                content += generatePopupContent(name, lat_marker, lon_marker, type_marker);
-                content += '<p>';
-                content += `<button class="btn btn-success btn-sm" id="btn-add-place" onclick="add_place();">Добавить</button>`;
+                content += icon_blue_pin(name, lat_marker, lon_marker, type_marker);
+                content += '<p class="mt-3">';
+                content += `<button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-add-place" onclick="add_place();">Добавить</button>`;
                 content += '</p>';
 
                 content += '</form>'
@@ -204,27 +261,27 @@ function generatePopupContent(name, latitide, longitude, place_category, id) {
     let name_escaped = name.replaceAll('"', "'");
 
     let content = '';
-    content += '<div class="d-flex justify-content-between gap-3 align-middle fs-5">';
+                content += '<div class="flex items-center justify-between gap-3 text-lg">';
         content += `<div id="place_name_text">${name}</div>`;
         content += '<div id="place_name_input_form" hidden>';
-            content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="form-control-sm" style="width: 100%; box-sizing: border-box">`;
+            content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder-neutral-400 dark:focus:border-blue-500 dark:focus:ring-blue-500">`;
         content += '</div>';
-        content += '<div class="d-flex align-middle">';
-            content += '<a href="#" id="link_to_edit_place" onclick="switch_popup_elements()" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-100-hover link-opacity-50 link-opacity-100-hover align-middle" title="Изменить место"><i class="fa-solid fa-pencil"></i></a>';
-            content += '<a href="#" id="lint_to_cancel_edit_place" onclick="switch_popup_elements()" class="link-offset-2 danger link-danger link-underline-opacity-100-hover link-opacity-50 link-opacity-100-hover align-middle" title="Отменить изменения" hidden><i class="fa-solid fa-ban"></i></a>';
+        content += '<div class="flex items-center gap-2">';
+            content += '<a href="#" id="link_to_edit_place" onclick="switch_popup_elements()" class="inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-neutral-400 dark:hover:text-neutral-300 dark:hover:bg-neutral-800" title="Изменить место"><i class="fa-solid fa-pencil"></i></a>';
+            content += '<a href="#" id="lint_to_cancel_edit_place" onclick="switch_popup_elements()" class="inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10" title="Отменить изменения" hidden><i class="fa-solid fa-ban"></i></a>';
         content += '</div>';
     content += '</div>';
 
-    content += '<p>'
-        content += `<span class="fw-semibold">Широта:</span> ${latitide}<br>`
+    content += '<p class="text-sm text-gray-600 dark:text-neutral-400">'
+        content += `<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ${latitide}<br>`
         content += `<input type="text" id="form-latitude" name="name" value="${latitide}" hidden>`;
-        content += `<span class="fw-semibold">Долгота:</span> ${longitude}`;
+        content += `<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ${longitude}`;
         content += `<input type="text" id="form-longitude" name="name" value="${longitude}" hidden>`;
     content += '</p>';
 
-    content += '<p id="category_select_form" hidden>'
-        content += '<span class="fw-semibold">Категория:</span> ';
-        content += '<select name="category" id="form-type-object" class="form-select form-select-sm">';
+    content += '<p id="category_select_form" hidden class="text-sm">'
+        content += '<span class="font-semibold text-gray-900 dark:text-white">Категория:</span> ';
+        content += '<select name="category" id="form-type-object" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
         if (place_category === undefined) {
             content += `<option value="" selected disabled>Выберите категорию...</option>`;
         }
@@ -238,8 +295,8 @@ function generatePopupContent(name, latitide, longitude, place_category, id) {
         content += '</select>';
     content += '</p>';
 
-    content += '<p id="category_place">';
-    content += '<span class="fw-semibold">Категория:</span> ';
+    content += '<p id="category_place" class="text-sm text-gray-600 dark:text-neutral-400">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Категория:</span> ';
     content += ` ${place_category !== undefined ? place_category : 'Не известно'}`;
     content += '</p>';
 
@@ -392,9 +449,9 @@ function addMarkers(categoryName) {
 
             let content = '<form id="place-form">';
             content += generatePopupContent(place.name, place.latitude, place.longitude, place.category_detail.name, place.id);
-            content += '<p>';
-            content += `<button class="btn btn-success btn-sm" id="btn-update-place" onclick="update_place(${place.id});" hidden>Изменить</button>`;
-            content += `<button class="btn btn-danger btn-sm" id="btn-delete-place" onclick="delete_place(${place.id});">Удалить</button>`;
+            content += '<p class="mt-3 flex gap-2">';
+            content += `<button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-update-place" onclick="update_place(${place.id});" hidden>Изменить</button>`;
+            content += `<button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-delete-place" onclick="delete_place(${place.id});">Удалить</button>`;
             content += '</p>';
             content += '</form>';
 

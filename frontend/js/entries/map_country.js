@@ -246,7 +246,7 @@ function add_country(iso3166_1_alpha2) {
             country.getPopup().remove();
             const country_data = allCountriesFromDB.get(iso3166_1_alpha2);
             const country_obj = create_country_object(iso3166_1_alpha2, country_data);
-            country.bindPopup(generatePopupContent(country_obj));
+            country.bindPopup(generatePopupContent(country_obj), {maxWidth: 400, minWidth: 280});
 
             updateQtyVisitedCountries();
 
@@ -296,7 +296,7 @@ function delete_country(iso3166_1_alpha2) {
             country.getPopup().remove();
             const country_data = allCountriesFromDB.get(iso3166_1_alpha2);
             const country_obj = create_country_object(iso3166_1_alpha2, country_data);
-            country.bindPopup(generatePopupContent(country_obj))
+            country.bindPopup(generatePopupContent(country_obj), {maxWidth: 400, minWidth: 280})
 
             updateQtyVisitedCountries();
 
@@ -328,7 +328,7 @@ function addCountryOnMap(polygon, country, map) {
     }).addTo(map);
 
     const name = country.owner ? country.name_ru + ` (${country.owner})` : country.name_ru;
-    geoJSON.bindPopup(generatePopupContent(country));
+    geoJSON.bindPopup(generatePopupContent(country), {maxWidth: 400, minWidth: 280});
     geoJSON.bindTooltip(name, {
         direction: 'top',
         sticky: true
@@ -355,26 +355,48 @@ function addCountryOnMap(polygon, country, map) {
  * @returns {string}
  */
 function generatePopupContent(country) {
-    let content = "";
-
+    let content = '<div class="px-1.5 py-1.5 min-w-[280px] max-w-[400px]">';
+    
+    // Заголовок
+    const name = country.owner ? country.name_ru + ` (${country.owner})` : country.name_ru;
+    content += `<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 pb-3 border-b border-gray-200 dark:border-neutral-700">${name}</h3>`;
+    
+    // Информация о стране
+    content += '<div class="space-y-3">';
+    
     if (country.fullname_ru) {
-        content += `<div><span class="fw-semibold">Полное название:</span> ${country.fullname_ru}</div>`;
+        content += `<div class="flex flex-col gap-1">`;
+        content += `<span class="text-xs font-semibold text-gray-500 uppercase dark:text-neutral-400">Полное название</span>`;
+        content += `<span class="text-sm text-gray-900 dark:text-white">${country.fullname_ru}</span>`;
+        content += `</div>`;
     }
 
-    content +=
-        `<div><span class="fw-semibold">Часть света:</span> ${country.part_of_the_world}</div>` +
-        `<div><span class="fw-semibold">Расположение:</span> ${country.location}</div>`;
+    content += `<div class="flex flex-col gap-1">`;
+    content += `<span class="text-xs font-semibold text-gray-500 uppercase dark:text-neutral-400">Часть света</span>`;
+    content += `<span class="text-sm text-gray-900 dark:text-white">${country.part_of_the_world}</span>`;
+    content += `</div>`;
 
+    content += `<div class="flex flex-col gap-1">`;
+    content += `<span class="text-xs font-semibold text-gray-500 uppercase dark:text-neutral-400">Расположение</span>`;
+    content += `<span class="text-sm text-gray-900 dark:text-white">${country.location}</span>`;
+    content += `</div>`;
+    
+    content += '</div>'; // закрываем space-y-3
+
+    // Действия для авторизованных пользователей
     if (isAuthenticated === true) {
-        const linkToAdd = `<hr><a class="country-action" href="#" data-action="add" data-code="${country.iso3166_1_alpha2}">Отметить страну как посещённую</a>`
-        const linkToDelete = `<hr><a class="country-action" href="#" data-action="delete" data-code="${country.iso3166_1_alpha2}">Удалить страну</a>`
-        const link = country.is_visited ? linkToDelete : linkToAdd;
-        const name = country.owner ? country.name_ru + ` (${country.owner})` : country.name_ru;
-
-        return `<h4>${name}</h4><country.name_rubr>${content + link}`;
-    } else {
-        return `<h4>${country.name_ru}</h4><br>${content}`;
+        content += '<div class="mt-3 pt-3 border-t border-gray-200 dark:border-neutral-700">';
+        if (country.is_visited) {
+            content += `<a class="country-action inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" href="#" data-action="delete" data-code="${country.iso3166_1_alpha2}">Удалить страну</a>`;
+        } else {
+            content += `<a class="country-action inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" href="#" data-action="add" data-code="${country.iso3166_1_alpha2}">Отметить страну как посещённую</a>`;
+        }
+        content += '</div>';
     }
+    
+    content += '</div>'; // закрываем основной контейнер
+    
+    return content;
 }
 
 // ------------------------------------------------ //
@@ -487,53 +509,120 @@ function add_attribution(map) {
 function enablePartOfTheWorldButton(array) {
     const button = document.getElementById('btn-show-part-of-the-world');
     const menu = document.getElementById('dropdown-menu-parts-of-the-world');
-    enableDropdownButton(array, button, menu, 'fa-solid fa-earth-americas', 'part-of-the-world');
+    enableDropdownButton(array, button, menu, '', 'part-of-the-world');
 }
 
 function enableLocationsButton(array) {
     const button = document.getElementById('btn-show-locations');
     const menu = document.getElementById('dropdown-menu-locations');
-    enableDropdownButton(array, button, menu, 'fa-solid fa-location-dot', 'locations');
+    enableDropdownButton(array, button, menu, '', 'locations');
 }
 
-function enableDropdownButton(array, button, menu, icon, type) {
+function enableDropdownButton(array, button, menu, iconSvg, type) {
     // Убираем спиннер с кнопки и делаем её активной
     button.disabled = false;
-    button.innerHTML = `<i class="${icon}"></i>&nbsp;&nbsp;`;
+    
+    // Убираем спиннер
+    const spinner = button.querySelector('span[role="status"]');
+    if (spinner) {
+        spinner.remove();
+    }
+    
+    // Показываем иконку и текст на кнопке
+    const buttonId = button.id;
+    const iconContainer = document.getElementById(`${buttonId}-icon`);
+    if (iconContainer) {
+        iconContainer.classList.remove('hidden');
+    }
+    
+    const buttonText = document.getElementById(`${buttonId}-text`);
+    if (buttonText) {
+        buttonText.classList.remove('hidden');
+    }
 
     // Очищаем меню
     menu.innerHTML = '';
 
     // Добавляем заголовок в меню
-    const header = document.createElement('h6');
-    header.classList.add('dropdown-header');
+    const header = document.createElement('p');
+    header.classList.add('px-3', 'py-2', 'text-xs', 'font-semibold', 'text-gray-800', 'uppercase', 'dark:text-neutral-200');
     header.innerHTML = 'Выберите, какие страны отобразить на карте:';
-    menu.appendChild(document.createElement('li').appendChild(header));
+    const headerLi = document.createElement('li');
+    headerLi.appendChild(header);
+    menu.appendChild(headerLi);
 
     // Добавляем элементы в меню
     array.forEach(item => {
         const a = document.createElement('a');
-        a.classList.add('dropdown-item');
+        a.classList.add('flex', 'items-center', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
         a.innerHTML = item.name;
         a.style.cursor = 'pointer';
         a.addEventListener('click', () => {
             filterCountriesOnTheMap(item.name, type);
+            // Закрываем dropdown при клике на элемент
+            menu.classList.remove('opacity-100');
+            menu.classList.add('opacity-0', 'pointer-events-none');
+            button.setAttribute('aria-expanded', 'false');
         });
-        menu.appendChild(document.createElement('li').appendChild(a));
+        const li = document.createElement('li');
+        li.appendChild(a);
+        menu.appendChild(li);
     });
 
     // Добавляем пункт "Все страны"
     const divider = document.createElement('hr');
-    divider.classList.add('dropdown-divider')
-    menu.appendChild(document.createElement('li').appendChild(divider));
+    divider.classList.add('my-2', 'border-gray-200', 'dark:border-neutral-700');
+    const dividerLi = document.createElement('li');
+    dividerLi.appendChild(divider);
+    menu.appendChild(dividerLi);
 
     const all_countries = document.createElement('a');
-    all_countries.classList.add('dropdown-item');
+    all_countries.classList.add('flex', 'items-center', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
     all_countries.innerHTML = 'Показать все страны';
     all_countries.style.cursor = 'pointer';
-    menu.appendChild(document.createElement('li').appendChild(all_countries));
+    const allCountriesLi = document.createElement('li');
+    allCountriesLi.appendChild(all_countries);
+    menu.appendChild(allCountriesLi);
     all_countries.addEventListener('click', () => {
         filterCountriesOnTheMap('__all__', type);
+        // Закрываем dropdown при клике на элемент
+        menu.classList.remove('opacity-100');
+        menu.classList.add('opacity-0', 'pointer-events-none');
+        button.setAttribute('aria-expanded', 'false');
+    });
+    
+    // Инициализируем Preline UI dropdown после добавления элементов
+    const dropdownElement = button.closest('.hs-dropdown');
+    
+    // Убираем класс hidden и используем opacity для анимации
+    menu.classList.remove('hidden');
+    menu.classList.add('opacity-0', 'pointer-events-none');
+    
+    // Добавляем обработчик клика для открытия/закрытия dropdown
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Переключаем видимость меню
+        const isHidden = menu.classList.contains('opacity-0');
+        if (isHidden) {
+            menu.classList.remove('opacity-0', 'pointer-events-none');
+            menu.classList.add('opacity-100');
+            button.setAttribute('aria-expanded', 'true');
+        } else {
+            menu.classList.remove('opacity-100');
+            menu.classList.add('opacity-0', 'pointer-events-none');
+            button.setAttribute('aria-expanded', 'false');
+        }
+    });
+    
+    // Закрываем dropdown при клике вне его
+    document.addEventListener('click', function(e) {
+        if (!dropdownElement.contains(e.target)) {
+            menu.classList.remove('opacity-100');
+            menu.classList.add('opacity-0', 'pointer-events-none');
+            button.setAttribute('aria-expanded', 'false');
+        }
     });
 }
 
@@ -545,12 +634,14 @@ function enableDropdownButton(array, button, menu, icon, type) {
  */
 function showQtyCountries(qtyAllCountries, qtyVisitedCountries) {
     const block_qty_visited_countries = document.getElementById('block-qty_countries');
-    block_qty_visited_countries.classList.remove('placeholder');
-    block_qty_visited_countries.classList.remove('bg-secondary');
-    block_qty_visited_countries.classList.remove('placeholder-lg');
-
+    
+    // Убираем спиннер загрузки
+    const spinner = block_qty_visited_countries.querySelector('div[role="status"]');
+    if (spinner) {
+        spinner.remove();
+    }
+    
     const block_statistic = document.getElementById('block-statistic');
-    block_statistic.classList.remove('placeholder-glow');
 
     if (isAuthenticated === true) {
         showQtyVisitedForAuthUsers(block_qty_visited_countries, qtyVisitedCountries, qtyAllCountries);
@@ -566,7 +657,7 @@ function showQtyCountries(qtyAllCountries, qtyVisitedCountries) {
  * @param qtyAllCities - общее количество всех стран в сервисе
  */
 function showQtyVisitedForAuthUsers(element, qtyVisitedCities, qtyAllCities) {
-    element.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+    element.innerHTML = `${declensionVisited(qtyVisitedCities)}&nbsp;<span class="font-semibold">${qtyVisitedCities}</span>&nbsp;${declensionCountry(qtyVisitedCities)}&nbsp;из&nbsp;${qtyAllCities}`;
 }
 
 /**
@@ -575,7 +666,7 @@ function showQtyVisitedForAuthUsers(element, qtyVisitedCities, qtyAllCities) {
  * @param {number} qtyAllCountries - количество всех стран
  */
 function showQtyAllCountriesForGuest(element, qtyAllCountries) {
-    element.innerHTML = `Всего <span class="fs-4 fw-medium">${qtyAllCountries}</span> ${declensionCountry(qtyAllCountries)}`;
+    element.innerHTML = `Всего <span class="font-semibold">${qtyAllCountries}</span> ${declensionCountry(qtyAllCountries)}`;
 }
 
 /**
@@ -585,7 +676,7 @@ function updateQtyVisitedCountries() {
     const block_qty_countries = document.getElementById('block-qty_countries');
     const qtyVisitedCities = allVisitedCountries.size;
     const qtyAllCities = allCountriesFromDB.size;
-    block_qty_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="fs-4 fw-medium">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
+    block_qty_countries.innerHTML = `${declensionVisited(qtyVisitedCities)} <span class="font-semibold">${qtyVisitedCities}</span> ${declensionCountry(qtyVisitedCities)} из ${qtyAllCities}`;
 }
 
 // ------------------------------------------------ //

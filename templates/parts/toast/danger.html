@@ -1,11 +1,25 @@
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 10000">
-    <div id="toast-danger" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header text-bg-danger">
-            <strong class="me-auto" id="toast-danger-title">{{ error_title }}</strong>
-            <button type="button" class="btn-close-custom" data-bs-dismiss="toast" aria-label="Закрыть">
-                <i class="fa-solid fa-circle-xmark"></i>
-            </button>
+<!-- Шаблон для danger toast -->
+<template id="toast-danger-template">
+    <div class="max-w-xs bg-red-50 border border-red-200 rounded-xl shadow-lg dark:bg-red-900/20 dark:border-red-800" role="alert" tabindex="-1">
+        <div class="flex p-4">
+            <div class="shrink-0">
+                <svg class="shrink-0 size-4 text-red-500 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"></path>
+                </svg>
+            </div>
+            <div class="ms-3 flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-red-800 dark:text-red-200 mb-1 toast-title"></h3>
+                <div class="text-sm text-red-700 dark:text-red-300 toast-message"></div>
+            </div>
+            <div class="ms-auto shrink-0">
+                <button type="button" class="inline-flex shrink-0 justify-center items-center size-5 rounded-lg text-red-600 opacity-50 hover:opacity-100 focus:outline-none focus:opacity-100 dark:text-red-400" onclick="this.closest('[role=\\'alert\\']').remove()" aria-label="Закрыть">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
-        <div class="toast-body bg-light" id="toast-danger-message"></div>
     </div>
-</div>
+</template>

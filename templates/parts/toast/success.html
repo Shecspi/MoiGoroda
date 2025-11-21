@@ -1,11 +1,25 @@
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 10000">
-    <div id="toast-success" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header text-bg-success">
-            <strong class="me-auto" id="toast-success-title"></strong>
-            <button type="button" class="btn-close-custom" data-bs-dismiss="toast" aria-label="Закрыть">
-                <i class="fa-solid fa-circle-xmark"></i>
-            </button>
+<!-- Шаблон для success toast -->
+<template id="toast-success-template">
+    <div class="max-w-xs bg-emerald-50 border border-emerald-200 rounded-xl shadow-lg dark:bg-emerald-900/20 dark:border-emerald-800" role="alert" tabindex="-1">
+        <div class="flex p-4">
+            <div class="shrink-0">
+                <svg class="shrink-0 size-4 text-emerald-500 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                </svg>
+            </div>
+            <div class="ms-3 flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-emerald-800 dark:text-emerald-200 mb-1 toast-title"></h3>
+                <div class="text-sm text-emerald-700 dark:text-emerald-300 toast-message"></div>
+            </div>
+            <div class="ms-auto shrink-0">
+                <button type="button" class="inline-flex shrink-0 justify-center items-center size-5 rounded-lg text-emerald-600 opacity-50 hover:opacity-100 focus:outline-none focus:opacity-100 dark:text-emerald-400" onclick="this.closest('[role=\\'alert\\']').remove()" aria-label="Закрыть">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
-        <div class="toast-body bg-light" id="toast-success-message"></div>
     </div>
-</div>
+</template>

@@ -5,261 +5,337 @@
 {% load static %}
 {% load mathfilters %}
 
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
 
 {% block content %}
-    <!-- Подключение нового дизайна -->
-    {% vite_css 'css/style2' %}
-
 {% if not DEBUG %}
     {% if not user.is_authenticated %}
         {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
     {% endif %}
 {% endif %}
 
-<div class="page-header-section text-center mt-4 mb-2 mx-3">
-    <h1 class="page-header-title display-4 fw-bold mb-2" id="section-page_header">
+<!-- Заголовок страницы -->
+<header class="mx-3 mt-10 mb-8 text-center" id="block-page_header">
+    <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
         {{ city.title }}
     </h1>
-    <div class="page-header-divider"></div>
-</div>
+</header>
+<!-- ^^^ Заголовок страницы -->
 
 {% if not user.is_authenticated %}
     {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
 {% endif %}
 
-<div class="container mb-5 mt-3">
-    <div class="row justify-content-center" id="city-selected-content">
-        <div class="col-12">
-            <div class="card city-detail-card">
-                <div class="card-body p-4">
-                    <div class="row">
-                         <div class="col-12 col-lg-6 text-center mb-3" id="section-city_image">
-                             {% if city.image %}
-                                <img src="{{ city.image }}"
-                                     alt="Фото города {{ city.title }}"
-                                     class="img-fluid rounded-3 shadow city-image"
-                                     onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
-                             {% else %}
-                                <img src="{% static 'image/city_placeholder.png' %}"
-                                     alt="Фото города {{ city.title }}"
-                                     class="img-fluid rounded-3 shadow city-image">
-                             {% endif %}
-                            <div class="mt-3 small text-muted">
-                                {% if city.image_source_text %}
-                                    Источник изображения:<br>
-                                    {% if city.image_source_link %}
-                                        <a href="{{ city.image_source_link }}"
-                                           class="app-link"
-                                           target="_blank">{{ city.image_source_text }}</a>
-                                    {% else %}
-                                        {{ city.image_source_text }}
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-lg-6">
-                            <div class="row gy-3">
-                                <div class="col d-flex flex-wrap gap-2 justify-content-end">
-                                    <button id="show_on_map"
-                                            class="btn btn-outline-success d-flex gap-2 align-items-center"
-                                            role="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#cityStatisticModal">
-                                        <i class="fa-solid fa-chart-simple"></i>
-                                        Статистика города
-                                    </button>
-
-                                    <button id="show_on_map"
-                                          class="btn btn-outline-secondary d-flex gap-2 align-items-center"
-                                          role="button"
-                                          data-bs-toggle="modal"
-                                          data-bs-target="#mapModal">
-                                        <i class="fa-solid fa-map-location-dot"></i>
-                                        Посмотреть на карте
-                                    </button>
-                                </div>
-
-                                <hr>
-
-                                {% url 'region-selected-list' city.region.id as region_url %}
-                                {% if city.region.area %}
-                                    {% include "partials/info_row_4.html" with title="Страна:" link=False value=city.country id="country" %}
-                                    {% include "partials/info_row_4.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
-                                    {% include "partials/info_row_4.html" with title="Федеральный округ:" value=city.region.area id="area" %}
-                                {% else %}
-                                    {% include "partials/info_row.html" with title="Страна:" link=False value=city.country id="country" %}
-                                    {% include "partials/info_row.html" with title="Регион:" link=True link_url=region_url value=city.region id="region" %}
-                                {% endif %}
-
-                                <div class="col-12">
-                                    <hr>
-                                </div>
-
-                                {% include "partials/info_row.html" with title="Год основания:" value=city.date_of_foundation id="date_of_foundation" %}
-                                {% include "partials/info_row.html" with title="Население:" value=city.population id="population" intcomma=True %}
-
-                                <div class="col-12">
-                                    <hr>
-                                </div>
-
-                                <div class="col-12">
-                                    <h6 class="fw-semibold mb-1">Коллекции:</h6>
-                                    <div class="d-flex flex-wrap gap-1">
-                                        {% if collections %}
-                                            {% for collection in collections %}
-                                                <a href="{% url 'collection-detail-list' collection.id %}"
-                                                   class="btn btn-sm bg-light text-success border border-success-subtle badge-hover-success">
-                                                    {{ collection }}
-                                                </a>
-                                            {% endfor %}
-                                        {% else %}
-                                            <span class="small text-muted">Город не состоит ни в каких коллекциях</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <hr>
-                                </div>
-
-                                <div class="col-6">
-                                    <h6 class="fw-semibold mb-1">Средняя оценка среди всех пользователей:</h6>
-                                    <div class="d-flex align-items-center gap-3">
-                                        {% if average_rating %}
-                                            <span>
-                                                {{ average_rating }}
-                                            </span>
-                                            <span>
-                                                {% for i in "12345"|make_list %}
-                                                    {% with index=forloop.counter %}
-                                                        {% if average_rating >= index %}
-                                                            <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                                        {% else %}
-                                                            {% if average_rating >= index|sub:0.5 %}
-                                                                <i class="fa-solid fa-star-half-stroke" style="color: #ffc43c;"></i>
-                                                            {% else %}
-                                                                <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
-                                                            {% endif %}
-                                                        {% endif %}
-                                                    {% endwith %}
-                                                {% endfor %}
-                                            </span>
-                                        {% else %}
-                                            <span class="small text-muted">Статистика ещё не собрана</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <div class="col-6">
-                                    <h6 class="fw-semibold mb-1">Популярные месяцы для посещения:</h6>
-                                    <div>
-                                        {% if popular_months %}
-                                            {{ popular_months|join:", " }}
-                                        {% else %}
-                                            <span class="small text-muted">Статистика ещё не собрана</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <hr>
-
-                                <div class="col-12 d-flex justify-content-end mt-3">
-                                    {% if city.wiki %}
-                                        <a href="{{ city.wiki }}"
-                                           class="app-link"
-                                           target="_blank">
-                                            <i class="fa-brands fa-wikipedia-w me-2"></i>Больше информации о городе на Wikipedia
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {% if user.is_authenticated %}
-                        {% if number_of_visits > 0 %}
-                            <div class="row align-items-center mt-3 mb-3">
-                                <div class="col-12 fs-3 fw-semibold">Ваши посещения города {{ city.title }} ({{ number_of_visits }})</div>
-                            </div>
-
-                            {% for visit in visits %}
-                                {% if not forloop.first %}
-                                    <div class="row align-items-center">
-                                        <div class="col-12">
-                                            <hr>
-                                        </div>
-                                    </div>
-                                {% endif %}
-
-                                <div class="row align-items-center">
-                                    <div class="col-lg-2 mt-2">
-                                        {% if visit.date_of_visit %}
-                                            {{ visit.date_of_visit }}
-                                        {% else %}
-                                            <span class="small text-muted">Дата посещения не указана</span>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="col-lg-2 mt-2">
-                                        {% for i in '12345'|make_list %}
-                                            {% if forloop.counter <= visit.rating %}
-                                                <i class="fa-solid fa-star" style="color: #ffc43c;"></i>
-                                            {% else %}
-                                                <i class="fa-regular fa-star" style="color: #9d9d9d;"></i>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-
-                                    <div class="col-lg-6 mt-2">
-                                        {% if visit.impression %}
-                                            {{ visit.impression|markdownify }}
-                                        {% else %}
-                                            <span class="small text-muted">Вы не добавили описание Вашей поездки в город {{ visit.city__title }}</span>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="col-lg-2 d-flex text-center justify-content-end gap-3 mt-2">
-                                        <a class="text-sm btn btn-outline-danger btn-sm delete_city"
-                                           href="#"
-                                           data-bs-tooltip="tooltip"
-                                           data-bs-title="Удалить город {{ city.title }} из списка посещённых"
-                                           data-delete_url="{% url 'city-delete' visit.id %}">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </a>
-                                        <a href="{% url 'city-update' visit.id %}"
-                                           data-bs-tooltip="tooltip"
-                                           data-bs-title="Изменить параметры посещения города {{ city.title }}"
-                                           class="text-sm btn btn-outline-success btn-sm">
-                                            <i class="fa-regular fa-pen-to-square"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="mt-5 display-4 text-center">
-                                Вы ещё не посетили город {{ city.title }}
-                            </div>
-                        {% endif %}
-
-                        <div class="d-flex justify-content-end mt-5">
-                            {% if number_of_visits > 0 %}
-                                <a href="{% url 'city-create' %}?city_id={{ city.id }}"
-                                   class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-plus"></i>
-                                    Добавить ещё одно посещение города
-                                </a>
+<div class="mx-3 mb-8 flex justify-center">
+    <div class="w-full max-w-6xl">
+        <!-- Основная карточка с информацией о городе -->
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 mb-6" id="city-selected-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Изображение города -->
+                <div class="text-center" id="section-city_image">
+                    {% if city.image %}
+                        <img src="{{ city.image }}"
+                             alt="Фото города {{ city.title }}"
+                             class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg"
+                             onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+                    {% else %}
+                        <img src="{% static 'image/city_placeholder.png' %}"
+                             alt="Фото города {{ city.title }}"
+                             class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg">
+                    {% endif %}
+                    {% if city.image_source_text %}
+                        <div class="mt-3 text-sm text-gray-600 dark:text-neutral-400">
+                            Источник изображения:<br>
+                            {% if city.image_source_link %}
+                                <a href="{{ city.image_source_link }}"
+                                   class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+                                   target="_blank">{{ city.image_source_text }}</a>
                             {% else %}
-                                <a href="{% url 'city-create' %}?city_id={{ city.id }}"
-                                   class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-plus"></i>
-                                    Добавить город как посещённый
-                                </a>
+                                {{ city.image_source_text }}
                             {% endif %}
                         </div>
                     {% endif %}
                 </div>
+
+                <!-- Информация о городе -->
+                <div class="space-y-4">
+                    <!-- Кнопки действий -->
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button id="show_on_map"
+                                class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"
+                                role="button"
+                                data-hs-overlay="#cityStatisticModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 512 512" fill="currentColor">
+                                <path d="M57.7 193l9.4 16.4c8.3 14.3 23.1 22.9 39.8 22.9h30.2c15.6 0 30.1-7.5 39.3-20.1l11.2-15.3c8.8-12 23.1-19.2 38.6-19.2h73.8c15.5 0 29.8 7.2 38.6 19.2l11.2 15.3c9.2 12.6 23.7 20.1 39.3 20.1h30.2c16.7 0 31.5-8.6 39.8-22.9l9.4-16.4c8.3-14.3 8.3-31.5 0-45.8l-9.4-16.4c-8.3-14.3-23.1-22.9-39.8-22.9H307.1c-15.6 0-30.1 7.5-39.3 20.1l-11.2 15.3c-8.8 12-23.1 19.2-38.6 19.2H144.1c-15.5 0-29.8-7.2-38.6-19.2L94.3 148.7c-9.2-12.6-23.7-20.1-39.3-20.1H24.8c-16.7 0-31.5 8.6-39.8 22.9L-14.4 168c-8.3 14.3-8.3 31.5 0 45.8l9.4 16.4zm435.5-68.3c-11.5-6.3-23.3-10-35.6-11.8V96c0-17.7-14.3-32-32-32s-32 14.3-32 32v16.6c-12.3 1.8-24.1 5.5-35.6 11.8l-26.2-15.1c-14.2-8.2-32-2.2-40.2 12s-2.2 32 12 40.2l26.2 15.1c-6.3 11.5-10 23.3-11.8 35.6H320c-17.7 0-32 14.3-32 32s14.3 32 32 32h16.6c1.8 12.3 5.5 24.1 11.8 35.6l-26.2 15.1c-14.2 8.2-20.2 26-12 40.2s26 20.2 40.2 12l26.2-15.1c11.5 6.3 23.3 10 35.6 11.8V416c0 17.7 14.3 32 32 32s32-14.3 32-32V399.4c12.3-1.8 24.1-5.5 35.6-11.8l26.2 15.1c14.2 8.2 32 2.2 40.2-12s2.2-32-12-40.2l-26.2-15.1c6.3-11.5 10-23.3 11.8-35.6H512c17.7 0 32-14.3 32-32s-14.3-32-32-32H495.4c-1.8-12.3-5.5-24.1-11.8-35.6l26.2-15.1c14.2-8.2 20.2-26 12-40.2s-26-20.2-40.2-12l-26.2 15.1zM416 224a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+                            </svg>
+                            Статистика города
+                        </button>
+
+                        <button id="show_on_map"
+                                class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:ring-offset-neutral-800"
+                                role="button"
+                                data-hs-overlay="#mapModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 384 512" fill="currentColor">
+                                <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+                            </svg>
+                            Посмотреть на карте
+                        </button>
+                    </div>
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Основная информация -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {% url 'region-selected-list' city.region.id as region_url %}
+                        <div class="rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4 dark:bg-blue-500/10 dark:border-blue-400" id="section-country">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-blue-600 dark:text-blue-400" viewBox="0 0 640 512" fill="currentColor">
+                                    <path d="M336 0c-17.7 0-32 14.3-32 32V141.6l-122.2 61.1c-17.1 8.6-27.8 26.1-27.8 45.1V288H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H154.1c-1.5 5.7-2.1 11.7-2.1 17.8c0 35.3 28.7 64 64 64s64-28.7 64-64c0-6.1-.6-12.1-2.1-17.8H336c17.7 0 32-14.3 32-32s-14.3-32-32-32H261.9l-1.9-3.8L336 186.4V352H608c17.7 0 32-14.3 32-32s-14.3-32-32-32H336V186.4l122.2-61.1c17.1-8.6 27.8-26.1 27.8-45.1V32c0-17.7-14.3-32-32-32s-32 14.3-32 32v48.2L336 141.6V32c0-17.7-14.3-32-32-32zM64 352c-8.8 0-16 7.2-16 16s7.2 16 16 16H208c8.8 0 16-7.2 16-16s-7.2-16-16-16H64zm480 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h80c8.8 0 16-7.2 16-16s-7.2-16-16-16H544z"/>
+                                </svg>
+                                <div class="text-xs font-semibold text-blue-600 dark:text-blue-400">Страна</div>
+                            </div>
+                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ city.country }}</div>
+                        </div>
+                        <div class="rounded-lg border-l-4 border-emerald-500 bg-emerald-50 p-4 dark:bg-emerald-500/10 dark:border-emerald-400" id="section-region">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-emerald-600 dark:text-emerald-400" viewBox="0 0 576 512" fill="currentColor">
+                                    <path d="M384 476.1L192 421.2V35.9L384 90.8V476.1zm32-1.2V88.4L543.1 37.5c15.8-6.3 32.9 5.3 32.9 22.3V394.6c0 9.8-6 18.6-15.1 22.3L416 474.8zM15.1 95.1L160 37.2V423.6L32.9 474.5C17.1 480.8 0 469.2 0 452.2V117.4c0-9.8 6-18.6 15.1-22.3z"/>
+                                </svg>
+                                <div class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Регион</div>
+                            </div>
+                            <div class="text-base font-bold text-gray-900 dark:text-white">
+                                <a href="{{ region_url }}" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">{{ city.region }}</a>
+                            </div>
+                        </div>
+                        {% if city.region.area %}
+                        <div class="rounded-lg border-l-4 border-purple-500 bg-purple-50 p-4 dark:bg-purple-500/10 dark:border-purple-400" id="section-area">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-purple-600 dark:text-purple-400" viewBox="0 0 512 512" fill="currentColor">
+                                    <path d="M57.7 193l9.4 16.4c8.3 14.3 23.1 22.9 39.8 22.9h30.2c15.6 0 30.1-7.5 39.3-20.1l11.2-15.3c8.8-12 23.1-19.2 38.6-19.2h73.8c15.5 0 29.8 7.2 38.6 19.2l11.2 15.3c9.2 12.6 23.7 20.1 39.3 20.1h30.2c16.7 0 31.5-8.6 39.8-22.9l9.4-16.4c8.3-14.3 8.3-31.5 0-45.8l-9.4-16.4c-8.3-14.3-23.1-22.9-39.8-22.9H307.1c-15.6 0-30.1 7.5-39.3 20.1l-11.2 15.3c-8.8 12-23.1 19.2-38.6 19.2H144.1c-15.5 0-29.8-7.2-38.6-19.2L94.3 148.7c-9.2-12.6-23.7-20.1-39.3-20.1H24.8c-16.7 0-31.5 8.6-39.8 22.9L-14.4 168c-8.3 14.3-8.3 31.5 0 45.8l9.4 16.4zm435.5-68.3c-11.5-6.3-23.3-10-35.6-11.8V96c0-17.7-14.3-32-32-32s-32 14.3-32 32v16.6c-12.3 1.8-24.1 5.5-35.6 11.8l-26.2-15.1c-14.2-8.2-32-2.2-40.2 12s-2.2 32 12 40.2l26.2 15.1c-6.3 11.5-10 23.3-11.8 35.6H320c-17.7 0-32 14.3-32 32s14.3 32 32 32h16.6c1.8 12.3 5.5 24.1 11.8 35.6l-26.2 15.1c-14.2 8.2-20.2 26-12 40.2s26 20.2 40.2 12l26.2-15.1c11.5 6.3 23.3 10 35.6 11.8V416c0 17.7 14.3 32 32 32s32-14.3 32-32V399.4c12.3-1.8 24.1-5.5 35.6-11.8l26.2 15.1c14.2 8.2 32 2.2 40.2-12s2.2-32-12-40.2l-26.2-15.1c6.3-11.5 10-23.3 11.8-35.6H512c17.7 0 32-14.3 32-32s-14.3-32-32-32H495.4c-1.8-12.3-5.5-24.1-11.8-35.6l26.2-15.1c14.2-8.2 20.2-26 12-40.2s-26-20.2-40.2-12l-26.2 15.1zM416 224a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+                                </svg>
+                                <div class="text-xs font-semibold text-purple-600 dark:text-purple-400">Федеральный округ</div>
+                            </div>
+                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ city.region.area }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="rounded-lg border-l-4 border-amber-500 bg-amber-50 p-4 dark:bg-amber-500/10 dark:border-amber-400" id="section-date_of_foundation">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-amber-600 dark:text-amber-400" viewBox="0 0 448 512" fill="currentColor">
+                                    <path d="M96 32V64H48C21.5 64 0 85.5 0 112v48H448V112c0-26.5-21.5-48-48-48H352V32c0-17.7-14.3-32-32-32s-32 14.3-32 32V64H160V32c0-17.7-14.3-32-32-32S96 14.3 96 32zM448 192H0V464c0 26.5 21.5 48 48 48H400c26.5 0 48-21.5 48-48V192z"/>
+                                </svg>
+                                <div class="text-xs font-semibold text-amber-600 dark:text-amber-400">Год основания</div>
+                            </div>
+                            <div class="text-base font-bold text-gray-900 dark:text-white">
+                                {% if city.date_of_foundation %}{{ city.date_of_foundation }}{% else %}<span class="text-gray-500 dark:text-neutral-500">Не указано</span>{% endif %}
+                            </div>
+                        </div>
+                        <div class="rounded-lg border-l-4 border-red-500 bg-red-50 p-4 dark:bg-red-500/10 dark:border-red-400" id="section-population">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-red-600 dark:text-red-400" viewBox="0 0 640 512" fill="currentColor">
+                                    <path d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.2 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z"/>
+                                </svg>
+                                <div class="text-xs font-semibold text-red-600 dark:text-red-400">Население</div>
+                            </div>
+                            <div class="text-base font-bold text-gray-900 dark:text-white">
+                                {% if city.population %}{{ city.population|intcomma }}{% else %}<span class="text-gray-500 dark:text-neutral-500">Не указано</span>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Коллекции -->
+                    <div>
+                        <h6 class="text-sm font-semibold text-gray-800 dark:text-neutral-300 mb-2">Коллекции:</h6>
+                        <div class="flex flex-wrap gap-2">
+                            {% if collections %}
+                                {% for collection in collections %}
+                                    <a href="{% url 'collection-detail-list' collection.id %}"
+                                       class="inline-flex items-center gap-x-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                        {{ collection }}
+                                    </a>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-sm text-gray-500 dark:text-neutral-500">Город не состоит ни в каких коллекциях</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Статистика -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h6 class="text-sm font-semibold text-gray-800 dark:text-neutral-300 mb-2">Средняя оценка среди всех пользователей:</h6>
+                            <div class="flex items-center gap-3">
+                                {% if average_rating %}
+                                    <span class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ average_rating }}
+                                    </span>
+                                    <div class="flex items-center gap-0.5">
+                                        {% for i in "12345"|make_list %}
+                                            {% with index=forloop.counter %}
+                                                {% if average_rating >= index %}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-yellow-400" viewBox="0 0 576 512" fill="currentColor">
+                                                        <path d="M287.9 0c9.2 0 17.6 5.2 21.6 13.5l68.6 141.3 153.2 22.6c9 1.3 16.5 7.6 19.3 16.3s.5 18.1-5.9 24.5L433.6 328.4l26.2 155.6c1.5 9-2.2 18.1-9.6 23.5s-17.3 6-25.3 1.7l-137-73.2L151 509.1c-8.1 4.3-17.9 3.7-25.3-1.7s-11.2-14.5-9.7-23.5l26.2-155.6L31.1 218.2c-6.5-6.4-8.7-15.9-5.9-24.5s10.3-14.9 19.3-16.3l153.2-22.6L266.3 13.5C270.4 5.2 278.7 0 287.9 0z"/>
+                                                    </svg>
+                                                {% else %}
+                                                    {% if average_rating >= index|sub:0.5 %}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-yellow-400" viewBox="0 0 640 512" fill="currentColor">
+                                                            <path d="M320 0c-9.2 0-17.6 5.2-21.6 13.5l-68.6 141.3L136.6 177c-9 1.3-16.5 7.6-19.3 16.3s-.5 18.1 5.9 24.5L218.4 328.4l-26.2 155.6c-1.5 9 2.2 18.1 9.6 23.5s17.3 6 25.3 1.7L320 402.1l137 73.2c8.1 4.3 17.9 3.7 25.3-1.7s11.2-14.5 9.7-23.5L456.6 328.4l95.2-110.6c6.5-6.4 8.7-15.9 5.9-24.5s-10.3-14.9-19.3-16.3L375.2 155l-68.6-141.3C302.4 5.2 294.1 0 284.9 0H320zm0 64v0z"/>
+                                                        </svg>
+                                                    {% else %}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-gray-300 dark:text-neutral-600" viewBox="0 0 576 512" fill="currentColor">
+                                                            <path d="M287.9 0c9.2 0 17.6 5.2 21.6 13.5l68.6 141.3 153.2 22.6c9 1.3 16.5 7.6 19.3 16.3s.5 18.1-5.9 24.5L433.6 328.4l26.2 155.6c1.5 9-2.2 18.1-9.6 23.5s-17.3 6-25.3 1.7l-137-73.2L151 509.1c-8.1 4.3-17.9 3.7-25.3-1.7s-11.2-14.5-9.7-23.5l26.2-155.6L31.1 218.2c-6.5-6.4-8.7-15.9-5.9-24.5s10.3-14.9 19.3-16.3l153.2-22.6L266.3 13.5C270.4 5.2 278.7 0 287.9 0z"/>
+                                                        </svg>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-sm text-gray-500 dark:text-neutral-500">Статистика ещё не собрана</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h6 class="text-sm font-semibold text-gray-800 dark:text-neutral-300 mb-2">Популярные месяцы для посещения:</h6>
+                            <div class="text-sm text-gray-600 dark:text-neutral-400">
+                                {% if popular_months %}
+                                    {{ popular_months|join:", " }}
+                                {% else %}
+                                    <span class="text-gray-500 dark:text-neutral-500">Статистика ещё не собрана</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Ссылка на Wikipedia -->
+                    {% if city.wiki %}
+                        <div class="flex justify-end">
+                            <a href="{{ city.wiki }}"
+                               class="inline-flex items-center gap-x-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+                               target="_blank">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 448 512" fill="currentColor">
+                                    <path d="M448 80v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48h352c26.5 0 48 21.5 48 48zM92.5 220.5l123.8 130.7V340h100.2v-22.6l123.8-130.7c4.9-5.2 4.4-13.1-.8-17.6l-19.3-20.4c-5.2-5.5-13.1-6-18.1-.7L321.3 239l-64.7-65.1-64.7 65.1L93.1 183.1c-5-5.3-13-4.8-18.1.7l-19.3 20.4c-5.2 4.5-5.7 12.4-.8 17.6z"/>
+                                </svg>
+                                Больше информации о городе на Wikipedia
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
+
+            <!-- Посещения пользователя -->
+            {% if user.is_authenticated %}
+                {% if number_of_visits > 0 %}
+                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-neutral-700">
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+                            Ваши посещения города {{ city.title }} ({{ number_of_visits }})
+                        </h2>
+
+                        <div class="space-y-6">
+                            {% for visit in visits %}
+                                <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-neutral-700 dark:bg-neutral-800/50">
+                                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                                        <!-- Дата посещения -->
+                                        <div class="lg:col-span-2">
+                                            <div class="text-sm font-semibold text-gray-800 dark:text-neutral-300 mb-1">Дата:</div>
+                                            <div class="text-sm text-gray-600 dark:text-neutral-400">
+                                                {% if visit.date_of_visit %}
+                                                    {{ visit.date_of_visit }}
+                                                {% else %}
+                                                    <span class="text-gray-500 dark:text-neutral-500">Не указана</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Оценка -->
+                                        <div class="lg:col-span-2">
+                                            <div class="text-sm font-semibold text-gray-800 dark:text-neutral-300 mb-1">Оценка:</div>
+                                            <div class="flex items-center gap-0.5">
+                                                {% for i in '12345'|make_list %}
+                                                    {% if forloop.counter <= visit.rating %}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-yellow-400" viewBox="0 0 576 512" fill="currentColor">
+                                                            <path d="M287.9 0c9.2 0 17.6 5.2 21.6 13.5l68.6 141.3 153.2 22.6c9 1.3 16.5 7.6 19.3 16.3s.5 18.1-5.9 24.5L433.6 328.4l26.2 155.6c1.5 9-2.2 18.1-9.6 23.5s-17.3 6-25.3 1.7l-137-73.2L151 509.1c-8.1 4.3-17.9 3.7-25.3-1.7s-11.2-14.5-9.7-23.5l26.2-155.6L31.1 218.2c-6.5-6.4-8.7-15.9-5.9-24.5s10.3-14.9 19.3-16.3l153.2-22.6L266.3 13.5C270.4 5.2 278.7 0 287.9 0z"/>
+                                                        </svg>
+                                                    {% else %}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-gray-300 dark:text-neutral-600" viewBox="0 0 576 512" fill="currentColor">
+                                                            <path d="M287.9 0c9.2 0 17.6 5.2 21.6 13.5l68.6 141.3 153.2 22.6c9 1.3 16.5 7.6 19.3 16.3s.5 18.1-5.9 24.5L433.6 328.4l26.2 155.6c1.5 9-2.2 18.1-9.6 23.5s-17.3 6-25.3 1.7l-137-73.2L151 509.1c-8.1 4.3-17.9 3.7-25.3-1.7s-11.2-14.5-9.7-23.5l26.2-155.6L31.1 218.2c-6.5-6.4-8.7-15.9-5.9-24.5s10.3-14.9 19.3-16.3l153.2-22.6L266.3 13.5C270.4 5.2 278.7 0 287.9 0z"/>
+                                                        </svg>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Описание -->
+                                        <div class="lg:col-span-6">
+                                            <div class="text-sm font-semibold text-gray-800 dark:text-neutral-300 mb-1">Описание:</div>
+                                            <div class="text-sm text-gray-600 dark:text-neutral-400 prose prose-sm dark:prose-invert max-w-none">
+                                                {% if visit.impression %}
+                                                    {{ visit.impression|markdownify }}
+                                                {% else %}
+                                                    <span class="text-gray-500 dark:text-neutral-500">Вы не добавили описание Вашей поездки в город {{ visit.city__title }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Действия -->
+                                        <div class="lg:col-span-2 flex justify-end gap-2">
+                                            <a class="inline-flex items-center gap-x-1.5 px-3 py-2 text-sm font-semibold rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400 delete_city"
+                                               href="#"
+                                               data-delete_url="{% url 'city-delete' visit.id %}"
+                                               data-hs-overlay="#deleteModal">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 448 512" fill="currentColor">
+                                                    <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"/>
+                                                </svg>
+                                            </a>
+                                            <a href="{% url 'city-update' visit.id %}"
+                                               class="inline-flex items-center gap-x-1.5 px-3 py-2 text-sm font-semibold rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 512 512" fill="currentColor">
+                                                    <path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z"/>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-neutral-700 text-center">
+                        <p class="text-xl text-gray-600 dark:text-neutral-400">
+                            Вы ещё не посетили город {{ city.title }}
+                        </p>
+                    </div>
+                {% endif %}
+
+                <div class="flex justify-end mt-6">
+                    {% if number_of_visits > 0 %}
+                        <a href="{% url 'city-create' %}?city_id={{ city.id }}"
+                           class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 448 512" fill="currentColor">
+                                <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/>
+                            </svg>
+                            Добавить ещё одно посещение города
+                        </a>
+                    {% else %}
+                        <a href="{% url 'city-create' %}?city_id={{ city.id }}"
+                           class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 448 512" fill="currentColor">
+                                <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/>
+                            </svg>
+                            Добавить город как посещённый
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -275,39 +351,74 @@
 
 {% include 'city/modal_city_statistic.html' %}
 
-<!-- Модальное окно с картой -->
-<div class="modal fade" id="mapModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content rounded-4">
-            <div class="modal-header">
-                <h5 class="modal-title">Город {{city.title}} на карте</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+<!-- Модальное окно с картой (Preline UI) -->
+<div id="mapModal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center" role="dialog" tabindex="-1" aria-labelledby="mapModal_label">
+    <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-7xl sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <!-- Header -->
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white" id="mapModal_label">
+                    Город {{city.title}} на карте
+                </h3>
+                <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#mapModal">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
             </div>
-            <div class="modal-body">
-                <div id="map" class="h-100 mt-3"></div>
+            <!-- End Header -->
+
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <div id="map" class="w-full h-[600px] rounded-lg"></div>
             </div>
+            <!-- End Body -->
         </div>
     </div>
 </div>
 
-<!-- Модальное окно удаления -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4">
-            <div class="modal-header">
-                <h5 class="modal-title">Удаление</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+<!-- Модальное окно удаления (Preline UI) -->
+<div id="deleteModal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center" role="dialog" tabindex="-1" aria-labelledby="deleteModal_label">
+    <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <!-- Header -->
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white" id="deleteModal_label">
+                    Удаление
+                </h3>
+                <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#deleteModal">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
             </div>
-            <div class="modal-body">
-                Вы уверены, что хотите удалить город <strong><span id="cityTitleOnModal"></span></strong> из списка посещённых?
+            <!-- End Header -->
+
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <p class="text-sm text-gray-800 dark:text-white">
+                    Вы уверены, что хотите удалить город <strong><span id="cityTitleOnModal"></span></strong> из списка посещённых?
+                </p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form id="deleteCityForm" method="post" action="">
+            <!-- End Body -->
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">
+                <button type="button" class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:ring-offset-neutral-800" data-hs-overlay="#deleteModal">
+                    Отмена
+                </button>
+                <form id="deleteCityForm" method="post" action="" class="inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Удалить</button>
+                    <button type="submit" class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800">
+                        Удалить
+                    </button>
                 </form>
             </div>
+            <!-- End Footer -->
         </div>
     </div>
 </div>

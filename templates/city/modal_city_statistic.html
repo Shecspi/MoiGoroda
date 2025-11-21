@@ -1,97 +1,114 @@
 {% load vite %}
 
-<!-- Модальное окно с картой -->
-<div class="modal fade" id="cityStatisticModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content rounded-4">
-            <div class="modal-header">
-                {% if city.region %}
-                <h5 class="modal-title">Статистика города {{ city.title }}, {{ city.region }}, {{ city.country }}</h5>
-                {% else %}
-                <h5 class="modal-title">Статистика города {{ city.title }}, {{ city.country }}</h5>
-                {% endif %}
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+<!-- Модальное окно статистики города (Preline UI) -->
+<div id="cityStatisticModal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center" role="dialog" tabindex="-1" aria-labelledby="cityStatisticModal_label">
+    <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-7xl sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <!-- Header -->
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white" id="cityStatisticModal_label">
+                    {% if city.region %}
+                        Статистика города {{ city.title }}, {{ city.region }}, {{ city.country }}
+                    {% else %}
+                        Статистика города {{ city.title }}, {{ city.country }}
+                    {% endif %}
+                </h3>
+                <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#cityStatisticModal">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
             </div>
+            <!-- End Header -->
 
-            <div class="modal-body">
-                <div class="row row-cols-1 row-cols-lg-2">
-                    <div class="col d-flex justify-content-between align-items-center">
-                        <div class="card w-100 shadow-sm mb-3">
-                            <div class="card-body d-flex justify-content-between align-items-center">
-                                <span>Пользователей, посетивших город:</span>
-                                <span class="px-2 py-1 rounded bg-light text-dark fw-bold border border-secondary">{{ number_of_users_who_visit_city }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col d-flex justify-content-between align-items-center">
-                        <div class="card w-100 shadow-sm mb-3">
-                            <div class="card-body d-flex justify-content-between align-items-center">
-                                <span>Всего посещений города:</span>
-                                <span class="px-2 py-1 rounded bg-light text-dark fw-bold border border-secondary">{{ number_of_visits_all_users }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col d-flex justify-content-center">
-                        <h3>Популярность города в стране</h3>
-                    </div>
-                </div>
-
-                <div class="row row-cols-1 row-cols-lg-2 mt-3">
-                    <div class="col mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span>По пользователям</span>
-                            <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
-                                {{ rank_in_country_by_users }} из {{ number_of_cities_in_country }}
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <!-- Статистические карточки -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                    <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600 dark:text-neutral-400">Пользователей, посетивших город:</span>
+                            <span class="px-3 py-1.5 text-sm font-semibold rounded-lg bg-gray-100 text-gray-800 border border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white">
+                                {{ number_of_users_who_visit_city }}
                             </span>
                         </div>
-                        <canvas id="rankBarChartByUsers" class="mt-3" style="width: 100%; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);"></canvas>
                     </div>
 
-                    <div class="col mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span>По посещениям</span>
-                            <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #5c7cfa;">
-                                {{ rank_in_country_by_visits }} из {{ number_of_cities_in_country }}
+                    <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600 dark:text-neutral-400">Всего посещений города:</span>
+                            <span class="px-3 py-1.5 text-sm font-semibold rounded-lg bg-gray-100 text-gray-800 border border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white">
+                                {{ number_of_visits_all_users }}
                             </span>
                         </div>
-                        <canvas id="rankBarChartByVisits" class="mt-3" style="width: 100%; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);"></canvas>
                     </div>
                 </div>
 
-                {% if city.region %}
-                    <div class="row mt-3">
-                        <div class="col d-flex justify-content-center">
-                            <h3>Популярность города в регионе</h3>
+                <!-- Популярность в стране -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white text-center mb-4">Популярность города в стране</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-sm text-gray-600 dark:text-neutral-400">По пользователям</span>
+                                <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-blue-600 dark:bg-blue-500">
+                                    {{ rank_in_country_by_users }} из {{ number_of_cities_in_country }}
+                                </span>
+                            </div>
+                            <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                                <canvas id="rankBarChartByUsers" class="w-full"></canvas>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-sm text-gray-600 dark:text-neutral-400">По посещениям</span>
+                                <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-blue-600 dark:bg-blue-500">
+                                    {{ rank_in_country_by_visits }} из {{ number_of_cities_in_country }}
+                                </span>
+                            </div>
+                            <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                                <canvas id="rankBarChartByVisits" class="w-full"></canvas>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="row row-cols-1 row-cols-lg-2 mt-3">
-                        <div class="col mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span>По пользователям</span>
-                                <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-                                    {{ rank_in_region_by_users }} из {{ number_of_cities_in_region }}
-                                </span>
+                <!-- Популярность в регионе -->
+                {% if city.region %}
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white text-center mb-4">Популярность города в регионе</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-sm text-gray-600 dark:text-neutral-400">По пользователям</span>
+                                    <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-emerald-600 dark:bg-emerald-500">
+                                        {{ rank_in_region_by_users }} из {{ number_of_cities_in_region }}
+                                    </span>
+                                </div>
+                                <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                                    <canvas id="rankBarInRegionChartByUsers" class="w-full"></canvas>
+                                </div>
                             </div>
-                            <canvas id="rankBarInRegionChartByUsers" class="mt-3" style="width: 100%; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);"></canvas>
-                        </div>
 
-                        <div class="col mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span>По посещениям</span>
-                                <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-                                    {{ rank_in_region_by_visits }} из {{ number_of_cities_in_region }}
-                                </span>
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-sm text-gray-600 dark:text-neutral-400">По посещениям</span>
+                                    <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-emerald-600 dark:bg-emerald-500">
+                                        {{ rank_in_region_by_visits }} из {{ number_of_cities_in_region }}
+                                    </span>
+                                </div>
+                                <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                                    <canvas id="rankBarInRegionChartByVisits" class="w-full"></canvas>
+                                </div>
                             </div>
-                            <canvas id="rankBarInRegionChartByVisits" class="mt-3" style="width: 100%; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);"></canvas>
                         </div>
                     </div>
                 {% endif %}
             </div>
+            <!-- End Body -->
         </div>
     </div>
 </div>

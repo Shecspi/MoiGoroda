@@ -7,7 +7,12 @@ let map;
 function openDeleteModal(url) {
     document.getElementById('cityTitleOnModal').textContent = window.CITY_TITLE;
     document.getElementById('deleteCityForm').action = url;
-    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    // Открываем модальное окно Preline UI
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('open');
+    }
 }
 
 function initMap() {
@@ -57,17 +62,34 @@ function initMap() {
         });
 }
 
-// Перерисовываем карту при показе модального окна
+// Перерисовываем карту при показе модального окна Preline UI
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('mapModal');
-
-    modal.addEventListener('shown.bs.modal', () => {
-        if (!map) {
-            initMap();
-        } else {
-            map.invalidateSize();
-        }
-    });
+    
+    if (modal) {
+        // Используем MutationObserver для отслеживания изменений класса 'open'
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    if (modal.classList.contains('open') && !modal.classList.contains('hidden')) {
+                        // Небольшая задержка для завершения анимации
+                        setTimeout(() => {
+                            if (!map) {
+                                initMap();
+                            } else {
+                                map.invalidateSize();
+                            }
+                        }, 100);
+                    }
+                }
+            });
+        });
+        
+        observer.observe(modal, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
 });
 
 document.querySelectorAll('.delete_city').forEach(item => {

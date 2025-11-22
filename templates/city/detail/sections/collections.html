@@ -1,0 +1,17 @@
+<!-- Коллекции -->
+<div>
+    <h6 class="text-sm font-semibold text-gray-800 dark:text-neutral-300 mb-2">Коллекции:</h6>
+    <div class="flex flex-wrap gap-2">
+        {% if collections %}
+            {% for collection in collections %}
+                <a href="{% url 'collection-detail-list' collection.id %}"
+                   class="inline-flex items-center gap-x-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-400">
+                    {{ collection }}
+                </a>
+            {% endfor %}
+        {% else %}
+            <span class="text-sm text-gray-500 dark:text-neutral-500">Город не состоит ни в каких коллекциях</span>
+        {% endif %}
+    </div>
+</div>
+

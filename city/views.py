@@ -250,7 +250,7 @@ class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
     """
 
     model = City
-    template_name = 'city/city_selected.html'
+    template_name = 'city/detail/page.html'
     context_object_name = 'city'
 
     service: AbstractVisitedCityService | None = None

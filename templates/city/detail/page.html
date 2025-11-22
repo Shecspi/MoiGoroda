@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load vite %}
+{% load static %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
+
+{% block content %}
+{% if not DEBUG %}
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+    {% endif %}
+{% endif %}
+
+{% include 'city/detail/sections/header.html' %}
+
+{% if not user.is_authenticated %}
+    {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+{% endif %}
+
+<div class="mx-3 mb-8 flex justify-center">
+    <div class="w-full max-w-6xl">
+        <!-- Основная карточка с информацией о городе -->
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 mb-6" id="city-selected-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Изображение города -->
+                {% include 'city/detail/sections/image_section.html' %}
+
+                <!-- Информация о городе -->
+                <div class="space-y-4">
+                    <!-- Кнопки действий -->
+                    {% include 'city/detail/sections/action_buttons.html' %}
+
+                    <!-- Основная информация -->
+                    {% include 'city/detail/sections/basic_info.html' %}
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Коллекции -->
+                    {% include 'city/detail/sections/collections.html' %}
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Статистика -->
+                    {% include 'city/detail/sections/statistics.html' %}
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Ссылка на Wikipedia -->
+                    {% if city.wiki %}
+                        <div class="flex justify-end">
+                            <a href="{{ city.wiki }}"
+                               class="inline-flex items-center gap-x-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+                               target="_blank">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 448 512" fill="currentColor">
+                                    <path d="M448 80v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48h352c26.5 0 48 21.5 48 48zM92.5 220.5l123.8 130.7V340h100.2v-22.6l123.8-130.7c4.9-5.2 4.4-13.1-.8-17.6l-19.3-20.4c-5.2-5.5-13.1-6-18.1-.7L321.3 239l-64.7-65.1-64.7 65.1L93.1 183.1c-5-5.3-13-4.8-18.1.7l-19.3 20.4c-5.2 4.5-5.7 12.4-.8 17.6z"/>
+                                </svg>
+                                Больше информации о городе на Wikipedia
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Посещения пользователя -->
+            {% include 'city/detail/sections/user_visits.html' %}
+        </div>
+    </div>
+</div>
+
+{% if not DEBUG %}
+    {% include 'advertisement/rtb_feed.html' %}
+
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+    {% endif %}
+{% endif %}
+
+<!-- Модальные окна -->
+{% include 'city/detail/modals/statistics.html' %}
+{% include 'city/detail/modals/map.html' %}
+{% include 'city/detail/modals/delete.html' %}
+
+<script>
+    window.CITY_TITLE = "{{ city.title }}";
+    window.LAT = "{{ city.coordinate_width }}";
+    window.LON = "{{ city.coordinate_longitude }}";
+    window.ISO3166 = "{{ city.region.iso3166 }}"
+    window.COUNTRY_CODE = "{{ city.country.code }}"
+    window.TILE_LAYER = "{{ TILE_LAYER }}";
+    window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}"
+</script>
+{% vite_asset 'js/entries/leaflet_css.js' %}
+{% vite_asset 'js/entries/map_city_selected.js' %}
+{% endblock %}
+

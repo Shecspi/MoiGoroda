@@ -2,16 +2,17 @@
 {% load static %}
 {% load vite %}
 
-{% block content %}
-    <!-- Подключение нового дизайна -->
-    {% vite_css 'css/style2' %}
-    {% vite_css 'css/city-card' %}
-    {% vite_css 'css/pagination' %}
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
 
-    <div class="page-header-section text-center mt-4 mb-2 mx-3">
-        <h1 class="page-header-title display-4 fw-bold mb-2" id="section-page_header">{{ page_title }}</h1>
-        <div class="page-header-divider"></div>
-    </div>
+{% block content %}
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            {{ page_title }}
+        </h1>
+    </header>
 
     {% if not DEBUG %}
     {% if not user.is_authenticated %}
@@ -23,20 +24,18 @@
 
     <!-- Карточки с городами -->
     {% if object_list %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mb-3 g-3" style="margin-top: 1rem;">
+        <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
             {% for city in object_list %}
                 {% include 'collection/collection_detail__card.html' %}
             {% endfor %}
-
-            <!-- Включение всплывающих подсказок -->
-            <script>$(document).ready(function(){$('[data-bs-toggle="tooltip"]').tooltip();});</script>
-            <!-- ^^^ Включение всплывающих подсказок -->
         </div>
     {% else %}
-        <div class="row mx-3 mb-3 g-3 h-100 d-flex justify-content-center align-items-center my-auto" style="margin-top: 1rem;">
-            <div class="col-xl-8">
-                <div class="empty-state" role="alert" id="section-info_box">
-                    На данный момент в этой коллекции нет ни одного города
+        <div class="mx-3 mb-8 flex items-center justify-center">
+            <div class="w-full max-w-2xl">
+                <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" role="alert" id="section-info_box">
+                    <p class="text-sm text-gray-600 dark:text-neutral-300">
+                        На данный момент в этой коллекции нет ни одного города
+                    </p>
                 </div>
             </div>
         </div>
@@ -44,7 +43,7 @@
     <!-- ^^^ Карточки с городами -->
 
     <!-- Пагинация -->
-    {% include 'parts/pagination_without_sort_and_filter.html' %}
+    {% include 'parts/pagination.html' %}
     <!-- ^^^ Пагинация -->
 
     {% if not DEBUG %}

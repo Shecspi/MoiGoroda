@@ -1,22 +1,37 @@
 {% extends 'base.html' %}
-{% load vite %}
 {% load static %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+    {% vite_css 'css/leaflet-controls' %}
+{% endblock %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3 mx-3" id="page-header">
-        {{ page_title }}
-    </h1>
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            {{ page_title }}
+        </h1>
+    </header>
+
+    {% if not DEBUG %}
+    {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
 
     {% include 'collection/collection_selected__map__toolbar.html' %}
 
     <!-- Карта -->
-    <div id="map" class="h-100 mt-3"></div>
+    <div id="map" class="mx-3 mb-12 h-[560px] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900"></div>
     <!-- ^^^ Карта -->
+
+    {% if not DEBUG %}
+    {% include 'advertisement/rtb_feed.html' %}
+    {% endif %}
 
     {% if not user.is_authenticated %}
         {% include 'advertisement/rtb_floor_ad_mobile.html' %}
         {% include 'advertisement/rtb_floor_ad_desktop.html' %}
-        {% include 'advertisement/rtb_feed.html' %}
     {% endif %}
 
     {# Прокидываем переменные из Django в JS скрипт #}

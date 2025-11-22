@@ -1,37 +1,75 @@
-{% load morphology %}
 {% load vite %}
-{% load static %}
+{% load morphology %}
+
+{% vite_css 'css/components/badge' %}
+{% vite_css 'css/components/button' %}
+{% vite_css 'css/toolbar' %}
 
 <!-- Панель инструментов -->
-<div class="mx-3 my-3 d-flex flex-wrap gap-3 y-3 justify-content-between align-items-center" id="toolbar">
-    <!-- Статистика посещёния -->
-    <div class="d-flex flex-wrap gap-3 flex-grow-1 align-items-center">
-        <span class="fw-bold px-2 py-1 rounded text-white" style="background-color: #38a169;">
-            {% if user.is_authenticated %}
-                Посещено: {{ number_of_visited_cities }} {{ "город"|plural_by_num:number_of_visited_cities }} из {{ number_of_cities }}
-            {% else %}
-                Зарегистрируйтесь, чтобы отмечать регионы
-            {% endif %}
-        </span>
+<div class="mx-3 my-3 flex flex-wrap items-center justify-between gap-3" id="toolbar">
+    <!-- Статистика -->
+    <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
+        {% if user.is_authenticated %}
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                    <span class="stat-badge-dot"></span>
+                    Посещено:
+                    <strong>{{ number_of_visited_cities }}</strong>
+                    {{ "город"|plural_by_num:number_of_visited_cities }} из {{ number_of_cities }}
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Количество посещённых городов региона
+                </span>
+            </div>
+        {% else %}
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-warning">
+                    <span class="stat-badge-dot"></span>
+                    Городов в регионе:
+                    <strong>{{ number_of_cities }}</strong>
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Общее количество городов в регионе
+                </span>
+            </div>
+        {% endif %}
     </div>
+    <!-- ^^^ Статистика -->
 
-    <div class="d-flex flex-wrap justify-content-end align-items-center flex-grow-1 gap-3" id="section-small-buttons">
-        <a href="{% url 'region-selected-list' region_id %}"
-           class="btn btn-outline-success align-self-center"
-            data-bs-toggle="tooltip"
-           data-bs-title="Посмотреть список регионов региона">
-            <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
-        </a>
+    <!-- Кнопки действий -->
+    <div class="toolbar-actions flex flex-wrap items-center gap-3 self-center ml-auto">
+        <!-- Посмотреть список -->
+        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+            <a href="{% url 'region-selected-list' region_id %}" 
+               class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+               id="section-show_map">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 640 640" fill="currentColor">
+                    <path d="M64 136C64 122.8 74.7 112 88 112L136 112C149.3 112 160 122.7 160 136L160 240L184 240C197.3 240 208 250.7 208 264C208 277.3 197.3 288 184 288L88 288C74.7 288 64 277.3 64 264C64 250.7 74.7 240 88 240L112 240L112 160L88 160C74.7 160 64 149.3 64 136zM94.4 365.2C105.8 356.6 119.7 352 134 352L138.9 352C172.6 352 200 379.4 200 413.1C200 432.7 190.6 451 174.8 462.5L150.8 480L184 480C197.3 480 208 490.7 208 504C208 517.3 197.3 528 184 528L93.3 528C77.1 528 64 514.9 64 498.7C64 489.3 68.5 480.5 76.1 475L146.6 423.7C150 421.2 152 417.3 152 413.1C152 405.9 146.1 400 138.9 400L134 400C130.1 400 126.3 401.3 123.2 403.6L102.4 419.2C91.8 427.2 76.8 425 68.8 414.4C60.8 403.8 63 388.8 73.6 380.8L94.4 365.2zM288 128L544 128C561.7 128 576 142.3 576 160C576 177.7 561.7 192 544 192L288 192C270.3 192 256 177.7 256 160C256 142.3 270.3 128 288 128zM288 288L544 288C561.7 288 576 302.3 576 320C576 337.7 561.7 352 544 352L288 352C270.3 352 256 337.7 256 320C256 302.3 270.3 288 288 288zM288 448L544 448C561.7 448 576 462.3 576 480C576 497.7 561.7 512 544 512L288 512C270.3 512 256 497.7 256 480C256 462.3 270.3 448 288 448z"/>
+                </svg>
+                <span>Посмотреть список</span>
+            </a>
+            <span class="hs-tooltip-content" role="tooltip">
+                Открыть список городов региона
+            </span>
+        </div>
+        <!-- ^^^ Посмотреть список -->
 
-        <button class="btn btn-outline-secondary d-flex gap-2 justify-content-start align-items-center"
-                id="btn_help"
-                data-bs-toggle="modal"
-                data-bs-target="#modal_help"
-                data-bs-tooltip="tooltip"
-                data-bs-title="Подробнее о функционале этой страницы">
-            <i class="fa-regular fa-circle-question"></i>
-            Помощь
-        </button>
+        <!-- Помощь -->
+        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+            <button class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:ring-offset-neutral-800"
+                    id="btn_help"
+                    data-hs-overlay="#modal_help">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 640 640" fill="currentColor">
+                    <path d="M528 320C528 205.1 434.9 112 320 112C205.1 112 112 205.1 112 320C112 434.9 205.1 528 320 528C434.9 528 528 434.9 528 320zM64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576C178.6 576 64 461.4 64 320zM320 240C302.3 240 288 254.3 288 272C288 285.3 277.3 296 264 296C250.7 296 240 285.3 240 272C240 227.8 275.8 192 320 192C364.2 192 400 227.8 400 272C400 319.2 364 339.2 344 346.5L344 350.3C344 363.6 333.3 374.3 320 374.3C306.7 374.3 296 363.6 296 350.3L296 342.2C296 321.7 310.8 307 326.1 302C332.5 299.9 339.3 296.5 344.3 291.7C348.6 287.5 352 281.7 352 272.1C352 254.4 337.7 240.1 320 240.1zM288 432C288 414.3 302.3 400 320 400C337.7 400 352 414.3 352 432C352 449.7 337.7 464 320 464C302.3 464 288 449.7 288 432z"/>
+                </svg>
+                <span>Помощь</span>
+            </button>
+            <span class="hs-tooltip-content" role="tooltip">
+                Подробнее о функционале этой страницы
+            </span>
+        </div>
+        <!-- ^^^ Помощь -->
     </div>
+    <!-- ^^^ Кнопки действий -->
 </div>
 <!-- ^^^ Панель инструментов -->

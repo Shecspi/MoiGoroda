@@ -1,84 +1,140 @@
+{% load vite %}
+
+{% vite_css 'css/components/badge' %}
+{% vite_css 'css/components/button' %}
+{% vite_css 'css/toolbar' %}
+
 <!-- Панель инструментов -->
-<div class="row mx-3 my-3 g-3" id="toolbar">
-    <!-- Статистика посещёния -->
-    <div class="col-xl-3 order-xl-1" id="block-statistic">
-        <div class="card text-center shadow h-100">
-            <div class="card-body d-grid bg-warning-subtle" id="block-statistic">
-                <div class="align-self-center">
-                    {% if user.is_authenticated %}
-                        {{ change__visited|title }} <span class="fs-4 fw-medium">{{ qty_of_visited_cities }}</span>
-                        {{ change__city }} из {{ qty_of_cities }}
-                    {% else %}
-                        Городов в коллекции: <span class="fs-4 fw-medium">{{ qty_of_cities }}</span>
-                    {% endif %}
-                </div>
+<div class="mx-3 my-3 flex flex-wrap items-center justify-between gap-3" id="toolbar">
+    <!-- Статистика -->
+    <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
+        {% if user.is_authenticated %}
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                    <span class="stat-badge-dot"></span>
+                    {{ change__visited|title }}:
+                    <strong>{{ qty_of_visited_cities }}</strong>
+                    {{ change__city }} из {{ qty_of_cities }}
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Количество посещённых городов из коллекции
+                </span>
             </div>
-        </div>
-    </div>
-    <!-- ^^^ Статистика посещёния -->
-
-    <!-- Посмотреть на карте -->
-    <div class="col-xl-3 order-xl-4" id="section-show_map">
-        <div class="card text-center shadow h-100">
-            <div class="card-body d-grid bg-success-subtle">
-                <a href="{% url 'collection-detail-list' pk %}" class="btn btn-outline-success align-self-center">
-                    <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список
-                </a>
+        {% else %}
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-warning">
+                    <span class="stat-badge-dot"></span>
+                    Городов в коллекции:
+                    <strong>{{ qty_of_cities }}</strong>
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Общее количество городов в коллекции
+                </span>
             </div>
-        </div>
+        {% endif %}
     </div>
-    <!-- ^^^ Посмотреть на карте -->
+    <!-- ^^^ Статистика -->
 
-    <!-- Посмотреть посещённые -->
-    <div class="col-xl-3 order-xl-2">
-        <div class="card text-center shadow h-100" id="section-filter">
-            <div class="card-body d-grid bg-primary-subtle">
-                {% if user.is_authenticated and qty_of_visited_cities > 0 %}
-                    {% if filter == 'visited' %}
-                         <a class="btn btn-primary d-block align-self-center"
-                            href="{% url 'collection-detail-map' pk %}">
-                             <i class="fa-regular fa-square-check"></i>&nbsp;&nbsp;&nbsp;Посмотреть посещённые
-                         </a>
-                    {% else %}
-                        <a class="btn btn-outline-primary d-block align-self-center"
-                            href="{% url 'collection-detail-map' pk %}?{{ url_for_filter_visited }}">
-                             <i class="fa-regular fa-square-check"></i>&nbsp;&nbsp;&nbsp;Посмотреть посещённые
-                         </a>
-                    {% endif %}
-                {% else %}
-                    <button class="btn btn-outline-primary d-block align-self-center disabled">
-                         <i class="fa-regular fa-square-check"></i>&nbsp;&nbsp;&nbsp;Посмотреть посещённые
-                     </button>
-                {% endif %}
-            </div>
+    <!-- Кнопки действий -->
+    <div class="toolbar-actions flex flex-wrap items-center gap-3 self-center ml-auto">
+        <!-- Посмотреть список -->
+        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+            <a href="{% url 'collection-detail-list' pk %}" 
+               class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+               id="section-show_map">
+                <i class="fa-solid fa-list-ol"></i>
+                <span>Посмотреть список</span>
+            </a>
+            <span class="hs-tooltip-content" role="tooltip">
+                Открыть список городов коллекции
+            </span>
         </div>
-    </div>
-    <!-- ^^^ Посмотреть посещённые -->
+        <!-- ^^^ Посмотреть список -->
 
-    <!-- Посмотреть непосещённые -->
-    <div class="col-xl-3 order-xl-3">
-        <div class="card text-center shadow h-100" id="section-sorting">
-            <div class="card-body d-grid bg-secondary-subtle">
-                {% if user.is_authenticated and qty_of_visited_cities > 0 %}
-                    {% if filter == 'not_visited' %}
-                        <a class="btn btn-secondary d-block align-self-center"
-                           href="{% url 'collection-detail-map' pk %}">
-                            <i class="fa-regular fa-circle-xmark"></i>&nbsp;&nbsp;&nbsp;Посмотреть непосещённые
-                        </a>
-                    {% else %}
-                        <a class="btn btn-outline-secondary d-block align-self-center"
-                           href="{% url 'collection-detail-map' pk %}?{{ url_for_filter_not_visited }}">
-                            <i class="fa-regular fa-circle-xmark"></i>&nbsp;&nbsp;&nbsp;Посмотреть непосещённые
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <a class="btn btn-outline-secondary d-block align-self-center disabled">
-                        <i class="fa-regular fa-circle-xmark"></i>&nbsp;&nbsp;&nbsp;Посмотреть непосещённые
+        <!-- Посмотреть посещённые -->
+        {% if user.is_authenticated and qty_of_visited_cities > 0 %}
+            {% if filter == 'visited' %}
+                <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                    <a class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-transparent bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-400 dark:focus:ring-offset-neutral-800"
+                       href="{% url 'collection-detail-map' pk %}"
+                       id="section-filter">
+                        <i class="fa-regular fa-square-check"></i>
+                        <span>Посещённые</span>
                     </a>
-                {% endif %}
+                    <span class="hs-tooltip-content" role="tooltip">
+                        Показать только посещённые города на карте
+                    </span>
+                </div>
+            {% else %}
+                <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                    <a class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-500/10 dark:focus:ring-offset-neutral-800"
+                       href="{% url 'collection-detail-map' pk %}?{{ url_for_filter_visited }}"
+                       id="section-filter">
+                        <i class="fa-regular fa-square-check"></i>
+                        <span>Посещённые</span>
+                    </a>
+                    <span class="hs-tooltip-content" role="tooltip">
+                        Показать только посещённые города на карте
+                    </span>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <button class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 opacity-50 cursor-not-allowed dark:border-neutral-700 dark:text-neutral-500"
+                        id="section-filter"
+                        disabled>
+                    <i class="fa-regular fa-square-check"></i>
+                    <span>Посещённые</span>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">
+                    У Вас нет посещённых городов в этой коллекции
+                </span>
             </div>
-        </div>
+        {% endif %}
+        <!-- ^^^ Посмотреть посещённые -->
+
+        <!-- Посмотреть непосещённые -->
+        {% if user.is_authenticated and qty_of_visited_cities > 0 %}
+            {% if filter == 'not_visited' %}
+                <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                    <a class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-transparent bg-gray-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-500 dark:hover:bg-gray-400 dark:focus:ring-offset-neutral-800"
+                       href="{% url 'collection-detail-map' pk %}"
+                       id="section-sorting">
+                        <i class="fa-regular fa-circle-xmark"></i>
+                        <span>Непосещённые</span>
+                    </a>
+                    <span class="hs-tooltip-content" role="tooltip">
+                        Показать только непосещённые города на карте
+                    </span>
+                </div>
+            {% else %}
+                <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                    <a class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-gray-600 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-500 dark:text-gray-400 dark:hover:bg-gray-500/10 dark:focus:ring-offset-neutral-800"
+                       href="{% url 'collection-detail-map' pk %}?{{ url_for_filter_not_visited }}"
+                       id="section-sorting">
+                        <i class="fa-regular fa-circle-xmark"></i>
+                        <span>Непосещённые</span>
+                    </a>
+                    <span class="hs-tooltip-content" role="tooltip">
+                        Показать только непосещённые города на карте
+                    </span>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <button class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 opacity-50 cursor-not-allowed dark:border-neutral-700 dark:text-neutral-500"
+                        id="section-sorting"
+                        disabled>
+                    <i class="fa-regular fa-circle-xmark"></i>
+                    <span>Непосещённые</span>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">
+                    У Вас нет посещённых городов в этой коллекции
+                </span>
+            </div>
+        {% endif %}
+        <!-- ^^^ Посмотреть непосещённые -->
     </div>
-    <!-- ^^^ Посмотреть непосещённые -->
+    <!-- ^^^ Кнопки действий -->
 </div>
 <!-- ^^^ Панель инструментов -->

@@ -47,15 +47,22 @@
                              class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg">
                     {% endif %}
                     {% if city.image_source_text %}
-                        <div class="mt-3 text-sm text-gray-600 dark:text-neutral-400">
-                            Источник изображения:<br>
-                            {% if city.image_source_link %}
-                                <a href="{{ city.image_source_link }}"
-                                   class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
-                                   target="_blank">{{ city.image_source_text }}</a>
-                            {% else %}
-                                {{ city.image_source_text }}
-                            {% endif %}
+                        <div class="mt-3 inline-block rounded-lg border border-blue-200 border-l-4 bg-blue-50 px-3 py-2 dark:border-blue-500/40 dark:bg-blue-500/10">
+                            <div class="flex items-center justify-center gap-2 text-xs flex-wrap">
+                                <span class="inline-flex items-center gap-2 whitespace-nowrap">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 512 512" fill="currentColor">
+                                        <path d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-12-10.5-20.1-10.5s-15.6 3.9-20.1 10.5l-87 127.6L170.7 297c-4.6-5.7-11.4-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.2-2.9 25.4s12.4 13.6 21.6 13.6h96 32 208c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/>
+                                    </svg>
+                                    <span class="font-medium text-blue-700 dark:text-blue-300">Источник изображения:</span>
+                                </span>
+                                {% if city.image_source_link %}
+                                    <a href="{{ city.image_source_link }}"
+                                    class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline break-words"
+                                    target="_blank">{{ city.image_source_text }}</a>
+                                {% else %}
+                                    <span class="text-gray-700 dark:text-neutral-300 break-words">{{ city.image_source_text }}</span>
+                                {% endif %}
+                            </div>
                         </div>
                     {% endif %}
                 </div>
@@ -85,62 +92,74 @@
                         </button>
                     </div>
 
-                    <hr class="border-gray-200 dark:border-neutral-700">
-
                     <!-- Основная информация -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 gap-3">
                         {% url 'region-selected-list' city.region.id as region_url %}
-                        <div class="rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4 dark:bg-blue-500/10 dark:border-blue-400" id="section-country">
-                            <div class="flex items-center gap-2 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-blue-600 dark:text-blue-400" viewBox="0 0 640 640" fill="currentColor">
+                        <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50" id="section-country">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-blue-200 bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/20 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600 dark:text-blue-400" viewBox="0 0 640 640" fill="currentColor">
                                     <path d="M320.2 112C435 112.1 528 205.2 528 320C528 342.1 524.6 363.4 518.2 383.4C516.2 383.8 514.1 384 512 384L509.3 384C500.8 384 492.7 380.6 486.7 374.6L457.4 345.3C451.4 339.3 448 331.2 448 322.7L448 272C448 263.2 455.2 256 464 256C472.8 256 480 248.8 480 240C480 231.2 472.8 224 464 224L440 224C426.7 224 416 234.7 416 248C416 261.3 405.3 272 392 272L336 272C327.2 272 320 279.2 320 288C320 296.8 312.8 304 304 304L278.6 304C266.1 304 256 293.9 256 281.4C256 275.4 258.4 269.6 262.6 265.4L332.7 195.3C334.8 193.2 336 190.3 336 187.3C336 181.1 330.9 176 324.7 176L310.6 176C298.1 176 288 165.9 288 153.4C288 147.4 290.4 141.6 294.6 137.4L317.7 114.3C318.5 113.5 319.3 112.8 320.2 112.1zM502.4 420.1C469.6 479.7 408.5 521.5 337.2 527.3C336.5 525 336.1 522.5 336.1 520C336.1 506.7 325.4 496 312.1 496L285.4 496C276.9 496 268.8 492.6 262.8 486.6L233.5 457.3C227.5 451.3 224.1 443.2 224.1 434.7L224.1 368C224.1 350.3 238.4 336 256.1 336L354.8 336C363.3 336 371.4 339.4 377.4 345.4L406.7 374.7C412.7 380.7 420.8 384.1 429.3 384.1L434.8 384.1C443.3 384.1 451.4 387.5 457.4 393.5L473.4 409.5C477.6 413.7 483.4 416.1 489.4 416.1C494.2 416.1 498.7 417.6 502.4 420.2zM320 576L346.2 574.7C337.6 575.6 328.9 576 320 576zM346.2 574.7C475.3 561.6 576 452.6 576 320C576 178.6 461.4 64 320 64L320 64C178.6 64 64 178.6 64 320C64 447.5 157.2 553.3 279.3 572.8C292.5 574.9 306.1 576 320 576zM251.3 187.3L219.3 219.3C213.1 225.5 202.9 225.5 196.7 219.3C190.5 213.1 190.5 202.9 196.7 196.7L228.7 164.7C234.9 158.5 245.1 158.5 251.3 164.7C257.5 170.9 257.5 181.1 251.3 187.3z"/>
                                 </svg>
-                                <div class="text-xs font-semibold text-blue-600 dark:text-blue-400">Страна</div>
                             </div>
-                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ city.country }}</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-600 dark:text-neutral-400">Страна</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                                    <a href="{% url 'city-all-list' %}?country={{ city.country.code }}" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">
+                                        {{ city.country }}
+                                    </a>
+                                </p>
+                            </div>
                         </div>
-                        <div class="rounded-lg border-l-4 border-emerald-500 bg-emerald-50 p-4 dark:bg-emerald-500/10 dark:border-emerald-400" id="section-region">
-                            <div class="flex items-center gap-2 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-emerald-600 dark:text-emerald-400" viewBox="0 0 640 640" fill="currentColor">
+                        <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50" id="section-region">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-emerald-200 bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/20 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600 dark:text-emerald-400" viewBox="0 0 640 640" fill="currentColor">
                                     <path d="M576 112C576 100.9 570.3 90.6 560.8 84.8C551.3 79 539.6 78.4 529.7 83.4L413.5 141.5L234.1 81.6C226 78.9 217.3 79.5 209.7 83.3L81.7 147.3C70.8 152.8 64 163.9 64 176L64 528C64 539.1 69.7 549.4 79.2 555.2C88.7 561 100.4 561.6 110.3 556.6L226.4 498.5L399.7 556.3C395.4 549.9 391.2 543.2 387.1 536.4C376.1 518.1 365.2 497.1 357.1 474.6L255.9 440.9L255.9 156.4L383.9 199.1L383.9 298.4C414.9 262.6 460.9 240 511.9 240C534.5 240 556.1 244.4 575.9 252.5L576 112zM512 288C445.7 288 392 340.8 392 405.9C392 474.8 456.1 556.3 490.6 595.2C502.2 608.2 521.9 608.2 533.5 595.2C568 556.3 632.1 474.8 632.1 405.9C632.1 340.8 578.4 288 512.1 288zM472 408C472 385.9 489.9 368 512 368C534.1 368 552 385.9 552 408C552 430.1 534.1 448 512 448C489.9 448 472 430.1 472 408z"/>
                                 </svg>
-                                <div class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Регион</div>
                             </div>
-                            <div class="text-base font-bold text-gray-900 dark:text-white">
-                                <a href="{{ region_url }}" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">{{ city.region }}</a>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-600 dark:text-neutral-400">Регион</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                                    <a href="{{ region_url }}" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">{{ city.region }}</a>
+                                </p>
                             </div>
                         </div>
                         {% if city.region.area %}
-                        <div class="rounded-lg border-l-4 border-purple-500 bg-purple-50 p-4 dark:bg-purple-500/10 dark:border-purple-400" id="section-area">
-                            <div class="flex items-center gap-2 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-purple-600 dark:text-purple-400" viewBox="0 0 640 640" fill="currentColor">
+                        <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50" id="section-area">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-purple-200 bg-purple-100 dark:border-purple-500/40 dark:bg-purple-500/20 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-purple-600 dark:text-purple-400" viewBox="0 0 640 640" fill="currentColor">
                                     <path d="M415.9 344L225 344C227.9 408.5 242.2 467.9 262.5 511.4C273.9 535.9 286.2 553.2 297.6 563.8C308.8 574.3 316.5 576 320.5 576C324.5 576 332.2 574.3 343.4 563.8C354.8 553.2 367.1 535.8 378.5 511.4C398.8 467.9 413.1 408.5 416 344zM224.9 296L415.8 296C413 231.5 398.7 172.1 378.4 128.6C367 104.2 354.7 86.8 343.3 76.2C332.1 65.7 324.4 64 320.4 64C316.4 64 308.7 65.7 297.5 76.2C286.1 86.8 273.8 104.2 262.4 128.6C242.1 172.1 227.8 231.5 224.9 296zM176.9 296C180.4 210.4 202.5 130.9 234.8 78.7C142.7 111.3 74.9 195.2 65.5 296L176.9 296zM65.5 344C74.9 444.8 142.7 528.7 234.8 561.3C202.5 509.1 180.4 429.6 176.9 344L65.5 344zM463.9 344C460.4 429.6 438.3 509.1 406 561.3C498.1 528.6 565.9 444.8 575.3 344L463.9 344zM575.3 296C565.9 195.2 498.1 111.3 406 78.7C438.3 130.9 460.4 210.4 463.9 296L575.3 296z"/>
                                 </svg>
-                                <div class="text-xs font-semibold text-purple-600 dark:text-purple-400">Федеральный округ</div>
                             </div>
-                            <div class="text-base font-bold text-gray-900 dark:text-white">{{ city.region.area }}</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-600 dark:text-neutral-400">Федеральный округ</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ city.region.area }}</p>
+                            </div>
                         </div>
                         {% endif %}
-                        <div class="rounded-lg border-l-4 border-amber-500 bg-amber-50 p-4 dark:bg-amber-500/10 dark:border-amber-400" id="section-date_of_foundation">
-                            <div class="flex items-center gap-2 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-amber-600 dark:text-amber-400" viewBox="0 0 448 512" fill="currentColor">
+                        <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50" id="section-date_of_foundation">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-amber-200 bg-amber-100 dark:border-amber-500/40 dark:bg-amber-500/20 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-600 dark:text-amber-400" viewBox="0 0 448 512" fill="currentColor">
                                     <path d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H64C28.7 64 0 92.7 0 128v16 48V448c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V192 144 128c0-35.3-28.7-64-64-64H344V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H152V24zM48 192H400V448c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192z"/>
                                 </svg>
-                                <div class="text-xs font-semibold text-amber-600 dark:text-amber-400">Год основания</div>
                             </div>
-                            <div class="text-base font-bold text-gray-900 dark:text-white">
-                                {% if city.date_of_foundation %}{{ city.date_of_foundation }}{% else %}<span class="text-gray-500 dark:text-neutral-500">Не указано</span>{% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-600 dark:text-neutral-400">Год основания</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                                    {% if city.date_of_foundation %}{{ city.date_of_foundation }}{% else %}<span class="text-gray-500 dark:text-neutral-500">Не указано</span>{% endif %}
+                                </p>
                             </div>
                         </div>
-                        <div class="rounded-lg border-l-4 border-red-500 bg-red-50 p-4 dark:bg-red-500/10 dark:border-red-400" id="section-population">
-                            <div class="flex items-center gap-2 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-red-600 dark:text-red-400" viewBox="0 0 448 512" fill="currentColor">
+                        <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50" id="section-population">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-red-200 bg-red-100 dark:border-red-500/40 dark:bg-red-500/20 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600 dark:text-red-400" viewBox="0 0 448 512" fill="currentColor">
                                     <path d="M224 256a128 128 0 1 0 0-256 128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/>
                                 </svg>
-                                <div class="text-xs font-semibold text-red-600 dark:text-red-400">Население</div>
                             </div>
-                            <div class="text-base font-bold text-gray-900 dark:text-white">
-                                {% if city.population %}{{ city.population|intcomma }}{% else %}<span class="text-gray-500 dark:text-neutral-500">Не указано</span>{% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-600 dark:text-neutral-400">Население</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                                    {% if city.population %}{{ city.population|intcomma }}{% else %}<span class="text-gray-500 dark:text-neutral-500">Не указано</span>{% endif %}
+                                </p>
                             </div>
                         </div>
                     </div>

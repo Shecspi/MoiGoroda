@@ -4,15 +4,9 @@ import L from "leaflet";
 
 let map;
 
-function openDeleteModal(url) {
-    document.getElementById('cityTitleOnModal').textContent = window.CITY_TITLE;
+function setupDeleteModal(url, cityTitle) {
+    document.getElementById('cityTitleOnModal').textContent = cityTitle;
     document.getElementById('deleteCityForm').action = url;
-    // Открываем модальное окно Preline UI
-    const modal = document.getElementById('deleteModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('open');
-    }
 }
 
 function initMap() {
@@ -92,9 +86,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Обработка клика на кнопку удаления - устанавливаем данные перед открытием модального окна
 document.querySelectorAll('.delete_city').forEach(item => {
-    item.addEventListener('click', () => {
+    item.addEventListener('click', (event) => {
         event.preventDefault();
-        openDeleteModal(item.dataset.delete_url);
-    })
-})
+        const deleteUrl = item.dataset.delete_url;
+        const cityTitle = item.dataset.city_title || window.CITY_TITLE;
+        setupDeleteModal(deleteUrl, cityTitle);
+    });
+});
+
+// Также обрабатываем событие открытия модального окна Preline UI на случай, если данные не были установлены
+document.addEventListener('DOMContentLoaded', () => {
+    const deleteModal = document.getElementById('deleteModal');
+    if (deleteModal) {
+        deleteModal.addEventListener('open.hs.overlay', () => {
+            // Если данные не были установлены, используем значения по умолчанию
+            const cityTitleElement = document.getElementById('cityTitleOnModal');
+            const form = document.getElementById('deleteCityForm');
+            if (cityTitleElement && !cityTitleElement.textContent && window.CITY_TITLE) {
+                cityTitleElement.textContent = window.CITY_TITLE;
+            }
+            if (form && !form.action) {
+                // Если action не установлен, можно установить значение по умолчанию или оставить пустым
+            }
+        });
+    }
+});

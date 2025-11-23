@@ -69,7 +69,7 @@ class TestFullPageRender:
         response = client.get(reverse('city-all-map'))
 
         assert response.status_code == 200
-        assert 'city/city_all__map.html' in (t.name for t in response.templates)
+        assert 'city/map/page.html' in (t.name for t in response.templates)
 
         # Проверяем, что все моки были вызваны
         assert mock_all_dependencies['logger'].info.called

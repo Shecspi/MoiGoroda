@@ -27,11 +27,11 @@
     {% include 'advertisement/rtb_banner.html' %}
     {% endif %}
 
-    {% include 'city/city_all__map__toolbar.html' %}
+    {% include 'city/map/toolbar.html' %}
 
-    {% include 'city/subscriptions_modal_window.html' %}
-    {% include 'city/modal_help.html' %}
-    {% include 'city/modal_add_city.html' %}
+    {% include 'city/map/modals/subscriptions.html' %}
+    {% include 'city/map/modals/help.html' %}
+    {% include 'city/map/modals/add_city.html' %}
 
     <!-- Карта -->
     <div id="map" class="mx-3 mb-12 h-[560px] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900"></div>
@@ -53,3 +53,4 @@
     {% include 'parts/toast/danger.html' with error_title="Ошибка соединения с сервером" error_message='Не получилось загрузить список Ваших посещённых городов.' error_id='toast_request_error' %}
     {% include 'parts/toast/success.html' with title="Успешно" message="Город <span id='city-title-in-toast' class='font-semibold'></span> успешно отмечен как посещённый" %}
 {% endblock %}
+

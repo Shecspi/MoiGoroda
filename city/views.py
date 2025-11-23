@@ -288,7 +288,7 @@ class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
 
 
 class VisitedCity_Map(LoginRequiredMixin, TemplateView):
-    template_name = 'city/city_all__map.html'
+    template_name = 'city/map/page.html'
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         # Если в URL передан несуществующий код страны, то перенаправляем пользователя на страницу всех городов
@@ -362,7 +362,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
 
     model = VisitedCity
     paginate_by = 24
-    template_name = 'city/city_all__list.html'
+    template_name = 'city/list/page.html'
 
     all_cities = None
 

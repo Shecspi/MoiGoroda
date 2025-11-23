@@ -68,5 +68,5 @@ fetch(document.getElementById('url_get_added_visited_countries_by_day').dataset.
 
 function updateNumberOnCard(element_id, newNumber) {
     const el = document.getElementById(element_id);
-    el.innerHTML = `<h1>${newNumber}</h1>`;
+    el.innerHTML = `<span class="text-2xl font-bold text-gray-900 dark:text-white">${newNumber}</span>`;
 }

@@ -59,7 +59,7 @@ def test_city_create_authenticated_user_access(test_user: User, client: Client) 
     response = client.get(reverse('city-create'))
 
     assert response.status_code == 200
-    assert 'city/city_create.html' in (t.name for t in response.templates)
+    assert 'city/create/page.html' in (t.name for t in response.templates)
 
 
 @pytest.mark.django_db

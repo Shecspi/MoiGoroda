@@ -57,7 +57,7 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):  # type: ignore[type-a
     """
 
     form_class = VisitedCity_Create_Form
-    template_name = 'city/city_create.html'
+    template_name = 'city/create/page.html'
     success_url = reverse_lazy('city-all-list')
 
     def get_initial(self) -> dict[str, Any]:
@@ -178,7 +178,7 @@ class VisitedCity_Update(LoginRequiredMixin, UpdateView):  # type: ignore[type-a
 
     model = VisitedCity
     form_class = VisitedCity_Create_Form
-    template_name = 'city/city_create.html'
+    template_name = 'city/create/page.html'
 
     def get_object(self, queryset: QuerySet[VisitedCity] | None = None) -> VisitedCity:
         """Получаем объект и проверяем, что он принадлежит текущему пользователю."""
@@ -494,4 +494,4 @@ def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:
     except ValueError:
         logger.info(request, "(Visited city) Couldn't find cities in the requested region")
         cities = None
-    return render(request, 'city/city_create__dropdown_list.html', {'cities': cities})
+    return render(request, 'city/create/dropdown_list.html', {'cities': cities})

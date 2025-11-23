@@ -84,7 +84,7 @@ class TestUpdateAccessOwner:
         response = client.get(reverse('city-update', kwargs={'pk': 1}))
 
         assert response.status_code == 200
-        assert 'city/city_create.html' in (t.name for t in response.templates)
+        assert 'city/create/page.html' in (t.name for t in response.templates)
 
     @pytest.mark.integration
     @pytest.mark.django_db
@@ -93,7 +93,7 @@ class TestUpdateAccessOwner:
         client.login(username='username1', password='password')
         response = client.get(reverse('city-update', kwargs={'pk': 1}))
 
-        assert 'city/city_create.html' in (t.name for t in response.templates)
+        assert 'city/create/page.html' in (t.name for t in response.templates)
 
     @pytest.mark.integration
     @pytest.mark.django_db

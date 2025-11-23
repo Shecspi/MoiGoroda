@@ -6,7 +6,8 @@ Licensed under the Apache License, Version 2.0
 /* Стили для выпадающих списков (select) с Choices.js в стиле Preline UI */
 
 /* Базовый контейнер Choices */
-#toolbar .choices {
+#toolbar .choices,
+#city-create-form .choices {
     width: 100%;
     margin-bottom: 0;
     position: relative;
@@ -14,7 +15,8 @@ Licensed under the Apache License, Version 2.0
 }
 
 /* Основное поле выбора - стилизация в стиле Preline UI */
-#toolbar .choices__inner {
+#toolbar .choices__inner,
+#city-create-form .choices__inner {
     border: 1px solid #e5e7eb;
     border-radius: 0.75rem; /* rounded-xl */
     padding: 0.5rem 1rem; /* py-2 px-4 - соответствует высоте кнопок h-10 */
@@ -35,42 +37,51 @@ Licensed under the Apache License, Version 2.0
 }
 
 /* Dark mode для основного поля */
-.dark #toolbar .choices__inner {
+.dark #toolbar .choices__inner,
+.dark #city-create-form .choices__inner {
     border-color: #404040; /* dark:border-neutral-700 */
     background-color: #171717; /* dark:bg-neutral-900 */
     color: #e5e7eb; /* dark:text-neutral-200 */
 }
 
 /* Hover состояние */
-#toolbar .choices:hover .choices__inner {
+#toolbar .choices:hover .choices__inner,
+#city-create-form .choices:hover .choices__inner {
     border-color: #d1d5db;
 }
 
-.dark #toolbar .choices:hover .choices__inner {
+.dark #toolbar .choices:hover .choices__inner,
+.dark #city-create-form .choices:hover .choices__inner {
     border-color: #525252;
 }
 
 /* Focus состояние - в стиле Preline UI */
 #toolbar .choices.is-focused .choices__inner,
-#toolbar .choices.is-open .choices__inner {
+#toolbar .choices.is-open .choices__inner,
+#city-create-form .choices.is-focused .choices__inner,
+#city-create-form .choices.is-open .choices__inner {
     border-color: #3b82f6; /* focus:border-blue-500 */
     outline: none;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); /* focus:ring-2 focus:ring-blue-500 */
 }
 
 .dark #toolbar .choices.is-focused .choices__inner,
-.dark #toolbar .choices.is-open .choices__inner {
+.dark #toolbar .choices.is-open .choices__inner,
+.dark #city-create-form .choices.is-focused .choices__inner,
+.dark #city-create-form .choices.is-open .choices__inner {
     border-color: #3b82f6;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
 /* Скрываем стандартную стрелку Choices.js */
-#toolbar .choices[data-type*="select-one"]::after {
+#toolbar .choices[data-type*="select-one"]::after,
+#city-create-form .choices[data-type*="select-one"]::after {
     display: none;
 }
 
 /* Добавляем кастомную иконку стрелки вниз */
-#toolbar .choices__inner::after {
+#toolbar .choices__inner::after,
+#city-create-form .choices__inner::after {
     content: "";
     position: absolute;
     right: 0.75rem;
@@ -86,17 +97,20 @@ Licensed under the Apache License, Version 2.0
     z-index: 1;
 }
 
-.dark #toolbar .choices__inner::after {
+.dark #toolbar .choices__inner::after,
+.dark #city-create-form .choices__inner::after {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23737373'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
 
 /* Текст выбранного элемента */
-#toolbar .choices__item--selectable {
+#toolbar .choices__item--selectable,
+#city-create-form .choices__item--selectable {
     padding-right: 2rem;
 }
 
 /* Выпадающий список - стилизация в стиле автодополнения */
 #toolbar .choices__list--dropdown,
+#city-create-form .choices__list--dropdown,
 .choices__list--dropdown {
     border: 1px solid #e5e7eb;
     border-radius: 1rem; /* как в autoComplete */
@@ -113,6 +127,7 @@ Licensed under the Apache License, Version 2.0
 }
 
 .dark #toolbar .choices__list--dropdown,
+.dark #city-create-form .choices__list--dropdown,
 .dark .choices__list--dropdown {
     border-color: rgba(148, 163, 184, 0.35);
     background-color: rgba(15, 23, 42, 0.95);
@@ -122,6 +137,7 @@ Licensed under the Apache License, Version 2.0
 
 /* Список элементов внутри выпадающего списка - скроллируемый */
 #toolbar .choices__list--dropdown .choices__list,
+#city-create-form .choices__list--dropdown .choices__list,
 .choices__list--dropdown .choices__list {
     padding: 0 0.5rem 0.5rem 0.5rem;
     overflow-y: auto;
@@ -135,28 +151,33 @@ Licensed under the Apache License, Version 2.0
 
 /* Скроллбар для списка элементов */
 #toolbar .choices__list--dropdown .choices__list::-webkit-scrollbar,
+#city-create-form .choices__list--dropdown .choices__list::-webkit-scrollbar,
 .choices__list--dropdown .choices__list::-webkit-scrollbar {
     width: 8px;
 }
 
 #toolbar .choices__list--dropdown .choices__list::-webkit-scrollbar-track,
+#city-create-form .choices__list--dropdown .choices__list::-webkit-scrollbar-track,
 .choices__list--dropdown .choices__list::-webkit-scrollbar-track {
     background: transparent;
 }
 
 #toolbar .choices__list--dropdown .choices__list::-webkit-scrollbar-thumb,
+#city-create-form .choices__list--dropdown .choices__list::-webkit-scrollbar-thumb,
 .choices__list--dropdown .choices__list::-webkit-scrollbar-thumb {
     background-color: rgba(148, 163, 184, 0.7);
     border-radius: 9999px;
 }
 
 #toolbar .choices__list--dropdown .choices__list::-webkit-scrollbar-thumb:hover,
+#city-create-form .choices__list--dropdown .choices__list::-webkit-scrollbar-thumb:hover,
 .choices__list--dropdown .choices__list::-webkit-scrollbar-thumb:hover {
     background-color: rgba(79, 70, 229, 0.85);
 }
 
 /* Элементы списка - в стиле автодополнения */
-#toolbar .choices__list--dropdown .choices__item {
+#toolbar .choices__list--dropdown .choices__item,
+#city-create-form .choices__list--dropdown .choices__item {
     padding: 0.65rem 0.9rem;
     margin: 0.15rem 0;
     font-size: 0.95rem;
@@ -171,60 +192,66 @@ Licensed under the Apache License, Version 2.0
     text-overflow: ellipsis;
 }
 
-.dark #toolbar .choices__list--dropdown .choices__item {
+.dark #toolbar .choices__list--dropdown .choices__item,
+.dark #city-create-form .choices__list--dropdown .choices__item {
     color: #e2e8f0;
 }
 
 /* Hover для элементов списка - в стиле автодополнения */
-#toolbar .choices__list--dropdown .choices__item--selectable.is-highlighted {
+#toolbar .choices__list--dropdown .choices__item--selectable.is-highlighted,
+#city-create-form .choices__list--dropdown .choices__item--selectable.is-highlighted {
     background-color: rgba(59, 130, 246, 0.08);
     color: #1d4ed8;
     box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.2);
 }
 
-.dark
-    #toolbar
-    .choices__list--dropdown
-    .choices__item--selectable.is-highlighted {
+.dark #toolbar .choices__list--dropdown .choices__item--selectable.is-highlighted,
+.dark #city-create-form .choices__list--dropdown .choices__item--selectable.is-highlighted {
     background-color: rgba(59, 130, 246, 0.25);
     color: #bfdbfe;
     box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.35);
 }
 
 /* Disabled элементы */
-#toolbar .choices__list--dropdown .choices__item--disabled {
+#toolbar .choices__list--dropdown .choices__item--disabled,
+#city-create-form .choices__list--dropdown .choices__item--disabled {
     color: #9ca3af;
     cursor: not-allowed;
     opacity: 0.5;
 }
 
-.dark #toolbar .choices__list--dropdown .choices__item--disabled {
+.dark #toolbar .choices__list--dropdown .choices__item--disabled,
+.dark #city-create-form .choices__list--dropdown .choices__item--disabled {
     color: #525252;
 }
 
 /* Disabled состояние самого select */
-#toolbar .choices.is-disabled .choices__inner {
+#toolbar .choices.is-disabled .choices__inner,
+#city-create-form .choices.is-disabled .choices__inner {
     background-color: #f9fafb;
     color: #9ca3af;
     cursor: not-allowed;
     opacity: 0.6;
 }
 
-.dark #toolbar .choices.is-disabled .choices__inner {
+.dark #toolbar .choices.is-disabled .choices__inner,
+.dark #city-create-form .choices.is-disabled .choices__inner {
     background-color: #262626;
     color: #737373;
 }
 
 /* Адаптивность для планшетов */
 @media (max-width: 768px) {
-    #toolbar .choices__inner {
+    #toolbar .choices__inner,
+    #city-create-form .choices__inner {
         padding: 0.5rem 0.875rem;
         padding-right: 2.25rem;
         height: 2.5rem;
         font-size: 0.875rem;
     }
 
-    #toolbar .choices__list--dropdown .choices__item {
+    #toolbar .choices__list--dropdown .choices__item,
+    #city-create-form .choices__list--dropdown .choices__item {
         padding: 0.65rem 0.9rem;
         font-size: 0.95rem;
     }
@@ -232,21 +259,24 @@ Licensed under the Apache License, Version 2.0
 
 /* Адаптивность для мобильных устройств */
 @media (max-width: 576px) {
-    #toolbar .choices__inner {
+    #toolbar .choices__inner,
+    #city-create-form .choices__inner {
         padding: 0.5rem 0.75rem;
         padding-right: 2rem;
         height: 2.5rem;
         font-size: 0.8125rem;
     }
 
-    #toolbar .choices__list--dropdown .choices__item {
+    #toolbar .choices__list--dropdown .choices__item,
+    #city-create-form .choices__list--dropdown .choices__item {
         padding: 0.65rem 0.9rem;
         font-size: 0.95rem;
     }
 }
 
 /* Поле поиска внутри выпадающего списка - в стиле Preline UI */
-#toolbar .choices__input--cloned {
+#toolbar .choices__input--cloned,
+#city-create-form .choices__input--cloned {
     font-size: 0.875rem; /* text-sm */
     padding: 0.5rem 0.875rem; /* py-2 px-3.5 */
     margin: 0.5rem;
@@ -262,33 +292,39 @@ Licensed under the Apache License, Version 2.0
     flex-shrink: 0; /* не сжимается при скролле */
 }
 
-#toolbar .choices__input--cloned::placeholder {
+#toolbar .choices__input--cloned::placeholder,
+#city-create-form .choices__input--cloned::placeholder {
     color: rgba(107, 114, 128, 0.6); /* placeholder:text-gray-400 */
 }
 
-.dark #toolbar .choices__input--cloned {
+.dark #toolbar .choices__input--cloned,
+.dark #city-create-form .choices__input--cloned {
     border-color: #404040; /* dark:border-neutral-700 */
     background-color: #171717; /* dark:bg-neutral-900 */
     color: #e5e7eb; /* dark:text-neutral-50 */
 }
 
-.dark #toolbar .choices__input--cloned::placeholder {
+.dark #toolbar .choices__input--cloned::placeholder,
+.dark #city-create-form .choices__input--cloned::placeholder {
     color: rgba(148, 163, 184, 0.6); /* dark:placeholder:text-neutral-500 */
 }
 
-#toolbar .choices__input--cloned:focus {
+#toolbar .choices__input--cloned:focus,
+#city-create-form .choices__input--cloned:focus {
     outline: none;
     border-color: #3b82f6; /* focus:border-blue-500 */
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); /* focus:ring-2 focus:ring-blue-500 */
 }
 
-.dark #toolbar .choices__input--cloned:focus {
+.dark #toolbar .choices__input--cloned:focus,
+.dark #city-create-form .choices__input--cloned:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
 /* Сообщение "Ничего не найдено" - в стиле автодополнения */
-#toolbar .choices__list--dropdown .choices__item--no-results {
+#toolbar .choices__list--dropdown .choices__item--no-results,
+#city-create-form .choices__list--dropdown .choices__item--no-results {
     padding: 0.65rem 0.9rem;
     margin: 0.15rem 0;
     color: #6b7280;
@@ -297,6 +333,7 @@ Licensed under the Apache License, Version 2.0
     border-radius: 0.875rem;
 }
 
-.dark #toolbar .choices__list--dropdown .choices__item--no-results {
+.dark #toolbar .choices__list--dropdown .choices__item--no-results,
+.dark #city-create-form .choices__list--dropdown .choices__item--no-results {
     color: #94a3b8;
 }

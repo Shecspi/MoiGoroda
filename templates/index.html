@@ -2,108 +2,373 @@
 {% load static %}
 
 {% block base %}
-    <div id="main-background" class="d-flex flex-column justify-content-center align-items-center text-white"
-         style="background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('{% static 'image/index-background.jpg' %}')">
-        <div class="d-block d-sm-none display-2">
-            <i class="fa-solid fa-map-location-dot mx-5"></i>
-        </div>
-        <h1 class="display-2 px-3 text-center index-logo" id="index-logo">
-            <span class="me-sm-3 me-1">Мои</span>
-            <i class="fa-solid fa-map-location-dot d-none d-sm-inline"></i>
-            <span class="ms-sm-3 ms-1">города</span>
-        </h1>
-        <div class="row w-100 mt-3 justify-content-center">
-            <div class="col">
-                <p class="mt-5 px-3 fs-5 text-center">Сохраняйте и просматривайте на карте свои посещённые города.</p>
-                <p class="mt-5 px-3 fs-5 text-center">Это абсолютно бесплатно.<br>Навсегда.</p>
-            </div>
-        </div>
-        <div class="row w-100 gap-3 mt-5 px-3 justify-content-center">
-            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-5 text-center">
-                <a href="{% url 'signin' %}" class="btn btn-success d-block">Вход</a>
-            </div>
-            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-5 text-center">
-                <a href="{% url 'signup' %}" class="btn btn-primary d-block">Регистрация</a>
+    <!-- Hero Section -->
+    <div class="relative min-h-screen flex items-center overflow-hidden bg-cover bg-left-top bg-no-repeat"
+         style="background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('{% static 'image/index-background.jpg' %}')">
+        <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div class="container mx-auto px-4 py-20 relative z-10">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8 text-white">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium border border-white/30">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>100% бесплатно</span>
+                    </div>
+                    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight">
+                        Создай<br>
+                        <span class="bg-gradient-to-r from-blue-200 to-indigo-200 bg-clip-text text-transparent">интерактивную карту</span><br>
+                        своих путешествий
+                    </h1>
+                    <p class="text-xl text-blue-100 leading-relaxed">
+                        Отмечай посещённые города, добавляй впечатления и делись своими путешествиями с друзьями.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="{% url 'signup' %}" 
+                           class="group inline-flex items-center justify-center gap-x-2 py-4 px-8 text-base font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
+                            Начать бесплатно
+                            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </a>
+                        <a href="{% url 'signin' %}" 
+                           class="inline-flex items-center justify-center gap-x-2 py-4 px-8 text-base font-semibold rounded-xl border-2 border-white/50 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors">
+                            Войти
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden xl:block relative">
+                    <div class="relative backdrop-blur-xl bg-white/5 rounded-3xl p-4 lg:p-6 border border-white/10 max-w-md mx-auto">
+                        <div id="hero-image-container" class="aspect-square flex items-center justify-center overflow-hidden rounded-2xl relative cursor-none">
+                            <!-- Размытое изображение (фон) -->
+                            <img src="{% static 'image/hero.png' %}" alt="Мои города" class="w-full h-full object-cover blur-sm absolute inset-0 z-0 opacity-60">
+                            <!-- Четкое изображение с маской (лупа) -->
+                            <img src="{% static 'image/hero.png' %}" alt="Мои города" id="hero-image-magnifier" class="w-full h-full object-cover absolute inset-0 transition-opacity duration-300 z-[1]" style="mask-image: radial-gradient(circle 100px at 50% 50%, black 0%, transparent 100%); -webkit-mask-image: radial-gradient(circle 100px at 50% 50%, black 0%, transparent 100%); opacity: 0;">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="container mt-3" id="features">
-        <hr class="my-5">
-
-        <div class="row feature d-flex justify-content-between g-3" id="feature1">
-            <div class="col-lg-6 order-first order-lg-first align-self-center text-center text-lg-start feature-text">
-                <h1>Сохраняйте посещённые города</h1>
-                <p class="mt-5">
-                    Сохраняйте все города, которые Вы посетили, в нашем сервисе.<br>
-                    Вы можете указать дату посещения, наличие сувенира из города,
-                    поставить свою оценку городу и записать Ваши впечатления.
-                </p>
+    <!-- Features Section -->
+    <div class="container mx-auto px-4 py-12 sm:py-16 lg:py-20 bg-white dark:bg-neutral-900" id="features">
+        <div class="mb-20">
+            <h2 class="text-center text-3xl font-bold mb-12 text-gray-900 dark:text-white">Возможности сервиса</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Карточка 1: Сохранение городов -->
+                <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
+                    <div class="p-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 dark:bg-blue-500 mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Сохраняйте посещённые города</h3>
+                        <p class="text-gray-700 dark:text-neutral-300 mb-4">Отмечайте все города, которые вы посетили. Указывайте дату посещения, наличие сувенира, ставьте рейтинг и записывайте впечатления.</p>
+                        <ul class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Дата посещения и рейтинг от 1 до 5 звёзд
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Заметки с поддержкой Markdown
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Отметка о наличии сувенира
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Карточка 2: Интерактивные карты -->
+                <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
+                    <div class="p-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-600 dark:bg-emerald-500 mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Интерактивные карты</h3>
+                        <p class="text-gray-700 dark:text-neutral-300 mb-4">Визуализируйте все свои путешествия на красивых интерактивных картах. Фильтруйте по странам, регионам и коллекциям для удобного просмотра.</p>
+                        <ul class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Просмотр всех посещённых городов
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Фильтрация по регионам и странам
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Режим просмотра по регионам
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Карточка 3: Статистика -->
+                <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
+                    <div class="p-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-600 dark:bg-purple-500 mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Детальная статистика</h3>
+                        <p class="text-gray-700 dark:text-neutral-300 mb-4">Анализируйте свои путешествия с помощью графиков и диаграмм. Отслеживайте прогресс по регионам и странам, сравнивайте с другими пользователями.</p>
+                        <ul class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Графики посещений по годам и месяцам
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Статистика по регионам и странам
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Сравнение с другими путешественниками
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Карточка 4: Коллекции -->
+                <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
+                    <div class="p-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-600 dark:bg-amber-500 mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Тематические коллекции</h3>
+                        <p class="text-gray-700 dark:text-neutral-300 mb-4">Собирайте тематические коллекции городов и отслеживайте прогресс по каждой из них. Организуйте свои путешествия по интересным категориям.</p>
+                        <ul class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Тематические коллекции городов
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Отслеживание прогресса по коллекциям
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Организация путешествий по категориям
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Карточка 5: Страны и регионы -->
+                <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
+                    <div class="p-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-cyan-600 dark:bg-cyan-500 mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Более 20 стран мира</h3>
+                        <p class="text-gray-700 dark:text-neutral-300 mb-4">В сервисе доступны все города более чем 20 стран мира. Помимо городов, вы можете просматривать и анализировать регионы и страны, отслеживая свой прогресс на разных уровнях.</p>
+                        <ul class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Все города более чем 20 стран мира
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Просмотр и анализ регионов
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Статистика по странам и регионам
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Карты регионов и стран
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Карточка 6: Регионы и города России -->
+                <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-rose-50 to-red-50 dark:from-neutral-800 dark:to-neutral-900 dark:border-neutral-700">
+                    <div class="p-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-rose-600 dark:bg-rose-500 mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Все регионы и города России</h3>
+                        <p class="text-gray-700 dark:text-neutral-300 mb-4">В сервисе присутствуют все регионы и города России, включая недавно добавленные. Полная база данных позволяет отмечать посещения любых населённых пунктов страны и отслеживать свой прогресс по регионам.</p>
+                        <ul class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-rose-600 dark:text-rose-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                89 регионов Российской Федерации
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-rose-600 dark:text-rose-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                1253 города по всей стране
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-rose-600 dark:text-rose-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Включая недавно добавленные регионы и города
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-rose-600 dark:text-rose-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Актуальная и постоянно обновляемая база данных
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="col-lg-5 order-last order-lg-last text-center justify-content-center align-self-center feature-image">
-                <img src="{% static 'image/feature1.png' %}" alt="feature1" class="img-thumbnail">
+            
+            <!-- Карусель изображений -->
+            <div class="mt-12 max-w-5xl mx-auto">
+                <div data-hs-carousel='{
+                    "loadingClasses": "opacity-0",
+                    "dotsItemClasses": "hs-carousel-active:bg-blue-700 hs-carousel-active:border-blue-700 size-3 border border-gray-400 rounded-full cursor-pointer dark:border-neutral-600 dark:hs-carousel-active:bg-blue-500 dark:hs-carousel-active:border-blue-500",
+                    "isAutoPlay": true
+                }' class="relative">
+                    <div class="hs-carousel relative overflow-hidden w-full bg-white rounded-lg border border-gray-200 dark:bg-neutral-900 dark:border-neutral-700">
+                        <div class="hs-carousel-body flex flex-nowrap transition-transform duration-700">
+                            <div class="hs-carousel-slide flex-shrink-0 w-full">
+                                <div class="flex justify-center items-center bg-gray-100 dark:bg-neutral-900 p-6">
+                                    <img src="{% static 'image/feature1.png' %}" 
+                                         class="w-auto h-auto max-w-full max-h-[600px] object-contain">
+                                </div>
+                            </div>
+                            <div class="hs-carousel-slide flex-shrink-0 w-full">
+                                <div class="flex justify-center items-center bg-gray-100 dark:bg-neutral-900 p-6">
+                                    <img src="{% static 'image/feature2.png' %}" 
+                                         class="w-auto h-auto max-w-full max-h-[600px] object-contain">
+                                </div>
+                            </div>
+                            <div class="hs-carousel-slide flex-shrink-0 w-full">
+                                <div class="flex justify-center items-center bg-gray-100 dark:bg-neutral-900 p-6">
+                                    <img src="{% static 'image/feature3.png' %}" 
+                                         class="w-auto h-auto max-w-full max-h-[600px] object-contain">
+                                </div>
+                            </div>
+                            <div class="hs-carousel-slide flex-shrink-0 w-full">
+                                <div class="flex justify-center items-center bg-gray-100 dark:bg-neutral-900 p-6">
+                                    <img src="{% static 'image/feature4.png' %}" 
+                                         class="w-auto h-auto max-w-full max-h-[600px] object-contain">
+                                </div>
+                            </div>
+                            <div class="hs-carousel-slide flex-shrink-0 w-full">
+                                <div class="flex justify-center items-center bg-gray-100 dark:bg-neutral-900 p-6">
+                                    <img src="{% static 'image/feature5.png' %}" 
+                                         class="w-auto h-auto max-w-full max-h-[600px] object-contain">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="hs-carousel-prev hs-carousel-disabled:opacity-50 hs-carousel-disabled:pointer-events-none absolute inset-y-0 start-0 inline-flex justify-center items-center w-11.5 h-full text-gray-800 hover:bg-gray-800/10 focus:outline-hidden focus:bg-gray-800/10 rounded-s-lg dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
+                        <span class="text-2xl" aria-hidden="true">
+                            <svg class="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m15 18-6-6 6-6"></path>
+                            </svg>
+                        </span>
+                        <span class="sr-only">Previous</span>
+                    </button>
+                    <button type="button" class="hs-carousel-next hs-carousel-disabled:opacity-50 hs-carousel-disabled:pointer-events-none absolute inset-y-0 end-0 inline-flex justify-center items-center w-11.5 h-full text-gray-800 hover:bg-gray-800/10 focus:outline-hidden focus:bg-gray-800/10 rounded-e-lg dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
+                        <span class="sr-only">Next</span>
+                        <span class="text-2xl" aria-hidden="true">
+                            <svg class="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m9 18 6-6-6-6"></path>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <div class="hs-carousel-pagination flex justify-center absolute bottom-3 start-0 end-0 flex gap-x-2"></div>
+                </div>
             </div>
         </div>
-
-        <hr class="my-5">
-
-        <div class="row feature d-flex justify-content-between g-3" id="feature2">
-            <div class="col-lg-5 order-last order-lg-first text-center feature-image">
-                <img src="{% static 'image/feature2.png' %}" alt="feature1" class="img-thumbnail">
-            </div>
-            <div class="col-lg-6 order-first order-lg-last align-self-center text-center text-lg-start feature-text">
-                <h1>Просматривайте их на карте</h1>
-                <p class="mt-5">
-                    Можно смотреть как все города, которые Вы посетили, так и выборочно по регионам.<br>
-                    В режиме "по регионам" можно смотреть не только посещённые города, но и те, в которых Вы ещё не были.
-                </p>
-            </div>
-        </div>
-
-        <hr class="my-5">
-
-        <div class="row feature d-flex justify-content-between g-3" id="feature3">
-            <div class="col-lg-6 order-first order-lg-first align-self-center text-center text-lg-start feature-text">
-                <h1>
-                    Анализируйте посещённые регионы
-                </h1>
-                <p class="mt-5">
-                    После сохранения посещённых городов, Вам автоматически станет доступен режим просмотра
-                    посещённых регионов
-                    <a href="{% url 'region-all-list' %}"
-                       class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">в виде списка</a>
-                    и <a href="{% url 'region-all-map' %}"
-                         class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">на карте</a>.<br>
-                    Никаких дополнительных действий с Вашей стороны не нужно, сервис сделает всё сам.
-                </p>
-            </div>
-            <div class="col-lg-5 order-last order-lg-last text-center feature-image">
-                <img src="{% static 'image/feature3.png' %}" alt="feature1" class="img-thumbnail">
-            </div>
-        </div>
-
-        <hr class="my-5">
-
-        <div class="row feature d-flex justify-content-between g-3" id="feature2">
-            <div class="col-lg-5 order-last order-lg-first text-center feature-image">
-                <img src="{% static 'image/feature4.png' %}" alt="feature1" class="img-thumbnail">
-            </div>
-            <div class="col-lg-6 order-first order-lg-last align-self-center text-center text-lg-start feature-text">
-                <h1>Коллекционируйте города</h1>
-                <p class="mt-5">
-                    Посещать города интереснее, когда есть какая-то цель.
-                    Для увеличения интереса сервис "Мои города" предлагает несколько
-                    <a href="{% url 'collection-list' %}"
-                       class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                        коллекций городов</a>,
-                    объединённых по какому-либо принципу.<br>
-                    Попробуйте собрать все города из коллекции.
-                </p>
-            </div>
-        </div>
-
-        <hr class="my-5">
     </div>
 
     {% include 'parts/footer.html' %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('hero-image-container');
+            const magnifier = document.getElementById('hero-image-magnifier');
+            
+            if (!container || !magnifier) return;
+            
+            const radius = 120; // Радиус лупы в пикселях
+            
+            container.addEventListener('mouseenter', function() {
+                // Восстанавливаем opacity при входе мыши
+                magnifier.style.opacity = '1';
+            });
+            
+            container.addEventListener('mousemove', function(e) {
+                const rect = container.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                // Четкая граница: black до 99%, затем сразу transparent
+                const mask = `radial-gradient(circle ${radius}px at ${x}% ${y}%, black 0%, black 99%, transparent 99%, transparent 100%)`;
+                magnifier.style.maskImage = mask;
+                magnifier.style.webkitMaskImage = mask;
+            });
+            
+            container.addEventListener('mouseleave', function() {
+                // Скрываем четкое изображение при уходе мыши
+                magnifier.style.opacity = '0';
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block extra_js %}
+    {% load vite %}
+    {% vite_asset 'js/entries/preline.js' %}
 {% endblock %}

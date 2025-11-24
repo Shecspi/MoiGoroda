@@ -8,7 +8,6 @@ Licensed under the Apache License, Version 2.0
 """
 
 import json
-import os
 from pathlib import Path
 from typing import Any, cast
 
@@ -23,9 +22,41 @@ _manifest_mtime: float | None = None
 
 
 def get_manifest() -> dict[str, Any]:
+    """
+    Загружает manifest.json из Vite сборки.
+
+    В development режиме ищет файл в BASE_DIR/static/js/manifest.json.
+    В production режиме сначала проверяет STATIC_ROOT/js/manifest.json,
+    затем BASE_DIR/static/js/manifest.json (на случай, если STATIC_ROOT не установлен).
+    """
     global _manifest, _manifest_mtime
 
-    manifest_path = Path(settings.BASE_DIR) / 'static/js/manifest.json'
+    # Определяем возможные пути к manifest.json
+    possible_paths = []
+
+    if settings.DEBUG:
+        # В development режиме используем только путь в исходной директории
+        possible_paths.append(Path(settings.BASE_DIR) / 'static/js/manifest.json')
+    else:
+        # В production режиме сначала проверяем STATIC_ROOT (если установлен)
+        if settings.STATIC_ROOT:
+            possible_paths.append(Path(settings.STATIC_ROOT) / 'js/manifest.json')
+        # Затем проверяем исходную директорию (на случай, если STATIC_ROOT не установлен)
+        possible_paths.append(Path(settings.BASE_DIR) / 'static/js/manifest.json')
+
+    # Ищем первый существующий файл
+    manifest_path = None
+    for path in possible_paths:
+        if path.exists():
+            manifest_path = path
+            break
+
+    if manifest_path is None:
+        if settings.DEBUG:
+            return {}
+        _manifest = {}
+        _manifest_mtime = None
+        return _manifest
 
     if settings.DEBUG:
         try:
@@ -52,9 +83,7 @@ def get_manifest() -> dict[str, Any]:
 @register.simple_tag
 def vite_asset(name: str) -> SafeString:
     # Django test runner принудительно устанавливает DEBUG=False, проверяем TESTING
-    is_testing = os.getenv('TESTING') == 'True'
-
-    if settings.DEBUG or is_testing:
+    if settings.DEBUG or settings.TESTING:
         return mark_safe(f'<script type="module" src="http://localhost:5173/{name}"></script>')
 
     manifest = get_manifest()
@@ -87,14 +116,13 @@ def vite_css(name: str) -> SafeString:
         HTML тег <link> для подключения CSS
     """
     # Django test runner принудительно устанавливает DEBUG=False, проверяем TESTING
-    is_testing = os.getenv('TESTING') == 'True'
+    is_testing = getattr(settings, 'TESTING', False)
+
+    if settings.DEBUG or is_testing:
+        return mark_safe(f'<link rel="stylesheet" href="http://localhost:5173/{name}.css">')
 
     manifest = get_manifest()
     entry = manifest.get(f'{name}.css')
-
-    if settings.DEBUG or is_testing:
-        # В dev-режиме отдаём CSS напрямую с Vite dev server.
-        return mark_safe(f'<link rel="stylesheet" href="http://localhost:5173/{name}.css">')
 
     if not entry:
         raise ValueError(f"CSS asset '{name}.css' not found in manifest.json")

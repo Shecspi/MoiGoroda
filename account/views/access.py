@@ -37,7 +37,7 @@ class SignUp(CreateView):  # type: ignore[type-arg]
 
     form_class = SignUpForm
     success_url = reverse_lazy('signup_success')
-    template_name = 'account/signup.html'
+    template_name = 'account/auth/signup.html'
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         if self.request.user.is_authenticated:
@@ -94,7 +94,7 @@ class SignIn(LoginView):
     """
 
     form_class = SignInForm
-    template_name = 'account/signin.html'
+    template_name = 'account/auth/signin.html'
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         if self.request.user.is_authenticated:
@@ -115,11 +115,11 @@ class SignIn(LoginView):
 
 
 def signup_success(request: HttpRequest) -> HttpResponse:
-    return render(request, 'account/signup_success.html')
+    return render(request, 'account/auth/signup_success.html')
 
 
 class MyPasswordChangeView(PasswordChangeView):
-    template_name = 'account/profile__password_change_form.html'
+    template_name = 'account/password/change/form.html'
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -133,7 +133,7 @@ class MyPasswordChangeView(PasswordChangeView):
 
 
 class MyPasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
-    template_name = 'account/profile__password_change_done.html'
+    template_name = 'account/password/change/done.html'
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

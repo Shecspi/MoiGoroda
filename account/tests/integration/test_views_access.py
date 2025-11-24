@@ -42,7 +42,7 @@ def test_signup_view_get_request(client: Any) -> None:
     response = client.get(reverse('signup'))
 
     assert response.status_code == 200
-    assert 'account/signup.html' in (t.name for t in response.templates)
+    assert 'account/auth/signup.html' in (t.name for t in response.templates)
     assert 'Регистрация' in response.context['page_title']
 
 
@@ -169,7 +169,7 @@ def test_signin_view_get_request(client: Any) -> None:
     response = client.get(reverse('signin'))
 
     assert response.status_code == 200
-    assert 'account/signin.html' in (t.name for t in response.templates)
+    assert 'account/auth/signin.html' in (t.name for t in response.templates)
     assert 'Вход' in response.context['page_title']
 
 
@@ -264,7 +264,7 @@ def test_password_change_view_get_request(client: Any, django_user_model: Any) -
     response = client.get(reverse('password_change_form'))
 
     assert response.status_code == 200
-    assert 'account/profile__password_change_form.html' in (t.name for t in response.templates)
+    assert 'account/password/change/form.html' in (t.name for t in response.templates)
     assert 'Изменение пароля' in response.context['page_title']
 
 
@@ -342,7 +342,7 @@ def test_password_change_done_view(client: Any, django_user_model: Any) -> None:
     response = client.get(reverse('password_change_done'))
 
     assert response.status_code == 200
-    assert 'account/profile__password_change_done.html' in (t.name for t in response.templates)
+    assert 'account/password/change/done.html' in (t.name for t in response.templates)
     assert 'Изменение пароля' in response.context['page_title']
 
 
@@ -365,7 +365,7 @@ def test_password_reset_view_get_request(client: Any) -> None:
     response = client.get(reverse('reset_password'))
 
     assert response.status_code == 200
-    assert 'account/profile__password_reset__form.html' in (t.name for t in response.templates)
+    assert 'account/password/reset/form.html' in (t.name for t in response.templates)
 
 
 @pytest.mark.integration
@@ -389,7 +389,7 @@ def test_password_reset_done_view(client: Any) -> None:
     response = client.get(reverse('password_reset_done'))
 
     assert response.status_code == 200
-    assert 'account/profile__password_reset__email_sent.html' in (
+    assert 'account/password/reset/email_sent.html' in (
         t.name for t in response.templates
     )
 

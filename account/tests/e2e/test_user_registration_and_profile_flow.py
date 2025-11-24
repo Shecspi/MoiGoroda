@@ -295,7 +295,7 @@ def test_unauthenticated_user_redirected_to_signin_from_profile(client: Any) -> 
     response = client.get(reverse('profile'), follow=True)
 
     assert response.status_code == 200
-    assert 'account/signin.html' in (t.name for t in response.templates)
+    assert 'account/auth/signin.html' in (t.name for t in response.templates)
 
 
 @pytest.mark.e2e

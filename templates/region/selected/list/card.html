@@ -20,12 +20,10 @@
                 {% if user.is_authenticated %}
                     {% if city.is_visited %}
                         <span class="inline-flex items-center gap-x-1 rounded-full border border-emerald-500 bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 transition dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300" title="Количество посещений города {{ city.title }}">
-                            <i class="fa-solid fa-footprints text-xs"></i>
                             <span>{% if city.number_of_visits %}{{ city.number_of_visits }}{% else %}0{% endif %}</span>
                         </span>
                     {% else %}
                         <span class="inline-flex items-center gap-x-1 rounded-full border border-rose-500 bg-rose-100 px-3 py-1 text-sm font-semibold text-rose-700 transition dark:border-rose-400 dark:bg-rose-500/10 dark:text-rose-300" title="Количество посещений города {{ city.title }}">
-                            <i class="fa-solid fa-footprints text-xs"></i>
                             <span>{% if city.number_of_visits %}{{ city.number_of_visits }}{% else %}0{% endif %}</span>
                         </span>
                     {% endif %}

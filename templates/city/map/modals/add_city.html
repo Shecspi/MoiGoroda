@@ -1,113 +1,221 @@
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
 {% load static %}
 
-<form id="form-add-city">
-    <div class="modal fade"
-         id="modal_add_city"
-         data-bs-backdrop="static"
-         data-bs-keyboard="true"
-         tabindex="-1"
-         aria-labelledby="modal_add_city_label"
-         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content modern-modal">
-                <div class="modal-header modern-modal-header">
-                    <h1 class="modal-title fs-5 fw-semibold d-flex align-items-center gap-2" id="modal_add_city_label">
-                        <i class="fa-solid fa-city"></i>
-                        <span>Добавить посещённый город</span>
-                    </h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                </div>
+<!-- Модальное окно добавления города -->
+<div id="addCityModal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center" role="dialog" tabindex="-1" aria-labelledby="addCityModalLabel">
+    <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <!-- Header -->
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white" id="addCityModalLabel">
+                    Добавить посещённый город
+                </h3>
+                <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#addCityModal">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- End Header -->
 
-                <div class="modal-body modern-modal-body">
-                    <h4>
-                        <span id="city-title-in-modal"></span>, <small id="region-title-in-modal" class="text-body-secondary"></small>
-                    </h4>
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto overscroll-contain p-4">
+                <form id="form-add-city">
+                    <!-- Информация о городе -->
+                    <div class="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                            <span id="city-title-in-modal"></span>
+                        </h4>
+                        <p class="text-sm text-gray-600 dark:text-neutral-400" id="region-title-in-modal"></p>
+                    </div>
 
                     <input type="hidden" id="city-id" name="city" value="">
                     <input type="hidden" name="from" value="general map">
 
-                    <div class="mt-4">
-                        <label for="date-of-visit" class="form-label">Дата посещения</label>
-                        <div class="input-group">
-                            <input type="date"
-                                   class="form-control"
-                                   name="date_of_visit"
-                                   id="date-of-visit"
-                                   aria-describedby="date-of-visit-help">
-                            <button class="input-group-text" id="yesterday-button" type="button">Вчера</button>
-                            <button class="input-group-text" id="today-button" type="button">Сегодня</button>
-                        </div>
-                        <div id="date-of-visit-help" class="form-text">
-                            Укажите дату посещения города в формате ДД.ММ.ГГГГ.
-                            На основе этой даты будет происходить сортировка городов, а также это влияет на
-                            отображаемую статистику посещённых городов за год.
-                        </div>
-                    </div>
-
-                    <div class="mt-4 form-check">
+                    <div class="space-y-6">
+                        <!-- Дата посещения -->
                         <div>
-                            <input type="checkbox"
-                                   class="form-check-input"
-                                   name="has_magnet"
-                                   id="magnet-checkbox">
-                            <label class="form-check-label" for="magnet-checkbox">Наличие сувенира из города</label>
+                            <label for="date-of-visit" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-300">
+                                Дата посещения
+                            </label>
+                            <div class="relative">
+                                <input type="date"
+                                       name="date_of_visit"
+                                       class="block w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 pe-36 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-500 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                                       placeholder="ДД.ММ.ГГГГ"
+                                       id="date-of-visit"
+                                       aria-describedby="date-of-visit-help">
+                                <div class="absolute inset-y-0 end-0 flex items-center gap-1.5 pe-2">
+                                    <button class="inline-flex items-center gap-x-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-700 shadow-sm transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:border-amber-600 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20 dark:focus:ring-offset-neutral-800"
+                                            id="yesterday-button"
+                                            type="button">
+                                        Вчера
+                                    </button>
+                                    <button class="inline-flex items-center gap-x-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 dark:focus:ring-offset-neutral-800"
+                                            id="today-button"
+                                            type="button">
+                                        Сегодня
+                                    </button>
+                                </div>
+                            </div>
+                            <p id="date-of-visit-help" class="mt-1 text-sm text-gray-600 dark:text-neutral-500">
+                                Укажите дату посещения города в формате ДД.ММ.ГГГГ.
+                                На основе этой даты будет происходить сортировка городов, а также это влияет на
+                                отображаемую статистику посещённых городов за год.
+                            </p>
                         </div>
-                        <div id="magnet-help" class="form-text">
-                            Отметьте этот пункт, если у Вас в коллекции есть сувенир из города.
-                            В списке городов можно будет отфильтровать только те города,
-                            сувенира из которых у Вас ещё нет
-                        </div>
-                    </div>
 
-                    <div id="div_id_rating" class="mt-4">
-                        <label for="" class=" form-label requiredField">
-                            Оценка города<span class="asteriskField">*</span>
-                        </label>
+                        <hr class="border-gray-200 dark:border-neutral-700">
+
+                        <!-- Сувенир -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <label for="magnet-checkbox" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                    Наличие сувенира из города
+                                </label>
+                                <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">
+                                    Отметьте этот пункт, если у Вас в коллекции есть сувенир из города.
+                                </span>
+                            </div>
+                            <label for="magnet-checkbox" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                                <input type="checkbox"
+                                       name="has_magnet"
+                                       id="magnet-checkbox"
+                                       class="peer sr-only">
+                                <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                                <!-- Left Icon (Off) -->
+                                <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </span>
+                                <!-- Right Icon (On) -->
+                                <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
+                        </div>
+
+                        <hr class="border-gray-200 dark:border-neutral-700">
+
+                        <!-- Оценка города -->
                         <div>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="1" id="id_rating_0" required>
-                                <label for="id_rating_0" class="form-check-label">1</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="2" id="id_rating_1">
-                                <label for="id_rating_1" class="form-check-label">2</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="3" id="id_rating_2">
-                                <label for="id_rating_2" class="form-check-label">3</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="4" id="id_rating_3">
-                                <label for="id_rating_3" class="form-check-label">4</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" name="rating" value="5" id="id_rating_4">
-                                <label for="id_rating_4" class="form-check-label">5</label>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex-1">
+                                    <label class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                        Оценка города
+                                        <span class="text-red-600 dark:text-red-500">*</span>
+                                    </label>
+                                    <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">
+                                        Поставьте оценку городу. 1 - плохо, 5 - отлично.
+                                    </span>
+                                </div>
+                                <div class="ml-4 shrink-0">
+                                    <!-- Rating -->
+                                    <div class="flex items-center" id="rating-container">
+                                        <button type="button" 
+                                                class="rating-star size-5 inline-flex justify-center items-center text-2xl rounded-full text-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-600 transition-colors"
+                                                data-rating="1"
+                                                aria-label="Оценка 1">
+                                            <svg class="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"></path>
+                                            </svg>
+                                        </button>
+                                        <button type="button" 
+                                                class="rating-star size-5 inline-flex justify-center items-center text-2xl rounded-full text-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-600 transition-colors"
+                                                data-rating="2"
+                                                aria-label="Оценка 2">
+                                            <svg class="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"></path>
+                                            </svg>
+                                        </button>
+                                        <button type="button" 
+                                                class="rating-star size-5 inline-flex justify-center items-center text-2xl rounded-full text-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-600 transition-colors"
+                                                data-rating="3"
+                                                aria-label="Оценка 3">
+                                            <svg class="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"></path>
+                                            </svg>
+                                        </button>
+                                        <button type="button" 
+                                                class="rating-star size-5 inline-flex justify-center items-center text-2xl rounded-full text-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-600 transition-colors"
+                                                data-rating="4"
+                                                aria-label="Оценка 4">
+                                            <svg class="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"></path>
+                                            </svg>
+                                        </button>
+                                        <button type="button" 
+                                                class="rating-star size-5 inline-flex justify-center items-center text-2xl rounded-full text-gray-300 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-600 transition-colors"
+                                                data-rating="5"
+                                                aria-label="Оценка 5">
+                                            <svg class="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <!-- Hidden input for form submission -->
+                                    <input type="hidden" 
+                                           name="rating" 
+                                           id="id_rating" 
+                                           value="" 
+                                           required>
+                                    <!-- End Rating -->
+                                </div>
                             </div>
                         </div>
-                        <div id="hint_id_rating" class="form-text">Поставьте оценку городу: 1 - плохо, 5 - отлично.</div>
+
+                        <hr class="border-gray-200 dark:border-neutral-700">
+
+                        <!-- Впечатления -->
+                        <div>
+                            <label for="impression" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-300">
+                                Впечатления о городе
+                            </label>
+                            <textarea class="block w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-500 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                                      id="impression"
+                                      name="impression"
+                                      rows="4"
+                                      placeholder="Опишите свои впечатления о городе..."></textarea>
+                        </div>
                     </div>
-
-                    <div class="mt-4">
-                        <label class="form-label" for="impression">Впечатления о городе</label>
-                        <textarea class="form-control" id="impression" name="impression"></textarea>
-                    </div>
-                </div>
-
-                <div class="modal-footer modern-modal-footer justify-content-between">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-
-                    <button class="btn btn-success"
-                            type="submit"
-                            id='btn_add-visited-city'
-                            data-url="{% url 'api__add_visited_city' %}">
-                        <i class="fa-solid fa-plus me-2"></i>Добавить
-                    </button>
-                </div>
+                </form>
             </div>
+            <!-- End Body -->
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end py-3 px-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">
+                <button type="button"
+                        class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 mr-2"
+                        data-hs-overlay="#addCityModal">
+                    Закрыть
+                </button>
+                <button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"
+                        type="submit"
+                        form="form-add-city"
+                        id='btn_add-visited-city'
+                        data-url="{% url 'api__add_visited_city' %}"
+                        disabled>
+                    <span>Добавить</span>
+                </button>
+            </div>
+            <!-- End Footer -->
         </div>
     </div>
-</form>
+</div>
 
 <script>
     function setTodayDate() {
@@ -134,7 +242,188 @@
         document.getElementById('date-of-visit').value = formattedDate;
     }
 
-    document.getElementById('today-button').addEventListener('click', setTodayDate);
-    document.getElementById('yesterday-button').addEventListener('click', setYesterdayDate);
-</script>
+    // Инициализация кнопок даты только если они существуют
+    const todayButton = document.getElementById('today-button');
+    const yesterdayButton = document.getElementById('yesterday-button');
+    
+    if (todayButton) {
+        todayButton.addEventListener('click', setTodayDate);
+    }
+    if (yesterdayButton) {
+        yesterdayButton.addEventListener('click', setYesterdayDate);
+    }
+    
+    // Обработка события открытия модального окна Preline UI
+    // Устанавливаем данные о городе из data-* атрибутов кнопки, которая открыла модальное окно
+    let lastTriggerButton = null;
+    
+    // Используем делегирование событий для обработки кликов на динамически созданные ссылки
+    document.addEventListener('click', function(event) {
+        const button = event.target.closest('[data-hs-overlay="#addCityModal"]');
+        if (button) {
+            // Если это ссылка с данными о городе (из popup)
+            if (button.hasAttribute('data-city-name')) {
+                // Предотвращаем стандартное поведение ссылки
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Получаем данные из атрибутов
+                const cityName = button.getAttribute('data-city-name');
+                const cityId = button.getAttribute('data-city-id');
+                const cityRegion = button.getAttribute('data-city-region') || '';
+                
+                if (cityName && cityId && window.open_modal_for_add_city) {
+                    // Используем существующую функцию для открытия модального окна
+                    window.open_modal_for_add_city(cityName, cityId, cityRegion);
+                }
+            } else {
+                // Если это кнопка закрытия (без data-city-name), закрываем модальное окно
+                const modalElement = document.getElementById('addCityModal');
+                if (modalElement && !modalElement.classList.contains('hidden')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (window.close_modal_for_add_city) {
+                        window.close_modal_for_add_city();
+                    }
+                }
+            }
+        }
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const addCityModal = document.getElementById('addCityModal');
+        if (addCityModal) {
+            addCityModal.addEventListener('open.hs.overlay', function() {
+                // Используем сохраненную кнопку-триггер на случай, если данные не были установлены
+                if (lastTriggerButton) {
+                    const cityName = lastTriggerButton.getAttribute('data-city-name');
+                    const cityId = lastTriggerButton.getAttribute('data-city-id');
+                    const cityRegion = lastTriggerButton.getAttribute('data-city-region');
+                    
+                    if (cityName && cityId) {
+                        const el_city_title = document.getElementById('city-title-in-modal');
+                        const el_region_title = document.getElementById('region-title-in-modal');
+                        const el_city_id = document.getElementById('city-id');
+                        
+                        if (el_city_title) el_city_title.innerText = cityName;
+                        if (el_region_title) el_region_title.innerText = cityRegion || '';
+                        if (el_city_id) el_city_id.setAttribute('value', cityId);
+                        
+                        // Сбрасываем рейтинг при открытии модального окна
+                        const ratingInput = document.getElementById('id_rating');
+                        const ratingContainer = document.getElementById('rating-container');
+                        const addButton = document.getElementById('btn_add-visited-city');
+                        if (ratingInput) {
+                            ratingInput.value = '';
+                        }
+                        if (ratingContainer) {
+                            // Сбрасываем визуальное состояние звезд
+                            const stars = ratingContainer.querySelectorAll('.rating-star');
+                            stars.forEach((star) => {
+                                star.classList.remove('text-yellow-400', 'dark:text-yellow-500');
+                                star.classList.add('text-gray-300', 'dark:text-neutral-600');
+                            });
+                        }
+                        // Делаем кнопку "Добавить" неактивной при открытии модального окна
+                        if (addButton) {
+                            addButton.disabled = true;
+                        }
+                        
+                        // Сбрасываем дату посещения
+                        const dateInput = document.getElementById('date-of-visit');
+                        if (dateInput) {
+                            dateInput.value = '';
+                        }
+                        
+                        // Сбрасываем наличие сувенира (чекбокс)
+                        const magnetCheckbox = document.getElementById('magnet-checkbox');
+                        if (magnetCheckbox) {
+                            magnetCheckbox.checked = false;
+                        }
+                    }
+                    
+                    // Сбрасываем ссылку после использования
+                    lastTriggerButton = null;
+                }
+            });
+        }
+    });
 
+    // Инициализация рейтинга звездочками
+    const ratingContainer = document.getElementById('rating-container');
+    const ratingInput = document.getElementById('id_rating');
+    
+    if (ratingContainer && ratingInput) {
+        const stars = ratingContainer.querySelectorAll('.rating-star');
+        let selectedRating = 0;
+        
+        // Функция для обновления визуального состояния звезд
+        const updateRatingStars = (rating) => {
+            stars.forEach((star) => {
+                const starRating = parseInt(star.getAttribute('data-rating'));
+                if (starRating <= rating && rating > 0) {
+                    star.classList.remove('text-gray-300', 'dark:text-neutral-600');
+                    star.classList.add('text-yellow-400', 'dark:text-yellow-500');
+                } else {
+                    star.classList.remove('text-yellow-400', 'dark:text-yellow-500');
+                    star.classList.add('text-gray-300', 'dark:text-neutral-600');
+                }
+            });
+        };
+        
+        // Функция для подсветки звезд при hover
+        const highlightStars = (rating) => {
+            stars.forEach((star) => {
+                const starRating = parseInt(star.getAttribute('data-rating'));
+                if (starRating <= rating) {
+                    star.classList.remove('text-gray-300', 'dark:text-neutral-600');
+                    star.classList.add('text-yellow-400', 'dark:text-yellow-500');
+                } else {
+                    star.classList.remove('text-yellow-400', 'dark:text-yellow-500');
+                    star.classList.add('text-gray-300', 'dark:text-neutral-600');
+                }
+            });
+        };
+        
+        // Функция для обновления состояния кнопки "Добавить" в зависимости от рейтинга
+        const updateAddButtonState = () => {
+            const addButton = document.getElementById('btn_add-visited-city');
+            if (addButton) {
+                if (ratingInput.value && parseInt(ratingInput.value) > 0) {
+                    addButton.disabled = false;
+                } else {
+                    addButton.disabled = true;
+                }
+            }
+        };
+        
+        // Изначально делаем кнопку неактивной
+        updateAddButtonState();
+        
+        // Обработка клика по звезде
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                ratingInput.value = rating;
+                selectedRating = rating;
+                updateRatingStars(rating);
+                updateAddButtonState(); // Обновляем состояние кнопки
+            });
+            
+            // Обработка hover
+            star.addEventListener('mouseenter', function() {
+                const hoverRating = parseInt(this.getAttribute('data-rating'));
+                highlightStars(hoverRating);
+            });
+        });
+        
+        // Возврат к выбранному рейтингу при уходе курсора
+        ratingContainer.addEventListener('mouseleave', () => {
+            if (selectedRating > 0) {
+                updateRatingStars(selectedRating);
+            } else {
+                updateRatingStars(0);
+            }
+        });
+    }
+</script>

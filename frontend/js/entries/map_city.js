@@ -14,7 +14,7 @@ import L from 'leaflet';
 import {addExternalBorderControl, addInternalBorderControl, create_map} from "../components/map.js";
 import {ToolbarActions} from "../components/toolbar_actions.js";
 import {City} from "../components/schemas.js";
-import {change_qty_of_visited_cities_in_toolbar, modal} from '../components/services.js';
+import {change_qty_of_visited_cities_in_toolbar, close_modal_for_add_city} from '../components/services.js';
 import {showDangerToast, showSuccessToast} from "../components/toast.js";
 import {getCookie} from '../components/get_cookie.js';
 import {initCountrySelect} from "../components/initCountrySelect";
@@ -98,7 +98,7 @@ form.addEventListener('submit', event => {
 
     let button = document.getElementById('btn_add-visited-city');
     button.disabled = true;
-    button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;<span role="status">Загрузка...</span>';
+    button.innerHTML = '<span class="animate-spin inline-block size-4 border-[3px] border-current border-t-transparent text-white rounded-full" role="status" aria-label="loading"></span><span>Загрузка...</span>';
 
     const url = button.dataset.url;
 
@@ -116,10 +116,10 @@ form.addEventListener('submit', event => {
             return response.json()
         })
         .then((data) => {
-            modal.hide();
+            close_modal_for_add_city();
 
             button.disabled = false;
-            button.innerText = 'Добавить';
+            button.innerHTML = '<span>Добавить</span>';
 
             form.reset();
 
@@ -151,6 +151,6 @@ form.addEventListener('submit', event => {
             }
 
             button.disabled = false;
-            button.innerText = 'Добавить';
+            button.innerHTML = '<span>Добавить</span>';
         })
 });

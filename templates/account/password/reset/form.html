@@ -1,62 +1,113 @@
 {% extends 'base-simple.html' %}
 {% load static %}
-{% load crispy_forms_filters %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
 
 {% block content %}
-    <div class="container d-flex justify-content-center align-items-center my-auto py-md-3">
-        <div class="row border rounded-5 p-3 bg-white shadow box-area">
+    <div class="w-full px-4 py-12">
+        <!-- Password reset box -->
+        <div class="flex w-full max-w-4xl mx-auto overflow-hidden rounded-2xl border-2 border-gray-300 bg-white shadow-[0_0_30px_5px_rgba(0,0,0,0.15)] md:shadow-[0_0_60px_15px_rgba(0,0,0,0.25)] dark:border-neutral-600 dark:bg-neutral-900 dark:shadow-[0_0_30px_5px_rgba(0,0,0,0.3)] dark:md:shadow-[0_0_60px_15px_rgba(0,0,0,0.6)]">
             <!-- Left part -->
-            <div class="col-md-6 py-5 rounded-4 d-flex justify-content-center align-items-center flex-column left-box" style="background: #103cbe;">
-                <div class="mb-5 image-password_reset-left_box">
-                    <img src="{% static 'image/password_reset.png' %}" class="img-fluid" style="width: 250px;" alt="Image">
+            <div class="hidden md:flex md:w-1/2 flex-col items-center justify-center bg-blue-600 px-8 py-12 text-white">
+                <div class="mb-8">
+                    <img src="{% static 'image/password_reset.png' %}" class="w-64" alt="Image">
                 </div>
-                <p class="text-white fs-2 font-bold">
-                    Забыли пароль?
-                </p>
-                <p class="text-white text-wrap text-center">
-                    Мы Вам поможем вернуть доступ к сайту "Мои города"
+                <h2 class="mb-4 text-3xl font-bold">Забыли пароль?</h2>
+                <p class="text-center text-lg leading-relaxed">
+                    Мы Вам поможем вернуть доступ к сайту «Мои города»
                 </p>
             </div>
             <!-- /Left part -->
 
             <!-- Right part -->
-            <div class="col-md-6 right-box d-flex justify-content-center">
-                <div class="row align-items-center">
-                    <form method="post">
-                        <div class="header-text mb-4">
-                            <h2 class="font-bold">Восстановление пароля</h2>
-                            <p class="mt-5">
+            <div class="w-full md:w-1/2 flex items-center justify-center px-8 py-12">
+                <div class="w-full max-w-md">
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Восстановление пароля</h2>
+                            <p class="mt-2 text-sm text-gray-600 dark:text-neutral-400">
                                 Введите адрес электронной почты, указанный при регистрации.<br>
                                 На него будет отправлена инструкция по восстановлению пароля.
                             </p>
                         </div>
 
-                        {%  csrf_token %}
-                        {{ form|crispy }}
-                        <div class="input-group mb-3">
-                            <button class="btn btn-lg btn-primary w-100 fs-6">
+                        <!-- Электронная почта -->
+                        <div>
+                            <label for="{{ form.email.id_for_label }}" class="mb-2 block text-sm font-medium dark:text-white">
+                                {{ form.email.label }}
+                                {% if form.email.field.required %}<span class="text-red-600 dark:text-red-500">*</span>{% endif %}
+                            </label>
+                            <div class="relative">
+                                <input type="email"
+                                       name="{{ form.email.name }}"
+                                       id="{{ form.email.id_for_label }}"
+                                       value="{{ form.email.value|default:'' }}"
+                                       class="py-2.5 sm:py-3 px-4 ps-11 block w-full border border-gray-200 rounded-lg bg-white sm:text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 {% if form.email.errors %}border-red-500 dark:border-red-500{% endif %}"
+                                       placeholder="you@site.com"
+                                       required
+                                       autofocus>
+                                <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-4">
+                                    <svg class="shrink-0 size-4 text-gray-400 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            {% if form.email.help_text %}
+                                <p class="mt-1 text-xs text-gray-500 dark:text-neutral-500">{{ form.email.help_text }}</p>
+                            {% endif %}
+                            {% if form.email.errors %}
+                                <div class="mt-2 text-xs text-red-600 dark:text-red-500">
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Ошибки формы -->
+                        {% if form.non_field_errors %}
+                            <div class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+                                <div class="flex">
+                                    <div class="shrink-0">
+                                        <svg class="shrink-0 size-5 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ms-3">
+                                        <p class="text-sm text-red-800 dark:text-red-200">
+                                            {{ form.non_field_errors }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Кнопка восстановления -->
+                        <div>
+                            <button type="submit" class="w-full py-2.5 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800">
                                 Восстановить пароль
                             </button>
                         </div>
 
-                        <div class="d-flex justify-content-between small">
-                            <div>
-                                <a href="{% url 'signin' %}"
-                                   class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                                    Войти
-                                </a>
-                            </div>
-                            <div>
-                                <a href="{% url 'signup' %}"
-                                   class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">
-                                    Регистрация
-                                </a>
-                            </div>
+                        <!-- Ссылки -->
+                        <div class="flex items-center justify-between text-sm">
+                            <a href="{% url 'signin' %}" class="text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                                Войти
+                            </a>
+                            <a href="{% url 'signup' %}" class="text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                                Регистрация
+                            </a>
                         </div>
                     </form>
                 </div>
             </div>
             <!-- /Right part -->
         </div>
+        <!-- /Password reset box -->
     </div>
 {% endblock %}

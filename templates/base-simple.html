@@ -9,6 +9,7 @@
     <meta name="description" content="{{ page_description }}">
     <title>{{ page_title }} | {{ SITE_NAME }}</title>
 
+    {% if not DEBUG %}
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -30,29 +31,55 @@
         </div>
     </noscript>
     <!-- /Yandex.Metrika counter -->
+    {% endif %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    {# ----------------------- #}
+    {#   Загрузка CSS-стилей   #}
+    {# ----------------------- #}
+
+    {# Tailwind CSS с Preline UI #}
+    {% vite_css 'css/tailwind' %}
+    {# Локальные стили (собранные и минифицированные через Vite) #}
     {% vite_css 'css/style' %}
+    {# Компоненты кнопок (для кнопки уведомлений) #}
     {% vite_css 'css/components/button' %}
+    {# Стили для кнопки уведомлений #}
     {% vite_css 'css/notification' %}
-    <link rel="shortcut icon" type="image/png" href="{% static "favicon.ico" %}">
+    {% block extra_css %}{% endblock %}
+    {# Иконка сайта #}
+    <link rel="icon" type="image/svg+xml" href="{% static "image/favicon.svg" %}">
 
+    {# ---------------------- #}
+    {#   Загрузка JS-файлов   #}
+    {# ---------------------- #}
+    
+    {# Bootstrap JS (для совместимости с notification_controls) #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+            crossorigin="anonymous"></script>
+    {# jQuery JS (для совместимости с notification_controls) #}
     <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-    <script src="https://kit.fontawesome.com/1d9659a07a.js" crossorigin="anonymous"></script>
+    {% block head_scripts %}{% endblock %}
 </head>
-<body class="simple">
-    <div class="main-container d-flex">
-        <div class="content d-flex flex-column min-vh-100 position-relative">
-            {% include 'parts/navbar-only_logo.html' %}
+<body class="bg-white dark:bg-neutral-900">
+    {% include 'parts/toast/container.html' %}
+    {% include 'parts/toast/success.html' %}
+    {% include 'parts/toast/danger.html' %}
 
+    <div class="flex min-h-screen flex-col">
+        {% include 'parts/navbar-only_logo.html' %}
+
+        <main class="flex-1 flex items-center justify-center">
             {% block content %}
             {% endblock %}
+        </main>
 
-            {% include 'parts/footer.html' %}
-        </div>
+        {% include 'parts/footer.html' %}
     </div>
+
     {% include 'parts/notification_controls.html' %}
 
+    {% vite_asset 'js/entries/enable_tooltips.js' %}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

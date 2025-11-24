@@ -357,39 +357,50 @@ function addCountryOnMap(polygon, country, map) {
 function generatePopupContent(country) {
     let content = '<div class="px-1.5 py-1.5 min-w-[280px] max-w-[400px]">';
     
-    // Заголовок
+    // Заголовок (стиль варианта 2 - компактный, без серого блока)
     const name = country.owner ? country.name_ru + ` (${country.owner})` : country.name_ru;
-    content += `<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 pb-3 border-b border-gray-200 dark:border-neutral-700">${name}</h3>`;
+    content += `<div class="mb-2 pb-1 border-b border-gray-200 dark:border-neutral-700">`;
+    content += `<h3 class="text-base font-semibold text-gray-900 dark:text-white mb-0">${name}</h3>`;
+    content += `</div>`;
     
-    // Информация о стране
-    content += '<div class="space-y-3">';
+    // Информация о стране (с иконками и горизонтальным расположением)
+    content += '<div class="space-y-1.5 text-sm">';
     
     if (country.fullname_ru) {
-        content += `<div class="flex flex-col gap-1">`;
-        content += `<span class="text-xs font-semibold text-gray-500 uppercase dark:text-neutral-400">Полное название</span>`;
-        content += `<span class="text-sm text-gray-900 dark:text-white">${country.fullname_ru}</span>`;
+        content += `<div class="flex items-center justify-between gap-2">`;
+        content += `<div class="flex items-center gap-2">`;
+        content += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`;
+        content += `<span class="text-gray-500 dark:text-neutral-400">Полное название:</span>`;
+        content += `</div>`;
+        content += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${country.fullname_ru}</span>`;
         content += `</div>`;
     }
 
-    content += `<div class="flex flex-col gap-1">`;
-    content += `<span class="text-xs font-semibold text-gray-500 uppercase dark:text-neutral-400">Часть света</span>`;
-    content += `<span class="text-sm text-gray-900 dark:text-white">${country.part_of_the_world}</span>`;
+    content += `<div class="flex items-center justify-between gap-2">`;
+    content += `<div class="flex items-center gap-2">`;
+    content += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+    content += `<span class="text-gray-500 dark:text-neutral-400">Часть света:</span>`;
+    content += `</div>`;
+    content += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">${country.part_of_the_world}</span>`;
     content += `</div>`;
 
-    content += `<div class="flex flex-col gap-1">`;
-    content += `<span class="text-xs font-semibold text-gray-500 uppercase dark:text-neutral-400">Расположение</span>`;
-    content += `<span class="text-sm text-gray-900 dark:text-white">${country.location}</span>`;
+    content += `<div class="flex items-center justify-between gap-2">`;
+    content += `<div class="flex items-center gap-2">`;
+    content += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`;
+    content += `<span class="text-gray-500 dark:text-neutral-400">Расположение:</span>`;
+    content += `</div>`;
+    content += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${country.location}</span>`;
     content += `</div>`;
     
-    content += '</div>'; // закрываем space-y-3
+    content += '</div>'; // закрываем space-y-1.5
 
     // Действия для авторизованных пользователей
     if (isAuthenticated === true) {
-        content += '<div class="mt-3 pt-3 border-t border-gray-200 dark:border-neutral-700">';
+        content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
         if (country.is_visited) {
-            content += `<a class="country-action inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" href="#" data-action="delete" data-code="${country.iso3166_1_alpha2}">Удалить страну</a>`;
+            content += `<a class="country-action text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors" href="#" data-action="delete" data-code="${country.iso3166_1_alpha2}">Удалить страну</a>`;
         } else {
-            content += `<a class="country-action inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" href="#" data-action="add" data-code="${country.iso3166_1_alpha2}">Отметить страну как посещённую</a>`;
+            content += `<a class="country-action text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors" href="#" data-action="add" data-code="${country.iso3166_1_alpha2}">Отметить страну как посещённую</a>`;
         }
         content += '</div>';
     }

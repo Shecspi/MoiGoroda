@@ -54,7 +54,7 @@
     <div class="relative flex-1 min-w-[220px] self-center z-[1049]">
         <input id="city-search"
                type="text"
-               class="py-2 px-4 ps-11 block w-full border border-gray-200 rounded-xl bg-white text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 search-input"
+               class="py-2 px-4 block w-full border border-gray-200 rounded-xl bg-white text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 search-input"
                placeholder="Начните вводить название города...">
         </div>
 
@@ -64,7 +64,9 @@
             <select class="py-2 px-4 pe-9 block w-full border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
                     id="id_country"></select>
             <span class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500 pointer-events-none">
-                <i class="fa-solid fa-chevron-down text-xs"></i>
+                <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
             </span>
         </div>
         </div>
@@ -74,7 +76,9 @@
         <div class="hs-tooltip [--placement:top] relative inline-block self-center">
             <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
                class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
-                <i class="fa-solid fa-map-location-dot"></i>
+                <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
+                </svg>
                 <span>Посмотреть на карте</span>
             </a>
             <span class="hs-tooltip-content" role="tooltip">
@@ -86,7 +90,9 @@
             <button class="hs-tooltip-toggle relative inline-flex items-center gap-x-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition dark:focus:ring-offset-neutral-900 {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}border border-transparent bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400{% else %}border border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-500/10{% endif %}"
                     type="button"
                     id="btnOpenFilterSortPanel">
-                <i class="fa-solid fa-sliders"></i>
+                <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M96 128C78.3 128 64 142.3 64 160C64 177.7 78.3 192 96 192L182.7 192C195 220.3 223.2 240 256 240C288.8 240 317 220.3 329.3 192L544 192C561.7 192 576 177.7 576 160C576 142.3 561.7 128 544 128L329.3 128C317 99.7 288.8 80 256 80C223.2 80 195 99.7 182.7 128L96 128zM96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L342.7 352C355 380.3 383.2 400 416 400C448.8 400 477 380.3 489.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L489.3 288C477 259.7 448.8 240 416 240C383.2 240 355 259.7 342.7 288L96 288zM96 448C78.3 448 64 462.3 64 480C64 497.7 78.3 512 96 512L150.7 512C163 540.3 191.2 560 224 560C256.8 560 285 540.3 297.3 512L544 512C561.7 512 576 497.7 576 480C576 462.3 561.7 448 544 448L297.3 448C285 419.7 256.8 400 224 400C191.2 400 163 419.7 150.7 448L96 448z"/>
+                </svg>
                 <span>Фильтры и сортировка</span>
                 {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
                     <span class="absolute -right-1.5 -top-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-neutral-900">

@@ -34,7 +34,7 @@ from utils.CollectionListMixin import CollectionListMixin
 class CollectionList(CollectionListMixin, ListView):  # type: ignore[type-arg]
     model = Collection
     paginate_by = 16
-    template_name = 'collection/collection__list.html'
+    template_name = 'collection/list/page.html'
 
     def __init__(self) -> None:
         super().__init__()
@@ -274,11 +274,11 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
     def get_template_names(self) -> list[str]:
         if self.list_or_map == 'list':
             return [
-                'collection/collection_selected__list.html',
+                'collection/selected/list/page.html',
             ]
         elif self.list_or_map == 'map':
             return [
-                'collection/collection_selected__map.html',
+                'collection/selected/map/page.html',
             ]
         return []
 

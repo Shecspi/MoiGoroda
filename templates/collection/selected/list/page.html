@@ -20,13 +20,13 @@
     {% endif %}
     {% endif %}
 
-    {% include 'collection/collection_selected__list__toolbar.html' %}
+    {% include 'collection/selected/list/toolbar.html' %}
 
     <!-- Карточки с городами -->
     {% if object_list %}
         <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
             {% for city in object_list %}
-                {% include 'collection/collection_detail__card.html' %}
+                {% include 'collection/selected/card.html' %}
             {% endfor %}
         </div>
     {% else %}

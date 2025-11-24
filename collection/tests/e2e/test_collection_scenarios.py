@@ -206,7 +206,7 @@ class TestCollectionFullWorkflow:
 
         assert response.status_code == 200
         assert 'cities' in response.context
-        assert 'collection/collection_selected__map.html' in [t.name for t in response.templates]
+        assert 'collection/selected/map/page.html' in [t.name for t in response.templates]
 
     def test_search_collections_api_integration(
         self, client: Client, setup_collections: dict[str, Any]

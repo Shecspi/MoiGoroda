@@ -21,13 +21,13 @@
         {% endif %}
     {% endif %}
 
-    {% include 'region/region_all__list__toolbar.html' %}
+    {% include 'region/all/list/toolbar.html' %}
 
     <!-- Карточки с регионами -->
     {% if object_list %}
         <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
             {% for region in object_list %}
-                {% include 'region/region_all__card.html' %}
+                {% include 'region/all/list/card.html' %}
             {% endfor %}
         </div>
     {% else %}

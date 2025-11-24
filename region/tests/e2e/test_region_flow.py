@@ -209,12 +209,12 @@ def test_region_map_and_list_switching(
     # Шаг 1: Просматриваем список городов
     response = client.get(reverse('region-selected-list', kwargs={'pk': test_region.pk}))
     assert response.status_code == 200
-    assert 'region/region_selected__list.html' in [t.name for t in response.templates]
+    assert 'region/selected/list/page.html' in [t.name for t in response.templates]
 
     # Шаг 2: Переключаемся на карту
     response = client.get(reverse('region-selected-map', kwargs={'pk': test_region.pk}))
     assert response.status_code == 200
-    assert 'region/region_selected__map.html' in [t.name for t in response.templates]
+    assert 'region/selected/map/page.html' in [t.name for t in response.templates]
 
     # Шаг 3: Проверяем что контекст содержит нужные данные
     assert 'all_cities' in response.context

@@ -1,6 +1,5 @@
 import * as L from 'leaflet';
-import 'leaflet-fullscreen';
-import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
+import {create_map} from '../components/map.js';
 
 // Массив, хранящий в себе все созданные маркеры.
 // Нужен для того, чтобы отцентрировать и отмасштабировать карту.
@@ -17,47 +16,13 @@ const icon = L.divIcon({
     tooltipAnchor: [0, -28]
 });
 
-/**
- * Добавляет кнопки приближения и отдаления карты, а также полноэкранного режима.
- */
-function addControlsToMap() {
-    const myAttrControl = L.control.attribution().addTo(map);
-    myAttrControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
-    L.tileLayer(`${window.TILE_LAYER}`, {
-        maxZoom: 19,
-        attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
-    }).addTo(map);
-
-    // Добавляем кнопки приближения и отдаления карты.
-    // Их пришлось удалить и вручную добавить, чтобы перевести текст подсказки на русский.
-    const zoomControl = L.control.zoom({
-      zoomInTitle: 'Нажмите, чтобы приблизить карту',
-      zoomOutTitle: 'Нажмите, чтобы отдалить карту'
-    });
-    zoomControl.addTo(map);
-
-    // Добавляем кнопку полноэкранного режима
-    map.addControl(new L.Control.Fullscreen({
-        title: {
-            'false': 'Полноэкранный режим',
-            'true': 'Выйти из полноэкранного режима'
-        }
-    }));
-
-    // Добавляем кнопку создания скриншота
-    new SimpleMapScreenshoter().addTo(map);
-}
-
 // Массив с городами региона
 // ['lat', 'lon', 'name']
 const cities = window.ALL_CITIES || [];
 
 // Отображаем карту на странице
-const map = L.map('map', {
-    attributionControl: false,
-    zoomControl: false
-}).setView([60, 50], 4);
-addControlsToMap();
+const map = create_map();
+map.setView([60, 50], 4);
 
 // Отображаем на карте все города
 for (let i = 0; i < (cities.length); i++) {

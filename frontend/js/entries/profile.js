@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const unsubscribeButtons = document.querySelectorAll(".unsubscribeButton");
     const deleteSubscriptionButton = document.querySelectorAll(".deleteSubscriptionButton");
 
-    const unsubscribeModal = new bootstrap.Modal(document.getElementById("unsubscribeModal"));
-    const deleteSubscriptionModal = new bootstrap.Modal(document.getElementById("deleteSubscriptionModal"));
+    const unsubscribeModalElement = document.getElementById("unsubscribeModal");
+    const deleteSubscriptionModalElement = document.getElementById("deleteSubscriptionModal");
 
     const confirmButton = document.getElementById("confirmUnsubscribeButton");
     const confirmDeleteSubscriptionButton = document.getElementById("confirmDeleteSubscriptionButton");
@@ -30,14 +30,24 @@ document.addEventListener("DOMContentLoaded", function () {
             confirmButton.dataset.user_id = this.dataset.user_id;
             confirmButton.dataset.url = this.dataset.url;
             confirmButton.dataset.subscribe_type = this.dataset.subscribe_type;
-            unsubscribeModal.show();
+            
+            // Открываем модальное окно через программный клик на триггер
+            const trigger = document.getElementById('trigger-unsubscribe-modal');
+            if (trigger) {
+                trigger.click();
+            }
         });
     });
     deleteSubscriptionButton.forEach(button => {
         button.addEventListener("click", function () {
             deleteSubscriptionUsername.textContent = this.dataset.username;
             confirmDeleteSubscriptionButton.dataset.user_id = this.dataset.user_id;
-            deleteSubscriptionModal.show();
+            
+            // Открываем модальное окно через программный клик на триггер
+            const trigger = document.getElementById('trigger-delete-subscription-modal');
+            if (trigger) {
+                trigger.click();
+            }
         });
     });
 
@@ -80,7 +90,11 @@ document.addEventListener("DOMContentLoaded", function () {
             showDangerToast('Ошибка', 'Не удалось удалить подписку');
         }
 
-        unsubscribeModal.hide();
+        // Закрываем модальное окно через программный клик на кнопку закрытия
+        const closeButton = unsubscribeModalElement?.querySelector('[data-hs-overlay="#unsubscribeModal"]');
+        if (closeButton) {
+            closeButton.click();
+        }
     });
     confirmDeleteSubscriptionButton.addEventListener("click", async function () {
         const number_of_subscriber_users = document.getElementById('number_of_subscriber_users');
@@ -111,6 +125,10 @@ document.addEventListener("DOMContentLoaded", function () {
             showDangerToast('Ошибка', 'Не удалось удалить подписку');
         }
 
-        deleteSubscriptionModal.hide();
+        // Закрываем модальное окно через программный клик на кнопку закрытия
+        const closeButton = deleteSubscriptionModalElement?.querySelector('[data-hs-overlay="#deleteSubscriptionModal"]');
+        if (closeButton) {
+            closeButton.click();
+        }
     });
 });

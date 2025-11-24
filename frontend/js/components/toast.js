@@ -21,6 +21,14 @@ function showSuccessToast(title, message) {
         messageElement.innerHTML = message;
     }
 
+    // Добавляем обработчик закрытия для кнопки
+    const closeButton = toast.querySelector('button[aria-label="Закрыть"]');
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            toast.remove();
+        });
+    }
+
     // Добавляем toast в верх стека (в начало контейнера)
     if (container.firstChild) {
         container.insertBefore(toast, container.firstChild);
@@ -57,6 +65,14 @@ function showDangerToast(title, message) {
     }
     if (messageElement) {
         messageElement.innerHTML = message;
+    }
+
+    // Добавляем обработчик закрытия для кнопки
+    const closeButton = toast.querySelector('button[aria-label="Закрыть"]');
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            toast.remove();
+        });
     }
 
     // Добавляем toast в верх стека (в начало контейнера)

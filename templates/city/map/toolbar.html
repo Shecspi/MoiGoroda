@@ -43,7 +43,9 @@
             <select class="block w-full rounded-xl border border-gray-200 bg-white py-2 pe-10 ps-4 text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
                     id="id_country"></select>
             <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500">
-                <i class="fa-solid fa-chevron-down text-xs"></i>
+                <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
             </span>
         </div>
         <span class="hs-tooltip-content" role="tooltip">
@@ -73,7 +75,9 @@
                 id="btn_show-visited-cities-previous-year"
                 data-type="show"
                 {% if qty_of_visited_cities == 0 %}disabled{% endif %}>
-            <i class="fa-solid fa-calendar-week"></i>
+            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
         </button>
         <span class="hs-tooltip-content" role="tooltip">
             Показать города, которые Вы посетили в прошлом году
@@ -87,7 +91,9 @@
                 id="btn_show-visited-cities-current-year"
                 data-type="show"
                 {% if qty_of_visited_cities == 0 %}disabled{% endif %}>
-            <i class="fa-solid fa-calendar-days"></i>
+            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
         </button>
         <span class="hs-tooltip-content" role="tooltip">
             Показать города, которые Вы посетили в этом году
@@ -100,7 +106,9 @@
         <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-200 text-sky-600 transition hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-sky-500/40 dark:text-sky-300 dark:hover:bg-sky-500/10"
                 id="btn_show-places"
                 data-type="show">
-            <i class="fa-solid fa-location-dot"></i>
+            <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+            </svg>
         </button>
         <span class="hs-tooltip-content" role="tooltip">
             Показать маркеры посещённых мест на карте
@@ -114,7 +122,10 @@
                 id="btn_show-not-visited-cities"
                 data-url="{% url 'api__get_not_visited_cities' %}{% if country_code %}?country={{ country_code }}{% endif %}"
                 data-type="show">
-            <i class="fa-solid fa-eye"></i>
+            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9a3 3 0 100 6 3 3 0 000-6z"/>
+            </svg>
         </button>
         <span class="hs-tooltip-content" role="tooltip">
             Показать города, где Вы ещё не были
@@ -141,7 +152,9 @@
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
         <a href="{% url 'city-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}"
            class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
-            <i class="fa-solid fa-list-ol"></i>
+            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
             <span>Посмотреть список</span>
         </a>
         <span class="hs-tooltip-content" role="tooltip">

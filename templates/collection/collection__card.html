@@ -68,7 +68,15 @@
                         <button class="favorite-star inline-flex items-center gap-x-1 rounded-full border px-3 py-1 text-sm font-semibold transition {% if collection.is_favorite %}border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-600 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20{% else %}border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-600 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20{% endif %}"
                                 data-collection-id="{{ collection.id }}"
                                 data-is-favorite="{% if collection.is_favorite %}true{% else %}false{% endif %}">
-                            <i class="fa-star {% if collection.is_favorite %}fas{% else %}far{% endif %} text-base"></i>
+                            {% if collection.is_favorite %}
+                                <svg class="size-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
+                                </svg>
+                            {% else %}
+                                <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
+                                </svg>
+                            {% endif %}
                             <span class="favorite-text transition-opacity duration-150">
                                 {% if collection.is_favorite %}Удалить из избранного{% else %}Добавить в избранное{% endif %}
                             </span>

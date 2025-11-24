@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const collectionId = button.dataset.collectionId;
             const isFavorite = button.dataset.isFavorite === 'true';
-            const icon = button.querySelector('i');
+            const icon = button.querySelector('svg');
             const textSpan = button.querySelector('.favorite-text');
             const card = document.getElementById(`collection-card-${collectionId}`);
 
@@ -50,8 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Переключаем иконку, текст, стиль кнопки и карточки
                     if (data.is_favorite) {
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
+                        // Заменяем контурную звезду на заполненную
+                        if (icon) {
+                            icon.outerHTML = '<svg class="size-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/></svg>';
+                        }
                         setFavoriteText('Удалить из избранного');
                         // Изменяем стиль кнопки на красный (удаление)
                         button.classList.remove('border-amber-300', 'bg-amber-50', 'text-amber-700', 'hover:bg-amber-100', 'dark:border-amber-600', 'dark:bg-amber-500/10', 'dark:text-amber-400', 'dark:hover:bg-amber-500/20');
@@ -75,8 +77,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         showSuccessToast('Успешно', 'Коллекция добавлена в избранное');
                     } else {
-                        icon.classList.remove('fas');
-                        icon.classList.add('far');
+                        // Заменяем заполненную звезду на контурную
+                        if (icon) {
+                            icon.outerHTML = '<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/></svg>';
+                        }
                         setFavoriteText('Добавить в избранное');
                         // Возвращаем стиль кнопки на янтарный (добавление)
                         button.classList.remove('border-rose-300', 'bg-rose-50', 'text-rose-700', 'hover:bg-rose-100', 'dark:border-rose-600', 'dark:bg-rose-500/10', 'dark:text-rose-400', 'dark:hover:bg-rose-500/20');

@@ -221,15 +221,11 @@ jobs:
                   cd ../
 
                   : # Производим сборку статичных файлов
-                  chmod +x ./scripts/collectstatic.sh
-                  ./scripts/collectstatic.sh
-                  chmod -x ./scripts/collectstatic.sh
+                  poetry run python3 manage.py collectstatic --noinput
 
                   : # Перезагружаем сервер
-                  chmod +x ./scripts/restart.sh
-                  export SUDO_PASSWORD=${{ secrets.PROD__SUDO_PASSWORD }}
-                  ./scripts/restart.sh
-                  chmod -x ./scripts/restart.sh
+                  echo "${{ secrets.PROD__SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
+                  echo "${{ secrets.PROD__SUDO_PASSWORD }}" | sudo -S systemctl restart gunicorn
 
     deploy-dev:
         name: Deploy to dev server
@@ -245,7 +241,7 @@ jobs:
             - name: Deploy to dev server
               run: |
                   : # Переходим в папку с проектом
-                  cd /home/www/MoiGoroda
+                  cd ${{ secrets.DEV__PROJECT_PATH }}
 
                   git pull origin ${{ steps.vars.outputs.short_ref }}
                   git checkout ${{ steps.vars.outputs.short_ref }}
@@ -275,12 +271,8 @@ jobs:
                   cd ../
 
                   : # Производим сборку статичных файлов
-                  chmod +x ./scripts/collectstatic.sh
-                  ./scripts/collectstatic.sh
-                  chmod -x ./scripts/collectstatic.sh
+                  poetry run python3 manage.py collectstatic --noinput
 
                   : # Перезагружаем сервер
-                  chmod +x ./scripts/restart.sh
-                  export SUDO_PASSWORD=password
-                  ./scripts/restart.sh
-                  chmod -x ./scripts/restart.sh
+                  echo "${{ secrets.DEV__SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
+                  echo "${{ secrets.DEV__SUDO_PASSWORD }}" | sudo -S systemctl restart gunicorn

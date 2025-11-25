@@ -86,12 +86,8 @@ jobs:
                   cd ../
 
                   : # Производим сборку статичных файлов
-                  chmod +x ./scripts/collectstatic.sh
-                  ./scripts/collectstatic.sh
-                  chmod -x ./scripts/collectstatic.sh
+                  poetry run python3 manage.py collectstatic --noinput
                           
                   : # Перезагружаем сервер
-                  chmod +x ./scripts/restart.sh
-                  export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
-                  ./scripts/restart.sh
-                  chmod -x ./scripts/restart.sh
+                  echo "${{ secrets.DEV__SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
+                  echo "${{ secrets.DEV__SUDO_PASSWORD }}" | sudo -S systemctl restart gunicorn

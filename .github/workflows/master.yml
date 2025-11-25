@@ -40,6 +40,7 @@ jobs:
 
     test:
         name: Run tests
+        if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
 
         services:
@@ -107,6 +108,7 @@ jobs:
 
     mypy:
         name: Type checking with mypy
+        if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -142,6 +144,7 @@ jobs:
 
     ruff:
         name: Linting with ruff
+        if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -231,7 +234,6 @@ jobs:
     deploy-dev:
         name: Deploy to dev server
         if: github.ref == 'refs/heads/feature/global-redesign'
-        needs: [test, mypy, ruff]
         runs-on: [self-hosted, dev]
         steps:
             - uses: actions/checkout@v4

@@ -389,9 +389,7 @@ def test_password_reset_done_view(client: Any) -> None:
     response = client.get(reverse('password_reset_done'))
 
     assert response.status_code == 200
-    assert 'account/password/reset/email_sent.html' in (
-        t.name for t in response.templates
-    )
+    assert 'account/password/reset/email_sent.html' in (t.name for t in response.templates)
 
 
 # ===== Тесты для logout =====

@@ -14,6 +14,8 @@
 
 - *(collection)* Добавлена возможность отмечать коллекции как избранные ([1958ea9](https://github.com/Shecspi/MoiGoroda/commit/1958ea9d369c198832d239cf1c700c304a1433e2))
 
+- *(design)* Унификация дизайна страниц коллекций и создание модульной CSS архитектуры ([b29b4da](https://github.com/Shecspi/MoiGoroda/commit/b29b4daea87cecfb70bab328954d242c0f9b209d))
+
 
 #### 🐛 Исправление ошибок
 
@@ -48,6 +50,14 @@
 
 - Разрешить запуск тестов для ветки fix-ci-tests без деплоя ([b2b5c17](https://github.com/Shecspi/MoiGoroda/commit/b2b5c170d6cbc7bc56d5d98e4a2cde9788cdebe3))
 
+- Разделены проверки и деплой ([20be3a2](https://github.com/Shecspi/MoiGoroda/commit/20be3a2c2e9a980c24968cee226905451745d057))
+
+- Collectstatic теперь bash-скрипт ([2dcf31f](https://github.com/Shecspi/MoiGoroda/commit/2dcf31f4041b6e4919ad28d7cea74a499d2ce8c8))
+
+- Перезапуск gunicorn через bash ([0df447a](https://github.com/Shecspi/MoiGoroda/commit/0df447a3c7feca1eca70fb1ea71800b860e35a27))
+
+- Встроены команды деплоя прямо в workflow ([07e1584](https://github.com/Shecspi/MoiGoroda/commit/07e158423362a070465dac525b01a7cbd09839f5))
+
 
 #### Cleanup
 
@@ -66,6 +76,11 @@
 #### Fix
 
 - Исправлена работа vite_asset в тестах (Django принудительно устанавливает DEBUG=False) ([be7cfa8](https://github.com/Shecspi/MoiGoroda/commit/be7cfa868a47ca1aa0f5dc55798a009f781ed6cb))
+
+
+#### Исправлено
+
+- Сайдбар теперь скрыт по умолчанию на мобильных устройствах при загрузке страницы ([1b31985](https://github.com/Shecspi/MoiGoroda/commit/1b31985dae69d7eabdfcf9f66f28df5c175d090c))
 
 
 ## [ 2.5 ] - 2025-09-05

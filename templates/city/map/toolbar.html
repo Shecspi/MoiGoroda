@@ -71,7 +71,7 @@
 
     <!-- В прошлом году -->
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 text-blue-500 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-40 dark:border-blue-500/40 dark:text-blue-300 dark:hover:bg-blue-500/10"
+        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 text-blue-500 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-40 dark:border-blue-500/40 dark:text-blue-300 dark:hover:bg-blue-500/10 data-[type=hide]:bg-blue-600 data-[type=hide]:text-white data-[type=hide]:border-blue-600 data-[type=hide]:hover:bg-blue-600 data-[type=hide]:focus:ring-blue-400 data-[type=hide]:shadow-md data-[type=hide]:shadow-blue-500/30 dark:data-[type=hide]:border-blue-400 dark:data-[type=hide]:text-white dark:data-[type=hide]:bg-blue-500/20 dark:data-[type=hide]:hover:bg-blue-500/30"
                 id="btn_show-visited-cities-previous-year"
                 data-type="show"
                 {% if qty_of_visited_cities == 0 %}disabled{% endif %}>
@@ -87,7 +87,7 @@
 
     <!-- В этом году -->
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-300 disabled:opacity-40 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-300 disabled:opacity-40 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10 data-[type=hide]:bg-emerald-600 data-[type=hide]:text-white data-[type=hide]:border-emerald-600 data-[type=hide]:hover:bg-emerald-600 data-[type=hide]:focus:ring-emerald-400 data-[type=hide]:shadow-md data-[type=hide]:shadow-emerald-500/30 dark:data-[type=hide]:border-emerald-400 dark:data-[type=hide]:text-white dark:data-[type=hide]:bg-emerald-500/20 dark:data-[type=hide]:hover:bg-emerald-500/30"
                 id="btn_show-visited-cities-current-year"
                 data-type="show"
                 {% if qty_of_visited_cities == 0 %}disabled{% endif %}>
@@ -103,7 +103,7 @@
 
     <!-- Показать маркеры посещённых мест -->
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-200 text-sky-600 transition hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-sky-500/40 dark:text-sky-300 dark:hover:bg-sky-500/10"
+        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-200 text-sky-600 transition hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-sky-500/40 dark:text-sky-300 dark:hover:bg-sky-500/10 data-[type=hide]:bg-sky-600 data-[type=hide]:text-white data-[type=hide]:border-sky-600 data-[type=hide]:hover:bg-sky-600 data-[type=hide]:focus:ring-sky-400 data-[type=hide]:shadow-md data-[type=hide]:shadow-sky-500/30 dark:data-[type=hide]:border-sky-400 dark:data-[type=hide]:text-white dark:data-[type=hide]:bg-sky-500/20 dark:data-[type=hide]:hover:bg-sky-500/30"
                 id="btn_show-places"
                 data-type="show">
             <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -118,7 +118,7 @@
 
     <!-- Показать непосещённые города -->
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-200 text-rose-600 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-300 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10"
+        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-200 text-rose-600 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-300 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10 data-[type=hide]:bg-rose-600 data-[type=hide]:text-white data-[type=hide]:border-rose-600 data-[type=hide]:hover:bg-rose-600 data-[type=hide]:focus:ring-rose-400 data-[type=hide]:shadow-md data-[type=hide]:shadow-rose-500/30 dark:data-[type=hide]:border-rose-400 dark:data-[type=hide]:text-white dark:data-[type=hide]:bg-rose-500/20 dark:data-[type=hide]:hover:bg-rose-500/30"
                 id="btn_show-not-visited-cities"
                 data-url="{% url 'api__get_not_visited_cities' %}{% if country_code %}?country={{ country_code }}{% endif %}"
                 data-type="show">

@@ -7,7 +7,6 @@ import {
 } from "./icons.js";
 import {City, MarkerStyle} from "./schemas.js";
 import {open_modal_for_add_city, close_modal_for_add_city} from './services.js';
-import {Button} from './button.js';
 import {getCookie} from './get_cookie.js';
 import {addErrorControl, addLoadControl} from "./map";
 
@@ -46,43 +45,11 @@ export class ToolbarActions {
         // Массив, хранящий в себе все маркеры посещённых мест
         this.allPlaceMarkers = [];
 
-        // Ниже определяются кнопки. Для каждой из них есть 2 переменные:
-        // - btn... - экземпляр класса Button для доступа к его методам.
-        // - element... - Непосредственно сам HTML-элемент, чтобы иметь доступ к его параметрам.
-        this.btnShowSubscriptionCities = new Button(
-            'btn_show-subscriptions-cities',
-            'mg-btn-success',
-            'mg-btn-outline-success'
-        )
-        this.elementShowSubscriptionCities = this.btnShowSubscriptionCities.get_element();
-
-        this.btnShowPlaces = new Button(
-            'btn_show-places',
-            'mg-btn-primary',
-            'mg-btn-outline-primary'
-        );
-        this.elementShowPlaces = this.btnShowPlaces.get_element();
-
-        this.btnShowNotVisitedCities = new Button(
-            'btn_show-not-visited-cities',
-            'mg-btn-danger',
-            'mg-btn-outline-danger'
-        )
-        this.elementShowNotVisitedCities = this.btnShowNotVisitedCities.get_element();
-
-        this.btnShowVisitedCitiesPreviousYear = new Button(
-            'btn_show-visited-cities-previous-year',
-            'mg-btn-primary',
-            'mg-btn-outline-primary'
-        )
-        this.elementShowVisitedCitiesPreviousYear = this.btnShowVisitedCitiesPreviousYear.get_element();
-
-        this.btnShowVisitedCitiesCurrentYear = new Button(
-            'btn_show-visited-cities-current-year',
-            'mg-btn-success',
-            'mg-btn-outline-success'
-        )
-        this.elementShowVisitedCitiesCurrentYear = this.btnShowVisitedCitiesCurrentYear.get_element();
+        this.elementShowSubscriptionCities = document.getElementById('btn_show-subscriptions-cities');
+        this.elementShowPlaces = document.getElementById('btn_show-places');
+        this.elementShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
+        this.elementShowVisitedCitiesPreviousYear = document.getElementById('btn_show-visited-cities-previous-year');
+        this.elementShowVisitedCitiesCurrentYear = document.getElementById('btn_show-visited-cities-current-year');
 
         this.set_handlers();
     }
@@ -91,41 +58,41 @@ export class ToolbarActions {
         this.elementShowSubscriptionCities.addEventListener('click', () => {
             this.showSubscriptionCities();
 
-            this.btnShowVisitedCitiesPreviousYear.off()
-            this.btnShowVisitedCitiesCurrentYear.off();
+            this.setButtonState(this.elementShowVisitedCitiesPreviousYear, false);
+            this.setButtonState(this.elementShowVisitedCitiesCurrentYear, false);
         });
 
         this.elementShowPlaces.addEventListener('click', () => {
             if (this.elementShowPlaces.dataset.type === 'show') {
                 this.showPlaces();
-                this.btnShowPlaces.on();
+                this.setButtonState(this.elementShowPlaces, true);
             } else {
                 this.hidePlaces();
-                this.btnShowPlaces.off();
+                this.setButtonState(this.elementShowPlaces, false);
             }
         });
 
         this.elementShowNotVisitedCities.addEventListener('click', () => {
             if (this.elementShowNotVisitedCities.dataset.type === 'show') {
                 this.showNotVisitedCities();
-                this.btnShowNotVisitedCities.on();
+                this.setButtonState(this.elementShowNotVisitedCities, true);
             } else {
                 this.hideNotVisitedCities();
-                this.btnShowNotVisitedCities.off();
+                this.setButtonState(this.elementShowNotVisitedCities, false);
             }
         })
 
         this.elementShowVisitedCitiesPreviousYear.addEventListener('click', () => {
             if (this.elementShowVisitedCitiesPreviousYear.dataset.type === 'show') {
                 this.showVisitedCitiesPreviousYear();
-                this.btnShowVisitedCitiesPreviousYear.on();
-                this.btnShowNotVisitedCities.off();
-                this.btnShowNotVisitedCities.disable();
-                this.btnShowVisitedCitiesCurrentYear.off();
+                this.setButtonState(this.elementShowVisitedCitiesPreviousYear, true);
+                this.setButtonState(this.elementShowNotVisitedCities, false);
+                this.disableButton(this.elementShowNotVisitedCities, true);
+                this.setButtonState(this.elementShowVisitedCitiesCurrentYear, false);
             } else {
                 this.hideVisitedCitiesPreviousYear();
-                this.btnShowVisitedCitiesPreviousYear.off();
-                this.btnShowNotVisitedCities.enable();
+                this.setButtonState(this.elementShowVisitedCitiesPreviousYear, false);
+                this.disableButton(this.elementShowNotVisitedCities, false);
             }
         });
 
@@ -133,16 +100,28 @@ export class ToolbarActions {
             if (this.elementShowVisitedCitiesCurrentYear.dataset.type === 'show') {
                 this.showVisitedCitiesCurrentYear();
 
-                this.btnShowVisitedCitiesCurrentYear.on();
-                this.btnShowNotVisitedCities.off();
-                this.btnShowNotVisitedCities.disable();
-                this.btnShowVisitedCitiesPreviousYear.off();
+                this.setButtonState(this.elementShowVisitedCitiesCurrentYear, true);
+                this.setButtonState(this.elementShowNotVisitedCities, false);
+                this.disableButton(this.elementShowNotVisitedCities, true);
+                this.setButtonState(this.elementShowVisitedCitiesPreviousYear, false);
             } else {
                 this.hideVisitedCitiesCurrentYear();
-                this.btnShowVisitedCitiesCurrentYear.off();
-                this.btnShowNotVisitedCities.enable();
+                this.setButtonState(this.elementShowVisitedCitiesCurrentYear, false);
+                this.disableButton(this.elementShowNotVisitedCities, false);
             }
         });
+    }
+
+    setButtonState(element, isActive) {
+        element.dataset.type = isActive ? 'hide' : 'show';
+    }
+
+    disableButton(element, shouldDisable) {
+        if (shouldDisable) {
+            element.disabled = true;
+        } else {
+            element.disabled = false;
+        }
     }
 
     async showSubscriptionCities() {

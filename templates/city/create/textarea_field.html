@@ -1,0 +1,15 @@
+<div class="mt-6">
+    <label for="{{ field.id_for_label }}" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-300">
+        {{ field.label }}
+        {% if field.field.required %}<span class="text-red-600 dark:text-red-500">*</span>{% endif %}
+    </label>
+    {{ field }}
+    {% if field.help_text %}
+        <p class="mt-1 text-sm text-gray-600 dark:text-neutral-500">{{ field.help_text }}</p>
+    {% endif %}
+    {% if field.errors %}
+        <div class="mt-2 text-xs text-red-600 dark:text-red-500">
+            {{ field.errors }}
+        </div>
+    {% endif %}
+</div>

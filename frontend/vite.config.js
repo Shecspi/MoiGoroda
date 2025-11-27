@@ -26,6 +26,7 @@ export default defineConfig({
     manifest: true, // нужен для Django
     rollupOptions: {
       input: {
+        // JS entries
         choices_css: path.resolve(entriesDir, 'choices_css.js'),
         city_all: path.resolve(entriesDir, 'city_all.js'),
         city_create: path.resolve(entriesDir, 'city_create.js'),
@@ -55,6 +56,26 @@ export default defineConfig({
         collection_search: path.resolve(entriesDir, 'collection_search.js'),
         collection_favorite: path.resolve(entriesDir, 'collection_favorite.js'),
         city_search: path.resolve(entriesDir, 'city_search.js'),
+        preline: path.resolve(entriesDir, 'preline.js'),
+        
+        // CSS entries
+        'css/tailwind': path.resolve(__dirname, 'css/tailwind.css'),
+        'css/autoComplete': path.resolve(__dirname, 'css/autoComplete.css'),
+        'css/city-card': path.resolve(__dirname, 'css/city-card.css'),
+        'css/collection-cards': path.resolve(__dirname, 'css/collection-cards.css'),
+        'css/pagination': path.resolve(__dirname, 'css/pagination.css'),
+        'css/select-field': path.resolve(__dirname, 'css/select-field.css'),
+        'css/leaflet-controls': path.resolve(__dirname, 'css/leaflet-controls.css'),
+        'css/subscriptions-modal': path.resolve(__dirname, 'css/subscriptions-modal.css'),
+        'css/components/checkbox': path.resolve(__dirname, 'css/components/checkbox.css'),
+        'css/components/button': path.resolve(__dirname, 'css/components/button.css'),
+        'css/components/badge': path.resolve(__dirname, 'css/components/badge.css'),
+        'css/components/radio': path.resolve(__dirname, 'css/components/radio.css'),
+        'css/components/card': path.resolve(__dirname, 'css/components/card.css'),
+        'css/components/link': path.resolve(__dirname, 'css/components/link.css'),
+        'css/components/typography': path.resolve(__dirname, 'css/components/typography.css'),
+        'css/components/progress': path.resolve(__dirname, 'css/components/progress.css'),
+        'css/toolbar': path.resolve(__dirname, 'css/toolbar.css'),
       }
     }
   }

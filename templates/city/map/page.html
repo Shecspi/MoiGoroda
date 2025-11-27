@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load morphology %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+    {% vite_css 'css/select-field' %}
+    {% vite_css 'css/leaflet-controls' %}
+{% endblock %}
+
+{% block content %}
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <div class="space-y-3">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+                {% if country_name %}
+                    Карта посещённых городов в {{ country_name|prepositional }}
+                {% else %}
+                    Карта посещённых городов
+                {% endif %}
+            </h1>
+        </div>
+    </header>
+
+    {% if not DEBUG %}
+    {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
+
+    {% include 'city/map/toolbar.html' %}
+
+    {% include 'city/map/modals/subscriptions.html' %}
+    {% include 'city/map/modals/help.html' %}
+    {% include 'city/map/modals/add_city.html' %}
+
+    <!-- Карта -->
+    <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>
+    <!-- ^^^ Карта -->
+
+    {% if not DEBUG %}
+    {% include 'advertisement/rtb_feed.html' %}
+    {% endif %}
+
+    <script>
+        window.URL_GET_VISITED_CITIES = "{% url 'api__get_visited_cities' %}";
+        window.TILE_LAYER = "{{ TILE_LAYER }}";
+        window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
+    </script>
+    {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/choices_css.js' %}
+    {% vite_asset 'js/entries/map_city.js' %}
+
+    {% include 'parts/toast/danger.html' with error_title="Ошибка соединения с сервером" error_message='Не получилось загрузить список Ваших посещённых городов.' error_id='toast_request_error' %}
+    {% include 'parts/toast/success.html' with title="Успешно" message="Город <span id='city-title-in-toast' class='font-semibold'></span> успешно отмечен как посещённый" %}
+{% endblock %}
+

@@ -1,135 +1,198 @@
 {% load vite %}
-<div class="modal fade" id="share_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-     aria-labelledby="share_modal_label" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="share_modal_label">Поделиться статистикой</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+<div id="share_modal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center" role="dialog" tabindex="-1" aria-labelledby="share_modal_label">
+    <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <!-- Header -->
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white" id="share_modal_label">
+                    Поделиться статистикой
+                </h3>
+                <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#share_modal">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
             </div>
+            <!-- End Header -->
 
-            <form action="{% url 'save_share_settings' %}" method="POST" id="share_settings_form">
+            <!-- Body -->
+            <form action="{% url 'save_share_settings' %}" method="POST" id="share_settings_form" class="flex-1 overflow-y-auto">
                 {% csrf_token %}
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col">
-                            Вы можете поделиться с другими пользователями своей статистикой.<br>
-                            Они увидят только ту информацию, которую Вы захотите показать.<br>
-                            Доступ к Вашей статистике будет возможен по ссылке, которая сгенерирована ниже.<br>
-                            В любой момент Вы сможете изменить параметры доступа к Вашей
-                            статистике или вообще запретить её отображение.<br>
-                        </div>
+                <div class="p-4">
+                    <!-- Input with copy button -->
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="input_with_share_link" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" value="{{ SITE_URL }}{% url 'share' request.user.id %}" {% if not share_settings.switch_share_general %}disabled{% endif %}>
+                        <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800" id="button_make_a_copy" {% if not share_settings.switch_share_general %}disabled{% endif %}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 640 640" fill="currentColor">
+                                <path d="M480 400L288 400C279.2 400 272 392.8 272 384L272 128C272 119.2 279.2 112 288 112L421.5 112C425.7 112 429.8 113.7 432.8 116.7L491.3 175.2C494.3 178.2 496 182.3 496 186.5L496 384C496 392.8 488.8 400 480 400zM288 448L480 448C515.3 448 544 419.3 544 384L544 186.5C544 169.5 537.3 153.2 525.3 141.2L466.7 82.7C454.7 70.7 438.5 64 421.5 64L288 64C252.7 64 224 92.7 224 128L224 384C224 419.3 252.7 448 288 448zM160 192C124.7 192 96 220.7 96 256L96 512C96 547.3 124.7 576 160 576L352 576C387.3 576 416 547.3 416 512L416 496L368 496L368 512C368 520.8 360.8 528 352 528L160 528C151.2 528 144 520.8 144 512L144 256C144 247.2 151.2 240 160 240L176 240L176 192L160 192z"/>
+                            </svg>
+                        </button>
                     </div>
 
-                    <hr>
+                    <hr class="my-4 border-gray-200 dark:border-neutral-700">
 
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                       id="switch_share_general" name="switch_share_general"
-                                       {% if share_settings.switch_share_general %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="switch_share_general">&nbsp;&nbsp;&nbsp;Разрешить доступ к Вашей статистике</label>
-                            </div>
+                    <!-- Switch: Разрешить доступ -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex-1">
+                            <label for="switch_share_general" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                Разрешить доступ к Вашей статистике
+                            </label>
+                            <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Включите этот переключатель, чтобы другие пользователи могли просматривать Вашу статистику по ссылке выше. Вы можете в любой момент отключить доступ или изменить параметры отображения.</span>
                         </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                       id="switch_share_dashboard" name="switch_share_dashboard"
-                                       {% if not share_settings.switch_share_general %}disabled{% endif %}
-                                       {% if share_settings.switch_share_basic_info %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="switch_share_basic_info">&nbsp;&nbsp;&nbsp;Отображать общую информацию</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                       id="switch_share_city_map" name="switch_share_city_map"
-                                       {% if not share_settings.switch_share_general %}disabled{% endif %}
-                                       {% if share_settings.switch_share_city_map %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="switch_share_city_map">&nbsp;&nbsp;&nbsp;Отображать карту городов</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                       id="switch_share_region_map" name="switch_share_region_map"
-                                       {% if not share_settings.switch_share_general %}disabled{% endif %}
-                                       {% if share_settings.switch_share_region_map %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="switch_share_region_map">&nbsp;&nbsp;&nbsp;Отображать карту регионов</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                       id="switch_subscribe" name="switch_subscribe"
-                                       {% if not share_settings.switch_share_general %}disabled{% endif %}
-                                       {% if share_settings.switch_subscribe %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="switch_subscribe">&nbsp;&nbsp;&nbsp;Разрешить подписываться на Вас</label>
-                                &nbsp;&nbsp;&nbsp;
-                                <i class="fa-regular fa-circle-question" data-bs-toggle="tooltip" data-bs-title="Если Вы включите эту настройку, то другие пользователи смогут добавлять Ваш профиль в подписки и сравнивать свои посещённые города с Вашими. Это возможно только в том случае, если Вы разрешили доступ к своей статистике."></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="row">
-                        <div class="col">
-                            <input class="form-control" type="text" id="input_with_share_link"
-                                   value="{{ SITE_URL }}{% url 'share' request.user.id %}"
-                                   {% if not share_settings.switch_share_general %}disabled{% endif %}
-                            >
-                        </div>
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-outline-secondary" id="button_make_a_copy"
-                                   {% if not share_settings.switch_share_general %}disabled{% endif %}
-                            >
-                                <i class="fa-regular fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="row row-cols-1 row-cols-sm-2 align-items-center">
-                        <div class="col col-6-md">
-                            <span id="save_success" class="fw-normal mb-2" style="display: none;">
-                                <i class="fa-solid fa-check-double text-success"></i>&nbsp;&nbsp;&nbsp;Успешно сохранено
+                        <label for="switch_share_general" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                            <input type="checkbox" id="switch_share_general" name="switch_share_general" class="peer sr-only" {% if share_settings.switch_share_general %}checked{% endif %}>
+                            <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                            <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                            <!-- Left Icon (Off) -->
+                            <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 6 6 18"></path>
+                                    <path d="m6 6 12 12"></path>
+                                </svg>
                             </span>
-                            <span id="save_error" class="fw-normal mb-2" style="display: none;">
-                                <i class="fa-solid fa-triangle-exclamation text-danger"></i>&nbsp;&nbsp;&nbsp;Ошибка при сохранении
+                            <!-- Right Icon (On) -->
+                            <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
                             </span>
+                        </label>
+                    </div>
+
+                    <hr class="my-4 border-gray-200 dark:border-neutral-700">
+
+                    <!-- Switches: Что отображать -->
+                    <div class="grid space-y-4">
+                        <!-- Switch: Отображать общую информацию -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <label for="switch_share_dashboard" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                    Отображать общую информацию
+                                </label>
+                                <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Показывать общую статистику посещённых городов и регионов</span>
+                            </div>
+                            <label for="switch_share_dashboard" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                                <input type="checkbox" id="switch_share_dashboard" name="switch_share_dashboard" class="peer sr-only" {% if not share_settings.switch_share_general %}disabled{% endif %} {% if share_settings.switch_share_basic_info %}checked{% endif %}>
+                                <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                                <!-- Left Icon (Off) -->
+                                <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </span>
+                                <!-- Right Icon (On) -->
+                                <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
                         </div>
-                        <div class="col text-end">
-                            <button type="button" id="button_send_to_server" class="btn btn-success">
-                                <i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;&nbsp;Сохранить
-                            </button>
+
+                        <!-- Switch: Отображать карту городов -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <label for="switch_share_city_map" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                    Отображать карту городов
+                                </label>
+                                <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Показывать интерактивную карту с посещёнными городами</span>
+                            </div>
+                            <label for="switch_share_city_map" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                                <input type="checkbox" id="switch_share_city_map" name="switch_share_city_map" class="peer sr-only" {% if not share_settings.switch_share_general %}disabled{% endif %} {% if share_settings.switch_share_city_map %}checked{% endif %}>
+                                <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                                <!-- Left Icon (Off) -->
+                                <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </span>
+                                <!-- Right Icon (On) -->
+                                <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
                         </div>
+
+                        <!-- Switch: Отображать карту регионов -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <label for="switch_share_region_map" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                    Отображать карту регионов
+                                </label>
+                                <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Показывать интерактивную карту с посещёнными регионами</span>
+                            </div>
+                            <label for="switch_share_region_map" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                                <input type="checkbox" id="switch_share_region_map" name="switch_share_region_map" class="peer sr-only" {% if not share_settings.switch_share_general %}disabled{% endif %} {% if share_settings.switch_share_region_map %}checked{% endif %}>
+                                <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                                <!-- Left Icon (Off) -->
+                                <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </span>
+                                <!-- Right Icon (On) -->
+                                <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                    <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 border-gray-200 dark:border-neutral-700">
+
+                    <!-- Switch: Разрешить подписываться -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex-1">
+                            <label for="switch_subscribe" class="block text-sm font-semibold text-gray-800 dark:text-neutral-300 cursor-pointer">
+                                Разрешить подписываться на Вас
+                            </label>
+                            <span class="block text-sm text-gray-600 dark:text-neutral-500 mt-1">Другие пользователи смогут добавлять Ваш профиль в подписки и сравнивать свои посещённые города с Вашими. Это возможно только в том случае, если Вы разрешили доступ к своей статистике.</span>
+                        </div>
+                        <label for="switch_subscribe" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0 ml-4">
+                            <input type="checkbox" id="switch_subscribe" name="switch_subscribe" class="peer sr-only" {% if not share_settings.switch_share_general %}disabled{% endif %} {% if share_settings.switch_subscribe %}checked{% endif %}>
+                            <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                            <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                            <!-- Left Icon (Off) -->
+                            <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 6 6 18"></path>
+                                    <path d="m6 6 12 12"></path>
+                                </svg>
+                            </span>
+                            <!-- Right Icon (On) -->
+                            <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </span>
+                        </label>
                     </div>
                 </div>
             </form>
+            <!-- End Body -->
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end py-3 px-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">
+                <button type="button" id="button_send_to_server" class="py-2 px-4 w-full sm:w-auto inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 whitespace-nowrap flex-nowrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4 shrink-0" viewBox="0 0 448 512" fill="currentColor">
+                        <path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/>
+                    </svg>
+                    <span>Сохранить</span>
+                </button>
+            </div>
+            <!-- End Footer -->
         </div>
     </div>
 </div>

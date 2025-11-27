@@ -1,0 +1,82 @@
+{% load static %}
+
+<div id="modal_help" 
+     class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center">
+    <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">
+        <div class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700">
+            <!-- Header -->
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 640 640" fill="currentColor">
+                        <path d="M528 320C528 205.1 434.9 112 320 112C205.1 112 112 205.1 112 320C112 434.9 205.1 528 320 528C434.9 528 528 434.9 528 320zM64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576C178.6 576 64 461.4 64 320zM320 240C302.3 240 288 254.3 288 272C288 285.3 277.3 296 264 296C250.7 296 240 285.3 240 272C240 227.8 275.8 192 320 192C364.2 192 400 227.8 400 272C400 319.2 364 339.2 344 346.5L344 350.3C344 363.6 333.3 374.3 320 374.3C306.7 374.3 296 363.6 296 350.3L296 342.2C296 321.7 310.8 307 326.1 302C332.5 299.9 339.3 296.5 344.3 291.7C348.6 287.5 352 281.7 352 272.1C352 254.4 337.7 240.1 320 240.1zM288 432C288 414.3 302.3 400 320 400C337.7 400 352 414.3 352 432C352 449.7 337.7 464 320 464C302.3 464 288 449.7 288 432z"/>
+                    </svg>
+                    Помощь
+                </h3>
+                <button type="button" 
+                        class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-neutral-700"
+                        data-hs-overlay="#modal_help">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- End Header -->
+
+            <!-- Body -->
+            <div class="p-4 overflow-y-auto">
+                {% if user.is_authenticated %}
+                    <p class="text-gray-800 dark:text-neutral-400 mb-4">На этой странице отображается карта всех городов региона. Вы можете видеть, какие города вы уже посетили, а какие ещё предстоит посетить.</p>
+                    
+                    <p class="font-semibold text-gray-900 dark:text-white mb-2">Обозначения на карте:</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-800 dark:text-neutral-400 mb-4">
+                        <li>Зелёные метки <svg xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle ml-1 text-lg" style="filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));" width="21" height="28" viewBox="0 0 384 512" fill="rgb(90, 170, 90)"><path stroke="rgba(0, 0, 0, 0.3)" stroke-width="1.5" stroke-linejoin="round" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg> — города, которые вы уже посетили;</li>
+                        <li>Красные метки <svg xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle ml-1 text-lg" style="filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));" width="21" height="28" viewBox="0 0 384 512" fill="rgb(210, 90, 90)"><path stroke="rgba(0, 0, 0, 0.3)" stroke-width="1.5" stroke-linejoin="round" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg> — города, которые вы ещё не посетили;</li>
+                        <li>При наведении курсора на метку отображается название города;</li>
+                        <li>Синим цветом отображаются границы региона.</li>
+                    </ul>
+                    
+                    <p class="font-semibold text-gray-900 dark:text-white mb-2">Статистика:</p>
+                    <p class="text-gray-800 dark:text-neutral-400 mb-4">В верхней части страницы показано количество посещённых вами городов и общее количество городов в регионе. Эти цифры всегда отражают полную статистику, независимо от применённых фильтров.</p>
+                    
+                    <p class="font-semibold text-gray-900 dark:text-white mb-2">Дополнительные возможности:</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-800 dark:text-neutral-400 mb-4">
+                        <li><strong>Посмотреть список</strong> — переключиться на отображение городов в виде списка вместо карты;</li>
+                        <li><strong>Управление картой</strong> — используйте кнопки приближения/отдаления, полноэкранного режима и создания скриншота в левом верхнем углу карты.</li>
+                    </ul>
+                {% else %}
+                    <p class="text-gray-800 dark:text-neutral-400 mb-4">На этой странице отображается карта всех городов региона. После <a href="{% url 'signup' %}" class="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300">регистрации</a> вы сможете отмечать посещённые города и отслеживать свой прогресс.</p>
+                    
+                    <p class="font-semibold text-gray-900 dark:text-white mb-2">Обозначения на карте:</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-800 dark:text-neutral-400 mb-4">
+                        <li>Все города региона отображаются красными метками <svg xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle ml-1 text-lg" style="filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));" width="21" height="28" viewBox="0 0 384 512" fill="rgb(210, 90, 90)"><path stroke="rgba(0, 0, 0, 0.3)" stroke-width="1.5" stroke-linejoin="round" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>;</li>
+                        <li>После регистрации зелёные метки <svg xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle ml-1 text-lg" style="filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));" width="21" height="28" viewBox="0 0 384 512" fill="rgb(90, 170, 90)"><path stroke="rgba(0, 0, 0, 0.3)" stroke-width="1.5" stroke-linejoin="round" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg> будут показывать города, которые вы посетили;</li>
+                        <li>При наведении курсора на метку отображается название города;</li>
+                        <li>Синим цветом отображаются границы региона.</li>
+                    </ul>
+                    
+                    <p class="font-semibold text-gray-900 dark:text-white mb-2">Статистика:</p>
+                    <p class="text-gray-800 dark:text-neutral-400 mb-4">В верхней части страницы показано общее количество городов в регионе. После регистрации здесь также будет отображаться количество посещённых вами городов.</p>
+                    
+                    <p class="font-semibold text-gray-900 dark:text-white mb-2">Дополнительные возможности:</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-800 dark:text-neutral-400">
+                        <li><strong>Посмотреть список</strong> — переключиться на отображение городов в виде списка вместо карты;</li>
+                        <li><strong>Управление картой</strong> — используйте кнопки приближения/отдаления, полноэкранного режима и создания скриншота в левом верхнем углу карты.</li>
+                    </ul>
+                {% endif %}
+            </div>
+            <!-- End Body -->
+
+            <!-- Footer -->
+            <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t dark:border-neutral-700">
+                <button type="button" 
+                        class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-300 bg-gray-100 text-gray-700 shadow-sm hover:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-600"
+                        data-hs-overlay="#modal_help">
+                    Закрыть
+                </button>
+            </div>
+            <!-- End Footer -->
+        </div>
+    </div>
+</div>

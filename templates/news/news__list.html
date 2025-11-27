@@ -1,56 +1,69 @@
 {% extends 'base.html' %}
 {% load markdownify %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
 
 {% block content %}
     <!-- Заголовок страницы -->
-    <h1 class="display-5 text-center mt-3 mx-3" id="block-page_header">
-        Новости проекта «Мои города»
-    </h1>
+    <header class="mx-3 mt-10 mb-8 text-center" id="block-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            Новости проекта «Мои города»
+        </h1>
+    </header>
     <!-- ^^^ Заголовок страницы -->
 
-    <div class="row mx-3 mt-2 mb-3 g-3 h-100 d-flex justify-content-center">
-        <div class="col-xxl-7 col-xl-9">
+    <div class="mx-3 mb-8 flex justify-center">
+        <div class="w-full max-w-4xl">
             {% for item in object_list %}
-                <div class="card p-3 my-3 shadow news_card" id="news_{{ item.id }}">
-                    <div class="card-body">
-                        <div class="card-text">
-                            {{ item.content|markdownify }}
-                        </div>
+                <div class="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="news_{{ item.id }}">
+                    <!-- Контент новости -->
+                    <div class="text-gray-900 dark:text-white [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-4 [&_a]:text-blue-600 [&_a]:dark:text-blue-400 [&_a]:hover:underline [&_strong]:font-semibold [&_code]:bg-gray-100 [&_code]:dark:bg-neutral-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_pre]:bg-gray-100 [&_pre]:dark:bg-neutral-800 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-4 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_img]:mb-4">
+                        {{ item.content|markdownify }}
                     </div>
 
-                    <hr>
+                    <!-- Разделитель -->
+                    <hr class="my-4 border-gray-200 dark:border-neutral-700">
 
-                    <div class="card-footer small" style="background: none; border-top: none;">
-                        <div class="row g-1">
-                            <div class="col-xxl-4 fw-lighter text-muted text-start">
-                                {% if user.is_authenticated %}
-                                    {% if item.is_read %}
-                                        <span>
-                                            <i class="fa-regular fa-envelope-open"></i>&nbsp;&nbsp;&nbsp;Прочитано
-                                        </span>
-                                    {% else %}
-                                        <span class="text-danger fw-bolder">
-                                            <i class="fa-solid fa-envelope"></i>&nbsp;&nbsp;&nbsp;Не прочитано
-                                        </span>
-                                    {% endif %}
+                    <!-- Футер с метаданными -->
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-neutral-400">
+                        <!-- Статус прочтения -->
+                        {% if user.is_authenticated %}
+                            <div class="flex items-center gap-2">
+                                {% if item.is_read %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-gray-500 dark:text-neutral-400" viewBox="0 0 640 640" fill="currentColor">
+                                        <path d="M576 480C576 515.3 547.5 544 512.1 544L128 544C92.6 544 64 515.3 64 480L64 228C64.1 212.5 71.8 198 84.5 189.2L270 61.3C300.1 40.6 339.8 40.6 369.9 61.3L555.5 189.2C568.3 198 575.9 212.5 576 228L576 480zM128 496L512.1 496C520.9 496 528 488.9 528 480L528 288.3L373.2 405.7C341.8 429.6 298.3 429.6 266.8 405.7L112 288.3L112 480C112 488.9 119.2 496 128 496zM527.6 228.4L342.7 100.8C329 91.4 311 91.4 297.3 100.8L112.4 228.4L295.8 367.5C310.1 378.3 329.9 378.3 344.2 367.5L527.6 228.4z"/>
+                                    </svg>
+                                    <span class="text-gray-600 dark:text-neutral-400">Прочитано</span>
+                                {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-red-500 dark:text-red-400" viewBox="0 0 512 512" fill="currentColor">
+                                        <path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"/>
+                                    </svg>
+                                    <span class="font-semibold text-red-600 dark:text-red-400">Не прочитано</span>
                                 {% endif %}
                             </div>
+                        {% endif %}
 
-                            <div class="col-xxl-4 fw-lighter text-muted text-start">
-                                {% if user.is_superuser %}
-                                    Количество прочитываний: {{ item.number_of_users_who_read_news }}
-                                {% endif %}
+                        <!-- Количество прочитываний (для суперпользователя) -->
+                        {% if user.is_superuser %}
+                            <div class="flex items-center gap-2">
+                                <span>Количество прочитываний: <span class="font-medium">{{ item.number_of_users_who_read_news }}</span></span>
                             </div>
+                        {% endif %}
 
-                            <div class="col-xxl-4 fw-lighter text-muted text-start">
-                                <span class="fw-medium">Создано:</span> {{ item.created }}
-                            </div>
+                        <!-- Дата создания -->
+                        <div class="ml-auto flex items-center gap-2">
+                            <span class="font-medium">Создано:</span>
+                            <span>{{ item.created }}</span>
                         </div>
                     </div>
                 </div>
             {% empty %}
-                <div class="card">
-                    <div class="card-body">
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                    <div class="text-center text-gray-600 dark:text-neutral-400">
                         На данный момент нет ни одной новости.
                     </div>
                 </div>

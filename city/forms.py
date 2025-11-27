@@ -9,9 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any
 
-from crispy_forms.bootstrap import InlineRadios  # type: ignore[import-untyped]
-from crispy_forms.helper import FormHelper  # type: ignore[import-untyped]
-from crispy_forms.layout import Layout, Row, Column, Submit, HTML  # type: ignore[import-untyped]
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
@@ -60,26 +57,17 @@ class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
 
         super().__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.add_input(Submit('Save', 'Сохранить'))
-        self.helper.layout = Layout(
-            Row(
-                Column('country', css_class='col-xl-4'),
-                Column('region', css_class='col-xl-4'),
-                Column('city', css_class='col-xl-4'),
-                css_class='g-3',
-            ),
-            Row(
-                Column('has_magnet', css_class='col-xl-4'),
-                Column(InlineRadios('rating'), css_id='col-xl-4'),
-                HTML("{% include 'city/select_date_input.html' %}"),
-                css_class='mt-3 g-3',
-            ),
-            Row(Column('impression'), css_class='mt-3'),
-        )
-
         self.fields['impression'].required = False
+        # Применяем стили к textarea
+        base_classes = 'block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-500 dark:focus:ring-neutral-600'
+        if self.errors and 'impression' in self.errors:
+            base_classes += ' border-red-500 dark:border-red-500'
+        self.fields['impression'].widget.attrs.update(
+            {
+                'class': base_classes,
+                'rows': '4',
+            }
+        )
 
         # По-умолчанию элемент <select> для выбора городов - пустой, пока не будет выбран регион.
         # Но при загрузке страницы после возникновения ошибки - поле заполняется списком городов.

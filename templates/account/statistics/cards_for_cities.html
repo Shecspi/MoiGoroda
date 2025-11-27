@@ -1,41 +1,25 @@
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 row-cols-xl-2 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3 px-xxl-5" id="row-city-stats">
-    <div class="col" id="card_number_of_visited_cities">
-        <div class="card text-center shadow h-100">
-            <div class="card-body">
-                <p class="fs-4">{{ word_modifications.visited.number_of_visited_cities|title }}</p>
-                <h1>{{ cities.number_of_visited_cities }}</h1>
-                <p class="fs-4">{{ word_modifications.city.number_of_visited_cities }}</p>
-            </div>
-        </div>
+<div class="mx-3 mt-2 mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4" id="row-city-stats">
+    <div class="flex h-full flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card_number_of_visited_cities">
+        <p class="text-lg text-gray-700 dark:text-neutral-300">{{ word_modifications.visited.number_of_visited_cities|title }}</p>
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white">{{ cities.number_of_visited_cities }}</h1>
+        <p class="text-lg text-gray-700 dark:text-neutral-300">{{ word_modifications.city.number_of_visited_cities }}</p>
     </div>
 
-    <div class="col" id="card_number_of_not_visited_cities">
-        <div class="card text-center shadow h-100">
-            <div class="card-body">
-                <p class="fs-4">Осталось посетить</p>
-                <h1>{{ cities.number_of_not_visited_cities }}</h1>
-                <p class="fs-4">{{ word_modifications.city.number_of_not_visited_cities }}</p>
-            </div>
-        </div>
+    <div class="flex h-full flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card_number_of_not_visited_cities">
+        <p class="text-lg text-gray-700 dark:text-neutral-300">Осталось посетить</p>
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white">{{ cities.number_of_not_visited_cities }}</h1>
+        <p class="text-lg text-gray-700 dark:text-neutral-300">{{ word_modifications.city.number_of_not_visited_cities }}</p>
     </div>
 
-    <div class="col" id="card_number_of_visited_cities_current_year">
-        <div class="card text-center shadow h-100">
-            <div class="card-body">
-                <p class="fs-4">В этом году {{ word_modifications.visited.number_of_visited_cities }}</p>
-                <h1>{{ cities.number_of_total_visited_cities_current_year }}</h1>
-                <span class="text-muted fs-5">Новых: <span class="fw-bold">{{ cities.number_of_new_visited_cities_current_year }}</span></span>
-            </div>
-        </div>
+    <div class="flex h-full flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card_number_of_visited_cities_current_year">
+        <p class="text-lg text-gray-700 dark:text-neutral-300">В этом году {{ word_modifications.visited.number_of_visited_cities }}</p>
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white">{{ cities.number_of_total_visited_cities_current_year }}</h1>
+        <span class="text-base text-gray-500 dark:text-neutral-400">Новых: <span class="font-semibold">{{ cities.number_of_new_visited_cities_current_year }}</span></span>
     </div>
 
-    <div class="col" id="card_number_of_visited_cities_prev_year">
-        <div class="card text-center shadow h-100">
-            <div class="card-body">
-                <p class="fs-4">В прошлом году {{ word_modifications.visited.number_of_visited_cities_previous_year }}</p>
-                <h1>{{ cities.number_of_total_visited_cities_previous_year }}</h1>
-                <p class="text-muted fs-5">Новых: <span class="fw-bold">{{ cities.number_of_new_visited_cities_previous_year }}</span></p>
-            </div>
-        </div>
+    <div class="flex h-full flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card_number_of_visited_cities_prev_year">
+        <p class="text-lg text-gray-700 dark:text-neutral-300">В прошлом году {{ word_modifications.visited.number_of_visited_cities_previous_year }}</p>
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white">{{ cities.number_of_total_visited_cities_previous_year }}</h1>
+        <p class="text-base text-gray-500 dark:text-neutral-400">Новых: <span class="font-semibold">{{ cities.number_of_new_visited_cities_previous_year }}</span></p>
     </div>
 </div>

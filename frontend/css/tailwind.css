@@ -1,0 +1,83 @@
+@import "preline/variants.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    /* Стили для Preline UI tooltip */
+    .hs-tooltip-content {
+        @apply absolute inline-block whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-neutral-700 z-[10000] opacity-0 invisible -translate-y-1 transition-all duration-200 ease-out;
+    }
+
+    .hs-tooltip.show .hs-tooltip-content {
+        @apply !opacity-100 !visible !translate-y-0;
+    }
+
+    .stat-badge {
+        @apply inline-flex items-center gap-x-2 rounded-full px-3 py-1 text-sm font-medium shadow-sm transition;
+    }
+
+    .stat-badge-success {
+        @apply border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300;
+    }
+
+    .stat-badge-info {
+        @apply border border-sky-200 bg-sky-50 text-sky-700 hover:border-sky-300 hover:bg-sky-100 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-300;
+    }
+
+    .stat-badge-primary {
+        @apply border border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-300 hover:bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/10 dark:text-blue-300;
+    }
+
+    .stat-badge-danger {
+        @apply border border-red-200 bg-red-50 text-red-700 hover:border-red-300 hover:bg-red-100 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300;
+    }
+
+    .stat-badge-warning {
+        @apply border border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300 hover:bg-amber-100 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300;
+    }
+
+    .stat-badge-dot {
+        @apply inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full bg-emerald-500 dark:bg-emerald-400;
+    }
+
+    .stat-badge-success strong {
+        @apply font-semibold text-emerald-700 dark:text-emerald-200;
+    }
+    .stat-badge-info strong {
+        @apply font-semibold text-sky-700 dark:text-sky-200;
+    }
+    .stat-badge-primary strong {
+        @apply font-semibold text-blue-700 dark:text-blue-200;
+    }
+    .stat-badge-danger strong {
+        @apply font-semibold text-red-700 dark:text-red-200;
+    }
+    .stat-badge-warning strong {
+        @apply font-semibold text-amber-700 dark:text-amber-200;
+    }
+}
+
+@layer utilities {
+    /* Стили для Chart.js tooltip */
+    .chartjs-tooltip {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+            0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .dark .chartjs-tooltip {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+            0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Стили для Preline модальных окон - когда Preline добавляет класс open вместо hs-overlay-open */
+    .hs-overlay.open {
+        display: flex !important;
+    }
+
+    .hs-overlay.open .hs-overlay-animation-target {
+        margin-top: 1.75rem !important;
+        opacity: 1 !important;
+    }
+}

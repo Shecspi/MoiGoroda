@@ -7,14 +7,10 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import Any
-
 from django import forms
 from django.forms import ModelForm
-from crispy_forms.helper import FormHelper  # type: ignore[import-untyped]
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from crispy_forms.layout import Layout, Field, Submit, Row, Column, HTML  # type: ignore[import-untyped]
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.utils.safestring import mark_safe
 
@@ -35,21 +31,6 @@ class SignUpForm(UserCreationForm):  # type: ignore[type-arg]
         widget=forms.CheckboxInput(attrs={'id': 'personal-data-consent'}),
     )
     personal_data_version = forms.CharField(required=False, widget=forms.HiddenInput())
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-
-        self.helper.layout = Layout(
-            Field('username'),
-            Field('email'),
-            Field('password1'),
-            Field('password2'),
-            Field('personal_data_consent'),
-            Field('personal_data_version'),
-        )
 
     class Meta:
         model = User
@@ -75,45 +56,12 @@ class SignInForm(AuthenticationForm):
     username = forms.CharField(label='Имя пользователя')
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput())
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-
-        self.helper.layout = Layout(Field('username'), Field('password'))
-
 
 class UpdateProfileForm(ModelForm):  # type: ignore[type-arg]
     username = forms.CharField(max_length=150, required=True, label='Имя пользователя')
     first_name = forms.CharField(max_length=150, required=False, label='Имя')
     last_name = forms.CharField(max_length=150, required=False, label='Фамилия')
-    email = forms.CharField(max_length=150, required=True, label='Электронная почта')
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-        self.helper.layout = Layout(
-            Field('username'),
-            Field('email'),
-            Field('first_name'),
-            Field('last_name'),
-            Row(
-                Column(
-                    HTML("""<a href="{% url 'password_change_form' %}"
-                    class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover 
-                    link-opacity-50-hover">Изменить пароль</a>"""),
-                    css_class='small',
-                ),
-                Column(
-                    Submit('submit', 'Сохранить изменения', css_class='btn-success btn-block'),
-                    css_class='d-flex justify-content-end',
-                ),
-                css_class='d-flex',
-            ),
-        )
+    email = forms.EmailField(max_length=150, required=True, label='Электронная почта')
 
     class Meta:
         model = User

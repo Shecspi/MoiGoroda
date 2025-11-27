@@ -1,7 +1,10 @@
 name: Deploy to the server
 on:
     push:
-        branches: ["master", "fix-ci-tests"]
+        branches:
+            - master
+            - fix-ci-tests
+            - feature/global-redesign
     release:
         types: [published]
 
@@ -37,6 +40,7 @@ jobs:
 
     test:
         name: Run tests
+        if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
 
         services:
@@ -58,6 +62,16 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Install and build frontend
+              run: |
+                  make frontend-install
+                  make frontend-build
+
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
@@ -73,6 +87,7 @@ jobs:
                   sed -i 's/DATABASE_PASSWORD=password/DATABASE_PASSWORD=test_password/' MoiGoroda/.env
                   sed -i 's/DATABASE_HOST=127.0.0.1/DATABASE_HOST=localhost/' MoiGoroda/.env
                   # Устанавливаем переменную для тестового режима
+                  echo "DEBUG=False" >> MoiGoroda/.env
                   echo "TESTING=True" >> MoiGoroda/.env
 
             - name: Install Poetry
@@ -89,14 +104,25 @@ jobs:
               run: poetry run python manage.py migrate
 
             - name: Run tests
-              run: poetry run pytest
+              run: make test
 
     mypy:
         name: Type checking with mypy
+        if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Install and build frontend
+              run: |
+                  make frontend-install
+                  make frontend-build
 
             - name: Set up Python
               uses: actions/setup-python@v5
@@ -114,14 +140,25 @@ jobs:
               run: poetry install --no-interaction --with dev
 
             - name: Run mypy
-              run: poetry run mypy .
+              run: make lint-mypy
 
     ruff:
         name: Linting with ruff
+        if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Install and build frontend
+              run: |
+                  make frontend-install
+                  make frontend-build
 
             - name: Set up Python
               uses: actions/setup-python@v5
@@ -138,11 +175,8 @@ jobs:
             - name: Install dependencies
               run: poetry install --no-interaction --with dev
 
-            - name: Run ruff check
-              run: poetry run ruff check .
-
-            - name: Run ruff format check
-              run: poetry run ruff format --check .
+            - name: Run ruff
+              run: make lint-ruff
 
     deploy:
         name: Deploy to server
@@ -151,16 +185,18 @@ jobs:
         runs-on: [self-hosted, prod]
         steps:
             - uses: actions/checkout@v4
-            - name: Get all git tags
-              run: git fetch --tags --force
+
+            - name: Set output
+              id: vars
+              run: echo "short_ref=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
             - name: Deploy to the server
               run: |
                   : # Переходим в папку с проектом
                   cd ${{ secrets.PROD__PROJECT_PATH }}
 
-                  git pull origin master
-                  git checkout master
+                  git pull origin ${{ steps.vars.outputs.short_ref }}
+                  git checkout ${{ steps.vars.outputs.short_ref }}
 
                   : # Устанавливаем необходимую версию Python, если она ещё не установлена
                   if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
@@ -174,25 +210,20 @@ jobs:
 
                   : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
                   : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
-                  : # Имя папки может меняться, поэтому нужен такой ход.
                   rm -f ~/gunicorn
                   ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
 
                   poetry run python3 manage.py migrate
 
-                  # Собираем JS файлы
+                  : # Собираем JS файлы
                   cd frontend
                   npm ci
                   npm run build
                   cd ../
 
                   : # Производим сборку статичных файлов
-                  chmod +x ./scripts/collectstatic.sh
-                  ./scripts/collectstatic.sh
-                  chmod -x ./scripts/collectstatic.sh
+                  poetry run python3.manage.py.collectstatic --noinput
 
                   : # Перезагружаем сервер
-                  chmod +x ./scripts/restart.sh
-                  export SUDO_PASSWORD=${{ secrets.PROD__SUDO_PASSWORD }}
-                  ./scripts/restart.sh
-                  chmod -x ./scripts/restart.sh
+                  echo "${{ secrets.PROD__SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
+                  echo "${{ secrets.PROD__SUDO_PASSWORD }}" | sudo -S systemctl restart gunicorn

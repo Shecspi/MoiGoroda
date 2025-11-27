@@ -1,22 +1,30 @@
-<div class="card text-center shadow h-100">
-    <div class="card-body">
-        <p class="fs-4">Общее количество посещённых городов по месяцам</p>
-        {% if cities.number_of_visited_cities_in_several_month %}
+<div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white text-center">Общее количество посещённых городов по месяцам</h2>
+    
+    {% if cities.number_of_visited_cities_in_several_month %}
+        <div class="flex items-center justify-center">
             <canvas id="chart__cities_by_month"></canvas>
-        {% else %}
-            <div class="alert alert-danger text-center mt-3" role="alert">
+        </div>
+    {% else %}
+        <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-center dark:border-red-500/40 dark:bg-red-500/10">
+            <p class="text-sm text-red-700 dark:text-red-300">
                 Не сохранено ни одного города, посещённого за последние 24 месяца
-            </div>
-        {% endif %}
-    </div>
+            </p>
+        </div>
+    {% endif %}
 </div>
 
 <script>
-    const ctx_cities_by_month = document.getElementById('chart__cities_by_month').getContext('2d');
-    let data_month = {}
+    const ctx_cities_by_month = document.getElementById('chart__cities_by_month')?.getContext('2d');
+    if (ctx_cities_by_month) {
+        let data_month = {}
         {% for month in cities.number_of_visited_cities_in_several_month reversed %}
             data_month['{{ month.month_year|date:'m Y' }}'] = '{{ month.qty }}'
         {% endfor %}
+
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        const textColor = isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
 
         new Chart(ctx_cities_by_month, {
             type: 'bar',
@@ -26,13 +34,80 @@
                     {
                         label: 'Посещено городов в этом месяце',
                         data: Object.values(data_month),
-                        borderColor: 'rgba(51,171,255,0.5)',
-                        backgroundColor: 'rgba(51,171,255,0.2)',
+                        borderColor: isDarkMode ? 'rgba(16, 185, 129, 0.8)' : 'rgba(16, 185, 129, 0.6)',
+                        backgroundColor: isDarkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.15)',
                         borderWidth: 2,
-                        borderRadius: 5,
+                        borderRadius: 6,
                         borderSkipped: false
                     },
                 ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: textColor,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: isDarkMode ? 'rgba(23, 23, 23, 0.98)' : 'rgba(255, 255, 255, 0.98)',
+                        titleColor: isDarkMode ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
+                        bodyColor: isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                        borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        boxPadding: 6,
+                        titleFont: {
+                            weight: 'bold',
+                            size: 13
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: textColor,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: textColor,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                }
             }
         });
+    }
 </script>

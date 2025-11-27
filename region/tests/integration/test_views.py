@@ -113,7 +113,7 @@ class TestRegionMapView:
         """Тест что используется правильный шаблон"""
         response = client.get(reverse('region-all-map') + f'?country={test_country.code}')
         assert response.status_code == 200
-        assert 'region/region_all__map.html' in [t.name for t in response.templates]
+        assert 'region/all/map/page.html' in [t.name for t in response.templates]
 
     def test_context_contains_all_regions(
         self, client: Client, test_country: Any, test_region: Region
@@ -242,7 +242,7 @@ class TestCitiesByRegionMapView:
         """Тест что используется правильный шаблон"""
         response = client.get(reverse('region-selected-map', kwargs={'pk': test_region.pk}))
         assert response.status_code == 200
-        assert 'region/region_selected__map.html' in [t.name for t in response.templates]
+        assert 'region/selected/map/page.html' in [t.name for t in response.templates]
 
     def test_context_contains_all_cities(
         self, client: Client, test_region: Region, test_city: City

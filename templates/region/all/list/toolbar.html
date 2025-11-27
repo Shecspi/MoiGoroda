@@ -1,0 +1,143 @@
+{% load morphology %}
+{% load vite %}
+{% load static %}
+
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.9/dist/autoComplete.min.js"></script>
+{% vite_css 'css/autoComplete' %}
+{% vite_css 'css/select-field' %}
+
+<!-- Панель инструментов -->
+<div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
+    <!-- Статистика -->
+    <div class="flex flex-wrap items-center gap-3 self-center">
+        <div class="hs-tooltip [--placement:top] relative inline-block">
+            <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                <span class="stat-badge-dot"></span>
+                {% if user.is_authenticated %}
+                    Посещено: <strong>{{ qty_of_visited_regions }}</strong> {{ "регион"|plural_by_num:qty_of_visited_regions }} из {{ qty_of_regions }}
+                {% else %}
+                    Зарегистрируйтесь, чтобы отмечать регионы
+                {% endif %}
+            </span>
+            <span class="hs-tooltip-content" role="tooltip">
+                {% if user.is_authenticated %}
+                    Количество посещённых регионов
+                {% else %}
+                    Зарегистрируйтесь, чтобы отмечать посещённые регионы
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Поиск -->
+    <div class="relative flex-1 min-w-[220px] self-center z-[40]">
+        <input id="region-search"
+               type="text"
+               class="py-2 px-4 block w-full border border-gray-200 rounded-xl bg-white text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+               placeholder="Начните вводить название региона...">
+    </div>
+
+    <!-- Селект страны -->
+    <div class="flex-1 min-w-[220px] country-select-wrapper self-center z-[40]">
+        <div class="relative">
+            <select class="py-2 px-4 pe-9 block w-full border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+                    id="id_country"></select>
+            <span class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500 pointer-events-none">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+            </span>
+        </div>
+    </div>
+
+    <!-- Кнопки действий -->
+    <div class="flex flex-wrap items-center gap-3 self-center">
+        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+            <a href="{% url 'region-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
+               class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
+                <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
+                </svg>
+                <span>Посмотреть на карте</span>
+            </a>
+            <span class="hs-tooltip-content" role="tooltip">
+                Посмотреть регионы {{ country_name|prepositional|title }} на карте
+            </span>
+        </div>
+    </div>
+</div>
+<!-- ^^^ Панель инструментов -->
+
+<script>
+    function pluralize(num, one, few, many) {
+        const n = Math.abs(num) % 100;
+        const n1 = n % 10;
+        if (n > 10 && n < 20) return many;
+        if (n1 > 1 && n1 < 5) return few;
+        if (n1 === 1) return one;
+        return many;
+    }
+
+    const inputEl = document.querySelector("#region-search");
+    const config = {
+        selector: () => inputEl,
+        placeHolder: "Начните вводить регион...",
+        debounce: 300,
+        data: {
+            src: async () => {
+                const query = inputEl.value;
+
+                if (!query) return [];
+
+                const params = new URLSearchParams(window.location.search);
+                const country = params.get("country");
+
+                let url = `/api/region/search?query=${encodeURIComponent(query)}`;
+
+                if (country) {
+                    url += `&country=${encodeURIComponent(country)}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.map(item => ({ value: item.title, id: item.id }));
+            },
+            keys: ["value"]
+        },
+        resultsList: {
+            render: true,
+            element: (list, data) => {
+                const info = document.createElement("p");
+                info.classList.add("dropdown-item", "my-2", "px-2", "small", "text-secondary");
+                if (data.results.length) {
+                    const word = pluralize(data.results.length, "совпадение", "совпадения", "совпадений");
+                    info.innerHTML = `Найдено <strong>${data.results.length}</strong> ${word} для <strong>"${data.query}"</strong>`;
+                } else {
+                    info.innerHTML = `Найдено <strong>${data.matches.length}</strong> совпадений для <strong>"${data.query}"</strong>`;
+                }
+                list.prepend(info);
+            },
+            maxResults: undefined,
+            noResults: true,
+            destination: () => inputEl,
+            position: "afterend",
+        },
+        resultItem: {
+            highlight: true,
+            element: (item, data) => {
+                // Modify Results Item Style
+                item.style = "display: flex; justify-content: space-between;";
+                // Modify Results Item Content
+                item.innerHTML = `<span style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">${data.match}</span>`;
+            },
+        },
+        events: {
+            input: {
+                selection: event => {
+                    const selection = event.detail.selection.value;
+                    inputEl.value = selection.value;
+                    window.location.href = `/region/${selection.id}/list`;
+                }
+            }
+        }
+    }
+    const autoCompleteJS = new autoComplete(config);
+</script>

@@ -6,14 +6,14 @@ import {
     icon_visited_pin
 } from "./icons.js";
 import {City, MarkerStyle} from "./schemas.js";
-import {open_modal_for_add_city} from './services.js';
-import {Button} from './button.js';
+import {open_modal_for_add_city, close_modal_for_add_city} from './services.js';
 import {getCookie} from './get_cookie.js';
 import {addErrorControl, addLoadControl} from "./map";
 
 // Это нужно для того, чтобы open_modal_for_add_city можно было использовать в onclick.
 // Иначе из-за специфичной области видимости доступа к этой функции нет.
 window.open_modal_for_add_city = open_modal_for_add_city;
+window.close_modal_for_add_city = close_modal_for_add_city;
 
 export class ToolbarActions {
     constructor(map, own_cities) {
@@ -45,43 +45,11 @@ export class ToolbarActions {
         // Массив, хранящий в себе все маркеры посещённых мест
         this.allPlaceMarkers = [];
 
-        // Ниже определяются кнопки. Для каждой из них есть 2 переменные:
-        // - btn... - экземпляр класса Button для доступа к его методам.
-        // - element... - Непосредственно сам HTML-элемент, чтобы иметь доступ к его параметрам.
-        this.btnShowSubscriptionCities = new Button(
-            'btn_show-subscriptions-cities',
-            'btn-success',
-            'btn-outline-success'
-        )
-        this.elementShowSubscriptionCities = this.btnShowSubscriptionCities.get_element();
-
-        this.btnShowPlaces = new Button(
-            'btn_show-places',
-            'btn-primary',
-            'btn-outline-primary'
-        );
-        this.elementShowPlaces = this.btnShowPlaces.get_element();
-
-        this.btnShowNotVisitedCities = new Button(
-            'btn_show-not-visited-cities',
-            'btn-danger',
-            'btn-outline-danger'
-        )
-        this.elementShowNotVisitedCities = this.btnShowNotVisitedCities.get_element();
-
-        this.btnShowVisitedCitiesPreviousYear = new Button(
-            'btn_show-visited-cities-previous-year',
-            'btn-primary',
-            'btn-outline-primary'
-        )
-        this.elementShowVisitedCitiesPreviousYear = this.btnShowVisitedCitiesPreviousYear.get_element();
-
-        this.btnShowVisitedCitiesCurrentYear = new Button(
-            'btn_show-visited-cities-current-year',
-            'btn-success',
-            'btn-outline-success'
-        )
-        this.elementShowVisitedCitiesCurrentYear = this.btnShowVisitedCitiesCurrentYear.get_element();
+        this.elementShowSubscriptionCities = document.getElementById('btn_show-subscriptions-cities');
+        this.elementShowPlaces = document.getElementById('btn_show-places');
+        this.elementShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
+        this.elementShowVisitedCitiesPreviousYear = document.getElementById('btn_show-visited-cities-previous-year');
+        this.elementShowVisitedCitiesCurrentYear = document.getElementById('btn_show-visited-cities-current-year');
 
         this.set_handlers();
     }
@@ -90,41 +58,41 @@ export class ToolbarActions {
         this.elementShowSubscriptionCities.addEventListener('click', () => {
             this.showSubscriptionCities();
 
-            this.btnShowVisitedCitiesPreviousYear.off()
-            this.btnShowVisitedCitiesCurrentYear.off();
+            this.setButtonState(this.elementShowVisitedCitiesPreviousYear, false);
+            this.setButtonState(this.elementShowVisitedCitiesCurrentYear, false);
         });
 
         this.elementShowPlaces.addEventListener('click', () => {
             if (this.elementShowPlaces.dataset.type === 'show') {
                 this.showPlaces();
-                this.btnShowPlaces.on();
+                this.setButtonState(this.elementShowPlaces, true);
             } else {
                 this.hidePlaces();
-                this.btnShowPlaces.off();
+                this.setButtonState(this.elementShowPlaces, false);
             }
         });
 
         this.elementShowNotVisitedCities.addEventListener('click', () => {
             if (this.elementShowNotVisitedCities.dataset.type === 'show') {
                 this.showNotVisitedCities();
-                this.btnShowNotVisitedCities.on();
+                this.setButtonState(this.elementShowNotVisitedCities, true);
             } else {
                 this.hideNotVisitedCities();
-                this.btnShowNotVisitedCities.off();
+                this.setButtonState(this.elementShowNotVisitedCities, false);
             }
         })
 
         this.elementShowVisitedCitiesPreviousYear.addEventListener('click', () => {
             if (this.elementShowVisitedCitiesPreviousYear.dataset.type === 'show') {
                 this.showVisitedCitiesPreviousYear();
-                this.btnShowVisitedCitiesPreviousYear.on();
-                this.btnShowNotVisitedCities.off();
-                this.btnShowNotVisitedCities.disable();
-                this.btnShowVisitedCitiesCurrentYear.off();
+                this.setButtonState(this.elementShowVisitedCitiesPreviousYear, true);
+                this.setButtonState(this.elementShowNotVisitedCities, false);
+                this.disableButton(this.elementShowNotVisitedCities, true);
+                this.setButtonState(this.elementShowVisitedCitiesCurrentYear, false);
             } else {
                 this.hideVisitedCitiesPreviousYear();
-                this.btnShowVisitedCitiesPreviousYear.off();
-                this.btnShowNotVisitedCities.enable();
+                this.setButtonState(this.elementShowVisitedCitiesPreviousYear, false);
+                this.disableButton(this.elementShowNotVisitedCities, false);
             }
         });
 
@@ -132,16 +100,28 @@ export class ToolbarActions {
             if (this.elementShowVisitedCitiesCurrentYear.dataset.type === 'show') {
                 this.showVisitedCitiesCurrentYear();
 
-                this.btnShowVisitedCitiesCurrentYear.on();
-                this.btnShowNotVisitedCities.off();
-                this.btnShowNotVisitedCities.disable();
-                this.btnShowVisitedCitiesPreviousYear.off();
+                this.setButtonState(this.elementShowVisitedCitiesCurrentYear, true);
+                this.setButtonState(this.elementShowNotVisitedCities, false);
+                this.disableButton(this.elementShowNotVisitedCities, true);
+                this.setButtonState(this.elementShowVisitedCitiesPreviousYear, false);
             } else {
                 this.hideVisitedCitiesCurrentYear();
-                this.btnShowVisitedCitiesCurrentYear.off();
-                this.btnShowNotVisitedCities.enable();
+                this.setButtonState(this.elementShowVisitedCitiesCurrentYear, false);
+                this.disableButton(this.elementShowNotVisitedCities, false);
             }
         });
+    }
+
+    setButtonState(element, isActive) {
+        element.dataset.type = isActive ? 'hide' : 'show';
+    }
+
+    disableButton(element, shouldDisable) {
+        if (shouldDisable) {
+            element.disabled = true;
+        } else {
+            element.disabled = false;
+        }
     }
 
     async showSubscriptionCities() {
@@ -160,7 +140,7 @@ export class ToolbarActions {
 
         let button = document.getElementById('btn_show-subscriptions-cities');
         button.disabled = true;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;<span role="status">Загрузка...</span>';
+        button.innerHTML = '<span class="animate-spin inline-block size-4 border-[3px] border-current border-t-transparent text-white rounded-full" role="status" aria-label="loading"></span><span>Загрузка...</span>';
 
         let response = await fetch(url.toString(), {
             method: 'GET',
@@ -171,10 +151,19 @@ export class ToolbarActions {
         });
 
         if (response.ok) {
-            // Закрываем модальное окно
-            let myModalEl = document.getElementById('subscriptions_modal_window');
-            let modal = bootstrap.Modal.getInstance(myModalEl)
-            modal.hide();
+            // Закрываем модальное окно (Preline UI)
+            const modalElement = document.getElementById('subscriptionsModal');
+            if (modalElement) {
+                // Ищем кнопку закрытия и программно кликаем на неё
+                const closeButton = modalElement.querySelector('[data-hs-overlay="#subscriptionsModal"]');
+                if (closeButton) {
+                    closeButton.click();
+                } else {
+                    // Если кнопка не найдена, просто скрываем модальное окно
+                    modalElement.classList.add('hidden');
+                    modalElement.classList.remove('open');
+                }
+            }
 
             // Удаляем все отметки с карты и из stateMap
             this.removeOwnMarkers();
@@ -476,49 +465,177 @@ export class ToolbarActions {
         const marker = L.marker([city.lat, city.lon], {icon: icon}).addTo(this.myMap);
         marker.setZIndexOffset(zIndexOffset);
 
-        let content = '';
-
-        // Название города
-        content += `<div><span class="fw-semibold fs-3"><a href="/city/${city.id}" target="_blank" rel="noopener noreferrer" class="link-offset-2 link-underline-dark link-dark link-underline-opacity-50-hover link-opacity-50-hover">${city.name}</a></span></div>`;
-
-        // Название региона и страны
-        if (city.region) {
-            content += `<div class="mt-2"><small class="text-secondary fw-medium fs-6">${city.region}, ${city.country}</small></div>`;
-        } else {
-            content += `<div class="mt-2"><small class="text-secondary fw-medium fs-6">${city.country}</small></div>`;
-        }
-
-        let linkToAdd = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Отметить как посещённый</a>`
-        let linkToAddAgain = `<a href="#" onclick="open_modal_for_add_city('${city.name}', '${city.id}', '${city.region}')">Добавить ещё одно посещение</a>`
+        // Экранируем данные для безопасного использования в HTML
+        const cityNameEscaped = city.name.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+        const regionEscaped = city.region ? city.region.replace(/'/g, "&#39;").replace(/"/g, "&quot;") : '';
+        
         const first_visit_date = city.first_visit_date ? new Date(city.first_visit_date).toLocaleDateString() : undefined;
         const last_visit_date = city.last_visit_date ? new Date(city.last_visit_date).toLocaleDateString() : undefined;
         const visit_years = city.visit_years ? city.visit_years : undefined;
         const number_of_visits = city.number_of_visits;
 
-        if (marker_style === MarkerStyle.SUBSCRIPTION) {
-            content += '<p>Вы не были в этом городе</p>';
-            content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p><hr>${linkToAdd}`;
-        } else if (marker_style === MarkerStyle.TOGETHER) {
-            content += `<p>Пользователи, посетившие город:<br> ${users.join(', ')}</p>`;
-            if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
-                content += `<p><span class='fw-semibold'>Дата посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
-            } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
-                content += `<p><span class='fw-semibold'>Дата первого посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
-                content += `<p><span class='fw-semibold'>Дата последнего посещения:</span> ${last_visit_date ? last_visit_date : 'Не указана'}</p>`
+        // Вспомогательная функция для генерации контента информации о посещениях
+        // Смешанный вариант: компактность и горизонтальное расположение (вариант 2) + иконки (вариант 3) + бейджики для дат (вариант 5)
+        const generateVisitInfo = () => {
+            let info = '';
+            if (marker_style === MarkerStyle.SUBSCRIPTION) {
+                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                info += `<div class="flex items-center gap-2">`;
+                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+                info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
+                info += `</div>`;
+                info += `<span class="text-gray-900 dark:text-white">Вы не были в этом городе</span>`;
+                info += `</div>`;
+                
+                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                info += `<div class="flex items-center gap-2">`;
+                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+                info += `<span class="text-gray-500 dark:text-neutral-400">Пользователи:</span>`;
+                info += `</div>`;
+                info += `<span class="text-gray-900 dark:text-white">${users.join(', ')}</span>`;
+                info += `</div>`;
+            } else if (marker_style === MarkerStyle.TOGETHER) {
+                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                info += `<div class="flex items-center gap-2">`;
+                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+                info += `<span class="text-gray-500 dark:text-neutral-400">Пользователи:</span>`;
+                info += `</div>`;
+                info += `<span class="text-gray-900 dark:text-white">${users.join(', ')}</span>`;
+                info += `</div>`;
+                
+                if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
+                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                    info += `<div class="flex items-center gap-2">`;
+                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+                    info += `<span class="text-gray-500 dark:text-neutral-400">Дата посещения:</span>`;
+                    info += `</div>`;
+                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${first_visit_date || 'Не указана'}</span>`;
+                    info += `</div>`;
+                } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
+                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                    info += `<div class="flex items-center gap-2">`;
+                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+                    info += `<span class="text-gray-500 dark:text-neutral-400">Первое посещение:</span>`;
+                    info += `</div>`;
+                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${first_visit_date || 'Не указана'}</span>`;
+                    info += `</div>`;
+                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                    info += `<div class="flex items-center gap-2">`;
+                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+                    info += `<span class="text-gray-500 dark:text-neutral-400">Последнее посещение:</span>`;
+                    info += `</div>`;
+                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">${last_visit_date || 'Не указана'}</span>`;
+                    info += `</div>`;
+                }
+                
+                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                info += `<div class="flex items-center gap-2">`;
+                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`;
+                info += `<span class="text-gray-500 dark:text-neutral-400">Всего посещений:</span>`;
+                info += `</div>`;
+                info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${number_of_visits}</span>`;
+                info += `</div>`;
+            } else if (marker_style === MarkerStyle.NOT_VISITED) {
+                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                info += `<div class="flex items-center gap-2">`;
+                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+                info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
+                info += `</div>`;
+                info += `<span class="text-gray-900 dark:text-white">Вы не были в этом городе</span>`;
+                info += `</div>`;
+            } else {
+                if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
+                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                    info += `<div class="flex items-center gap-2">`;
+                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+                    info += `<span class="text-gray-500 dark:text-neutral-400">Дата посещения:</span>`;
+                    info += `</div>`;
+                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${first_visit_date || 'Не указана'}</span>`;
+                    info += `</div>`;
+                } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
+                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                    info += `<div class="flex items-center gap-2">`;
+                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+                    info += `<span class="text-gray-500 dark:text-neutral-400">Первое посещение:</span>`;
+                    info += `</div>`;
+                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${first_visit_date || 'Не указана'}</span>`;
+                    info += `</div>`;
+                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                    info += `<div class="flex items-center gap-2">`;
+                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+                    info += `<span class="text-gray-500 dark:text-neutral-400">Последнее посещение:</span>`;
+                    info += `</div>`;
+                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">${last_visit_date || 'Не указана'}</span>`;
+                    info += `</div>`;
+                }
+                
+                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+                info += `<div class="flex items-center gap-2">`;
+                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`;
+                info += `<span class="text-gray-500 dark:text-neutral-400">Всего посещений:</span>`;
+                info += `</div>`;
+                info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${number_of_visits}</span>`;
+                info += `</div>`;
             }
-            content += `<p><span class='fw-semibold'>Всего посещений: ${number_of_visits}</span></p><hr>${linkToAddAgain}`;
-        } else if (marker_style === MarkerStyle.NOT_VISITED) {
-            content += `<p>Вы не были в этом городе</p><hr>${linkToAdd}`;
+            return info;
+        };
+
+        // Генерируем ссылку действия
+        const generateActionLink = () => {
+            if (marker_style === MarkerStyle.SUBSCRIPTION || marker_style === MarkerStyle.NOT_VISITED) {
+                return `<a href="#" 
+                    class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                    data-hs-overlay="#addCityModal" 
+                    data-city-name="${cityNameEscaped}" 
+                    data-city-id="${city.id}" 
+                    data-city-region="${regionEscaped}">Отметить как посещённый</a>`;
+            } else {
+                return `<a href="#" 
+                    class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                    data-hs-overlay="#addCityModal" 
+                    data-city-name="${cityNameEscaped}" 
+                    data-city-id="${city.id}" 
+                    data-city-region="${regionEscaped}">Добавить ещё одно посещение</a>`;
+            }
+        };
+
+        let content = '<div class="px-1.5 py-1.5 min-w-[280px] max-w-[400px]">';
+        
+        // Заголовок (стиль варианта 2 - компактный, без серого блока)
+        content += `<div class="mb-2 pb-1 border-b border-gray-200 dark:border-neutral-700">`;
+        content += `<h3 class="text-base font-semibold text-gray-900 dark:text-white mb-0">`;
+        content += `<a href="/city/${city.id}" target="_blank" rel="noopener noreferrer" class="text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors">${city.name}</a>`;
+        content += `</h3>`;
+        content += `<div class="text-xs text-gray-600 dark:text-neutral-400 mt-2">`;
+        if (city.region) {
+            content += `${city.region}, ${city.country}`;
         } else {
-            if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
-                content += `<p><span class='fw-semibold'>Дата посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
-            } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
-                content += `<p><span class='fw-semibold'>Дата первого посещения:</span> ${first_visit_date ? first_visit_date : 'Не указана'}</p>`
-                content += `<p><span class='fw-semibold'>Дата последнего посещения:</span> ${last_visit_date ? last_visit_date : 'Не указана'}</p>`
-            }
-            content += `<p><span class='fw-semibold'>Всего посещений:</span> ${number_of_visits}</p><hr>${linkToAddAgain}`;
+            content += `${city.country}`;
         }
-        marker.bindPopup(content);
+        content += `</div>`;
+        content += `</div>`;
+        
+        // Информация о посещениях (смешанный вариант: компактность + иконки + бейджики)
+        content += '<div class="space-y-1.5 text-sm">';
+        content += generateVisitInfo();
+        content += '</div>';
+        
+        // Ссылки действий
+        content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
+        content += generateActionLink();
+        content += '</div>';
+        
+        content += '</div>'; // закрываем основной контейнер
+        
+        marker.bindPopup(content, {maxWidth: 400, minWidth: 280});
+        
+        // Инициализируем Preline UI для ссылок в popup после его открытия
+        marker.on('popupopen', function() {
+            // Инициализируем Preline UI для динамически созданных элементов
+            if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                window.HSStaticMethods.autoInit();
+            }
+        });
 
         marker.bindTooltip(city.name, {
             direction: 'top'

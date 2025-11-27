@@ -3,348 +3,347 @@
 {% load static %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3 mx-3" id="section-page_header">
-        Dashboard
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            Dashboard
+        </h1>
+    </header>
+
+    <h1 class="text-center text-2xl font-bold mt-8 mb-6 text-gray-900 dark:text-white">
+        Регистрации
     </h1>
 
-    <h1 class="display-6 text-center mt-3 mx-3">Регистрации</h1>
-
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Всего пользователей
-                    </p>
-                    <h1>
-                        {{ qty_users }}
-                    </h1>
+    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-blue-200 bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Всего пользователей</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_users }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Регистраций за вчера
-                    </p>
-                    <h1>
-                        {{ qty_registrations_yesteday }}
-                    </h1>
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-emerald-200 bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Регистраций за вчера</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_registrations_yesteday }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Регистраций за 7 дней
-                    </p>
-                    <h1>
-                        {{ qty_registrations_week }}
-                    </h1>
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-sky-200 bg-sky-100 dark:border-sky-500/40 dark:bg-sky-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Регистраций за 7 дней</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_registrations_week }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Регистраций за 30 дней
-                    </p>
-                    <h1>
-                        {{ qty_registrations_month }}
-                    </h1>
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-purple-200 bg-purple-100 dark:border-purple-500/40 dark:bg-purple-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Регистраций за 30 дней</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_registrations_month }}</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mx-3 mt-2 mb-3 g-3">
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        График регистраций
-                    </p>
-                    <canvas id="myChart" height="100"></canvas>
-                    <script>
-                        let data = {}
-                        {% for day in registrations_by_day reversed %}
-                            data['{{ day.date }}'] = '{{ day.qty }}'
-                        {% endfor %}
+    <div class="mx-3 mb-12">
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">График регистраций</h2>
+            <canvas id="myChart" class="min-h-[400px]" height="400"></canvas>
+            <script>
+                let data = {}
+                {% for day in registrations_by_day reversed %}
+                    data['{{ day.date }}'] = '{{ day.qty }}'
+                {% endfor %}
 
-                        const ctx = document.getElementById('myChart').getContext('2d');
+                const ctx = document.getElementById('myChart').getContext('2d');
 
-                        const myChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: Object.keys(data),
-                                datasets: [
-                                    {
-                                        label: 'Количество регистраций',
-                                        data: Object.values(data),
-                                        borderColor: 'rgba(0,31,54,0.2)',
-                                        backgroundColor: 'rgba(51,171,255,0.2)',
-                                        borderWidth: 2,
-                                        borderRadius: 5,
-                                        borderSkipped: false,
-                                    },
-                                ],
+                const myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [
+                            {
+                                label: 'Количество регистраций',
+                                data: Object.values(data),
+                                borderColor: 'rgba(0,31,54,0.2)',
+                                backgroundColor: 'rgba(51,171,255,0.2)',
+                                borderWidth: 2,
+                                borderRadius: 5,
+                                borderSkipped: false,
                             },
-                        });
-                    </script>
+                        ],
+                    },
+                });
+            </script>
+        </div>
+    </div>
+
+    <h1 class="text-center text-2xl font-bold mt-12 mb-6 text-gray-900 dark:text-white">
+        Посещённые города
+    </h1>
+
+    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-emerald-200 bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Общее количество посещенных городов</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_visited_cities }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-blue-200 bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Максимум городов у 1 пользователя</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_visited_cities_by_user.0.qty_visited_cities }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-sky-200 bg-sky-100 dark:border-sky-500/40 dark:bg-sky-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">В среднем городов у 1 пользователя</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ average_cities }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-red-200 bg-red-100 dark:border-red-500/40 dark:bg-red-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Количество пользователей без посещённых городов</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_user_without_visited_cities }}</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <h1 class="display-6 text-center mt-3 mx-3">Посещённые города</h1>
+    <div class="mx-3 mb-12">
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Количество посещённых городов по каждому пользователю</h2>
+            <canvas id="chart_qty_visited_cities" class="min-h-[400px]" height="400"></canvas>
+            <script>
+                let visited_cities = {}
+                {% for user in qty_visited_cities_by_user reversed %}
+                    visited_cities['{{ user.username }}'] = '{{ user.qty_visited_cities }}'
+                {% endfor %}
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3" id="list-content">
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Общее количество посещенных городов
-                    </p>
-                    <h1>
-                        {{ qty_visited_cities }}
-                    </h1>
-                </div>
-            </div>
-        </div>
+                const ctx_visited_cities = document.getElementById('chart_qty_visited_cities').getContext('2d');
 
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Максимум городов у 1 пользователя
-                    </p>
-                    <h1>
-                        {{ qty_visited_cities_by_user.0.qty_visited_cities }}
-                    </h1>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        В среднем городов у 1 пользователя
-                    </p>
-                    <h1>
-                        {{ average_cities }}
-                    </h1>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Количество пользователей без посещённых городов
-                    </p>
-                    <h1>
-                        {{ qty_user_without_visited_cities }}
-                    </h1>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mx-3 mt-2 mb-3 g-3">
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Количество посещённых городов по каждому пользователю
-                    </p>
-                    <canvas id="chart_qty_visited_cities" height="100"></canvas>
-                    <script>
-                        let visited_cities = {}
-                        {% for user in qty_visited_cities_by_user reversed %}
-                            visited_cities['{{ user.username }}'] = '{{ user.qty_visited_cities }}'
-                        {% endfor %}
-
-                        const ctx_visited_cities = document.getElementById('chart_qty_visited_cities').getContext('2d');
-
-                        const chart_visited_cities = new Chart(ctx_visited_cities, {
-                            type: 'bar',
-                            data: {
-                                labels: Object.keys(visited_cities),
-                                datasets: [
-                                    {
-                                        label: 'Количество посещённых городов',
-                                        data: Object.values(visited_cities),
-                                        borderColor: 'rgba(52,0,0,0.2)',
-                                        backgroundColor: 'rgba(255,115,115,0.2)',
-                                        borderWidth: 2,
-                                        borderRadius: 5,
-                                        borderSkipped: false,
-                                    },
-                                ],
+                const chart_visited_cities = new Chart(ctx_visited_cities, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(visited_cities),
+                        datasets: [
+                            {
+                                label: 'Количество посещённых городов',
+                                data: Object.values(visited_cities),
+                                borderColor: 'rgba(52,0,0,0.2)',
+                                backgroundColor: 'rgba(255,115,115,0.2)',
+                                borderWidth: 2,
+                                borderRadius: 5,
+                                borderSkipped: false,
                             },
-                        });
-                    </script>
-                </div>
-            </div>
+                        ],
+                    },
+                });
+            </script>
         </div>
     </div>
 
-    <h1 class="display-6 text-center mt-3 mx-3">Посещённые страны</h1>
+    <h1 class="text-center text-2xl font-bold mt-12 mb-6 text-gray-900 dark:text-white">
+        Посещённые страны
+    </h1>
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3"
-         id="dashboard-country">
-        <div class="col">
-            <div class="card h-100 text-center shadow"
-                 id="card-total_visited_countries">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Общее количество посещенных стран
-                    </p>
-                    <div id="number-total_visited_countries">
-                        <div class="spinner-border text-secondary" role="status">
-                            <span class="visually-hidden">Загрузка...</span>
-                        </div>
+    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" id="dashboard-country">
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-total_visited_countries">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-blue-200 bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Общее количество посещенных стран</p>
+                    <div id="number-total_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col">
-            <div class="card h-100 text-center shadow"
-                 id="section-qty_user_with_visited_countries">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Пользователей с посещёнными странами
-                    </p>
-                    <div id="number-user_with_visited_countries">
-                        <div class="spinner-border text-secondary" role="status">
-                            <span class="visually-hidden">Загрузка...</span>
-                        </div>
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="section-qty_user_with_visited_countries">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-emerald-200 bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Пользователей с посещёнными странами</p>
+                    <div id="number-user_with_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col">
-            <div class="card h-100 text-center shadow"
-                 id="section-average_qty_visited_countries">
-                <div class="card-body">
-                    <p class="fs-4">
-                        В среднем посещённых стран у 1 пользователя
-                    </p>
-                    <div id="number-average_qty_visited_countries">
-                        <div class="spinner-border text-secondary" role="status">
-                            <span class="visually-hidden">Загрузка...</span>
-                        </div>
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="section-average_qty_visited_countries">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-sky-200 bg-sky-100 dark:border-sky-500/40 dark:bg-sky-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">В среднем посещённых стран у 1 пользователя</p>
+                    <div id="number-average_qty_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col">
-            <div class="card h-100 text-center shadow"
-                 id="section-xxx">
-                <div class="card-body">
-                    <p class="fs-4">
-                        Максимум стран у 1 пользователя
-                    </p>
-                    <div id="number-max_qty_visited_countries">
-                        <div class="spinner-border text-secondary" role="status">
-                            <span class="visually-hidden">Загрузка...</span>
-                        </div>
-                    </div>
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="section-xxx">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-purple-200 bg-purple-100 dark:border-purple-500/40 dark:bg-purple-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <h1 class="display-6 text-center mt-3 mx-3">Количество добавленных стран</h1>
-
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 mx-3 mt-2 mb-3 g-3"
-         id="dashboard-qty_added_countries">
-        <div class="col">
-            <div class="card h-100 text-center shadow"
-                 id="card-qty_added_countries_yesterday">
-                <div class="card-body">
-                    <p class="fs-4">
-                        За вчера
-                    </p>
-                    <div id="number-qty_of_added_visited_countries_yesterday">
-                        <div class="spinner-border text-secondary" role="status">
-                            <span class="visually-hidden">Загрузка...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100 text-center shadow"
-                 id="card-qty_added_countries_week">
-                <div class="card-body">
-                    <p class="fs-4">
-                        За неделю
-                    </p>
-                    <div id="number-qty_of_added_visited_countries_week">
-                        <div class="spinner-border text-secondary" role="status">
-                            <span class="visually-hidden">Загрузка...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100 text-center shadow"
-                 id="card-qty_added_countries_month">
-                <div class="card-body">
-                    <p class="fs-4">
-                        За месяц
-                    </p>
-                    <div id="number-qty_of_added_visited_countries_month">
-                        <div class="spinner-border text-secondary" role="status">
-                            <span class="visually-hidden">Загрузка...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100 text-center shadow"
-                 id="card-qty_added_countries_year">
-                <div class="card-body">
-                    <p class="fs-4">
-                        За год
-                    </p>
-                    <div id="number-qty_of_added_visited_countries_year">
-                        <div class="spinner-border text-secondary" role="status">
-                            <span class="visually-hidden">Загрузка...</span>
-                        </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Максимум стран у 1 пользователя</p>
+                    <div id="number-max_qty_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mx-3 mt-2 mb-3 g-3">
-        <div class="col">
-            <div class="card h-100 text-center shadow" id="section-city_{{ forloop.counter }}">
-                <div class="card-body">
-                    <p class="fs-4">
-                        График добавления посещённых стран
-                    </p>
-                    <canvas id="visitedCountriesChart" height="100"></canvas>
+    <h1 class="text-center text-2xl font-bold mt-12 mb-6 text-gray-900 dark:text-white">
+        Количество добавленных стран
+    </h1>
+
+    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" id="dashboard-qty_added_countries">
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-qty_added_countries_yesterday">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-amber-200 bg-amber-100 dark:border-amber-500/40 dark:bg-amber-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">За вчера</p>
+                    <div id="number-qty_of_added_visited_countries_yesterday" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-qty_added_countries_week">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-blue-200 bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">За неделю</p>
+                    <div id="number-qty_of_added_visited_countries_week" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-qty_added_countries_month">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-sky-200 bg-sky-100 dark:border-sky-500/40 dark:bg-sky-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">За месяц</p>
+                    <div id="number-qty_of_added_visited_countries_month" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-qty_added_countries_year">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-purple-200 bg-purple-100 dark:border-purple-500/40 dark:bg-purple-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">За год</p>
+                    <div id="number-qty_of_added_visited_countries_year" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mx-3 mb-12">
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">График добавления посещённых стран</h2>
+            <canvas id="visitedCountriesChart" class="min-h-[400px]" height="400"></canvas>
         </div>
     </div>
     

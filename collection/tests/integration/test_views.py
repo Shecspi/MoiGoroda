@@ -80,7 +80,7 @@ class TestCollectionListView:
         """Проверяет что используется правильный шаблон."""
         response = client.get(reverse('collection-list'))
 
-        assert 'collection/collection__list.html' in [t.name for t in response.templates]
+        assert 'collection/list/page.html' in [t.name for t in response.templates]
 
     def test_context_contains_collections(self, client: Client, setup_data: dict[str, Any]) -> None:
         """Проверяет что контекст содержит коллекции."""
@@ -231,7 +231,7 @@ class TestCollectionSelectedListView:
         response = client.get(reverse('collection-detail-map', kwargs={'pk': collection.pk}))
 
         assert response.status_code == 200
-        assert 'collection/collection_selected__map.html' in [t.name for t in response.templates]
+        assert 'collection/selected/map/page.html' in [t.name for t in response.templates]
 
 
 @pytest.mark.unit

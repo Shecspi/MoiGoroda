@@ -3,15 +3,19 @@ import { pluralize } from "../components/search_services.js";
 
 window.onload = async () => {
     const inputEl = document.querySelector("#collection-search");
-    const clearBtn = document.querySelector(".search-clear");
+    const clearBtn = document.getElementById("collection-search-clear");
     const overlay = document.querySelector("#search-overlay");
+
+    if (!inputEl || !clearBtn || !overlay) {
+        return;
+    }
     
     // Показать/скрыть кнопку очистки
     const toggleClearButton = () => {
         if (inputEl.value.length > 0) {
-            clearBtn.classList.remove("d-none");
+            clearBtn.classList.remove("hidden");
         } else {
-            clearBtn.classList.add("d-none");
+            clearBtn.classList.add("hidden");
         }
     };
     
@@ -72,13 +76,13 @@ window.onload = async () => {
         resultsList: {
             render: true,
             element: (list, data) => {
-                const info = document.createElement("p");
-                info.classList.add("dropdown-item", "my-2", "px-2", "small", "text-secondary");
+                const info = document.createElement("div");
+                info.className = "autoComplete-info";
                 if (data.results.length) {
                     const word = pluralize(data.results.length, "совпадение", "совпадения", "совпадений");
-                    info.innerHTML = `Найдено <strong>${data.results.length}</strong> ${word} для <strong>"${data.query}"</strong>`;
+                    info.innerHTML = `Найдено <strong>${data.results.length}</strong> ${word} для <strong>«${data.query}»</strong>`;
                 } else {
-                    info.innerHTML = `Найдено <strong>${data.matches.length}</strong> совпадений для <strong>"${data.query}"</strong>`;
+                    info.innerHTML = `Нет точных совпадений для <strong>«${data.query}»</strong>`;
                 }
                 list.prepend(info);
             },
@@ -90,10 +94,8 @@ window.onload = async () => {
         resultItem: {
             highlight: true,
             element: (item, data) => {
-                // Modify Results Item Style
-                item.style = "display: flex; justify-content: space-between;";
-                // Modify Results Item Content
-                item.innerHTML = `<span style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">${data.match}</span>`;
+                item.classList.add("autoComplete-entry");
+                item.innerHTML = `<span>${data.match}</span>`;
             },
         },
         events: {

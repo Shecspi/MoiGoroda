@@ -9,10 +9,15 @@
  * ----------------------------------------------
  */
 
+// SVG иконка локации для маркеров
+const locationPinSvg = (color) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="21" height="28" style="filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));">
+    <path fill="${color}" stroke="rgba(0, 0, 0, 0.3)" stroke-width="1.5" stroke-linejoin="round" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+</svg>`;
+
 // Иконка для посещённого пользователем города
 export const icon_visited_pin = L.divIcon({
     className: 'custom-icon-visited-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3 icon-visited-pin" style="color: rgb(66,178,66) !important; text-shadow: 0 0 2px #333333;"></i>',
+    html: locationPinSvg('rgb(66,178,66)'),
     iconSize: [21, 28],
     iconAnchor: [10.5, 28],
     popupAnchor: [0, -28],
@@ -22,7 +27,7 @@ export const icon_visited_pin = L.divIcon({
 // Иконка для города, который не посетил ни пользователь, ни те, на кого он подписан
 export const icon_not_visited_pin = L.divIcon({
     className: 'custom-icon-not_visited-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3 icon-not-visited-pin" style="color: rgb(210, 90, 90) !important; text-shadow: 0 0 2px #333333;"></i>',
+    html: locationPinSvg('rgb(210, 90, 90)'),
     iconSize: [21, 28],
     anchor: [10.5, 28],
     iconAnchor: [10.5, 28],
@@ -33,7 +38,7 @@ export const icon_not_visited_pin = L.divIcon({
 // Иконка для города, который был посещён пользователем и кем-то из тех, на кого он подписан
 export const icon_together_pin = L.divIcon({
     className: 'custom-icon-together-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3 icon-together-pin" style="color: rgb(38,122,10) !important; text-shadow: 0 0 2px #333333;"></i>',
+    html: locationPinSvg('rgb(38,122,10)'),
     iconSize: [21, 28],
     anchor: [10.5, 28],
     iconAnchor: [10.5, 28],
@@ -44,7 +49,7 @@ export const icon_together_pin = L.divIcon({
 // Иконка для города, который не был посещён пользователя, но посещён кем-то из тех, на кого он подписан
 export const icon_subscription_pin = L.divIcon({
     className: 'custom-icon-subscription-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3  icon-subscription-pin" style="color: rgb(230, 150, 30) !important; text-shadow: 0 0 2px #333333;"></i>',
+    html: locationPinSvg('rgb(230, 150, 30)'),
     iconSize: [21, 28],
     anchor: [10.5, 28],
     iconAnchor: [10.5, 28],
@@ -54,7 +59,7 @@ export const icon_subscription_pin = L.divIcon({
 
 export const icon_blue_pin = L.divIcon({
     className: 'custom-icon-place-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3  icon-subscription-pin" style="color: rgb(11,83,213) !important; text-shadow: 0 0 2px #333333;"></i>',
+    html: locationPinSvg('rgb(79, 70, 229)'), // indigo-600
     iconSize: [21, 28],
     anchor: [10.5, 28],
     iconAnchor: [10.5, 28],
@@ -64,7 +69,7 @@ export const icon_blue_pin = L.divIcon({
 
 export const icon_purple_pin = L.divIcon({
     className: 'custom-icon-place-pin',
-    html: '<i class="fa-solid fa-location-dot fs-3  icon-subscription-pin" style="color: rgb(220,66,217) !important; text-shadow: 0 0 2px #333333;"></i>',
+    html: locationPinSvg('rgb(219, 39, 119)'), // pink-600
     iconSize: [21, 28],
     anchor: [10.5, 28],
     iconAnchor: [10.5, 28],

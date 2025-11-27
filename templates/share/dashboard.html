@@ -1,9 +1,19 @@
 {% extends 'base.html' %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
 
 {% block content %}
-    <h1 class="display-5 text-center mt-3 mx-3" id="block-page_header">
-        Статистика пользователя {{ username }}
-    </h1>
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <div class="space-y-3">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+                Статистика пользователя {{ username }}
+            </h1>
+        </div>
+    </header>
     
     {% include 'share/parts/tab_panel.html' %}
     {% include 'share/parts/toolbar.html' %}

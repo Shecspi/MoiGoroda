@@ -4,10 +4,9 @@ import L from "leaflet";
 
 let map;
 
-function openDeleteModal(url) {
-    document.getElementById('cityTitleOnModal').textContent = window.CITY_TITLE;
+function setupDeleteModal(url, cityTitle) {
+    document.getElementById('cityTitleOnModal').textContent = cityTitle;
     document.getElementById('deleteCityForm').action = url;
-    new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
 
 function initMap() {
@@ -57,22 +56,60 @@ function initMap() {
         });
 }
 
-// Перерисовываем карту при показе модального окна
+// Перерисовываем карту при показе модального окна Preline UI
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('mapModal');
+    
+    if (modal) {
+        // Используем MutationObserver для отслеживания изменений класса 'open'
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    if (modal.classList.contains('open') && !modal.classList.contains('hidden')) {
+                        // Небольшая задержка для завершения анимации
+                        setTimeout(() => {
+                            if (!map) {
+                                initMap();
+                            } else {
+                                map.invalidateSize();
+                            }
+                        }, 100);
+                    }
+                }
+            });
+        });
+        
+        observer.observe(modal, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+});
 
-    modal.addEventListener('shown.bs.modal', () => {
-        if (!map) {
-            initMap();
-        } else {
-            map.invalidateSize();
-        }
+// Обработка клика на кнопку удаления - устанавливаем данные перед открытием модального окна
+document.querySelectorAll('.delete_city').forEach(item => {
+    item.addEventListener('click', (event) => {
+        event.preventDefault();
+        const deleteUrl = item.dataset.delete_url;
+        const cityTitle = item.dataset.city_title || window.CITY_TITLE;
+        setupDeleteModal(deleteUrl, cityTitle);
     });
 });
 
-document.querySelectorAll('.delete_city').forEach(item => {
-    item.addEventListener('click', () => {
-        event.preventDefault();
-        openDeleteModal(item.dataset.delete_url);
-    })
-})
+// Также обрабатываем событие открытия модального окна Preline UI на случай, если данные не были установлены
+document.addEventListener('DOMContentLoaded', () => {
+    const deleteModal = document.getElementById('deleteModal');
+    if (deleteModal) {
+        deleteModal.addEventListener('open.hs.overlay', () => {
+            // Если данные не были установлены, используем значения по умолчанию
+            const cityTitleElement = document.getElementById('cityTitleOnModal');
+            const form = document.getElementById('deleteCityForm');
+            if (cityTitleElement && !cityTitleElement.textContent && window.CITY_TITLE) {
+                cityTitleElement.textContent = window.CITY_TITLE;
+            }
+            if (form && !form.action) {
+                // Если action не установлен, можно установить значение по умолчанию или оставить пустым
+            }
+        });
+    }
+});

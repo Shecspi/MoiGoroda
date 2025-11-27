@@ -111,27 +111,35 @@ switch_share_region_map.addEventListener('change', (event) => {
 });
 
 button_send_to_server.addEventListener('click', (event) => {
-    button_send_to_server.innerHTML = '<i class="fa-solid fa-spin fa-spinner"></i>&nbsp;&nbsp;&nbsp;Сохранить'
-    let form = $('#share_settings_form').serialize();
-    $.ajax({
-        type: 'POST',
-        url: '/account/stats/save_share_settings',
-        data: form,
-        success: function(data) {
-            if (data.status === 'ok') {
-                button_send_to_server.innerHTML = '<i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;&nbsp;Сохранить'
-                $("#save_success").show('fast');
-                setTimeout(function() { $("#save_success").hide('fast'); }, 2000);
-            } else {
-                button_send_to_server.innerHTML = '<i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;&nbsp;Сохранить'
-                $("#save_error").show('fast');
-                setTimeout(function() { $("#save_error").hide('fast'); }, 2000);
-                console.log(data);
-            }
-        },
-        error:  function(){
-            console.log('Ошибка при сохранении настроек. ' + data)
+    const originalContent = button_send_to_server.innerHTML;
+    button_send_to_server.innerHTML = '<svg class="size-4 shrink-0 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Сохранить</span>';
+    button_send_to_server.disabled = true;
+    
+    const formData = new FormData(document.getElementById('share_settings_form'));
+    fetch('/account/stats/save_share_settings', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        button_send_to_server.innerHTML = originalContent;
+        button_send_to_server.disabled = false;
+        
+        if (data.status === 'ok') {
+            showSuccessToast('Успешно', 'Настройки успешно сохранены');
+        } else {
+            showDangerToast('Ошибка', 'Не удалось сохранить настройки. Попробуйте ещё раз.');
+            console.log(data);
+        }
+    })
+    .catch(error => {
+        button_send_to_server.innerHTML = originalContent;
+        button_send_to_server.disabled = false;
+        showDangerToast('Ошибка', 'Произошла ошибка при сохранении настроек. Попробуйте ещё раз.');
+        console.log('Ошибка при сохранении настроек.', error);
     });
 });
 

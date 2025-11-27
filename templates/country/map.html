@@ -2,10 +2,18 @@
 {% load vite %}
 {% load static %}
 
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+    {% vite_css 'css/leaflet-controls' %}
+{% endblock %}
+
 {% block content %}
-    <h1 class="display-5 text-center mt-3 mx-3" id="page-header">
-        Карта стран мира
-    </h1>
+    <header class="mx-3 mt-10 mb-8 text-center" id="page-header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            Карта стран мира
+        </h1>
+    </header>
 
     {% if not DEBUG %}
         {% if user.is_authenticated %}
@@ -25,8 +33,9 @@
     <div id="url_get_locations" data-url="{% url 'api__get_locations' %}" hidden></div>
     <div id="url_get_polygons" data-url="{{ URL_GEO_POLYGONS }}" hidden></div>
 
-    <div id="map" class="h-100 mt-3 d-flex justify-content-center">
-    </div>
+    <!-- Карта -->
+    <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>
+    <!-- ^^^ Карта -->
 
     {% if not user.is_authenticated %}
         {% include 'advertisement/rtb_floor_ad_mobile.html' %}

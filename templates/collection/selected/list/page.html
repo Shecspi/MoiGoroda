@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
+
+{% block content %}
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            {{ page_title }}
+        </h1>
+    </header>
+
+    {% if not DEBUG %}
+    {% if not user.is_authenticated %}
+    {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+    {% endif %}
+    {% endif %}
+
+    {% include 'collection/selected/list/toolbar.html' %}
+
+    <!-- Карточки с городами -->
+    {% if object_list %}
+        <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
+            {% for city in object_list %}
+                {% include 'collection/selected/card.html' %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="mx-3 mb-8 flex items-center justify-center">
+            <div class="w-full max-w-2xl">
+                <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" role="alert" id="section-info_box">
+                    <p class="text-sm text-gray-600 dark:text-neutral-300">
+                        На данный момент в этой коллекции нет ни одного города
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <!-- ^^^ Карточки с городами -->
+
+    <!-- Пагинация -->
+    {% include 'parts/pagination.html' %}
+    <!-- ^^^ Пагинация -->
+
+    {% if not DEBUG %}
+    {% include 'advertisement/rtb_feed.html' %}
+    {% endif %}
+
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+    {% endif %}
+{% endblock %}

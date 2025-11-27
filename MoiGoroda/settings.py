@@ -153,7 +153,10 @@ USE_TZ = os.getenv('USE_TZ') == 'True'
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'frontend'),  # Для доступа к исходным CSS в dev-режиме
+]
 STATIC_ROOT = os.getenv('STATIC_ROOT')
 
 # Default primary key field type

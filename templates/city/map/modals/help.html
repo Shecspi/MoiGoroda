@@ -1,0 +1,136 @@
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+{% load static %}
+
+<!-- Модальное окно помощи (Preline UI) -->
+<div id="helpModal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center" role="dialog" tabindex="-1" aria-labelledby="helpModalLabel">
+    <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-2xl sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
+        <div class="max-h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+            <!-- Header -->
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white" id="helpModalLabel">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/>
+                        </svg>
+                        <span>Помощь</span>
+                    </div>
+                </h3>
+                <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#helpModal">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- End Header -->
+
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <p class="mb-4 text-sm font-medium text-gray-900 dark:text-white">На карте использованы следующие метки:</p>
+
+                <div class="space-y-4">
+                    <!-- Посещённые города -->
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <i class="fa-solid fa-location-dot text-3xl" style="color: rgb(66,178,66) !important; text-shadow: 0 0 2px #333333;"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-700 dark:text-neutral-300">
+                                Города, которые Вы посетили. Если отображаются города пользователей, на которых Вы подписаны,
+                                то такая метка показывает те города, в которых были только Вы.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Города вместе с подписками -->
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <i class="fa-solid fa-location-dot text-3xl" style="color: rgb(38,122,10) !important; text-shadow: 0 0 2px #333333;"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-700 dark:text-neutral-300">
+                                Города, которые были посещены Вами и кем-то из отображаемых пользователей.
+                                В режиме просмотра городов, посещённых за определённый год, учитываются только города, посещённые в выбранный год.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Города подписок -->
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <i class="fa-solid fa-location-dot text-3xl" style="color: rgb(230, 150, 30) !important; text-shadow: 0 0 2px #333333;"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-700 dark:text-neutral-300">
+                                Города, которые были посещены кем-то из отображаемых пользователей, но не посещены Вами.
+                                В режиме просмотра городов, посещённых за определённый год, учитываются только города, посещённые в выбранный год.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Непосещённые города -->
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <i class="fa-solid fa-location-dot text-3xl" style="color: rgb(210, 90, 90) !important; text-shadow: 0 0 2px #333333;"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-700 dark:text-neutral-300">
+                                Города, которые не посещены Вами и ни кем из отображаемых пользователей.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-200 dark:border-neutral-700">
+
+                    <!-- Посещённые места -->
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <i class="fa-solid fa-location-dot text-3xl" style="color: rgb(11,83,213) !important; text-shadow: 0 0 2px #333333;"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-700 dark:text-neutral-300">
+                                Посещённые Вами места.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800" role="note">
+                    <div class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-sm text-blue-800 dark:text-blue-200">
+                            Обратите внимание, что при одновременном отображении большого количества меток возможно замедление работы сайта.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- End Body -->
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end py-3 px-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">
+                <button type="button"
+                        class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
+                        data-hs-overlay="#helpModal">
+                    Закрыть
+                </button>
+            </div>
+            <!-- End Footer -->
+        </div>
+    </div>
+</div>

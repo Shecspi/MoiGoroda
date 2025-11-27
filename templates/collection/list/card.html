@@ -1,0 +1,91 @@
+<div class="h-full">
+    <!-- Карточка коллекции -->
+    <div class="relative flex h-full flex-col gap-3 rounded-2xl border {% if collection.is_favorite %}border-amber-300 bg-amber-50/50 dark:border-amber-600 dark:bg-amber-950/30{% else %}border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900{% endif %} p-4 shadow-sm"
+         id="collection-card-{{ collection.id }}">
+        <div class="flex h-full flex-col gap-3">
+            <!-- Заголовок коллекции -->
+            <div class="text-center">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    <a href="{{ collection.get_absolute_url }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ collection.title }}
+                    </a>
+                </h3>
+            </div>
+
+            <div class="flex flex-1 flex-col gap-3">
+                <!-- Список городов -->
+                <div class="flex flex-1 flex-col justify-center">
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+                        {% for city in collection.city.all|slice:"0:10" %}
+                            {% if city.id in visited_cities %}
+                                <a href="{% url 'city-selected' city.id %}" class="inline-flex items-center gap-x-0.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30">
+                                    {{ city }}
+                                </a>
+                            {% else %}
+                                <a href="{% url 'city-selected' city.id %}" class="inline-flex items-center gap-x-0.5 rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 transition hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-400 dark:hover:bg-rose-900/30">
+                                    {{ city }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        {% if collection.qty_of_cities > 10 %}
+                            <span class="inline-flex items-center gap-x-0.5 rounded-full border border-gray-300 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+                                и другие...
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- ^^^ Список городов -->
+
+                <div class="mt-auto flex flex-col gap-3">
+                    <!-- Количество городов и прогресс -->
+                    <div class="flex flex-col gap-2">
+                        <div class="text-center">
+                            <p class="text-sm text-gray-600 dark:text-neutral-400">
+                                {% if user.is_authenticated %}
+                                    Посещено {{ collection.qty_of_visited_cities }} из {{ collection.qty_of_cities }}
+                                {% else %}
+                                    Всего городов: {{ collection.qty_of_cities }}
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <!-- Прогресс бар посещённых городов -->
+                        {% if user.is_authenticated %}
+                        <div class="w-full">
+                            <div class="h-2 w-full overflow-hidden rounded-full border border-sky-100 bg-sky-50 dark:border-sky-900/40 dark:bg-sky-950/20">
+                                <div class="h-full rounded-full bg-gradient-to-r transition-all duration-500 ease-out {% if collection.qty_of_visited_cities == collection.qty_of_cities and collection.qty_of_cities > 0 %}from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500{% else %}from-sky-400/40 to-blue-500/40 dark:from-sky-500/40 dark:to-blue-600/40{% endif %}"
+                                     style="width: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}%">
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <!-- ^^^ Количество городов и прогресс -->
+
+                    <!-- Кнопка избранного -->
+                    {% if user.is_authenticated %}
+                    <div class="flex justify-center">
+                        <button class="favorite-star inline-flex items-center gap-x-1 rounded-full border px-3 py-1 text-sm font-semibold transition {% if collection.is_favorite %}border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-600 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20{% else %}border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-600 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20{% endif %}"
+                                data-collection-id="{{ collection.id }}"
+                                data-is-favorite="{% if collection.is_favorite %}true{% else %}false{% endif %}">
+                            {% if collection.is_favorite %}
+                                <svg class="size-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
+                                </svg>
+                            {% else %}
+                                <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
+                                </svg>
+                            {% endif %}
+                            <span class="favorite-text transition-opacity duration-150">
+                                {% if collection.is_favorite %}Удалить из избранного{% else %}Добавить в избранное{% endif %}
+                            </span>
+                        </button>
+                    </div>
+                    {% endif %}
+                    <!-- ^^^ Кнопка избранного -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

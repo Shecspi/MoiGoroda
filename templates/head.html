@@ -9,19 +9,14 @@
     <meta name="description" content="{{ page_description }}">
     <title>{{ page_title }} | {{ SITE_NAME }}</title>
 
+    {# Подключение Яндекс.РТБ #}
     {% if not DEBUG %}
-    <!-- Travel PayOuts -->
-    {% vite_asset 'js/entries/travelpayouts_verify.js' %}
-    {% endif %}
-
-    {% if not DEBUG %}
-    <!-- Yandex.RTB -->
     <script>window.yaContextCb=window.yaContextCb||[]</script>
     <script src="https://yandex.ru/ads/system/context.js" async></script>
     {% endif %}
 
+    {# Подключение Яндекс.Метрики #}
     {% if not DEBUG %}
-    <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
        m[i].l=1*new Date();
@@ -43,39 +38,31 @@
     </noscript>
     {% endif %}
 
-    {# ----------------------- #}
-    {#   Загрузка CSS-стилей   #}
-    {# ----------------------- #}
+    {# Подключение пользовательских шрифтов #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    {# Bootstrap стили #}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-    {#  Шрифт с иконками Font Awesome  #}
-    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
-    {# Локальные стили #}
-    <link rel="stylesheet" href="{% static 'style.css' %}?ver={{ PROJECT_VERSION }}">
+    {# Tailwind CSS с Preline UI #}
+    {% vite_css 'css/tailwind' %}
+    {% block extra_css %}{% endblock %}
+    
     {# Иконка сайта #}
     <link rel="icon" type="image/svg+xml" href="{% static "image/favicon.svg" %}">
-
-    {# ---------------------- #}
-    {#   Загрузка JS-файлов   #}
-    {# ---------------------- #}
     
-    {# Bootstrap JS #}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
-            crossorigin="anonymous"></script>
-    {# jQuery JS #}
-    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
     {# ChartJS для построения графиков #}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+    {% block head_scripts %}{% endblock %}
 </head>
-<body>
+<body class="font-roboto font-light bg-white dark:bg-neutral-900">
+    {% include 'parts/toast/container.html' %}
     {% include 'parts/toast/success.html' %}
     {% include 'parts/toast/danger.html' %}
 
     {% block base %}
     {% endblock %}
 
-    {% vite_asset 'js/entries/enable_tooltips.js' %}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

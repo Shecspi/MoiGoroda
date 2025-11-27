@@ -38,7 +38,62 @@ def get_fake_statistics() -> dict[str, Any]:
     tmp_number_of_half_finished_regions = 18
 
     context['cities'] = {
+        # Города - Общее количество
+        'number_of_new_visited_cities': 542,
         'number_of_visited_cities': tmp_number_of_visited_cities,
+        'list_of_all_countries_with_visited_cities': [
+            {'name': 'Россия', 'visited_cities': 358, 'total_cities': 1253},
+            {'name': 'Беларусь', 'visited_cities': 87, 'total_cities': 115},
+            {'name': 'Казахстан', 'visited_cities': 54, 'total_cities': 90},
+            {'name': 'Грузия', 'visited_cities': 42, 'total_cities': 55},
+        ],
+        # Города - В этом году
+        'number_of_new_visited_cities_current_year': 28,
+        'number_of_visited_cities_current_year': 34,
+        'list_of_countries_with_new_visited_cities_current_year': [
+            {
+                'name': 'Россия',
+                'visited_cities': 18,
+            },
+            {
+                'name': 'Беларусь',
+                'visited_cities': 10,
+            },
+        ],
+        'list_of_countries_with_visited_cities_current_year': [
+            {
+                'name': 'Россия',
+                'visited_cities': 22,
+            },
+            {
+                'name': 'Беларусь',
+                'visited_cities': 12,
+            },
+        ],
+        # Города - В прошлом году
+        'number_of_new_visited_cities_previous_year': 17,
+        'number_of_visited_cities_previous_year': 19,
+        'list_of_countries_with_new_visited_cities_previous_year': [
+            {
+                'name': 'Россия',
+                'visited_cities': 10,
+            },
+            {
+                'name': 'Беларусь',
+                'visited_cities': 7,
+            },
+        ],
+        'list_of_countries_with_visited_cities_previous_year': [
+            {
+                'name': 'Россия',
+                'visited_cities': 12,
+            },
+            {
+                'name': 'Беларусь',
+                'visited_cities': 7,
+            },
+        ],
+        ###
         'number_of_not_visited_cities': get_number_of_cities() - tmp_number_of_visited_cities,
         'last_10_visited_cities': (
             {'title': 'Донецк', 'date_of_visit': '16 февраля 2024 г.'},
@@ -54,9 +109,7 @@ def get_fake_statistics() -> dict[str, Any]:
             {'title': 'Голицыно', 'date_of_visit': '20 августа 2022 г.'},
         ),
         'number_of_total_visited_cities_current_year': tmp_number_of_total_visited_cities_current_year,
-        'number_of_new_visited_cities_current_year': tmp_number_of_new_visited_cities_current_year,
         'number_of_total_visited_cities_previous_year': tmp_number_of_total_visited_cities_previous_year,
-        'number_of_new_visited_cities_previous_year': tmp_number_of_new_visited_cities_previous_year,
         'ratio_cities_this_year': calculate_ratio(
             tmp_number_of_total_visited_cities_current_year,
             tmp_number_of_total_visited_cities_previous_year,
@@ -117,6 +170,45 @@ def get_fake_statistics() -> dict[str, Any]:
 
     number_of_regions = get_number_of_regions()
     context['regions'] = {
+        # Регионы - общее количество
+        'list_of_countries_with_visited_regions': [
+            {
+                'name': 'Россия',
+                'number_of_regions': 89,
+                'number_of_visited_regions': 21,
+            },
+            {
+                'name': 'Беларусь',
+                'number_of_regions': 7,
+                'number_of_visited_regions': 7,
+            },
+            {
+                'name': 'Казахстан',
+                'number_of_regions': 20,
+                'number_of_visited_regions': 5,
+            },
+            {
+                'name': 'Грузия',
+                'number_of_regions': 11,
+                'number_of_visited_regions': 4,
+            },
+        ],
+        # Регионы - В этом году
+        'list_of_countries_with_visited_regions_current_year': [
+            {
+                'name': 'Россия',
+                'number_of_regions': 89,
+                'number_of_visited_regions': 10,
+            },
+        ],
+        'list_of_countries_with_visited_regions_previous_year': [
+            {
+                'name': 'Россия',
+                'number_of_regions': 89,
+                'number_of_visited_regions': 5,
+            },
+        ],
+        ###
         'most_visited_regions': (
             {
                 'title': 'Тверская область',
@@ -283,7 +375,5 @@ def get_fake_statistics() -> dict[str, Any]:
             ),
         },
     }
-
-    print(context['word_modifications']['city'])
 
     return context

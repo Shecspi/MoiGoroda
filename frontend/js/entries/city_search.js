@@ -86,7 +86,6 @@ export function handleCitySelection(selection, inputEl) {
 export function createAutoCompleteConfig(inputEl) {
     return {
         selector: () => inputEl,
-        placeHolder: "Начните вводить название города...",
         debounce: 300,
         data: {
             src: async () => {

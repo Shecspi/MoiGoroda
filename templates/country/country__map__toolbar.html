@@ -1,57 +1,77 @@
-<div class="row mx-3 my-3 g-3 align-items-center" id="toolbar">
+<div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
     <!-- Статистика -->
-    <div class="col-xxl-3 col-xl-6 col-md-9">
-        <div class="card text-center shadow h-100">
-            <div class="card-body bg-warning-subtle d-grid placeholder-glow" id="block-statistic">
-                <div class="align-self-center placeholder placeholder-lg bg-secondary rounded" id="block-qty_countries">
-                    <button class="btn">Загружаю...</button>
-                </div>
-            </div>
+    <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
+        <div class="hs-tooltip [--placement:top] relative inline-block" id="block-statistic">
+            <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                <span class="stat-badge-dot"></span>
+                <span id="block-qty_countries" class="inline-flex items-center">
+                    <div class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
+                        <span class="sr-only">Загрузка...</span>
+                    </div>
+                    <span class="ml-2">Загружаю...</span>
+                </span>
+            </span>
+            <span class="hs-tooltip-content" role="tooltip">
+                Количество посещённых стран на карте
+            </span>
         </div>
     </div>
     <!-- ^^^ Статистика -->
 
-    <!-- Посмотреть список -->
-{#    <div class="col-sm-12 col-md-6 col-xxl-3">#}
-{#        <div class="card text-center shadow h-100">#}
-{#            <div class="card-body d-grid bg-success-subtle" id="block-add_city">#}
-{#                <a href="#"#}
-{#                   class="btn btn-outline-success align-self-center"#}
-{#                    data-bs-tooltip="tooltip"#}
-{#                    data-bs-title="Возможность посмотреть список посещённых стран появится позднее">#}
-{#                    <i class="fa-solid fa-list-ol"></i>&nbsp;&nbsp;&nbsp;Посмотреть список#}
-{#                </a>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
-    <!-- ^^^ Посмотреть список -->
-
-    <div class="col-xxl-9 col-xl-6 col-md-3 text-end g-3">
+    <div class="ml-auto flex items-center gap-3 self-center">
         <!-- Фильтр по частям света -->
-        <div class="btn-group">
-            <button class="align-self-center btn btn-outline-primary dropdown-toggle"
-                    id="btn-show-part-of-the-world"
-                    data-bs-toggle="dropdown"
-                    disabled>
-                <span class="spinner-border spinner-border-sm" role="status"></span>
-                <span class="visually-hidden" role="status">Загрузка...</span>
-            </button>
+        <div class="hs-dropdown relative inline-block z-[40]">
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <button class="hs-dropdown-toggle hs-tooltip-toggle relative inline-flex items-center gap-x-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition dark:focus:ring-offset-neutral-900 border border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-500/10 disabled:pointer-events-none disabled:opacity-50"
+                        id="btn-show-part-of-the-world"
+                        disabled>
+                    <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
+                        <span class="sr-only">Загрузка...</span>
+                    </span>
+                    <span id="btn-show-part-of-the-world-icon" class="hidden inline-block shrink-0" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 640 640" fill="currentColor">
+                            <path d="M415.9 344L225 344C227.9 408.5 242.2 467.9 262.5 511.4C273.9 535.9 286.2 553.2 297.6 563.8C308.8 574.3 316.5 576 320.5 576C324.5 576 332.2 574.3 343.4 563.8C354.8 553.2 367.1 535.8 378.5 511.4C398.8 467.9 413.1 408.5 416 344zM224.9 296L415.8 296C413 231.5 398.7 172.1 378.4 128.6C367 104.2 354.7 86.8 343.3 76.2C332.1 65.7 324.4 64 320.4 64C316.4 64 308.7 65.7 297.5 76.2C286.1 86.8 273.8 104.2 262.4 128.6C242.1 172.1 227.8 231.5 224.9 296zM176.9 296C180.4 210.4 202.5 130.9 234.8 78.7C142.7 111.3 74.9 195.2 65.5 296L176.9 296zM65.5 344C74.9 444.8 142.7 528.7 234.8 561.3C202.5 509.1 180.4 429.6 176.9 344L65.5 344zM463.9 344C460.4 429.6 438.3 509.1 406 561.3C498.1 528.6 565.9 444.8 575.3 344L463.9 344zM575.3 296C565.9 195.2 498.1 111.3 406 78.7C438.3 130.9 460.4 210.4 463.9 296L575.3 296z"/>
+                        </svg>
+                    </span>
+                    <span id="btn-show-part-of-the-world-text" class="hidden">Части света</span>
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Фильтр по частям света
+                </span>
+            </div>
 
-            <ul class="dropdown-menu" id="dropdown-menu-parts-of-the-world"></ul>
+            <ul class="hs-dropdown-menu absolute start-0 opacity-0 pointer-events-none transition-[opacity,margin] duration-150 min-w-[20rem] max-h-96 overflow-y-auto overscroll-contain bg-white shadow-lg rounded-xl p-2 mt-2 border border-gray-200 dark:bg-neutral-900 dark:border-neutral-700 z-[1000]" id="dropdown-menu-parts-of-the-world"></ul>
         </div>
         <!-- ^^^ Фильтр по частям света -->
 
         <!-- Фильтр по расположению -->
-        <div class="btn-group">
-            <button class="align-self-center btn btn-outline-danger dropdown-toggle"
-                    id="btn-show-locations"
-                    data-bs-toggle="dropdown"
-                    disabled>
-                <span class="spinner-border spinner-border-sm" role="status"></span>
-                <span class="visually-hidden" role="status">Загрузка...</span>
+        <div class="hs-dropdown relative inline-block z-[40]">
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <button class="hs-dropdown-toggle hs-tooltip-toggle relative inline-flex items-center gap-x-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition dark:focus:ring-offset-neutral-900 border border-red-600 text-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-500/10 disabled:pointer-events-none disabled:opacity-50"
+                        id="btn-show-locations"
+                        disabled>
+                <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
+                    <span class="sr-only">Загрузка...</span>
+                </span>
+                <span id="btn-show-locations-icon" class="hidden inline-block shrink-0" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 384 512" fill="currentColor">
+                        <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+                    </svg>
+                </span>
+                <span id="btn-show-locations-text" class="hidden">Расположение</span>
+                <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m6 9 6 6 6-6"/>
+                </svg>
             </button>
+            <span class="hs-tooltip-content" role="tooltip">
+                Фильтр по расположению
+            </span>
+            </div>
 
-            <ul class="dropdown-menu" id="dropdown-menu-locations"></ul>
+            <ul class="hs-dropdown-menu absolute end-0 opacity-0 pointer-events-none transition-[opacity,margin] duration-150 min-w-[20rem] max-h-96 overflow-y-auto overscroll-contain bg-white shadow-lg rounded-xl p-2 mt-2 border border-gray-200 dark:bg-neutral-900 dark:border-neutral-700 z-[1000]" id="dropdown-menu-locations"></ul>
         </div>
         <!-- ^^^ Фильтр по расположению -->
     </div>

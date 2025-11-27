@@ -151,11 +151,11 @@ class RegionList(ListView):
     def get_template_names(self) -> list[str]:
         if self.list_or_map == 'map':
             return [
-                'region/region_all__map.html',
+                'region/all/map/page.html',
             ]
         else:
             return [
-                'region/region_all__list.html',
+                'region/all/list/page.html',
             ]
 
 
@@ -379,9 +379,9 @@ class CitiesByRegionList(ListView):
         Определяет шаблон в зависимости от режима отображения (список или карта).
         """
         template_name = (
-            'region/region_selected__map.html'
+            'region/selected/map/page.html'
             if self.list_or_map == 'map'
-            else 'region/region_selected__list.html'
+            else 'region/selected/list/page.html'
         )
         return [template_name]
 

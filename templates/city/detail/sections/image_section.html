@@ -1,0 +1,35 @@
+{% load static %}
+
+<!-- Изображение города -->
+<div class="text-center" id="section-city_image">
+    {% if city.image %}
+        <img src="{{ city.image }}"
+             alt="Фото города {{ city.title }}"
+             class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg"
+             onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+    {% else %}      
+        <img src="{% static 'image/city_placeholder.png' %}"
+             alt="Фото города {{ city.title }}"
+             class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg">
+    {% endif %}
+    {% if city.image_source_text %}
+        <div class="mt-3 inline-block rounded-lg border border-blue-200 border-l-4 bg-blue-50 px-3 py-2 dark:border-blue-500/40 dark:bg-blue-500/10">
+            <div class="flex items-center justify-center gap-2 text-xs flex-wrap">
+                <span class="inline-flex items-center gap-2 whitespace-nowrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 text-blue-600 dark:text-blue-400 shrink-0" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-12-10.5-20.1-10.5s-15.6 3.9-20.1 10.5l-87 127.6L170.7 297c-4.6-5.7-11.4-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.2-2.9 25.4s12.4 13.6 21.6 13.6h96 32 208c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/>
+                    </svg>
+                    <span class="font-medium text-blue-700 dark:text-blue-300">Источник изображения:</span>
+                </span>
+                {% if city.image_source_link %}
+                    <a href="{{ city.image_source_link }}"
+                    class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline break-words"
+                    target="_blank">{{ city.image_source_text }}</a>
+                {% else %}
+                    <span class="text-gray-700 dark:text-neutral-300 break-words">{{ city.image_source_text }}</span>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+

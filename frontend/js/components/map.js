@@ -70,8 +70,8 @@ function add_fullscreen_control(map) {
  */
 function add_zoom_control(map) {
     const zoomControl = L.control.zoom({
-        zoomInTitle: 'Нажмите, чтобы приблизить карту',
-        zoomOutTitle: 'Нажмите, чтобы отдалить карту'
+        zoomInTitle: 'Приблизить карту',
+        zoomOutTitle: 'Отдалить карту'
     });
     zoomControl.addTo(map);
 }
@@ -94,7 +94,7 @@ function add_attribution(map) {
  * @param map Объект карты, на которую нужно добавить кнопку.
  */
 function add_screenshot_control(map) {
-    new SimpleMapScreenshoter({
+    const screenshotControl = new SimpleMapScreenshoter({
         hideElementsWithSelectors: ['.leaflet-control-container'],
         preventDownload: false,
         hidden: false,
@@ -102,7 +102,18 @@ function add_screenshot_control(map) {
         caption: null,
         position: 'topleft',
         screenName: 'MoiGoroda',
-    }).addTo(map);
+    });
+    screenshotControl.addTo(map);
+    
+    // Добавляем подсказку для кнопки скриншота
+    map.whenReady(() => {
+        setTimeout(() => {
+            const screenshotBtn = document.querySelector('#map .leaflet-control-simpleMapScreenshoter-btn');
+            if (screenshotBtn) {
+                screenshotBtn.setAttribute('title', 'Создать скриншот карты');
+            }
+        }, 100);
+    });
 }
 
 export function addExternalBorderControl(map, countryCode) {
@@ -110,7 +121,7 @@ export function addExternalBorderControl(map, countryCode) {
         position: 'topright',
     });
     const container = L.DomUtil.create('div', 'custom-control-for-map');
-    container.innerHTML = '<i class="fa-regular fa-square"></i>';
+    container.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="control-icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>';
 
     // Если страна не указана - делаем контрол неактивным
     if (countryCode === null || countryCode === undefined) {
@@ -125,7 +136,7 @@ export function addExternalBorderControl(map, countryCode) {
     }
 
     external_border.onAdd = function (map) {
-        container.title = 'Отобразить внешние границы России';
+        container.title = 'Отобразить внешние границы страны';
 
         container.addEventListener('click', () => {
             if (downloadedExternalBorder === undefined) {
@@ -169,7 +180,7 @@ export function addInternalBorderControl(map, countryCode) {
         position: 'topright'
     });
     const container = L.DomUtil.create('div', 'custom-control-for-map')
-    container.innerHTML = '<i class="fa-regular fa-square-plus"></i>';
+    container.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="control-icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>';
 
     // Если страна не указана - делаем контрол неактивным
     if (countryCode === null || countryCode === undefined) {
@@ -184,7 +195,7 @@ export function addInternalBorderControl(map, countryCode) {
     }
 
     external_border.onAdd = function (map) {
-        container.title = 'Отобразить границы регионов России';
+        container.title = 'Отобразить границы регионов страны';
 
         container.addEventListener('click', () => {
             if (downloadedInternalBorder === undefined) {
@@ -256,9 +267,9 @@ export function addLoadControl(map, label) {
         return this._div;
     };
     load.update = function (props) {
-        this._div.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2">'
-            + '<div class="spinner-border spinner-border-sm" role="status">'
-            + `<span class="visually-hidden">Загрузка...</span></div><div>${label}</div></div>`;
+        this._div.innerHTML = '<div class="flex items-center justify-center gap-2">'
+            + '<div class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">'
+            + `<span class="sr-only">Загрузка...</span></div><div>${label}</div></div>`;
     };
     load.addTo(map);
 

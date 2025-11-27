@@ -1,78 +1,93 @@
 name: Manual trigger
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.12'
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
 
-      - name: Create .env file
-        run: cp MoiGoroda/.env.example MoiGoroda/.env
+            - name: Install and build frontend
+              run: |
+                  make frontend-install
+                  make frontend-build
 
-      - name: Poetry install
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.8.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
-      - name: Set up Poetry
-        run: poetry install --no-interaction --no-root && poetry install --no-interaction
+            - name: Create .env file
+              run: |
+                  cp MoiGoroda/.env.example MoiGoroda/.env
+                  echo "DEBUG=True" >> MoiGoroda/.env
+                  echo "TESTING=True" >> MoiGoroda/.env
 
-      - name: Test with pytest
-        run: poetry run pytest
-  deploy:
-    needs: test
-    runs-on: [self-hosted, dev]
-    steps:
-      - uses: actions/checkout@v1
+            - name: Poetry install
+              uses: snok/install-poetry@v1
+              with:
+                  version: 1.8.2
+                  virtualenvs-create: true
+                  virtualenvs-in-project: true
 
-      - name: Set output
-        id: vars
-        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+            - name: Install dependencies
+              run: poetry install --no-interaction --no-root && poetry install --no-interaction
 
-      - name: Deploy to 5.44.47.96
-        run: |
-          : # Переходим в папку с проектом
-          cd ${{ secrets.DEV__PROJECT_PATH }}
+            - name: Test with pytest
+              run: make test
+    deploy:
+        needs: test
+        runs-on: [self-hosted, dev]
+        steps:
+            - uses: actions/checkout@v4
 
-          git pull origin ${{ steps.vars.outputs.short_ref }}
-          git checkout ${{ steps.vars.outputs.short_ref }}
-          
-          : # Устанавливаем необходимую версию Python, если она ещё не установлена
-          if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
+            - name: Set output
+              id: vars
+              run: echo "short_ref=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
-          : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
-          : # которая указана в .python-version
-          if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
-          poetry env use $(cat .python-version)
-          poetry lock
-          poetry install --only main
+            - name: Deploy to 5.44.47.96
+              run: |
+                  : # Переходим в папку с проектом
+                  cd ${{ secrets.DEV__PROJECT_PATH }}
 
-          : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
-          : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
-          : # Имя папки может меняться, поэтому нужен такой ход.
-          rm -f ~/gunicorn
-          ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
-          
-          poetry run python3 manage.py makemigrations
-          poetry run python3 manage.py migrate
-                  
-          : # Производим сборку статичных файлов
-          chmod +x ./scripts/collectstatic.sh
-          ./scripts/collectstatic.sh
-          chmod -x ./scripts/collectstatic.sh
-                  
-          : # Перезагружаем сервер
-          chmod +x ./scripts/restart.sh
-          export SUDO_PASSWORD=${{ secrets.DEV__SUDO_PASSWORD }}
-          ./scripts/restart.sh
-          chmod -x ./scripts/restart.sh
+                  git pull origin ${{ steps.vars.outputs.short_ref }}
+                  git checkout ${{ steps.vars.outputs.short_ref }}
+
+                  : # Устанавливаем необходимую версию Python, если она ещё не установлена
+                  if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
+
+                  : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
+                  : # которая указана в .python-version
+                  if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
+                  poetry env use $(cat .python-version)
+                  poetry lock
+                  poetry install --only main
+
+                  : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
+                  : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
+                  : # Имя папки может меняться, поэтому нужен такой ход.
+                  rm -f ~/gunicorn
+                  ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
+
+                  poetry run python3 manage.py makemigrations
+                  poetry run python3 manage.py migrate
+
+                  : # Собираем JS файлы
+                  cd frontend
+                  npm ci
+                  npm run build
+                  cd ../
+
+                  : # Производим сборку статичных файлов
+                  poetry run python3 manage.py collectstatic --noinput
+                          
+                  : # Перезагружаем сервер
+                  echo "${{ secrets.DEV__SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
+                  echo "${{ secrets.DEV__SUDO_PASSWORD }}" | sudo -S systemctl restart gunicorn

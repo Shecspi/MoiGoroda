@@ -93,7 +93,7 @@ class TestPageRender:
         response = client.get(reverse('city-all-list'))
 
         assert response.status_code == 200
-        assert 'city/city_all__list.html' in (t.name for t in response.templates)
+        assert 'city/list/page.html' in (t.name for t in response.templates)
 
     def test_page_renders_with_base_template(
         self,

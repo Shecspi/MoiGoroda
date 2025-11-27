@@ -98,7 +98,7 @@ class TestAuthenticatedAccess:
         response = client.get(reverse('city-all-map'))
 
         assert response.status_code == 200
-        assert 'city/city_all__map.html' in (t.name for t in response.templates)
+        assert 'city/map/page.html' in (t.name for t in response.templates)
 
     def test_different_users_isolated(
         self,

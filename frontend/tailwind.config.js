@@ -11,6 +11,7 @@ module.exports = {
     extend: {
       fontFamily: {
         pacifico: ['Pacifico', 'cursive'],
+        roboto: ['Roboto', 'sans-serif'],
       },
     },
   },

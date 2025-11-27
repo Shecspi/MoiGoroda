@@ -60,15 +60,12 @@ export default defineConfig({
         
         // CSS entries
         'css/tailwind': path.resolve(__dirname, 'css/tailwind.css'),
-        'css/style': path.resolve(__dirname, 'css/style.css'),
-        'css/style2': path.resolve(__dirname, 'css/style2.css'),
         'css/autoComplete': path.resolve(__dirname, 'css/autoComplete.css'),
         'css/city-card': path.resolve(__dirname, 'css/city-card.css'),
         'css/collection-cards': path.resolve(__dirname, 'css/collection-cards.css'),
         'css/pagination': path.resolve(__dirname, 'css/pagination.css'),
         'css/select-field': path.resolve(__dirname, 'css/select-field.css'),
         'css/leaflet-controls': path.resolve(__dirname, 'css/leaflet-controls.css'),
-        'css/star-burst': path.resolve(__dirname, 'css/star-burst.css'),
         'css/subscriptions-modal': path.resolve(__dirname, 'css/subscriptions-modal.css'),
         'css/components/checkbox': path.resolve(__dirname, 'css/components/checkbox.css'),
         'css/components/button': path.resolve(__dirname, 'css/components/button.css'),
@@ -78,7 +75,6 @@ export default defineConfig({
         'css/components/link': path.resolve(__dirname, 'css/components/link.css'),
         'css/components/typography': path.resolve(__dirname, 'css/components/typography.css'),
         'css/components/progress': path.resolve(__dirname, 'css/components/progress.css'),
-        'css/sidebar': path.resolve(__dirname, 'css/sidebar.css'),
         'css/toolbar': path.resolve(__dirname, 'css/toolbar.css'),
       }
     }

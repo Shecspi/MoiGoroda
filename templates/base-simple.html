@@ -37,10 +37,12 @@
     {#   Загрузка CSS-стилей   #}
     {# ----------------------- #}
 
-    {# Tailwind CSS с Preline UI #}
-    {% vite_css 'css/tailwind' %}
-    {# Локальные стили (собранные и минифицированные через Vite) #}
-    {% vite_css 'css/style' %}
+{# Tailwind CSS с Preline UI #}
+{% vite_css 'css/tailwind' %}
+{# Подключение пользовательских шрифтов #}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet">
     {# Компоненты кнопок (для элементов интерфейса) #}
     {% vite_css 'css/components/button' %}
     {% block extra_css %}{% endblock %}
@@ -59,7 +61,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
     {% block head_scripts %}{% endblock %}
 </head>
-<body class="bg-white dark:bg-neutral-900">
+<body class="font-roboto font-light bg-white dark:bg-neutral-900">
     {% include 'parts/toast/container.html' %}
     {% include 'parts/toast/success.html' %}
     {% include 'parts/toast/danger.html' %}

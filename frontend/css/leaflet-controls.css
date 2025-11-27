@@ -597,3 +597,27 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
 .dark #map .color-box {
     border-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Сообщения загрузки / ошибок */
+#map div.load,
+#map div.error {
+    padding: 1.25rem;
+    font: 1.125rem "Roboto", sans-serif;
+    font-weight: 300;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    border-radius: 0.75rem;
+}
+
+#map div.load {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+#map div.error {
+    background: rgb(245, 198, 203);
+    border-radius: 0.5rem;
+}
+
+/* Убирает баг leaflet.js, когда при клике на полигон появляется рамка вокруг него */
+.leaflet-container path.leaflet-interactive:focus:not(:focus-visible) {
+    outline: 0;
+}

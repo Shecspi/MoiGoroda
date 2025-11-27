@@ -2,31 +2,31 @@
 {% load static %}
 
 {% block content %}
-    <div class="container d-flex justify-content-center align-items-center my-auto py-md-3">
-        <!-- Login box -->
-        <div class="row box-area">
-            <!-- Left part -->
-            <div class="col-md-6 pt-5 d-flex justify-content-center align-items-center flex-column">
-                <div class="mb-5">
-                    <img src="{% static 'image/error/500.png' %}" class="img-fluid" style="width: 250px;" alt="Error 404">
-                </div>
+    <div class="w-full px-4 py-12">
+        <div class="w-full max-w-2xl mx-auto overflow-hidden rounded-2xl bg-white p-8 text-center dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-6">
+                <img src="{% static 'image/error/500.png' %}" class="w-32 mx-auto" alt="Ошибка 500">
             </div>
-            <!-- /Left part -->
+            <p class="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                Ошибка 500
+            </p>
+            <h1 class="mt-3 text-3xl font-bold text-gray-900 dark:text-white">
+                Внутренняя ошибка сервера
+            </h1>
+            <p class="mt-4 text-base text-gray-600 dark:text-neutral-300">
+                Мы уже знаем о проблеме и работаем над её устранением. Пожалуйста, попробуйте обновить страницу чуть позже или вернитесь на главную.
+            </p>
 
-            <!-- Right part -->
-            <div class="col-md-6 right-box d-flex justify-content-center align-items-center">
-                <div class="row align-items-center">
-                    <p class="fs-2 font-bold text-center">Внутренняя ошибка</p>
-                    <p class="text-center mt-5">
-                        На сервере произошла внутренняя ошибка.<br><br>
-                        Мы уже в курсе этой ошибки и прямо сейчас исправляем её.<br>
-                        Очень скоро мы восстановим функционирование сервиса "Мои города".<br><br>
-                        Приносим свои извинения за временные неудобства.
-                    </p>
-                </div>
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a href="{% url 'main_page' %}"
+                   class="inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900">
+                    На главную
+                </a>
+                <a href="mailto:{{ SUPPORT_EMAIL }}"
+                   class="inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-neutral-700 dark:text-neutral-200 dark:hover:border-neutral-600 dark:hover:bg-neutral-800">
+                    Написать в поддержку
+                </a>
             </div>
-            <!-- /Right part -->
         </div>
-        <!-- /Login box -->
     </div>
 {% endblock %}

@@ -50,6 +50,13 @@ class Statistics(LoginRequiredMixin, TemplateView):
         if user_id is None:
             raise Http404
 
+        context['active_page'] = 'stats'
+        context['page_title'] = 'Личная статистика'
+        context['page_description'] = (
+            'Здесь отображается подробная информация о результатах Ваших путешествий'
+            ' - посещённые города, регионы и федеральнаые округа'
+        )
+
         number_of_visited_cities = get_number_of_visited_cities(user_id)
         if number_of_visited_cities == 0:
             context['fake_statistics'] = True
@@ -83,13 +90,6 @@ class Statistics(LoginRequiredMixin, TemplateView):
         ##################################
         # --- Вспомогательные данные --- #
         ##################################
-
-        context['active_page'] = 'stats'
-        context['page_title'] = 'Личная статистика'
-        context['page_description'] = (
-            'Здесь отображается подробная информация о результатах Ваших путешествий'
-            ' - посещённые города, регионы и федеральнаые округа'
-        )
 
         return context | get_info_for_statistic_cards_and_charts(user_id)
 

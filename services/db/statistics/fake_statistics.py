@@ -30,9 +30,7 @@ def get_fake_statistics() -> dict[str, Any]:
 
     tmp_number_of_visited_cities = 345
     tmp_number_of_total_visited_cities_current_year = 35
-    tmp_number_of_new_visited_cities_current_year = 14
     tmp_number_of_total_visited_cities_previous_year = 59
-    tmp_number_of_new_visited_cities_previous_year = 25
     tmp_number_of_visited_regions = 46
     tmp_number_of_finished_regions = 13
     tmp_number_of_half_finished_regions = 18

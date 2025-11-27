@@ -32,7 +32,6 @@ export default defineConfig({
         city_create: path.resolve(entriesDir, 'city_create.js'),
         city_statistics: path.resolve(entriesDir, 'city_statistics.js'),
         dashboard: path.resolve(entriesDir, 'dashboard.js'),
-        enable_tooltips: path.resolve(entriesDir, 'enable_tooltips.js'),
         filter_city: path.resolve(entriesDir, 'filter_city.js'),
         filter_region: path.resolve(entriesDir, 'filter_region.js'),
         leaflet_css: path.resolve(entriesDir, 'leaflet_css.js'),

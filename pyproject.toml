@@ -4,7 +4,6 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.12"
 django = "~4.2"
-crispy-bootstrap5 = "^0.7"
 django-markdownify = "^0.9.3"
 django-mathfilters = "^1.0.0"
 django-mdeditor = "^0.1.20"

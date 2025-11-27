@@ -185,63 +185,15 @@ jobs:
         runs-on: [self-hosted, prod]
         steps:
             - uses: actions/checkout@v4
-            - name: Get all git tags
-              run: git fetch --tags --force
-
-            - name: Deploy to the server
-              run: |
-                  : # Переходим в папку с проектом
-                  cd ${{ secrets.PROD__PROJECT_PATH }}
-
-                  git pull origin master
-                  git checkout master
-
-                  : # Устанавливаем необходимую версию Python, если она ещё не установлена
-                  if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi
-
-                  : # Удаляем виртуальное окружение и создаём новое на основе той версии Python,
-                  : # которая указана в .python-version
-                  if [ -n $(poetry env info -p) ]; then rm -rf $(poetry env info -p); fi
-                  poetry env use $(cat .python-version)
-                  poetry lock
-                  poetry install --only main
-
-                  : # Для того чтобы в конфиге Gunicorn прописать путь к исполняемому файлу,
-                  : # нужно создать символичесвую ссылку на файл, находящийся в папке с виртуальным окружением.
-                  : # Имя папки может меняться, поэтому нужен такой ход.
-                  rm -f ~/gunicorn
-                  ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
-
-                  poetry run python3 manage.py migrate
-
-                  # Собираем JS файлы
-                  cd frontend
-                  npm ci
-                  npm run build
-                  cd ../
-
-                  : # Производим сборку статичных файлов
-                  poetry run python3 manage.py collectstatic --noinput
-
-                  : # Перезагружаем сервер
-                  echo "${{ secrets.PROD__SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
-                  echo "${{ secrets.PROD__SUDO_PASSWORD }}" | sudo -S systemctl restart gunicorn
-
-    deploy-dev:
-        name: Deploy to dev server
-        if: github.ref == 'refs/heads/feature/global-redesign'
-        runs-on: [self-hosted, dev]
-        steps:
-            - uses: actions/checkout@v4
 
             - name: Set output
               id: vars
               run: echo "short_ref=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
-            - name: Deploy to dev server
+            - name: Deploy to the server
               run: |
                   : # Переходим в папку с проектом
-                  cd ${{ secrets.DEV__PROJECT_PATH }}
+                  cd ${{ secrets.PROD__PROJECT_PATH }}
 
                   git pull origin ${{ steps.vars.outputs.short_ref }}
                   git checkout ${{ steps.vars.outputs.short_ref }}
@@ -261,7 +213,6 @@ jobs:
                   rm -f ~/gunicorn
                   ln -s $(poetry env info -p)/bin/gunicorn ~/gunicorn
 
-                  poetry run python3 manage.py makemigrations
                   poetry run python3 manage.py migrate
 
                   : # Собираем JS файлы
@@ -271,8 +222,8 @@ jobs:
                   cd ../
 
                   : # Производим сборку статичных файлов
-                  poetry run python3 manage.py collectstatic --noinput
+                  poetry run python3.manage.py.collectstatic --noinput
 
                   : # Перезагружаем сервер
-                  echo "${{ secrets.DEV__SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
-                  echo "${{ secrets.DEV__SUDO_PASSWORD }}" | sudo -S systemctl restart gunicorn
+                  echo "${{ secrets.PROD__SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
+                  echo "${{ secrets.PROD__SUDO_PASSWORD }}" | sudo -S systemctl restart gunicorn

@@ -142,15 +142,6 @@ def test_signup_form_fields_present(mock_filter: Any, signup_form_data: dict[str
 
 
 @pytest.mark.unit
-def test_signup_form_has_helper() -> None:
-    """Тест наличия crispy form helper"""
-    form = SignUpForm()
-
-    assert hasattr(form, 'helper')
-    assert form.helper.form_tag is False
-
-
-@pytest.mark.unit
 @patch('account.forms.User.objects.filter')
 def test_signup_form_invalid_email(mock_filter: Any, signup_form_data: dict[str, Any]) -> None:
     """Тест формы регистрации с невалидным email"""
@@ -187,15 +178,6 @@ def test_signin_form_valid_data(signin_form_data: dict[str, str]) -> None:
     # Проверяем только наличие полей, так как валидация требует настоящего пользователя
     assert 'username' in form.fields
     assert 'password' in form.fields
-
-
-@pytest.mark.unit
-def test_signin_form_has_helper() -> None:
-    """Тест наличия crispy form helper в форме входа"""
-    form = SignInForm()
-
-    assert hasattr(form, 'helper')
-    assert form.helper.form_tag is False
 
 
 @pytest.mark.unit
@@ -236,15 +218,6 @@ def test_update_profile_form_fields_present() -> None:
     assert 'email' in form.fields
     assert 'first_name' in form.fields
     assert 'last_name' in form.fields
-
-
-@pytest.mark.unit
-def test_update_profile_form_has_helper() -> None:
-    """Тест наличия crispy form helper в форме обновления профиля"""
-    form = UpdateProfileForm()
-
-    assert hasattr(form, 'helper')
-    assert form.helper.form_tag is False
 
 
 @pytest.mark.unit

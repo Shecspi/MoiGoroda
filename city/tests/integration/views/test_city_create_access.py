@@ -48,7 +48,7 @@ def test_city_create_guest_access_shows_login_template(client: Client) -> None:
     """Проверяет, что неавторизованные пользователи видят страницу входа после редиректа."""
     response = client.get(reverse('city-create'), follow=True)
     assert response.status_code == 200
-    assert 'account/signin.html' in (t.name for t in response.templates)
+    assert 'account/auth/signin.html' in (t.name for t in response.templates)
 
 
 @pytest.mark.django_db

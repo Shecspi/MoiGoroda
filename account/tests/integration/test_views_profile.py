@@ -317,18 +317,6 @@ def test_profile_view_get_object_uses_session_user(client: Any, create_multiple_
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_profile_view_form_helper_present(client: Any, create_test_user: Any) -> None:
-    """Тест наличия crispy form helper"""
-    client.force_login(create_test_user)
-    response = client.get(reverse('profile'))
-
-    assert response.status_code == 200
-    form = response.context['form']
-    assert hasattr(form, 'helper')
-
-
-@pytest.mark.integration
-@pytest.mark.django_db
 def test_profile_view_preserves_password(client: Any, create_test_user: Any) -> None:
     """Тест что обновление профиля не изменяет пароль"""
     client.force_login(create_test_user)

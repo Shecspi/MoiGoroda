@@ -40,7 +40,7 @@ class TestUpdateAccessUnauthenticated:
         response = client.get(reverse('city-update', kwargs={'pk': 1}), follow=True)
 
         assert response.status_code == 200
-        assert 'account/signin.html' in (t.name for t in response.templates)
+        assert 'account/auth/signin.html' in (t.name for t in response.templates)
 
     @pytest.mark.integration
     @pytest.mark.django_db
@@ -58,7 +58,7 @@ class TestUpdateAccessUnauthenticated:
         response = client.post(reverse('city-update', kwargs={'pk': 1}), follow=True)
 
         assert response.status_code == 200
-        assert 'account/signin.html' in (t.name for t in response.templates)
+        assert 'account/auth/signin.html' in (t.name for t in response.templates)
 
     @pytest.mark.integration
     @pytest.mark.django_db

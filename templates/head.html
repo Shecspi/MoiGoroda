@@ -52,9 +52,7 @@
     {# Локальные стили (собранные и минифицированные через Vite) #}
     {% vite_css 'css/style' %}
     {# Компоненты кнопок (для кнопки уведомлений) #}
-    {% vite_css 'css/components/button' %}
-    {# Стили для кнопки уведомлений #}
-    {% vite_css 'css/notification' %}
+    {% comment %} {% vite_css 'css/components/button' %} {% endcomment %}
     {# Стили для сайдбара #}
     {% vite_css 'css/sidebar' %}
     {% block extra_css %}{% endblock %}

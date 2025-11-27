@@ -78,7 +78,6 @@ export default defineConfig({
         'css/components/link': path.resolve(__dirname, 'css/components/link.css'),
         'css/components/typography': path.resolve(__dirname, 'css/components/typography.css'),
         'css/components/progress': path.resolve(__dirname, 'css/components/progress.css'),
-        'css/notification': path.resolve(__dirname, 'css/notification.css'),
         'css/sidebar': path.resolve(__dirname, 'css/sidebar.css'),
         'css/demo': path.resolve(__dirname, 'css/demo.css'),
         'css/toolbar': path.resolve(__dirname, 'css/toolbar.css'),

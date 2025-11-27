@@ -40,47 +40,6 @@ if settings.DEBUG:
 
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),
-        # Демо-страницы только в режиме разработки
-        path(
-            'demo/badges/',
-            TemplateView.as_view(template_name='demo/badges.html'),
-            name='demo-badges',
-        ),
-        path(
-            'demo/buttons/',
-            TemplateView.as_view(template_name='demo/buttons.html'),
-            name='demo-buttons',
-        ),
-        path(
-            'demo/checkboxes/',
-            TemplateView.as_view(template_name='demo/checkboxes.html'),
-            name='demo-checkboxes',
-        ),
-        path(
-            'demo/radio/',
-            TemplateView.as_view(template_name='demo/radio.html'),
-            name='demo-radio',
-        ),
-        path(
-            'demo/cards/',
-            TemplateView.as_view(template_name='demo/cards.html'),
-            name='demo-cards',
-        ),
-        path(
-            'demo/links/',
-            TemplateView.as_view(template_name='demo/links.html'),
-            name='demo-links',
-        ),
-        path(
-            'demo/typography/',
-            TemplateView.as_view(template_name='demo/typography.html'),
-            name='demo-typography',
-        ),
-        path(
-            'demo/progress/',
-            TemplateView.as_view(template_name='demo/progress.html'),
-            name='demo-progress',
-        ),
     ] + urlpatterns
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

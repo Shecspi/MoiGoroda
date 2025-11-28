@@ -1,97 +1,96 @@
 import {getCookie} from '../components/get_cookie.js';
 
 const DASHBOARD_ROUTES = Object.freeze({
+    // Пользователи
     getNumberOfUsers: '/api/dashboard/users/',
     getRegistrationsYesterday: '/api/dashboard/users/registrations/yesterday/',
     getRegistrationsWeek: '/api/dashboard/users/registrations/week/',
+    getRegistrationsMonth: '/api/dashboard/users/registrations/month/',
     getNumberOfUsersWithoutVisitedCities: '/api/dashboard/users/without_visited_cities/',
+    // Города
     getTotalVisitedCitiesVisits: '/api/dashboard/visited_cities/total/',
     getUniqueVisitedCities: '/api/dashboard/visited_cities/unique/',
     getMaxQtyUniqueVisitedCities: '/api/dashboard/visited_cities/max_unique/',
     getMaxQtyVisitedCities: '/api/dashboard/visited_cities/max/',
+    getAverageQtyVisitedCities: '/api/dashboard/visited_cities/average/',
+    getAverageQtyUniqueVisitedCities: '/api/dashboard/visited_cities/average_unique/',
+    // Страны
+    getTotalVisitedCountries: '/api/dashboard/visited_countries/total/',
+    getUsersWithVisitedCountries: '/api/dashboard/visited_countries/users/',
+    getAverageQtyVisitedCountries: '/api/dashboard/visited_countries/average/',
+    getMaxQtyVisitedCountries: '/api/dashboard/visited_countries/max/',
+    // Добавленные страны
+    getAddedVisitedCountryYeterday: '/api/dashboard/visited_countries/added/1/',
+    getAddedVisitedCountriesByWeek: '/api/dashboard/visited_countries/added/7/',
+    getAddedVisitedCountriesByMonth: '/api/dashboard/visited_countries/added/30/',
+    getAddedVisitedCountriesByYear: '/api/dashboard/visited_countries/added/365/',
 });
 
-const request_url_ids = [
-    ['url_get_total_visited_countries', 'number-total_visited_countries'],
-    ['url_get_users_with_visited_countries', 'number-user_with_visited_countries'],
-    ['url_get_average_qty_visited_countries', 'number-average_qty_visited_countries'],
-    ['url_get_max_qty_visited_countries', 'number-max_qty_visited_countries'],
-    ['url_get_qty_of_added_visited_countries_yesterday', 'number-qty_of_added_visited_countries_yesterday'],
-    ['url_get_qty_of_added_visited_countries_week', 'number-qty_of_added_visited_countries_week'],
-    ['url_get_qty_of_added_visited_countries_month', 'number-qty_of_added_visited_countries_month'],
-    ['url_get_qty_of_added_visited_countries_year', 'number-qty_of_added_visited_countries_year'],
-];
-
+// Пользователи
 loadQuantityCard('number-total_users', DASHBOARD_ROUTES.getNumberOfUsers);
 loadQuantityCard('number-registrations_yesterday', DASHBOARD_ROUTES.getRegistrationsYesterday);
 loadQuantityCard('number-registrations_week', DASHBOARD_ROUTES.getRegistrationsWeek);
+loadQuantityCard('number-registrations_month', DASHBOARD_ROUTES.getRegistrationsMonth);
 loadQuantityCard('number-number_of_users_without_visited_cities', DASHBOARD_ROUTES.getNumberOfUsersWithoutVisitedCities);
+// Города
 loadQuantityCard('number-total_visited_cities_visits', DASHBOARD_ROUTES.getTotalVisitedCitiesVisits);
 loadQuantityCard('number-unique_visited_cities', DASHBOARD_ROUTES.getUniqueVisitedCities);
+loadQuantityCard('number-average_qty_visited_cities', DASHBOARD_ROUTES.getAverageQtyVisitedCities);
+loadQuantityCard('number-average_qty_unique_visited_cities', DASHBOARD_ROUTES.getAverageQtyUniqueVisitedCities);
 loadQuantityCard(
     'number-max_qty_unique_visited_cities',
     DASHBOARD_ROUTES.getMaxQtyUniqueVisitedCities,
 );
 loadQuantityCard('number-max_qty_visited_cities', DASHBOARD_ROUTES.getMaxQtyVisitedCities);
+// Страны
+loadQuantityCard('number-total_visited_countries', DASHBOARD_ROUTES.getTotalVisitedCountries);
+loadQuantityCard('number-user_with_visited_countries', DASHBOARD_ROUTES.getUsersWithVisitedCountries);
+loadQuantityCard('number-average_qty_visited_countries', DASHBOARD_ROUTES.getAverageQtyVisitedCountries);
+loadQuantityCard('number-max_qty_visited_countries', DASHBOARD_ROUTES.getMaxQtyVisitedCountries);
+// Добавленные страны
+loadQuantityCard('number-qty_of_added_visited_countries_yesterday', DASHBOARD_ROUTES.getAddedVisitedCountryYeterday);
+loadQuantityCard('number-qty_of_added_visited_countries_week', DASHBOARD_ROUTES.getAddedVisitedCountriesByWeek);
+loadQuantityCard('number-qty_of_added_visited_countries_month', DASHBOARD_ROUTES.getAddedVisitedCountriesByMonth);
+loadQuantityCard('number-qty_of_added_visited_countries_year', DASHBOARD_ROUTES.getAddedVisitedCountriesByYear);
 
-for (const item of request_url_ids) {
-    const url = document.getElementById(item[0]).dataset.url;
+// fetch(document.getElementById('url_get_added_visited_countries_by_day').dataset.url, {
+//     method: 'GET',
+//     headers: {
+//         'X-CSRFToken': getCookie('csrftoken'),
+//     },
+// })
+//     .then((response) => {
+//         if (!response.ok) {
+//             throw new Error(response.statusText);
+//         }
+//         return response.json();
+//     })
+//     .then((data) => {
+//         const visitedCountriesData = {};
+//         data.forEach((item) => {
+//             visitedCountriesData[item.date] = item.qty;
+//         });
 
-    fetch(url, {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-        },
-    })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(response.statusText);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            updateNumberOnCard(item[1], data.qty);
-        });
-}
+//         const ctx = document.getElementById('visitedCountriesChart').getContext('2d');
 
-fetch(document.getElementById('url_get_added_visited_countries_by_day').dataset.url, {
-    method: 'GET',
-    headers: {
-        'X-CSRFToken': getCookie('csrftoken'),
-    },
-})
-    .then((response) => {
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-        return response.json();
-    })
-    .then((data) => {
-        const visitedCountriesData = {};
-        data.forEach((item) => {
-            visitedCountriesData[item.date] = item.qty;
-        });
-
-        const ctx = document.getElementById('visitedCountriesChart').getContext('2d');
-
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(visitedCountriesData),
-                datasets: [
-                    {
-                        label: 'Количество добавленных посещённых стран за 1 день',
-                        data: Object.values(visitedCountriesData),
-                        borderColor: 'rgba(7,54,0,0.2)',
-                        backgroundColor: 'rgba(58,255,51,0.2)',
-                        borderWidth: 2,
-                        borderRadius: 5,
-                        borderSkipped: false,
-                    },
-                ],
-            },
-        });
-    });
+//         const myChart = new Chart(ctx, {
+//             type: 'bar',
+//             data: {
+//                 labels: Object.keys(visitedCountriesData),
+//                 datasets: [
+//                     {
+//                         label: 'Количество добавленных посещённых стран за 1 день',
+//                         data: Object.values(visitedCountriesData),
+//                         borderColor: 'rgba(7,54,0,0.2)',
+//                         backgroundColor: 'rgba(58,255,51,0.2)',
+//                         borderWidth: 2,
+//                         borderRadius: 5,
+//                         borderSkipped: false,
+//                     },
+//                 ],
+//             },
+//         });
+//     });
 
 function updateNumberOnCard(element_id, newNumber) {
     const el = document.getElementById(element_id);
@@ -124,6 +123,13 @@ export async function fetchQuantity(url) {
     return data.quantity;
 }
 
+function showCardFallback(elementId) {
+    const container = document.getElementById(elementId);
+    if (container) {
+        container.textContent = '—';
+    }
+}
+
 function loadQuantityCard(elementId, url) {
     if (!url) {
         return;
@@ -137,11 +143,4 @@ function loadQuantityCard(elementId, url) {
             console.error('Failed to fetch dashboard metric', error);
             showCardFallback(elementId);
         });
-}
-
-function showCardFallback(elementId) {
-    const container = document.getElementById(elementId);
-    if (container) {
-        container.textContent = '—';
-    }
 }

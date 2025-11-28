@@ -225,7 +225,29 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">В среднем городов</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ average_cities }}</p>
+                    <div id="number-average_qty_unique_visited_cities" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-rose-200 bg-rose-100 dark:border-rose-500/40 dark:bg-rose-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3v18m0-18l-4 4m4-4l4 4m2 2v12m0-12l-4 4m4-4l4 4"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">В среднем посещений</p>
+                    <div id="number-average_qty_visited_cities" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-rose-600 dark:text-rose-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -426,16 +448,6 @@
             <canvas id="visitedCountriesChart" class="min-h-[400px]" height="400"></canvas>
         </div>
     </div>
-    
-    <div id="url_get_total_visited_countries" data-url="{% url 'api__get_total_visited_countries' %}" hidden></div>
-    <div id="url_get_users_with_visited_countries" data-url="{% url 'api__get_qty_users_with_visited_countries' %}" hidden></div>
-    <div id="url_get_average_qty_visited_countries" data-url="{% url 'api__get_average_qty_visited_countries' %}" hidden></div>
-    <div id="url_get_max_qty_visited_countries" data-url="{% url 'api__max_qty_visited_countries' %}" hidden></div>
-    <div id="url_get_qty_of_added_visited_countries_yesterday" data-url="{% url 'api__get_qty_of_added_visited_countries' 1 %}" hidden></div>
-    <div id="url_get_qty_of_added_visited_countries_week" data-url="{% url 'api__get_qty_of_added_visited_countries' 7 %}" hidden></div>
-    <div id="url_get_qty_of_added_visited_countries_month" data-url="{% url 'api__get_qty_of_added_visited_countries' 30 %}" hidden></div>
-    <div id="url_get_qty_of_added_visited_countries_year" data-url="{% url 'api__get_qty_of_added_visited_countries' 365 %}" hidden></div>
-    <div id="url_get_added_visited_countries_by_day" data-url="{% url 'api__get_added_visited_countries_by_day' %}" hidden></div>
     
     {% vite_asset 'js/entries/dashboard.js' %}
 {% endblock %}

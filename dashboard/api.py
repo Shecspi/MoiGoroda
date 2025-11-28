@@ -9,31 +9,30 @@ Licensed under the Apache License, Version 2.0
 
 from datetime import date, datetime, timedelta, timezone
 from http import HTTPStatus
-from typing import Any
 
 import msgspec
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
-from django.db.models import Count, F, Func, Max, Sum, Value, Subquery, OuterRef
+from django.db.models import Count, F, Func, Max, OuterRef, Subquery, Sum, Value
 from django.db.models.fields import CharField
 from django.db.models.functions.datetime import TruncDate, TruncDay
 from django.http import HttpResponse
-from rest_framework import generics
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.request import Request
-from rest_framework.response import Response
 
 from city.models import VisitedCity
 from country.models import VisitedCountry
-from django_modern_rest import Controller
+from django_modern_rest import Controller, Path
 from django_modern_rest.decorators import wrap_middleware
 from django_modern_rest.plugins.msgspec import MsgspecSerializer
 from django_modern_rest.response import ResponseSpec, build_response
-from MoiGoroda.settings import Error
 
 
 class QuantityModel(msgspec.Struct):
     quantity: int
+
+
+class VisitedCountriesByDayModel(msgspec.Struct):
+    date: str
+    qty: int
 
 
 @wrap_middleware(
@@ -69,6 +68,10 @@ def is_superuser_json(response: HttpResponse) -> HttpResponse:
 
 @is_superuser_json
 class GetNumberOfUsersController(Controller[MsgspecSerializer]):
+    """
+    Количество пользователей в системе
+    """
+
     def get(self) -> QuantityModel:
         number_of_users = User.objects.count()
         return QuantityModel(quantity=number_of_users)
@@ -76,6 +79,10 @@ class GetNumberOfUsersController(Controller[MsgspecSerializer]):
 
 @is_superuser_json
 class GetNumberOfRegistrationsYesterdayController(Controller[MsgspecSerializer]):
+    """
+    Количество регистраций за вчера
+    """
+
     def get(self) -> QuantityModel:
         qty = User.objects.filter(date_joined__date=date.today() - timedelta(days=1)).count()
         return QuantityModel(quantity=qty)
@@ -83,6 +90,10 @@ class GetNumberOfRegistrationsYesterdayController(Controller[MsgspecSerializer])
 
 @is_superuser_json
 class GetNumberOfRegistrationsWeekController(Controller[MsgspecSerializer]):
+    """
+    Количество регистраций за неделю
+    """
+
     def get(self) -> QuantityModel:
         qty = (
             User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
@@ -94,6 +105,10 @@ class GetNumberOfRegistrationsWeekController(Controller[MsgspecSerializer]):
 
 @is_superuser_json
 class GetNumberOfRegistrationsMonthController(Controller[MsgspecSerializer]):
+    """
+    Количество регистраций за месяц
+    """
+
     def get(self) -> QuantityModel:
         qty = (
             User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
@@ -107,6 +122,10 @@ class GetNumberOfRegistrationsMonthController(Controller[MsgspecSerializer]):
 
 @is_superuser_json
 class GetTotalVisitedCitiesVisitsController(Controller[MsgspecSerializer]):
+    """
+    Количество посещений городов всеми пользователями
+    """
+
     def get(self) -> QuantityModel:
         qty = VisitedCity.objects.count()
         return QuantityModel(quantity=qty)
@@ -114,6 +133,10 @@ class GetTotalVisitedCitiesVisitsController(Controller[MsgspecSerializer]):
 
 @is_superuser_json
 class GetUniqueVisitedCitiesController(Controller[MsgspecSerializer]):
+    """
+    Количество уникальных городов, посещенных всеми пользователями
+    """
+
     def get(self) -> QuantityModel:
         qty = (
             VisitedCity.objects.values('user')
@@ -127,6 +150,10 @@ class GetUniqueVisitedCitiesController(Controller[MsgspecSerializer]):
 
 @is_superuser_json
 class GetMaxQtyUniqueVisitedCitiesController(Controller[MsgspecSerializer]):
+    """
+    Максимальное количество уникальных городов на пользователя
+    """
+
     def get(self) -> QuantityModel:
         queryset = (
             VisitedCity.objects.values('user')
@@ -139,6 +166,10 @@ class GetMaxQtyUniqueVisitedCitiesController(Controller[MsgspecSerializer]):
 
 @is_superuser_json
 class GetMaxQtyVisitedCitiesController(Controller[MsgspecSerializer]):
+    """
+    Максимальное количество посещений городов на пользователя
+    """
+
     def get(self) -> QuantityModel:
         queryset = (
             VisitedCity.objects.values('user')
@@ -151,6 +182,11 @@ class GetMaxQtyVisitedCitiesController(Controller[MsgspecSerializer]):
 
 @is_superuser_json
 class GetNumberOfUsersWithoutVisitedCitiesController(Controller[MsgspecSerializer]):
+    """
+    Количество пользователей, у которых нет посещений городов
+    (то есть они зарегистрировались в системе, но не посетили ни одного города)
+    """
+
     def get(self) -> QuantityModel:
         queryset = (
             User.objects.annotate(
@@ -168,82 +204,97 @@ class GetNumberOfUsersWithoutVisitedCitiesController(Controller[MsgspecSerialize
         return QuantityModel(quantity=queryset.count())
 
 
+@is_superuser_json
+class GetAverageQtyVisitedCitiesController(Controller[MsgspecSerializer]):
+    """
+    Среднее количество посещений городов на пользователя
+    """
+
+    def get(self) -> QuantityModel:
+        total_visited_cities = VisitedCity.objects.count()
+        total_users = VisitedCity.objects.values('user').distinct().count()
+        queryset = 0 if total_users == 0 else int(total_visited_cities / total_users)
+        return QuantityModel(quantity=queryset)
+
+
+@is_superuser_json
+class GetAverageQtyUniqueVisitedCitiesController(Controller[MsgspecSerializer]):
+    """
+    Среднее количество уникальных городов на пользователя
+    """
+
+    def get(self) -> QuantityModel:
+        total_visited_cities = (
+            VisitedCity.objects.values('user')
+            .annotate(unique_cities=Count('city', distinct=True))
+            .aggregate(total=Sum('unique_cities'))
+            .get('total', 0)
+            or 0
+        )
+        total_users = VisitedCity.objects.values('user').distinct().count()
+        queryset = 0 if total_users == 0 else int(total_visited_cities / total_users)
+        return QuantityModel(quantity=queryset)
+
+
 #####
 
 
-class GetTotalVisitedCountries(generics.ListAPIView):  # type: ignore[type-arg]
-    queryset = VisitedCountry.objects.all()  # type: ignore[assignment]
-    http_method_names = ['get']
-    permission_classes = [IsAuthenticated, IsAdminUser]
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        return Response({'qty': VisitedCountry.objects.count()})
+@is_superuser_json
+class GetTotalVisitedCountriesController(Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
+        qty = VisitedCountry.objects.count()
+        return QuantityModel(quantity=qty)
 
 
-class GetUsersWithVisitedCountries(generics.ListAPIView):  # type: ignore[type-arg]
-    queryset = VisitedCountry.objects.all()  # type: ignore[assignment]
-    http_method_names = ['get']
-    permission_classes = [IsAuthenticated, IsAdminUser]
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        return Response({'qty': self.queryset.values('user').distinct().count()})
+@is_superuser_json
+class GetUsersWithVisitedCountriesController(Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
+        qty = VisitedCountry.objects.values('user').distinct().count()
+        return QuantityModel(quantity=qty)
 
 
-class GetAverageQtyVisitedCountries(generics.ListAPIView):  # type: ignore[type-arg]
-    queryset = VisitedCountry.objects.all()  # type: ignore[assignment]
-    http_method_names = ['get']
-    permission_classes = [IsAuthenticated, IsAdminUser]
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        total_visited_countries = self.queryset.count()
-        total_users = self.queryset.values('user').distinct().count()
-
-        if total_users == 0:
-            return Response({'qty': 0})
-
-        return Response({'qty': int(total_visited_countries / total_users)})
+@is_superuser_json
+class GetAverageQtyVisitedCountriesController(Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
+        total_visited_countries = VisitedCountry.objects.count()
+        total_users = VisitedCountry.objects.values('user').distinct().count()
+        qty = 0 if total_users == 0 else int(total_visited_countries / total_users)
+        return QuantityModel(quantity=qty)
 
 
-class GetMaxQtyVisitedCountries(generics.ListAPIView):  # type: ignore[type-arg]
-    queryset = VisitedCountry.objects.all()  # type: ignore[assignment]
-    http_method_names = ['get']
-    permission_classes = [IsAuthenticated, IsAdminUser]
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+@is_superuser_json
+class GetMaxQtyVisitedCountriesController(Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
         max_qty = (
-            self.queryset.values('user')
-            .annotate(Count('country'))
-            .aggregate(qty=Max('country__count'))
+            VisitedCountry.objects.values('user')
+            .annotate(countries_qty=Count('country'))
+            .aggregate(value=Max('countries_qty'))
+            .get('value')
+            or 0
         )
+        return QuantityModel(quantity=max_qty)
 
-        return Response(max_qty)
+
+class DaysPath(msgspec.Struct):
+    days: int
 
 
-class GetAddedVisitedCountryYeterday(generics.ListAPIView):  # type: ignore[type-arg]
-    queryset = VisitedCountry.objects.all()  # type: ignore[assignment]
-    http_method_names = ['get']
-    permission_classes = [IsAuthenticated, IsAdminUser]
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        days: int = self.kwargs['days']
-        start_date = datetime.now().date() - timedelta(days=days)
+@is_superuser_json
+class GetAddedVisitedCountryController(Path[DaysPath], Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
+        start_date = datetime.now().date() - timedelta(days=self.parsed_path.days)
         finish_date = datetime.now().date() + timedelta(days=1)
-        queryset = self.queryset.filter(added_at__range=[start_date, finish_date])
+        qty = VisitedCountry.objects.filter(added_at__range=[start_date, finish_date]).count()
+        return QuantityModel(quantity=qty)
 
-        return Response({'qty': queryset.count()})
 
-
-class GetAddedVisitedCountriesByDay(generics.ListAPIView):  # type: ignore[type-arg]
-    queryset = VisitedCountry.objects.all()  # type: ignore[assignment]
-    http_method_names = ['get']
-    permission_classes = [IsAuthenticated, IsAdminUser]
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+@is_superuser_json
+class GetAddedVisitedCountriesByDayController(Controller[MsgspecSerializer]):
+    def get(self) -> list[VisitedCountriesByDayModel]:
         queryset = (
-            self.queryset.annotate(day=TruncDay('added_at', tzinfo=timezone.utc))
+            VisitedCountry.objects.annotate(day=TruncDay('added_at', tzinfo=timezone.utc))
             .order_by('day')
             .annotate(
-                # Форматирование даты в формат DD-MM-YYYY
                 date=Func(
                     TruncDate(F('day')),
                     Value('DD.MM.YYYY'),
@@ -255,4 +306,4 @@ class GetAddedVisitedCountriesByDay(generics.ListAPIView):  # type: ignore[type-
             .annotate(qty=Count('id'))[:50]
         )
 
-        return Response(list(queryset))
+        return [VisitedCountriesByDayModel(date=item['date'], qty=item['qty']) for item in queryset]

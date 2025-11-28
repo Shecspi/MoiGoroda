@@ -12,9 +12,14 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 import sys
+from http import HTTPStatus
 from pathlib import Path
 
 from dotenv import load_dotenv
+from typing_extensions import TypedDict
+
+from django_modern_rest.response import ResponseSpec
+from django_modern_rest.settings import Settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -348,3 +353,19 @@ ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS = (
     if os.getenv('ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS')
     else ''
 )
+
+# Настройки Django Modern Rest
+
+
+class Error(TypedDict):
+    detail: str
+
+
+DMR_SETTINGS = {
+    Settings.responses: [
+        ResponseSpec(
+            Error,
+            status_code=HTTPStatus.UNAUTHORIZED,
+        ),
+    ],
+}

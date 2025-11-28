@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from django.urls import path
+from django.urls import include, path
 from dashboard.api import (
     GetTotalVisitedCountries,
     GetUsersWithVisitedCountries,
@@ -17,7 +17,38 @@ from dashboard.api import (
     GetAddedVisitedCountriesByDay,
 )
 
+
+from django_modern_rest.routing import Router
+from dashboard.api import (
+    GetNumberOfUsersController,
+    GetNumberOfRegistrationsYesterdayController,
+    GetNumberOfRegistrationsWeekController,
+    GetNumberOfRegistrationsMonthController,
+)
+
+router = Router(
+    [
+        path(
+            'get_number_of_users/',
+            GetNumberOfUsersController.as_view(),
+        ),
+        path(
+            'get_number_of_registrations_yesterday/',
+            GetNumberOfRegistrationsYesterdayController.as_view(),
+        ),
+        path(
+            'get_number_of_registrations_week/',
+            GetNumberOfRegistrationsWeekController.as_view(),
+        ),
+        path(
+            'get_number_of_registrations_month/',
+            GetNumberOfRegistrationsMonthController.as_view(),
+        ),
+    ],
+)
+
 urlpatterns = [
+    path('', include(router.urls)),
     path(
         'get_total_visited_countries',
         GetTotalVisitedCountries.as_view(),

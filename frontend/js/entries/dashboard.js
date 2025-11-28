@@ -1,10 +1,14 @@
 import {getCookie} from '../components/get_cookie.js';
 
 const DASHBOARD_ROUTES = Object.freeze({
-    getNumberOfUsers: '/api/dashboard/get_number_of_users/',
-    getRegistrationsYesterday: '/api/dashboard/get_number_of_registrations_yesterday/',
-    getRegistrationsWeek: '/api/dashboard/get_number_of_registrations_week/',
-    getRegistrationsMonth: '/api/dashboard/get_number_of_registrations_month/',
+    getNumberOfUsers: '/api/dashboard/users/',
+    getRegistrationsYesterday: '/api/dashboard/users/registrations/yesterday/',
+    getRegistrationsWeek: '/api/dashboard/users/registrations/week/',
+    getNumberOfUsersWithoutVisitedCities: '/api/dashboard/users/without_visited_cities/',
+    getTotalVisitedCitiesVisits: '/api/dashboard/visited_cities/total/',
+    getUniqueVisitedCities: '/api/dashboard/visited_cities/unique/',
+    getMaxQtyUniqueVisitedCities: '/api/dashboard/visited_cities/max_unique/',
+    getMaxQtyVisitedCities: '/api/dashboard/visited_cities/max/',
 });
 
 const request_url_ids = [
@@ -21,7 +25,14 @@ const request_url_ids = [
 loadQuantityCard('number-total_users', DASHBOARD_ROUTES.getNumberOfUsers);
 loadQuantityCard('number-registrations_yesterday', DASHBOARD_ROUTES.getRegistrationsYesterday);
 loadQuantityCard('number-registrations_week', DASHBOARD_ROUTES.getRegistrationsWeek);
-loadQuantityCard('number-registrations_month', DASHBOARD_ROUTES.getRegistrationsMonth);
+loadQuantityCard('number-number_of_users_without_visited_cities', DASHBOARD_ROUTES.getNumberOfUsersWithoutVisitedCities);
+loadQuantityCard('number-total_visited_cities_visits', DASHBOARD_ROUTES.getTotalVisitedCitiesVisits);
+loadQuantityCard('number-unique_visited_cities', DASHBOARD_ROUTES.getUniqueVisitedCities);
+loadQuantityCard(
+    'number-max_qty_unique_visited_cities',
+    DASHBOARD_ROUTES.getMaxQtyUniqueVisitedCities,
+);
+loadQuantityCard('number-max_qty_visited_cities', DASHBOARD_ROUTES.getMaxQtyVisitedCities);
 
 for (const item of request_url_ids) {
     const url = document.getElementById(item[0]).dataset.url;

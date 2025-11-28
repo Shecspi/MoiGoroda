@@ -14,7 +14,7 @@ from typing import Any
 import msgspec
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
-from django.db.models import Count, F, Func, Max, Value
+from django.db.models import Count, F, Func, Max, Sum, Value, Subquery, OuterRef
 from django.db.models.fields import CharField
 from django.db.models.functions.datetime import TruncDate, TruncDay
 from django.http import HttpResponse
@@ -23,6 +23,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from city.models import VisitedCity
 from country.models import VisitedCountry
 from django_modern_rest import Controller
 from django_modern_rest.decorators import wrap_middleware
@@ -102,6 +103,72 @@ class GetNumberOfRegistrationsMonthController(Controller[MsgspecSerializer]):
             .count()
         )
         return QuantityModel(quantity=qty)
+
+
+@is_superuser_json
+class GetTotalVisitedCitiesVisitsController(Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
+        qty = VisitedCity.objects.count()
+        return QuantityModel(quantity=qty)
+
+
+@is_superuser_json
+class GetUniqueVisitedCitiesController(Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
+        qty = (
+            VisitedCity.objects.values('user')
+            .annotate(unique_cities=Count('city', distinct=True))
+            .aggregate(total=Sum('unique_cities'))
+            .get('total', 0)
+            or 0
+        )
+        return QuantityModel(quantity=qty)
+
+
+@is_superuser_json
+class GetMaxQtyUniqueVisitedCitiesController(Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
+        queryset = (
+            VisitedCity.objects.values('user')
+            .annotate(unique_cities=Count('city', distinct=True))
+            .order_by('-unique_cities')[:1]
+        )
+
+        return QuantityModel(quantity=queryset[0]['unique_cities'])
+
+
+@is_superuser_json
+class GetMaxQtyVisitedCitiesController(Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
+        queryset = (
+            VisitedCity.objects.values('user')
+            .annotate(unique_cities=Count('city'))
+            .order_by('-unique_cities')[:1]
+        )
+
+        return QuantityModel(quantity=queryset[0]['unique_cities'])
+
+
+@is_superuser_json
+class GetNumberOfUsersWithoutVisitedCitiesController(Controller[MsgspecSerializer]):
+    def get(self) -> QuantityModel:
+        queryset = (
+            User.objects.annotate(
+                qty_visited_cities=Subquery(
+                    VisitedCity.objects.filter(user=OuterRef('pk'))
+                    .values('user')
+                    .annotate(qty=Count('pk'))
+                    .values('qty')
+                )
+            )
+            .values('username', 'qty_visited_cities')
+            .filter(qty_visited_cities=None)
+            .order_by('-qty_visited_cities')
+        )
+        return QuantityModel(quantity=queryset.count())
+
+
+#####
 
 
 class GetTotalVisitedCountries(generics.ListAPIView):  # type: ignore[type-arg]

@@ -24,25 +24,50 @@ from dashboard.api import (
     GetNumberOfRegistrationsYesterdayController,
     GetNumberOfRegistrationsWeekController,
     GetNumberOfRegistrationsMonthController,
+    GetTotalVisitedCitiesVisitsController,
+    GetUniqueVisitedCitiesController,
+    GetMaxQtyUniqueVisitedCitiesController,
+    GetMaxQtyVisitedCitiesController,
+    GetNumberOfUsersWithoutVisitedCitiesController,
 )
 
 router = Router(
     [
         path(
-            'get_number_of_users/',
+            'users/',
             GetNumberOfUsersController.as_view(),
         ),
         path(
-            'get_number_of_registrations_yesterday/',
+            'users/registrations/yesterday/',
             GetNumberOfRegistrationsYesterdayController.as_view(),
         ),
         path(
-            'get_number_of_registrations_week/',
+            'users/registrations/week/',
             GetNumberOfRegistrationsWeekController.as_view(),
         ),
         path(
-            'get_number_of_registrations_month/',
+            'users/registrations/month/',
             GetNumberOfRegistrationsMonthController.as_view(),
+        ),
+        path(
+            'users/without_visited_cities/',
+            GetNumberOfUsersWithoutVisitedCitiesController.as_view(),
+        ),
+        path(
+            'visited_cities/total/',
+            GetTotalVisitedCitiesVisitsController.as_view(),
+        ),
+        path(
+            'visited_cities/unique/',
+            GetUniqueVisitedCitiesController.as_view(),
+        ),
+        path(
+            'visited_cities/max_unique/',
+            GetMaxQtyUniqueVisitedCitiesController.as_view(),
+        ),
+        path(
+            'visited_cities/max/',
+            GetMaxQtyVisitedCitiesController.as_view(),
         ),
     ],
 )

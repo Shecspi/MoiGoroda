@@ -25,105 +25,109 @@ from django_modern_rest.settings import Settings
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Загружаем .env файл из директории с settings.py
-load_dotenv(Path(__file__).resolve().parent / '.env')
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
+ALLOWED_HOSTS = (
+    os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else []
+)
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'colorfield',
-    'main_page',
-    'account.apps.AuthConfig',
-    'city',
-    'news',
-    'blog',
-    'region',
-    'collection',
-    'mathfilters',
-    'markdownify',
-    'tinymce',
-    'storages',
-    'dashboard',
-    'share.apps.ShareConfig',
-    'subscribe',
-    'rest_framework',
-    'country',
-    'place',
-    'advertisement',
-    'admin_auto_filters',
-    'premium',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.humanize",
+    "colorfield",
+    "main_page",
+    "account.apps.AuthConfig",
+    "city",
+    "news",
+    "blog",
+    "region",
+    "collection",
+    "mathfilters",
+    "markdownify",
+    "tinymce",
+    "storages",
+    "dashboard",
+    "share.apps.ShareConfig",
+    "subscribe",
+    "rest_framework",
+    "country",
+    "place",
+    "advertisement",
+    "admin_auto_filters",
+    "premium",
 ]
 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 # Debug toolbar находится в DEV-зависимостях, поэтому на продакшене он не устанавливается.
 if DEBUG:
-    INSTALLED_APPS += ['debug_toolbar']
-    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
 
-ROOT_URLCONF = 'MoiGoroda.urls'
+ROOT_URLCONF = "MoiGoroda.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'MoiGoroda.context_processors.general_settings',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "MoiGoroda.context_processors.general_settings",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'MoiGoroda.wsgi.application'
+WSGI_APPLICATION = "MoiGoroda.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DATABASE_ENGINE'),
-        'NAME': os.getenv('DATABASE_NAME'),
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-        'HOST': os.getenv('DATABASE_HOST'),
-        'PORT': os.getenv('DATABASE_PORT'),
+    "default": {
+        "ENGINE": os.getenv("DATABASE_ENGINE"),
+        "NAME": os.getenv("DATABASE_NAME"),
+        "USER": os.getenv("DATABASE_USER"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
+        "HOST": os.getenv("DATABASE_HOST"),
+        "PORT": os.getenv("DATABASE_PORT"),
     }
 }
 
 # Определяем, запущены ли тесты
-TESTING = 'test' in sys.argv or 'pytest' in sys.modules or os.getenv('TESTING') == 'True'
+TESTING = (
+    "test" in sys.argv or "pytest" in sys.modules or os.getenv("TESTING") == "True"
+)
 
 if TESTING:
     # Django test runner переопределит DEBUG=False, поэтому vite_asset проверяет TESTING напрямую
@@ -131,273 +135,278 @@ if TESTING:
 
     # Используем SQLite для тестов, если не указана другая БД в .env
     if (
-        not os.getenv('DATABASE_ENGINE')
-        or os.getenv('DATABASE_ENGINE') == 'django.db.backends.sqlite3'
+        not os.getenv("DATABASE_ENGINE")
+        or os.getenv("DATABASE_ENGINE") == "django.db.backends.sqlite3"
     ):
-        DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3', 'NAME': 'mydatabase'}
+        DATABASES["default"] = {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "mydatabase",
+        }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
+LANGUAGE_CODE = "ru-ru"
 
-TIME_ZONE = os.getenv('TIME_ZONE')
+TIME_ZONE = os.getenv("TIME_ZONE")
 
 USE_I18N = True
 
-USE_TZ = os.getenv('USE_TZ') == 'True'
+USE_TZ = os.getenv("USE_TZ") == "True"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'frontend'),  # Для доступа к исходным CSS в dev-режиме
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "frontend"),  # Для доступа к исходным CSS в dev-режиме
 ]
-STATIC_ROOT = os.getenv('STATIC_ROOT')
+STATIC_ROOT = os.getenv("STATIC_ROOT")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_REDIRECT_URL = '/city/all/list'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = "/city/all/list"
+LOGOUT_REDIRECT_URL = "/"
 
-INTERNAL_IPS = ['127.0.0.1', '0.0.0.0']
+INTERNAL_IPS = ["127.0.0.1", "0.0.0.0"]
 
-LOGIN_URL = '/account/signin'
+LOGIN_URL = "/account/signin"
 
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL') == 'True'
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL") == "True"
 
-SERVER_EMAIL = os.getenv('SERVER_EMAIL')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL = os.getenv("SERVER_EMAIL")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 ADMINS = [
-    (os.getenv('ADMIN_NAME'), os.getenv('ADMIN_EMAIL')),
+    (os.getenv("ADMIN_NAME"), os.getenv("ADMIN_EMAIL")),
 ]
 
-YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID')
-YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY')
+YOOKASSA_SHOP_ID = os.getenv("YOOKASSA_SHOP_ID")
+YOOKASSA_SECRET_KEY = os.getenv("YOOKASSA_SECRET_KEY")
 # Проверка IP для вебхука (False — отключить, например для локальной разработки)
-YOOKASSA_WEBHOOK_IP_VERIFICATION = os.getenv('YOOKASSA_WEBHOOK_IP_VERIFICATION', 'True') == 'True'
+YOOKASSA_WEBHOOK_IP_VERIFICATION = (
+    os.getenv("YOOKASSA_WEBHOOK_IP_VERIFICATION", "True") == "True"
+)
 
-LOG_FIlE_PATH = os.path.join(BASE_DIR, 'logs/log.log')
-LOG_PREMIUM_PAYMENTS_PATH = os.path.join(BASE_DIR, 'logs/premium_payments.log')
-LOG_CRON_PATH = os.path.join(BASE_DIR, 'logs/cron.log')
+LOG_FIlE_PATH = os.path.join(BASE_DIR, "logs/log.log")
+LOG_PREMIUM_PAYMENTS_PATH = os.path.join(BASE_DIR, "logs/premium_payments.log")
+LOG_CRON_PATH = os.path.join(BASE_DIR, "logs/cron.log")
 if not os.path.exists(os.path.dirname(LOG_FIlE_PATH)):
     os.mkdir(os.path.dirname(LOG_FIlE_PATH))
 if not os.path.exists(LOG_FIlE_PATH):
-    open(LOG_FIlE_PATH, 'a').close()
+    open(LOG_FIlE_PATH, "a").close()
 if not os.path.exists(LOG_PREMIUM_PAYMENTS_PATH):
-    open(LOG_PREMIUM_PAYMENTS_PATH, 'a').close()
+    open(LOG_PREMIUM_PAYMENTS_PATH, "a").close()
 if not os.path.exists(LOG_CRON_PATH):
-    open(LOG_CRON_PATH, 'a').close()
+    open(LOG_CRON_PATH, "a").close()
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
         # Отправка писем только при DEBUG = False
-        'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'},
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
         },
     },
-    'formatters': {
-        'detail_app': {
-            'format': '%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)-s',
-            'datefmt': '%Y-%m-%d %H:%M:%S',
+    "formatters": {
+        "detail_app": {
+            "format": "%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)-s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
         },
-        'detail_django': {
-            'format': '%(levelname)-8s %(asctime)-22s INTERNAL           DJANGO     %(message)-s',
-            'datefmt': '%Y-%m-%d %H:%M:%S',
+        "detail_django": {
+            "format": "%(levelname)-8s %(asctime)-22s INTERNAL           DJANGO     %(message)-s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
         },
-        'simple': {'format': '%(levelname)-8s %(asctime)-25s %(message)s'},
-        'premium_payments': {
-            'format': '%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)-s',
-            'datefmt': '%Y-%m-%d %H:%M:%S',
+        "simple": {"format": "%(levelname)-8s %(asctime)-25s %(message)s"},
+        "premium_payments": {
+            "format": "%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)-s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
-    'handlers': {
+    "handlers": {
         # Запись в файл логов приложения
         # Только при DEBUG=False
-        'to_file_app': {
-            'level': 'INFO',
-            'filters': ['require_debug_false'],
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'detail_app',
-            'filename': LOG_FIlE_PATH,
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 5,
+        "to_file_app": {
+            "level": "INFO",
+            "filters": ["require_debug_false"],
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "detail_app",
+            "filename": LOG_FIlE_PATH,
+            "maxBytes": 1024 * 1024 * 10,
+            "backupCount": 5,
         },
         # Запись в файл логов Django
         # Только при DEBUG=False
-        'to_file_django': {
-            'level': 'WARNING',
-            'filters': ['require_debug_false'],
-            'class': 'logging.FileHandler',
-            'formatter': 'detail_django',
-            'filename': LOG_FIlE_PATH,
+        "to_file_django": {
+            "level": "WARNING",
+            "filters": ["require_debug_false"],
+            "class": "logging.FileHandler",
+            "formatter": "detail_django",
+            "filename": LOG_FIlE_PATH,
         },
         # Отправка писем с ошибками на почту
         # Только при DEBUG=False
-        'to_email_general': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler',
-            'include_html': True,
+        "to_email_general": {
+            "level": "ERROR",
+            "filters": ["require_debug_false"],
+            "class": "django.utils.log.AdminEmailHandler",
+            "include_html": True,
         },
         # Отправка регистрационного письма на почту
         # Только при DEBUG=False
-        'to_email_signup': {
-            'level': 'INFO',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler',
-            'include_html': True,
+        "to_email_signup": {
+            "level": "INFO",
+            "filters": ["require_debug_false"],
+            "class": "django.utils.log.AdminEmailHandler",
+            "include_html": True,
         },
         # Вывод в консоль логов приложения
         # только при DEBUG=True
-        'to_console_app': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'detail_app',
+        "to_console_app": {
+            "level": "INFO",
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+            "formatter": "detail_app",
         },
         # Вывод в консоль логов Django
         # только при DEBUG=True
-        'to_console_django': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'detail_django',
+        "to_console_django": {
+            "level": "INFO",
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+            "formatter": "detail_django",
         },
         # Файл только с информацией о платежах (вебхук YooKassa)
-        'to_file_premium_payments': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'premium_payments',
-            'filename': LOG_PREMIUM_PAYMENTS_PATH,
-            'maxBytes': 1024 * 1024 * 5,
-            'backupCount': 3,
+        "to_file_premium_payments": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "premium_payments",
+            "filename": LOG_PREMIUM_PAYMENTS_PATH,
+            "maxBytes": 1024 * 1024 * 5,
+            "backupCount": 3,
         },
         # Платежи в консоль — только при DEBUG=True
-        'to_console_premium_payments': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'premium_payments',
+        "to_console_premium_payments": {
+            "level": "INFO",
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+            "formatter": "premium_payments",
         },
         # Файл только с логами периодических задач (cron)
-        'to_file_cron': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'simple',
-            'filename': LOG_CRON_PATH,
-            'maxBytes': 1024 * 1024 * 5,
-            'backupCount': 3,
+        "to_file_cron": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "simple",
+            "filename": LOG_CRON_PATH,
+            "maxBytes": 1024 * 1024 * 5,
+            "backupCount": 3,
         },
         # Консоль для логов cron — только при DEBUG=True
-        'to_console_cron': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+        "to_console_cron": {
+            "level": "INFO",
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
         },
     },
-    'loggers': {
+    "loggers": {
         # Базовый логгер. Используется для логирования действий внутри приложения
-        'base': {
-            'level': 'INFO',
-            'propogate': True,
-            'handlers': ['to_console_app', 'to_file_app', 'to_email_general'],
+        "base": {
+            "level": "INFO",
+            "propogate": True,
+            "handlers": ["to_console_app", "to_file_app", "to_email_general"],
         },
         # Логгер, который срабатывает при регистрации пользователей
-        'account.views': {
-            'level': 'INFO',
-            'propogate': True,
-            'handlers': ['to_file_app', 'to_email_signup'],
+        "account.views": {
+            "level": "INFO",
+            "propogate": True,
+            "handlers": ["to_file_app", "to_email_signup"],
         },
         # Логгер для перехватывания логирования Django
-        'django': {
-            'level': 'INFO',
-            'propogate': True,
-            'handlers': ['to_console_django', 'to_file_django'],
+        "django": {
+            "level": "INFO",
+            "propogate": True,
+            "handlers": ["to_console_django", "to_file_django"],
         },
         # Только платежи (вебхук YooKassa) — файл и в консоль при DEBUG
-        'premium.webhook': {
-            'level': 'INFO',
-            'propagate': False,
-            'handlers': ['to_file_premium_payments', 'to_console_premium_payments'],
+        "premium.webhook": {
+            "level": "INFO",
+            "propagate": False,
+            "handlers": ["to_file_premium_payments", "to_console_premium_payments"],
         },
         # Периодические задания (cron): истечение подписок и т.п.
-        'premium.cron': {
-            'level': 'INFO',
-            'propagate': False,
-            'handlers': ['to_file_cron', 'to_console_cron'],
+        "premium.cron": {
+            "level": "INFO",
+            "propagate": False,
+            "handlers": ["to_file_cron", "to_console_cron"],
         },
     },
 }
 
-MEDIA_URL = 'https://s3.twcstorage.ru/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "https://s3.twcstorage.ru/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Markdownify
 MARKDOWNIFY = {
-    'default': {
-        'WHITELIST_TAGS': [
+    "default": {
+        "WHITELIST_TAGS": [
             # Протестированные теги
-            'a',
-            'blockquote',
-            'code',
-            'img',
-            'em',
-            'h1',
-            'h2',
-            'h3',
-            'h4',
-            'h5',
-            'h6',
-            'strong',
+            "a",
+            "blockquote",
+            "code",
+            "img",
+            "em",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "strong",
             # Непротестированные теги
-            'li',
-            'ol',
-            'p',
-            'ul',
+            "li",
+            "ol",
+            "p",
+            "ul",
         ],
-        'WHITELIST_ATTRS': ['href', 'src', 'alt'],
+        "WHITELIST_ATTRS": ["href", "src", "alt"],
     },
-    'only_links': {
-        'WHITELIST_TAGS': [
-            'a',
-            'br',
-            'em',
-            'p',
-            'h1',
-            'h2',
-            'h3',
-            'h4',
-            'h5',
-            'h6',
-            'hr',
-            'strong',
-            'li',
-            'ol',
-            'ul',
+    "only_links": {
+        "WHITELIST_TAGS": [
+            "a",
+            "br",
+            "em",
+            "p",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "hr",
+            "strong",
+            "li",
+            "ol",
+            "ul",
         ]
     },
 }
@@ -405,19 +414,19 @@ MARKDOWNIFY = {
 # Тайловые серверы (например OpenStreetMap) могут требовать Referer.
 # `same-origin` скрывает referer на cross-origin запросах и приводит к блокировке тайлов.
 SECURE_REFERRER_POLICY = os.getenv(
-    'SECURE_REFERRER_POLICY',
-    'strict-origin-when-cross-origin',
+    "SECURE_REFERRER_POLICY",
+    "strict-origin-when-cross-origin",
 )
 
-SECURE_CROSS_ORIGIN_OPENER_POLICY = 'unsafe-none'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "unsafe-none"
 
-URL_GEO_POLYGONS = os.getenv('URL_GEO_POLYGONS')
-PRIVACY_POLICY_VERSION = os.getenv('PRIVACY_POLICY_VERSION')
+URL_GEO_POLYGONS = os.getenv("URL_GEO_POLYGONS")
+PRIVACY_POLICY_VERSION = os.getenv("PRIVACY_POLICY_VERSION")
 
 ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS = (
-    ' '.join(os.getenv('ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS', '').split(','))
-    if os.getenv('ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS')
-    else ''
+    " ".join(os.getenv("ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS", "").split(","))
+    if os.getenv("ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS")
+    else ""
 )
 
 <<<<<<< HEAD
@@ -445,54 +454,70 @@ DMR_SETTINGS = {
 TINYMCE_FILEBROWSER = False
 
 TINYMCE_DEFAULT_CONFIG = {
-    'height': 500,
-    'menubar': False,
-    'plugins': 'advlist autolink lists link image charmap anchor searchreplace visualblocks code '
-    'fullscreen insertdatetime media table help wordcount',
-    'toolbar': 'undo redo | blocks | bold italic | alignleft aligncenter alignright | '
-    'bullist numlist outdent indent | link image | rtb_banner_inside_article_1 rtb_banner_inside_article_2 rtb_banner_inside_article_3 | removeformat | help',
-    'content_style': (
-        'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } '
-        '.ad-placeholder-rtb-banner { '
-        'display: block; min-height: 2.5em; margin: 1em 0; '
-        'background: #fff3cd; border: 1px dashed #856404; border-radius: 4px; '
-        'color: #856404; padding: 0.5em 0.75em; font-size: 13px; '
-        '} '
+    "height": 500,
+    "menubar": False,
+    "plugins": "advlist autolink lists link image charmap anchor searchreplace visualblocks code "
+    "fullscreen insertdatetime media table help wordcount",
+    "toolbar": "undo redo | blocks | bold italic | alignleft aligncenter alignright | "
+    "bullist numlist outdent indent | link image | rtb_banner_inside_article_1 rtb_banner_inside_article_2 rtb_banner_inside_article_3 | removeformat | help",
+    "content_style": (
+        "body { font-family:Helvetica,Arial,sans-serif; font-size:14px } "
+        ".ad-placeholder-rtb-banner { "
+        "display: block; min-height: 2.5em; margin: 1em 0; "
+        "background: #fff3cd; border: 1px dashed #856404; border-radius: 4px; "
+        "color: #856404; padding: 0.5em 0.75em; font-size: 13px; "
+        "} "
         '.ad-placeholder-rtb-banner[data-ad="rtb_banner_inside_article_1"]::before { content: "Рекламный блок 1"; font-weight: 600; } '
         '.ad-placeholder-rtb-banner[data-ad="rtb_banner_inside_article_2"]::before { content: "Рекламный блок 2"; font-weight: 600; } '
         '.ad-placeholder-rtb-banner[data-ad="rtb_banner_inside_article_3"]::before { content: "Рекламный блок 3"; font-weight: 600; } '
         '.ad-placeholder-rtb-banner:not([data-ad])::before { content: "Рекламный блок"; font-weight: 600; }'
     ),
-    'images_upload_url': '/tinymce/upload-image/',
-    'images_upload_handler': 'djangoTinyMCEImagesUploadHandler',
-    'automatic_uploads': True,
-    'setup': 'djangoTinyMCESetupRtbBanner',
+    "images_upload_url": "/tinymce/upload-image/",
+    "images_upload_handler": "djangoTinyMCEImagesUploadHandler",
+    "automatic_uploads": True,
+    "setup": "djangoTinyMCESetupRtbBanner",
     # Сохранять div-маркер рекламы (кнопка «Рекламный блок»)
-    'extended_valid_elements': 'div[class|data-ad]',
+    "extended_valid_elements": "div[class|data-ad]",
 }
 
 TINYMCE_EXTRA_MEDIA = {
-    'js': [
-        'tinymce/js/tinymce_csrf_upload.js',
-        'tinymce/js/tinymce_rtb_button.js',
+    "js": [
+        "tinymce/js/tinymce_csrf_upload.js",
+        "tinymce/js/tinymce_rtb_button.js",
     ],
 }
 
 # Django Storage
 STORAGES = {
-    'default': {
-        'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage',
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
     },
-    'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
 AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=31536000',  # 1 год
+    "CacheControl": "max-age=31536000",  # 1 год
+}
+
+# Настройки Django Modern Rest
+
+
+class Error(TypedDict):
+    detail: str
+
+
+DMR_SETTINGS = {
+    Settings.responses: [
+        ResponseSpec(
+            Error,
+            status_code=HTTPStatus.UNAUTHORIZED,
+        ),
+    ],
 }

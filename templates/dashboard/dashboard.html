@@ -23,7 +23,11 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">Всего пользователей</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_users }}</p>
+                    <div id="number-total_users" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -37,7 +41,11 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">Регистраций за вчера</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_registrations_yesteday }}</p>
+                    <div id="number-registrations_yesterday" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-emerald-600 dark:text-emerald-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,7 +59,11 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">Регистраций за 7 дней</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_registrations_week }}</p>
+                    <div id="number-registrations_week" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -65,7 +77,11 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">Регистраций за 30 дней</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ qty_registrations_month }}</p>
+                    <div id="number-registrations_month" class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-purple-600 dark:text-purple-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -215,7 +231,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">Общее количество посещенных стран</p>
                     <div id="number-total_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -231,7 +249,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">Пользователей с посещёнными странами</p>
                     <div id="number-user_with_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-emerald-600 dark:text-emerald-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -247,7 +267,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">В среднем посещённых стран у 1 пользователя</p>
                     <div id="number-average_qty_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -263,7 +285,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">Максимум стран у 1 пользователя</p>
                     <div id="number-max_qty_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-purple-600 dark:text-purple-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -285,7 +309,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">За вчера</p>
                     <div id="number-qty_of_added_visited_countries_yesterday" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -301,7 +327,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">За неделю</p>
                     <div id="number-qty_of_added_visited_countries_week" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -317,7 +345,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">За месяц</p>
                     <div id="number-qty_of_added_visited_countries_month" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -333,7 +363,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-600 dark:text-neutral-400">За год</p>
                     <div id="number-qty_of_added_visited_countries_year" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white"></div>
+                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-purple-600 dark:text-purple-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>

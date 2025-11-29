@@ -27,6 +27,8 @@ from dashboard.api import (
     GetAddedVisitedCountryController,
     GetMaxQtyVisitedCountriesController,
     GetAddedVisitedCountriesChartController,
+    GetRegistrationsChartController,
+    GetVisitedCitiesByUserChartController,
 )
 
 router = Router(
@@ -99,6 +101,15 @@ router = Router(
         path(
             'visited_countries/added/chart/',
             GetAddedVisitedCountriesChartController.as_view(),
+        ),
+        # Графики
+        path(
+            'users/registrations/chart/',
+            GetRegistrationsChartController.as_view(),
+        ),
+        path(
+            'visited_cities/by_user/chart/',
+            GetVisitedCitiesByUserChartController.as_view(),
         ),
     ],
 )

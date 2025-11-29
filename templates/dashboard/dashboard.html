@@ -108,33 +108,12 @@
     <div class="mx-3 mb-12">
         <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white">График регистраций</h2>
-            <canvas id="myChart" class="min-h-[400px]" height="400"></canvas>
-            <script>
-                let data = {}
-                {% for day in registrations_by_day reversed %}
-                    data['{{ day.date }}'] = '{{ day.qty }}'
-                {% endfor %}
-
-                const ctx = document.getElementById('myChart').getContext('2d');
-
-                const myChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(data),
-                        datasets: [
-                            {
-                                label: 'Количество регистраций',
-                                data: Object.values(data),
-                                borderColor: 'rgba(0,31,54,0.2)',
-                                backgroundColor: 'rgba(51,171,255,0.2)',
-                                borderWidth: 2,
-                                borderRadius: 5,
-                                borderSkipped: false,
-                            },
-                        ],
-                    },
-                });
-            </script>
+            <div id="myChartLoading" class="flex items-center justify-center min-h-[400px]">
+                <div class="animate-spin inline-block h-8 w-8 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            <canvas id="myChart" class="hidden" height="400"></canvas>
         </div>
     </div>
 
@@ -256,33 +235,12 @@
     <div class="mx-3 mb-12">
         <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Количество посещённых городов по каждому пользователю</h2>
-            <canvas id="chart_qty_visited_cities" class="min-h-[400px]" height="400"></canvas>
-            <script>
-                let visited_cities = {}
-                {% for user in qty_visited_cities_by_user reversed %}
-                    visited_cities['{{ user.username }}'] = '{{ user.qty_visited_cities }}'
-                {% endfor %}
-
-                const ctx_visited_cities = document.getElementById('chart_qty_visited_cities').getContext('2d');
-
-                const chart_visited_cities = new Chart(ctx_visited_cities, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(visited_cities),
-                        datasets: [
-                            {
-                                label: 'Количество посещённых городов',
-                                data: Object.values(visited_cities),
-                                borderColor: 'rgba(52,0,0,0.2)',
-                                backgroundColor: 'rgba(255,115,115,0.2)',
-                                borderWidth: 2,
-                                borderRadius: 5,
-                                borderSkipped: false,
-                            },
-                        ],
-                    },
-                });
-            </script>
+            <div id="chart_qty_visited_citiesLoading" class="flex items-center justify-center min-h-[400px]">
+                <div class="animate-spin inline-block h-8 w-8 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            <canvas id="chart_qty_visited_cities" class="hidden" height="400"></canvas>
         </div>
     </div>
 

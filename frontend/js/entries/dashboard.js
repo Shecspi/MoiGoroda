@@ -25,6 +25,9 @@ const DASHBOARD_ROUTES = Object.freeze({
     getAddedVisitedCountriesByMonth: '/api/dashboard/visited_countries/added/30/',
     getAddedVisitedCountriesByYear: '/api/dashboard/visited_countries/added/365/',
     getAddedVisitedCountriesChart: '/api/dashboard/visited_countries/added/chart/',
+    // Графики
+    getRegistrationsChart: '/api/dashboard/users/registrations/chart/',
+    getVisitedCitiesByUserChart: '/api/dashboard/visited_cities/by_user/chart/',
 });
 
 // Пользователи
@@ -123,10 +126,106 @@ function loadVisitedCountriesChart() {
         });
 }
 
+function loadRegistrationsChart() {
+    const canvas = document.getElementById('myChart');
+    const loadingElement = document.getElementById('myChartLoading');
+    
+    if (!canvas || !loadingElement) {
+        return;
+    }
+
+    fetchChartData(DASHBOARD_ROUTES.getRegistrationsChart)
+        .then((data) => {
+            const registrationsData = {};
+            data.forEach((item) => {
+                registrationsData[item.date] = item.count;
+            });
+
+            // Скрываем спиннер и показываем canvas
+            loadingElement.classList.add('hidden');
+            canvas.classList.remove('hidden');
+
+            const ctx = canvas.getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(registrationsData),
+                    datasets: [
+                        {
+                            label: 'Количество регистраций',
+                            data: Object.values(registrationsData),
+                            borderColor: 'rgba(0,31,54,0.2)',
+                            backgroundColor: 'rgba(51,171,255,0.2)',
+                            borderWidth: 2,
+                            borderRadius: 5,
+                            borderSkipped: false,
+                        },
+                    ],
+                },
+            });
+        })
+        .catch((error) => {
+            console.error('Failed to fetch chart data', error);
+            loadingElement.innerHTML = '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
+        });
+}
+
+function loadVisitedCitiesByUserChart() {
+    const canvas = document.getElementById('chart_qty_visited_cities');
+    const loadingElement = document.getElementById('chart_qty_visited_citiesLoading');
+    
+    if (!canvas || !loadingElement) {
+        return;
+    }
+
+    fetchChartData(DASHBOARD_ROUTES.getVisitedCitiesByUserChart)
+        .then((data) => {
+            const visitedCitiesData = {};
+            data.forEach((item) => {
+                visitedCitiesData[item.username] = item.count;
+            });
+
+            // Скрываем спиннер и показываем canvas
+            loadingElement.classList.add('hidden');
+            canvas.classList.remove('hidden');
+
+            const ctx = canvas.getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(visitedCitiesData),
+                    datasets: [
+                        {
+                            label: 'Количество посещённых городов',
+                            data: Object.values(visitedCitiesData),
+                            borderColor: 'rgba(52,0,0,0.2)',
+                            backgroundColor: 'rgba(255,115,115,0.2)',
+                            borderWidth: 2,
+                            borderRadius: 5,
+                            borderSkipped: false,
+                        },
+                    ],
+                },
+            });
+        })
+        .catch((error) => {
+            console.error('Failed to fetch chart data', error);
+            loadingElement.innerHTML = '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
+        });
+}
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadVisitedCountriesChart);
+    document.addEventListener('DOMContentLoaded', () => {
+        loadVisitedCountriesChart();
+        loadRegistrationsChart();
+        loadVisitedCitiesByUserChart();
+    });
 } else {
     loadVisitedCountriesChart();
+    loadRegistrationsChart();
+    loadVisitedCitiesByUserChart();
 }
 
 function updateNumberOnCard(element_id, newNumber) {

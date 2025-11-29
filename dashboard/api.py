@@ -16,7 +16,7 @@ from django.db.models.functions.datetime import TruncDate, TruncDay
 
 from city.models import VisitedCity
 from country.models import VisitedCountry
-from dashboard.schemas import DailyStatistics, DaysPath, Quantity
+from dashboard.schemas import DailyStatistics, DaysPath, Quantity, UserStatistics
 from django_modern_rest import Controller, Path
 from django_modern_rest.plugins.msgspec import MsgspecSerializer
 from utils.decorators import is_superuser_json
@@ -260,3 +260,55 @@ class GetAddedVisitedCountriesChartController(Controller[MsgspecSerializer]):
         )
 
         return [DailyStatistics(date=item['date'], count=item['count']) for item in queryset]
+
+
+@is_superuser_json
+class GetRegistrationsChartController(Controller[MsgspecSerializer]):
+    """
+    Данные для графика регистраций по дням
+    """
+
+    def get(self) -> list[DailyStatistics]:
+        queryset = (
+            User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
+            .annotate(date=TruncDate('day'))
+            .values('date')
+            .annotate(count=Count('id'))
+            .order_by('-date')[:50]
+        )
+
+        result = [
+            DailyStatistics(
+                date=item['date'].strftime('%d.%m.%Y'),
+                count=item['count'],
+            )
+            for item in queryset
+        ]
+        return list(reversed(result))
+
+
+@is_superuser_json
+class GetVisitedCitiesByUserChartController(Controller[MsgspecSerializer]):
+    """
+    Данные для графика количества посещённых городов по каждому пользователю
+    """
+
+    def get(self) -> list[UserStatistics]:
+        queryset = (
+            User.objects.annotate(
+                qty_visited_cities=Subquery(
+                    VisitedCity.objects.filter(user=OuterRef('pk'))
+                    .values('user')
+                    .annotate(qty=Count('pk'))
+                    .values('qty')
+                )
+            )
+            .values('username', 'qty_visited_cities')
+            .exclude(qty_visited_cities=None)
+            .order_by('-qty_visited_cities')[:50]
+        )
+
+        return [
+            UserStatistics(username=item['username'], count=item['qty_visited_cities'])
+            for item in queryset
+        ]

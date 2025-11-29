@@ -143,7 +143,6 @@ def test_dashboard_context_contains_city_statistics(
 
     assert 'qty_visited_cities' in response.context
     assert 'average_cities' in response.context
-    assert 'qty_visited_cities_by_user' in response.context
     assert 'qty_user_without_visited_cities' in response.context
 
     # Проверяем количество посещенных городов (2 записи)

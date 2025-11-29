@@ -83,7 +83,6 @@ def test_dashboard_context_data_keys() -> None:
         'registrations_by_day',
         'qty_visited_cities',
         'average_cities',
-        'qty_visited_cities_by_user',
         'qty_user_without_visited_cities',
         'page_title',
         'page_description',

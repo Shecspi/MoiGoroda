@@ -73,10 +73,14 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         context['qty_visited_cities'] = VisitedCity.objects.count()
 
         # Среднее значение посещённых городов 1 пользователем
-        context['average_cities'] = int(context['qty_visited_cities'] / context['qty_users'])
+        context['average_cities'] = (
+            int(context['qty_visited_cities'] / context['qty_users'])
+            if context['qty_users'] > 0
+            else 0
+        )
 
-        # Максимальное количество посещённых городов 1 пользователем
-        qty_visited_cities_by_user = (
+        # Количество пользователей без посещённых городов
+        users_with_visited_cities = (
             User.objects.annotate(
                 qty_visited_cities=Subquery(
                     VisitedCity.objects.filter(user=OuterRef('pk'))
@@ -85,15 +89,11 @@ class Dashboard(LoginRequiredMixin, TemplateView):
                     .values('qty')
                 )
             )
-            .values('username', 'qty_visited_cities')
             .exclude(qty_visited_cities=None)
-            .order_by('-qty_visited_cities')
+            .count()
         )
-        context['qty_visited_cities_by_user'] = qty_visited_cities_by_user[:50]
-
-        # Количество пользователей без посещённых городов
-        context['qty_user_without_visited_cities'] = context['qty_users'] - len(
-            qty_visited_cities_by_user
+        context['qty_user_without_visited_cities'] = (
+            context['qty_users'] - users_with_visited_cities
         )
 
         context['page_title'] = 'Dashboard'

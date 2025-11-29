@@ -315,7 +315,7 @@ class GetRegistrationsByMonthChartController(Controller[MsgspecSerializer]):
 @is_superuser_json
 class GetVisitedCitiesByUserChartController(Controller[MsgspecSerializer]):
     """
-    Данные для графика количества посещённых городов по каждому пользователю
+    Данные для графика общего количества посещений городов по каждому пользователю
     """
 
     def get(self) -> list[UserStatistics]:
@@ -333,7 +333,36 @@ class GetVisitedCitiesByUserChartController(Controller[MsgspecSerializer]):
             .order_by('-qty_visited_cities')[:50]
         )
 
-        return [
+        result = [
             UserStatistics(label=item['username'], count=item['qty_visited_cities'])
             for item in queryset
         ]
+        return list(reversed(result))
+
+
+@is_superuser_json
+class GetUniqueVisitedCitiesByUserChartController(Controller[MsgspecSerializer]):
+    """
+    Данные для графика количества уникальных городов по каждому пользователю
+    """
+
+    def get(self) -> list[UserStatistics]:
+        queryset = (
+            User.objects.annotate(
+                qty_unique_visited_cities=Subquery(
+                    VisitedCity.objects.filter(user=OuterRef('pk'))
+                    .values('user')
+                    .annotate(qty=Count('city', distinct=True))
+                    .values('qty')
+                )
+            )
+            .values('username', 'qty_unique_visited_cities')
+            .exclude(qty_unique_visited_cities=None)
+            .order_by('-qty_unique_visited_cities')[:50]
+        )
+
+        result = [
+            UserStatistics(label=item['username'], count=item['qty_unique_visited_cities'])
+            for item in queryset
+        ]
+        return list(reversed(result))

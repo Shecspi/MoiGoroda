@@ -30,6 +30,7 @@ from dashboard.api import (
     GetRegistrationsChartController,
     GetRegistrationsByMonthChartController,
     GetVisitedCitiesByUserChartController,
+    GetUniqueVisitedCitiesByUserChartController,
 )
 
 router = Router(
@@ -115,6 +116,10 @@ router = Router(
         path(
             'visited_cities/by_user/chart/',
             GetVisitedCitiesByUserChartController.as_view(),
+        ),
+        path(
+            'visited_cities/unique_by_user/chart/',
+            GetUniqueVisitedCitiesByUserChartController.as_view(),
         ),
     ],
 )

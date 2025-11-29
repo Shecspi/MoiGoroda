@@ -29,6 +29,7 @@ const DASHBOARD_ROUTES = Object.freeze({
     getRegistrationsChart: '/api/dashboard/users/registrations/chart/',
     getRegistrationsByMonthChart: '/api/dashboard/users/registrations/chart/month/',
     getVisitedCitiesByUserChart: '/api/dashboard/visited_cities/by_user/chart/',
+    getUniqueVisitedCitiesByUserChart: '/api/dashboard/visited_cities/unique_by_user/chart/',
 });
 
 // Пользователи
@@ -177,9 +178,21 @@ function loadVisitedCitiesByUserChart() {
         'chart_qty_visited_cities',
         'chart_qty_visited_citiesLoading',
         DASHBOARD_ROUTES.getVisitedCitiesByUserChart,
-        'Количество посещённых городов',
+        'Общее количество посещений городов',
         'rgba(52,0,0,0.2)',
         'rgba(255,115,115,0.2)',
+        2
+    );
+}
+
+function loadUniqueVisitedCitiesByUserChart() {
+    loadChart(
+        'chart_unique_visited_cities',
+        'chart_unique_visited_citiesLoading',
+        DASHBOARD_ROUTES.getUniqueVisitedCitiesByUserChart,
+        'Количество уникальных городов',
+        'rgba(0,52,104,0.2)',
+        'rgba(115,184,255,0.2)',
         2
     );
 }
@@ -190,12 +203,14 @@ if (document.readyState === 'loading') {
         loadRegistrationsChart();
         loadRegistrationsByMonthChart();
         loadVisitedCitiesByUserChart();
+        loadUniqueVisitedCitiesByUserChart();
     });
 } else {
     loadVisitedCountriesChart();
     loadRegistrationsChart();
     loadRegistrationsByMonthChart();
     loadVisitedCitiesByUserChart();
+    loadUniqueVisitedCitiesByUserChart();
 }
 
 function updateNumberOnCard(element_id, newNumber) {

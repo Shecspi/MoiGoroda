@@ -25,11 +25,11 @@ def test_dashboard_view_has_correct_template() -> None:
 
 
 @pytest.mark.unit
-def test_dashboard_view_requires_login() -> None:
-    """Тест что Dashboard требует авторизации"""
-    from django.contrib.auth.mixins import LoginRequiredMixin
+def test_dashboard_view_uses_user_passes_test_mixin() -> None:
+    """Тест что Dashboard использует UserPassesTestMixin"""
+    from django.contrib.auth.mixins import UserPassesTestMixin
 
-    assert issubclass(Dashboard, LoginRequiredMixin)
+    assert issubclass(Dashboard, UserPassesTestMixin)
 
 
 @pytest.mark.unit
@@ -41,35 +41,31 @@ def test_dashboard_view_uses_template_view() -> None:
 
 
 @pytest.mark.unit
-def test_dashboard_dispatch_redirects_non_superuser() -> None:
-    """Тест что dispatch редиректит не-суперюзера"""
+def test_dashboard_test_func_denies_non_superuser() -> None:
+    """Тест что test_func запрещает доступ не-суперюзера"""
+    from django.core.exceptions import PermissionDenied
+
     rf = RequestFactory()
     request = rf.get('/dashboard/')
-    request.user = Mock(is_superuser=False)
+    request.user = Mock(is_superuser=False, is_authenticated=True)
 
     view = Dashboard()
     view.request = request
 
-    with patch('dashboard.views.redirect') as mock_redirect:
-        view.dispatch(request)
-        mock_redirect.assert_called_once_with('main_page')
+    assert view.test_func() is False
 
 
 @pytest.mark.unit
-def test_dashboard_dispatch_allows_superuser() -> None:
-    """Тест что dispatch пропускает суперюзера"""
+def test_dashboard_test_func_allows_superuser() -> None:
+    """Тест что test_func разрешает доступ суперюзера"""
     rf = RequestFactory()
     request = rf.get('/dashboard/')
-    request.user = Mock(is_superuser=True)
+    request.user = Mock(is_superuser=True, is_authenticated=True)
 
     view = Dashboard()
     view.request = request
 
-    with patch.object(Dashboard, 'get_context_data', return_value={}):
-        with patch('django.views.generic.TemplateView.dispatch') as mock_super_dispatch:
-            mock_super_dispatch.return_value = Mock()
-            view.dispatch(request)
-            mock_super_dispatch.assert_called_once()
+    assert view.test_func() is True
 
 
 @pytest.mark.unit

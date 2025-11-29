@@ -85,15 +85,16 @@ def test_dashboard_requires_authentication(client: Client) -> None:
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_dashboard_redirects_non_superuser(client: Client, django_user_model: Any) -> None:
-    """Тест что dashboard редиректит обычного пользователя"""
+def test_dashboard_denies_non_superuser(client: Client, django_user_model: Any) -> None:
+    """Тест что dashboard запрещает доступ обычному пользователю"""
+    from rest_framework import status
+
     user = django_user_model.objects.create_user(username='testuser', password='testpass')
     client.force_login(user)
 
     response = client.get(reverse('dashboard'))
 
-    assert response.status_code == 302
-    assert str(response.url) == reverse('main_page')  # type: ignore[attr-defined]
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.integration

@@ -158,9 +158,8 @@ def test_regular_user_cannot_access_dashboard(client: Client, django_user_model:
     # Шаг 3: Пытаемся открыть dashboard
     response = client.get(reverse('dashboard'))
 
-    # Шаг 4: Проверяем редирект на главную
-    assert response.status_code == 302
-    assert str(response.url) == reverse('main_page')  # type: ignore[attr-defined]
+    # Шаг 4: Проверяем что доступ запрещен
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
     # Шаг 5: Пытаемся вызвать API
     response = client.get(reverse('api__get_total_visited_countries'))

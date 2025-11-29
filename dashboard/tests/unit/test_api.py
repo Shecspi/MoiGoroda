@@ -16,7 +16,7 @@ from dashboard.api import (
     GetAverageQtyVisitedCountriesController,
     GetMaxQtyVisitedCountriesController,
     GetAddedVisitedCountryController,
-    GetAddedVisitedCountriesByDayController,
+    GetAddedVisitedCountriesChartController,
 )
 
 
@@ -109,19 +109,19 @@ def test_get_added_visited_country_yesterday_has_correct_http_methods() -> None:
 
 
 @pytest.mark.unit
-def test_get_added_visited_countries_by_day_has_correct_permissions() -> None:
-    """Тест что GetAddedVisitedCountriesByDay требует правильные пермишены"""
+def test_get_added_visited_countries_chart_has_correct_permissions() -> None:
+    """Тест что GetAddedVisitedCountriesChart требует правильные пермишены"""
     from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-    view = GetAddedVisitedCountriesByDayController()
+    view = GetAddedVisitedCountriesChartController()
     assert IsAuthenticated in view.permission_classes
     assert IsAdminUser in view.permission_classes
 
 
 @pytest.mark.unit
-def test_get_added_visited_countries_by_day_has_correct_http_methods() -> None:
-    """Тест что GetAddedVisitedCountriesByDay разрешает только GET"""
-    view = GetAddedVisitedCountriesByDayController()
+def test_get_added_visited_countries_chart_has_correct_http_methods() -> None:
+    """Тест что GetAddedVisitedCountriesChart разрешает только GET"""
+    view = GetAddedVisitedCountriesChartController()
     assert view.http_method_names == ['get']
 
 
@@ -136,7 +136,7 @@ def test_all_api_views_inherit_from_list_api_view() -> None:
         GetAverageQtyVisitedCountriesController,
         GetMaxQtyVisitedCountriesController,
         GetAddedVisitedCountryController,
-        GetAddedVisitedCountriesByDayController,
+        GetAddedVisitedCountriesChartController,
     ]
 
     for view_class in views:
@@ -231,9 +231,9 @@ def test_get_added_visited_country_yesterday_uses_days_param() -> None:
 
 
 @pytest.mark.unit
-def test_get_added_visited_countries_by_day_response_is_list() -> None:
-    """Тест что GetAddedVisitedCountriesByDay возвращает список"""
-    view = GetAddedVisitedCountriesByDayController()
+def test_get_added_visited_countries_chart_response_is_list() -> None:
+    """Тест что GetAddedVisitedCountriesChart возвращает список"""
+    view = GetAddedVisitedCountriesChartController()
     view.queryset = Mock()
 
     mock_data = [

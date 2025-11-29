@@ -24,6 +24,7 @@ const DASHBOARD_ROUTES = Object.freeze({
     getAddedVisitedCountriesByWeek: '/api/dashboard/visited_countries/added/7/',
     getAddedVisitedCountriesByMonth: '/api/dashboard/visited_countries/added/30/',
     getAddedVisitedCountriesByYear: '/api/dashboard/visited_countries/added/365/',
+    getAddedVisitedCountriesChart: '/api/dashboard/visited_countries/added/chart/',
 });
 
 // Пользователи
@@ -53,44 +54,80 @@ loadQuantityCard('number-qty_of_added_visited_countries_week', DASHBOARD_ROUTES.
 loadQuantityCard('number-qty_of_added_visited_countries_month', DASHBOARD_ROUTES.getAddedVisitedCountriesByMonth);
 loadQuantityCard('number-qty_of_added_visited_countries_year', DASHBOARD_ROUTES.getAddedVisitedCountriesByYear);
 
-// fetch(document.getElementById('url_get_added_visited_countries_by_day').dataset.url, {
-//     method: 'GET',
-//     headers: {
-//         'X-CSRFToken': getCookie('csrftoken'),
-//     },
-// })
-//     .then((response) => {
-//         if (!response.ok) {
-//             throw new Error(response.statusText);
-//         }
-//         return response.json();
-//     })
-//     .then((data) => {
-//         const visitedCountriesData = {};
-//         data.forEach((item) => {
-//             visitedCountriesData[item.date] = item.count;
-//         });
+async function fetchChartData(url) {
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            Accept: 'application/json',
+        },
+        credentials: 'same-origin',
+    });
 
-//         const ctx = document.getElementById('visitedCountriesChart').getContext('2d');
+    if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+    }
 
-//         const myChart = new Chart(ctx, {
-//             type: 'bar',
-//             data: {
-//                 labels: Object.keys(visitedCountriesData),
-//                 datasets: [
-//                     {
-//                         label: 'Количество добавленных посещённых стран за 1 день',
-//                         data: Object.values(visitedCountriesData),
-//                         borderColor: 'rgba(7,54,0,0.2)',
-//                         backgroundColor: 'rgba(58,255,51,0.2)',
-//                         borderWidth: 2,
-//                         borderRadius: 5,
-//                         borderSkipped: false,
-//                     },
-//                 ],
-//             },
-//         });
-//     });
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+        throw new Error('Unexpected response structure: expected array');
+    }
+
+    return data;
+}
+
+function loadVisitedCountriesChart() {
+    const canvas = document.getElementById('visitedCountriesChart');
+    const loadingElement = document.getElementById('visitedCountriesChartLoading');
+    
+    if (!canvas || !loadingElement) {
+        return;
+    }
+
+    fetchChartData(DASHBOARD_ROUTES.getAddedVisitedCountriesChart)
+        .then((data) => {
+            const visitedCountriesData = {};
+            data.forEach((item) => {
+                visitedCountriesData[item.date] = item.count;
+            });
+
+            // Скрываем спиннер и показываем canvas
+            loadingElement.classList.add('hidden');
+            canvas.classList.remove('hidden');
+
+            const ctx = canvas.getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(visitedCountriesData),
+                    datasets: [
+                        {
+                            label: 'Количество добавленных посещённых стран за 1 день',
+                            data: Object.values(visitedCountriesData),
+                            borderColor: 'rgba(7,54,0,0.2)',
+                            backgroundColor: 'rgba(58,255,51,0.2)',
+                            borderWidth: 2,
+                            borderRadius: 5,
+                            borderSkipped: false,
+                        },
+                    ],
+                },
+            });
+        })
+        .catch((error) => {
+            console.error('Failed to fetch chart data', error);
+            // Скрываем спиннер и показываем сообщение об ошибке
+            loadingElement.innerHTML = '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
+        });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadVisitedCountriesChart);
+} else {
+    loadVisitedCountriesChart();
+}
 
 function updateNumberOnCard(element_id, newNumber) {
     const el = document.getElementById(element_id);

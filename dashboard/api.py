@@ -192,9 +192,6 @@ class GetAverageQtyUniqueVisitedCitiesController(Controller[MsgspecSerializer]):
         return Quantity(count=queryset)
 
 
-#####
-
-
 @is_superuser_json
 class GetTotalVisitedCountriesController(Controller[MsgspecSerializer]):
     def get(self) -> Quantity:
@@ -241,7 +238,11 @@ class GetAddedVisitedCountryController(Path[DaysPath], Controller[MsgspecSeriali
 
 
 @is_superuser_json
-class GetAddedVisitedCountriesByDayController(Controller[MsgspecSerializer]):
+class GetAddedVisitedCountriesChartController(Controller[MsgspecSerializer]):
+    """
+    Данные для графика добавленных посещённых стран по дням
+    """
+
     def get(self) -> list[DailyStatistics]:
         queryset = (
             VisitedCountry.objects.annotate(day=TruncDay('added_at', tzinfo=timezone.utc))

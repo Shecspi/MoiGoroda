@@ -140,7 +140,7 @@ def test_full_dashboard_workflow_for_superuser(
         assert response.status_code == status.HTTP_200_OK
 
     # Шаг 7: Проверяем API для графика
-    response = client.get(reverse('api__get_added_visited_countries_by_day'))
+    response = client.get(reverse('api__get_added_visited_countries_chart'))
     assert response.status_code == status.HTTP_200_OK
     assert isinstance(response.json(), list)
 
@@ -353,7 +353,7 @@ def test_dashboard_complete_user_journey(client: Client, django_user_model: Any)
         ('api__get_average_qty_visited_countries', {}),
         ('api__max_qty_visited_countries', {}),
         ('api__get_qty_of_added_visited_countries', {'days': 1}),
-        ('api__get_added_visited_countries_by_day', {}),
+        ('api__get_added_visited_countries_chart', {}),
     ]
 
     for endpoint_name, kwargs in api_endpoints:

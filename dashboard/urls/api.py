@@ -26,6 +26,7 @@ from dashboard.api import (
     GetAverageQtyVisitedCountriesController,
     GetAddedVisitedCountryController,
     GetMaxQtyVisitedCountriesController,
+    GetAddedVisitedCountriesChartController,
 )
 
 router = Router(
@@ -94,6 +95,10 @@ router = Router(
         path(
             'visited_countries/added/<int:days>/',
             GetAddedVisitedCountryController.as_view(),
+        ),
+        path(
+            'visited_countries/added/chart/',
+            GetAddedVisitedCountriesChartController.as_view(),
         ),
     ],
 )

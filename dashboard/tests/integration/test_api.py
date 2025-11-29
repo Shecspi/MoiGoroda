@@ -189,7 +189,7 @@ def test_get_added_visited_countries_by_day_success(
     superuser = setup_api_data['superuser']
     client.force_login(superuser)
 
-    response = client.get(reverse('api__get_added_visited_countries_by_day'))
+    response = client.get(reverse('api__get_added_visited_countries_chart'))
 
     assert response.status_code == status.HTTP_200_OK
     assert isinstance(response.json(), list)
@@ -245,7 +245,7 @@ def test_get_added_visited_countries_by_day_returns_max_50_items(
 
     client.force_login(superuser)
 
-    response = client.get(reverse('api__get_added_visited_countries_by_day'))
+    response = client.get(reverse('api__get_added_visited_countries_chart'))
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) <= 50

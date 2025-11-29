@@ -259,7 +259,7 @@ class GetAddedVisitedCountriesChartController(Controller[MsgspecSerializer]):
             .annotate(count=Count('id'))[:50]
         )
 
-        return [DailyStatistics(date=item['date'], count=item['count']) for item in queryset]
+        return [DailyStatistics(label=item['date'], count=item['count']) for item in queryset]
 
 
 @is_superuser_json
@@ -279,7 +279,7 @@ class GetRegistrationsChartController(Controller[MsgspecSerializer]):
 
         result = [
             DailyStatistics(
-                date=item['date'].strftime('%d.%m.%Y'),
+                label=item['date'].strftime('%d.%m.%Y'),
                 count=item['count'],
             )
             for item in queryset
@@ -304,7 +304,7 @@ class GetRegistrationsByMonthChartController(Controller[MsgspecSerializer]):
 
         result = [
             DailyStatistics(
-                date=item['date'].strftime('%m.%Y'),
+                label=item['date'].strftime('%m.%Y'),
                 count=item['count'],
             )
             for item in queryset
@@ -334,6 +334,6 @@ class GetVisitedCitiesByUserChartController(Controller[MsgspecSerializer]):
         )
 
         return [
-            UserStatistics(username=item['username'], count=item['qty_visited_cities'])
+            UserStatistics(label=item['username'], count=item['qty_visited_cities'])
             for item in queryset
         ]

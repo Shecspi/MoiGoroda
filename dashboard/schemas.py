@@ -6,12 +6,12 @@ class Quantity(msgspec.Struct):
 
 
 class DailyStatistics(msgspec.Struct):
-    date: str
+    label: str
     count: int
 
 
 class UserStatistics(msgspec.Struct):
-    username: str
+    label: str
     count: int
 
 

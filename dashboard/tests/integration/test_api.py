@@ -197,7 +197,7 @@ def test_get_added_visited_countries_by_day_success(
     # Проверяем структуру данных
     if len(response.json()) > 0:
         first_item = response.json()[0]
-        assert 'date' in first_item
+        assert 'label' in first_item
         assert 'count' in first_item
 
 

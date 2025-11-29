@@ -81,19 +81,29 @@ async function fetchChartData(url) {
     return data;
 }
 
-function loadVisitedCountriesChart() {
-    const canvas = document.getElementById('visitedCountriesChart');
-    const loadingElement = document.getElementById('visitedCountriesChartLoading');
+/**
+ * Универсальная функция для загрузки и отображения графика
+ * @param {string} canvasId - ID элемента canvas
+ * @param {string} loadingElementId - ID элемента загрузки
+ * @param {string} url - URL для получения данных
+ * @param {string} label - Метка для набора данных
+ * @param {string} borderColor - Цвет границы
+ * @param {string} backgroundColor - Цвет фона
+ * @param {number} borderWidth - Ширина границы (по умолчанию 2)
+ */
+function loadChart(canvasId, loadingElementId, url, label, borderColor, backgroundColor, borderWidth = 2) {
+    const canvas = document.getElementById(canvasId);
+    const loadingElement = document.getElementById(loadingElementId);
     
     if (!canvas || !loadingElement) {
         return;
     }
 
-    fetchChartData(DASHBOARD_ROUTES.getAddedVisitedCountriesChart)
+    fetchChartData(url)
         .then((data) => {
-            const visitedCountriesData = {};
+            const chartData = {};
             data.forEach((item) => {
-                visitedCountriesData[item.date] = item.count;
+                chartData[item.label] = item.count;
             });
 
             // Скрываем спиннер и показываем canvas
@@ -105,14 +115,14 @@ function loadVisitedCountriesChart() {
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(visitedCountriesData),
+                    labels: Object.keys(chartData),
                     datasets: [
                         {
-                            label: 'Количество добавленных посещённых стран за 1 день',
-                            data: Object.values(visitedCountriesData),
-                            borderColor: 'rgba(7,54,0,0.2)',
-                            backgroundColor: 'rgba(58,255,51,0.2)',
-                            borderWidth: 2,
+                            label: label,
+                            data: Object.values(chartData),
+                            borderColor: borderColor,
+                            backgroundColor: backgroundColor,
+                            borderWidth: borderWidth,
                             borderRadius: 5,
                             borderSkipped: false,
                         },
@@ -122,144 +132,56 @@ function loadVisitedCountriesChart() {
         })
         .catch((error) => {
             console.error('Failed to fetch chart data', error);
-            // Скрываем спиннер и показываем сообщение об ошибке
             loadingElement.innerHTML = '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
         });
+}
+
+function loadVisitedCountriesChart() {
+    loadChart(
+        'visitedCountriesChart',
+        'visitedCountriesChartLoading',
+        DASHBOARD_ROUTES.getAddedVisitedCountriesChart,
+        'Количество добавленных посещённых стран за 1 день',
+        'rgba(7,54,0,0.2)',
+        'rgba(58,255,51,0.2)',
+        2
+    );
 }
 
 function loadRegistrationsChart() {
-    const canvas = document.getElementById('myChart');
-    const loadingElement = document.getElementById('myChartLoading');
-    
-    if (!canvas || !loadingElement) {
-        return;
-    }
-
-    fetchChartData(DASHBOARD_ROUTES.getRegistrationsChart)
-        .then((data) => {
-            const registrationsData = {};
-            data.forEach((item) => {
-                registrationsData[item.date] = item.count;
-            });
-
-            // Скрываем спиннер и показываем canvas
-            loadingElement.classList.add('hidden');
-            canvas.classList.remove('hidden');
-
-            const ctx = canvas.getContext('2d');
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(registrationsData),
-                    datasets: [
-                        {
-                            label: 'Количество регистраций',
-                            data: Object.values(registrationsData),
-                            borderColor: 'rgba(51,171,255,0.5)',
-                            backgroundColor: 'rgba(51,171,255,0.2)',
-                            borderWidth: 2,
-                            borderRadius: 5,
-                            borderSkipped: false,
-                        },
-                    ],
-                },
-            });
-        })
-        .catch((error) => {
-            console.error('Failed to fetch chart data', error);
-            loadingElement.innerHTML = '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
-        });
+    loadChart(
+        'myChart',
+        'myChartLoading',
+        DASHBOARD_ROUTES.getRegistrationsChart,
+        'Количество регистраций',
+        'rgba(51,171,255,0.5)',
+        'rgba(51,171,255,0.2)',
+        2
+    );
 }
 
 function loadRegistrationsByMonthChart() {
-    const canvas = document.getElementById('myChartMonth');
-    const loadingElement = document.getElementById('myChartMonthLoading');
-    
-    if (!canvas || !loadingElement) {
-        return;
-    }
-
-    fetchChartData(DASHBOARD_ROUTES.getRegistrationsByMonthChart)
-        .then((data) => {
-            const registrationsData = {};
-            data.forEach((item) => {
-                registrationsData[item.date] = item.count;
-            });
-
-            // Скрываем спиннер и показываем canvas
-            loadingElement.classList.add('hidden');
-            canvas.classList.remove('hidden');
-
-            const ctx = canvas.getContext('2d');
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(registrationsData),
-                    datasets: [
-                        {
-                            label: 'Количество регистраций',
-                            data: Object.values(registrationsData),
-                            borderColor: 'rgba(139,92,246,0.5)',
-                            backgroundColor: 'rgba(139,92,246,0.2)',
-                            borderWidth: 2.5,
-                            borderRadius: 5,
-                            borderSkipped: false,
-                        },
-                    ],
-                },
-            });
-        })
-        .catch((error) => {
-            console.error('Failed to fetch chart data', error);
-            loadingElement.innerHTML = '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
-        });
+    loadChart(
+        'myChartMonth',
+        'myChartMonthLoading',
+        DASHBOARD_ROUTES.getRegistrationsByMonthChart,
+        'Количество регистраций',
+        'rgba(139,92,246,0.5)',
+        'rgba(139,92,246,0.2)',
+        2.5
+    );
 }
 
 function loadVisitedCitiesByUserChart() {
-    const canvas = document.getElementById('chart_qty_visited_cities');
-    const loadingElement = document.getElementById('chart_qty_visited_citiesLoading');
-    
-    if (!canvas || !loadingElement) {
-        return;
-    }
-
-    fetchChartData(DASHBOARD_ROUTES.getVisitedCitiesByUserChart)
-        .then((data) => {
-            const visitedCitiesData = {};
-            data.forEach((item) => {
-                visitedCitiesData[item.username] = item.count;
-            });
-
-            // Скрываем спиннер и показываем canvas
-            loadingElement.classList.add('hidden');
-            canvas.classList.remove('hidden');
-
-            const ctx = canvas.getContext('2d');
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(visitedCitiesData),
-                    datasets: [
-                        {
-                            label: 'Количество посещённых городов',
-                            data: Object.values(visitedCitiesData),
-                            borderColor: 'rgba(52,0,0,0.2)',
-                            backgroundColor: 'rgba(255,115,115,0.2)',
-                            borderWidth: 2,
-                            borderRadius: 5,
-                            borderSkipped: false,
-                        },
-                    ],
-                },
-            });
-        })
-        .catch((error) => {
-            console.error('Failed to fetch chart data', error);
-            loadingElement.innerHTML = '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
-        });
+    loadChart(
+        'chart_qty_visited_cities',
+        'chart_qty_visited_citiesLoading',
+        DASHBOARD_ROUTES.getVisitedCitiesByUserChart,
+        'Количество посещённых городов',
+        'rgba(52,0,0,0.2)',
+        'rgba(255,115,115,0.2)',
+        2
+    );
 }
 
 if (document.readyState === 'loading') {

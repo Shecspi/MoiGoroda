@@ -237,8 +237,8 @@ def test_get_added_visited_countries_chart_response_is_list() -> None:
     view.queryset = Mock()
 
     mock_data = [
-        {'date': '01.01.2024', 'count': 5},
-        {'date': '02.01.2024', 'count': 3},
+        {'label': '01.01.2024', 'count': 5},
+        {'label': '02.01.2024', 'count': 3},
     ]
 
     with patch.object(view.queryset, 'annotate') as mock_annotate:

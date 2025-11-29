@@ -28,6 +28,7 @@ from dashboard.api import (
     GetMaxQtyVisitedCountriesController,
     GetAddedVisitedCountriesChartController,
     GetRegistrationsChartController,
+    GetRegistrationsByMonthChartController,
     GetVisitedCitiesByUserChartController,
 )
 
@@ -106,6 +107,10 @@ router = Router(
         path(
             'users/registrations/chart/',
             GetRegistrationsChartController.as_view(),
+        ),
+        path(
+            'users/registrations/chart/month/',
+            GetRegistrationsByMonthChartController.as_view(),
         ),
         path(
             'visited_cities/by_user/chart/',

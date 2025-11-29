@@ -12,7 +12,7 @@ from datetime import date, datetime, timedelta, timezone
 from django.contrib.auth.models import User
 from django.db.models import Count, F, Func, Max, OuterRef, Subquery, Sum, Value
 from django.db.models.fields import CharField
-from django.db.models.functions.datetime import TruncDate, TruncDay
+from django.db.models.functions.datetime import TruncDate, TruncDay, TruncMonth
 
 from city.models import VisitedCity
 from country.models import VisitedCountry
@@ -274,12 +274,37 @@ class GetRegistrationsChartController(Controller[MsgspecSerializer]):
             .annotate(date=TruncDate('day'))
             .values('date')
             .annotate(count=Count('id'))
-            .order_by('-date')[:50]
+            .order_by('-date')[:35]
         )
 
         result = [
             DailyStatistics(
                 date=item['date'].strftime('%d.%m.%Y'),
+                count=item['count'],
+            )
+            for item in queryset
+        ]
+        return list(reversed(result))
+
+
+@is_superuser_json
+class GetRegistrationsByMonthChartController(Controller[MsgspecSerializer]):
+    """
+    Данные для графика регистраций по месяцам
+    """
+
+    def get(self) -> list[DailyStatistics]:
+        queryset = (
+            User.objects.annotate(month=TruncMonth('date_joined', tzinfo=timezone.utc))
+            .annotate(date=TruncDate('month'))
+            .values('date')
+            .annotate(count=Count('id'))
+            .order_by('-date')[:24]
+        )
+
+        result = [
+            DailyStatistics(
+                date=item['date'].strftime('%m.%Y'),
                 count=item['count'],
             )
             for item in queryset

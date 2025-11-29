@@ -27,6 +27,7 @@ const DASHBOARD_ROUTES = Object.freeze({
     getAddedVisitedCountriesChart: '/api/dashboard/visited_countries/added/chart/',
     // Графики
     getRegistrationsChart: '/api/dashboard/users/registrations/chart/',
+    getRegistrationsByMonthChart: '/api/dashboard/users/registrations/chart/month/',
     getVisitedCitiesByUserChart: '/api/dashboard/visited_cities/by_user/chart/',
 });
 
@@ -155,9 +156,54 @@ function loadRegistrationsChart() {
                         {
                             label: 'Количество регистраций',
                             data: Object.values(registrationsData),
-                            borderColor: 'rgba(0,31,54,0.2)',
+                            borderColor: 'rgba(51,171,255,0.5)',
                             backgroundColor: 'rgba(51,171,255,0.2)',
                             borderWidth: 2,
+                            borderRadius: 5,
+                            borderSkipped: false,
+                        },
+                    ],
+                },
+            });
+        })
+        .catch((error) => {
+            console.error('Failed to fetch chart data', error);
+            loadingElement.innerHTML = '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
+        });
+}
+
+function loadRegistrationsByMonthChart() {
+    const canvas = document.getElementById('myChartMonth');
+    const loadingElement = document.getElementById('myChartMonthLoading');
+    
+    if (!canvas || !loadingElement) {
+        return;
+    }
+
+    fetchChartData(DASHBOARD_ROUTES.getRegistrationsByMonthChart)
+        .then((data) => {
+            const registrationsData = {};
+            data.forEach((item) => {
+                registrationsData[item.date] = item.count;
+            });
+
+            // Скрываем спиннер и показываем canvas
+            loadingElement.classList.add('hidden');
+            canvas.classList.remove('hidden');
+
+            const ctx = canvas.getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(registrationsData),
+                    datasets: [
+                        {
+                            label: 'Количество регистраций',
+                            data: Object.values(registrationsData),
+                            borderColor: 'rgba(139,92,246,0.5)',
+                            backgroundColor: 'rgba(139,92,246,0.2)',
+                            borderWidth: 2.5,
                             borderRadius: 5,
                             borderSkipped: false,
                         },
@@ -220,11 +266,13 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         loadVisitedCountriesChart();
         loadRegistrationsChart();
+        loadRegistrationsByMonthChart();
         loadVisitedCitiesByUserChart();
     });
 } else {
     loadVisitedCountriesChart();
     loadRegistrationsChart();
+    loadRegistrationsByMonthChart();
     loadVisitedCitiesByUserChart();
 }
 

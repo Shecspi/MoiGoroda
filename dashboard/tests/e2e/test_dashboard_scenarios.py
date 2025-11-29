@@ -131,7 +131,7 @@ def test_full_dashboard_workflow_for_superuser(
     for url_name in api_urls:
         response = client.get(reverse(url_name))
         assert response.status_code == status.HTTP_200_OK
-        assert 'qty' in response.json()
+        assert 'count' in response.json()
 
     # Шаг 6: Проверяем API с параметром days
     for days in [1, 7, 30, 365]:
@@ -232,7 +232,7 @@ def test_dashboard_api_data_consistency(
 
     # Шаг 2: Получаем данные из API для стран
     response = client.get(reverse('api__get_total_visited_countries'))
-    api_qty_visited_countries = response.json()['qty']
+    api_qty_visited_countries = response.json()['count']
 
     # Шаг 3: Проверяем что данные корректны
     assert view_qty_visited_cities > 0
@@ -240,7 +240,7 @@ def test_dashboard_api_data_consistency(
 
     # Шаг 4: Получаем данные о пользователях
     response = client.get(reverse('api__get_qty_users_with_visited_countries'))
-    api_qty_users = response.json()['qty']
+    api_qty_users = response.json()['count']
 
     # Шаг 5: Проверяем что есть пользователи с посещенными странами
     assert api_qty_users > 0
@@ -269,7 +269,7 @@ def test_dashboard_handles_empty_data_gracefully(client: Client, django_user_mod
     # Шаг 5: Проверяем API endpoints
     api_response = client.get(reverse('api__get_total_visited_countries'))
     assert api_response.status_code == status.HTTP_200_OK
-    assert api_response.json()['qty'] == 0
+    assert api_response.json()['count'] == 0
 
 
 @pytest.mark.e2e
@@ -303,15 +303,15 @@ def test_dashboard_api_days_parameter_logic(client: Client, django_user_model: A
 
     # Шаг 5: Проверяем количество за 1 день (должна быть хотя бы сегодняшняя)
     response = client.get(reverse('api__get_qty_of_added_visited_countries', kwargs={'days': 1}))
-    qty_1_day = response.json()['qty']
+    qty_1_day = response.json()['count']
 
     # Шаг 6: Проверяем количество за 7 дней (должно быть >= qty_1_day)
     response = client.get(reverse('api__get_qty_of_added_visited_countries', kwargs={'days': 7}))
-    qty_7_days = response.json()['qty']
+    qty_7_days = response.json()['count']
 
     # Шаг 7: Проверяем количество за 30 дней (должно быть >= qty_7_days)
     response = client.get(reverse('api__get_qty_of_added_visited_countries', kwargs={'days': 30}))
-    qty_30_days = response.json()['qty']
+    qty_30_days = response.json()['count']
 
     # Шаг 8: Проверяем что количество увеличивается с увеличением дней
     assert qty_1_day >= 0

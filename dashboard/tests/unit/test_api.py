@@ -11,12 +11,12 @@ import pytest
 from unittest.mock import Mock, patch
 
 from dashboard.api import (
-    GetTotalVisitedCountries,
-    GetUsersWithVisitedCountries,
-    GetAverageQtyVisitedCountries,
-    GetMaxQtyVisitedCountries,
-    GetAddedVisitedCountryYeterday,
-    GetAddedVisitedCountriesByDay,
+    GetTotalVisitedCountriesController,
+    GetUsersWithVisitedCountriesController,
+    GetAverageQtyVisitedCountriesController,
+    GetMaxQtyVisitedCountriesController,
+    GetAddedVisitedCountryController,
+    GetAddedVisitedCountriesByDayController,
 )
 
 
@@ -28,7 +28,7 @@ def test_get_total_visited_countries_has_correct_permissions() -> None:
     """Тест что GetTotalVisitedCountries требует правильные пермишены"""
     from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-    view = GetTotalVisitedCountries()
+    view = GetTotalVisitedCountriesController()
     assert IsAuthenticated in view.permission_classes
     assert IsAdminUser in view.permission_classes
 
@@ -36,7 +36,7 @@ def test_get_total_visited_countries_has_correct_permissions() -> None:
 @pytest.mark.unit
 def test_get_total_visited_countries_has_correct_http_methods() -> None:
     """Тест что GetTotalVisitedCountries разрешает только GET"""
-    view = GetTotalVisitedCountries()
+    view = GetTotalVisitedCountriesController()
     assert view.http_method_names == ['get']
 
 
@@ -45,7 +45,7 @@ def test_get_users_with_visited_countries_has_correct_permissions() -> None:
     """Тест что GetUsersWithVisitedCountries требует правильные пермишены"""
     from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-    view = GetUsersWithVisitedCountries()
+    view = GetUsersWithVisitedCountriesController()
     assert IsAuthenticated in view.permission_classes
     assert IsAdminUser in view.permission_classes
 
@@ -53,7 +53,7 @@ def test_get_users_with_visited_countries_has_correct_permissions() -> None:
 @pytest.mark.unit
 def test_get_users_with_visited_countries_has_correct_http_methods() -> None:
     """Тест что GetUsersWithVisitedCountries разрешает только GET"""
-    view = GetUsersWithVisitedCountries()
+    view = GetUsersWithVisitedCountriesController()
     assert view.http_method_names == ['get']
 
 
@@ -62,7 +62,7 @@ def test_get_average_qty_visited_countries_has_correct_permissions() -> None:
     """Тест что GetAverageQtyVisitedCountries требует правильные пермишены"""
     from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-    view = GetAverageQtyVisitedCountries()
+    view = GetAverageQtyVisitedCountriesController()
     assert IsAuthenticated in view.permission_classes
     assert IsAdminUser in view.permission_classes
 
@@ -70,7 +70,7 @@ def test_get_average_qty_visited_countries_has_correct_permissions() -> None:
 @pytest.mark.unit
 def test_get_average_qty_visited_countries_has_correct_http_methods() -> None:
     """Тест что GetAverageQtyVisitedCountries разрешает только GET"""
-    view = GetAverageQtyVisitedCountries()
+    view = GetAverageQtyVisitedCountriesController()
     assert view.http_method_names == ['get']
 
 
@@ -79,7 +79,7 @@ def test_get_max_qty_visited_countries_has_correct_permissions() -> None:
     """Тест что GetMaxQtyVisitedCountries требует правильные пермишены"""
     from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-    view = GetMaxQtyVisitedCountries()
+    view = GetMaxQtyVisitedCountriesController()
     assert IsAuthenticated in view.permission_classes
     assert IsAdminUser in view.permission_classes
 
@@ -87,7 +87,7 @@ def test_get_max_qty_visited_countries_has_correct_permissions() -> None:
 @pytest.mark.unit
 def test_get_max_qty_visited_countries_has_correct_http_methods() -> None:
     """Тест что GetMaxQtyVisitedCountries разрешает только GET"""
-    view = GetMaxQtyVisitedCountries()
+    view = GetMaxQtyVisitedCountriesController()
     assert view.http_method_names == ['get']
 
 
@@ -96,7 +96,7 @@ def test_get_added_visited_country_yesterday_has_correct_permissions() -> None:
     """Тест что GetAddedVisitedCountryYeterday требует правильные пермишены"""
     from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-    view = GetAddedVisitedCountryYeterday()
+    view = GetAddedVisitedCountryController()
     assert IsAuthenticated in view.permission_classes
     assert IsAdminUser in view.permission_classes
 
@@ -104,7 +104,7 @@ def test_get_added_visited_country_yesterday_has_correct_permissions() -> None:
 @pytest.mark.unit
 def test_get_added_visited_country_yesterday_has_correct_http_methods() -> None:
     """Тест что GetAddedVisitedCountryYeterday разрешает только GET"""
-    view = GetAddedVisitedCountryYeterday()
+    view = GetAddedVisitedCountryController()
     assert view.http_method_names == ['get']
 
 
@@ -113,7 +113,7 @@ def test_get_added_visited_countries_by_day_has_correct_permissions() -> None:
     """Тест что GetAddedVisitedCountriesByDay требует правильные пермишены"""
     from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-    view = GetAddedVisitedCountriesByDay()
+    view = GetAddedVisitedCountriesByDayController()
     assert IsAuthenticated in view.permission_classes
     assert IsAdminUser in view.permission_classes
 
@@ -121,7 +121,7 @@ def test_get_added_visited_countries_by_day_has_correct_permissions() -> None:
 @pytest.mark.unit
 def test_get_added_visited_countries_by_day_has_correct_http_methods() -> None:
     """Тест что GetAddedVisitedCountriesByDay разрешает только GET"""
-    view = GetAddedVisitedCountriesByDay()
+    view = GetAddedVisitedCountriesByDayController()
     assert view.http_method_names == ['get']
 
 
@@ -131,12 +131,12 @@ def test_all_api_views_inherit_from_list_api_view() -> None:
     from rest_framework import generics
 
     views = [
-        GetTotalVisitedCountries,
-        GetUsersWithVisitedCountries,
-        GetAverageQtyVisitedCountries,
-        GetMaxQtyVisitedCountries,
-        GetAddedVisitedCountryYeterday,
-        GetAddedVisitedCountriesByDay,
+        GetTotalVisitedCountriesController,
+        GetUsersWithVisitedCountriesController,
+        GetAverageQtyVisitedCountriesController,
+        GetMaxQtyVisitedCountriesController,
+        GetAddedVisitedCountryController,
+        GetAddedVisitedCountriesByDayController,
     ]
 
     for view_class in views:
@@ -146,7 +146,7 @@ def test_all_api_views_inherit_from_list_api_view() -> None:
 @pytest.mark.unit
 def test_get_total_visited_countries_response_structure() -> None:
     """Тест структуры ответа GetTotalVisitedCountries"""
-    view = GetTotalVisitedCountries()
+    view = GetTotalVisitedCountriesController()
 
     with patch('dashboard.api.VisitedCountry.objects') as mock_objects:
         mock_objects.count.return_value = 42
@@ -154,14 +154,14 @@ def test_get_total_visited_countries_response_structure() -> None:
         request = Mock()
         response = view.get(request)
 
-        assert 'qty' in response.data
-        assert response.data['qty'] == 42
+        assert 'count' in response.data
+        assert response.data['count'] == 42
 
 
 @pytest.mark.unit
 def test_get_users_with_visited_countries_response_structure() -> None:
     """Тест структуры ответа GetUsersWithVisitedCountries"""
-    view = GetUsersWithVisitedCountries()
+    view = GetUsersWithVisitedCountriesController()
     view.queryset = Mock()
 
     with patch.object(view.queryset, 'values') as mock_values:
@@ -172,14 +172,14 @@ def test_get_users_with_visited_countries_response_structure() -> None:
         request = Mock()
         response = view.get(request)
 
-        assert 'qty' in response.data
-        assert response.data['qty'] == 15
+        assert 'count' in response.data
+        assert response.data['count'] == 15
 
 
 @pytest.mark.unit
 def test_get_average_qty_visited_countries_calculates_correctly() -> None:
     """Тест правильности расчета среднего количества стран"""
-    view = GetAverageQtyVisitedCountries()
+    view = GetAverageQtyVisitedCountriesController()
     view.queryset = Mock()
 
     with patch.object(view.queryset, 'count', return_value=100):
@@ -192,31 +192,31 @@ def test_get_average_qty_visited_countries_calculates_correctly() -> None:
             response = view.get(request)
 
             # 100 стран / 10 пользователей = 10
-            assert response.data['qty'] == 10
+            assert response.data['count'] == 10
 
 
 @pytest.mark.unit
 def test_get_max_qty_visited_countries_response_structure() -> None:
     """Тест структуры ответа GetMaxQtyVisitedCountries"""
-    view = GetMaxQtyVisitedCountries()
+    view = GetMaxQtyVisitedCountriesController()
     view.queryset = Mock()
 
     with patch.object(view.queryset, 'values') as mock_values:
         mock_annotate = Mock()
-        mock_annotate.aggregate.return_value = {'qty': 25}
+        mock_annotate.aggregate.return_value = {'value': 25}
         mock_values.return_value.annotate.return_value = mock_annotate
 
         request = Mock()
         response = view.get(request)
 
-        assert 'qty' in response.data
-        assert response.data['qty'] == 25
+        assert 'count' in response.data
+        assert response.data['count'] == 25
 
 
 @pytest.mark.unit
 def test_get_added_visited_country_yesterday_uses_days_param() -> None:
     """Тест что GetAddedVisitedCountryYeterday использует параметр days"""
-    view = GetAddedVisitedCountryYeterday()
+    view = GetAddedVisitedCountryController()
     view.queryset = Mock()
     view.kwargs = {'days': 7}
 
@@ -226,19 +226,19 @@ def test_get_added_visited_country_yesterday_uses_days_param() -> None:
         request = Mock()
         response = view.get(request)
 
-        assert response.data['qty'] == 5
+        assert response.data['count'] == 5
         mock_filter.assert_called_once()
 
 
 @pytest.mark.unit
 def test_get_added_visited_countries_by_day_response_is_list() -> None:
     """Тест что GetAddedVisitedCountriesByDay возвращает список"""
-    view = GetAddedVisitedCountriesByDay()
+    view = GetAddedVisitedCountriesByDayController()
     view.queryset = Mock()
 
     mock_data = [
-        {'date': '01.01.2024', 'qty': 5},
-        {'date': '02.01.2024', 'qty': 3},
+        {'date': '01.01.2024', 'count': 5},
+        {'date': '02.01.2024', 'count': 3},
     ]
 
     with patch.object(view.queryset, 'annotate') as mock_annotate:

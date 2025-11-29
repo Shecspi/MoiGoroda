@@ -26,7 +26,6 @@ from dashboard.api import (
     GetAverageQtyVisitedCountriesController,
     GetAddedVisitedCountryController,
     GetMaxQtyVisitedCountriesController,
-    GetAddedVisitedCountriesByDayController,
 )
 
 router = Router(

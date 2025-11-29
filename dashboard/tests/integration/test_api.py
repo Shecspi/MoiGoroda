@@ -91,8 +91,8 @@ def test_get_total_visited_countries_success(
     response = client.get(reverse('api__get_total_visited_countries'))
 
     assert response.status_code == status.HTTP_200_OK
-    assert 'qty' in response.json()
-    assert response.json()['qty'] == 3  # Всего 3 записи VisitedCountry
+    assert 'count' in response.json()
+    assert response.json()['count'] == 3  # Всего 3 записи VisitedCountry
 
 
 @pytest.mark.integration
@@ -107,8 +107,8 @@ def test_get_users_with_visited_countries_success(
     response = client.get(reverse('api__get_qty_users_with_visited_countries'))
 
     assert response.status_code == status.HTTP_200_OK
-    assert 'qty' in response.json()
-    assert response.json()['qty'] == 2  # 2 пользователя с посещенными странами
+    assert 'count' in response.json()
+    assert response.json()['count'] == 2  # 2 пользователя с посещенными странами
 
 
 @pytest.mark.integration
@@ -123,9 +123,9 @@ def test_get_average_qty_visited_countries_success(
     response = client.get(reverse('api__get_average_qty_visited_countries'))
 
     assert response.status_code == status.HTTP_200_OK
-    assert 'qty' in response.json()
+    assert 'count' in response.json()
     # 3 посещения / 2 пользователя = 1 (целочисленное деление)
-    assert response.json()['qty'] == 1
+    assert response.json()['count'] == 1
 
 
 @pytest.mark.integration
@@ -140,9 +140,9 @@ def test_get_max_qty_visited_countries_success(
     response = client.get(reverse('api__max_qty_visited_countries'))
 
     assert response.status_code == status.HTTP_200_OK
-    assert 'qty' in response.json()
+    assert 'count' in response.json()
     # У superuser 2 страны, у user 1 страна, максимум = 2
-    assert response.json()['qty'] == 2
+    assert response.json()['count'] == 2
 
 
 @pytest.mark.integration
@@ -158,9 +158,9 @@ def test_get_added_visited_countries_yesterday_success(
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert 'qty' in response.json()
+    assert 'count' in response.json()
     # Все страны добавлены сегодня, за вчера должно быть 0 или больше в зависимости от данных
-    assert isinstance(response.json()['qty'], int)
+    assert isinstance(response.json()['count'], int)
 
 
 @pytest.mark.integration
@@ -176,8 +176,8 @@ def test_get_added_visited_countries_week_success(
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert 'qty' in response.json()
-    assert isinstance(response.json()['qty'], int)
+    assert 'count' in response.json()
+    assert isinstance(response.json()['count'], int)
 
 
 @pytest.mark.integration
@@ -198,7 +198,7 @@ def test_get_added_visited_countries_by_day_success(
     if len(response.json()) > 0:
         first_item = response.json()[0]
         assert 'date' in first_item
-        assert 'qty' in first_item
+        assert 'count' in first_item
 
 
 @pytest.mark.integration
@@ -217,7 +217,7 @@ def test_api_endpoints_with_different_days_parameters(
         response = client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        assert 'qty' in response.json()
+        assert 'count' in response.json()
 
 
 @pytest.mark.integration
@@ -261,7 +261,7 @@ def test_api_returns_zero_when_no_data(client: Client, django_user_model: Any) -
     response = client.get(reverse('api__get_total_visited_countries'))
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()['qty'] == 0
+    assert response.json()['count'] == 0
 
 
 @pytest.mark.integration
@@ -281,4 +281,4 @@ def test_get_average_qty_handles_zero_users(client: Client, django_user_model: A
     response = client.get(reverse('api__get_average_qty_visited_countries'))
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()['qty'] == 0
+    assert response.json()['count'] == 0

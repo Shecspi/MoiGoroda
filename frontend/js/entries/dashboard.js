@@ -68,7 +68,7 @@ loadQuantityCard('number-qty_of_added_visited_countries_year', DASHBOARD_ROUTES.
 //     .then((data) => {
 //         const visitedCountriesData = {};
 //         data.forEach((item) => {
-//             visitedCountriesData[item.date] = item.qty;
+//             visitedCountriesData[item.date] = item.count;
 //         });
 
 //         const ctx = document.getElementById('visitedCountriesChart').getContext('2d');
@@ -116,11 +116,11 @@ export async function fetchQuantity(url) {
 
     const data = await response.json();
 
-    if (typeof data.quantity !== 'number') {
+    if (typeof data.count !== 'number') {
         throw new Error('Unexpected response structure');
     }
 
-    return data.quantity;
+    return data.count;
 }
 
 function showCardFallback(elementId) {

@@ -295,12 +295,12 @@ function generatePopupContent(name, latitide, longitude, place_category, id) {
     let content = '';
                 content += '<div class="flex items-center justify-between gap-3 text-lg">';
         content += `<div id="place_name_text">${name}</div>`;
-        content += '<div id="place_name_input_form" hidden>';
+        content += '<div id="place_name_input_form" class="hidden">';
             content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder-neutral-400 dark:focus:border-blue-500 dark:focus:ring-blue-500">`;
         content += '</div>';
         content += '<div class="flex items-center gap-2">';
-            content += '<a href="#" id="link_to_edit_place" onclick="switch_popup_elements()" class="inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-neutral-400 dark:hover:text-neutral-300 dark:hover:bg-neutral-800" title="Изменить место"><i class="fa-solid fa-pencil"></i></a>';
-            content += '<a href="#" id="lint_to_cancel_edit_place" onclick="switch_popup_elements()" class="inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10" title="Отменить изменения" hidden><i class="fa-solid fa-ban"></i></a>';
+            content += '<a href="#" id="link_to_edit_place" onclick="event.preventDefault(); switch_popup_elements(); return false;" class="inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-neutral-400 dark:hover:text-neutral-300 dark:hover:bg-neutral-800" title="Изменить место"><i class="fa-solid fa-pencil"></i></a>';
+            content += '<a href="#" id="lint_to_cancel_edit_place" onclick="event.preventDefault(); switch_popup_elements(); return false;" class="hidden inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10" title="Отменить изменения"><i class="fa-solid fa-ban"></i></a>';
         content += '</div>';
     content += '</div>';
 
@@ -311,7 +311,7 @@ function generatePopupContent(name, latitide, longitude, place_category, id) {
         content += `<input type="text" id="form-longitude" name="name" value="${longitude}" hidden>`;
     content += '</p>';
 
-    content += '<p id="category_select_form" hidden class="text-sm">'
+    content += '<p id="category_select_form" class="hidden text-sm">'
         content += '<span class="font-semibold text-gray-900 dark:text-white">Категория:</span> ';
         content += '<select name="category" id="form-type-object" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
         if (place_category === undefined) {
@@ -336,13 +336,25 @@ function generatePopupContent(name, latitide, longitude, place_category, id) {
 }
 
 function update_place(id) {
-    document.querySelector('form').addEventListener('submit', function(event) {
-        event.preventDefault();
-    });
+    // Проверяем, что форма в режиме редактирования (кнопка "Сохранить" видна)
+    const btn_update_place = document.getElementById('btn-update-place');
+    if (!btn_update_place || btn_update_place.classList.contains('hidden')) {
+        return;
+    }
+
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+        });
+    }
 
     const formData = new FormData();
     let name = document.getElementById('form-name').value
     let category_el = document.getElementById('form-type-object');
+    if (!category_el) {
+        return;
+    }
     let category_id = category_el.value;
     let category_name = category_el.options[category_el.selectedIndex].text;
 
@@ -480,8 +492,9 @@ function addMarkers(categoryName) {
             let content = '<form id="place-form">';
             content += generatePopupContent(place.name, place.latitude, place.longitude, place.category_detail.name, place.id);
             content += '<p class="mt-3 flex gap-2">';
-            content += `<button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-update-place" onclick="update_place(${place.id});" hidden>Изменить</button>`;
-            content += `<button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-delete-place" onclick="delete_place(${place.id});">Удалить</button>`;
+            content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-edit-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Изменить</button>`;
+            content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-update-place" onclick="update_place(${place.id}); return false;">Сохранить</button>`;
+            content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-delete-place" onclick="delete_place(${place.id}); return false;">Удалить</button>`;
             content += '</p>';
             content += '</form>';
 
@@ -497,41 +510,46 @@ function addMarkers(categoryName) {
 function switch_popup_elements() {
     const link_to_edit_place = document.getElementById('link_to_edit_place');
     if (link_to_edit_place) {
-        link_to_edit_place.hidden = !link_to_edit_place.hidden;
+        link_to_edit_place.classList.toggle('hidden');
     }
 
     const link_to_cancel_edit_place = document.getElementById('lint_to_cancel_edit_place');
     if (link_to_cancel_edit_place) {
-        link_to_cancel_edit_place.hidden = !link_to_cancel_edit_place.hidden;
+        link_to_cancel_edit_place.classList.toggle('hidden');
     }
 
     const place_name_text = document.getElementById('place_name_text');
     if (place_name_text) {
-        place_name_text.hidden = !place_name_text.hidden;
+        place_name_text.classList.toggle('hidden');
     }
 
     const place_name_input_form = document.getElementById('place_name_input_form');
     if (place_name_input_form) {
-        place_name_input_form.hidden = !place_name_input_form.hidden
+        place_name_input_form.classList.toggle('hidden');
     }
 
     const category_place = document.getElementById('category_place');
     if (category_place) {
-        category_place.hidden = !category_place.hidden;
+        category_place.classList.toggle('hidden');
     }
 
     const category_select_form = document.getElementById('category_select_form');
     if (category_select_form) {
-        category_select_form.hidden = !category_select_form.hidden;
+        category_select_form.classList.toggle('hidden');
+    }
+
+    const btn_edit_place = document.getElementById('btn-edit-place');
+    if (btn_edit_place) {
+        btn_edit_place.classList.toggle('hidden');
     }
 
     const btn_delete_place = document.getElementById('btn-delete-place');
-    if (btn_delete_place && btn_delete_place) {
-        btn_delete_place.hidden = !btn_delete_place.hidden;
+    if (btn_delete_place) {
+        btn_delete_place.classList.toggle('hidden');
     }
 
     const btn_update_place = document.getElementById('btn-update-place');
     if (btn_update_place) {
-        btn_update_place.hidden = !btn_update_place.hidden;
+        btn_update_place.classList.toggle('hidden');
     }
 }

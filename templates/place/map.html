@@ -15,8 +15,10 @@
         </h1>
     </header>
 
-    {% include 'advertisement/rtb_banner.html' %}
-    
+    {% if not DEBUG %}
+        {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
+
     {% include 'place/place__map__toolbar.html' %}
 
     <!-- Карта -->

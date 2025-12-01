@@ -16,12 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Проверка наличия необходимых элементов
   if (!sidebar) {
-    console.warn('Sidebar element not found');
     return;
   }
   
   if (!sidebarToggle) {
-    console.warn('Sidebar toggle button not found');
     return;
   }
 
@@ -29,30 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
    * Открывает сайдбар на маленьких экранах
    */
   function openSidebar() {
-    console.log('=== openSidebar called ===', {
-      width: window.innerWidth,
-      isLarge: window.innerWidth >= 1280,
-      sidebar: sidebar,
-      sidebarClasses: sidebar ? sidebar.className : 'N/A'
-    });
-    
     if (window.innerWidth >= 1280) {
-      console.log('Large screen, sidebar should be visible via CSS');
       return;
     }
 
     if (!sidebar) {
-      console.error('Sidebar element not found!');
       return;
     }
-
-    console.log('Before opening:', {
-      classes: sidebar.className,
-      hasTranslateXFull: sidebar.classList.contains('-translate-x-full'),
-      computedTransform: window.getComputedStyle(sidebar).transform,
-      computedLeft: window.getComputedStyle(sidebar).left,
-      inlineStyle: sidebar.style.cssText
-    });
 
     // Удаляем все классы translate, которые могут конфликтовать
     sidebar.classList.remove('-translate-x-full', 'translate-x-0');
@@ -63,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Если сайдбар уже открыт, не делаем ничего
     if (!isCurrentlyHidden && sidebar.getAttribute('data-sidebar-state') === 'open') {
-      console.log('Sidebar is already open');
       return;
     }
     
@@ -106,8 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       sidebar.setAttribute('data-sidebar-state', 'open');
     });
-    
-    console.log('Opening animation started');
   }
 
   /**
@@ -127,8 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       return;
     }
-
-    console.log('Closing sidebar...');
     
     // Удаляем все классы translate
     sidebar.classList.remove('-translate-x-full', 'translate-x-0');
@@ -162,8 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarBackdrop.setAttribute('aria-hidden', 'true');
       }
     }, 300); // Длительность анимации
-    
-    console.log('Closing animation started');
   }
 
   /**
@@ -213,11 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
    * Инициализирует состояние сайдбара в зависимости от размера экрана
    */
   function initializeSidebar() {
-    console.log('Initializing sidebar...', {
-      width: window.innerWidth,
-      isLarge: isLargeScreen()
-    });
-    
     if (isLargeScreen()) {
       // На больших экранах показываем сайдбар
       sidebar.style.setProperty('transform', 'translateX(0)', 'important');
@@ -236,14 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeSidebar();
 
   // Обработчики событий
-  console.log('Setting up event listeners...', {
-    sidebarToggle: !!sidebarToggle,
-    sidebarClose: !!sidebarClose,
-    sidebarBackdrop: !!sidebarBackdrop
-  });
-  
   sidebarToggle.addEventListener('click', (e) => {
-    console.log('Toggle button clicked!', e);
     e.preventDefault();
     e.stopPropagation();
     openSidebar();

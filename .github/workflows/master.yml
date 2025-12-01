@@ -220,7 +220,7 @@ jobs:
                   cd ../
 
                   : # Производим сборку статичных файлов
-                  poetry run python3.manage.py.collectstatic --noinput
+                  poetry run python3 manage.py collectstatic --noinput
 
                   : # Перезагружаем сервер
                   echo "${{ secrets.PROD__SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload

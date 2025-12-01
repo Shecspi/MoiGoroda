@@ -10,6 +10,8 @@
 
 - *(sidebar)* Удалён вывод отладочной информации в консоль при работет сайдбара ([99dd1a0](https://github.com/Shecspi/MoiGoroda/commit/99dd1a07e02acd77f017e3ecca3698223dd243f7))
 
+- Исправлена ошибка в Github Actions workflow, из-за которой доставка на сервер не осуществлялась ([6c16b16](https://github.com/Shecspi/MoiGoroda/commit/6c16b16bd130f2a6e665df7298676aa6f59fd5f1))
+
 
 ## [ 3.0 ] - 2025-11-27
 

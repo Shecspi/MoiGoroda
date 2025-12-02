@@ -32,7 +32,8 @@ class ShareSettingsAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 class CustomUserAdmin(UserAdmin):  # type: ignore[type-arg]
     # Расширяем list_display дополнительными полями
     list_display = tuple(
-        list(UserAdmin.list_display)  # type: ignore[misc]
+        ['id']
+        + list(UserAdmin.list_display)
         + ['number_of_total_cities', 'number_of_unique_cities']
     )
 

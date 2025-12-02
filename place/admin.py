@@ -21,5 +21,14 @@ class CategoryAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
-    list_display = ('name', 'latitude', 'longitude', 'category', 'created_at', 'updated_at')
+    list_display = (
+        'id',
+        'name',
+        'latitude',
+        'longitude',
+        'category',
+        'user',
+        'created_at',
+        'updated_at',
+    )
     search_fields = ('name',)

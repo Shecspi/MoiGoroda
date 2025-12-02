@@ -7,16 +7,13 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from __future__ import annotations
-
-
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.contrib.auth.models import User as DjangoUser, Group as DjangoGroup
 from django.db.models import Count, QuerySet
 from django.http import HttpRequest
 
-from account.models import ShareSettings
+from account.models import ShareSettings, UserConsent, User, Group
 
 
 @admin.register(ShareSettings)
@@ -35,7 +32,8 @@ class ShareSettingsAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 class CustomUserAdmin(UserAdmin):  # type: ignore[type-arg]
     # Расширяем list_display дополнительными полями
     list_display = tuple(
-        list(UserAdmin.list_display)  # type: ignore[misc]
+        ['id']
+        + list(UserAdmin.list_display)
         + ['number_of_total_cities', 'number_of_unique_cities']
     )
 
@@ -59,5 +57,23 @@ class CustomUserAdmin(UserAdmin):  # type: ignore[type-arg]
     number_of_unique_cities.admin_order_field = 'number_of_unique_cities'  # type: ignore[attr-defined]
 
 
-admin.site.unregister(User)
+@admin.register(UserConsent)
+class UserConsentAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
+    list_display = (
+        'id',
+        'user',
+        'consent_given',
+        'policy_version',
+        'consent_timestamp',
+        'ip_address',
+    )
+    search_fields = ('user__username', 'policy_version')
+    list_filter = ('consent_given', 'consent_timestamp', 'policy_version')
+    readonly_fields = ('consent_timestamp',)
+
+
+admin.site.unregister(DjangoUser)
 admin.site.register(User, CustomUserAdmin)
+
+admin.site.unregister(DjangoGroup)
+admin.site.register(Group, GroupAdmin)

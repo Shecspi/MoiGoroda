@@ -12,6 +12,8 @@
 
 - Исправлена ошибка в Github Actions workflow, из-за которой доставка на сервер не осуществлялась ([6c16b16](https://github.com/Shecspi/MoiGoroda/commit/6c16b16bd130f2a6e665df7298676aa6f59fd5f1))
 
+- *(admin)* Мелкие изменения в админке - добавлены отображаемые модели, добавлены некоторые поля в список отображения ([88ced74](https://github.com/Shecspi/MoiGoroda/commit/88ced740124c1356171dfee81c81cff61e732840))
+
 
 ## [ 3.0 ] - 2025-11-27
 

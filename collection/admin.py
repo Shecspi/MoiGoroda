@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class CollectionAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     """Админ-панель для модели Collection."""
 
-    list_display = ('title', 'get_cities_count')
+    list_display = ('id', 'title', 'get_cities_count')
     search_fields = ('title',)
 
     def get_cities_count(self, obj: Collection) -> int:
@@ -35,7 +35,7 @@ class CollectionAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 class FavoriteCollectionAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     """Админ-панель для модели FavoriteCollection."""
 
-    list_display = ('user', 'collection', 'created_at')
+    list_display = ('id', 'user', 'collection', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('user__username', 'collection__title')
     readonly_fields = ('created_at',)

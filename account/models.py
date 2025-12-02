@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0
 
 from django.db import models
 from django.db.models import CASCADE
-from django.contrib.auth.models import User as DjangoUser
+from django.contrib.auth.models import User as DjangoUser, Group as DjangoGroup
 from django.urls import reverse
 
 
@@ -20,6 +20,15 @@ class User(DjangoUser):
         proxy = True
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class Group(DjangoGroup):
+    """Прокси-модель для добавления русских названий в админке."""
+
+    class Meta:
+        proxy = True
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
 
 
 class ShareSettings(models.Model):

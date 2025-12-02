@@ -7,16 +7,13 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from __future__ import annotations
-
-
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.contrib.auth.models import User as DjangoUser, Group as DjangoGroup
 from django.db.models import Count, QuerySet
 from django.http import HttpRequest
 
-from account.models import ShareSettings, UserConsent
+from account.models import ShareSettings, UserConsent, User, Group
 
 
 @admin.register(ShareSettings)
@@ -72,3 +69,10 @@ class UserConsentAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     search_fields = ('user__username', 'policy_version')
     list_filter = ('consent_given', 'consent_timestamp', 'policy_version')
     readonly_fields = ('consent_timestamp',)
+
+
+admin.site.unregister(DjangoUser)
+admin.site.register(User, CustomUserAdmin)
+
+admin.site.unregister(DjangoGroup)
+admin.site.register(Group, GroupAdmin)

@@ -285,6 +285,8 @@ class TestVisitedCityModel:
             'impression',
             'rating',
             'is_first_visit',
+            'created_at',
+            'updated_at',
         }
         model_fields = set(f.name for f in VisitedCity._meta.get_fields() if not f.auto_created)
         assert model_fields == expected_fields, (

@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count, QuerySet
 from django.http import HttpRequest
 
-from account.models import ShareSettings
+from account.models import ShareSettings, UserConsent
 
 
 @admin.register(ShareSettings)
@@ -59,5 +59,16 @@ class CustomUserAdmin(UserAdmin):  # type: ignore[type-arg]
     number_of_unique_cities.admin_order_field = 'number_of_unique_cities'  # type: ignore[attr-defined]
 
 
-admin.site.unregister(User)
-admin.site.register(User, CustomUserAdmin)
+@admin.register(UserConsent)
+class UserConsentAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
+    list_display = (
+        'id',
+        'user',
+        'consent_given',
+        'policy_version',
+        'consent_timestamp',
+        'ip_address',
+    )
+    search_fields = ('user__username', 'policy_version')
+    list_filter = ('consent_given', 'consent_timestamp', 'policy_version')
+    readonly_fields = ('consent_timestamp',)

@@ -142,6 +142,14 @@ class VisitedCityAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         'is_first_visit',
         'has_magnet',
         'rating',
+        'created_at',
+        'updated_at',
     )
-    list_filter = (UserFilter,)
+    list_filter = (
+        UserFilter,
+        'created_at',
+        'updated_at',
+    )
     search_fields = ('user__username', 'city__title')
+    readonly_fields = ('created_at', 'updated_at')
+    date_hierarchy = 'created_at'

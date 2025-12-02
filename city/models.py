@@ -121,6 +121,14 @@ class VisitedCity(models.Model):
         default=True,
         db_index=True,
     )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата и время создания',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата и время изменения',
+    )
 
     class Meta:
         ordering = ['-id']

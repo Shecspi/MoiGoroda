@@ -33,7 +33,7 @@ class CustomUserAdmin(UserAdmin):  # type: ignore[type-arg]
     # Расширяем list_display дополнительными полями
     list_display = tuple(
         ['id']
-        + list(UserAdmin.list_display)
+        + list(UserAdmin.list_display)  # type: ignore[arg-type,misc]
         + ['number_of_total_cities', 'number_of_unique_cities']
     )
 

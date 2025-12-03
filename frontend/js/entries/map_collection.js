@@ -39,12 +39,15 @@ for (let i = 0; i < all_cities.length; i++) {
     const icon = city.isVisited ? icon_visited_pin : icon_not_visited_pin;
     const marker = L.marker([city.lat, city.lon], {icon: icon}).addTo(map);
     
-    // Для коллекции не передаём regionName и countryName, так как они не применимы
+    // Формируем ссылки на регион и страну
+    const regionLink = city.regionId ? `/region/${city.regionId}/list` : null;
+    const countryLink = city.countryCode ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(city.countryCode)}` : null;
+    
     const popupOptions = {
-        regionName: null,
-        countryName: null,
-        regionLink: null,
-        countryLink: null,
+        regionName: city.regionName || null,
+        countryName: city.countryName || null,
+        regionLink: regionLink,
+        countryLink: countryLink,
         isAuthenticated: isAuthenticated
     };
     
@@ -108,6 +111,7 @@ if (document.getElementById('form-add-city')) {
         const {marker, cityData} = stored;
 
         // Обновляем данные о городе из ответа сервера
+        // Сохраняем данные о регионе и стране из исходных данных, так как API их не возвращает
         const newCityData = {
             ...cityData,
             isVisited: true,
@@ -116,6 +120,11 @@ if (document.getElementById('form-add-city')) {
             lastVisitDate: updatedCity.last_visit_date,
             numberOfUsersWhoVisitCity: updatedCity.number_of_users_who_visit_city ?? null,
             numberOfVisitsAllUsers: updatedCity.number_of_visits_all_users ?? null,
+            // Сохраняем данные о регионе и стране из исходных данных
+            regionName: cityData.regionName,
+            regionId: cityData.regionId,
+            countryName: cityData.countryName,
+            countryCode: cityData.countryCode
         };
 
         // Обновляем маркер и popup
@@ -124,11 +133,15 @@ if (document.getElementById('form-add-city')) {
         marker.unbindTooltip();
         marker.off();
         
+        // Формируем ссылки на регион и страну
+        const regionLink = newCityData.regionId ? `/region/${newCityData.regionId}/list` : null;
+        const countryLink = newCityData.countryCode ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(newCityData.countryCode)}` : null;
+        
         const popupOptions = {
-            regionName: null,
-            countryName: null,
-            regionLink: null,
-            countryLink: null,
+            regionName: newCityData.regionName || null,
+            countryName: newCityData.countryName || null,
+            regionLink: regionLink,
+            countryLink: countryLink,
             isAuthenticated: isAuthenticated
         };
         bindPopupToMarker(marker, newCityData, popupOptions);

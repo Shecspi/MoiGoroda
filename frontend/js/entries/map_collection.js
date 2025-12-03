@@ -45,7 +45,7 @@ for (let i = 0; i < all_cities.length; i++) {
         countryName: null,
         regionLink: null,
         countryLink: null,
-        showAddButton: isAuthenticated
+        isAuthenticated: isAuthenticated
     };
     
     bindPopupToMarker(marker, city, popupOptions);
@@ -129,7 +129,7 @@ if (document.getElementById('form-add-city')) {
             countryName: null,
             regionLink: null,
             countryLink: null,
-            showAddButton: isAuthenticated
+            isAuthenticated: isAuthenticated
         };
         bindPopupToMarker(marker, newCityData, popupOptions);
 

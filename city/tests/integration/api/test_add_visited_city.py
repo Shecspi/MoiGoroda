@@ -49,10 +49,12 @@ class TestAddVisitedCity:
     @patch('city.api.get_number_of_visits_by_city')
     @patch('city.api.get_first_visit_date_by_city')
     @patch('city.api.get_last_visit_date_by_city')
+    @patch('city.api.get_number_of_users_who_visit_city')
     @patch('city.api.logger')
     def test_add_visited_city_success(
         self,
         mock_logger: MagicMock,
+        mock_number_of_users: MagicMock,
         mock_last_visit: MagicMock,
         mock_first_visit: MagicMock,
         mock_visits_count: MagicMock,
@@ -63,11 +65,20 @@ class TestAddVisitedCity:
         mock_city: MagicMock,
     ) -> None:
         """Тест успешного добавления посещенного города с полным мокированием сериализатора."""
-        mock_visited_filter.return_value.exists.return_value = False
+        # Настраиваем моки для проверки дубликатов
+        mock_filter_exists = MagicMock()
+        mock_filter_exists.exists.return_value = False
+        # Настраиваем мок для подсчёта всех посещений (используется в строке 256)
+        mock_filter_count = MagicMock()
+        mock_filter_count.count.return_value = 10
+        # Используем side_effect для возврата разных объектов при разных вызовах
+        mock_visited_filter.side_effect = [mock_filter_exists, mock_filter_count]
+
         mock_city_get.return_value = mock_city
         mock_visits_count.return_value = 1
         mock_first_visit.return_value = '2024-01-15'
         mock_last_visit.return_value = '2024-01-15'
+        mock_number_of_users.return_value = 5
 
         data = {
             'city': mock_city.id,

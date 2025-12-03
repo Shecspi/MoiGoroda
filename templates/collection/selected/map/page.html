@@ -53,7 +53,11 @@
                 firstVisitDate: "{{ city.first_visit_date|date:'Y-m-d'|default_if_none:'' }}",
                 lastVisitDate: "{{ city.last_visit_date|date:'Y-m-d'|default_if_none:'' }}",
                 numberOfUsersWhoVisitCity: {{ city.number_of_users_who_visit_city|default:'null' }},
-                numberOfVisitsAllUsers: {{ city.number_of_visits_all_users|default:'null' }}
+                numberOfVisitsAllUsers: {{ city.number_of_visits_all_users|default:'null' }},
+                regionName: {% if city.region %}"{{ city.region|escapejs }}"{% else %}null{% endif %},
+                regionId: {% if city.region %}{{ city.region.id }}{% else %}null{% endif %},
+                countryName: "{{ city.country.name|escapejs }}",
+                countryCode: "{{ city.country.code|escapejs }}"
             });
         {% endfor %}
     </script>

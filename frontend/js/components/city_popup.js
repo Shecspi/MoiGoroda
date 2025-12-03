@@ -161,7 +161,7 @@ export const buildPopupContent = (cityData, options = {}) => {
         content += `<span>${regionName}</span>`;
     }
 
-    if (countryLink && countryName) {
+    if (countryLink && countryName && isAuthenticated) {
         if (regionName) {
             content += `,`;
         }
@@ -170,7 +170,7 @@ export const buildPopupContent = (cityData, options = {}) => {
         if (regionName) {
             content += `<span>,</span>`;
         }
-        content += `<span>${countryName}</span>`;
+        content += `<span class="ps-1">${countryName}</span>`;
     }
     content += `</div>`;
     content += `</div>`;

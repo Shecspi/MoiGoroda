@@ -33,6 +33,7 @@ from city.services.db import (
     get_first_visit_date_by_city,
     get_last_visit_date_by_city,
     get_not_visited_cities,
+    get_number_of_users_who_visit_city,
     get_number_of_visits_by_city,
     get_unique_visited_cities,
 )
@@ -249,6 +250,10 @@ class AddVisitedCity(generics.CreateAPIView):  # type: ignore[type-arg]
         return_data['last_visit_date'] = get_last_visit_date_by_city(
             city_id=city.id, user_id=user_id
         )
+        return_data['number_of_users_who_visit_city'] = get_number_of_users_who_visit_city(
+            city_id=city.id
+        )
+        return_data['number_of_visits_all_users'] = VisitedCity.objects.filter(city=city).count()
 
         return Response({'status': 'success', 'city': return_data})
 

@@ -45,16 +45,24 @@
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
         window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
-        // Массив с городами региона
-        // ['latitude', 'longitude', 'city name', 'is_visited']
+        window.REGION_NAME = "{{ region_name|escapejs }}";
+        window.COUNTRY_NAME = "{{ country_name|escapejs }}";
+        window.REGION_LIST_URL = "{% url 'region-selected-list' pk=region_id %}";
+        window.COUNTRY_CITIES_BASE_URL = "{% url 'city-all-list' %}";
         window.ALL_CITIES = [];
         {% for city in all_cities %}
-            window.ALL_CITIES.push([
-                '{{ city.coordinate_width }}'.replace(/,/, '.'),
-                '{{ city.coordinate_longitude }}'.replace(/,/, '.'),
-                '{{ city.title }}',
-                '{{ city.is_visited }}' === 'True'
-            ]);
+            window.ALL_CITIES.push({
+                id: {{ city.id }},
+                name: "{{ city.title|escapejs }}",
+                lat: parseFloat('{{ city.coordinate_width }}'.replace(/,/, '.')),
+                lon: parseFloat('{{ city.coordinate_longitude }}'.replace(/,/, '.')),
+                isVisited: {{ city.is_visited|yesno:"true,false" }},
+                numberOfVisits: {{ city.number_of_visits|default:'null' }},
+                firstVisitDate: "{{ city.first_visit_date|date:'Y-m-d'|default_if_none:'' }}",
+                lastVisitDate: "{{ city.last_visit_date|date:'Y-m-d'|default_if_none:'' }}",
+                numberOfUsersWhoVisitCity: {{ city.number_of_users_who_visit_city|default:'null' }},
+                numberOfVisitsAllUsers: {{ city.number_of_visits_all_users|default:'null' }}
+            });
         {% endfor %}
     </script>
     {% vite_asset 'js/entries/leaflet_css.js' %}

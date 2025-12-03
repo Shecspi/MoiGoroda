@@ -12,3 +12,5 @@ Clean-param: sort /region/*/list
 Clean-param: filter /region/*/list
 Clean-param: sort /region/*/map
 Clean-param: filter /region/*/map
+Clean-param: filter /collection/*/list
+Clean-param: filter /collection/*/map

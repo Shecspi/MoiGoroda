@@ -235,16 +235,20 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        cities_data = [
-            {
-                'name': city.title,
-                'lat': float(str(city.coordinate_width).replace(',', '.')),
-                'lon': float(str(city.coordinate_longitude).replace(',', '.')),
-                'is_visited': city.is_visited,
-            }
-            for city in self.cities
-        ]
-        context['cities'] = mark_safe(json.dumps(cities_data))
+        # Для карты передаём полные данные о городах, для списка - упрощённые
+        if self.list_or_map == 'map':
+            context['all_cities'] = self.cities
+        else:
+            cities_data = [
+                {
+                    'name': city.title,
+                    'lat': float(str(city.coordinate_width).replace(',', '.')),
+                    'lon': float(str(city.coordinate_longitude).replace(',', '.')),
+                    'is_visited': city.is_visited,
+                }
+                for city in self.cities
+            ]
+            context['cities'] = mark_safe(json.dumps(cities_data))
 
         context['filter'] = self.filter
 

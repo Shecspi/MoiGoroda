@@ -11,7 +11,10 @@
 
 import L from 'leaflet';
 import {create_map} from '../components/map.js';
+import {initAddCityForm} from "../components/add_city_modal.js";
 import {icon_visited_pin, icon_not_visited_pin} from '../components/icons.js';
+import {bindPopupToMarker} from '../components/city_popup.js';
+import {pluralize} from '../components/search_services.js';
 
 // Стили для полигона региона
 const fillOpacity = 0.1;
@@ -29,25 +32,41 @@ const country_code = iso3166_code.split('-')[0];
 // ['latitude', 'longitude', 'city name', 'is_visited']
 const all_cities = window.ALL_CITIES || [];
 
+const regionName = window.REGION_NAME || '';
+const countryName = window.COUNTRY_NAME || '';
+
 // Массив, хранящий в себе все созданные маркеры.
 // Нужен для того, чтобы отцентрировать и отмасштабировать карту.
 const allMarkers = [];
+const markersByCityId = new Map();
 
 // Создаём карту используя общий компонент
 const map = create_map();
+window.MG_MAIN_MAP = map;
 
 // Отображаем на карте все города, меняя тип иконки в зависимости от того, посещён город или нет
-for (let i = 0; i < all_cities.length; i++) {
-    const coordinateWidth = all_cities[i][0];
-    const coordinateLongitude = all_cities[i][1];
-    const city = all_cities[i][2];
-    const is_visited = all_cities[i][3] === true;
+const regionLink = window.REGION_LIST_URL || '';
+const countryCitiesBaseUrl = window.COUNTRY_CITIES_BASE_URL || '';
+const isAuthenticated = typeof window.IS_AUTHENTICATED !== 'undefined' && window.IS_AUTHENTICATED === true;
 
-    const icon = is_visited ? icon_visited_pin : icon_not_visited_pin;
-    const marker = L.marker([coordinateWidth, coordinateLongitude], {icon: icon}).addTo(map);
-    marker.bindTooltip(city, {direction: 'top'});
+for (let i = 0; i < all_cities.length; i++) {
+    const city = all_cities[i];
+    const icon = city.isVisited ? icon_visited_pin : icon_not_visited_pin;
+    const marker = L.marker([city.lat, city.lon], {icon: icon}).addTo(map);
+    
+    const countryLink = countryCitiesBaseUrl ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(country_code)}` : '';
+    const popupOptions = {
+        regionName: regionName,
+        countryName: countryName,
+        regionLink: regionLink,
+        countryLink: countryLink,
+        isAuthenticated: isAuthenticated
+    };
+    
+    bindPopupToMarker(marker, city, popupOptions);
 
     allMarkers.push(marker);
+    markersByCityId.set(city.id, {marker, cityData: city});
 }
 
 // Загружаем полигон региона
@@ -84,4 +103,86 @@ fetch(url)
 if (allMarkers.length > 0) {
     const group = new L.featureGroup([...allMarkers]);
     map.fitBounds(group.getBounds());
+}
+
+/**
+ * Обновляет бейджик с количеством посещённых городов в тулбаре
+ */
+const updateVisitedCitiesBadge = () => {
+    const statBadge = document.querySelector('.stat-badge-success');
+    if (!statBadge) {
+        return;
+    }
+
+    const strongElement = statBadge.querySelector('strong');
+    const cityWordElement = document.getElementById('visited-cities-word');
+    const visitedWordElement = document.getElementById('visited-word');
+    
+    if (!strongElement) {
+        return;
+    }
+
+    const currentValue = parseInt(strongElement.textContent, 10);
+    if (!isNaN(currentValue)) {
+        const newValue = currentValue + 1;
+        strongElement.textContent = newValue.toString();
+        
+        // Обновляем склонение слова "город" используя общую функцию pluralize
+        if (cityWordElement) {
+            cityWordElement.textContent = pluralize(newValue, 'город', 'города', 'городов');
+        }
+        
+        // Обновляем склонение слова "Посещено" используя pluralize
+        if (visitedWordElement) {
+            visitedWordElement.textContent = pluralize(newValue, 'Посещён', 'Посещено', 'Посещено');
+        }
+    }
+};
+
+// Инициализируем форму добавления города, если она есть на странице
+if (document.getElementById('form-add-city')) {
+    initAddCityForm(null, (updatedCity) => {
+        const stored = markersByCityId.get(updatedCity.id);
+        if (!stored) {
+            return;
+        }
+
+        const {marker, cityData} = stored;
+
+        // Обновляем данные о городе из ответа сервера
+        const newCityData = {
+            ...cityData,
+            isVisited: true,
+            numberOfVisits: updatedCity.number_of_visits,
+            firstVisitDate: updatedCity.first_visit_date,
+            lastVisitDate: updatedCity.last_visit_date,
+            numberOfUsersWhoVisitCity: updatedCity.number_of_users_who_visit_city ?? null,
+            numberOfVisitsAllUsers: updatedCity.number_of_visits_all_users ?? null,
+        };
+
+        // Обновляем маркер и popup
+        marker.setIcon(icon_visited_pin);
+        marker.unbindPopup();
+        marker.unbindTooltip();
+        marker.off();
+        
+        const countryLink = countryCitiesBaseUrl ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(country_code)}` : '';
+        const popupOptions = {
+            regionName: regionName,
+            countryName: countryName,
+            regionLink: regionLink,
+            countryLink: countryLink,
+            isAuthenticated: isAuthenticated
+        };
+        bindPopupToMarker(marker, newCityData, popupOptions);
+
+        // Сохраняем обновлённые данные
+        markersByCityId.set(updatedCity.id, {marker, cityData: newCityData});
+
+        // Обновляем бейджик в тулбаре только если это первое посещение города
+        const isFirstVisit = !cityData.isVisited;
+        if (isFirstVisit) {
+            updateVisitedCitiesBadge();
+        }
+    });
 }

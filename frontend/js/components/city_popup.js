@@ -169,14 +169,23 @@ export const buildPopupContent = (cityData, options = {}) => {
     content += buildVisitInfoBlock(cityData);
     content += '</div>';
 
-    if (showAddButton && !cityData.isVisited) {
+    if (showAddButton) {
         content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
-        content += `<a href="#" 
-            class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-            data-hs-overlay="#addCityModal" 
-            data-city-name="${cityData.name}" 
-            data-city-id="${cityData.id}" 
-            data-city-region="${regionName}">Отметить как посещённый</a>`;
+        if (!cityData.isVisited) {
+            content += `<a href="#" 
+                class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                data-hs-overlay="#addCityModal" 
+                data-city-name="${cityData.name}" 
+                data-city-id="${cityData.id}" 
+                data-city-region="${regionName}">Отметить как посещённый</a>`;
+        } else {
+            content += `<a href="#" 
+                class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                data-hs-overlay="#addCityModal" 
+                data-city-name="${cityData.name}" 
+                data-city-id="${cityData.id}" 
+                data-city-region="${regionName}">Добавить ещё одно посещение</a>`;
+        }
         content += '</div>';
     }
 

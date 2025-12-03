@@ -153,6 +153,11 @@ export function change_qty_of_visited_cities_in_toolbar(is_added_new_city) {
      * Производит замену текста, сообщающего о количестве посещённых городов, в информационной карточке тулбара.
      */
     const number_of_visited_cities = document.getElementById('number_of_visited_cities');
+    if (!number_of_visited_cities) {
+        // На этой странице нет тулбара с количеством посещённых городов (например, карта региона).
+        // Просто выходим без ошибок, чтобы не ломать логику и не показывать лишний тост об ошибке.
+        return;
+    }
 
     const oldQty = number_of_visited_cities.textContent;
     const newQty = is_added_new_city === true ? Number(oldQty) + 1 : oldQty;

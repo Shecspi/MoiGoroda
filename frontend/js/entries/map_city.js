@@ -13,11 +13,8 @@ import L from 'leaflet';
 
 import {addExternalBorderControl, addInternalBorderControl, create_map} from "../components/map.js";
 import {ToolbarActions} from "../components/toolbar_actions.js";
-import {City} from "../components/schemas.js";
-import {change_qty_of_visited_cities_in_toolbar, close_modal_for_add_city} from '../components/services.js';
-import {showDangerToast, showSuccessToast} from "../components/toast.js";
-import {getCookie} from '../components/get_cookie.js';
 import {initCountrySelect} from "../components/initCountrySelect";
+import {initAddCityForm} from "../components/add_city_modal.js";
 
 let actions;
 let map;
@@ -27,36 +24,40 @@ const selectedCountryCode = urlParams.get('country');
 
 window.onload = async () => {
     map = create_map();
+    window.MG_MAIN_MAP = map;
     addExternalBorderControl(map, selectedCountryCode);
     addInternalBorderControl(map, selectedCountryCode);
 
     getVisitedCities()
         .then(own_cities => {
-                actions = new ToolbarActions(map, own_cities);
+            actions = new ToolbarActions(map, own_cities);
 
-                if (own_cities.length === 0) {
-                    map.setView([55.7522, 37.6156], 6);
+            if (own_cities.length === 0) {
+                map.setView([55.7522, 37.6156], 6);
 
-                    const btn = document.getElementById('btn_show-not-visited-cities');
-                    if (!btn) {
-                        console.error('Кнопка не найдена!');
-                    } else if (own_cities.length === 0) {
-                        btn.click();
-                        const checkInterval = setInterval(() => {
-                          if (actions.stateNotVisitedCities.size > 0) {
+                const btn = document.getElementById('btn_show-not-visited-cities');
+                if (!btn) {
+                    console.error('Кнопка не найдена!');
+                } else if (own_cities.length === 0) {
+                    btn.click();
+                    const checkInterval = setInterval(() => {
+                        if (actions.stateNotVisitedCities.size > 0) {
                             const group = new L.featureGroup(Array.from(actions.stateNotVisitedCities.values()));
                             map.fitBounds(group.getBounds());
                             clearInterval(checkInterval);
-                          }
-                        }, 200); // проверяем каждые 200 мс
-                    }
-                } else {
-                    const allMarkers = actions.addOwnCitiesOnMap();
-                    const group = new L.featureGroup([...allMarkers]);
-                    map.fitBounds(group.getBounds());
+                        }
+                    }, 200); // проверяем каждые 200 мс
                 }
+            } else {
+                const allMarkers = actions.addOwnCitiesOnMap();
+                const group = new L.featureGroup([...allMarkers]);
+                map.fitBounds(group.getBounds());
             }
-        )
+        })
+        .then(() => {
+            initAddCityForm(actions);
+        });
+
     await initCountrySelect();
 }
 
@@ -64,93 +65,13 @@ window.onload = async () => {
  * Делает запрос на сервер и возвращает список городов, посещённых пользователем.
  */
 async function getVisitedCities() {
-    let baseUrl = window.URL_GET_VISITED_CITIES;
-    let queryParams = window.location.search;
+    const baseUrl = window.URL_GET_VISITED_CITIES;
+    const queryParams = window.location.search;
 
-    let url = baseUrl + queryParams;
+    const url = baseUrl + queryParams;
 
     return fetch(url, {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie("csrftoken")
-        }
+        method: 'GET'
     })
-        .then(response => {
-            return response.json();
-        })
-        .then(data => {
-            return data;
-        });
+        .then(response => response.json());
 }
-
-// -------------------------------------------------- //
-//                                                    //
-// Обработчик отправки формы добавления нового города //
-//                                                    //
-// -------------------------------------------------- //
-const form = document.getElementById('form-add-city');
-
-form.addEventListener('submit', event => {
-    event.preventDefault();
-
-    const formData = new FormData(form);
-    formData.set('has_magnet', formData.has('has_magnet') ? '1' : '0')
-
-    let button = document.getElementById('btn_add-visited-city');
-    button.disabled = true;
-    button.innerHTML = '<span class="animate-spin inline-block size-4 border-[3px] border-current border-t-transparent text-white rounded-full" role="status" aria-label="loading"></span><span>Загрузка...</span>';
-
-    const url = button.dataset.url;
-
-    fetch(url, {
-        method: 'POST', headers: {
-            'X-CSRFToken': getCookie("csrftoken")
-        }, body: formData
-    })
-        .then((response) => {
-            if (!response.ok) {
-                const error = new Error(`HTTP error! status: ${response.status}`);
-                error.status = response.status;
-                throw error;
-            }
-            return response.json()
-        })
-        .then((data) => {
-            close_modal_for_add_city();
-
-            button.disabled = false;
-            button.innerHTML = '<span>Добавить</span>';
-
-            form.reset();
-
-            showSuccessToast('Успешно', `Город ${data.city.city_title} успешно добавлен как посещённый`);
-
-            const city = new City();
-
-            city.id = data.city.city;
-            city.name = data.city.city_title;
-            city.region = data.city.region_title;
-            city.country = data.city.country;
-            city.lat = data.city.lat;
-            city.lon = data.city.lon;
-            city.number_of_visits = data.city.number_of_visits;
-            city.first_visit_date = data.city.first_visit_date;
-            city.last_visit_date = data.city.last_visit_date;
-
-            const is_added_new_city = city.number_of_visits === 1;
-
-            actions.updateMarker(city);
-            change_qty_of_visited_cities_in_toolbar(is_added_new_city);
-        })
-        .catch((err) => {
-            console.log(err);
-            if (err.status === 409) {
-                showDangerToast('Ошибка', 'Вы уже посещали город в указанную дату');
-            } else {
-                showDangerToast('Ошибка', 'Что-то пошло не так. Попробуйте ещё раз.');
-            }
-
-            button.disabled = false;
-            button.innerHTML = '<span>Добавить</span>';
-        })
-});

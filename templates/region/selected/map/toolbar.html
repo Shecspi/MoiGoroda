@@ -9,9 +9,9 @@
             <div class="hs-tooltip [--placement:top] relative inline-block">
                 <span class="hs-tooltip-toggle stat-badge stat-badge-success">
                     <span class="stat-badge-dot"></span>
-                    Посещено:
+                    <span id="visited-word">{{ "Посещён,Посещено"|modify_by_num:number_of_visited_cities }}</span>
                     <strong>{{ number_of_visited_cities }}</strong>
-                    {{ "город"|plural_by_num:number_of_visited_cities }} из {{ number_of_cities }}
+                    <span id="visited-cities-word">{{ "город"|plural_by_num:number_of_visited_cities }}</span> из {{ number_of_cities }}
                 </span>
                 <span class="hs-tooltip-content" role="tooltip">
                     Количество посещённых городов региона

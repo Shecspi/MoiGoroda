@@ -135,23 +135,16 @@ if (document.getElementById('form-add-city')) {
 
         const {marker, cityData} = stored;
 
-        // Определяем, было ли это первое посещение пользователем
-        // Если город ранее не был посещён, то это первое посещение
-        const isFirstVisitForUser = !cityData.isVisited;
-
-        // Обновляем данные о городе
+        // Обновляем данные о городе из ответа сервера
         const newCityData = {
             ...cityData,
             isVisited: true,
             numberOfVisits: updatedCity.number_of_visits,
             firstVisitDate: updatedCity.first_visit_date,
             lastVisitDate: updatedCity.last_visit_date,
-            // Обновляем статистику: если это первое посещение пользователем, увеличиваем количество пользователей
-            numberOfUsersWhoVisitCity: isFirstVisitForUser
-                ? (cityData.numberOfUsersWhoVisitCity ?? 0) + 1
-                : (cityData.numberOfUsersWhoVisitCity ?? 0),
-            // Всегда увеличиваем общее количество посещений
-            numberOfVisitsAllUsers: (cityData.numberOfVisitsAllUsers ?? 0) + 1,
+            // Используем актуальные данные с сервера
+            numberOfUsersWhoVisitCity: updatedCity.number_of_users_who_visit_city ?? null,
+            numberOfVisitsAllUsers: updatedCity.number_of_visits_all_users ?? null,
         };
 
         // Обновляем маркер и popup

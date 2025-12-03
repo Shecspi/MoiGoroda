@@ -113,3 +113,26 @@ def plural_by_number(word: str, number: int) -> str:
         else:
             form = parsed.inflect({'plur', 'gent'})
     return form.word if form else word
+
+
+def modify_by_number(one_form: str, other_form: str, number: int) -> str:
+    """
+    Универсальная функция для выбора формы слова в зависимости от числа.
+    Возвращает one_form для 1, 21, 31... (но не 11), иначе other_form.
+
+    Примеры:
+    modify_by_number("посещён", "посещено", 1) → "посещён"
+    modify_by_number("посещён", "посещено", 2) → "посещено"
+    modify_by_number("посещён", "посещено", 11) → "посещено"
+    modify_by_number("посещён", "посещено", 21) → "посещён"
+    """
+    n = abs(number) % 100
+    n1 = n % 10
+    # Особый случай: 11-14 всегда other_form
+    if 10 < n < 20:
+        return other_form
+    # 1, 21, 31, 41... → one_form
+    if n1 == 1:
+        return one_form
+    # Остальные → other_form
+    return other_form

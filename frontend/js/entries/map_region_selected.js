@@ -14,6 +14,7 @@ import {create_map} from '../components/map.js';
 import {initAddCityForm} from "../components/add_city_modal.js";
 import {icon_visited_pin, icon_not_visited_pin} from '../components/icons.js';
 import {bindPopupToMarker} from '../components/city_popup.js';
+import {pluralize} from '../components/search_services.js';
 
 // Стили для полигона региона
 const fillOpacity = 0.1;
@@ -114,6 +115,9 @@ const updateVisitedCitiesBadge = () => {
     }
 
     const strongElement = statBadge.querySelector('strong');
+    const cityWordElement = document.getElementById('visited-cities-word');
+    const visitedWordElement = document.getElementById('visited-word');
+    
     if (!strongElement) {
         return;
     }
@@ -122,6 +126,16 @@ const updateVisitedCitiesBadge = () => {
     if (!isNaN(currentValue)) {
         const newValue = currentValue + 1;
         strongElement.textContent = newValue.toString();
+        
+        // Обновляем склонение слова "город" используя общую функцию pluralize
+        if (cityWordElement) {
+            cityWordElement.textContent = pluralize(newValue, 'город', 'города', 'городов');
+        }
+        
+        // Обновляем склонение слова "Посещено" используя pluralize
+        if (visitedWordElement) {
+            visitedWordElement.textContent = pluralize(newValue, 'Посещён', 'Посещено', 'Посещено');
+        }
     }
 };
 

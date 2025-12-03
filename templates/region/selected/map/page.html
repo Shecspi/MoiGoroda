@@ -28,6 +28,7 @@
 
     {% include 'region/selected/map/toolbar.html' %}
     {% include 'region/selected/modals/help.html' %}
+    {% include 'city/map/modals/add_city.html' %}
 
     <!-- Карта -->
     <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>
@@ -47,6 +48,7 @@
         window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
         window.REGION_NAME = "{{ region_name|escapejs }}";
         window.COUNTRY_NAME = "{{ country_name|escapejs }}";
+        window.IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
         window.REGION_LIST_URL = "{% url 'region-selected-list' pk=region_id %}";
         window.COUNTRY_CITIES_BASE_URL = "{% url 'city-all-list' %}";
         window.ALL_CITIES = [];

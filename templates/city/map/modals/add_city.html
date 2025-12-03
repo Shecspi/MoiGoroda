@@ -271,6 +271,15 @@ Licensed under the Apache License, Version 2.0
                 const cityName = button.getAttribute('data-city-name');
                 const cityId = button.getAttribute('data-city-id');
                 const cityRegion = button.getAttribute('data-city-region') || '';
+
+                // Закрываем открытый popup Leaflet, если карта доступна
+                if (window.MG_MAIN_MAP && typeof window.MG_MAIN_MAP.closePopup === 'function') {
+                    try {
+                        window.MG_MAIN_MAP.closePopup();
+                    } catch (e) {
+                        console.error('Ошибка при закрытии popup карты:', e);
+                    }
+                }
                 
                 if (cityName && cityId && window.open_modal_for_add_city) {
                     // Используем существующую функцию для открытия модального окна

@@ -142,7 +142,6 @@ if (document.getElementById('form-add-city')) {
             numberOfVisits: updatedCity.number_of_visits,
             firstVisitDate: updatedCity.first_visit_date,
             lastVisitDate: updatedCity.last_visit_date,
-            // Используем актуальные данные с сервера
             numberOfUsersWhoVisitCity: updatedCity.number_of_users_who_visit_city ?? null,
             numberOfVisitsAllUsers: updatedCity.number_of_visits_all_users ?? null,
         };
@@ -166,7 +165,10 @@ if (document.getElementById('form-add-city')) {
         // Сохраняем обновлённые данные
         markersByCityId.set(updatedCity.id, {marker, cityData: newCityData});
 
-        // Обновляем бейджик в тулбаре
-        updateVisitedCitiesBadge();
+        // Обновляем бейджик в тулбаре только если это первое посещение города
+        const isFirstVisit = !cityData.isVisited;
+        if (isFirstVisit) {
+            updateVisitedCitiesBadge();
+        }
     });
 }

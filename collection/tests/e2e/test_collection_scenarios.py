@@ -205,7 +205,7 @@ class TestCollectionFullWorkflow:
         response = client.get(reverse('collection-detail-map', kwargs={'pk': capitals.pk}))
 
         assert response.status_code == 200
-        assert 'cities' in response.context
+        assert 'all_cities' in response.context
         assert 'collection/selected/map/page.html' in [t.name for t in response.templates]
 
     def test_search_collections_api_integration(

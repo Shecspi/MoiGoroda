@@ -15,7 +15,7 @@
     }
 
     .stat-badge {
-        @apply inline-flex items-center gap-x-2 rounded-full px-3 py-1 text-sm font-medium shadow-sm transition;
+        @apply inline-flex items-center gap-x-1.5 rounded-full px-3 py-1 text-sm font-medium shadow-sm transition;
     }
 
     .stat-badge-success {

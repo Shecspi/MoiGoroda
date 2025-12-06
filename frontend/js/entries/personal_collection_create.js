@@ -1,17 +1,22 @@
-import Choices from 'choices.js';
 import {create_map} from '../components/map.js';
 
 import {showDangerToast} from "../components/toast";
 
 window.addEventListener('load', () => requestAnimationFrame(async () => {
     (function() {
-        // Получаем экземпляр Preline Select (он уже инициализирован автоматически через data-hs-select)
+        // Получаем экземпляры Preline Select (они уже инициализированы автоматически через data-hs-select)
         const countrySelect = window.HSSelect.getInstance('#country_select');
+        const countrySelectElement = document.getElementById('country_select');
+        const regionSelect = window.HSSelect.getInstance('#region_select');
+        const regionSelectElement = document.getElementById('region_select');
         
-        if (!countrySelect) {
-            console.error('Не найден экземпляр Preline Select для стран');
+        if (!countrySelect || !countrySelectElement || !regionSelect || !regionSelectElement) {
+            console.error('Не найдены необходимые элементы формы');
             return;
         }
+
+        // Изначально отключаем регионы
+        regionSelectElement.disabled = true;
 
         // Загружаем страны и добавляем опции через метод addOption
         (async () => {
@@ -34,6 +39,62 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 console.error('Ошибка при загрузке стран:', error);
             }
         })();
+
+        // Обработчик изменения выбора стран
+        countrySelectElement.addEventListener('change', async (event) => {
+            // Получаем все выбранные страны
+            const selectedOptions = Array.from(event.target.selectedOptions);
+            const selectedCountryIds = selectedOptions
+                .map(option => option.value)
+                .filter(value => value !== '');
+
+            if (selectedCountryIds.length === 0) {
+                // Очистить регионы, если страны не выбраны
+                // Удаляем все опции кроме placeholder
+                const regionOptions = regionSelectElement.querySelectorAll('option:not([value=""])');
+                regionOptions.forEach(option => option.remove());
+                regionSelectElement.disabled = true;
+                return;
+            }
+
+            // Включаем регионы
+            regionSelectElement.disabled = false;
+
+            try {
+                // Загрузка регионов для выбранных стран
+                const countryIdsParam = selectedCountryIds.join(',');
+                const response = await fetch(`/api/region/list?country_ids=${countryIdsParam}`);
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки регионов');
+                }
+
+                const regions = await response.json();
+
+                // Удаляем все существующие опции кроме placeholder
+                const existingOptions = regionSelectElement.querySelectorAll('option:not([value=""])');
+                existingOptions.forEach(option => option.remove());
+
+                if (regions.length === 0) {
+                    regionSelectElement.disabled = true;
+                    showDangerToast('Информация', 'Для выбранных стран нет регионов');
+                    return;
+                }
+
+                // Добавляем регионы через метод addOption Preline Select
+                // Формируем полное название с названием страны для отображения
+                const optionsToAdd = regions.map((region) => ({
+                    title: `${region.title}, ${region.country_name}`,
+                    val: region.id.toString(),
+                }));
+                
+                regionSelect.addOption(optionsToAdd);
+            } catch (error) {
+                console.error('Ошибка при загрузке регионов:', error);
+                showDangerToast('Ошибка', 'Не удалось загрузить регионы');
+                regionSelectElement.disabled = true;
+            }
+        });
     })();
 
     // // Инициализация пустой карты

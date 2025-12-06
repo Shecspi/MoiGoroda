@@ -51,18 +51,27 @@
 
                         <!-- Регион -->
                         <div class="col-span-1">
-                            <label for="id_region" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
+                            <label for="region_select" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
                                 Регион
                             </label>
-                            <div class="relative">
-                                <select id="id_region" name="region" class="block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-500 dark:focus:ring-neutral-600">
-                                    <option value="">Выберите регион</option>
-                                </select>
-                                <span class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500 pointer-events-none">
-                                    <i class="fa-solid fa-chevron-down text-xs"></i>
-                                </span>
-                            </div>
-                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Выберите регион для фильтрации городов</p>
+                            <select
+                                id="region_select"
+                                name="region"
+                                multiple
+                                disabled
+                                data-hs-select='{
+                                    "placeholder": "Выберите регионы...",
+                                    "toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
+                                    "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:outline-hidden dark:focus:ring-1 dark:focus:ring-neutral-600",
+                                    "dropdownClasses": "mt-2 z-50 w-full max-h-72 p-1 space-y-0.5 bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 dark:bg-neutral-900 dark:border-neutral-700",
+                                    "optionClasses": "py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:text-neutral-200 dark:focus:bg-neutral-800",
+                                    "optionTemplate": "<div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div><div class=\"text-sm text-gray-800 dark:text-neutral-200\"><span data-title></span><span class=\"text-xs text-gray-500 dark:text-neutral-400\"></span></div></div><div class=\"ms-auto\"><span class=\"hidden\"><svg class=\"shrink-0 size-4 text-blue-600 dark:text-blue-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\"><path d=\"M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z\"/></svg></span></div></div>",
+                                    "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-neutral-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
+                                }'
+                                class="hidden">
+                                <option value="">Выберите регионы</option>
+                            </select>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Выберите регионы для фильтрации городов</p>
                         </div>
 
                         <!-- Город -->

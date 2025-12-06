@@ -11,6 +11,7 @@ import json
 from typing import Any
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import (
     Count,
     Exists,
@@ -19,7 +20,7 @@ from django.db.models import (
 )
 from django.http import Http404
 from django.utils.safestring import mark_safe
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 
 from city.models import VisitedCity
 from collection.filter import apply_filter_to_queryset
@@ -298,3 +299,30 @@ def get_url_params(filter_value: str | None) -> str:
         return f'filter={filter_value}'
 
     return ''
+
+
+class PersonalCollectionCreate(LoginRequiredMixin, TemplateView):
+    """
+    Отображает страницу создания персональной коллекции.
+
+     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
+     > Вся логика формы обрабатывается на фронтенде через JS.
+    """
+
+    template_name = 'collection/personal/create/page.html'
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context['active_page'] = 'collection'
+        context['page_title'] = 'Создание персональной коллекции'
+        context['page_description'] = 'Создайте свою персональную коллекцию городов'
+
+        # Передаём TILE_LAYER для карты
+        from django.conf import settings
+
+        context['TILE_LAYER'] = getattr(
+            settings, 'TILE_LAYER', 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+        )
+
+        return context

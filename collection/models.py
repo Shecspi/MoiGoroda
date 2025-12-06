@@ -49,3 +49,45 @@ class FavoriteCollection(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Избранная коллекция'
         verbose_name_plural = 'Избранные коллекции'
+
+
+class PersonalCollection(models.Model):
+    """
+    Персональная коллекция городов, созданная пользователем.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='personal_collections',
+        verbose_name='Пользователь',
+    )
+    title = models.CharField(
+        max_length=256,
+        verbose_name='Название',
+        blank=False,
+    )
+    city = models.ManyToManyField(
+        City,
+        related_name='personal_collections_list',
+        verbose_name='Города',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата создания',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата обновления',
+    )
+
+    def __str__(self) -> str:
+        return f'{self.user.username} - {self.title}'
+
+    def get_absolute_url(self) -> str:
+        # TODO: Создать URL для детального просмотра персональной коллекции
+        return str(reverse('collection-list'))
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Персональная коллекция'
+        verbose_name_plural = 'Персональные коллекции'

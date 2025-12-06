@@ -29,6 +29,7 @@ from city.serializers import (
     NotVisitedCitySerializer,
     VisitedCitySerializer,
 )
+from country.models import Country
 from city.services.db import (
     get_first_visit_date_by_city,
     get_last_visit_date_by_city,
@@ -320,3 +321,30 @@ def city_search(request: Request) -> Response:
     city_serializer = CitySerializer(cities_queryset, many=True, context={'request': request})  # type: ignore[arg-type]
 
     return Response(city_serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def country_list_by_cities(request: Request) -> Response:
+    """
+    Возвращает список стран, у которых есть города.
+
+    Возвращает список стран с полями id, code, name, отсортированный по названию.
+    Включаются только те страны, у которых есть хотя бы один город в базе данных.
+
+    :param request: DRF Request
+    :return: Response со списком стран
+    """
+    # Получаем страны, у которых есть города
+    countries = Country.objects.filter(city__isnull=False).distinct().order_by('name')
+
+    # Формируем простой ответ с нужными полями
+    countries_data = [
+        {
+            'id': country.id,
+            'code': country.code,
+            'name': country.name,
+        }
+        for country in countries
+    ]
+
+    return Response(countries_data, status=status.HTTP_200_OK)

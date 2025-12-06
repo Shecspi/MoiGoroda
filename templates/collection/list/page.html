@@ -124,9 +124,16 @@
                 <div class="w-full max-w-2xl">
                     <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
                          role="alert">
-                        <p class="text-sm text-gray-600 dark:text-neutral-300">
+                        <p class="text-sm text-gray-600 dark:text-neutral-300 mb-4">
                             Персональные коллекции появятся здесь в ближайшее время.
                         </p>
+                        <a href="{% url 'collection-personal-create' %}"
+                           class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 448 512" fill="currentColor">
+                                <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/>
+                            </svg>
+                            Добавить коллекцию
+                        </a>
                     </div>
                 </div>
             </div>

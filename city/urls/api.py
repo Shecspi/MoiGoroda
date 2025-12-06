@@ -18,4 +18,5 @@ urlpatterns = [
         name='api__city_list_by_country',
     ),
     path('search', api.city_search, name='city_search'),
+    path('country/list_by_cities', api.country_list_by_cities, name='api__country_list_by_cities'),
 ]

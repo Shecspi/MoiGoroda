@@ -80,4 +80,13 @@
         margin-top: 1.75rem !important;
         opacity: 1 !important;
     }
+
+    /* Стили для Preline Select - показываем галочку когда визуальный элемент опции имеет класс selected */
+    /* Preline добавляет класс selected к визуальному элементу опции, когда option имеет атрибут selected */
+    .selected .ms-auto span.hidden,
+    .hs-select-option.selected .ms-auto span.hidden,
+    [class*="hs-select-option"].selected .ms-auto span.hidden,
+    [class*="selected"] .ms-auto span.hidden {
+        display: block !important;
+    }
 }

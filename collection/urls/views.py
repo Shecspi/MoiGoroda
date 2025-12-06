@@ -13,6 +13,11 @@ from collection import views
 urlpatterns = [
     path('', views.CollectionList.as_view(), name='collection-list'),
     path(
+        'personal/create',
+        views.PersonalCollectionCreate.as_view(),
+        name='collection-personal-create',
+    ),
+    path(
         '<int:pk>/list',
         views.CollectionSelected_List.as_view(list_or_map='list'),
         name='collection-detail-list',

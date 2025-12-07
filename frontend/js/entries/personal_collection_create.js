@@ -1,7 +1,7 @@
 import L from 'leaflet';
 import {create_map} from '../components/map.js';
 import {icon_visited_pin, icon_not_visited_pin} from '../components/icons.js';
-import {bindPopupToMarker} from '../components/city_popup.js';
+import {buildPopupContent} from '../components/city_popup.js';
 import {showDangerToast} from "../components/toast";
 
 window.addEventListener('load', () => requestAnimationFrame(async () => {
@@ -12,9 +12,16 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         const regionSelect = window.HSSelect.getInstance('#region_select');
         const regionSelectElement = document.getElementById('region_select');
         const loadCitiesButton = document.getElementById('load_cities_button');
+        const saveCollectionButton = document.getElementById('save_collection_button');
         
         if (!countrySelect || !countrySelectElement || !regionSelect || !regionSelectElement || !loadCitiesButton) {
-            console.error('Не найдены необходимые элементы формы');
+            console.error('Не найдены необходимые элементы формы', {
+                countrySelect: !!countrySelect,
+                countrySelectElement: !!countrySelectElement,
+                regionSelect: !!regionSelect,
+                regionSelectElement: !!regionSelectElement,
+                loadCitiesButton: !!loadCitiesButton
+            });
             return;
         }
 
@@ -164,6 +171,59 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         // Массив для хранения всех маркеров
         const allMarkers = [];
         
+        // Массив для хранения выбранных городов для коллекции
+        const selectedCities = [];
+        
+        // Обработчик клика на кнопку "Добавить в коллекцию" / "Удалить из коллекции" в попапах
+        // Используем делегирование событий для обработки динамически созданных элементов
+        // Добавляем обработчик один раз, вне обработчика загрузки городов
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('a[data-hs-overlay="#addCityModal"][data-city-id]');
+            if (button && (button.textContent.trim() === 'Добавить в коллекцию' || button.textContent.trim() === 'Удалить из коллекции')) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const cityId = parseInt(button.getAttribute('data-city-id'), 10);
+                const cityName = button.getAttribute('data-city-name');
+                
+                if (!cityId || !cityName) {
+                    return;
+                }
+                
+                // Проверяем, есть ли город уже в массиве
+                const existingIndex = selectedCities.findIndex(city => city.id === cityId);
+                
+                if (existingIndex !== -1) {
+                    // Удаляем город из массива, если он уже есть
+                    selectedCities.splice(existingIndex, 1);
+                } else {
+                    // Добавляем город в массив
+                    selectedCities.push({
+                        id: cityId,
+                        name: cityName
+                    });
+                }
+                
+                // Обновляем текст кнопки в попапе
+                const isInCollection = selectedCities.some(city => city.id === cityId);
+                button.textContent = isInCollection ? 'Удалить из коллекции' : 'Добавить в коллекцию';
+                
+                // Обновляем содержимое попапа, если он открыт
+                if (window.MG_MAIN_MAP) {
+                    const openPopup = window.MG_MAIN_MAP._popup;
+                    if (openPopup && openPopup._source) {
+                        const marker = openPopup._source;
+                        // Находим соответствующий маркер и обновляем его попап
+                        const markerCityId = marker._cityId;
+                        if (markerCityId === cityId && marker._updatePopupContent) {
+                            // Обновляем содержимое попапа
+                            marker.setPopupContent(marker._updatePopupContent());
+                        }
+                    }
+                }
+            }
+        });
+        
         // Обработчик клика на кнопку "Загрузить города"
         loadCitiesButton.addEventListener('click', async () => {
             const selectedOptions = Array.from(regionSelectElement.selectedOptions);
@@ -262,14 +322,6 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                     const regionLink = city.regionId ? `/region/${city.regionId}/list` : null;
                     const countryLink = city.countryCode ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(city.countryCode)}` : null;
                     
-                    const popupOptions = {
-                        regionName: city.region || null,
-                        countryName: city.country || null,
-                        regionLink: regionLink,
-                        countryLink: countryLink,
-                        isAuthenticated: isAuthenticated
-                    };
-                    
                     // Формируем данные города для попапа
                     const cityData = {
                         id: city.id,
@@ -283,7 +335,63 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                         numberOfVisitsAllUsers: null
                     };
                     
-                    bindPopupToMarker(marker, cityData, popupOptions);
+                    // Базовые опции для попапа (без addButtonText, он будет обновляться динамически)
+                    const basePopupOptions = {
+                        regionName: city.region || null,
+                        countryName: city.country || null,
+                        regionLink: regionLink,
+                        countryLink: countryLink,
+                        isAuthenticated: isAuthenticated
+                    };
+                    
+                    // Сохраняем ID города в маркере для последующего использования
+                    marker._cityId = city.id;
+                    marker._cityData = cityData;
+                    marker._basePopupOptions = basePopupOptions;
+                    
+                    // Функция для обновления содержимого попапа
+                    const updatePopupContent = () => {
+                        // Проверяем актуальное состояние коллекции
+                        const isInCollection = selectedCities.some(selectedCity => selectedCity.id === city.id);
+                        const popupOptions = {
+                            regionName: basePopupOptions.regionName,
+                            countryName: basePopupOptions.countryName,
+                            regionLink: basePopupOptions.regionLink,
+                            countryLink: basePopupOptions.countryLink,
+                            isAuthenticated: basePopupOptions.isAuthenticated,
+                            addButtonText: isInCollection ? 'Удалить из коллекции' : 'Добавить в коллекцию'
+                        };
+                        return buildPopupContent(cityData, popupOptions);
+                    };
+                    
+                    // Сохраняем функцию обновления в маркере
+                    marker._updatePopupContent = updatePopupContent;
+                    
+                    // Привязываем попап с функцией обновления
+                    marker.bindPopup(updatePopupContent, {maxWidth: 400, minWidth: 280});
+                    
+                    // Обновляем содержимое попапа при каждом открытии
+                    marker.on('popupopen', () => {
+                        // Обновляем содержимое попапа с актуальным состоянием
+                        marker.setPopupContent(updatePopupContent());
+                        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                            window.HSStaticMethods.autoInit();
+                        }
+                    });
+                    
+                    marker.bindTooltip(cityData.name, {direction: 'top'});
+                    marker.on('mouseover', function () {
+                        const tooltip = this.getTooltip();
+                        if (this.isPopupOpen()) {
+                            tooltip.setOpacity(0.0);
+                        } else {
+                            tooltip.setOpacity(0.9);
+                        }
+                    });
+                    marker.on('click', function () {
+                        this.getTooltip().setOpacity(0.0);
+                    });
+                    
                     allMarkers.push(marker);
                 }
                 
@@ -302,6 +410,13 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 updateLoadCitiesButton();
             }
         });
+        
+        // Обработчик клика на кнопку "Сохранить коллекцию"
+        if (saveCollectionButton) {
+            saveCollectionButton.addEventListener('click', () => {
+                console.log('Выбранные города для коллекции:', selectedCities);
+            });
+        }
     })();
 }));
 

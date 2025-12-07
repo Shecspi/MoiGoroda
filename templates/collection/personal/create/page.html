@@ -83,13 +83,45 @@
                                 id="load_cities_button"
                                 type="button"
                                 disabled
-                                class="w-full inline-flex items-center justify-center gap-x-2 px-4 py-3 text-sm font-semibold rounded-xl border border-emerald-500 text-emerald-600 shadow-sm transition hover:bg-emerald-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10 dark:focus:ring-offset-neutral-800">
+                                class="w-full inline-flex items-center justify-center gap-x-2 px-4 py-3 text-sm font-semibold rounded-xl border border-blue-500 text-blue-600 shadow-sm transition hover:bg-blue-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-500/10 dark:focus:ring-offset-neutral-800">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 512 512" fill="currentColor">
                                     <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/>
                                 </svg>
                                 Загрузить города
                             </button>
                             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500 invisible">Загрузка городов</p>
+                        </div>
+                    </div>
+
+                    <!-- Название коллекции и кнопка сохранения -->
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] items-center">
+                        <div>
+                            <label for="collection_name" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
+                                Название коллекции
+                                <span class="text-red-600 dark:text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   id="collection_name"
+                                   name="collection_name"
+                                   class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg bg-white sm:text-sm focus:z-10 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-neutral-600"
+                                   placeholder="Введите название коллекции"
+                                   required>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Укажите название для вашей персональной коллекции</p>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200 invisible">
+                                Сохранить
+                            </label>
+                            <button
+                                id="save_collection_button"
+                                type="button"
+                                class="inline-flex items-center justify-center gap-x-2 px-6 py-3 text-sm font-semibold rounded-xl border border-emerald-600 bg-emerald-600 text-white shadow-sm transition hover:bg-emerald-700 hover:border-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:border-emerald-500 dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-600 dark:hover:border-emerald-600 dark:focus:ring-offset-neutral-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 512 512" fill="currentColor">
+                                    <path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.6zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z"/>
+                                </svg>
+                                Сохранить коллекцию
+                            </button>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500 invisible">Сохранение коллекции</p>
                         </div>
                     </div>
                 </div>

@@ -136,6 +136,7 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false) => {
  * @param {string} [options.regionLink] - Ссылка на список городов региона
  * @param {string} [options.countryLink] - Ссылка на список городов страны
  * @param {boolean} [options.isAuthenticated] - Авторизован ли пользователь (определяет показ кнопки "Отметить как посещённый")
+ * @param {string} [options.addButtonText] - Текст кнопки добавления города (по умолчанию "Отметить как посещённый" / "Добавить ещё одно посещение")
  * @returns {string} HTML-код popup окна
  */
 export const buildPopupContent = (cityData, options = {}) => {
@@ -144,7 +145,8 @@ export const buildPopupContent = (cityData, options = {}) => {
         countryName = '',
         regionLink = '',
         countryLink = '',
-        isAuthenticated = false
+        isAuthenticated = false,
+        addButtonText = null
     } = options;
 
     let content = '<div class="px-1.5 py-1.5 min-w-[280px] max-w-[400px]">';
@@ -181,21 +183,19 @@ export const buildPopupContent = (cityData, options = {}) => {
 
     if (isAuthenticated) {
         content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
-        if (!cityData.isVisited) {
-            content += `<a href="#" 
-                class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-                data-hs-overlay="#addCityModal" 
-                data-city-name="${cityData.name}" 
-                data-city-id="${cityData.id}" 
-                data-city-region="${regionName}">Отметить как посещённый</a>`;
+        // Используем кастомный текст кнопки, если передан, иначе используем стандартный
+        let buttonText;
+        if (addButtonText) {
+            buttonText = addButtonText;
         } else {
-            content += `<a href="#" 
-                class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-                data-hs-overlay="#addCityModal" 
-                data-city-name="${cityData.name}" 
-                data-city-id="${cityData.id}" 
-                data-city-region="${regionName}">Добавить ещё одно посещение</a>`;
+            buttonText = !cityData.isVisited ? 'Отметить как посещённый' : 'Добавить ещё одно посещение';
         }
+        content += `<a href="#" 
+            class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+            data-hs-overlay="#addCityModal" 
+            data-city-name="${cityData.name}" 
+            data-city-id="${cityData.id}" 
+            data-city-region="${regionName}">${buttonText}</a>`;
         content += '</div>';
     }
 

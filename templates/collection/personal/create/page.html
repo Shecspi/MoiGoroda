@@ -74,20 +74,22 @@
                             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Выберите регионы для фильтрации городов</p>
                         </div>
 
-                        <!-- Город -->
+                        <!-- Кнопка загрузки городов -->
                         <div class="col-span-1">
-                            <label for="id_city" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
-                                Город
+                            <label class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200 invisible">
+                                Загрузка
                             </label>
-                            <div class="relative">
-                                <select id="id_city" name="city" class="block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-500 dark:focus:ring-neutral-600">
-                                    <option value="">Выберите город</option>
-                                </select>
-                                <span class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500 pointer-events-none">
-                                    <i class="fa-solid fa-chevron-down text-xs"></i>
-                                </span>
-                            </div>
-                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Выберите город</p>
+                            <button
+                                id="load_cities_button"
+                                type="button"
+                                disabled
+                                class="w-full inline-flex items-center justify-center gap-x-2 px-4 py-3 text-sm font-semibold rounded-xl border border-emerald-500 text-emerald-600 shadow-sm transition hover:bg-emerald-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10 dark:focus:ring-offset-neutral-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 512 512" fill="currentColor">
+                                    <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/>
+                                </svg>
+                                Загрузить города
+                            </button>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500 invisible">Загрузка городов</p>
                         </div>
                     </div>
                 </div>

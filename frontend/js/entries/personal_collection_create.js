@@ -9,14 +9,29 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         const countrySelectElement = document.getElementById('country_select');
         const regionSelect = window.HSSelect.getInstance('#region_select');
         const regionSelectElement = document.getElementById('region_select');
+        const loadCitiesButton = document.getElementById('load_cities_button');
         
-        if (!countrySelect || !countrySelectElement || !regionSelect || !regionSelectElement) {
+        if (!countrySelect || !countrySelectElement || !regionSelect || !regionSelectElement || !loadCitiesButton) {
             console.error('Не найдены необходимые элементы формы');
             return;
         }
 
         // Изначально отключаем регионы
         regionSelectElement.disabled = true;
+        
+        // Функция для обновления состояния кнопки загрузки городов
+        const updateLoadCitiesButton = () => {
+            const selectedOptions = Array.from(regionSelectElement.selectedOptions);
+            const selectedRegionIds = selectedOptions
+                .map(option => option.value)
+                .filter(value => value !== '');
+            
+            if (selectedRegionIds.length > 0 && !regionSelectElement.disabled) {
+                loadCitiesButton.disabled = false;
+            } else {
+                loadCitiesButton.disabled = true;
+            }
+        };
 
         // Загружаем страны и добавляем опции через метод addOption
         (async () => {
@@ -54,6 +69,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 const regionOptions = regionSelectElement.querySelectorAll('option:not([value=""])');
                 regionOptions.forEach(option => option.remove());
                 regionSelectElement.disabled = true;
+                updateLoadCitiesButton();
                 return;
             }
 
@@ -78,6 +94,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 if (regions.length === 0) {
                     regionSelectElement.disabled = true;
                     showDangerToast('Информация', 'Для выбранных стран нет регионов');
+                    updateLoadCitiesButton();
                     return;
                 }
 
@@ -89,11 +106,18 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 }));
                 
                 regionSelect.addOption(optionsToAdd);
+                updateLoadCitiesButton();
             } catch (error) {
                 console.error('Ошибка при загрузке регионов:', error);
                 showDangerToast('Ошибка', 'Не удалось загрузить регионы');
                 regionSelectElement.disabled = true;
+                updateLoadCitiesButton();
             }
+        });
+        
+        // Обработчик изменения выбора регионов
+        regionSelectElement.addEventListener('change', () => {
+            updateLoadCitiesButton();
         });
     })();
 

@@ -1,5 +1,7 @@
+import L from 'leaflet';
 import {create_map} from '../components/map.js';
-
+import {icon_not_visited_pin} from '../components/icons.js';
+import {bindPopupToMarker} from '../components/city_popup.js';
 import {showDangerToast} from "../components/toast";
 
 window.addEventListener('load', () => requestAnimationFrame(async () => {
@@ -19,6 +21,11 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         // Изначально отключаем регионы
         regionSelectElement.disabled = true;
         
+        // Храним информацию о странах без регионов
+        const countriesWithoutRegions = new Set();
+        // Храним информацию о странах с регионами
+        const countriesWithRegions = new Set();
+        
         // Функция для обновления состояния кнопки загрузки городов
         const updateLoadCitiesButton = () => {
             const selectedOptions = Array.from(regionSelectElement.selectedOptions);
@@ -26,7 +33,14 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 .map(option => option.value)
                 .filter(value => value !== '');
             
-            if (selectedRegionIds.length > 0 && !regionSelectElement.disabled) {
+            // Получаем выбранные страны
+            const selectedCountryOptions = Array.from(countrySelectElement.selectedOptions);
+            const selectedCountryIds = selectedCountryOptions
+                .map(option => option.value)
+                .filter(value => value !== '');
+            
+            // Кнопка активна, если выбраны страны (независимо от наличия регионов)
+            if (selectedCountryIds.length > 0) {
                 loadCitiesButton.disabled = false;
             } else {
                 loadCitiesButton.disabled = true;
@@ -69,6 +83,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 const regionOptions = regionSelectElement.querySelectorAll('option:not([value=""])');
                 regionOptions.forEach(option => option.remove());
                 regionSelectElement.disabled = true;
+                countriesWithoutRegions.clear();
                 updateLoadCitiesButton();
                 return;
             }
@@ -91,9 +106,28 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 const existingOptions = regionSelectElement.querySelectorAll('option:not([value=""])');
                 existingOptions.forEach(option => option.remove());
 
+                // Определяем, какие страны имеют регионы
+                const countriesWithRegionsInResponse = new Set();
+                regions.forEach(region => {
+                    if (region.country_id) {
+                        countriesWithRegionsInResponse.add(region.country_id.toString());
+                    }
+                });
+
+                // Обновляем множества стран с регионами и без регионов
+                countriesWithRegions.clear();
+                countriesWithoutRegions.clear();
+                selectedCountryIds.forEach(countryId => {
+                    if (countriesWithRegionsInResponse.has(countryId)) {
+                        countriesWithRegions.add(countryId);
+                    } else {
+                        countriesWithoutRegions.add(countryId);
+                    }
+                });
+
                 if (regions.length === 0) {
                     regionSelectElement.disabled = true;
-                    showDangerToast('Информация', 'Для выбранных стран нет регионов');
+                    // Не показываем toast, так как это нормальная ситуация для стран без регионов
                     updateLoadCitiesButton();
                     return;
                 }
@@ -111,6 +145,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 console.error('Ошибка при загрузке регионов:', error);
                 showDangerToast('Ошибка', 'Не удалось загрузить регионы');
                 regionSelectElement.disabled = true;
+                countriesWithoutRegions.clear();
                 updateLoadCitiesButton();
             }
         });
@@ -119,156 +154,146 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         regionSelectElement.addEventListener('change', () => {
             updateLoadCitiesButton();
         });
+        
+        // Инициализация пустой карты
+        const map = create_map();
+        window.MG_MAIN_MAP = map;
+        // Устанавливаем центр карты на Россию
+        map.setView([55.7522, 37.6156], 6);
+        
+        // Массив для хранения всех маркеров
+        const allMarkers = [];
+        
+        // Обработчик клика на кнопку "Загрузить города"
+        loadCitiesButton.addEventListener('click', async () => {
+            const selectedOptions = Array.from(regionSelectElement.selectedOptions);
+            const selectedRegionIds = selectedOptions
+                .map(option => option.value)
+                .filter(value => value !== '');
+            
+            // Получаем выбранные страны
+            const selectedCountryOptions = Array.from(countrySelectElement.selectedOptions);
+            const selectedCountryIds = selectedCountryOptions
+                .map(option => option.value)
+                .filter(value => value !== '');
+            
+            if (selectedCountryIds.length === 0) {
+                showDangerToast('Ошибка', 'Не выбраны страны');
+                return;
+            }
+            
+            // Отключаем кнопку на время загрузки
+            loadCitiesButton.disabled = true;
+            const originalText = loadCitiesButton.innerHTML;
+            loadCitiesButton.innerHTML = '<span class="inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></span> Загрузка...';
+            
+            try {
+                // Формируем параметры запроса
+                const params = new URLSearchParams();
+                
+                // Если выбраны регионы - загружаем по регионам
+                if (selectedRegionIds.length > 0) {
+                    params.append('region_ids', selectedRegionIds.join(','));
+                }
+                
+                // Определяем, какие страны нужно загрузить:
+                // 1. Страны без регионов - всегда загружаем
+                // 2. Страны с регионами, но регионы не выбраны - загружаем все города этих стран
+                const selectedCountriesWithoutRegions = selectedCountryIds.filter(countryId => 
+                    countriesWithoutRegions.has(countryId)
+                );
+                
+                // Для стран с регионами: если регионы не выбраны вообще, загружаем все города этих стран
+                // Если регионы выбраны, не загружаем города по странам (только по регионам)
+                const selectedCountriesWithRegionsButNoRegionsSelected = selectedCountryIds.filter(countryId => {
+                    // Страна с регионами, но регионы не выбраны вообще
+                    return countriesWithRegions.has(countryId) && 
+                           selectedRegionIds.length === 0;
+                });
+                
+                // Объединяем страны для загрузки
+                const countriesToLoad = [
+                    ...selectedCountriesWithoutRegions,
+                    ...selectedCountriesWithRegionsButNoRegionsSelected
+                ];
+                
+                if (countriesToLoad.length > 0) {
+                    params.append('country_ids', countriesToLoad.join(','));
+                }
+                
+                const response = await fetch(`/api/city/list_by_regions?${params.toString()}`);
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки городов');
+                }
+                
+                const cities = await response.json();
+                
+                // Удаляем все существующие маркеры
+                allMarkers.forEach(marker => map.removeLayer(marker));
+                allMarkers.length = 0;
+                
+                if (cities.length === 0) {
+                    showDangerToast('Информация', 'Для выбранных регионов нет городов');
+                    loadCitiesButton.disabled = false;
+                    loadCitiesButton.innerHTML = originalText;
+                    return;
+                }
+                
+                // Получаем базовые URL для ссылок
+                const countryCitiesBaseUrl = window.COUNTRY_CITIES_BASE_URL || '';
+                const isAuthenticated = typeof window.IS_AUTHENTICATED !== 'undefined' && window.IS_AUTHENTICATED === true;
+                
+                // Отображаем города на карте
+                for (let i = 0; i < cities.length; i++) {
+                    const city = cities[i];
+                    const lat = parseFloat(city.lat);
+                    const lon = parseFloat(city.lon);
+                    
+                    if (isNaN(lat) || isNaN(lon)) {
+                        continue;
+                    }
+                    
+                    const marker = L.marker([lat, lon], {icon: icon_not_visited_pin}).addTo(map);
+                    
+                    // Формируем ссылки на регион и страну
+                    const regionLink = city.regionId ? `/region/${city.regionId}/list` : null;
+                    const countryLink = city.countryCode ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(city.countryCode)}` : null;
+                    
+                    const popupOptions = {
+                        regionName: city.region || null,
+                        countryName: city.country || null,
+                        regionLink: regionLink,
+                        countryLink: countryLink,
+                        isAuthenticated: isAuthenticated
+                    };
+                    
+                    // Формируем данные города для попапа
+                    const cityData = {
+                        id: city.id,
+                        name: city.title,
+                        isVisited: false
+                    };
+                    
+                    bindPopupToMarker(marker, cityData, popupOptions);
+                    allMarkers.push(marker);
+                }
+                
+                // Центрируем и масштабируем карту по маркерам
+                if (allMarkers.length > 0) {
+                    const group = new L.featureGroup([...allMarkers]);
+                    map.fitBounds(group.getBounds());
+                }
+                
+            } catch (error) {
+                console.error('Ошибка при загрузке городов:', error);
+                showDangerToast('Ошибка', 'Не удалось загрузить города');
+            } finally {
+                loadCitiesButton.disabled = false;
+                loadCitiesButton.innerHTML = originalText;
+                updateLoadCitiesButton();
+            }
+        });
     })();
-
-    // // Инициализация пустой карты
-    // const map = create_map();
-    // window.MG_MAIN_MAP = map;
-    // // Устанавливаем центр карты на Россию
-    // map.setView([55.7522, 37.6156], 6);
-
-    // // Удаляем пустую опцию из regionSelect, чтобы Choices.js использовал placeholder
-    // const regionEmptyOption = regionSelect.querySelector('option[value=""]');
-    // if (regionEmptyOption) {
-    //     regionEmptyOption.remove();
-    // }
-    
-    // const choicesRegion = new Choices(regionSelect, {
-    //     searchEnabled: true,
-    //     shouldSort: false,
-    //     placeholderValue: 'Выберите регион',
-    //     noResultsText: 'Ничего не найдено',
-    //     noChoicesText: 'Нет доступных вариантов',
-    //     itemSelectText: 'Нажмите для выбора',
-    //     loadingText: 'Загрузка...',
-    // });
-
-    // // Удаляем пустую опцию из citySelect, чтобы Choices.js использовал placeholder
-    // const cityEmptyOption = citySelect.querySelector('option[value=""]');
-    // if (cityEmptyOption) {
-    //     cityEmptyOption.remove();
-    // }
-    
-    // const choicesCity = new Choices(citySelect, {
-    //     searchEnabled: true,
-    //     shouldSort: false,
-    //     placeholderValue: 'Выберите город',
-    //     noResultsText: 'Ничего не найдено',
-    //     noChoicesText: 'Нет доступных вариантов',
-    //     itemSelectText: 'Нажмите для выбора',
-    //     loadingText: 'Загрузка...',
-    // });
-    
-    // // Проверяем начальные значения для определения состояния поля города
-    // const initialRegionValue = regionSelect.value;
-    
-    // // Если регион не выбран - отключаем поле города
-    // if (!initialRegionValue) {
-    //     choicesCity.disable();
-    // }
-
-
-    // // При изменении выбранных стран делаем запрос и обновляем регионы
-    // countrySelect.addEventListener('change', async (event) => {
-    //     choicesRegion.enable();
-    //     choicesCity.enable();
-
-    //     // Получаем все выбранные страны (для множественного выбора)
-    //     const selectedCountries = Array.from(event.target.selectedOptions).map(option => option.value);
-
-    //     if (selectedCountries.length === 0 || selectedCountries.includes('')) {
-    //         // Очистить регионы и города, если страны не выбраны
-    //         choicesRegion.clearStore();
-    //         choicesRegion.disable();
-    //         choicesCity.clearStore();
-    //         choicesCity.disable();
-    //         return;
-    //     }
-
-    //     // TODO: Обработка множественного выбора стран
-    //     // Пока что используем первую выбранную страну
-    //     const countryId = selectedCountries[0];
-
-    //     try {
-    //         // Загрузка регионов страны
-    //         const response = await fetch(`/api/region/list?country_id=${countryId}`);
-    //         if (!response.ok) throw new Error('Ошибка загрузки регионов');
-
-    //         const regions = await response.json();
-
-    //         // Очистить старые опции
-    //         choicesRegion.clearStore();
-
-    //         if (regions.length === 0) {
-    //             choicesRegion.disable();
-    //             choicesCity.clearStore();
-    //             choicesCity.disable();
-    //             showDangerToast('Ошибка', 'Для выбранной страны нет регионов');
-    //             return;
-    //         }
-
-    //         choicesRegion.setChoices(
-    //             regions.map((region) => ({
-    //                 value: region.id,
-    //                 label: region.title,
-    //                 selected: false,
-    //                 disabled: false,
-    //             })),
-    //             'value',
-    //             'label',
-    //             true
-    //         );
-
-    //         // Очищаем города при изменении страны
-    //         choicesCity.clearStore();
-    //         choicesCity.disable();
-    //     } catch (error) {
-    //         console.error('Ошибка при загрузке регионов:', error);
-    //         showDangerToast('Ошибка', 'Не удалось загрузить регионы');
-    //     }
-    // });
-
-    // // При изменении региона делаем запрос и обновляем города
-    // regionSelect.addEventListener('change', async (event) => {
-    //     const regionId = event.target.value;
-
-    //     if (!regionId) {
-    //         // Если регион не выбран, отключаем поле города
-    //         choicesCity.disable();
-    //         choicesCity.clearStore();
-    //         return;
-    //     }
-
-    //     choicesCity.enable();
-    //     choicesCity.clearStore();
-
-    //     try {
-    //         const cityResponse = await fetch(`/api/city/list_by_region?region_id=${regionId}`);
-    //         if (!cityResponse.ok) throw new Error('Ошибка загрузки городов');
-
-    //         const cities = await cityResponse.json();
-
-    //         if (cities.length === 0) {
-    //             choicesCity.disable();
-    //             showDangerToast('Ошибка', 'Для выбранного региона нет городов');
-    //             return;
-    //         }
-
-    //         choicesCity.setChoices(
-    //             cities.map((city) => ({
-    //                 value: city.id,
-    //                 label: city.title,
-    //                 selected: false,
-    //                 disabled: false,
-    //             })),
-    //             'value',
-    //             'label',
-    //             true
-    //         );
-    //     } catch (error) {
-    //         console.error('Ошибка при загрузке городов:', error);
-    //         showDangerToast('Ошибка', 'Не удалось загрузить города');
-    //     }
-    // });
 }));
 

@@ -5,10 +5,11 @@ from .models import Region
 class RegionSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     title = serializers.SerializerMethodField()
     country_name = serializers.SerializerMethodField()
+    country_id = serializers.IntegerField(source='country.id', read_only=True)
 
     class Meta:
         model = Region
-        fields = ['id', 'title', 'country_name']
+        fields = ['id', 'title', 'country_name', 'country_id']
 
     def get_title(self, obj: Region) -> str:
         """

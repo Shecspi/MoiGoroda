@@ -290,6 +290,99 @@ def city_list_by_country(request: Request) -> Response:
 
 
 @api_view(['GET'])
+def city_list_by_regions(request: Request) -> Response:
+    """
+    Возвращает список городов для одного или нескольких регионов и/или стран.
+
+    Принимает параметры:
+    - region_ids (несколько ID через запятую): для загрузки городов по регионам
+    - country_ids (несколько ID через запятую): для загрузки городов по странам без регионов
+
+    Возвращает список городов с полями id, title, lat, lon, region, country, regionId, countryCode.
+
+    :param request: DRF Request
+    :return: Response со списком городов
+    """
+    region_ids_param = request.GET.get('region_ids')
+    country_ids_param = request.GET.get('country_ids')
+
+    if not region_ids_param and not country_ids_param:
+        return Response(
+            {'detail': 'Параметр region_ids или country_ids является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Обрабатываем region_ids
+    region_ids: list[int] = []
+    if region_ids_param:
+        try:
+            region_ids = [int(id.strip()) for id in region_ids_param.split(',') if id.strip()]
+        except ValueError:
+            return Response(
+                {'detail': 'Параметр region_ids должен содержать список числовых ID через запятую'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    # Обрабатываем country_ids
+    country_ids: list[int] = []
+    if country_ids_param:
+        try:
+            country_ids = [int(id.strip()) for id in country_ids_param.split(',') if id.strip()]
+        except ValueError:
+            return Response(
+                {
+                    'detail': 'Параметр country_ids должен содержать список числовых ID через запятую'
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    if not region_ids and not country_ids:
+        return Response(
+            {'detail': 'Не указаны валидные ID регионов или стран'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Формируем запрос для получения городов
+    cities_query = City.objects.select_related('region', 'country')
+
+    if region_ids and country_ids:
+        # Если указаны и регионы, и страны - объединяем условия через OR
+        # Для регионов - загружаем города по регионам
+        # Для стран - загружаем все города этих стран (включая те, у которых есть регионы)
+        from django.db.models import Q
+
+        cities_query = cities_query.filter(
+            Q(region_id__in=region_ids) | Q(country_id__in=country_ids)
+        )
+    elif region_ids:
+        # Только регионы
+        cities_query = cities_query.filter(region_id__in=region_ids)
+    else:
+        # Только страны - загружаем все города этих стран
+        # (включая те, у которых есть регионы, если регионы не выбраны)
+        cities_query = cities_query.filter(country_id__in=country_ids)
+
+    cities = cities_query.order_by('title')
+
+    # Формируем данные вручную, чтобы включить regionId и countryCode
+    cities_data = []
+    for city in cities:
+        city_data = {
+            'id': city.id,
+            'title': city.title,
+            'lat': str(city.coordinate_width),
+            'lon': str(city.coordinate_longitude),
+            'region': city.region.full_name if city.region else None,
+            'country': city.country.name if city.country else None,
+            'regionId': city.region.id if city.region else None,
+            'countryCode': city.country.code if city.country else None,
+        }
+        cities_data.append(city_data)
+
+    return Response(cities_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
 def city_search(request: Request) -> Response:
     """
     Поиск городов по подстроке.

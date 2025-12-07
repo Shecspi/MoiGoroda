@@ -364,11 +364,56 @@ def city_list_by_regions(request: Request) -> Response:
 
     cities = cities_query.order_by('title')
 
-    # Формируем данные вручную, чтобы включить regionId и countryCode
+    # Получаем информацию о посещениях для авторизованного пользователя
+    user = request.user
+    user_id = user.pk if user.is_authenticated else None
+
+    # Получаем все посещённые города пользователя одним запросом для оптимизации
+    visited_city_ids: set[int] = set()
+    city_visits_data: dict[int, dict[str, Any]] = {}
+
+    if user_id:
+        visited_cities = (
+            VisitedCity.objects.filter(user_id=user_id, city_id__in=[city.id for city in cities])
+            .select_related('city')
+            .order_by('city_id', 'date_of_visit')
+        )
+
+        # Группируем посещения по городам
+        for visited_city in visited_cities:
+            city_id = visited_city.city_id
+            visited_city_ids.add(city_id)
+
+            if city_id not in city_visits_data:
+                city_visits_data[city_id] = {
+                    'first_visit_date': visited_city.date_of_visit,
+                    'last_visit_date': visited_city.date_of_visit,
+                    'number_of_visits': 1,
+                }
+            else:
+                # Обновляем первую и последнюю дату посещения
+                if visited_city.date_of_visit:
+                    if (
+                        city_visits_data[city_id]['first_visit_date'] is None
+                        or visited_city.date_of_visit
+                        < city_visits_data[city_id]['first_visit_date']
+                    ):
+                        city_visits_data[city_id]['first_visit_date'] = visited_city.date_of_visit
+                    if (
+                        city_visits_data[city_id]['last_visit_date'] is None
+                        or visited_city.date_of_visit > city_visits_data[city_id]['last_visit_date']
+                    ):
+                        city_visits_data[city_id]['last_visit_date'] = visited_city.date_of_visit
+                city_visits_data[city_id]['number_of_visits'] += 1
+
+    # Формируем данные вручную, чтобы включить regionId, countryCode и информацию о посещении
     cities_data = []
     for city in cities:
+        city_id = city.id
+        is_visited = city_id in visited_city_ids
+
         city_data = {
-            'id': city.id,
+            'id': city_id,
             'title': city.title,
             'lat': str(city.coordinate_width),
             'lon': str(city.coordinate_longitude),
@@ -376,7 +421,28 @@ def city_list_by_regions(request: Request) -> Response:
             'country': city.country.name if city.country else None,
             'regionId': city.region.id if city.region else None,
             'countryCode': city.country.code if city.country else None,
+            'isVisited': is_visited,
         }
+
+        # Добавляем информацию о посещении, если город посещён
+        if is_visited and city_id in city_visits_data:
+            visits_info = city_visits_data[city_id]
+            city_data['firstVisitDate'] = (
+                visits_info['first_visit_date'].isoformat()
+                if visits_info['first_visit_date']
+                else None
+            )
+            city_data['lastVisitDate'] = (
+                visits_info['last_visit_date'].isoformat()
+                if visits_info['last_visit_date']
+                else None
+            )
+            city_data['numberOfVisits'] = visits_info['number_of_visits']
+        else:
+            city_data['firstVisitDate'] = None
+            city_data['lastVisitDate'] = None
+            city_data['numberOfVisits'] = 0
+
         cities_data.append(city_data)
 
     return Response(cities_data, status=status.HTTP_200_OK)

@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import {create_map} from '../components/map.js';
-import {icon_not_visited_pin} from '../components/icons.js';
+import {icon_visited_pin, icon_not_visited_pin} from '../components/icons.js';
 import {bindPopupToMarker} from '../components/city_popup.js';
 import {showDangerToast} from "../components/toast";
 
@@ -254,7 +254,9 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                         continue;
                     }
                     
-                    const marker = L.marker([lat, lon], {icon: icon_not_visited_pin}).addTo(map);
+                    // Выбираем иконку в зависимости от статуса посещения
+                    const icon = city.isVisited ? icon_visited_pin : icon_not_visited_pin;
+                    const marker = L.marker([lat, lon], {icon: icon}).addTo(map);
                     
                     // Формируем ссылки на регион и страну
                     const regionLink = city.regionId ? `/region/${city.regionId}/list` : null;
@@ -272,7 +274,13 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                     const cityData = {
                         id: city.id,
                         name: city.title,
-                        isVisited: false
+                        isVisited: city.isVisited || false,
+                        firstVisitDate: city.firstVisitDate || null,
+                        lastVisitDate: city.lastVisitDate || null,
+                        numberOfVisits: city.numberOfVisits || 0,
+                        // Явно устанавливаем null, чтобы не показывать информацию о количестве пользователей
+                        numberOfUsersWhoVisitCity: null,
+                        numberOfVisitsAllUsers: null
                     };
                     
                     bindPopupToMarker(marker, cityData, popupOptions);

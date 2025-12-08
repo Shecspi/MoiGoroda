@@ -239,9 +239,6 @@ class PersonalCollectionService:
         """
         cities = get_all_cities_from_personal_collection(collection_id, collection_owner)
 
-        qty_of_visited_cities = sum(1 for city in cities if getattr(city, 'is_visited', False))
-        qty_of_cities = len(cities)
-
         # Применяем фильтр
         filter_param = filter_value if filter_value else ''
         if filter_param:
@@ -251,9 +248,9 @@ class PersonalCollectionService:
                 filter_param = ''
                 # Логирование ошибки фильтра (request не доступен в сервисе)
 
+        # НЕ подсчитываем статистику здесь, чтобы не "оценивать" QuerySet
+        # Статистика будет подсчитана в get_context_data после пагинации
         statistics = {
-            'qty_of_cities': qty_of_cities,
-            'qty_of_visited_cities': qty_of_visited_cities,
             'filter': filter_param,
         }
 
@@ -263,20 +260,20 @@ class PersonalCollectionService:
         self,
         collection: PersonalCollection,
         cities: Any,
-        qty_of_cities: int,
-        qty_of_visited_cities: int,
         filter_param: str,
     ) -> dict[str, Any]:
         """
         Формирует контекст для шаблона списка городов персональной коллекции.
 
         :param collection: Объект PersonalCollection.
-        :param cities: QuerySet городов.
-        :param qty_of_cities: Общее количество городов.
-        :param qty_of_visited_cities: Количество посещённых городов.
+        :param cities: Список городов (уже пагинированный).
         :param filter_param: Параметр фильтрации.
         :return: Словарь с данными для контекста шаблона.
         """
+        # Подсчитываем статистику из пагинированного списка
+        qty_of_cities = len(cities)
+        qty_of_visited_cities = sum(1 for city in cities if getattr(city, 'is_visited', False))
+
         # Для списка передаём упрощённые данные
         cities_data = [
             {
@@ -303,19 +300,19 @@ class PersonalCollectionService:
         self,
         collection: PersonalCollection,
         cities: Any,
-        qty_of_cities: int,
-        qty_of_visited_cities: int,
     ) -> dict[str, Any]:
         """
         Формирует контекст для шаблона карты городов персональной коллекции.
 
         :param collection: Объект PersonalCollection.
-        :param cities: QuerySet городов.
-        :param qty_of_cities: Общее количество городов.
-        :param qty_of_visited_cities: Количество посещённых городов.
+        :param cities: Список городов (уже пагинированный).
         :return: Словарь с данными для контекста шаблона.
         """
         from django.conf import settings
+
+        # Подсчитываем статистику из пагинированного списка
+        qty_of_cities = len(cities)
+        qty_of_visited_cities = sum(1 for city in cities if getattr(city, 'is_visited', False))
 
         return {
             'all_cities': cities,

@@ -13,13 +13,18 @@ from collection import views
 urlpatterns = [
     path('', views.CollectionList.as_view(), name='collection-list'),
     path(
+        'personal',
+        views.PersonalCollectionListView.as_view(),
+        name='collection-personal-list-view',
+    ),
+    path(
         'personal/create',
         views.PersonalCollectionCreate.as_view(),
         name='collection-personal-create',
     ),
     path(
         'personal/<uuid:pk>/list',
-        views.PersonalCollectionList.as_view(),
+        views.PersonalCollectionCityListView.as_view(),
         name='collection-personal-list',
     ),
     path(

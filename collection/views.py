@@ -381,6 +381,7 @@ class PersonalCollectionList(ListView):  # type: ignore[type-arg]
         """
         if self.pk is None or self.collection is None:
             raise Http404
+
         # Используем владельца коллекции для определения посещённых городов
         self.cities = get_all_cities_from_personal_collection(
             self.pk,
@@ -390,22 +391,21 @@ class PersonalCollectionList(ListView):  # type: ignore[type-arg]
         self.qty_of_cities = len(self.cities)
 
         # Определяем фильтрацию
-        if self.request.user.is_authenticated:
-            filter_value = self.request.GET.get('filter')
-            self.filter = filter_value if filter_value else ''
-            if self.filter:
-                try:
-                    self.cities = apply_filter_to_queryset(self.cities, self.filter)
-                except KeyError:
-                    logger.warning(
-                        self.request,
-                        f'(PersonalCollection #{self.pk}) Unexpected value of the filter - {self.request.GET.get("filter")}',
-                    )
-                else:
-                    logger.info(
-                        self.request,
-                        f"(PersonalCollection #{self.pk}) Using the filter '{self.filter}'",
-                    )
+        filter_value = self.request.GET.get('filter')
+        self.filter = filter_value if filter_value else ''
+        if self.filter:
+            try:
+                self.cities = apply_filter_to_queryset(self.cities, self.filter)
+            except KeyError:
+                logger.warning(
+                    self.request,
+                    f'(PersonalCollection #{self.pk}) Unexpected value of the filter - {self.request.GET.get("filter")}',
+                )
+            else:
+                logger.info(
+                    self.request,
+                    f"(PersonalCollection #{self.pk}) Using the filter '{self.filter}'",
+                )
 
         return self.cities
 
@@ -428,17 +428,6 @@ class PersonalCollectionList(ListView):  # type: ignore[type-arg]
 
         context['qty_of_cities'] = self.qty_of_cities
         context['qty_of_visited_cities'] = self.qty_of_visited_cities
-
-        if self.request.user.is_authenticated:
-            qty = self.qty_of_visited_cities if self.qty_of_visited_cities is not None else 0
-            context['change__city'] = modification__city(qty)
-            context['change__visited'] = modification__visited(qty)
-            context['url_for_filter_visited'] = get_url_params(
-                'visited' if self.filter != 'visited' else ''
-            )
-            context['url_for_filter_not_visited'] = get_url_params(
-                'not_visited' if self.filter != 'not_visited' else ''
-            )
 
         context['pk'] = self.pk
         if self.collection is not None:

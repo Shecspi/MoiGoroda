@@ -18,6 +18,16 @@ urlpatterns = [
         name='collection-personal-create',
     ),
     path(
+        'personal/<uuid:pk>/list',
+        views.PersonalCollectionList.as_view(),
+        name='collection-personal-list',
+    ),
+    path(
+        'personal/<uuid:pk>/map',
+        views.PersonalCollectionMap.as_view(),
+        name='collection-personal-map',
+    ),
+    path(
         '<int:pk>/list',
         views.CollectionSelected_List.as_view(list_or_map='list'),
         name='collection-detail-list',

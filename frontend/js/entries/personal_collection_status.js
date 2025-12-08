@@ -92,12 +92,8 @@ window.addEventListener('load', () => {
     // Обработка копирования/поделиться ссылкой на коллекцию
     const copyButton = document.getElementById('copy-collection-link-button');
     if (copyButton) {
-        // Изменяем текст кнопки, иконку и tooltip в зависимости от поддержки Web Share API
+        // Изменяем иконку и tooltip в зависимости от поддержки Web Share API
         if (navigator.share) {
-            const buttonText = copyButton.querySelector('span');
-            if (buttonText) {
-                buttonText.textContent = 'Поделиться ссылкой';
-            }
             // Заменяем иконку на иконку "Поделиться"
             const icon = document.getElementById('copy-collection-link-icon');
             if (icon) {

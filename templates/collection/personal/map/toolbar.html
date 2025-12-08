@@ -1,4 +1,5 @@
 {% load vite %}
+{% load morphology %}
 
 <!-- Панель инструментов -->
 <div class="mx-3 my-3 flex flex-wrap items-center justify-between gap-3" id="toolbar">
@@ -8,9 +9,9 @@
             <div class="hs-tooltip [--placement:top] relative inline-block">
                 <span class="hs-tooltip-toggle stat-badge stat-badge-success">
                     <span class="stat-badge-dot"></span>
-                    {{ change__visited|title }}:
+                    <span id="visited-word">{{ "Посещён,Посещено"|modify_by_num:qty_of_visited_cities }}</span>:
                     <strong>{{ qty_of_visited_cities }}</strong>
-                    {{ change__city }} из {{ qty_of_cities }}
+                    <span id="visited-cities-word">{{ "город"|plural_by_num:qty_of_visited_cities }}</span> из {{ qty_of_cities }}
                 </span>
                 <span class="hs-tooltip-content" role="tooltip">
                     Количество посещённых городов из коллекции

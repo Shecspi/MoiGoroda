@@ -157,5 +157,96 @@ window.addEventListener('load', () => {
             }
         });
     }
+
+    // Обработка модального окна удаления коллекции
+    const deleteButton = document.getElementById('delete-collection-button');
+    const deleteModal = document.getElementById('deleteCollectionModal');
+    const collectionTitleInput = document.getElementById('collection-title-confirm');
+    const collectionTitleDisplay = document.getElementById('collection-title-text');
+    const confirmDeleteButton = document.getElementById('confirm-delete-collection-button');
+
+    if (deleteButton && deleteModal && collectionTitleInput && collectionTitleDisplay && confirmDeleteButton) {
+        const collectionTitle = deleteButton.dataset.collectionTitle || '';
+
+        // При открытии модального окна
+        deleteModal.addEventListener('open.hs.overlay', () => {
+            // Устанавливаем название коллекции в модальном окне
+            collectionTitleDisplay.textContent = collectionTitle;
+            // Очищаем поле ввода
+            collectionTitleInput.value = '';
+            // Делаем кнопку неактивной
+            confirmDeleteButton.disabled = true;
+        });
+
+        // При закрытии модального окна
+        deleteModal.addEventListener('close.hs.overlay', () => {
+            // Очищаем поле ввода
+            collectionTitleInput.value = '';
+            // Делаем кнопку неактивной
+            confirmDeleteButton.disabled = true;
+        });
+
+        // Проверка введенного названия при вводе
+        collectionTitleInput.addEventListener('input', () => {
+            const inputValue = collectionTitleInput.value.trim();
+            if (inputValue === collectionTitle) {
+                confirmDeleteButton.disabled = false;
+            } else {
+                confirmDeleteButton.disabled = true;
+            }
+        });
+
+        // Обработка подтверждения удаления
+        confirmDeleteButton.addEventListener('click', async () => {
+            const inputValue = collectionTitleInput.value.trim();
+            if (inputValue !== collectionTitle) {
+                return;
+            }
+
+            // Получаем ID коллекции из URL текущей страницы
+            const currentUrl = window.location.pathname;
+            const urlMatch = currentUrl.match(/\/collection\/personal\/([^\/]+)\//);
+            if (!urlMatch) {
+                showDangerToast('Ошибка', 'Не удалось определить ID коллекции');
+                return;
+            }
+
+            const collectionId = urlMatch[1];
+
+            // Делаем кнопку неактивной во время запроса
+            confirmDeleteButton.disabled = true;
+            confirmDeleteButton.textContent = 'Удаление...';
+
+            try {
+                const csrftoken = getCookie('csrftoken');
+                const response = await fetch(`/api/collection/personal/${collectionId}/delete`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    showSuccessToast('Успешно', 'Коллекция успешно удалена');
+                    // Перенаправляем на страницу списка коллекций
+                    window.location.href = '/collection/';
+                } else {
+                    const data = await response.json().catch(() => ({}));
+                    const errorMessage = data.detail || 'Не удалось удалить коллекцию';
+                    showDangerToast('Ошибка', errorMessage);
+                    // Восстанавливаем кнопку
+                    confirmDeleteButton.disabled = false;
+                    confirmDeleteButton.textContent = 'Подтвердить удаление';
+                }
+            } catch (error) {
+                console.error('Ошибка при удалении коллекции:', error);
+                showDangerToast('Ошибка', 'Произошла ошибка при удалении коллекции');
+                // Восстанавливаем кнопку
+                confirmDeleteButton.disabled = false;
+                confirmDeleteButton.textContent = 'Подтвердить удаление';
+            }
+        });
+    }
 });
 

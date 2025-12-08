@@ -67,6 +67,7 @@
     {% endif %}
 
     {% if user.is_authenticated and collection and user == collection.user %}
+        {% include 'collection/personal/list/modals/delete.html' %}
         {% vite_asset 'js/entries/personal_collection_status.js' %}
     {% endif %}
 {% endblock %}

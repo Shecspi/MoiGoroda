@@ -12,6 +12,7 @@ from collection.api import (
     collection_search,
     favorite_collection_toggle,
     personal_collection_create,
+    personal_collection_delete,
     personal_collection_update_public_status,
 )
 
@@ -31,5 +32,10 @@ urlpatterns = [
         'personal/<str:collection_id>/update-public-status',
         personal_collection_update_public_status,
         name='api__personal_collection_update_public_status',
+    ),
+    path(
+        'personal/<str:collection_id>/delete',
+        personal_collection_delete,
+        name='api__personal_collection_delete',
     ),
 ]

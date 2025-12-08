@@ -174,6 +174,96 @@ def personal_collection_create(request: Request) -> Response:
     )
 
 
+@api_view(['PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def personal_collection_update(request: Request, collection_id: str) -> Response:
+    """
+    Обновляет персональную коллекцию.
+
+    Принимает JSON с полями:
+    - `title`: str — название коллекции (обязательное, максимум 256 символов)
+    - `city_ids`: list[int] — список ID городов для добавления в коллекцию (обязательное, не пустое)
+    - `is_public`: bool — публичная ли коллекция (необязательное, по умолчанию False)
+
+    Возвращает:
+    - При успехе: 200 с полями `id` (ID коллекции) и `title`
+    - При ошибке валидации: 400 с описанием ошибки
+    - При отсутствии авторизации: 401
+    - При отсутствии коллекции: 404
+    - При попытке изменить чужую коллекцию: 403
+
+    :param request: DRF Request с авторизованным пользователем
+    :param collection_id: UUID коллекции в виде строки
+    :return: Response с результатом обновления коллекции
+    """
+    import uuid
+
+    from collection.serializers import PersonalCollectionUpdateSerializer
+
+    try:
+        collection_uuid = uuid.UUID(collection_id)
+    except ValueError:
+        return Response(
+            {'detail': 'Неверный формат UUID коллекции'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        collection = PersonalCollection.objects.get(id=collection_uuid)
+    except PersonalCollection.DoesNotExist:
+        return Response(
+            {'detail': 'Коллекция не найдена'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    user = cast(User, request.user)
+    if collection.user != user:
+        return Response(
+            {'detail': 'У вас нет прав на изменение этой коллекции'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    serializer = PersonalCollectionUpdateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    title = serializer.validated_data['title']
+    city_ids = serializer.validated_data['city_ids']
+    is_public = serializer.validated_data.get('is_public', False)
+
+    # Проверяем существование всех городов
+    from city.models import City
+
+    cities = City.objects.filter(id__in=city_ids)
+    found_city_ids = set(cities.values_list('id', flat=True))
+    missing_city_ids = set(city_ids) - found_city_ids
+
+    if missing_city_ids:
+        return Response(
+            {
+                'detail': f'Города с ID {sorted(missing_city_ids)} не найдены',
+                'missing_city_ids': sorted(missing_city_ids),
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Обновляем коллекцию
+    collection.title = title
+    collection.is_public = is_public
+    collection.save()
+
+    # Обновляем города в коллекции
+    collection.city.set(cities)
+
+    return Response(
+        {
+            'id': collection.id,
+            'title': collection.title,
+            'is_public': collection.is_public,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def personal_collection_update_public_status(request: Request, collection_id: str) -> Response:

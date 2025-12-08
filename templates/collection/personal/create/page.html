@@ -25,7 +25,7 @@
             <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                 <div class="space-y-6" id="personal-collection-create-form">
                     <!-- Страна, Регион, Город -->
-                    <div class="grid grid-cols-1 gap-x-4 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
+                    <div class="grid grid-cols-1 gap-x-4 gap-y-10 md:grid-cols-2 lg:grid-cols-3 md:gap-y-4">
                         <!-- Страна -->
                         <div class="col-span-1">
                             <label for="country_select" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
@@ -93,8 +93,8 @@
                         </div>
                     </div>
 
-                    <!-- Название коллекции и кнопка сохранения -->
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] items-center">
+                    <!-- Название коллекции, тип коллекции и кнопка сохранения -->
+                    <div class="grid grid-cols-1 gap-y-10 gap-x-4 md:grid-cols-[1fr_auto_auto] md:gap-y-4 items-start">
                         <div>
                             <label for="collection_name" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
                                 Название коллекции
@@ -109,6 +109,37 @@
                             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Укажите название для вашей персональной коллекции</p>
                         </div>
                         <div class="col-span-1">
+                            <label for="is_public_switch" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
+                                Публичная коллекция
+                            </label>
+                            <div class="flex items-center py-2.5 sm:py-3">
+                                <span class="text-sm text-gray-600 dark:text-neutral-400 mr-3">Приватная</span>
+                                <label for="is_public_switch" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0">
+                                    <input type="checkbox"
+                                           id="is_public_switch"
+                                           name="is_public"
+                                           class="peer sr-only">
+                                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                                    <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                                    <!-- Left Icon (Off) -->
+                                    <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                                        <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M18 6 6 18"></path>
+                                            <path d="m6 6 12 12"></path>
+                                        </svg>
+                                    </span>
+                                    <!-- Right Icon (On) -->
+                                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                                        <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    </span>
+                                </label>
+                                <span class="text-sm text-gray-600 dark:text-neutral-400 ml-3">Публичная</span>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Публичные коллекции доступны всем пользователям</p>
+                        </div>
+                        <div class="col-span-1 self-end">
                             <label class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200 invisible">
                                 Сохранить
                             </label>

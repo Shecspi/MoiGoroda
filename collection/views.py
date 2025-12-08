@@ -9,9 +9,10 @@ Licensed under the Apache License, Version 2.0
 
 import json
 import uuid
-from typing import Any
+from typing import Any, cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import (
     Count,
@@ -26,6 +27,7 @@ from django.views.generic import ListView, TemplateView
 from city.models import VisitedCity
 from collection.filter import apply_filter_to_queryset
 from collection.models import Collection, FavoriteCollection, PersonalCollection
+from collection.repository import CollectionRepository
 from collection.services import PersonalCollectionService, get_all_cities_from_collection
 from services import logger
 from services.word_modifications.city import modification__city
@@ -130,30 +132,6 @@ class CollectionList(CollectionListMixin, ListView):  # type: ignore[type-arg]
         context['qty_of_started_colelctions'] = self.qty_of_started_colelctions
         context['qty_of_finished_colelctions'] = self.qty_of_finished_colelctions
 
-        # Получаем персональные коллекции пользователя
-        if self.request.user.is_authenticated:
-            from django.db.models import Count, Q
-
-            personal_collections = (
-                PersonalCollection.objects.filter(user=self.request.user)
-                .prefetch_related('city')
-                .annotate(
-                    qty_of_cities=Count('city', distinct=True),
-                    qty_of_visited_cities=Count(
-                        'city__visitedcity',
-                        filter=Q(
-                            city__visitedcity__user=self.request.user,
-                            city__visitedcity__is_first_visit=True,
-                        ),
-                        distinct=True,
-                    ),
-                )
-                .order_by('-created_at')
-            )
-            context['personal_collections'] = personal_collections
-        else:
-            context['personal_collections'] = PersonalCollection.objects.none()
-
         context['active_page'] = 'collection'
 
         url_params_for_sort = (
@@ -215,46 +193,51 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
 
     def get_queryset(self) -> Any:
         """
-        Получает из базы данных все города коллекции, как посещённые так и нет,
-        и возвращает Queryset, состоящий из полей:
-            * `id` - ID города
-            * `title` - название города
-            * `population` - население города
-            * `date_of_foundation` - дата основания города
-            * `coordinate_width` - широта
-            * `coordinate_longitude` - долгота
-            * `is_visited` - True,если город посещён
-
-            Для авторизованных пользователей доступны дополнительные поля:
-            * `visited_id` - ID посещённого города
-            * `date_of_visit` - дата посещения
-            * `has_magnet` - True, если имеется сувенир из города
-            * `rating` - рейтинг от 1 до 5
+        Получает из базы данных все города коллекции.
+        Города отображаются как посещённые/непосещённые на основе текущего пользователя.
         """
+        if self.pk is None:
+            raise Http404
         self.cities = get_all_cities_from_collection(
-            self.pk,  # type: ignore[arg-type]
+            self.pk,
             self.request.user if self.request.user.is_authenticated else None,
         )
         self.qty_of_visited_cities = sum([1 if city.is_visited else 0 for city in self.cities])
         self.qty_of_cities = len(self.cities)
 
         # Определяем фильтрацию
-        if self.request.user.is_authenticated:
-            filter_value = self.request.GET.get('filter')
-            self.filter = filter_value if filter_value else ''
-            if self.filter:
-                try:
-                    self.cities = apply_filter_to_queryset(self.cities, self.filter)
-                except KeyError:
-                    logger.warning(
+        filter_value = self.request.GET.get('filter')
+        self.filter = filter_value if filter_value else ''
+        if self.filter:
+            try:
+                self.cities = apply_filter_to_queryset(self.cities, self.filter)
+                if self.list_or_map == 'list':
+                    logger.info(
                         self.request,
-                        f'(Collection #{self.pk}) Unexpected value of the filter - {self.request.GET.get("filter")}',
+                        f"(Collection #{self.pk}) Using the filter '{self.filter}'",
                     )
                 else:
                     logger.info(
                         self.request,
                         f"(Collection #{self.pk}) Using the filter '{self.filter}'",
                     )
+            except KeyError:
+                logger.warning(
+                    self.request,
+                    f'(Collection #{self.pk}) Unexpected value of the filter - {self.request.GET.get("filter")}',
+                )
+            else:
+                if self.filter:
+                    if self.list_or_map == 'list':
+                        logger.info(
+                            self.request,
+                            f"(Collection #{self.pk}) Using the filter '{self.filter}'",
+                        )
+                    else:
+                        logger.info(
+                            self.request,
+                            f"(Collection #{self.pk}) Using the filter '{self.filter}'",
+                        )
 
         return self.cities
 
@@ -353,14 +336,52 @@ class PersonalCollectionCreate(LoginRequiredMixin, TemplateView):
         return context
 
 
-class PersonalCollectionList(ListView):  # type: ignore[type-arg]
+class PersonalCollectionListView(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
+    """
+    View для отображения списка персональных коллекций пользователя.
+    Отображает страницу со всеми персональными коллекциями пользователя.
+    """
+
+    model = PersonalCollection
+    paginate_by = 2
+    template_name = 'collection/personal/list/page_list.html'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.repository = CollectionRepository()
+
+    def get_queryset(self) -> Any:
+        """
+        Получает QuerySet персональных коллекций пользователя.
+        """
+        # LoginRequiredMixin гарантирует, что self.request.user - это User, а не AnonymousUser
+        user = cast(User, self.request.user)
+        return self.repository.get_personal_collections_with_annotations(user)
+
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
+        """
+        Формирует контекст для шаблона.
+        """
+        context = super().get_context_data(**kwargs)
+
+        context['active_page'] = 'collection'
+        context['page_title'] = 'Персональные коллекции'
+        context['page_description'] = (
+            'Ваши персональные коллекции городов. Создавайте свои коллекции и делитесь ими с другими.'
+        )
+
+        return context
+
+
+class PersonalCollectionCityListView(ListView):  # type: ignore[type-arg]
     """
     View для отображения списка городов в персональной коллекции.
+    Отображает детальную страницу коллекции со списком городов.
     Слой API - только получение параметров из request и вызов сервиса.
     """
 
     model = PersonalCollection
-    paginate_by = 16
+    paginate_by = 2
 
     def __init__(self) -> None:
         super().__init__()
@@ -380,8 +401,7 @@ class PersonalCollectionList(ListView):  # type: ignore[type-arg]
         """
         Получает QuerySet городов через сервис.
         """
-        if self.pk is None or self.collection is None:
-            raise Http404
+        assert self.pk is not None and self.collection is not None
 
         filter_value = self.request.GET.get('filter')
         cities, statistics = self.service.get_cities_for_collection(
@@ -393,26 +413,24 @@ class PersonalCollectionList(ListView):  # type: ignore[type-arg]
 
         return cities
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
         """
         Формирует контекст для шаблона через сервис.
         """
-        context = super().get_context_data(**kwargs)
+        assert self.collection is not None
 
-        if self.collection is None:
-            raise Http404
+        context = super().get_context_data(object_list=object_list, **kwargs)
 
-        statistics = getattr(self, '_statistics', {})
-        cities = self.object_list if hasattr(self, 'object_list') else []
+        # Используем object_list из контекста (уже пагинированный)
+        cities = context.get('object_list', [])
 
         service_context = self.service.get_list_context_data(
             collection=self.collection,
             cities=cities,
-            qty_of_cities=statistics.get('qty_of_cities', 0),
-            qty_of_visited_cities=statistics.get('qty_of_visited_cities', 0),
-            filter_param=statistics.get('filter', ''),
+            filter_param=self._statistics.get('filter', ''),
         )
 
+        # Обновляем контекст (service_context не содержит object_list, поэтому он не перезапишется)
         context.update(service_context)
 
         return context
@@ -430,7 +448,7 @@ class PersonalCollectionMap(ListView):  # type: ignore[type-arg]
     """
 
     model = PersonalCollection
-    paginate_by = 16
+    paginate_by = 2
 
     def __init__(self) -> None:
         super().__init__()
@@ -451,8 +469,7 @@ class PersonalCollectionMap(ListView):  # type: ignore[type-arg]
         """
         Получает QuerySet городов через сервис.
         """
-        if self.pk is None or self.collection is None:
-            raise Http404
+        assert self.pk is not None and self.collection is not None
 
         cities, statistics = self.service.get_cities_for_collection(
             self.pk, self.collection.user, None
@@ -463,23 +480,20 @@ class PersonalCollectionMap(ListView):  # type: ignore[type-arg]
 
         return cities
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
         """
         Формирует контекст для шаблона через сервис.
         """
-        context = super().get_context_data(**kwargs)
+        assert self.collection is not None
 
-        if self.collection is None:
-            raise Http404
+        context = super().get_context_data(object_list=object_list, **kwargs)
 
-        statistics = getattr(self, '_statistics', {})
-        cities = self.object_list if hasattr(self, 'object_list') else []
+        # Используем object_list из контекста (уже пагинированный)
+        cities = context.get('object_list', [])
 
         service_context = self.service.get_map_context_data(
             collection=self.collection,
             cities=cities,
-            qty_of_cities=statistics.get('qty_of_cities', 0),
-            qty_of_visited_cities=statistics.get('qty_of_visited_cities', 0),
         )
 
         context.update(service_context)

@@ -133,6 +133,30 @@ class CollectionList(CollectionListMixin, ListView):  # type: ignore[type-arg]
         context['qty_of_started_colelctions'] = self.qty_of_started_colelctions
         context['qty_of_finished_colelctions'] = self.qty_of_finished_colelctions
 
+        # Получаем персональные коллекции пользователя
+        if self.request.user.is_authenticated:
+            from django.db.models import Count, Q
+
+            personal_collections = (
+                PersonalCollection.objects.filter(user=self.request.user)
+                .prefetch_related('city')
+                .annotate(
+                    qty_of_cities=Count('city', distinct=True),
+                    qty_of_visited_cities=Count(
+                        'city__visitedcity',
+                        filter=Q(
+                            city__visitedcity__user=self.request.user,
+                            city__visitedcity__is_first_visit=True,
+                        ),
+                        distinct=True,
+                    ),
+                )
+                .order_by('-created_at')
+            )
+            context['personal_collections'] = personal_collections
+        else:
+            context['personal_collections'] = PersonalCollection.objects.none()
+
         context['active_page'] = 'collection'
 
         url_params_for_sort = (

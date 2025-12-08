@@ -170,6 +170,14 @@
         window.IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
         window.ALL_CITIES = [];
         window.COUNTRY_CITIES_BASE_URL = "{% url 'city-all-list' %}";
+        {% if collection_id %}
+        window.COLLECTION_ID = "{{ collection_id }}";
+        window.COLLECTION_TITLE = "{{ collection_title|escapejs }}";
+        window.COLLECTION_IS_PUBLIC = {{ collection_is_public|yesno:"true,false" }};
+        window.COLLECTION_CITY_IDS = {{ collection_city_ids|safe }};
+        {% else %}
+        window.COLLECTION_ID = null;
+        {% endif %}
     </script>
     {% vite_asset 'js/entries/leaflet_css.js' %}
     {% vite_asset 'js/entries/choices_css.js' %}

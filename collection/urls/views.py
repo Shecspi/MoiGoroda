@@ -23,6 +23,11 @@ urlpatterns = [
         name='collection-personal-create',
     ),
     path(
+        'personal/<uuid:pk>/edit',
+        views.PersonalCollectionEdit.as_view(),
+        name='collection-personal-edit',
+    ),
+    path(
         'personal/<uuid:pk>/list',
         views.PersonalCollectionCityListView.as_view(),
         name='collection-personal-list',

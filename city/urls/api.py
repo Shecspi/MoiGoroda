@@ -13,6 +13,7 @@ urlpatterns = [
     path('visited/add', api.AddVisitedCity.as_view(), name='api__add_visited_city'),
     path('list_by_region', api.city_list_by_region, name='api__city_list_by_region'),
     path('list_by_regions', api.city_list_by_regions, name='api__city_list_by_regions'),
+    path('list_by_ids', api.city_list_by_ids, name='api__city_list_by_ids'),
     path(
         'list_by_country',
         api.city_list_by_country,

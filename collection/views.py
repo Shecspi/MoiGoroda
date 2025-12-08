@@ -336,6 +336,57 @@ class PersonalCollectionCreate(LoginRequiredMixin, TemplateView):
         return context
 
 
+class PersonalCollectionEdit(LoginRequiredMixin, TemplateView):
+    """
+    Отображает страницу редактирования персональной коллекции.
+
+     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
+     > Только владелец коллекции может редактировать её.
+     > Вся логика формы обрабатывается на фронтенде через JS.
+    """
+
+    template_name = 'collection/personal/create/page.html'
+
+    def get(self, *args: Any, **kwargs: Any) -> Any:
+        """
+        Проверяет доступ к редактированию коллекции.
+        """
+        from collection.services import PersonalCollectionService
+
+        service = PersonalCollectionService()
+        self.collection = service.get_collection_with_access_check(
+            self.kwargs['pk'], self.request.user
+        )
+
+        # Проверяем, что пользователь является владельцем коллекции
+        if self.collection.user != self.request.user:
+            raise Http404
+
+        return super().get(*args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context['active_page'] = 'collection'
+        context['page_title'] = f'Редактирование коллекции "{self.collection.title}"'
+        context['page_description'] = 'Измените данные вашей персональной коллекции'
+
+        # Передаём данные коллекции для предзаполнения формы
+        context['collection_id'] = str(self.collection.id)
+        context['collection_title'] = self.collection.title
+        context['collection_is_public'] = self.collection.is_public
+        context['collection_city_ids'] = list(self.collection.city.values_list('id', flat=True))
+
+        # Передаём TILE_LAYER для карты
+        from django.conf import settings
+
+        context['TILE_LAYER'] = getattr(
+            settings, 'TILE_LAYER', 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+        )
+
+        return context
+
+
 class PersonalCollectionListView(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
     """
     View для отображения списка персональных коллекций пользователя.

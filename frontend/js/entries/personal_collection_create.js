@@ -7,6 +7,9 @@ import {getCookie} from '../components/get_cookie.js';
 
 window.addEventListener('load', () => requestAnimationFrame(async () => {
     (function() {
+        // Проверяем, находимся ли мы в режиме редактирования
+        const isEditMode = window.COLLECTION_ID !== null && window.COLLECTION_ID !== undefined;
+        
         // Получаем экземпляры Preline Select (они уже инициализированы автоматически через data-hs-select)
         const countrySelect = window.HSSelect.getInstance('#country_select');
         const countrySelectElement = document.getElementById('country_select');
@@ -174,6 +177,143 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         
         // Массив для хранения выбранных городов для коллекции
         const selectedCities = [];
+        
+        // Предзаполнение формы при редактировании
+        if (isEditMode) {
+            // Предзаполняем название коллекции
+            const collectionNameInput = document.getElementById('collection_name');
+            if (collectionNameInput && window.COLLECTION_TITLE) {
+                collectionNameInput.value = window.COLLECTION_TITLE;
+            }
+            
+            // Предзаполняем switch для публичной коллекции
+            const isPublicSwitch = document.getElementById('is_public_switch');
+            if (isPublicSwitch && window.COLLECTION_IS_PUBLIC !== undefined) {
+                isPublicSwitch.checked = window.COLLECTION_IS_PUBLIC;
+            }
+            
+            // Предзаполняем selectedCities и загружаем города на карту
+            if (window.COLLECTION_CITY_IDS && Array.isArray(window.COLLECTION_CITY_IDS) && window.COLLECTION_CITY_IDS.length > 0) {
+                // Загружаем города по их ID
+                (async () => {
+                    try {
+                        // Загружаем города через API
+                        const cityIdsParam = window.COLLECTION_CITY_IDS.join(',');
+                        const response = await fetch(`/api/city/list_by_ids?city_ids=${cityIdsParam}`);
+                        
+                        if (!response.ok) {
+                            throw new Error('Ошибка загрузки городов коллекции');
+                        }
+                        
+                        const cities = await response.json();
+                        
+                        // Добавляем города в selectedCities
+                        cities.forEach(city => {
+                            selectedCities.push({
+                                id: city.id,
+                                name: city.title
+                            });
+                        });
+                        
+                        // Получаем базовые URL для ссылок
+                        const countryCitiesBaseUrl = window.COUNTRY_CITIES_BASE_URL || '';
+                        const isAuthenticated = typeof window.IS_AUTHENTICATED !== 'undefined' && window.IS_AUTHENTICATED === true;
+                        
+                        // Отображаем города на карте
+                        cities.forEach(city => {
+                            const lat = parseFloat(city.lat.toString().replace(',', '.'));
+                            const lon = parseFloat(city.lon.toString().replace(',', '.'));
+                            
+                            if (isNaN(lat) || isNaN(lon)) {
+                                return;
+                            }
+                            
+                            // Формируем данные города для попапа
+                            const cityData = {
+                                id: city.id,
+                                name: city.title,
+                                isVisited: city.isVisited || false,
+                                firstVisitDate: city.firstVisitDate || null,
+                                lastVisitDate: city.lastVisitDate || null,
+                                numberOfVisits: city.numberOfVisits || 0,
+                                // Явно устанавливаем null, чтобы не показывать информацию о количестве пользователей
+                                numberOfUsersWhoVisitCity: null,
+                                numberOfVisitsAllUsers: null
+                            };
+                            
+                            // Формируем ссылки на регион и страну
+                            const regionName = city.region || '';
+                            const countryName = city.country || '';
+                            const regionId = city.regionId || null;
+                            const countryCode = city.countryCode || null;
+                            
+                            let regionLink = '';
+                            let countryLink = '';
+                            
+                            if (regionId && countryCitiesBaseUrl) {
+                                regionLink = `${countryCitiesBaseUrl}?region_id=${regionId}`;
+                            }
+                            
+                            if (countryCode && countryCitiesBaseUrl) {
+                                countryLink = `${countryCitiesBaseUrl}?country_code=${countryCode}`;
+                            }
+                            
+                            const marker = L.marker([lat, lon], {
+                                icon: icon_blue_pin
+                            });
+                            
+                            marker._cityId = cityData.id;
+                            marker._cityData = cityData;
+                            
+                            const updatePopupContent = () => buildPopupContent(cityData, {
+                                regionName: regionName,
+                                countryName: countryName,
+                                regionLink: regionLink,
+                                countryLink: countryLink,
+                                isAuthenticated: isAuthenticated,
+                                isCollectionOwner: true,
+                                collectionOwnerUsername: null,
+                                addButtonText: 'Добавить в коллекцию'
+                            });
+                            
+                            marker.bindPopup(updatePopupContent, {maxWidth: 400, minWidth: 280});
+                            
+                            marker.on('popupopen', () => {
+                                marker.setPopupContent(updatePopupContent());
+                                if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                                    window.HSStaticMethods.autoInit();
+                                }
+                            });
+                            
+                            marker.bindTooltip(cityData.name, {direction: 'top'});
+                            marker.on('mouseover', function () {
+                                const tooltip = this.getTooltip();
+                                if (this.isPopupOpen()) {
+                                    tooltip.setOpacity(0.0);
+                                } else {
+                                    tooltip.setOpacity(0.9);
+                                }
+                            });
+                            marker.on('click', function () {
+                                this.getTooltip().setOpacity(0.0);
+                            });
+                            
+                            marker.addTo(map);
+                            allMarkers.push(marker);
+                        });
+                        
+                        // Центрируем и масштабируем карту по маркерам
+                        if (allMarkers.length > 0) {
+                            const group = new L.featureGroup([...allMarkers]);
+                            map.fitBounds(group.getBounds());
+                        }
+                    } catch (error) {
+                        console.error('Ошибка при загрузке городов коллекции:', error);
+                        showDangerToast('Ошибка', 'Не удалось загрузить города коллекции');
+                    }
+                })();
+            }
+        }
         
         // Функция для обновления иконки маркера в зависимости от статуса в коллекции
         const updateMarkerIcon = (marker, cityData) => {

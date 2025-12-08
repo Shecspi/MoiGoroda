@@ -1,8 +1,9 @@
 import L from 'leaflet';
 import {create_map} from '../components/map.js';
-import {icon_visited_pin, icon_not_visited_pin} from '../components/icons.js';
+import {icon_visited_pin, icon_not_visited_pin, icon_blue_pin} from '../components/icons.js';
 import {buildPopupContent} from '../components/city_popup.js';
-import {showDangerToast} from "../components/toast";
+import {showDangerToast, showSuccessToast} from "../components/toast";
+import {getCookie} from '../components/get_cookie.js';
 
 window.addEventListener('load', () => requestAnimationFrame(async () => {
     (function() {
@@ -174,6 +175,20 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         // Массив для хранения выбранных городов для коллекции
         const selectedCities = [];
         
+        // Функция для обновления иконки маркера в зависимости от статуса в коллекции
+        const updateMarkerIcon = (marker, cityData) => {
+            const isInCollection = selectedCities.some(city => city.id === cityData.id);
+            
+            if (isInCollection) {
+                // Если город в коллекции - используем синюю иконку
+                marker.setIcon(icon_blue_pin);
+            } else {
+                // Если город не в коллекции - используем стандартную иконку в зависимости от статуса посещения
+                const icon = cityData.isVisited ? icon_visited_pin : icon_not_visited_pin;
+                marker.setIcon(icon);
+            }
+        };
+        
         // Обработчик клика на кнопку "Добавить в коллекцию" / "Удалить из коллекции" в попапах
         // Используем делегирование событий для обработки динамически созданных элементов
         // Добавляем обработчик один раз, вне обработчика загрузки городов
@@ -208,16 +223,22 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 const isInCollection = selectedCities.some(city => city.id === cityId);
                 button.textContent = isInCollection ? 'Удалить из коллекции' : 'Добавить в коллекцию';
                 
+                // Находим маркер для этого города и обновляем его иконку
+                const marker = allMarkers.find(m => m._cityId === cityId);
+                if (marker && marker._cityData) {
+                    updateMarkerIcon(marker, marker._cityData);
+                }
+                
                 // Обновляем содержимое попапа, если он открыт
                 if (window.MG_MAIN_MAP) {
                     const openPopup = window.MG_MAIN_MAP._popup;
                     if (openPopup && openPopup._source) {
-                        const marker = openPopup._source;
+                        const popupMarker = openPopup._source;
                         // Находим соответствующий маркер и обновляем его попап
-                        const markerCityId = marker._cityId;
-                        if (markerCityId === cityId && marker._updatePopupContent) {
+                        const markerCityId = popupMarker._cityId;
+                        if (markerCityId === cityId && popupMarker._updatePopupContent) {
                             // Обновляем содержимое попапа
-                            marker.setPopupContent(marker._updatePopupContent());
+                            popupMarker.setPopupContent(popupMarker._updatePopupContent());
                         }
                     }
                 }
@@ -314,14 +335,6 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                         continue;
                     }
                     
-                    // Выбираем иконку в зависимости от статуса посещения
-                    const icon = city.isVisited ? icon_visited_pin : icon_not_visited_pin;
-                    const marker = L.marker([lat, lon], {icon: icon}).addTo(map);
-                    
-                    // Формируем ссылки на регион и страну
-                    const regionLink = city.regionId ? `/region/${city.regionId}/list` : null;
-                    const countryLink = city.countryCode ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(city.countryCode)}` : null;
-                    
                     // Формируем данные города для попапа
                     const cityData = {
                         id: city.id,
@@ -334,6 +347,22 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                         numberOfUsersWhoVisitCity: null,
                         numberOfVisitsAllUsers: null
                     };
+                    
+                    // Выбираем иконку в зависимости от статуса посещения и наличия в коллекции
+                    const isInCollection = selectedCities.some(selectedCity => selectedCity.id === city.id);
+                    let icon;
+                    if (isInCollection) {
+                        // Если город уже в коллекции - используем синюю иконку
+                        icon = icon_blue_pin;
+                    } else {
+                        // Иначе используем стандартную иконку в зависимости от статуса посещения
+                        icon = city.isVisited ? icon_visited_pin : icon_not_visited_pin;
+                    }
+                    const marker = L.marker([lat, lon], {icon: icon}).addTo(map);
+                    
+                    // Формируем ссылки на регион и страну
+                    const regionLink = city.regionId ? `/region/${city.regionId}/list` : null;
+                    const countryLink = city.countryCode ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(city.countryCode)}` : null;
                     
                     // Базовые опции для попапа (без addButtonText, он будет обновляться динамически)
                     const basePopupOptions = {
@@ -413,8 +442,70 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         
         // Обработчик клика на кнопку "Сохранить коллекцию"
         if (saveCollectionButton) {
-            saveCollectionButton.addEventListener('click', () => {
-                console.log('Выбранные города для коллекции:', selectedCities);
+            saveCollectionButton.addEventListener('click', async () => {
+                // Получаем название коллекции
+                const collectionNameInput = document.getElementById('collection_name');
+                if (!collectionNameInput) {
+                    showDangerToast('Ошибка', 'Поле названия коллекции не найдено');
+                    return;
+                }
+
+                const collectionName = collectionNameInput.value.trim();
+                if (!collectionName) {
+                    showDangerToast('Ошибка', 'Необходимо указать название коллекции');
+                    collectionNameInput.focus();
+                    return;
+                }
+
+                // Проверяем, что выбраны города
+                if (selectedCities.length === 0) {
+                    showDangerToast('Ошибка', 'Необходимо добавить хотя бы один город в коллекцию');
+                    return;
+                }
+
+                // Отключаем кнопку на время отправки
+                saveCollectionButton.disabled = true;
+                const originalText = saveCollectionButton.innerHTML;
+                saveCollectionButton.innerHTML = '<span class="inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></span> Сохранение...';
+
+                try {
+                    // Формируем данные для отправки
+                    const requestData = {
+                        title: collectionName,
+                        city_ids: selectedCities.map(city => city.id),
+                        is_public: false, // По умолчанию коллекция не публичная
+                    };
+
+                    // Отправляем запрос на API
+                    const response = await fetch('/api/collection/personal/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        },
+                        body: JSON.stringify(requestData),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ detail: 'Неизвестная ошибка' }));
+                        throw new Error(errorData.detail || 'Не удалось сохранить коллекцию');
+                    }
+
+                    const data = await response.json();
+
+                    // Показываем сообщение об успехе
+                    showSuccessToast('Успешно', 'Коллекция успешно создана');
+
+                    // Перенаправляем на страницу коллекции
+                    window.location.href = `/collection/personal/${data.id}/list`;
+
+                } catch (error) {
+                    console.error('Ошибка при сохранении коллекции:', error);
+                    showDangerToast('Ошибка', error.message || 'Не удалось сохранить коллекцию. Попробуйте ещё раз.');
+                } finally {
+                    saveCollectionButton.disabled = false;
+                    saveCollectionButton.innerHTML = originalText;
+                }
             });
         }
     })();

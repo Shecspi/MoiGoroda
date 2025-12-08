@@ -17,8 +17,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from collection.models import Collection, FavoriteCollection
-from collection.serializers import CollectionSearchParamsSerializer
+from collection.models import Collection, FavoriteCollection, PersonalCollection
+from collection.serializers import (
+    CollectionSearchParamsSerializer,
+    PersonalCollectionCreateSerializer,
+)
 
 
 @api_view(['GET'])
@@ -104,4 +107,67 @@ def favorite_collection_toggle(request: Request, collection_id: int) -> Response
 
     return Response(
         {'detail': 'Метод не поддерживается'}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+    )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def personal_collection_create(request: Request) -> Response:
+    """
+    Создаёт новую персональную коллекцию для текущего пользователя.
+
+    Принимает JSON с полями:
+    - `title`: str — название коллекции (обязательное, максимум 256 символов)
+    - `city_ids`: list[int] — список ID городов для добавления в коллекцию (обязательное, не пустое)
+    - `is_public`: bool — публичная ли коллекция (необязательное, по умолчанию False)
+
+    Возвращает:
+    - При успехе: 201 с полями `id` (ID созданной коллекции) и `title`
+    - При ошибке валидации: 400 с описанием ошибки
+    - При отсутствии авторизации: 401
+
+    :param request: DRF Request с авторизованным пользователем
+    :return: Response с результатом создания коллекции
+    """
+    serializer = PersonalCollectionCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    user = cast(User, request.user)
+    title = serializer.validated_data['title']
+    city_ids = serializer.validated_data['city_ids']
+    is_public = serializer.validated_data.get('is_public', False)
+
+    # Проверяем существование всех городов
+    from city.models import City
+
+    cities = City.objects.filter(id__in=city_ids)
+    found_city_ids = set(cities.values_list('id', flat=True))
+    missing_city_ids = set(city_ids) - found_city_ids
+
+    if missing_city_ids:
+        return Response(
+            {
+                'detail': f'Города с ID {sorted(missing_city_ids)} не найдены',
+                'missing_city_ids': sorted(missing_city_ids),
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Создаём коллекцию
+    collection = PersonalCollection.objects.create(
+        user=user,
+        title=title,
+        is_public=is_public,
+    )
+
+    # Добавляем города в коллекцию
+    collection.city.set(cities)
+
+    return Response(
+        {
+            'id': collection.id,
+            'title': collection.title,
+            'is_public': collection.is_public,
+        },
+        status=status.HTTP_201_CREATED,
     )

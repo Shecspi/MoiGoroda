@@ -1,0 +1,151 @@
+{% load vite %}
+
+<!-- Панель инструментов -->
+<div class="mx-3 my-3 flex flex-wrap items-center justify-between gap-3" id="toolbar">
+    <!-- Статистика -->
+    <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
+        {% if user.is_authenticated %}
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                    <span class="stat-badge-dot"></span>
+                    {{ change__visited|title }}:
+                    <strong>{{ qty_of_visited_cities }}</strong>
+                    {{ change__city }} из {{ qty_of_cities }}
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Количество посещённых городов из коллекции
+                </span>
+            </div>
+        {% else %}
+            <div class="hs-tooltip [--placement:top] relative inline-block">
+                <span class="hs-tooltip-toggle stat-badge stat-badge-warning">
+                    <span class="stat-badge-dot"></span>
+                    Городов в коллекции:
+                    <strong>{{ qty_of_cities }}</strong>
+                </span>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Общее количество городов в коллекции
+                </span>
+            </div>
+        {% endif %}
+    </div>
+    <!-- ^^^ Статистика -->
+
+    <!-- Кнопки действий -->
+    <div class="toolbar-actions flex flex-wrap items-center gap-3 self-center ml-auto">
+        <!-- Посмотреть на карте -->
+        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+            <a href="{% url 'collection-personal-map' pk %}" 
+               class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+               id="section-show_map">
+                <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
+                </svg>
+                <span>Посмотреть на карте</span>
+            </a>
+            <span class="hs-tooltip-content" role="tooltip">
+                Открыть карту с городами коллекции
+            </span>
+        </div>
+        <!-- ^^^ Посмотреть на карте -->
+
+        <!-- Посмотреть посещённые -->
+        {% if user.is_authenticated and qty_of_visited_cities > 0 %}
+            {% if filter == 'visited' %}
+                <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                    <a class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-transparent bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-400 dark:focus:ring-offset-neutral-800"
+                       href="{% url 'collection-personal-list' pk %}"
+                       id="section-filter">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Посещённые</span>
+                    </a>
+                    <span class="hs-tooltip-content" role="tooltip">
+                        Показать только посещённые города
+                    </span>
+                </div>
+            {% else %}
+                <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                    <a class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-500/10 dark:focus:ring-offset-neutral-800"
+                       href="{% url 'collection-personal-list' pk %}?{{ url_for_filter_visited }}"
+                       id="section-filter">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Посещённые</span>
+                    </a>
+                    <span class="hs-tooltip-content" role="tooltip">
+                        Показать только посещённые города
+                    </span>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <button class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 opacity-50 cursor-not-allowed dark:border-neutral-700 dark:text-neutral-500"
+                        id="section-filter"
+                        disabled>
+                    <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Посещённые</span>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">
+                    У Вас нет посещённых городов в этой коллекции
+                </span>
+            </div>
+        {% endif %}
+        <!-- ^^^ Посмотреть посещённые -->
+
+        <!-- Посмотреть непосещённые -->
+        {% if user.is_authenticated and qty_of_visited_cities > 0 %}
+            {% if filter == 'not_visited' %}
+                <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                    <a class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-transparent bg-gray-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-500 dark:hover:bg-gray-400 dark:focus:ring-offset-neutral-800"
+                       href="{% url 'collection-personal-list' pk %}"
+                       id="section-sorting">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Непосещённые</span>
+                    </a>
+                    <span class="hs-tooltip-content" role="tooltip">
+                        Показать только непосещённые города
+                    </span>
+                </div>
+            {% else %}
+                <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                    <a class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-gray-600 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-500 dark:text-gray-400 dark:hover:bg-gray-500/10 dark:focus:ring-offset-neutral-800"
+                       href="{% url 'collection-personal-list' pk %}?{{ url_for_filter_not_visited }}"
+                       id="section-sorting">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Непосещённые</span>
+                    </a>
+                    <span class="hs-tooltip-content" role="tooltip">
+                        Показать только непосещённые города
+                    </span>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <button class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 opacity-50 cursor-not-allowed dark:border-neutral-700 dark:text-neutral-500"
+                        id="section-sorting"
+                        disabled>
+                    <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Непосещённые</span>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">
+                    У Вас нет посещённых городов в этой коллекции
+                </span>
+            </div>
+        {% endif %}
+        <!-- ^^^ Посмотреть непосещённые -->
+    </div>
+    <!-- ^^^ Кнопки действий -->
+</div>
+<!-- ^^^ Панель инструментов -->
+

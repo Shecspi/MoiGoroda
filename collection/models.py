@@ -7,6 +7,8 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
@@ -55,6 +57,13 @@ class PersonalCollection(models.Model):
     """
     Персональная коллекция городов, созданная пользователем.
     """
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name='ID',
+    )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -79,13 +88,17 @@ class PersonalCollection(models.Model):
         auto_now=True,
         verbose_name='Дата обновления',
     )
+    is_public = models.BooleanField(
+        default=False,
+        verbose_name='Публичная коллекция',
+        help_text='Если коллекция публичная, то пользователь сможет поделиться ссылкой на неё и любой желающий сможет посмотреть города этой коллекции',
+    )
 
     def __str__(self) -> str:
         return f'{self.user.username} - {self.title}'
 
     def get_absolute_url(self) -> str:
-        # TODO: Создать URL для детального просмотра персональной коллекции
-        return str(reverse('collection-list'))
+        return str(reverse('collection-personal-list', kwargs={'pk': self.pk}))
 
     class Meta:
         ordering = ['-created_at']

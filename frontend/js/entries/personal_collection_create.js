@@ -370,7 +370,8 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                         countryName: city.country || null,
                         regionLink: regionLink,
                         countryLink: countryLink,
-                        isAuthenticated: isAuthenticated
+                        isAuthenticated: isAuthenticated,
+                        isCollectionOwner: true // На странице создания коллекции пользователь всегда является создателем
                     };
                     
                     // Сохраняем ID города в маркере для последующего использования
@@ -388,6 +389,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                             regionLink: basePopupOptions.regionLink,
                             countryLink: basePopupOptions.countryLink,
                             isAuthenticated: basePopupOptions.isAuthenticated,
+                            isCollectionOwner: basePopupOptions.isCollectionOwner,
                             addButtonText: isInCollection ? 'Удалить из коллекции' : 'Добавить в коллекцию'
                         };
                         return buildPopupContent(cityData, popupOptions);
@@ -469,11 +471,15 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 saveCollectionButton.innerHTML = '<span class="inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></span> Сохранение...';
 
                 try {
+                    // Получаем значение switch для публичной коллекции
+                    const isPublicSwitch = document.getElementById('is_public_switch');
+                    const isPublic = isPublicSwitch ? isPublicSwitch.checked : false;
+
                     // Формируем данные для отправки
                     const requestData = {
                         title: collectionName,
                         city_ids: selectedCities.map(city => city.id),
-                        is_public: false, // По умолчанию коллекция не публичная
+                        is_public: isPublic,
                     };
 
                     // Отправляем запрос на API

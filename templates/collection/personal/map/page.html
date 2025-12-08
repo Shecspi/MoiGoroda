@@ -50,6 +50,8 @@
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
         window.IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
+        window.IS_COLLECTION_OWNER = {% if collection and user.is_authenticated and user == collection.user %}true{% else %}false{% endif %};
+        window.COLLECTION_OWNER_USERNAME = {% if collection %}"{{ collection.user.username|escapejs }}"{% else %}null{% endif %};
         window.COLLECTION_LIST_URL = "{% url 'collection-personal-list' pk %}";
         window.COUNTRY_CITIES_BASE_URL = "{% url 'city-all-list' %}";
         window.ALL_CITIES = [];

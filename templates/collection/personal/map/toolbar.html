@@ -5,30 +5,19 @@
 <div class="mx-3 my-3 flex flex-wrap items-center justify-between gap-3" id="toolbar">
     <!-- Статистика -->
     <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
-        {% if user.is_authenticated %}
-            <div class="hs-tooltip [--placement:top] relative inline-block">
-                <span class="hs-tooltip-toggle stat-badge stat-badge-success">
-                    <span class="stat-badge-dot"></span>
-                    <span id="visited-word">{{ "Посещён,Посещено"|modify_by_num:qty_of_visited_cities }}</span>:
-                    <strong>{{ qty_of_visited_cities }}</strong>
-                    <span id="visited-cities-word">{{ "город"|plural_by_num:qty_of_visited_cities }}</span> из {{ qty_of_cities }}
-                </span>
-                <span class="hs-tooltip-content" role="tooltip">
-                    Количество посещённых городов из коллекции
-                </span>
-            </div>
-        {% else %}
-            <div class="hs-tooltip [--placement:top] relative inline-block">
-                <span class="hs-tooltip-toggle stat-badge stat-badge-warning">
-                    <span class="stat-badge-dot"></span>
-                    Городов в коллекции:
-                    <strong>{{ qty_of_cities }}</strong>
-                </span>
-                <span class="hs-tooltip-content" role="tooltip">
-                    Общее количество городов в коллекции
-                </span>
-            </div>
-        {% endif %}
+        <div class="hs-tooltip [--placement:top] relative inline-block">
+            <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                <span class="stat-badge-dot"></span>
+                <span id="visited-word">{{ "Посещён,Посещено"|modify_by_num:qty_of_visited_cities }}</span>
+                <strong>{{ qty_of_visited_cities }}</strong>
+                <span id="visited-cities-word">{{ "город"|plural_by_num:qty_of_visited_cities }}</span>
+                <span>из</span>
+                <span>{{ qty_of_cities }}</span>
+            </span>
+            <span class="hs-tooltip-content" role="tooltip">
+                Количество посещённых городов из коллекции
+            </span>
+        </div>
     </div>
     <!-- ^^^ Статистика -->
 

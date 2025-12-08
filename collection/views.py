@@ -424,6 +424,41 @@ class PersonalCollectionListView(LoginRequiredMixin, ListView):  # type: ignore[
         return context
 
 
+class PublicPersonalCollectionListView(ListView):  # type: ignore[type-arg]
+    """
+    View для отображения списка публичных персональных коллекций всех пользователей.
+    Отображает страницу со всеми публичными персональными коллекциями в виде таблицы.
+    """
+
+    model = PersonalCollection
+    paginate_by = 20
+    template_name = 'collection/personal/list/page_public.html'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.repository = CollectionRepository()
+
+    def get_queryset(self) -> Any:
+        """
+        Получает QuerySet публичных персональных коллекций.
+        """
+        return self.repository.get_public_personal_collections_with_annotations()
+
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
+        """
+        Формирует контекст для шаблона.
+        """
+        context = super().get_context_data(**kwargs)
+
+        context['active_page'] = 'collection'
+        context['page_title'] = 'Публичные персональные коллекции'
+        context['page_description'] = (
+            'Публичные персональные коллекции городов всех пользователей. Исследуйте коллекции других пользователей.'
+        )
+
+        return context
+
+
 class PersonalCollectionCityListView(ListView):  # type: ignore[type-arg]
     """
     View для отображения списка городов в персональной коллекции.

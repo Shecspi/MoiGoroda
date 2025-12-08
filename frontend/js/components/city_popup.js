@@ -190,11 +190,11 @@ export const buildPopupContent = (cityData, options = {}) => {
         } else {
             buttonText = !cityData.isVisited ? 'Отметить как посещённый' : 'Добавить ещё одно посещение';
         }
-        content += `<a href="#" 
-            class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-            data-hs-overlay="#addCityModal" 
-            data-city-name="${cityData.name}" 
-            data-city-id="${cityData.id}" 
+            content += `<a href="#" 
+                class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                data-hs-overlay="#addCityModal" 
+                data-city-name="${cityData.name}" 
+                data-city-id="${cityData.id}" 
             data-city-region="${regionName}">${buttonText}</a>`;
         content += '</div>';
     }

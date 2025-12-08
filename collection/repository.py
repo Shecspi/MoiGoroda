@@ -101,3 +101,22 @@ class CollectionRepository:
         :raises ObjectDoesNotExist: Если коллекция не найдена.
         """
         return PersonalCollection.objects.get(id=collection_id)
+
+    def get_public_personal_collections_with_annotations(
+        self,
+    ) -> QuerySet[PersonalCollection, Any]:
+        """
+        Возвращает QuerySet публичных персональных коллекций всех пользователей с аннотациями:
+        - qty_of_cities: количество городов в коллекции
+
+        :return: QuerySet публичных персональных коллекций с аннотациями, отсортированный по дате создания (новые первыми).
+        """
+        return (
+            PersonalCollection.objects.filter(is_public=True)
+            .select_related('user')
+            .prefetch_related('city')
+            .annotate(
+                qty_of_cities=Count('city', distinct=True),
+            )
+            .order_by('-created_at')
+        )

@@ -18,6 +18,11 @@ urlpatterns = [
         name='collection-personal-list-view',
     ),
     path(
+        'personal/public',
+        views.PublicPersonalCollectionListView.as_view(),
+        name='collection-personal-public-list-view',
+    ),
+    path(
         'personal/create',
         views.PersonalCollectionCreate.as_view(),
         name='collection-personal-create',

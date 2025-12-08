@@ -23,6 +23,45 @@
 
     <!-- Кнопки действий -->
     <div class="toolbar-actions flex flex-wrap items-center gap-3 self-center ml-auto">
+        {% if user.is_authenticated and collection and user == collection.user %}
+            <!-- Публичная/Приватная коллекция -->
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <div class="hs-tooltip-toggle flex items-center gap-2">
+                    <span class="text-sm text-gray-600 dark:text-neutral-400">Приватная</span>
+                    <label for="collection-public-status-switch" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0">
+                        <input type="checkbox"
+                               id="collection-public-status-switch"
+                               {% if collection.is_public %}checked{% endif %}
+                               data-collection-id="{{ collection.id }}"
+                               class="peer sr-only">
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <!-- Left Icon (Off) -->
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <!-- Right Icon (On) -->
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                    <span class="text-sm text-gray-600 dark:text-neutral-400">Публичная</span>
+                </div>
+                <span class="hs-tooltip-content" role="tooltip">
+                    {% if collection.is_public %}
+                        Коллекция публичная. Любой пользователь может просматривать её.
+                    {% else %}
+                        Коллекция приватная. Только Вы можете просматривать её.
+                    {% endif %}
+                </span>
+            </div>
+            <!-- ^^^ Публичная/Приватная коллекция -->
+        {% endif %}
         <!-- Посмотреть на карте -->
         <div class="hs-tooltip [--placement:top] relative inline-block self-center">
             <a href="{% url 'collection-personal-map' pk %}" 

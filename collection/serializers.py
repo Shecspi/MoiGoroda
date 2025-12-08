@@ -11,6 +11,7 @@ class PersonalCollectionCreateSerializer(serializers.Serializer):  # type: ignor
     """
     Сериализатор для создания персональной коллекции.
     """
+
     title = serializers.CharField(required=True, max_length=256)
     city_ids = serializers.ListField(
         child=serializers.IntegerField(),
@@ -18,3 +19,11 @@ class PersonalCollectionCreateSerializer(serializers.Serializer):  # type: ignor
         allow_empty=False,
     )
     is_public = serializers.BooleanField(required=False, default=False)
+
+
+class PersonalCollectionUpdatePublicStatusSerializer(serializers.Serializer):  # type: ignore[type-arg]
+    """
+    Сериализатор для изменения статуса публичности персональной коллекции.
+    """
+
+    is_public = serializers.BooleanField(required=True)

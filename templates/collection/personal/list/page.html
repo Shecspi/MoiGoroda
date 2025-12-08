@@ -65,5 +65,9 @@
         {% include 'advertisement/rtb_floor_ad_mobile.html' %}
         {% include 'advertisement/rtb_floor_ad_desktop.html' %}
     {% endif %}
+
+    {% if user.is_authenticated and collection and user == collection.user %}
+        {% vite_asset 'js/entries/personal_collection_status.js' %}
+    {% endif %}
 {% endblock %}
 

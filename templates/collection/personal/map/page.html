@@ -76,5 +76,8 @@
     </script>
     {% vite_asset 'js/entries/leaflet_css.js' %}
     {% vite_asset 'js/entries/map_collection.js' %}
+    {% if user.is_authenticated and collection and user == collection.user %}
+        {% vite_asset 'js/entries/personal_collection_status.js' %}
+    {% endif %}
 {% endblock %}
 

@@ -21,6 +21,7 @@ from collection.models import Collection, FavoriteCollection, PersonalCollection
 from collection.serializers import (
     CollectionSearchParamsSerializer,
     PersonalCollectionCreateSerializer,
+    PersonalCollectionUpdatePublicStatusSerializer,
 )
 
 
@@ -170,4 +171,65 @@ def personal_collection_create(request: Request) -> Response:
             'is_public': collection.is_public,
         },
         status=status.HTTP_201_CREATED,
+    )
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def personal_collection_update_public_status(request: Request, collection_id: str) -> Response:
+    """
+    Изменяет статус публичности персональной коллекции.
+
+    Принимает JSON с полем:
+    - `is_public`: bool — новый статус публичности коллекции (обязательное)
+
+    Возвращает:
+    - При успехе: 200 с полем `is_public` (новый статус)
+    - При ошибке валидации: 400 с описанием ошибки
+    - При отсутствии авторизации: 401
+    - При отсутствии коллекции: 404
+    - При попытке изменить чужую коллекцию: 403
+
+    :param request: DRF Request с авторизованным пользователем
+    :param collection_id: UUID персональной коллекции
+    :return: Response с результатом изменения статуса
+    """
+    import uuid
+
+    try:
+        collection_uuid = uuid.UUID(collection_id)
+    except ValueError:
+        return Response(
+            {'detail': 'Неверный формат UUID коллекции'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Проверяем существование коллекции
+    try:
+        collection = PersonalCollection.objects.get(id=collection_uuid)
+    except ObjectDoesNotExist:
+        return Response(
+            {'detail': 'Коллекция не найдена'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    user = cast(User, request.user)
+
+    # Проверяем, что пользователь является создателем коллекции
+    if collection.user != user:
+        return Response(
+            {'detail': 'Вы не можете изменять эту коллекцию'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    serializer = PersonalCollectionUpdatePublicStatusSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    is_public = serializer.validated_data['is_public']
+    collection.is_public = is_public
+    collection.save(update_fields=['is_public'])
+
+    return Response(
+        {'is_public': collection.is_public},
+        status=status.HTTP_200_OK,
     )

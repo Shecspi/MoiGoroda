@@ -432,6 +432,7 @@ class PersonalCollectionList(ListView):  # type: ignore[type-arg]
         context['pk'] = self.pk
         if self.collection is not None:
             context['page_title'] = self.collection.title
+            context['collection'] = self.collection
             context['page_description'] = (
                 f'Города в персональной коллекции "{self.collection.title}".'
             )
@@ -521,6 +522,7 @@ class PersonalCollectionMap(ListView):  # type: ignore[type-arg]
         context['pk'] = self.pk
         if self.collection is not None:
             context['page_title'] = self.collection.title
+            context['collection'] = self.collection
             context['page_description'] = (
                 f'Карта городов в персональной коллекции "{self.collection.title}".'
             )

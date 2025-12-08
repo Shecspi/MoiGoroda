@@ -32,6 +32,8 @@ window.MG_MAIN_MAP = map;
 const collectionListUrl = window.COLLECTION_LIST_URL || '';
 const countryCitiesBaseUrl = window.COUNTRY_CITIES_BASE_URL || '';
 const isAuthenticated = typeof window.IS_AUTHENTICATED !== 'undefined' && window.IS_AUTHENTICATED === true;
+const isCollectionOwner = typeof window.IS_COLLECTION_OWNER !== 'undefined' && window.IS_COLLECTION_OWNER === true;
+const collectionOwnerUsername = window.COLLECTION_OWNER_USERNAME || null;
 
 // Отображаем на карте все города, меняя тип иконки в зависимости от того, посещён город или нет
 for (let i = 0; i < all_cities.length; i++) {
@@ -48,7 +50,9 @@ for (let i = 0; i < all_cities.length; i++) {
         countryName: city.countryName || null,
         regionLink: regionLink,
         countryLink: countryLink,
-        isAuthenticated: isAuthenticated
+        isAuthenticated: isAuthenticated,
+        isCollectionOwner: isCollectionOwner,
+        collectionOwnerUsername: collectionOwnerUsername
     };
     
     bindPopupToMarker(marker, city, popupOptions);
@@ -142,7 +146,9 @@ if (document.getElementById('form-add-city')) {
             countryName: newCityData.countryName || null,
             regionLink: regionLink,
             countryLink: countryLink,
-            isAuthenticated: isAuthenticated
+            isAuthenticated: isAuthenticated,
+            isCollectionOwner: isCollectionOwner,
+            collectionOwnerUsername: collectionOwnerUsername
         };
         bindPopupToMarker(marker, newCityData, popupOptions);
 

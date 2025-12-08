@@ -233,3 +233,53 @@ def personal_collection_update_public_status(request: Request, collection_id: st
         {'is_public': collection.is_public},
         status=status.HTTP_200_OK,
     )
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def personal_collection_delete(request: Request, collection_id: str) -> Response:
+    """
+    Удаляет персональную коллекцию.
+
+    Возвращает:
+    - При успехе: 204 No Content
+    - При отсутствии авторизации: 401
+    - При отсутствии коллекции: 404
+    - При попытке удалить чужую коллекцию: 403
+
+    :param request: DRF Request с авторизованным пользователем
+    :param collection_id: UUID персональной коллекции
+    :return: Response с результатом удаления
+    """
+    import uuid
+
+    try:
+        collection_uuid = uuid.UUID(collection_id)
+    except ValueError:
+        return Response(
+            {'detail': 'Неверный формат UUID коллекции'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Проверяем существование коллекции
+    try:
+        collection = PersonalCollection.objects.get(id=collection_uuid)
+    except ObjectDoesNotExist:
+        return Response(
+            {'detail': 'Коллекция не найдена'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    user = cast(User, request.user)
+
+    # Проверяем, что пользователь является создателем коллекции
+    if collection.user != user:
+        return Response(
+            {'detail': 'Вы не можете удалить эту коллекцию'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Удаляем коллекцию
+    collection.delete()
+
+    return Response(status=status.HTTP_204_NO_CONTENT)

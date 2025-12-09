@@ -11,9 +11,9 @@ import uuid
 from typing import Any
 
 from django.contrib.auth.models import User
-from django.db.models import Count, Exists, OuterRef, Q, QuerySet
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q, QuerySet
 
-from city.models import VisitedCity
+from city.models import City, VisitedCity
 from collection.models import Collection, FavoriteCollection, PersonalCollection
 
 
@@ -102,19 +102,25 @@ class CollectionRepository:
         """
         return PersonalCollection.objects.get(id=collection_id)
 
-    def get_public_personal_collections_with_annotations(
+    def get_public_collections_with_annotations(
         self,
     ) -> QuerySet[PersonalCollection, Any]:
         """
         Возвращает QuerySet публичных персональных коллекций всех пользователей с аннотациями:
         - qty_of_cities: количество городов в коллекции
+        - first_15_cities: первые 15 городов по алфавиту (через prefetch с to_attr)
 
         :return: QuerySet публичных персональных коллекций с аннотациями, отсортированный по дате создания (новые первыми).
         """
+        cities_prefetch = Prefetch(
+            'city',
+            queryset=City.objects.order_by('title'),
+            to_attr='first_15_cities',
+        )
         return (
             PersonalCollection.objects.filter(is_public=True)
             .select_related('user')
-            .prefetch_related('city')
+            .prefetch_related(cities_prefetch)
             .annotate(
                 qty_of_cities=Count('city', distinct=True),
             )

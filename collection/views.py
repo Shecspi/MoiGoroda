@@ -233,11 +233,11 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
                             self.request,
                             f"(Collection #{self.pk}) Using the filter '{self.filter}'",
                         )
-                    else:
-                        logger.info(
-                            self.request,
-                            f"(Collection #{self.pk}) Using the filter '{self.filter}'",
-                        )
+                else:
+                    logger.info(
+                        self.request,
+                        f"(Collection #{self.pk}) Using the filter '{self.filter}'",
+                    )
 
         return self.cities
 
@@ -442,13 +442,20 @@ class PublicPersonalCollectionListView(ListView):  # type: ignore[type-arg]
         """
         Получает QuerySet публичных персональных коллекций.
         """
-        return self.repository.get_public_personal_collections_with_annotations()
+        return self.repository.get_public_collections_with_annotations()
 
     def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
         """
         Формирует контекст для шаблона.
         """
         context = super().get_context_data(**kwargs)
+
+        # Ограничиваем до 15 городов для каждой коллекции после prefetch
+        # Prefetch загружает все города, но мы ограничиваем до первых 15 по алфавиту
+        paginated_collections = context.get('object_list', [])
+        for collection in paginated_collections:
+            if hasattr(collection, 'first_15_cities'):
+                collection.first_15_cities = collection.first_15_cities[:15]
 
         context['active_page'] = 'collection'
         context['page_title'] = 'Публичные персональные коллекции'

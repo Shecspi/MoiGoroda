@@ -103,26 +103,26 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                                 <div class="flex items-center justify-end gap-2">
                                                     <a href="{% url 'collection-personal-list' collection.id %}"
+                                                       title="Список"
                                                        class="inline-flex items-center gap-x-1 rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-600 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20">
                                                         <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                                                         </svg>
-                                                        Список
                                                     </a>
                                                     <a href="{% url 'collection-personal-map' collection.id %}"
+                                                       title="Карта"
                                                        class="inline-flex items-center gap-x-1 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20">
                                                         <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                                                         </svg>
-                                                        Карта
                                                     </a>
                                                     {% if user.is_authenticated %}
                                                         <button type="button"
+                                                                title="Скопировать коллекцию себе"
                                                                 class="inline-flex items-center gap-x-1 rounded-full border border-purple-300 bg-purple-50 px-3 py-1 text-sm font-semibold text-purple-700 transition hover:bg-purple-100 dark:border-purple-600 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20">
                                                             <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                                             </svg>
-                                                            Скопировать коллекцию
                                                         </button>
                                                     {% endif %}
                                                 </div>

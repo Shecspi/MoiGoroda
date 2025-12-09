@@ -265,16 +265,24 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                             marker._cityId = cityData.id;
                             marker._cityData = cityData;
                             
-                            const updatePopupContent = () => buildPopupContent(cityData, {
-                                regionName: regionName,
-                                countryName: countryName,
-                                regionLink: regionLink,
-                                countryLink: countryLink,
-                                isAuthenticated: isAuthenticated,
-                                isCollectionOwner: true,
-                                collectionOwnerUsername: null,
-                                addButtonText: 'Добавить в коллекцию'
-                            });
+                            // Функция для обновления содержимого попапа с проверкой актуального состояния коллекции
+                            const updatePopupContent = () => {
+                                // Проверяем актуальное состояние коллекции
+                                const isInCollection = selectedCities.some(selectedCity => selectedCity.id === cityData.id);
+                                return buildPopupContent(cityData, {
+                                    regionName: regionName,
+                                    countryName: countryName,
+                                    regionLink: regionLink,
+                                    countryLink: countryLink,
+                                    isAuthenticated: isAuthenticated,
+                                    isCollectionOwner: true,
+                                    collectionOwnerUsername: null,
+                                    addButtonText: isInCollection ? 'Удалить из коллекции' : 'Добавить в коллекцию'
+                                });
+                            };
+                            
+                            // Сохраняем функцию обновления в маркере для последующего использования
+                            marker._updatePopupContent = updatePopupContent;
                             
                             marker.bindPopup(updatePopupContent, {maxWidth: 400, minWidth: 280});
                             
@@ -450,10 +458,6 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 
                 const cities = await response.json();
                 
-                // Удаляем все существующие маркеры
-                allMarkers.forEach(marker => map.removeLayer(marker));
-                allMarkers.length = 0;
-                
                 if (cities.length === 0) {
                     showDangerToast('Информация', 'Для выбранных регионов нет городов');
                     loadCitiesButton.disabled = false;
@@ -461,13 +465,47 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                     return;
                 }
                 
+                // Удаляем только маркеры городов, которые НЕ в коллекции
+                // Маркеры городов из коллекции должны оставаться на карте
+                const collectionCityIds = new Set(selectedCities.map(city => city.id));
+                const markersToRemove = [];
+                const markersToKeep = [];
+                
+                allMarkers.forEach(marker => {
+                    if (marker._cityId && collectionCityIds.has(marker._cityId)) {
+                        // Маркер города из коллекции - оставляем
+                        markersToKeep.push(marker);
+                    } else {
+                        // Маркер города не из коллекции - удаляем
+                        markersToRemove.push(marker);
+                    }
+                });
+                
+                // Удаляем маркеры, которые не в коллекции
+                markersToRemove.forEach(marker => {
+                    map.removeLayer(marker);
+                    const index = allMarkers.indexOf(marker);
+                    if (index > -1) {
+                        allMarkers.splice(index, 1);
+                    }
+                });
+                
                 // Получаем базовые URL для ссылок
                 const countryCitiesBaseUrl = window.COUNTRY_CITIES_BASE_URL || '';
                 const isAuthenticated = typeof window.IS_AUTHENTICATED !== 'undefined' && window.IS_AUTHENTICATED === true;
                 
+                // Создаём Set с ID городов, для которых уже есть маркеры
+                const existingMarkerCityIds = new Set(allMarkers.map(marker => marker._cityId).filter(id => id !== undefined));
+                
                 // Отображаем города на карте
                 for (let i = 0; i < cities.length; i++) {
                     const city = cities[i];
+                    
+                    // Пропускаем города, для которых уже есть маркер
+                    if (existingMarkerCityIds.has(city.id)) {
+                        continue;
+                    }
+                    
                     const lat = parseFloat(city.lat);
                     const lon = parseFloat(city.lon);
                     
@@ -564,6 +602,8 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                     });
                     
                     allMarkers.push(marker);
+                    // Добавляем ID города в Set, чтобы не создавать дубликаты при последующих загрузках
+                    existingMarkerCityIds.add(city.id);
                 }
                 
                 // Центрируем и масштабируем карту по маркерам
@@ -622,9 +662,22 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                         is_public: isPublic,
                     };
 
+                    // Определяем URL и метод запроса в зависимости от режима
+                    let apiUrl;
+                    let method;
+                    if (isEditMode) {
+                        // Режим редактирования - обновляем существующую коллекцию
+                        apiUrl = `/api/collection/personal/${window.COLLECTION_ID}/update`;
+                        method = 'PUT';
+                    } else {
+                        // Режим создания - создаём новую коллекцию
+                        apiUrl = '/api/collection/personal/create';
+                        method = 'POST';
+                    }
+
                     // Отправляем запрос на API
-                    const response = await fetch('/api/collection/personal/create', {
-                        method: 'POST',
+                    const response = await fetch(apiUrl, {
+                        method: method,
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRFToken': getCookie('csrftoken'),
@@ -634,16 +687,17 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
 
                     if (!response.ok) {
                         const errorData = await response.json().catch(() => ({ detail: 'Неизвестная ошибка' }));
-                        throw new Error(errorData.detail || 'Не удалось сохранить коллекцию');
+                        throw new Error(errorData.detail || `Не удалось ${isEditMode ? 'обновить' : 'создать'} коллекцию`);
                     }
 
                     const data = await response.json();
 
                     // Показываем сообщение об успехе
-                    showSuccessToast('Успешно', 'Коллекция успешно создана');
+                    showSuccessToast('Успешно', `Коллекция успешно ${isEditMode ? 'обновлена' : 'создана'}`);
 
                     // Перенаправляем на страницу коллекции
-                    window.location.href = `/collection/personal/${data.id}/list`;
+                    const collectionId = isEditMode ? window.COLLECTION_ID : data.id;
+                    window.location.href = `/collection/personal/${collectionId}/list`;
 
                 } catch (error) {
                     console.error('Ошибка при сохранении коллекции:', error);

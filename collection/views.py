@@ -395,7 +395,7 @@ class PersonalCollectionListView(LoginRequiredMixin, ListView):  # type: ignore[
 
     model = PersonalCollection
     paginate_by = 2
-    template_name = 'collection/personal/list/page_list.html'
+    template_name = 'collection/personal/collections/page.html'
 
     def __init__(self) -> None:
         super().__init__()
@@ -432,7 +432,7 @@ class PublicPersonalCollectionListView(ListView):  # type: ignore[type-arg]
 
     model = PersonalCollection
     paginate_by = 2
-    template_name = 'collection/personal/list/public_table.html'
+    template_name = 'collection/public/list/page.html'
 
     def __init__(self) -> None:
         super().__init__()
@@ -530,7 +530,7 @@ class PersonalCollectionCityListView(ListView):  # type: ignore[type-arg]
 
     def get_template_names(self) -> list[str]:
         return [
-            'collection/personal/list/cities_list.html',
+            'collection/personal/cities/list/page.html',
         ]
 
 
@@ -594,5 +594,5 @@ class PersonalCollectionMap(ListView):  # type: ignore[type-arg]
 
     def get_template_names(self) -> list[str]:
         return [
-            'collection/personal/map/page.html',
+            'collection/personal/cities/map/page.html',
         ]

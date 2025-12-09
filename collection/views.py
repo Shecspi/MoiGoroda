@@ -530,7 +530,7 @@ class PersonalCollectionCityListView(ListView):  # type: ignore[type-arg]
 
     def get_template_names(self) -> list[str]:
         return [
-            'collection/personal/list/page.html',
+            'collection/personal/list/cities_list.html',
         ]
 
 

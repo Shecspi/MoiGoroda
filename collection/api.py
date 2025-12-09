@@ -7,6 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import uuid
 from typing import Any, cast
 
 from django.contrib.auth.models import User
@@ -17,11 +18,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from city.models import City
 from collection.models import Collection, FavoriteCollection, PersonalCollection
 from collection.serializers import (
     CollectionSearchParamsSerializer,
     PersonalCollectionCreateSerializer,
     PersonalCollectionUpdatePublicStatusSerializer,
+    PersonalCollectionUpdateSerializer,
 )
 
 
@@ -196,10 +199,6 @@ def personal_collection_update(request: Request, collection_id: str) -> Response
     :param collection_id: UUID коллекции в виде строки
     :return: Response с результатом обновления коллекции
     """
-    import uuid
-
-    from collection.serializers import PersonalCollectionUpdateSerializer
-
     try:
         collection_uuid = uuid.UUID(collection_id)
     except ValueError:
@@ -231,8 +230,6 @@ def personal_collection_update(request: Request, collection_id: str) -> Response
     is_public = serializer.validated_data.get('is_public', False)
 
     # Проверяем существование всех городов
-    from city.models import City
-
     cities = City.objects.filter(id__in=city_ids)
     found_city_ids = set(cities.values_list('id', flat=True))
     missing_city_ids = set(city_ids) - found_city_ids

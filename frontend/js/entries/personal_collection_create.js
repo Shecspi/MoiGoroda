@@ -36,6 +36,11 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         const countriesWithoutRegions = new Set();
         // Храним информацию о странах с регионами
         const countriesWithRegions = new Set();
+        // Храним маппинг регионов к странам (region_id -> country_id)
+        const regionToCountryMap = new Map();
+        // Храним текущие выбранные значения регионов и стран
+        let currentSelectedRegionIds = [];
+        let currentSelectedCountryIds = [];
         
         // Функция для обновления состояния кнопки загрузки городов
         const updateLoadCitiesButton = () => {
@@ -87,6 +92,9 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
             const selectedCountryIds = selectedOptions
                 .map(option => option.value)
                 .filter(value => value !== '');
+            
+            // Сохраняем выбранные страны
+            currentSelectedCountryIds = selectedCountryIds;
 
             if (selectedCountryIds.length === 0) {
                 // Очистить регионы, если страны не выбраны
@@ -119,9 +127,14 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
 
                 // Определяем, какие страны имеют регионы
                 const countriesWithRegionsInResponse = new Set();
+                // Очищаем маппинг регионов к странам
+                regionToCountryMap.clear();
                 regions.forEach(region => {
                     if (region.country_id) {
-                        countriesWithRegionsInResponse.add(region.country_id.toString());
+                        const countryIdStr = region.country_id.toString();
+                        countriesWithRegionsInResponse.add(countryIdStr);
+                        // Сохраняем маппинг региона к стране
+                        regionToCountryMap.set(region.id.toString(), countryIdStr);
                     }
                 });
 
@@ -161,9 +174,93 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
             }
         });
         
+        // Функция для получения выбранных регионов из DOM
+        const getSelectedRegions = () => {
+            const selected = [];
+            
+            // Метод 1: Проверяем опции с атрибутом selected
+            const allRegionOptions = Array.from(regionSelectElement.options);
+            allRegionOptions.forEach(option => {
+                if (option.hasAttribute('selected') && option.value !== '') {
+                    selected.push(option.value);
+                }
+            });
+            
+            // Метод 2: Проверяем визуальные элементы Preline Select с классом selected
+            const regionSelectContainer = regionSelectElement.closest('.hs-select');
+            if (regionSelectContainer) {
+                const selectedVisualElements = regionSelectContainer.querySelectorAll('.hs-select-option.selected, [class*="hs-select-option"].selected, [data-value].selected');
+                selectedVisualElements.forEach(element => {
+                    // Пытаемся получить значение из data-value или из текста опции
+                    let value = element.getAttribute('data-value') || element.dataset.value;
+                    
+                    // Если не нашли, пытаемся найти соответствующую опцию по тексту
+                    if (!value) {
+                        const optionText = element.textContent.trim();
+                        const matchingOption = allRegionOptions.find(opt => {
+                            const optText = opt.textContent.trim();
+                            return optText === optionText || optText.includes(optionText) || optionText.includes(optText);
+                        });
+                        if (matchingOption) {
+                            value = matchingOption.value;
+                        }
+                    }
+                    
+                    // Если не нашли, пытаемся найти опцию по data-val атрибуту визуального элемента
+                    if (!value) {
+                        const dataVal = element.getAttribute('data-val');
+                        if (dataVal) {
+                            const matchingOption = allRegionOptions.find(opt => opt.value === dataVal);
+                            if (matchingOption) {
+                                value = matchingOption.value;
+                            }
+                        }
+                    }
+                    
+                    if (value && value !== '' && !selected.includes(value)) {
+                        selected.push(value);
+                    }
+                });
+            }
+            
+            // Метод 3: Если ничего не нашли, пробуем получить через все опции с selected
+            if (selected.length === 0) {
+                allRegionOptions.forEach(option => {
+                    if (option.selected && option.value !== '') {
+                        selected.push(option.value);
+                    }
+                });
+            }
+            
+            return selected;
+        };
+        
+        // Функция для обновления выбранных регионов
+        const updateSelectedRegions = () => {
+            const selected = getSelectedRegions();
+            currentSelectedRegionIds = selected;
+            return selected;
+        };
+        
         // Обработчик изменения выбора регионов
-        regionSelectElement.addEventListener('change', () => {
+        regionSelectElement.addEventListener('change', (event) => {
+            updateSelectedRegions();
             updateLoadCitiesButton();
+        });
+        
+        // Также слушаем клики на опции Preline Select через делегирование
+        const regionSelectContainer = regionSelectElement.closest('.hs-select') || document.body;
+        regionSelectContainer.addEventListener('click', (event) => {
+            // Проверяем, был ли клик на опции региона
+            const clickedOption = event.target.closest('.hs-select-option, [class*="hs-select-option"]');
+            if (clickedOption && regionSelectElement.contains(clickedOption) || 
+                (regionSelectContainer.contains(clickedOption) && regionSelectContainer.contains(regionSelectElement))) {
+                // Небольшая задержка, чтобы Preline успел обновить selected атрибут
+                setTimeout(() => {
+                    updateSelectedRegions();
+                    updateLoadCitiesButton();
+                }, 50);
+            }
         });
         
         // Инициализация пустой карты
@@ -395,16 +492,15 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         
         // Обработчик клика на кнопку "Загрузить города"
         loadCitiesButton.addEventListener('click', async () => {
-            const selectedOptions = Array.from(regionSelectElement.selectedOptions);
-            const selectedRegionIds = selectedOptions
-                .map(option => option.value)
-                .filter(value => value !== '');
+            // Получаем выбранные регионы напрямую из DOM перед загрузкой
+            const selectedRegionIds = getSelectedRegions();
             
-            // Получаем выбранные страны
-            const selectedCountryOptions = Array.from(countrySelectElement.selectedOptions);
-            const selectedCountryIds = selectedCountryOptions
-                .map(option => option.value)
-                .filter(value => value !== '');
+            // Используем сохраненные значения для стран или пытаемся получить из DOM
+            let selectedCountryIds = currentSelectedCountryIds.length > 0
+                ? currentSelectedCountryIds
+                : Array.from(countrySelectElement.options)
+                    .filter(option => option.hasAttribute('selected') && option.value !== '')
+                    .map(option => option.value);
             
             if (selectedCountryIds.length === 0) {
                 showDangerToast('Ошибка', 'Не выбраны страны');
@@ -427,17 +523,30 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 
                 // Определяем, какие страны нужно загрузить:
                 // 1. Страны без регионов - всегда загружаем
-                // 2. Страны с регионами, но регионы не выбраны - загружаем все города этих стран
+                // 2. Страны с регионами, для которых не выбраны регионы - загружаем все города этих стран
                 const selectedCountriesWithoutRegions = selectedCountryIds.filter(countryId => 
                     countriesWithoutRegions.has(countryId)
                 );
                 
-                // Для стран с регионами: если регионы не выбраны вообще, загружаем все города этих стран
-                // Если регионы выбраны, не загружаем города по странам (только по регионам)
+                // Для стран с регионами: определяем, для каких стран не выбраны регионы
+                // Создаём Set стран, для которых выбраны регионы
+                const countriesWithSelectedRegions = new Set();
+                selectedRegionIds.forEach(regionId => {
+                    const countryId = regionToCountryMap.get(regionId);
+                    if (countryId) {
+                        countriesWithSelectedRegions.add(countryId);
+                    }
+                });
+                
+                // Для стран с регионами: если для страны не выбраны регионы, загружаем все города этой страны
+                // Важно: исключаем страны, для которых выбраны регионы, чтобы не загружать все города этих стран
                 const selectedCountriesWithRegionsButNoRegionsSelected = selectedCountryIds.filter(countryId => {
-                    // Страна с регионами, но регионы не выбраны вообще
-                    return countriesWithRegions.has(countryId) && 
-                           selectedRegionIds.length === 0;
+                    // Страна с регионами, но для неё не выбраны регионы
+                    // Важно: countryId уже строка из selectedCountryIds, и countriesWithSelectedRegions тоже содержит строки
+                    const hasRegions = countriesWithRegions.has(countryId);
+                    const hasSelectedRegions = countriesWithSelectedRegions.has(countryId);
+                    // Загружаем все города только если у страны есть регионы, но для неё не выбраны регионы
+                    return hasRegions && !hasSelectedRegions;
                 });
                 
                 // Объединяем страны для загрузки
@@ -445,6 +554,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                     ...selectedCountriesWithoutRegions,
                     ...selectedCountriesWithRegionsButNoRegionsSelected
                 ];
+                
                 
                 if (countriesToLoad.length > 0) {
                     params.append('country_ids', countriesToLoad.join(','));

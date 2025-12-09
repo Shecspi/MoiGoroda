@@ -19,31 +19,7 @@
         </p>
     </header>
 
-    {# Навигация по типам коллекций #}
-    <div class="mx-3 mb-6 flex justify-center">
-        <div class="flex bg-gray-100 hover:bg-gray-200 rounded-lg transition p-1 dark:bg-neutral-700 dark:hover:bg-neutral-600">
-            <nav class="flex gap-x-1" aria-label="Tabs" role="tablist" aria-orientation="horizontal">
-                <a
-                    href="{% url 'collection-list' %}"
-                    class="py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm text-gray-500 hover:text-gray-700 font-medium rounded-lg hover:hover:text-blue-600 dark:text-neutral-400 dark:hover:text-white"
-                >
-                    Общие
-                </a>
-                <a
-                    href="{% url 'collection-personal-list-view' %}"
-                    class="py-3 px-4 inline-flex items-center gap-x-2 bg-transparent text-sm text-gray-500 hover:text-gray-700 font-medium rounded-lg hover:hover:text-blue-600 dark:text-neutral-400 dark:hover:text-white"
-                >
-                    Персональные
-                </a>
-                <a
-                    href="{% url 'collection-personal-public-list-view' %}"
-                    class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-white text-gray-700 dark:bg-neutral-800 dark:text-neutral-400"
-                >
-                    Публичные
-                </a>
-            </nav>
-        </div>
-    </div>
+    {% include 'collection/parts/navigation_tabs.html' with active_tab='public' %}
 
     {# Таблица с публичными коллекциями #}
     {% if object_list %}

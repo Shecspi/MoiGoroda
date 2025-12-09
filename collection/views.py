@@ -541,7 +541,6 @@ class PersonalCollectionMap(ListView):  # type: ignore[type-arg]
     """
 
     model = PersonalCollection
-    paginate_by = 2
 
     def __init__(self) -> None:
         super().__init__()

@@ -31,13 +31,13 @@
     {% endif %}
     {% endif %}
 
-    {% include 'collection/personal/list/toolbar.html' %}
+    {% include 'collection/personal/cities/list/toolbar.html' %}
 
     <!-- Карточки с городами -->
     {% if object_list %}
         <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
             {% for city in object_list %}
-                {% include 'collection/personal/list/card.html' %}
+                {% include 'collection/personal/cities/list/card.html' %}
             {% endfor %}
         </div>
     {% else %}
@@ -67,7 +67,7 @@
     {% endif %}
 
     {% if user.is_authenticated and collection and user == collection.user %}
-        {% include 'collection/personal/list/modals/delete.html' %}
+        {% include 'collection/personal/cities/list/modals/delete.html' %}
         {% vite_asset 'js/entries/personal_collection_status.js' %}
     {% endif %}
 {% endblock %}

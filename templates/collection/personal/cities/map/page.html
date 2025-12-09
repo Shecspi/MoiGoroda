@@ -30,7 +30,7 @@
     {% include 'advertisement/rtb_banner.html' %}
     {% endif %}
 
-    {% include 'collection/personal/map/toolbar.html' %}
+    {% include 'collection/personal/cities/map/toolbar.html' %}
     {% include 'city/map/modals/add_city.html' %}
 
     <!-- Карта -->
@@ -77,7 +77,7 @@
     {% vite_asset 'js/entries/leaflet_css.js' %}
     {% vite_asset 'js/entries/map_collection.js' %}
     {% if user.is_authenticated and collection and user == collection.user %}
-        {% include 'collection/personal/list/modals/delete.html' %}
+        {% include 'collection/personal/cities/list/modals/delete.html' %}
         {% vite_asset 'js/entries/personal_collection_status.js' %}
     {% endif %}
 {% endblock %}

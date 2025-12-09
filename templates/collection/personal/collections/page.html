@@ -59,7 +59,7 @@
     {% if object_list %}
         <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="personal-list-content">
             {% for collection in object_list %}
-                {% include 'collection/personal/list/card_list.html' %}
+                {% include 'collection/personal/collections/card.html' %}
             {% endfor %}
         </div>
     {% else %}

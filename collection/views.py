@@ -431,8 +431,8 @@ class PublicPersonalCollectionListView(ListView):  # type: ignore[type-arg]
     """
 
     model = PersonalCollection
-    paginate_by = 20
-    template_name = 'collection/personal/list/page_public.html'
+    paginate_by = 2
+    template_name = 'collection/personal/list/public_table.html'
 
     def __init__(self) -> None:
         super().__init__()

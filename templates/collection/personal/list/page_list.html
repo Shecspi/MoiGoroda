@@ -44,6 +44,17 @@
         </div>
     </div>
 
+    {# Кнопка создания коллекции #}
+    <div class="mx-3 mb-6 flex justify-end">
+        <a href="{% url 'collection-personal-create' %}"
+           class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 448 512" fill="currentColor">
+                <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/>
+            </svg>
+            Создать коллекцию
+        </a>
+    </div>
+
     {# Карточки с персональными коллекциями #}
     {% if object_list %}
         <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="personal-list-content">

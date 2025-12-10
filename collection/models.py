@@ -93,6 +93,11 @@ class PersonalCollection(models.Model):
         verbose_name='Публичная коллекция',
         help_text='Если коллекция публичная, то пользователь сможет поделиться ссылкой на неё и любой желающий сможет посмотреть города этой коллекции',
     )
+    is_copied = models.BooleanField(
+        default=False,
+        verbose_name='Скопированная коллекция',
+        help_text='Указывает, была ли коллекция скопирована из другой коллекции',
+    )
 
     def __str__(self) -> str:
         return f'{self.user.username} - {self.title}'

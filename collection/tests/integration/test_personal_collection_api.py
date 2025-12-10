@@ -118,6 +118,7 @@ class TestPersonalCollectionCreateAPI:
         assert collection.user == user
         assert collection.title == 'Моя коллекция'
         assert collection.is_public is False
+        assert collection.is_copied is False  # Обычная коллекция не скопирована
         assert collection.city.count() == 2
         assert cities[0] in collection.city.all()
         assert cities[1] in collection.city.all()
@@ -237,6 +238,7 @@ class TestPersonalCollectionCreateAPI:
 
         collection = PersonalCollection.objects.get(id=response_data['id'])
         assert collection.is_public is True
+        assert collection.is_copied is False  # Обычная коллекция не скопирована
 
 
 @pytest.mark.django_db
@@ -480,6 +482,7 @@ class TestPersonalCollectionCopyAPI:
         assert copied_collection.user == user2
         assert copied_collection.title == public_collection.title
         assert copied_collection.is_public is False
+        assert copied_collection.is_copied is True  # Коллекция была скопирована
         assert copied_collection.city.count() == public_collection.city.count()
 
     def test_copy_own_collection(

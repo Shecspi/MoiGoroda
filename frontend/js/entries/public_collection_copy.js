@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Отключаем кнопку на время выполнения запроса
         button.disabled = true;
         const originalHTML = button.innerHTML;
-        button.innerHTML = '<span class="inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></span>';
+        button.innerHTML = '<span class="size-4 inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>';
 
         try {
             const response = await fetch(`/api/collection/personal/${collectionId}/copy`, {

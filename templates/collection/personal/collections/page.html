@@ -24,8 +24,13 @@
 
     {% include 'collection/parts/navigation_tabs.html' with active_tab='personal' %}
 
-    {# Кнопка создания коллекции #}
-    <div class="mx-3 mb-6 flex justify-end">
+    {# Кнопка создания коллекции и ссылка помощи #}
+    <div class="mx-3 mb-6 flex justify-end items-center gap-3">
+        <button type="button"
+                class="text-xs text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 px-2 py-1 rounded transition dark:text-neutral-300 dark:hover:text-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 dark:hover:border-neutral-600"
+                data-hs-overlay="#personal-collections-help-modal">
+            Помощь
+        </button>
         <a href="{% url 'collection-personal-create' %}"
            class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 448 512" fill="currentColor">
@@ -69,5 +74,7 @@
     {% endif %}
 
     {% include 'parts/pagination.html' %}
+
+    {% include 'collection/personal/collections/modals/help.html' %}
 {% endblock %}
 

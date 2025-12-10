@@ -16,13 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const collectionsCountElement = document.getElementById('statistics-collections-count');
     const usersCountElement = document.getElementById('statistics-users-count');
     const citiesCountElement = document.getElementById('statistics-cities-count');
+    const copiedCountElement = document.getElementById('statistics-copied-count');
     const collectionsWordElement = document.getElementById('statistics-collections-word');
     const usersWordElement = document.getElementById('statistics-users-word');
     const citiesWordElement = document.getElementById('statistics-cities-word');
+    const copiedWordElement = document.getElementById('statistics-copied-word');
 
     // Проверяем, что элементы существуют
-    if (!collectionsCountElement || !usersCountElement || !citiesCountElement ||
-        !collectionsWordElement || !usersWordElement || !citiesWordElement) {
+    if (!collectionsCountElement || !usersCountElement || !citiesCountElement || !copiedCountElement ||
+        !collectionsWordElement || !usersWordElement || !citiesWordElement || !copiedWordElement) {
         return;
     }
 
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             collectionsCountElement.innerHTML = formatNumber(data.collections_count);
             usersCountElement.innerHTML = formatNumber(data.users_count);
             citiesCountElement.innerHTML = formatNumber(data.cities_count);
+            copiedCountElement.innerHTML = formatNumber(data.copied_count);
 
             // Обновляем склонение слов с развернутыми фразами
             collectionsWordElement.textContent = pluralize(
@@ -71,12 +74,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Города в коллекциях',
                 'Городов в коллекциях'
             );
+            copiedWordElement.textContent = pluralize(
+                data.copied_count,
+                'Скопирована коллекция',
+                'Скопировано коллекции',
+                'Скопировано коллекций'
+            );
         } catch (error) {
             console.error('Ошибка при загрузке статистики:', error);
             // Оставляем прочерки при ошибке
             collectionsCountElement.innerHTML = '—';
             usersCountElement.innerHTML = '—';
             citiesCountElement.innerHTML = '—';
+            copiedCountElement.innerHTML = '—';
         }
     };
 

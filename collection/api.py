@@ -241,6 +241,7 @@ def personal_collection_copy(request: Request, collection_id: str) -> Response:
         user=user,
         title=source_collection.title,
         is_public=False,  # Копия по умолчанию приватная
+        is_copied=True,  # Указываем, что коллекция была скопирована
     )
 
     # Добавляем города в новую коллекцию
@@ -461,6 +462,7 @@ def public_collections_statistics(request: Request) -> Response:
     - `collections_count`: int — количество публичных коллекций
     - `users_count`: int — количество уникальных пользователей с публичными коллекциями
     - `cities_count`: int — количество уникальных городов во всех публичных коллекциях
+    - `copied_count`: int — количество скопированных коллекций
 
     Доступно всем пользователям (включая неавторизованных).
 
@@ -478,11 +480,15 @@ def public_collections_statistics(request: Request) -> Response:
     # Количество уникальных городов во всех публичных коллекциях
     cities_count = City.objects.filter(personal_collections_list__is_public=True).distinct().count()
 
+    # Количество скопированных коллекций
+    copied_count = PersonalCollection.objects.filter(is_copied=True).count()
+
     return Response(
         {
             'collections_count': collections_count,
             'users_count': users_count,
             'cities_count': cities_count,
+            'copied_count': copied_count,
         },
         status=status.HTTP_200_OK,
     )

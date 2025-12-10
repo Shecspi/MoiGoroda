@@ -224,6 +224,7 @@ class TestPersonalCollectionFullWorkflow:
         assert copied_collection.user == user2
         assert copied_collection.title == 'Публичная коллекция для копирования'
         assert copied_collection.is_public is False  # Копия приватная
+        assert copied_collection.is_copied is True  # Коллекция была скопирована
         assert copied_collection.city.count() == 3
 
         # Шаг 3: User2 просматривает свою скопированную коллекцию

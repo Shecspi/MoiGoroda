@@ -18,6 +18,10 @@
         </p>
     </header>
 
+    {% if not DEBUG %}
+    {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
+
     {% include 'collection/parts/navigation_tabs.html' with active_tab='personal' %}
 
     {# Кнопка создания коллекции #}

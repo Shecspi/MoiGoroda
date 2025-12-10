@@ -27,7 +27,13 @@
     </header>
 
     {% if not DEBUG %}
-    {% include 'advertisement/rtb_banner.html' %}
+        {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
+
+    {% if not DEBUG %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+        {% endif %}
     {% endif %}
 
     {% include 'collection/personal/cities/map/toolbar.html' %}
@@ -38,12 +44,10 @@
     <!-- ^^^ Карта -->
 
     {% if not DEBUG %}
-    {% include 'advertisement/rtb_feed.html' %}
-    {% endif %}
-
-    {% if not user.is_authenticated %}
-        {% include 'advertisement/rtb_floor_ad_mobile.html' %}
-        {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+            {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+        {% endif %}
     {% endif %}
 
     {# Прокидываем переменные из Django в JS скрипт #}

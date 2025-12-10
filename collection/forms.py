@@ -10,9 +10,7 @@ Licensed under the Apache License, Version 2.0
 from typing import Any
 
 from django import forms
-from django.forms import ModelForm
 
-from collection.models import PersonalCollection
 from city.models import City
 from country.models import Country
 from region.models import Region

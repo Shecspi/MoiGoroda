@@ -54,6 +54,11 @@ export default defineConfig({
         notification: path.resolve(entriesDir, 'notification.js'),
         collection_search: path.resolve(entriesDir, 'collection_search.js'),
         collection_favorite: path.resolve(entriesDir, 'collection_favorite.js'),
+        collection_tabs: path.resolve(entriesDir, 'collection_tabs.js'),
+        personal_collection_create: path.resolve(entriesDir, 'personal_collection_create.js'),
+        personal_collection_status: path.resolve(entriesDir, 'personal_collection_status.js'),
+        public_collection_copy: path.resolve(entriesDir, 'public_collection_copy.js'),
+        public_collections_statistics: path.resolve(entriesDir, 'public_collections_statistics.js'),
         city_search: path.resolve(entriesDir, 'city_search.js'),
         preline: path.resolve(entriesDir, 'preline.js'),
         

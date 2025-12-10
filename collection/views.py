@@ -371,6 +371,9 @@ class PersonalCollectionEdit(LoginRequiredMixin, TemplateView):
         context['page_title'] = f'Редактирование коллекции "{self.collection.title}"'
         context['page_description'] = 'Измените данные вашей персональной коллекции'
 
+        # Передаём коллекцию в контекст для тестов и шаблона
+        context['collection'] = self.collection
+
         # Передаём данные коллекции для предзаполнения формы
         context['collection_id'] = str(self.collection.id)
         context['collection_title'] = self.collection.title
@@ -394,7 +397,7 @@ class PersonalCollectionListView(LoginRequiredMixin, ListView):  # type: ignore[
     """
 
     model = PersonalCollection
-    paginate_by = 2
+    paginate_by = 16
     template_name = 'collection/personal/collections/page.html'
 
     def __init__(self) -> None:

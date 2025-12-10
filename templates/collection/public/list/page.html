@@ -92,10 +92,11 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                                                         </svg>
                                                     </a>
-                                                    {% if user.is_authenticated %}
+                                                    {% if user.is_authenticated and user != collection.user %}
                                                         <button type="button"
+                                                                data-collection-id="{{ collection.id }}"
                                                                 title="Скопировать коллекцию себе"
-                                                                class="inline-flex items-center gap-x-1 rounded-full border border-purple-300 bg-purple-50 px-3 py-1 text-sm font-semibold text-purple-700 transition hover:bg-purple-100 dark:border-purple-600 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20">
+                                                                class="copy-collection-btn inline-flex items-center gap-x-1 rounded-full border border-purple-300 bg-purple-50 px-3 py-1 text-sm font-semibold text-purple-700 transition hover:bg-purple-100 dark:border-purple-600 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20">
                                                             <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                                             </svg>
@@ -134,6 +135,10 @@
 
     {% if not DEBUG %}
     {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        {% vite_asset 'js/entries/public_collection_copy.js' %}
     {% endif %}
 {% endblock %}
 

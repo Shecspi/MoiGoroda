@@ -177,6 +177,85 @@ def personal_collection_create(request: Request) -> Response:
     )
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def personal_collection_copy(request: Request, collection_id: str) -> Response:
+    """
+    Копирует персональную коллекцию для текущего пользователя.
+
+    Создаёт новую коллекцию с тем же названием и городами, что и исходная коллекция.
+    Копирование доступно только для публичных коллекций других пользователей.
+
+    Возвращает:
+    - При успехе: 201 с полями `id` (ID созданной коллекции) и `title`
+    - При отсутствии авторизации: 401
+    - При отсутствии коллекции: 404
+    - При попытке скопировать свою коллекцию: 403
+    - При попытке скопировать приватную коллекцию: 403
+
+    :param request: DRF Request с авторизованным пользователем
+    :param collection_id: UUID коллекции в виде строки
+    :return: Response с результатом копирования коллекции
+    """
+    try:
+        collection_uuid = uuid.UUID(collection_id)
+    except ValueError:
+        return Response(
+            {'detail': 'Неверный формат UUID коллекции'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        source_collection = (
+            PersonalCollection.objects.select_related('user')
+            .prefetch_related('city')
+            .get(id=collection_uuid)
+        )
+    except PersonalCollection.DoesNotExist:
+        return Response(
+            {'detail': 'Коллекция не найдена'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    user = cast(User, request.user)
+
+    # Проверяем, что коллекция не принадлежит текущему пользователю
+    if source_collection.user == user:
+        return Response(
+            {'detail': 'Нельзя скопировать свою коллекцию'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Проверяем, что коллекция публичная
+    if not source_collection.is_public:
+        return Response(
+            {'detail': 'Нельзя скопировать приватную коллекцию'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Получаем города из исходной коллекции
+    cities = source_collection.city.all()
+
+    # Создаём новую коллекцию с тем же названием
+    new_collection = PersonalCollection.objects.create(
+        user=user,
+        title=source_collection.title,
+        is_public=False,  # Копия по умолчанию приватная
+    )
+
+    # Добавляем города в новую коллекцию
+    new_collection.city.set(cities)
+
+    return Response(
+        {
+            'id': new_collection.id,
+            'title': new_collection.title,
+            'is_public': new_collection.is_public,
+        },
+        status=status.HTTP_201_CREATED,
+    )
+
+
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def personal_collection_update(request: Request, collection_id: str) -> Response:

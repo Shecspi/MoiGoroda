@@ -155,6 +155,15 @@
                             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500 invisible">Сохранение коллекции</p>
                         </div>
                     </div>
+
+                    <!-- Ссылка на помощь -->
+                    <div class="flex justify-end">
+                        <button type="button"
+                                class="text-xs text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 px-2 py-1 rounded transition dark:text-neutral-300 dark:hover:text-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 dark:hover:border-neutral-600"
+                                data-hs-overlay="#collection-help-modal">
+                            Помощь по созданию коллекции
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -163,6 +172,8 @@
     <!-- Карта -->
     <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>
     <!-- ^^^ Карта -->
+
+    {% include 'collection/personal/create/modals/help.html' %}
 
     {# Прокидываем переменные из Django в JS скрипт #}
     <script>

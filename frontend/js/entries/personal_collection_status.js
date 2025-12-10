@@ -230,7 +230,7 @@ window.addEventListener('load', () => {
                 if (response.ok) {
                     showSuccessToast('Успешно', 'Коллекция успешно удалена');
                     // Перенаправляем на страницу списка коллекций с открытой вкладкой "Персональные"
-                    window.location.href = '/collection/?tab=personal';
+                    window.location.href = '/collection/personal';
                 } else {
                     const data = await response.json().catch(() => ({}));
                     const errorMessage = data.detail || 'Не удалось удалить коллекцию';

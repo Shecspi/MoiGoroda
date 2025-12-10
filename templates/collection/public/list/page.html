@@ -19,6 +19,12 @@
         </p>
     </header>
 
+    {% if not DEBUG %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+        {% endif %}
+    {% endif %}
+
     {% include 'collection/parts/navigation_tabs.html' with active_tab='public' %}
 
     {# Таблица с публичными коллекциями #}
@@ -134,7 +140,12 @@
     {# ^^^ Таблица с публичными коллекциями #}
 
     {% if not DEBUG %}
-    {% include 'advertisement/rtb_banner.html' %}
+        {% include 'advertisement/rtb_feed.html' %}
+
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+            {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+        {% endif %}
     {% endif %}
 
     {% if user.is_authenticated %}

@@ -16,6 +16,7 @@ from collection.api import (
     personal_collection_delete,
     personal_collection_update,
     personal_collection_update_public_status,
+    public_collections_statistics,
 )
 
 urlpatterns = [
@@ -49,5 +50,10 @@ urlpatterns = [
         'personal/<str:collection_id>/copy',
         personal_collection_copy,
         name='api__personal_collection_copy',
+    ),
+    path(
+        'personal/public/statistics',
+        public_collections_statistics,
+        name='api__public_collections_statistics',
     ),
 ]

@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -449,3 +449,40 @@ def personal_collection_delete(request: Request, collection_id: str) -> Response
     collection.delete()
 
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public_collections_statistics(request: Request) -> Response:
+    """
+    Возвращает статистику по публичным персональным коллекциям.
+
+    Возвращает:
+    - `collections_count`: int — количество публичных коллекций
+    - `users_count`: int — количество уникальных пользователей с публичными коллекциями
+    - `cities_count`: int — количество уникальных городов во всех публичных коллекциях
+
+    Доступно всем пользователям (включая неавторизованных).
+
+    :param request: DRF Request
+    :return: Response со статистикой
+    """
+    # Количество публичных коллекций
+    collections_count = PersonalCollection.objects.filter(is_public=True).count()
+
+    # Количество уникальных пользователей с публичными коллекциями
+    users_count = (
+        PersonalCollection.objects.filter(is_public=True).values('user').distinct().count()
+    )
+
+    # Количество уникальных городов во всех публичных коллекциях
+    cities_count = City.objects.filter(personal_collections_list__is_public=True).distinct().count()
+
+    return Response(
+        {
+            'collections_count': collections_count,
+            'users_count': users_count,
+            'cities_count': cities_count,
+        },
+        status=status.HTTP_200_OK,
+    )

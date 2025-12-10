@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load vite %}
+{% load static %}
+{% load morphology %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
+
+{% block content %}
+    {# Заголовок страницы #}
+    <header class="mx-3 mt-10 mb-8 text-center" id="block-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            Публичные персональные коллекции
+        </h1>
+        <p class="mt-3 text-sm text-gray-600 dark:text-neutral-400">
+            Публичные персональные коллекции городов всех пользователей. Исследуйте коллекции других пользователей.
+        </p>
+    </header>
+
+    {% if not DEBUG %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+        {% endif %}
+    {% endif %}
+
+    {% include 'collection/parts/navigation_tabs.html' with active_tab='public' %}
+
+    {# Ссылка помощи #}
+    <div class="mx-3 mb-6 flex justify-end">
+        <button type="button"
+                class="text-xs text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 px-2 py-1 rounded transition dark:text-neutral-300 dark:hover:text-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 dark:hover:border-neutral-600"
+                data-hs-overlay="#public-collections-help-modal">
+            Помощь
+        </button>
+    </div>
+
+    {# Таблица с публичными коллекциями #}
+    {% if object_list %}
+        <div class="flex flex-col mx-3 mb-8">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="border border-gray-200 rounded-lg divide-y divide-gray-200 dark:border-neutral-700 dark:divide-neutral-700">
+                        <div class="overflow-hidden">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+                                <thead>
+                                    <tr class="divide-x divide-gray-200 dark:divide-neutral-700">
+                                        <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
+                                            Создатель
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
+                                            Название
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
+                                            Количество городов
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
+                                            Города
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
+                                            Действия
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                    {% for collection in object_list %}
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-neutral-800">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
+                                                {{ collection.user.username }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                                <a href="{% url 'collection-personal-list' collection.id %}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                                    {{ collection.title }}
+                                                </a>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                                {{ collection.qty_of_cities }} {{ "город"|plural_by_num:collection.qty_of_cities }}
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-gray-800 dark:text-neutral-200">
+                                                <div class="flex flex-wrap items-center gap-1.5">
+                                                    {% for city in collection.first_15_cities %}
+                                                        <a href="{% url 'city-selected' city.id %}" class="inline-flex items-center gap-x-0.5 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20">
+                                                            {{ city.title }}
+                                                        </a>
+                                                    {% endfor %}
+                                                    {% if collection.qty_of_cities > 15 %}
+                                                        <span class="inline-flex items-center gap-x-0.5 rounded-full border border-gray-300 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+                                                            и другие...
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <a href="{% url 'collection-personal-list' collection.id %}"
+                                                       title="Список"
+                                                       class="inline-flex items-center gap-x-1 rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-600 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20">
+                                                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                                                        </svg>
+                                                    </a>
+                                                    <a href="{% url 'collection-personal-map' collection.id %}"
+                                                       title="Карта"
+                                                       class="inline-flex items-center gap-x-1 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20">
+                                                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                                                        </svg>
+                                                    </a>
+                                                    {% if user.is_authenticated and user != collection.user %}
+                                                        <button type="button"
+                                                                data-collection-id="{{ collection.id }}"
+                                                                title="Скопировать коллекцию себе"
+                                                                class="copy-collection-btn inline-flex items-center gap-x-1 rounded-full border border-purple-300 bg-purple-50 px-3 py-1 text-sm font-semibold text-purple-700 transition hover:bg-purple-100 dark:border-purple-600 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20">
+                                                            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                                            </svg>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Пагинация #}
+        <div class="mx-3 mt-4">
+            {% include 'parts/pagination.html' %}
+        </div>
+    {% else %}
+        {# Сообщение об отсутствии публичных коллекций #}
+        <div class="mx-3 mb-8 flex items-center justify-center">
+            <div class="w-full max-w-2xl">
+                <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
+                     role="alert">
+                    <p class="text-sm text-gray-600 dark:text-neutral-300">
+                        На данный момент нет публичных персональных коллекций.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {# ^^^ Таблица с публичными коллекциями #}
+
+    {# Блок статистики #}
+    <div class="mx-3 mb-6 flex justify-center">
+        <div class="w-full max-w-2xl rounded-lg border border-gray-200 bg-gray-50 p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
+            <h2 class="text-xs font-medium text-gray-700 dark:text-neutral-300 mb-2 text-center">
+                Статистика публичных коллекций
+            </h2>
+            <div class="grid grid-cols-1 gap-0 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-neutral-700">
+                <div class="text-center py-3 sm:py-0">
+                    <div class="inline-flex items-center justify-center size-8 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 mb-1.5">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                    </div>
+                    <div class="text-lg font-semibold text-gray-900 dark:text-white" id="statistics-collections-count">
+                        <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                    </div>
+                    <div class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+                        <span id="statistics-collections-word">Коллекций</span>
+                    </div>
+                </div>
+                <div class="text-center py-3 sm:py-0">
+                    <div class="inline-flex items-center justify-center size-8 rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 mb-1.5">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </div>
+                    <div class="text-lg font-semibold text-gray-900 dark:text-white" id="statistics-users-count">
+                        <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                    </div>
+                    <div class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+                        <span id="statistics-users-word">Пользователей с коллекциями</span>
+                    </div>
+                </div>
+                <div class="text-center py-3 sm:py-0">
+                    <div class="inline-flex items-center justify-center size-8 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 mb-1.5">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div class="text-lg font-semibold text-gray-900 dark:text-white" id="statistics-cities-count">
+                        <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                    </div>
+                    <div class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+                        <span id="statistics-cities-word">Городов в коллекциях</span>
+                    </div>
+                </div>
+                <div class="text-center py-3 sm:py-0">
+                    <div class="inline-flex items-center justify-center size-8 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 mb-1.5">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div class="text-lg font-semibold text-gray-900 dark:text-white" id="statistics-copied-count">
+                        <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
+                    </div>
+                    <div class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+                        <span id="statistics-copied-word">Скопировано коллекций</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# ^^^ Блок статистики #}
+
+    {% if not DEBUG %}
+        {% include 'advertisement/rtb_feed.html' %}
+
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+            {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+        {% endif %}
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        {% vite_asset 'js/entries/public_collection_copy.js' %}
+    {% endif %}
+
+    {% vite_asset 'js/entries/public_collections_statistics.js' %}
+
+    {% include 'collection/public/list/modals/help.html' %}
+{% endblock %}
+

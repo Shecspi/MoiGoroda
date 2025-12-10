@@ -1,0 +1,176 @@
+{% load mathfilters %}
+{% load humanize %}
+
+<div class="h-full {% if city.is_visited %}visited{% else %}not-visited{% endif %}" id="city_card_{{ forloop.counter }}">
+    <!-- Карточка города -->
+    <div class="relative flex h-full flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
+         id="section-city_{{ forloop.counter }}">
+        <div class="flex h-full flex-col gap-3">
+            <!-- Заголовок + страна/регион + бейдж количества посещений -->
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white" id="subsection-city-title_{{ forloop.counter }}">
+                        <a href="{% url 'city-selected' city.id %}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                            {{ city.title }}
+                        </a>
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-neutral-400">
+                        {% if city.region %}
+                            <a href="{{ city.region.get_absolute_url }}" class="hover:text-blue-600 dark:hover:text-blue-400">{{ city.region }}</a><br>
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'city-all-list' %}?country={{ city.country.code }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                                {{ city.country }}
+                            </a>
+                        {% else %}
+                            {{ city.country }}
+                        {% endif %}
+                    </p>
+                </div>
+                {% if city.is_visited %}
+                    <span class="inline-flex items-center gap-x-1 rounded-full border border-emerald-500 bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 transition dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 shrink-0" title="Количество посещений города {{ city.title }}">
+                        <span>{% if city.number_of_visits %}{{ city.number_of_visits }}{% else %}0{% endif %}</span>
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center gap-x-1 rounded-full border border-rose-500 bg-rose-100 px-3 py-1 text-sm font-semibold text-rose-700 transition dark:border-rose-400 dark:bg-rose-500/10 dark:text-rose-300 shrink-0" title="Количество посещений города {{ city.title }}">
+                        <span>0</span>
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="flex flex-1 flex-col gap-3">
+                <!-- Даты посещений -->
+                <div class="flex flex-1 flex-col justify-center">
+                    {% if city.is_visited %}
+                        {% if city.visit_dates %}
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-3 rounded-lg border border-indigo-100 bg-indigo-50/70 px-3 py-2 text-xs text-indigo-700 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
+                                    <span class="inline-flex size-5 items-center justify-center rounded-full bg-white text-indigo-500 shadow-sm dark:bg-indigo-500/20">
+                                        <svg class="size-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6.75 3v2.25M17.25 3v2.25M4.5 9h15M5.25 5.25h13.5A1.5 1.5 0 0 1 20.25 6.75v11.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V6.75a1.5 1.5 0 0 1 1.5-1.5Z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7.5 13.5h.01M12 13.5h.01M16.5 13.5h.01M7.5 17.25h.01M12 17.25h.01M16.5 17.25h.01"/>
+                                        </svg>
+                                    </span>
+                                    <div>
+                                        <p class="font-semibold">
+                                            {% if city.visit_dates|length == 1 %}
+                                                Дата посещения
+                                            {% else %}
+                                                Первое посещение
+                                            {% endif %}
+                                        </p>
+                                        <p class="text-xs text-indigo-600/80 dark:text-indigo-300/80">
+                                            {{ city.first_visit_date }}
+                                        </p>
+                                    </div>
+                                </div>
+                                {% if city.visit_dates|length >= 2 %}
+                                    <div class="flex items-center gap-3 rounded-lg border border-purple-100 bg-purple-50/80 px-3 py-2 text-xs text-purple-700 shadow-sm dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-300">
+                                        <span class="inline-flex size-5 items-center justify-center rounded-full bg-white text-purple-500 shadow-sm dark:bg-purple-500/20">
+                                            <svg class="size-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.5 3v2.25M7.5 3v2.25M4.5 9h15M5.25 5.25h13.5A1.5 1.5 0 0 1 20.25 6.75v11.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V6.75a1.5 1.5 0 0 1 1.5-1.5Z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m15.25 12.5-3.25 3.25-1.75-1.75"/>
+                                            </svg>
+                                        </span>
+                                        <div>
+                                            <p class="font-semibold">Последнее посещение</p>
+                                            <p class="text-xs text-purple-600/80 dark:text-purple-300/80">
+                                                {{ city.last_visit_date }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="text-center">
+                                <p class="text-sm text-gray-500 dark:text-neutral-400">
+                                    Дата посещения не указана
+                                </p>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center">
+                            <p class="text-sm text-gray-500 dark:text-neutral-400">
+                                Город не посещён
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mt-auto flex flex-col gap-3">
+                    <!-- Статистика посетителей и посещений -->
+                    <div class="flex flex-wrap items-center justify-center gap-3">
+                        <span class="inline-flex items-center gap-x-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-semibold text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-400" title="Количество пользователей, посетивших город {{ city }}">
+                            <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span>{% if city.number_of_users_who_visit_city %}{{ city.number_of_users_who_visit_city }}{% else %}0{% endif %}</span>
+                        </span>
+                        <span class="inline-flex items-center gap-x-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400" title="Общее количество посещений города {{ city }}">
+                            <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                                <path d="m9 12 2 2 4-4"></path>
+                            </svg>
+                            <span>{% if city.number_of_visits_all_users %}{{ city.number_of_visits_all_users }}{% else %}0{% endif %}</span>
+                        </span>
+                    </div>
+
+                    <!-- Рейтинг и статус сувенира -->
+                    {% if city.is_visited %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center" id="subsection-city-rating_{{ forloop.counter }}" title="Средний рейтинг на основе всех оценок для города {{ city.title }}">
+                                {% for i in "12345"|make_list %}
+                                    {% with index=forloop.counter %}
+                                        {% if city.average_rating >= index %}
+                                            <svg class="size-6 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
+                                            </svg>
+                                        {% elif city.average_rating >= index|sub:0.5 %}
+                                            <svg class="size-6 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                                                <defs>
+                                                    <linearGradient id="rating-half-star-personal-collection-{{ forloop.counter0 }}" x1="0" y1="0" x2="1" y2="0">
+                                                        <stop offset="50%" stop-color="currentColor"/>
+                                                        <stop offset="50%" stop-color="transparent"/>
+                                                    </linearGradient>
+                                                </defs>
+                                                <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"
+                                                      fill="#d4d4d8" />
+                                                <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"
+                                                      fill="url(#rating-half-star-personal-collection-{{ forloop.counter0 }})" />
+                                            </svg>
+                                        {% else %}
+                                            <svg class="size-6 text-neutral-300 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                                <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
+                                            </svg>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endfor %}
+                            </div>
+
+                            {% if city.has_souvenir %}
+                                <span class="inline-flex items-center gap-x-1 rounded-full border border-emerald-500 bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 transition dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300" title="Есть сувенир из города {{ city.title }}">
+                                    <svg class="h-3.5 w-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>Сувенир</span>
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-x-1 rounded-full border border-rose-500 bg-rose-100 px-3 py-1 text-sm font-semibold text-rose-700 transition dark:border-rose-400 dark:bg-rose-500/10 dark:text-rose-300" title="Нет сувенира из города {{ city.title }}">
+                                    <svg class="h-3.5 w-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <line x1="5" y1="5" x2="19" y2="19"></line>
+                                        <line x1="19" y1="5" x2="5" y2="19"></line>
+                                    </svg>
+                                    <span>Сувенир</span>
+                                </span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

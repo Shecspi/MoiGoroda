@@ -8,8 +8,11 @@ Licensed under the Apache License, Version 2.0
 """
 
 import json
-from typing import Any
+import uuid
+from typing import Any, cast
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import (
     Count,
@@ -19,12 +22,13 @@ from django.db.models import (
 )
 from django.http import Http404
 from django.utils.safestring import mark_safe
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 
 from city.models import VisitedCity
 from collection.filter import apply_filter_to_queryset
-from collection.models import Collection, FavoriteCollection
-from collection.services import get_all_cities_from_collection
+from collection.models import Collection, FavoriteCollection, PersonalCollection
+from collection.repository import CollectionRepository
+from collection.services import PersonalCollectionService, get_all_cities_from_collection
 from services import logger
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
@@ -189,41 +193,46 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
 
     def get_queryset(self) -> Any:
         """
-        Получает из базы данных все города коллекции, как посещённые так и нет,
-        и возвращает Queryset, состоящий из полей:
-            * `id` - ID города
-            * `title` - название города
-            * `population` - население города
-            * `date_of_foundation` - дата основания города
-            * `coordinate_width` - широта
-            * `coordinate_longitude` - долгота
-            * `is_visited` - True,если город посещён
-
-            Для авторизованных пользователей доступны дополнительные поля:
-            * `visited_id` - ID посещённого города
-            * `date_of_visit` - дата посещения
-            * `has_magnet` - True, если имеется сувенир из города
-            * `rating` - рейтинг от 1 до 5
+        Получает из базы данных все города коллекции.
+        Города отображаются как посещённые/непосещённые на основе текущего пользователя.
         """
+        if self.pk is None:
+            raise Http404
         self.cities = get_all_cities_from_collection(
-            self.pk,  # type: ignore[arg-type]
+            self.pk,
             self.request.user if self.request.user.is_authenticated else None,
         )
         self.qty_of_visited_cities = sum([1 if city.is_visited else 0 for city in self.cities])
         self.qty_of_cities = len(self.cities)
 
         # Определяем фильтрацию
-        if self.request.user.is_authenticated:
-            filter_value = self.request.GET.get('filter')
-            self.filter = filter_value if filter_value else ''
-            if self.filter:
-                try:
-                    self.cities = apply_filter_to_queryset(self.cities, self.filter)
-                except KeyError:
-                    logger.warning(
+        filter_value = self.request.GET.get('filter')
+        self.filter = filter_value if filter_value else ''
+        if self.filter:
+            try:
+                self.cities = apply_filter_to_queryset(self.cities, self.filter)
+                if self.list_or_map == 'list':
+                    logger.info(
                         self.request,
-                        f'(Collection #{self.pk}) Unexpected value of the filter - {self.request.GET.get("filter")}',
+                        f"(Collection #{self.pk}) Using the filter '{self.filter}'",
                     )
+                else:
+                    logger.info(
+                        self.request,
+                        f"(Collection #{self.pk}) Using the filter '{self.filter}'",
+                    )
+            except KeyError:
+                logger.warning(
+                    self.request,
+                    f'(Collection #{self.pk}) Unexpected value of the filter - {self.request.GET.get("filter")}',
+                )
+            else:
+                if self.filter:
+                    if self.list_or_map == 'list':
+                        logger.info(
+                            self.request,
+                            f"(Collection #{self.pk}) Using the filter '{self.filter}'",
+                        )
                 else:
                     logger.info(
                         self.request,
@@ -298,3 +307,295 @@ def get_url_params(filter_value: str | None) -> str:
         return f'filter={filter_value}'
 
     return ''
+
+
+class PersonalCollectionCreate(LoginRequiredMixin, TemplateView):
+    """
+    Отображает страницу создания персональной коллекции.
+
+     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
+     > Вся логика формы обрабатывается на фронтенде через JS.
+    """
+
+    template_name = 'collection/personal/create/page.html'
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context['active_page'] = 'collection'
+        context['page_title'] = 'Создание персональной коллекции'
+        context['page_description'] = 'Создайте свою персональную коллекцию городов'
+
+        # Передаём TILE_LAYER для карты
+        from django.conf import settings
+
+        context['TILE_LAYER'] = getattr(
+            settings, 'TILE_LAYER', 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+        )
+
+        return context
+
+
+class PersonalCollectionEdit(LoginRequiredMixin, TemplateView):
+    """
+    Отображает страницу редактирования персональной коллекции.
+
+     > Доступ только для авторизованных пользователей (LoginRequiredMixin).
+     > Только владелец коллекции может редактировать её.
+     > Вся логика формы обрабатывается на фронтенде через JS.
+    """
+
+    template_name = 'collection/personal/create/page.html'
+
+    def get(self, *args: Any, **kwargs: Any) -> Any:
+        """
+        Проверяет доступ к редактированию коллекции.
+        """
+        from collection.services import PersonalCollectionService
+
+        service = PersonalCollectionService()
+        self.collection = service.get_collection_with_access_check(
+            self.kwargs['pk'], self.request.user
+        )
+
+        # Проверяем, что пользователь является владельцем коллекции
+        if self.collection.user != self.request.user:
+            raise Http404
+
+        return super().get(*args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context['active_page'] = 'collection'
+        context['page_title'] = f'Редактирование коллекции "{self.collection.title}"'
+        context['page_description'] = 'Измените данные вашей персональной коллекции'
+
+        # Передаём коллекцию в контекст для тестов и шаблона
+        context['collection'] = self.collection
+
+        # Передаём данные коллекции для предзаполнения формы
+        context['collection_id'] = str(self.collection.id)
+        context['collection_title'] = self.collection.title
+        context['collection_is_public'] = self.collection.is_public
+        context['collection_city_ids'] = list(self.collection.city.values_list('id', flat=True))
+
+        # Передаём TILE_LAYER для карты
+        from django.conf import settings
+
+        context['TILE_LAYER'] = getattr(
+            settings, 'TILE_LAYER', 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+        )
+
+        return context
+
+
+class PersonalCollectionListView(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
+    """
+    View для отображения списка персональных коллекций пользователя.
+    Отображает страницу со всеми персональными коллекциями пользователя.
+    """
+
+    model = PersonalCollection
+    paginate_by = 16
+    template_name = 'collection/personal/collections/page.html'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.repository = CollectionRepository()
+
+    def get_queryset(self) -> Any:
+        """
+        Получает QuerySet персональных коллекций пользователя.
+        """
+        # LoginRequiredMixin гарантирует, что self.request.user - это User, а не AnonymousUser
+        user = cast(User, self.request.user)
+        return self.repository.get_personal_collections_with_annotations(user)
+
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
+        """
+        Формирует контекст для шаблона.
+        """
+        context = super().get_context_data(**kwargs)
+
+        context['active_page'] = 'collection'
+        context['page_title'] = 'Персональные коллекции'
+        context['page_description'] = (
+            'Ваши персональные коллекции городов. Создавайте свои коллекции и делитесь ими с другими.'
+        )
+
+        return context
+
+
+class PublicPersonalCollectionListView(ListView):  # type: ignore[type-arg]
+    """
+    View для отображения списка публичных персональных коллекций всех пользователей.
+    Отображает страницу со всеми публичными персональными коллекциями в виде таблицы.
+    """
+
+    model = PersonalCollection
+    paginate_by = 16
+    template_name = 'collection/public/list/page.html'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.repository = CollectionRepository()
+
+    def get_queryset(self) -> Any:
+        """
+        Получает QuerySet публичных персональных коллекций.
+        """
+        return self.repository.get_public_collections_with_annotations()
+
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
+        """
+        Формирует контекст для шаблона.
+        """
+        context = super().get_context_data(**kwargs)
+
+        # Ограничиваем до 15 городов для каждой коллекции после prefetch
+        # Prefetch загружает все города, но мы ограничиваем до первых 15 по алфавиту
+        paginated_collections = context.get('object_list', [])
+        for collection in paginated_collections:
+            if hasattr(collection, 'first_15_cities'):
+                collection.first_15_cities = collection.first_15_cities[:15]
+
+        context['active_page'] = 'collection'
+        context['page_title'] = 'Публичные персональные коллекции'
+        context['page_description'] = (
+            'Публичные персональные коллекции городов всех пользователей. Исследуйте коллекции других пользователей.'
+        )
+
+        return context
+
+
+class PersonalCollectionCityListView(ListView):  # type: ignore[type-arg]
+    """
+    View для отображения списка городов в персональной коллекции.
+    Отображает детальную страницу коллекции со списком городов.
+    Слой API - только получение параметров из request и вызов сервиса.
+    """
+
+    model = PersonalCollection
+    paginate_by = 16
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.service = PersonalCollectionService()
+        self.pk: uuid.UUID | None = None
+        self.collection: PersonalCollection | None = None
+
+    def get(self, *args: Any, **kwargs: Any) -> Any:
+        """
+        Получает коллекцию с проверкой доступа через сервис.
+        """
+        self.pk = self.kwargs['pk']
+        self.collection = self.service.get_collection_with_access_check(self.pk, self.request.user)
+        return super().get(*args, **kwargs)
+
+    def get_queryset(self) -> Any:
+        """
+        Получает QuerySet городов через сервис.
+        """
+        assert self.pk is not None and self.collection is not None
+
+        filter_value = self.request.GET.get('filter')
+        cities, statistics = self.service.get_cities_for_collection(
+            self.pk, self.collection.user, filter_value
+        )
+
+        # Сохраняем статистику для использования в get_context_data
+        self._statistics = statistics
+
+        return cities
+
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
+        """
+        Формирует контекст для шаблона через сервис.
+        """
+        assert self.collection is not None
+
+        context = super().get_context_data(object_list=object_list, **kwargs)
+
+        # Используем object_list из контекста (уже пагинированный)
+        cities = context.get('object_list', [])
+
+        service_context = self.service.get_list_context_data(
+            collection=self.collection,
+            cities=cities,
+            filter_param=self._statistics.get('filter', ''),
+        )
+
+        # Обновляем контекст (service_context не содержит object_list, поэтому он не перезапишется)
+        context.update(service_context)
+
+        return context
+
+    def get_template_names(self) -> list[str]:
+        return [
+            'collection/personal/cities/list/page.html',
+        ]
+
+
+class PersonalCollectionMap(ListView):  # type: ignore[type-arg]
+    """
+    View для отображения карты с городами персональной коллекции.
+    Слой API - только получение параметров из request и вызов сервиса.
+    """
+
+    model = PersonalCollection
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.service = PersonalCollectionService()
+        self.pk: uuid.UUID | None = None
+        self.collection: PersonalCollection | None = None
+
+    def get(self, *args: Any, **kwargs: Any) -> Any:
+        """
+        Получает коллекцию с проверкой доступа через сервис.
+        """
+        self.pk = self.kwargs['pk']
+        self.collection = self.service.get_collection_with_access_check(self.pk, self.request.user)
+        return super().get(*args, **kwargs)
+
+    def get_queryset(self) -> Any:
+        """
+        Получает QuerySet городов через сервис.
+        """
+        assert self.pk is not None and self.collection is not None
+
+        cities, statistics = self.service.get_cities_for_collection(
+            self.pk, self.collection.user, None
+        )
+
+        # Сохраняем статистику для использования в get_context_data
+        self._statistics = statistics
+
+        return cities
+
+    def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
+        """
+        Формирует контекст для шаблона через сервис.
+        """
+        assert self.collection is not None
+
+        context = super().get_context_data(object_list=object_list, **kwargs)
+
+        # Используем object_list из контекста (уже пагинированный)
+        cities = context.get('object_list', [])
+
+        service_context = self.service.get_map_context_data(
+            collection=self.collection,
+            cities=cities,
+        )
+
+        context.update(service_context)
+
+        return context
+
+    def get_template_names(self) -> list[str]:
+        return [
+            'collection/personal/cities/map/page.html',
+        ]

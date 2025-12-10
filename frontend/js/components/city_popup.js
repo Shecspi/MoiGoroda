@@ -48,7 +48,7 @@ export const formatDate = (value) => {
  * @param {boolean} [isAuthenticated] - Авторизован ли пользователь
  * @returns {string} HTML-код блока информации
  */
-export const buildVisitInfoBlock = (cityData, isAuthenticated = false) => {
+export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectionOwnerUsername = null, isCollectionOwner = false) => {
     let info = '';
     if (cityData.isVisited) {
         if (cityData.firstVisitDate && cityData.lastVisitDate && cityData.firstVisitDate === cityData.lastVisitDate) {
@@ -84,20 +84,23 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false) => {
         info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${cityData.numberOfVisits || 1}</span>`;
         info += `</div>`;
     } else {
-        if (isAuthenticated) {
-            info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-            info += `<div class="flex items-center gap-2">`;
-            info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
-            info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
+        if (collectionOwnerUsername && !isCollectionOwner) {
+            // Для персональных коллекций показываем информацию о владельце для всех пользователей
+            info += `<div class="text-sm">`;
+            info += `<span class="text-gray-900 dark:text-white">Пользователь <span class="font-semibold">${collectionOwnerUsername}</span> не был в этом городе</span>`;
             info += `</div>`;
+        } else if (isAuthenticated) {
+            info += `<div class="text-sm">`;
             info += `<span class="text-gray-900 dark:text-white">Вы не были в этом городе</span>`;
             info += `</div>`;
-        } else {
-            info += `<div class="text-sm">`;
-            info += `<a href="/account/signup/" class="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors font-medium">`;
-            info += `<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>`;
-            info += `<span>Зарегистрируйтесь, чтобы отмечать посещённые города</span>`;
-            info += `</a>`;
+        }
+        
+        // Для неавторизованных пользователей дополнительно показываем текст про регистрацию
+        if (!isAuthenticated) {
+            info += `<div class="text-sm mt-2">`;
+            info += `<span class="text-gray-900 dark:text-white">`;
+            info += `<a href="/account/signup/" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors font-medium">Зарегистрируйтесь</a>, чтобы отмечать посещённые города`;
+            info += `</span>`;
             info += `</div>`;
         }
     }
@@ -136,6 +139,7 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false) => {
  * @param {string} [options.regionLink] - Ссылка на список городов региона
  * @param {string} [options.countryLink] - Ссылка на список городов страны
  * @param {boolean} [options.isAuthenticated] - Авторизован ли пользователь (определяет показ кнопки "Отметить как посещённый")
+ * @param {string} [options.addButtonText] - Текст кнопки добавления города (по умолчанию "Отметить как посещённый" / "Добавить ещё одно посещение")
  * @returns {string} HTML-код popup окна
  */
 export const buildPopupContent = (cityData, options = {}) => {
@@ -144,7 +148,10 @@ export const buildPopupContent = (cityData, options = {}) => {
         countryName = '',
         regionLink = '',
         countryLink = '',
-        isAuthenticated = false
+        isAuthenticated = false,
+        isCollectionOwner = false,
+        collectionOwnerUsername = null,
+        addButtonText = null
     } = options;
 
     let content = '<div class="px-1.5 py-1.5 min-w-[280px] max-w-[400px]">';
@@ -176,26 +183,24 @@ export const buildPopupContent = (cityData, options = {}) => {
     content += `</div>`;
 
     content += '<div class="space-y-1.5 text-sm">';
-    content += buildVisitInfoBlock(cityData, isAuthenticated);
+    content += buildVisitInfoBlock(cityData, isAuthenticated, collectionOwnerUsername, isCollectionOwner);
     content += '</div>';
 
-    if (isAuthenticated) {
+    if (isAuthenticated && isCollectionOwner) {
         content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
-        if (!cityData.isVisited) {
-            content += `<a href="#" 
-                class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-                data-hs-overlay="#addCityModal" 
-                data-city-name="${cityData.name}" 
-                data-city-id="${cityData.id}" 
-                data-city-region="${regionName}">Отметить как посещённый</a>`;
+        // Используем кастомный текст кнопки, если передан, иначе используем стандартный
+        let buttonText;
+        if (addButtonText) {
+            buttonText = addButtonText;
         } else {
+            buttonText = !cityData.isVisited ? 'Отметить как посещённый' : 'Добавить ещё одно посещение';
+        }
             content += `<a href="#" 
                 class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
                 data-hs-overlay="#addCityModal" 
                 data-city-name="${cityData.name}" 
                 data-city-id="${cityData.id}" 
-                data-city-region="${regionName}">Добавить ещё одно посещение</a>`;
-        }
+            data-city-region="${regionName}">${buttonText}</a>`;
         content += '</div>';
     }
 

@@ -1,0 +1,100 @@
+<div class="h-full">
+    <!-- Карточка персональной коллекции -->
+    <div class="relative flex h-full flex-col gap-3 rounded-2xl border border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900 p-4 shadow-sm"
+         id="personal-collection-card-{{ collection.id }}">
+        <div class="flex h-full flex-col gap-3">
+            <!-- Заголовок коллекции -->
+            <div class="text-center">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    <a href="{% url 'collection-personal-list' collection.id %}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ collection.title }}
+                    </a>
+                </h3>
+                <div class="mt-2 flex justify-center">
+                    {% if collection.is_public %}
+                        <span class="inline-flex items-center gap-x-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:border-blue-600 dark:bg-blue-500/10 dark:text-blue-400" title="Публичная коллекция">
+                            <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Публичная
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center gap-x-1 rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-400" title="Приватная коллекция">
+                            <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            Приватная
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex flex-1 flex-col gap-3">
+                <!-- Список городов -->
+                <div class="flex flex-1 flex-col justify-center">
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+                        {% for city in collection.city.all|slice:"0:10" %}
+                            {% if city.id in visited_cities %}
+                                <a href="{% url 'city-selected' city.id %}" class="inline-flex items-center gap-x-0.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30">
+                                    {{ city }}
+                                </a>
+                            {% else %}
+                                <a href="{% url 'city-selected' city.id %}" class="inline-flex items-center gap-x-0.5 rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 transition hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-400 dark:hover:bg-rose-900/30">
+                                    {{ city }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        {% if collection.qty_of_cities > 10 %}
+                            <span class="inline-flex items-center gap-x-0.5 rounded-full border border-gray-300 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+                                и другие...
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- ^^^ Список городов -->
+
+                <div class="mt-auto flex flex-col gap-3">
+                    <!-- Количество городов и прогресс -->
+                    <div class="flex flex-col gap-2">
+                        <div class="text-center">
+                            <p class="text-sm text-gray-600 dark:text-neutral-400">
+                                Посещено {{ collection.qty_of_visited_cities }} из {{ collection.qty_of_cities }}
+                            </p>
+                        </div>
+
+                        <!-- Прогресс бар посещённых городов -->
+                        <div class="w-full">
+                            <div class="h-2 w-full overflow-hidden rounded-full border border-sky-100 bg-sky-50 dark:border-sky-900/40 dark:bg-sky-950/20">
+                                <div class="h-full rounded-full bg-gradient-to-r transition-all duration-500 ease-out {% if collection.qty_of_visited_cities == collection.qty_of_cities and collection.qty_of_cities > 0 %}from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500{% else %}from-sky-400/40 to-blue-500/40 dark:from-sky-500/40 dark:to-blue-600/40{% endif %}"
+                                     style="width: {% widthratio collection.qty_of_visited_cities collection.qty_of_cities 100 %}%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ^^^ Количество городов и прогресс -->
+
+                    <!-- Кнопки действий -->
+                    <div class="flex justify-center gap-2">
+                        <a href="{% url 'collection-personal-list' collection.id %}"
+                           class="inline-flex items-center gap-x-1 rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-600 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20">
+                            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                            </svg>
+                            Список
+                        </a>
+                        <a href="{% url 'collection-personal-map' collection.id %}"
+                           class="inline-flex items-center gap-x-1 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20">
+                            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                            </svg>
+                            Карта
+                        </a>
+                    </div>
+                    <!-- ^^^ Кнопки действий -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

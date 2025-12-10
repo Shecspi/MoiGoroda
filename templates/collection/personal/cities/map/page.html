@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+    {% vite_css 'css/leaflet-controls' %}
+{% endblock %}
+
+{% block content %}
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            {{ page_title }}
+        </h1>
+        {% if collection %}
+            {% if user == collection.user %}
+                <p class="mt-3 text-sm text-gray-600 dark:text-neutral-400">
+                    Ваша персональная коллекция. Посещённые города отображаются на основе ваших данных.
+                </p>
+            {% else %}
+                <p class="mt-3 text-sm text-gray-600 dark:text-neutral-400">
+                    Персональная коллекция пользователя <span class="font-medium text-gray-900 dark:text-neutral-200">{{ collection.user.username }}</span>. Посещённые города отображаются на основе его данных.
+                </p>
+            {% endif %}
+        {% endif %}
+    </header>
+
+    {% if not DEBUG %}
+        {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
+
+    {% if not DEBUG %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+        {% endif %}
+    {% endif %}
+
+    {% include 'collection/personal/cities/map/toolbar.html' %}
+    {% include 'city/map/modals/add_city.html' %}
+
+    <!-- Карта -->
+    <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>
+    <!-- ^^^ Карта -->
+
+    {% if not DEBUG %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+            {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+        {% endif %}
+    {% endif %}
+
+    {# Прокидываем переменные из Django в JS скрипт #}
+    <script>
+        window.TILE_LAYER = "{{ TILE_LAYER }}";
+        window.IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
+        window.IS_COLLECTION_OWNER = {% if collection and user.is_authenticated and user == collection.user %}true{% else %}false{% endif %};
+        window.COLLECTION_OWNER_USERNAME = {% if collection %}"{{ collection.user.username|escapejs }}"{% else %}null{% endif %};
+        window.COLLECTION_LIST_URL = "{% url 'collection-personal-list' pk %}";
+        window.COUNTRY_CITIES_BASE_URL = "{% url 'city-all-list' %}";
+        window.ALL_CITIES = [];
+        {% for city in all_cities %}
+            window.ALL_CITIES.push({
+                id: {{ city.id }},
+                name: "{{ city.title|escapejs }}",
+                lat: parseFloat('{{ city.coordinate_width }}'.replace(/,/, '.')),
+                lon: parseFloat('{{ city.coordinate_longitude }}'.replace(/,/, '.')),
+                isVisited: {{ city.is_visited|yesno:"true,false" }},
+                numberOfVisits: {{ city.number_of_visits|default:'null' }},
+                firstVisitDate: "{{ city.first_visit_date|date:'Y-m-d'|default_if_none:'' }}",
+                lastVisitDate: "{{ city.last_visit_date|date:'Y-m-d'|default_if_none:'' }}",
+                numberOfUsersWhoVisitCity: {{ city.number_of_users_who_visit_city|default:'null' }},
+                numberOfVisitsAllUsers: {{ city.number_of_visits_all_users|default:'null' }},
+                regionName: {% if city.region %}"{{ city.region|escapejs }}"{% else %}null{% endif %},
+                regionId: {% if city.region %}{{ city.region.id }}{% else %}null{% endif %},
+                countryName: "{{ city.country.name|escapejs }}",
+                countryCode: "{{ city.country.code|escapejs }}"
+            });
+        {% endfor %}
+    </script>
+    {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/map_collection.js' %}
+    {% if user.is_authenticated and collection and user == collection.user %}
+        {% include 'collection/personal/cities/list/modals/delete.html' %}
+        {% vite_asset 'js/entries/personal_collection_status.js' %}
+    {% endif %}
+{% endblock %}
+

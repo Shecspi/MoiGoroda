@@ -7,18 +7,25 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import uuid
 from typing import Any, cast
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from collection.models import Collection, FavoriteCollection
-from collection.serializers import CollectionSearchParamsSerializer
+from city.models import City
+from collection.models import Collection, FavoriteCollection, PersonalCollection
+from collection.serializers import (
+    CollectionSearchParamsSerializer,
+    PersonalCollectionCreateSerializer,
+    PersonalCollectionUpdatePublicStatusSerializer,
+    PersonalCollectionUpdateSerializer,
+)
 
 
 @api_view(['GET'])
@@ -104,4 +111,384 @@ def favorite_collection_toggle(request: Request, collection_id: int) -> Response
 
     return Response(
         {'detail': 'Метод не поддерживается'}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+    )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def personal_collection_create(request: Request) -> Response:
+    """
+    Создаёт новую персональную коллекцию для текущего пользователя.
+
+    Принимает JSON с полями:
+    - `title`: str — название коллекции (обязательное, максимум 256 символов)
+    - `city_ids`: list[int] — список ID городов для добавления в коллекцию (обязательное, не пустое)
+    - `is_public`: bool — публичная ли коллекция (необязательное, по умолчанию False)
+
+    Возвращает:
+    - При успехе: 201 с полями `id` (ID созданной коллекции) и `title`
+    - При ошибке валидации: 400 с описанием ошибки
+    - При отсутствии авторизации: 401
+
+    :param request: DRF Request с авторизованным пользователем
+    :return: Response с результатом создания коллекции
+    """
+    serializer = PersonalCollectionCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    user = cast(User, request.user)
+    title = serializer.validated_data['title']
+    city_ids = serializer.validated_data['city_ids']
+    is_public = serializer.validated_data.get('is_public', False)
+
+    # Проверяем существование всех городов
+    from city.models import City
+
+    cities = City.objects.filter(id__in=city_ids)
+    found_city_ids = set(cities.values_list('id', flat=True))
+    missing_city_ids = set(city_ids) - found_city_ids
+
+    if missing_city_ids:
+        return Response(
+            {
+                'detail': f'Города с ID {sorted(missing_city_ids)} не найдены',
+                'missing_city_ids': sorted(missing_city_ids),
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Создаём коллекцию
+    collection = PersonalCollection.objects.create(
+        user=user,
+        title=title,
+        is_public=is_public,
+    )
+
+    # Добавляем города в коллекцию
+    collection.city.set(cities)
+
+    return Response(
+        {
+            'id': collection.id,
+            'title': collection.title,
+            'is_public': collection.is_public,
+        },
+        status=status.HTTP_201_CREATED,
+    )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def personal_collection_copy(request: Request, collection_id: str) -> Response:
+    """
+    Копирует персональную коллекцию для текущего пользователя.
+
+    Создаёт новую коллекцию с тем же названием и городами, что и исходная коллекция.
+    Копирование доступно только для публичных коллекций других пользователей.
+
+    Возвращает:
+    - При успехе: 201 с полями `id` (ID созданной коллекции) и `title`
+    - При отсутствии авторизации: 401
+    - При отсутствии коллекции: 404
+    - При попытке скопировать свою коллекцию: 403
+    - При попытке скопировать приватную коллекцию: 403
+
+    :param request: DRF Request с авторизованным пользователем
+    :param collection_id: UUID коллекции в виде строки
+    :return: Response с результатом копирования коллекции
+    """
+    try:
+        collection_uuid = uuid.UUID(collection_id)
+    except ValueError:
+        return Response(
+            {'detail': 'Неверный формат UUID коллекции'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        source_collection = (
+            PersonalCollection.objects.select_related('user')
+            .prefetch_related('city')
+            .get(id=collection_uuid)
+        )
+    except PersonalCollection.DoesNotExist:
+        return Response(
+            {'detail': 'Коллекция не найдена'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    user = cast(User, request.user)
+
+    # Проверяем, что коллекция не принадлежит текущему пользователю
+    if source_collection.user == user:
+        return Response(
+            {'detail': 'Нельзя скопировать свою коллекцию'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Проверяем, что коллекция публичная
+    if not source_collection.is_public:
+        return Response(
+            {'detail': 'Нельзя скопировать приватную коллекцию'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Получаем города из исходной коллекции
+    cities = source_collection.city.all()
+
+    # Создаём новую коллекцию с тем же названием
+    new_collection = PersonalCollection.objects.create(
+        user=user,
+        title=source_collection.title,
+        is_public=False,  # Копия по умолчанию приватная
+        is_copied=True,  # Указываем, что коллекция была скопирована
+    )
+
+    # Добавляем города в новую коллекцию
+    new_collection.city.set(cities)
+
+    return Response(
+        {
+            'id': new_collection.id,
+            'title': new_collection.title,
+            'is_public': new_collection.is_public,
+        },
+        status=status.HTTP_201_CREATED,
+    )
+
+
+@api_view(['PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def personal_collection_update(request: Request, collection_id: str) -> Response:
+    """
+    Обновляет персональную коллекцию.
+
+    Принимает JSON с полями:
+    - `title`: str — название коллекции (обязательное, максимум 256 символов)
+    - `city_ids`: list[int] — список ID городов для добавления в коллекцию (обязательное, не пустое)
+    - `is_public`: bool — публичная ли коллекция (необязательное, по умолчанию False)
+
+    Возвращает:
+    - При успехе: 200 с полями `id` (ID коллекции) и `title`
+    - При ошибке валидации: 400 с описанием ошибки
+    - При отсутствии авторизации: 401
+    - При отсутствии коллекции: 404
+    - При попытке изменить чужую коллекцию: 403
+
+    :param request: DRF Request с авторизованным пользователем
+    :param collection_id: UUID коллекции в виде строки
+    :return: Response с результатом обновления коллекции
+    """
+    try:
+        collection_uuid = uuid.UUID(collection_id)
+    except ValueError:
+        return Response(
+            {'detail': 'Неверный формат UUID коллекции'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        collection = PersonalCollection.objects.get(id=collection_uuid)
+    except PersonalCollection.DoesNotExist:
+        return Response(
+            {'detail': 'Коллекция не найдена'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    user = cast(User, request.user)
+    if collection.user != user:
+        return Response(
+            {'detail': 'У вас нет прав на изменение этой коллекции'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    serializer = PersonalCollectionUpdateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    title = serializer.validated_data['title']
+    city_ids = serializer.validated_data['city_ids']
+    is_public = serializer.validated_data.get('is_public', False)
+
+    # Проверяем существование всех городов
+    cities = City.objects.filter(id__in=city_ids)
+    found_city_ids = set(cities.values_list('id', flat=True))
+    missing_city_ids = set(city_ids) - found_city_ids
+
+    if missing_city_ids:
+        return Response(
+            {
+                'detail': f'Города с ID {sorted(missing_city_ids)} не найдены',
+                'missing_city_ids': sorted(missing_city_ids),
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Обновляем коллекцию
+    collection.title = title
+    collection.is_public = is_public
+    collection.save()
+
+    # Обновляем города в коллекции
+    collection.city.set(cities)
+
+    return Response(
+        {
+            'id': collection.id,
+            'title': collection.title,
+            'is_public': collection.is_public,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def personal_collection_update_public_status(request: Request, collection_id: str) -> Response:
+    """
+    Изменяет статус публичности персональной коллекции.
+
+    Принимает JSON с полем:
+    - `is_public`: bool — новый статус публичности коллекции (обязательное)
+
+    Возвращает:
+    - При успехе: 200 с полем `is_public` (новый статус)
+    - При ошибке валидации: 400 с описанием ошибки
+    - При отсутствии авторизации: 401
+    - При отсутствии коллекции: 404
+    - При попытке изменить чужую коллекцию: 403
+
+    :param request: DRF Request с авторизованным пользователем
+    :param collection_id: UUID персональной коллекции
+    :return: Response с результатом изменения статуса
+    """
+    import uuid
+
+    try:
+        collection_uuid = uuid.UUID(collection_id)
+    except ValueError:
+        return Response(
+            {'detail': 'Неверный формат UUID коллекции'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Проверяем существование коллекции
+    try:
+        collection = PersonalCollection.objects.get(id=collection_uuid)
+    except ObjectDoesNotExist:
+        return Response(
+            {'detail': 'Коллекция не найдена'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    user = cast(User, request.user)
+
+    # Проверяем, что пользователь является создателем коллекции
+    if collection.user != user:
+        return Response(
+            {'detail': 'Вы не можете изменять эту коллекцию'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    serializer = PersonalCollectionUpdatePublicStatusSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    is_public = serializer.validated_data['is_public']
+    collection.is_public = is_public
+    collection.save(update_fields=['is_public'])
+
+    return Response(
+        {'is_public': collection.is_public},
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def personal_collection_delete(request: Request, collection_id: str) -> Response:
+    """
+    Удаляет персональную коллекцию.
+
+    Возвращает:
+    - При успехе: 204 No Content
+    - При отсутствии авторизации: 401
+    - При отсутствии коллекции: 404
+    - При попытке удалить чужую коллекцию: 403
+
+    :param request: DRF Request с авторизованным пользователем
+    :param collection_id: UUID персональной коллекции
+    :return: Response с результатом удаления
+    """
+    import uuid
+
+    try:
+        collection_uuid = uuid.UUID(collection_id)
+    except ValueError:
+        return Response(
+            {'detail': 'Неверный формат UUID коллекции'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Проверяем существование коллекции
+    try:
+        collection = PersonalCollection.objects.get(id=collection_uuid)
+    except ObjectDoesNotExist:
+        return Response(
+            {'detail': 'Коллекция не найдена'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    user = cast(User, request.user)
+
+    # Проверяем, что пользователь является создателем коллекции
+    if collection.user != user:
+        return Response(
+            {'detail': 'Вы не можете удалить эту коллекцию'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Удаляем коллекцию
+    collection.delete()
+
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public_collections_statistics(request: Request) -> Response:
+    """
+    Возвращает статистику по публичным персональным коллекциям.
+
+    Возвращает:
+    - `collections_count`: int — количество публичных коллекций
+    - `users_count`: int — количество уникальных пользователей с публичными коллекциями
+    - `cities_count`: int — количество уникальных городов во всех публичных коллекциях
+    - `copied_count`: int — количество скопированных коллекций
+
+    Доступно всем пользователям (включая неавторизованных).
+
+    :param request: DRF Request
+    :return: Response со статистикой
+    """
+    # Количество публичных коллекций
+    collections_count = PersonalCollection.objects.filter(is_public=True).count()
+
+    # Количество уникальных пользователей с публичными коллекциями
+    users_count = (
+        PersonalCollection.objects.filter(is_public=True).values('user').distinct().count()
+    )
+
+    # Количество уникальных городов во всех публичных коллекциях
+    cities_count = City.objects.filter(personal_collections_list__is_public=True).distinct().count()
+
+    # Количество скопированных коллекций
+    copied_count = PersonalCollection.objects.filter(is_copied=True).count()
+
+    return Response(
+        {
+            'collections_count': collections_count,
+            'users_count': users_count,
+            'cities_count': cities_count,
+            'copied_count': copied_count,
+        },
+        status=status.HTTP_200_OK,
     )

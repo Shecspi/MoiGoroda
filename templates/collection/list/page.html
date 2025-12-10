@@ -21,6 +21,8 @@
         </p>
     </header>
 
+    {% include 'collection/parts/navigation_tabs.html' with active_tab='general' %}
+
     {# Карточки с коллекциями #}
     {% if object_list %}
         {# Поисковый тулбар в стиле Tailwind/Preline #}

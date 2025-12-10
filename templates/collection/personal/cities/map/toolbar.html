@@ -1,0 +1,132 @@
+{% load vite %}
+{% load morphology %}
+
+<!-- Панель инструментов -->
+<div class="mx-3 my-3 flex flex-wrap items-center justify-between gap-3" id="toolbar">
+    <!-- Статистика -->
+    <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
+        <div class="hs-tooltip [--placement:top] relative inline-block">
+            <span class="hs-tooltip-toggle stat-badge stat-badge-success">
+                <span class="stat-badge-dot"></span>
+                <span id="visited-word">{{ "Посещён,Посещено"|modify_by_num:qty_of_visited_cities }}</span>
+                <strong>{{ qty_of_visited_cities }}</strong>
+                <span id="visited-cities-word">{{ "город"|plural_by_num:qty_of_visited_cities }}</span>
+                <span>из</span>
+                <span>{{ qty_of_cities }}</span>
+            </span>
+            <span class="hs-tooltip-content" role="tooltip">
+                Количество посещённых городов из коллекции
+            </span>
+        </div>
+    </div>
+    <!-- ^^^ Статистика -->
+
+    <!-- Кнопки действий -->
+    <div class="toolbar-actions flex flex-wrap items-center gap-3 self-center ml-auto">
+        {% if user.is_authenticated and collection and user == collection.user %}
+            <!-- Публичная/Приватная коллекция -->
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <div class="hs-tooltip-toggle flex items-center gap-2">
+                    <span class="text-sm text-gray-600 dark:text-neutral-400">Приватная</span>
+                    <label for="collection-public-status-switch" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0">
+                        <input type="checkbox"
+                               id="collection-public-status-switch"
+                               {% if collection.is_public %}checked{% endif %}
+                               data-collection-id="{{ collection.id }}"
+                               class="peer sr-only">
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <!-- Left Icon (Off) -->
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <!-- Right Icon (On) -->
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                    <span class="text-sm text-gray-600 dark:text-neutral-400">Публичная</span>
+                </div>
+                <span class="hs-tooltip-content" role="tooltip">
+                    {% if collection.is_public %}
+                        Коллекция публичная. Любой пользователь может просматривать её.
+                    {% else %}
+                        Коллекция приватная. Только вы можете просматривать её.
+                    {% endif %}
+                </span>
+            </div>
+            <!-- ^^^ Публичная/Приватная коллекция -->
+
+            <!-- Копировать/Поделиться ссылкой -->
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <button type="button"
+                        id="copy-collection-link-button"
+                        data-collection-url="{% url 'collection-personal-list' pk %}"
+                        data-collection-title="{{ collection.title|escapejs }}"
+                        {% if not collection.is_public %}disabled{% endif %}
+                        class="hs-tooltip-toggle inline-flex items-center justify-center size-10 rounded-xl border border-blue-500 text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-500/10">
+                    <svg id="copy-collection-link-icon" class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">
+                    {% if collection.is_public %}
+                        Поделиться ссылкой на коллекцию
+                    {% else %}
+                        Сделайте коллекцию публичной, чтобы поделиться ссылкой
+                    {% endif %}
+                </span>
+            </div>
+            <!-- ^^^ Копировать/Поделиться ссылкой -->
+            <!-- Изменить -->
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <a href="{% url 'collection-personal-edit' collection.id %}"
+                   id="edit-collection-button"
+                   class="hs-tooltip-toggle inline-flex items-center justify-center size-10 rounded-xl border border-gray-300 text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </a>
+                <span class="hs-tooltip-content" role="tooltip">Изменить коллекцию</span>
+            </div>
+            <!-- ^^^ Изменить -->
+            <!-- Удалить -->
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <button type="button"
+                        id="delete-collection-button"
+                        data-collection-title="{{ collection.title|escapejs }}"
+                        data-hs-overlay="#deleteCollectionModal"
+                        class="hs-tooltip-toggle inline-flex items-center justify-center size-10 rounded-xl border border-red-300 text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10">
+                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">Удалить коллекцию</span>
+            </div>
+            <!-- ^^^ Удалить -->
+        {% endif %}
+        <!-- Посмотреть список -->
+        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+            <a href="{% url 'collection-personal-list' pk %}" 
+               class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+               id="section-show_list">
+                <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M64 136C64 122.8 74.7 112 88 112L136 112C149.3 112 160 122.7 160 136L160 240L184 240C197.3 240 208 250.7 208 264C208 277.3 197.3 288 184 288L88 288C74.7 288 64 277.3 64 264C64 250.7 74.7 240 88 240L112 240L112 160L88 160C74.7 160 64 149.3 64 136zM94.4 365.2C105.8 356.6 119.7 352 134 352L138.9 352C172.6 352 200 379.4 200 413.1C200 432.7 190.6 451 174.8 462.5L150.8 480L184 480C197.3 480 208 490.7 208 504C208 517.3 197.3 528 184 528L93.3 528C77.1 528 64 514.9 64 498.7C64 489.3 68.5 480.5 76.1 475L146.6 423.7C150 421.2 152 417.3 152 413.1C152 405.9 146.1 400 138.9 400L134 400C130.1 400 126.3 401.3 123.2 403.6L102.4 419.2C91.8 427.2 76.8 425 68.8 414.4C60.8 403.8 63 388.8 73.6 380.8L94.4 365.2zM288 128L544 128C561.7 128 576 142.3 576 160C576 177.7 561.7 192 544 192L288 192C270.3 192 256 177.7 256 160C256 142.3 270.3 128 288 128zM288 288L544 288C561.7 288 576 302.3 576 320C576 337.7 561.7 352 544 352L288 352C270.3 352 256 337.7 256 320C256 302.3 270.3 288 288 288zM288 448L544 448C561.7 448 576 462.3 576 480C576 497.7 561.7 512 544 512L288 512C270.3 512 256 497.7 256 480C256 462.3 270.3 448 288 448z"/>
+                </svg>
+                <span>Посмотреть список</span>
+            </a>
+            <span class="hs-tooltip-content" role="tooltip">
+                Открыть список городов коллекции
+            </span>
+        </div>
+        <!-- ^^^ Посмотреть список -->
+    </div>
+    <!-- ^^^ Кнопки действий -->
+</div>
+<!-- ^^^ Панель инструментов -->
+

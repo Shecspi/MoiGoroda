@@ -29,6 +29,7 @@ from city.serializers import (
     NotVisitedCitySerializer,
     VisitedCitySerializer,
 )
+from country.models import Country
 from city.services.db import (
     get_first_visit_date_by_city,
     get_last_visit_date_by_city,
@@ -289,6 +290,289 @@ def city_list_by_country(request: Request) -> Response:
 
 
 @api_view(['GET'])
+def city_list_by_regions(request: Request) -> Response:
+    """
+    Возвращает список городов для одного или нескольких регионов и/или стран.
+
+    Принимает параметры:
+    - region_ids (несколько ID через запятую): для загрузки городов по регионам
+    - country_ids (несколько ID через запятую): для загрузки городов по странам без регионов
+
+    Возвращает список городов с полями id, title, lat, lon, region, country, regionId, countryCode.
+
+    :param request: DRF Request
+    :return: Response со списком городов
+    """
+    region_ids_param = request.GET.get('region_ids')
+    country_ids_param = request.GET.get('country_ids')
+
+    if not region_ids_param and not country_ids_param:
+        return Response(
+            {'detail': 'Параметр region_ids или country_ids является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Обрабатываем region_ids
+    region_ids: list[int] = []
+    if region_ids_param:
+        try:
+            region_ids = [int(id.strip()) for id in region_ids_param.split(',') if id.strip()]
+        except ValueError:
+            return Response(
+                {'detail': 'Параметр region_ids должен содержать список числовых ID через запятую'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    # Обрабатываем country_ids
+    country_ids: list[int] = []
+    if country_ids_param:
+        try:
+            country_ids = [int(id.strip()) for id in country_ids_param.split(',') if id.strip()]
+        except ValueError:
+            return Response(
+                {
+                    'detail': 'Параметр country_ids должен содержать список числовых ID через запятую'
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    if not region_ids and not country_ids:
+        return Response(
+            {'detail': 'Не указаны валидные ID регионов или стран'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Формируем запрос для получения городов
+    cities_query = City.objects.select_related('region', 'country')
+
+    if region_ids and country_ids:
+        # Если указаны и регионы, и страны - объединяем условия через OR
+        # Для регионов - загружаем города по регионам
+        # Для стран - загружаем все города этих стран (включая те, у которых есть регионы)
+        from django.db.models import Q
+
+        cities_query = cities_query.filter(
+            Q(region_id__in=region_ids) | Q(country_id__in=country_ids)
+        )
+    elif region_ids:
+        # Только регионы
+        cities_query = cities_query.filter(region_id__in=region_ids)
+    else:
+        # Только страны - загружаем все города этих стран
+        # (включая те, у которых есть регионы, если регионы не выбраны)
+        cities_query = cities_query.filter(country_id__in=country_ids)
+
+    cities = cities_query.order_by('title')
+
+    # Получаем информацию о посещениях для авторизованного пользователя
+    user = request.user
+    user_id = user.pk if user.is_authenticated else None
+
+    # Получаем все посещённые города пользователя одним запросом для оптимизации
+    visited_city_ids: set[int] = set()
+    city_visits_data: dict[int, dict[str, Any]] = {}
+
+    if user_id:
+        visited_cities = (
+            VisitedCity.objects.filter(user_id=user_id, city_id__in=[city.id for city in cities])
+            .select_related('city')
+            .order_by('city_id', 'date_of_visit')
+        )
+
+        # Группируем посещения по городам
+        for visited_city in visited_cities:
+            city_id = visited_city.city_id
+            visited_city_ids.add(city_id)
+
+            if city_id not in city_visits_data:
+                city_visits_data[city_id] = {
+                    'first_visit_date': visited_city.date_of_visit,
+                    'last_visit_date': visited_city.date_of_visit,
+                    'number_of_visits': 1,
+                }
+            else:
+                # Обновляем первую и последнюю дату посещения
+                if visited_city.date_of_visit:
+                    if (
+                        city_visits_data[city_id]['first_visit_date'] is None
+                        or visited_city.date_of_visit
+                        < city_visits_data[city_id]['first_visit_date']
+                    ):
+                        city_visits_data[city_id]['first_visit_date'] = visited_city.date_of_visit
+                    if (
+                        city_visits_data[city_id]['last_visit_date'] is None
+                        or visited_city.date_of_visit > city_visits_data[city_id]['last_visit_date']
+                    ):
+                        city_visits_data[city_id]['last_visit_date'] = visited_city.date_of_visit
+                city_visits_data[city_id]['number_of_visits'] += 1
+
+    # Формируем данные вручную, чтобы включить regionId, countryCode и информацию о посещении
+    cities_data = []
+    for city in cities:
+        city_id = city.id
+        is_visited = city_id in visited_city_ids
+
+        city_data = {
+            'id': city_id,
+            'title': city.title,
+            'lat': str(city.coordinate_width),
+            'lon': str(city.coordinate_longitude),
+            'region': city.region.full_name if city.region else None,
+            'country': city.country.name if city.country else None,
+            'regionId': city.region.id if city.region else None,
+            'countryCode': city.country.code if city.country else None,
+            'isVisited': is_visited,
+        }
+
+        # Добавляем информацию о посещении, если город посещён
+        if is_visited and city_id in city_visits_data:
+            visits_info = city_visits_data[city_id]
+            city_data['firstVisitDate'] = (
+                visits_info['first_visit_date'].isoformat()
+                if visits_info['first_visit_date']
+                else None
+            )
+            city_data['lastVisitDate'] = (
+                visits_info['last_visit_date'].isoformat()
+                if visits_info['last_visit_date']
+                else None
+            )
+            city_data['numberOfVisits'] = visits_info['number_of_visits']
+        else:
+            city_data['firstVisitDate'] = None
+            city_data['lastVisitDate'] = None
+            city_data['numberOfVisits'] = 0
+
+        cities_data.append(city_data)
+
+    return Response(cities_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def city_list_by_ids(request: Request) -> Response:
+    """
+    Возвращает список городов по их ID.
+
+    Принимает параметр:
+    - city_ids (несколько ID через запятую): список ID городов для загрузки
+
+    Возвращает список городов с полями id, title, lat, lon, region, country, regionId, countryCode.
+
+    :param request: DRF Request
+    :return: Response со списком городов
+    """
+    city_ids_param = request.GET.get('city_ids')
+
+    if not city_ids_param:
+        return Response(
+            {'detail': 'Параметр city_ids является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Обрабатываем city_ids
+    city_ids: list[int] = []
+    try:
+        city_ids = [int(id.strip()) for id in city_ids_param.split(',') if id.strip()]
+    except ValueError:
+        return Response(
+            {'detail': 'Параметр city_ids должен содержать список числовых ID через запятую'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if not city_ids:
+        return Response(
+            {'detail': 'Не указаны валидные ID городов'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Загружаем города
+    cities = (
+        City.objects.select_related('region', 'country').filter(id__in=city_ids).order_by('title')
+    )
+
+    # Получаем информацию о посещениях для авторизованного пользователя
+    user = request.user
+    user_id = user.pk if user.is_authenticated else None
+
+    visited_city_ids: set[int] = set()
+    city_visits_data: dict[int, dict[str, Any]] = {}
+
+    if user_id:
+        from city.models import VisitedCity
+
+        visited_cities = VisitedCity.objects.filter(
+            user_id=user_id, city_id__in=city_ids
+        ).select_related('city')
+
+        for visited_city in visited_cities:
+            city_id = visited_city.city_id
+            visited_city_ids.add(city_id)
+
+            if city_id not in city_visits_data:
+                city_visits_data[city_id] = {
+                    'first_visit_date': None,
+                    'last_visit_date': None,
+                    'number_of_visits': 0,
+                }
+
+            if visited_city.date_of_visit:
+                if (
+                    not city_visits_data[city_id]['first_visit_date']
+                    or visited_city.date_of_visit < city_visits_data[city_id]['first_visit_date']
+                ):
+                    city_visits_data[city_id]['first_visit_date'] = visited_city.date_of_visit
+
+                if (
+                    not city_visits_data[city_id]['last_visit_date']
+                    or visited_city.date_of_visit > city_visits_data[city_id]['last_visit_date']
+                ):
+                    city_visits_data[city_id]['last_visit_date'] = visited_city.date_of_visit
+
+            city_visits_data[city_id]['number_of_visits'] += 1
+
+    # Формируем данные вручную, чтобы включить regionId, countryCode и информацию о посещении
+    cities_data = []
+    for city in cities:
+        city_id = city.id
+        is_visited = city_id in visited_city_ids
+
+        city_data = {
+            'id': city_id,
+            'title': city.title,
+            'lat': str(city.coordinate_width),
+            'lon': str(city.coordinate_longitude),
+            'region': city.region.full_name if city.region else None,
+            'country': city.country.name if city.country else None,
+            'regionId': city.region.id if city.region else None,
+            'countryCode': city.country.code if city.country else None,
+            'isVisited': is_visited,
+        }
+
+        # Добавляем информацию о посещении, если город посещён
+        if is_visited and city_id in city_visits_data:
+            visits_info = city_visits_data[city_id]
+            city_data['firstVisitDate'] = (
+                visits_info['first_visit_date'].isoformat()
+                if visits_info['first_visit_date']
+                else None
+            )
+            city_data['lastVisitDate'] = (
+                visits_info['last_visit_date'].isoformat()
+                if visits_info['last_visit_date']
+                else None
+            )
+            city_data['numberOfVisits'] = visits_info['number_of_visits']
+        else:
+            city_data['firstVisitDate'] = None
+            city_data['lastVisitDate'] = None
+            city_data['numberOfVisits'] = 0
+
+        cities_data.append(city_data)
+
+    return Response(cities_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
 def city_search(request: Request) -> Response:
     """
     Поиск городов по подстроке.
@@ -320,3 +604,30 @@ def city_search(request: Request) -> Response:
     city_serializer = CitySerializer(cities_queryset, many=True, context={'request': request})  # type: ignore[arg-type]
 
     return Response(city_serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def country_list_by_cities(request: Request) -> Response:
+    """
+    Возвращает список стран, у которых есть города.
+
+    Возвращает список стран с полями id, code, name, отсортированный по названию.
+    Включаются только те страны, у которых есть хотя бы один город в базе данных.
+
+    :param request: DRF Request
+    :return: Response со списком стран
+    """
+    # Получаем страны, у которых есть города
+    countries = Country.objects.filter(city__isnull=False).distinct().order_by('name')
+
+    # Формируем простой ответ с нужными полями
+    countries_data = [
+        {
+            'id': country.id,
+            'code': country.code,
+            'name': country.name,
+        }
+        for country in countries
+    ]
+
+    return Response(countries_data, status=status.HTTP_200_OK)

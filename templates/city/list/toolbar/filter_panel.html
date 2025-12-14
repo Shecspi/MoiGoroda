@@ -27,7 +27,7 @@
                 </label>
                 <label for="filterNoFilter" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="no_filter" id="filterNoFilter" class="peer sr-only filter-switch" {% if filter is None or not filter|in_list:"no_magnet,magnet,current_year,last_year" %}checked{% endif %}>
-                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
                     <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
                     <!-- Left Icon (Off) -->
                     <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
@@ -37,7 +37,7 @@
                         </svg>
                     </span>
                     <!-- Right Icon (On) -->
-                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
                         <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
@@ -50,7 +50,7 @@
                 </label>
                 <label for="filterNoMagnet" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="no_magnet" id="filterNoMagnet" class="peer sr-only filter-switch" {% if filter == 'no_magnet' %}checked{% endif %}>
-                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
                     <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
                     <!-- Left Icon (Off) -->
                     <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
@@ -60,7 +60,7 @@
                         </svg>
                     </span>
                     <!-- Right Icon (On) -->
-                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
                         <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
@@ -73,7 +73,7 @@
                 </label>
                 <label for="filterMagnet" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="magnet" id="filterMagnet" class="peer sr-only filter-switch" {% if filter == 'magnet' %}checked{% endif %}>
-                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
                     <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
                     <!-- Left Icon (Off) -->
                     <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
@@ -83,7 +83,7 @@
                         </svg>
                     </span>
                     <!-- Right Icon (On) -->
-                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
                         <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
@@ -96,7 +96,7 @@
                 </label>
                 <label for="filterCurrentYear" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="current_year" id="filterCurrentYear" class="peer sr-only filter-switch" {% if filter == 'current_year' %}checked{% endif %}>
-                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
                     <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
                     <!-- Left Icon (Off) -->
                     <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
@@ -106,7 +106,7 @@
                         </svg>
                     </span>
                     <!-- Right Icon (On) -->
-                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
                         <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
@@ -119,7 +119,7 @@
                 </label>
                 <label for="filterLastYear" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="last_year" id="filterLastYear" class="peer sr-only filter-switch" {% if filter == 'last_year' %}checked{% endif %}>
-                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
                     <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
                     <!-- Left Icon (Off) -->
                     <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
@@ -129,7 +129,7 @@
                         </svg>
                     </span>
                     <!-- Right Icon (On) -->
-                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
                         <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>

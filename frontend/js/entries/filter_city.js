@@ -53,6 +53,72 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+// Управление переключателями фильтров
+document.addEventListener('DOMContentLoaded', function () {
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    
+    // Функция для отключения всех переключателей фильтров кроме указанного
+    function disableAllFilterSwitchesExcept(activeSwitch) {
+        filterSwitches.forEach(switchEl => {
+            if (switchEl !== activeSwitch) {
+                switchEl.checked = false;
+            }
+        });
+    }
+    
+    // Функция для обновления скрытой радиокнопки filter на основе переключателя
+    function updateFilterRadio() {
+        const selectedFilter = document.querySelector('.filter-switch:checked')?.value;
+        
+        if (selectedFilter) {
+            // Отключаем все скрытые радиокнопки
+            document.querySelectorAll('input[name="filter"].filter-radio').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Включаем нужную радиокнопку
+            const filterRadio = document.querySelector(`input[name="filter"].filter-radio[value="${selectedFilter}"]`);
+            if (filterRadio) {
+                filterRadio.checked = true;
+            }
+        }
+    }
+    
+    // Обработка изменения фильтров (переключатели работают как радиокнопки)
+    filterSwitches.forEach(switchEl => {
+        switchEl.addEventListener('change', function() {
+            if (this.checked) {
+                // Отключаем все остальные переключатели
+                disableAllFilterSwitchesExcept(this);
+                // Обновляем скрытую радиокнопку
+                updateFilterRadio();
+            } else {
+                // Если пытаются отключить последний переключатель, не даем этого сделать
+                const checkedSwitches = document.querySelectorAll('.filter-switch:checked');
+                if (checkedSwitches.length === 0) {
+                    this.checked = true;
+                }
+            }
+        });
+    });
+    
+    // Инициализация: если ни один фильтр не выбран, выбираем по умолчанию
+    const checkedFilter = document.querySelector('.filter-switch:checked');
+    if (!checkedFilter) {
+        const defaultFilterSwitch = document.querySelector('.filter-switch[value="no_filter"]');
+        if (defaultFilterSwitch) {
+            defaultFilterSwitch.checked = true;
+            disableAllFilterSwitchesExcept(defaultFilterSwitch);
+        }
+    } else {
+        // Убеждаемся, что только один переключатель включен
+        disableAllFilterSwitchesExcept(checkedFilter);
+    }
+    
+    // Инициализация скрытых радиокнопок
+    updateFilterRadio();
+});
+
 // Управление выбором типа и направления сортировки
 document.addEventListener('DOMContentLoaded', function () {
     const sortTypeSwitches = document.querySelectorAll('.sort-type-switch');
@@ -141,8 +207,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Сброс фильтра
             if (filter) {
-                const filterInput = document.querySelector(`input[name="filter"][value="${filter}"]`);
+                const filterInput = document.querySelector(`input[name="filter"].filter-radio[value="${filter}"]`);
                 if (filterInput) filterInput.checked = true;
+                
+                // Отключаем все переключатели фильтров
+                document.querySelectorAll('.filter-switch').forEach(switchEl => {
+                    switchEl.checked = false;
+                });
+                
+                // Устанавливаем переключатель фильтра
+                const filterSwitch = document.querySelector(`.filter-switch[value="${filter}"]`);
+                if (filterSwitch) {
+                    filterSwitch.checked = true;
+                }
             }
 
             // Сброс сортировки
@@ -185,8 +262,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             const selectedCountryCode = urlParams.get('country');
 
-            const filter = document.querySelector('input[name="filter"]:checked')?.value || '';
-            const sort = document.querySelector('input[name="sort"]:checked')?.value || '';
+            const filter = document.querySelector('input[name="filter"].filter-radio:checked')?.value || '';
+            const sort = document.querySelector('input[name="sort"].sort-radio:checked')?.value || '';
             const defaultFilter = this.dataset.filter;
             const defaultSort = this.dataset.sort;
 

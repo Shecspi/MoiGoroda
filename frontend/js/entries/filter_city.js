@@ -53,6 +53,83 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+// Управление выбором типа и направления сортировки
+document.addEventListener('DOMContentLoaded', function () {
+    const sortTypeSwitches = document.querySelectorAll('.sort-type-switch');
+    const sortDirectionSwitch = document.querySelector('.sort-direction-switch');
+    
+    // Функция для отключения всех переключателей типа кроме указанного
+    function disableAllTypeSwitchesExcept(activeSwitch) {
+        sortTypeSwitches.forEach(switchEl => {
+            if (switchEl !== activeSwitch) {
+                switchEl.checked = false;
+            }
+        });
+    }
+    
+    // Функция для обновления скрытой радиокнопки sort на основе типа и направления
+    function updateSortRadio() {
+        const selectedType = document.querySelector('.sort-type-switch:checked')?.value;
+        // Переключатель: unchecked = down, checked = up
+        const selectedDirection = sortDirectionSwitch?.checked ? 'up' : 'down';
+        
+        if (selectedType && selectedDirection) {
+            // Отключаем все скрытые радиокнопки
+            document.querySelectorAll('input[name="sort"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Включаем нужную радиокнопку
+            const sortValue = `${selectedType}_${selectedDirection}`;
+            const sortRadio = document.querySelector(`input[name="sort"][value="${sortValue}"]`);
+            if (sortRadio) {
+                sortRadio.checked = true;
+            }
+        }
+    }
+    
+    // Обработка изменения типа сортировки (переключатели работают как радиокнопки)
+    sortTypeSwitches.forEach(switchEl => {
+        switchEl.addEventListener('change', function() {
+            if (this.checked) {
+                // Отключаем все остальные переключатели
+                disableAllTypeSwitchesExcept(this);
+                // Обновляем скрытую радиокнопку
+                updateSortRadio();
+            } else {
+                // Если пытаются отключить последний переключатель, не даем этого сделать
+                const checkedSwitches = document.querySelectorAll('.sort-type-switch:checked');
+                if (checkedSwitches.length === 0) {
+                    this.checked = true;
+                }
+            }
+        });
+    });
+    
+    // Обработка изменения направления сортировки (переключатель)
+    if (sortDirectionSwitch) {
+        sortDirectionSwitch.addEventListener('change', function() {
+            updateSortRadio();
+        });
+    }
+    
+    // Инициализация: если ни один тип не выбран, выбираем по умолчанию
+    const checkedType = document.querySelector('.sort-type-switch:checked');
+    if (!checkedType) {
+        const defaultTypeSwitch = document.querySelector('.sort-type-switch[value="last_visit_date"]');
+        if (defaultTypeSwitch) {
+            defaultTypeSwitch.checked = true;
+            disableAllTypeSwitchesExcept(defaultTypeSwitch);
+        }
+    } else {
+        // Убеждаемся, что только один переключатель включен
+        disableAllTypeSwitchesExcept(checkedType);
+    }
+    
+    // Инициализация скрытых радиокнопок
+    updateSortRadio();
+});
+
 // Нажатие кнопки "Сбросить фильтры и сортировку"
 document.addEventListener('DOMContentLoaded', function () {
     const resetBtn = document.getElementById('resetFilters');
@@ -72,6 +149,28 @@ document.addEventListener('DOMContentLoaded', function () {
             if (sort) {
                 const sortInput = document.querySelector(`input[name="sort"][value="${sort}"]`);
                 if (sortInput) sortInput.checked = true;
+                
+                // Определяем тип и направление из значения sort
+                const sortParts = sort.split('_');
+                const direction = sortParts.pop(); // 'down' или 'up'
+                const type = sortParts.join('_'); // остальное
+                
+                // Отключаем все переключатели типа
+                document.querySelectorAll('.sort-type-switch').forEach(switchEl => {
+                    switchEl.checked = false;
+                });
+                
+                // Устанавливаем тип сортировки
+                const typeSwitch = document.querySelector(`.sort-type-switch[value="${type}"]`);
+                if (typeSwitch) {
+                    typeSwitch.checked = true;
+                }
+                
+                // Устанавливаем направление (переключатель: unchecked = down, checked = up)
+                const directionSwitch = document.querySelector('.sort-direction-switch');
+                if (directionSwitch) {
+                    directionSwitch.checked = (direction === 'up');
+                }
             }
         });
     }

@@ -141,13 +141,13 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (selectedType && selectedDirection) {
             // Отключаем все скрытые радиокнопки
-            document.querySelectorAll('input[name="sort"]').forEach(radio => {
+            document.querySelectorAll('input[name="sort"].sort-radio').forEach(radio => {
                 radio.checked = false;
             });
             
             // Включаем нужную радиокнопку
             const sortValue = `${selectedType}_${selectedDirection}`;
-            const sortRadio = document.querySelector(`input[name="sort"][value="${sortValue}"]`);
+            const sortRadio = document.querySelector(`input[name="sort"].sort-radio[value="${sortValue}"]`);
             if (sortRadio) {
                 sortRadio.checked = true;
             }
@@ -262,20 +262,42 @@ document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             const selectedCountryCode = urlParams.get('country');
 
+            // Обновляем скрытые радиокнопки перед чтением значений,
+            // чтобы убедиться, что они синхронизированы с переключателями
+            const selectedFilter = document.querySelector('.filter-switch:checked')?.value;
+            if (selectedFilter) {
+                document.querySelectorAll('input[name="filter"].filter-radio').forEach(radio => {
+                    radio.checked = false;
+                });
+                const filterRadio = document.querySelector(`input[name="filter"].filter-radio[value="${selectedFilter}"]`);
+                if (filterRadio) {
+                    filterRadio.checked = true;
+                }
+            }
+
+            const selectedType = document.querySelector('.sort-type-switch:checked')?.value;
+            const sortDirectionSwitch = document.querySelector('.sort-direction-switch');
+            const selectedDirection = sortDirectionSwitch?.checked ? 'up' : 'down';
+            if (selectedType && selectedDirection) {
+                document.querySelectorAll('input[name="sort"].sort-radio').forEach(radio => {
+                    radio.checked = false;
+                });
+                const sortValue = `${selectedType}_${selectedDirection}`;
+                const sortRadio = document.querySelector(`input[name="sort"].sort-radio[value="${sortValue}"]`);
+                if (sortRadio) {
+                    sortRadio.checked = true;
+                }
+            }
+
             const filter = document.querySelector('input[name="filter"].filter-radio:checked')?.value || '';
             const sort = document.querySelector('input[name="sort"].sort-radio:checked')?.value || '';
-            const defaultFilter = this.dataset.filter;
-            const defaultSort = this.dataset.sort;
-
-            // Устанавливаем filter и sort как undefined, если они совпадают с дефолтными значениями,
-            // чтобы не помещать их в URL параметры
-            const filterValue = (filter === defaultFilter) ? undefined : filter;
-            const sortValue = (sort === defaultSort) ? undefined : sort;
 
             const params = new URLSearchParams();
 
-            if (filterValue) params.set('filter', filterValue);
-            if (sortValue) params.set('sort', sortValue);
+            // Всегда отправляем текущие значения фильтра и сортировки,
+            // чтобы они не сбрасывались при изменении только одного параметра
+            if (filter) params.set('filter', filter);
+            if (sort) params.set('sort', sort);
             if (selectedCountryCode) params.set('country', selectedCountryCode);
 
             window.location.href = `${window.location.pathname}?${params.toString()}`;

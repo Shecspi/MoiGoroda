@@ -23,6 +23,8 @@
 
 - *(collections)* Исправлена статистика посещённых городов в персональных коллекциях ([0de109e](https://github.com/Shecspi/MoiGoroda/commit/0de109e04f317c4c676ad2ff1e1b51093ac5a8a7))
 
+- *(collections)* Исправлено отображение цветов бейджей городов в персональных коллекциях ([bf367bc](https://github.com/Shecspi/MoiGoroda/commit/bf367bce2561b8a47e180d79ae667192161c291a))
+
 
 ## [ 3.0 ] - 2025-11-27
 

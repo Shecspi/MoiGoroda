@@ -21,6 +21,8 @@
 
 - *(admin)* Мелкие изменения в админке - добавлены отображаемые модели, добавлены некоторые поля в список отображения ([88ced74](https://github.com/Shecspi/MoiGoroda/commit/88ced740124c1356171dfee81c81cff61e732840))
 
+- *(collections)* Исправлена статистика посещённых городов в персональных коллекциях ([0de109e](https://github.com/Shecspi/MoiGoroda/commit/0de109e04f317c4c676ad2ff1e1b51093ac5a8a7))
+
 
 ## [ 3.0 ] - 2025-11-27
 

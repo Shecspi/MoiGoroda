@@ -239,6 +239,12 @@ class PersonalCollectionService:
         """
         cities = get_all_cities_from_personal_collection(collection_id, collection_owner)
 
+        # Получаем общую статистику ДО применения фильтра и пагинации
+        # Это нужно для отображения правильных чисел в тулбаре
+        all_cities = cities
+        qty_of_cities = all_cities.count()
+        qty_of_visited_cities = sum(1 for city in all_cities if getattr(city, 'is_visited', False))
+
         # Применяем фильтр
         filter_param = filter_value if filter_value else ''
         if filter_param:
@@ -248,10 +254,10 @@ class PersonalCollectionService:
                 filter_param = ''
                 # Логирование ошибки фильтра (request не доступен в сервисе)
 
-        # НЕ подсчитываем статистику здесь, чтобы не "оценивать" QuerySet
-        # Статистика будет подсчитана в get_context_data после пагинации
         statistics = {
             'filter': filter_param,
+            'qty_of_cities': qty_of_cities,
+            'qty_of_visited_cities': qty_of_visited_cities,
         }
 
         return cities, statistics
@@ -261,6 +267,7 @@ class PersonalCollectionService:
         collection: PersonalCollection,
         cities: Any,
         filter_param: str,
+        statistics: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Формирует контекст для шаблона списка городов персональной коллекции.
@@ -268,11 +275,18 @@ class PersonalCollectionService:
         :param collection: Объект PersonalCollection.
         :param cities: Список городов (уже пагинированный).
         :param filter_param: Параметр фильтрации.
+        :param statistics: Словарь со статистикой (общее количество городов и посещённых).
         :return: Словарь с данными для контекста шаблона.
         """
-        # Подсчитываем статистику из пагинированного списка
-        qty_of_cities = len(cities)
-        qty_of_visited_cities = sum(1 for city in cities if getattr(city, 'is_visited', False))
+        # Используем общую статистику из всей коллекции (до пагинации)
+        # Если статистика не передана, используем значения по умолчанию
+        if statistics:
+            qty_of_cities = statistics.get('qty_of_cities', len(cities))
+            qty_of_visited_cities = statistics.get('qty_of_visited_cities', 0)
+        else:
+            # Fallback: подсчитываем из пагинированного списка (неправильно, но лучше чем ошибка)
+            qty_of_cities = len(cities)
+            qty_of_visited_cities = sum(1 for city in cities if getattr(city, 'is_visited', False))
 
         # Для списка передаём упрощённые данные
         cities_data = [

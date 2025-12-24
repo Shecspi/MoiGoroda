@@ -418,6 +418,12 @@ class PersonalCollectionListView(LoginRequiredMixin, ListView):  # type: ignore[
         """
         context = super().get_context_data(**kwargs)
 
+        # Получаем список ID городов, которые посещены пользователем
+        user = cast(User, self.request.user)
+        context['visited_cities'] = list(
+            VisitedCity.objects.filter(user=user).values_list('city__id', flat=True)
+        )
+
         context['active_page'] = 'collection'
         context['page_title'] = 'Персональные коллекции'
         context['page_description'] = (

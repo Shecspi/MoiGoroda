@@ -524,6 +524,7 @@ class PersonalCollectionCityListView(ListView):  # type: ignore[type-arg]
             collection=self.collection,
             cities=cities,
             filter_param=self._statistics.get('filter', ''),
+            statistics=self._statistics,
         )
 
         # Обновляем контекст (service_context не содержит object_list, поэтому он не перезапишется)

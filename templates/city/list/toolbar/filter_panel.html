@@ -28,7 +28,7 @@
             <div class="flex items-center justify-between">
                 <label for="filterNoFilter" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                     Без фильтрации
-                    {% if default_filter == 'no_filter' %}
+                    {% if not default_filter %}
                     <span class="text-red-600 dark:text-red-500" data-default-star="filter-no_filter">*</span>
                     {% endif %}
                 </label>
@@ -206,7 +206,7 @@
                         {% endif %}
                     </label>
                     <label for="sortTypeName" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
-                        <input type="checkbox" name="sort_type" value="name" id="sortTypeName" class="peer sr-only sort-type-switch" {% if sort == 'name_down' or sort == 'name_up' or not sort|in_list:"name_down,name_up,first_visit_date_down,first_visit_date_up,last_visit_date_down,last_visit_date_up" %}checked{% endif %}>
+                        <input type="checkbox" name="sort_type" value="name" id="sortTypeName" class="peer sr-only sort-type-switch" {% if sort == 'name_down' or sort == 'name_up' %}checked{% endif %}>
                         <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
                         <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
                         <!-- Left Icon (Off) -->
@@ -442,7 +442,7 @@
         </div>
 
         <!-- Скрытые радиокнопки для отправки формы -->
-        <input type="radio" name="sort" value="name_down" class="hidden sort-radio" id="sortNameDown" {% if sort == 'name_down' or not sort|in_list:"name_down,name_up,first_visit_date_down,first_visit_date_up,last_visit_date_down,last_visit_date_up" %}checked{% endif %}>
+        <input type="radio" name="sort" value="name_down" class="hidden sort-radio" id="sortNameDown" {% if sort == 'name_down' %}checked{% endif %}>
         <input type="radio" name="sort" value="name_up" class="hidden sort-radio" id="sortNameUp" {% if sort == 'name_up' %}checked{% endif %}>
         <input type="radio" name="sort" value="first_visit_date_down" class="hidden sort-radio" id="sortFirstVisitDateDown" {% if sort == 'first_visit_date_down' %}checked{% endif %}>
         <input type="radio" name="sort" value="first_visit_date_up" class="hidden sort-radio" id="sortFirstVisitDateUp" {% if sort == 'first_visit_date_up' %}checked{% endif %}>

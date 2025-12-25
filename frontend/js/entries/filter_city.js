@@ -62,10 +62,18 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Функция для проверки совпадения фильтра с дефолтным и управления switch'ем
     function checkAndUpdateFilterSwitch(filterValue) {
-        if (saveFilterDefaultSwitch && defaultFilter && filterValue === defaultFilter) {
-            saveFilterDefaultSwitch.checked = true;
-        } else if (saveFilterDefaultSwitch) {
-            saveFilterDefaultSwitch.checked = false;
+        if (saveFilterDefaultSwitch) {
+            // Если нет сохранённого типа фильтрации и выбран "no_filter", switch включен
+            if (filterValue === 'no_filter' && !defaultFilter) {
+                saveFilterDefaultSwitch.checked = true;
+            } else if (filterValue === 'no_filter') {
+                // Если есть сохранённый тип фильтрации и выбран "no_filter", switch выключен
+                saveFilterDefaultSwitch.checked = false;
+            } else if (defaultFilter && filterValue === defaultFilter) {
+                saveFilterDefaultSwitch.checked = true;
+            } else {
+                saveFilterDefaultSwitch.checked = false;
+            }
         }
     }
     
@@ -76,9 +84,21 @@ document.addEventListener('DOMContentLoaded', function () {
             star.remove();
         });
         
-        // Добавляем звездочку для текущего значения по умолчанию
-        if (defaultFilter) {
-            // Находим соответствующий switch и добавляем звездочку
+        // Если нет сохранённого типа фильтрации, показываем звёздочку у "no_filter"
+        if (!defaultFilter) {
+            const noFilterSwitch = document.querySelector('.filter-switch[value="no_filter"]');
+            if (noFilterSwitch) {
+                const label = document.querySelector(`label[for="${noFilterSwitch.id}"]`);
+                if (label) {
+                    const star = document.createElement('span');
+                    star.className = 'text-red-600 dark:text-red-500';
+                    star.setAttribute('data-default-star', 'filter-no_filter');
+                    star.textContent = '*';
+                    label.appendChild(star);
+                }
+            }
+        } else if (defaultFilter !== 'no_filter') {
+            // Если есть сохранённый тип фильтрации (не "no_filter"), показываем звёздочку у него
             const filterSwitch = document.querySelector(`.filter-switch[value="${defaultFilter}"]`);
             if (filterSwitch) {
                 const label = document.querySelector(`label[for="${filterSwitch.id}"]`);
@@ -98,6 +118,15 @@ document.addEventListener('DOMContentLoaded', function () {
         defaultFilter = newValue || '';
         // Обновляем звездочки
         updateFilterStars();
+        // Обновляем data-атрибут кнопки
+        const button = document.getElementById('btnOpenFilterSortPanel');
+        if (button) {
+            button.dataset.defaultFilter = defaultFilter;
+        }
+        // Обновляем состояние кнопки
+        if (window.updateFilterSortButtonState) {
+            window.updateFilterSortButtonState();
+        }
         // После обновления проверяем текущий выбранный фильтр
         const selectedFilter = document.querySelector('.filter-switch:checked')?.value;
         if (selectedFilter) {
@@ -239,6 +268,15 @@ document.addEventListener('DOMContentLoaded', function () {
         defaultSort = newValue || '';
         // Обновляем звездочки
         updateSortStars();
+        // Обновляем data-атрибут кнопки
+        const button = document.getElementById('btnOpenFilterSortPanel');
+        if (button) {
+            button.dataset.defaultSort = defaultSort;
+        }
+        // Обновляем состояние кнопки
+        if (window.updateFilterSortButtonState) {
+            window.updateFilterSortButtonState();
+        }
         // После обновления проверяем текущую выбранную сортировку
         checkAndUpdateSortSwitch();
     }
@@ -307,17 +345,53 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // Инициализация: если ни один тип не выбран, выбираем по умолчанию
-    const checkedType = document.querySelector('.sort-type-switch:checked');
-    if (!checkedType) {
-        const defaultTypeSwitch = document.querySelector('.sort-type-switch[value="last_visit_date"]');
-        if (defaultTypeSwitch) {
-            defaultTypeSwitch.checked = true;
-            disableAllTypeSwitchesExcept(defaultTypeSwitch);
+    // Инициализация: определяем тип сортировки из URL или из скрытых радиокнопок
+    const urlParams = new URLSearchParams(window.location.search);
+    const sortFromUrl = urlParams.get('sort');
+    
+    if (sortFromUrl) {
+        // Определяем тип и направление из значения sort
+        let sortType = sortFromUrl;
+        let sortDirection = 'down';
+        
+        if (sortFromUrl.endsWith('_down')) {
+            sortType = sortFromUrl.slice(0, -5); // Удаляем '_down'
+            sortDirection = 'down';
+        } else if (sortFromUrl.endsWith('_up')) {
+            sortType = sortFromUrl.slice(0, -3); // Удаляем '_up'
+            sortDirection = 'up';
+        }
+        
+        // Устанавливаем тип сортировки
+        const typeSwitch = document.querySelector(`.sort-type-switch[value="${sortType}"]`);
+        if (typeSwitch) {
+            // Отключаем все переключатели типа
+            sortTypeSwitches.forEach(switchEl => {
+                switchEl.checked = false;
+            });
+            // Включаем нужный переключатель
+            typeSwitch.checked = true;
+            disableAllTypeSwitchesExcept(typeSwitch);
+        }
+        
+        // Устанавливаем направление сортировки
+        if (sortDirectionSwitch) {
+            sortDirectionSwitch.checked = (sortDirection === 'up');
         }
     } else {
-        // Убеждаемся, что только один переключатель включен
-        disableAllTypeSwitchesExcept(checkedType);
+        // Если сортировка не указана в URL, проверяем, что выбрано в шаблоне
+        const checkedType = document.querySelector('.sort-type-switch:checked');
+        if (!checkedType) {
+            // Если ничего не выбрано, выбираем по умолчанию last_visit_date
+            const defaultTypeSwitch = document.querySelector('.sort-type-switch[value="last_visit_date"]');
+            if (defaultTypeSwitch) {
+                defaultTypeSwitch.checked = true;
+                disableAllTypeSwitchesExcept(defaultTypeSwitch);
+            }
+        } else {
+            // Убеждаемся, что только один переключатель включен
+            disableAllTypeSwitchesExcept(checkedType);
+        }
     }
     
     // Инициализация скрытых радиокнопок и проверка совпадения с дефолтным значением
@@ -444,31 +518,58 @@ document.addEventListener('DOMContentLoaded', function () {
                 const selectedFilter = document.querySelector('.filter-switch:checked')?.value;
                 
                 if (selectedFilter) {
-                    // Сохраняем настройки фильтрации по умолчанию
-                    fetch('/api/city/list/default_settings', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken'),
-                        },
-                        body: JSON.stringify({
-                            parameter_type: 'filter',
-                            parameter_value: selectedFilter,
-                        }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            console.log('Настройки фильтрации сохранены:', data);
-                            // Обновляем актуальное значение defaultFilter
-                            if (window.updateDefaultFilter) {
-                                window.updateDefaultFilter(selectedFilter);
+                    // Если выбран "no_filter", удаляем сохранённые настройки вместо сохранения
+                    if (selectedFilter === 'no_filter') {
+                        fetch('/api/city/list/default_settings/delete', {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken'),
+                            },
+                            body: JSON.stringify({
+                                parameter_type: 'filter',
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                console.log('Настройки фильтрации удалены:', data);
+                                // Очищаем актуальное значение defaultFilter
+                                if (window.updateDefaultFilter) {
+                                    window.updateDefaultFilter('');
+                                }
                             }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Ошибка при сохранении настроек фильтрации:', error);
-                    });
+                        })
+                        .catch(error => {
+                            console.error('Ошибка при удалении настроек фильтрации:', error);
+                        });
+                    } else {
+                        // Сохраняем настройки фильтрации по умолчанию
+                        fetch('/api/city/list/default_settings', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken'),
+                            },
+                            body: JSON.stringify({
+                                parameter_type: 'filter',
+                                parameter_value: selectedFilter,
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                console.log('Настройки фильтрации сохранены:', data);
+                                // Обновляем актуальное значение defaultFilter
+                                if (window.updateDefaultFilter) {
+                                    window.updateDefaultFilter(selectedFilter);
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Ошибка при сохранении настроек фильтрации:', error);
+                        });
+                    }
                 }
             } else {
                 // Удаляем настройки фильтрации по умолчанию
@@ -585,3 +686,68 @@ function getCookie(c_name) {
     }
     return "";
 }
+
+// Функция для обновления состояния кнопки "Фильтры и сортировка"
+window.updateFilterSortButtonState = function() {
+    const button = document.getElementById('btnOpenFilterSortPanel');
+    if (!button) return;
+    
+    const defaultFilter = button.dataset.defaultFilter || '';
+    const defaultSort = button.dataset.defaultSort || '';
+    
+    // Получаем текущие значения фильтра и сортировки из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentFilter = urlParams.get('filter') || '';
+    const currentSort = urlParams.get('sort') || '';
+    
+    // Кнопка активна, если есть дефолтные значения (сохраненные настройки)
+    // ИЛИ если применены фильтры/сортировка из URL (отличные от стандартных)
+    let isActive = false;
+    
+    // Если есть дефолтные значения - кнопка всегда активна
+    if (defaultFilter || defaultSort) {
+        isActive = true;
+    } else {
+        // Если дефолтных нет, проверяем параметры в URL
+        // Фильтр активен, если не пустой и не стандартный 'no_filter'
+        if (currentFilter && currentFilter !== 'no_filter') {
+            isActive = true;
+        }
+        // Сортировка активна, если не пустая и не стандартная 'last_visit_date_down'
+        if (currentSort && currentSort !== 'last_visit_date_down') {
+            isActive = true;
+        }
+    }
+    
+    // Обновляем классы кнопки
+    if (isActive) {
+        button.classList.remove('border-blue-600', 'text-blue-600', 'hover:bg-blue-50', 'dark:text-blue-400', 'dark:border-blue-500', 'dark:hover:bg-blue-500/10');
+        button.classList.add('border-transparent', 'bg-blue-600', 'text-white', 'hover:bg-blue-700', 'dark:bg-blue-500', 'dark:hover:bg-blue-400');
+    } else {
+        button.classList.remove('border-transparent', 'bg-blue-600', 'text-white', 'hover:bg-blue-700', 'dark:bg-blue-500', 'dark:hover:bg-blue-400');
+        button.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-50', 'dark:text-blue-400', 'dark:border-blue-500', 'dark:hover:bg-blue-500/10');
+    }
+    
+    // Обновляем бейджик
+    let badge = document.getElementById('filterSortBadge');
+    if (isActive) {
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.id = 'filterSortBadge';
+            badge.className = 'absolute -right-1.5 -top-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-neutral-900';
+            badge.innerHTML = '<span class="sr-only">Применена фильтрация или сортировка</span>';
+            button.appendChild(badge);
+        }
+    } else {
+        if (badge) {
+            badge.remove();
+        }
+    }
+}
+
+// Инициализация состояния кнопки при загрузке страницы
+document.addEventListener('DOMContentLoaded', function () {
+    if (window.updateFilterSortButtonState) {
+        window.updateFilterSortButtonState();
+    }
+});

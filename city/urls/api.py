@@ -21,4 +21,14 @@ urlpatterns = [
     ),
     path('search', api.city_search, name='city_search'),
     path('country/list_by_cities', api.country_list_by_cities, name='api__country_list_by_cities'),
+    path(
+        'list/default_settings',
+        api.save_city_list_default_settings,
+        name='api__save_city_list_default_settings',
+    ),
+    path(
+        'list/default_settings/delete',
+        api.delete_city_list_default_settings,
+        name='api__delete_city_list_default_settings',
+    ),
 ]

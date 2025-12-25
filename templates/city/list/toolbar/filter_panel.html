@@ -4,7 +4,11 @@
 <!-- Backdrop -->
 <div class="hs-overlay-backdrop hs-overlay-backdrop-open:opacity-100 hs-overlay-backdrop-open:pointer-events-auto opacity-0 pointer-events-none fixed inset-0 z-[1060] bg-gray-900/50 transition" data-hs-overlay-backdrop="#offcanvasRight"></div>
 
-<div id="offcanvasRight" class="fixed top-0 right-0 translate-x-full transition-transform duration-300 h-full max-w-xs w-full z-[1070] bg-white border-s border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 flex flex-col" tabindex="-1">
+<div id="offcanvasRight" 
+     class="fixed top-0 right-0 translate-x-full transition-transform duration-300 h-full max-w-xs w-full z-[1070] bg-white border-s border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 flex flex-col" 
+     tabindex="-1"
+     data-default-filter="{{ default_filter|default:'' }}"
+     data-default-sort="{{ default_sort|default:'' }}">
     <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700 shrink-0">
         <h3 class="font-bold text-gray-800 dark:text-neutral-200">
             Фильтрация и сортировка
@@ -20,142 +24,438 @@
     <div class="flex-1 overflow-y-auto p-4">
         <h6 class="text-sm font-semibold text-gray-800 dark:text-neutral-200 mb-3">Фильтры</h6>
 
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="no_filter" {% if filter is None or not filter|in_list:"no_magnet,magnet,current_year,last_year" %}checked{% endif %} id="filterNoFilter">
-            <label for="filterNoFilter" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                Без фильтрации
-            </label>
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <label for="filterNoFilter" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                    {% if not default_filter %}
+                    <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="filter-no_filter">* </span>
+                    {% endif %}
+                    Без фильтрации
+                </label>
+                <label for="filterNoFilter" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                    <input type="checkbox" name="filter_switch" value="no_filter" id="filterNoFilter" class="peer sr-only filter-switch" {% if filter is None or not filter|in_list:"no_magnet,magnet,current_year,last_year" %}checked{% endif %}>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                    <!-- Left Icon (Off) -->
+                    <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </span>
+                    <!-- Right Icon (On) -->
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                </label>
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="filterNoMagnet" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                    {% if default_filter == 'no_magnet' %}
+                    <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="filter-no_magnet">* </span>
+                    {% endif %}
+                    Без сувенира
+                </label>
+                <label for="filterNoMagnet" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                    <input type="checkbox" name="filter_switch" value="no_magnet" id="filterNoMagnet" class="peer sr-only filter-switch" {% if filter == 'no_magnet' %}checked{% endif %}>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                    <!-- Left Icon (Off) -->
+                    <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </span>
+                    <!-- Right Icon (On) -->
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                </label>
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="filterMagnet" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                    {% if default_filter == 'magnet' %}
+                    <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="filter-magnet">* </span>
+                    {% endif %}
+                    С сувениром
+                </label>
+                <label for="filterMagnet" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                    <input type="checkbox" name="filter_switch" value="magnet" id="filterMagnet" class="peer sr-only filter-switch" {% if filter == 'magnet' %}checked{% endif %}>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                    <!-- Left Icon (Off) -->
+                    <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </span>
+                    <!-- Right Icon (On) -->
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                </label>
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="filterCurrentYear" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                    {% if default_filter == 'current_year' %}
+                    <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="filter-current_year">* </span>
+                    {% endif %}
+                    В этом году
+                </label>
+                <label for="filterCurrentYear" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                    <input type="checkbox" name="filter_switch" value="current_year" id="filterCurrentYear" class="peer sr-only filter-switch" {% if filter == 'current_year' %}checked{% endif %}>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                    <!-- Left Icon (Off) -->
+                    <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </span>
+                    <!-- Right Icon (On) -->
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                </label>
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="filterLastYear" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                    {% if default_filter == 'last_year' %}
+                    <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="filter-last_year">* </span>
+                    {% endif %}
+                    В прошлом году
+                </label>
+                <label for="filterLastYear" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                    <input type="checkbox" name="filter_switch" value="last_year" id="filterLastYear" class="peer sr-only filter-switch" {% if filter == 'last_year' %}checked{% endif %}>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                    <!-- Left Icon (Off) -->
+                    <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </span>
+                    <!-- Right Icon (On) -->
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                </label>
+            </div>
         </div>
 
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="no_magnet" {% if filter == 'no_magnet' %}checked{% endif %} id="filterNoMagnet">
-            <label for="filterNoMagnet" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                Без сувенира
-            </label>
+        <!-- Сохранение фильтра по умолчанию -->
+        <div class="mt-4 pt-3 border-t border-gray-200 dark:border-neutral-700">
+            <div class="flex items-center justify-between">
+                <label for="saveFilterDefault" class="text-sm text-gray-500 dark:text-neutral-400 cursor-pointer flex-1">
+                    Сохранить по умолчанию
+                </label>
+                <label for="saveFilterDefault" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                    <input type="checkbox" name="save_filter_default" id="saveFilterDefault" class="peer sr-only">
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-green-600 dark:bg-neutral-700 dark:peer-checked:bg-green-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                    <!-- Left Icon (Off) -->
+                    <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </span>
+                    <!-- Right Icon (On) -->
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-green-600 transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                </label>
+            </div>
         </div>
 
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="magnet" {% if filter == 'magnet' %}checked{% endif %} id="filterMagnet">
-            <label for="filterMagnet" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                С сувениром
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="current_year" {% if filter == 'current_year' %}checked{% endif %} id="filterCurrentYear">
-            <label for="filterCurrentYear" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                В этом году
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" type="radio" name="filter" value="last_year" {% if filter == 'last_year' %}checked{% endif %} id="filterLastYear">
-            <label for="filterLastYear" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                В прошлом году
-            </label>
-        </div>
+        <!-- Скрытые радиокнопки для отправки формы -->
+        <input type="radio" name="filter" value="no_filter" class="hidden filter-radio" id="filterNoFilterRadio" {% if filter is None or not filter|in_list:"no_magnet,magnet,current_year,last_year" %}checked{% endif %}>
+        <input type="radio" name="filter" value="no_magnet" class="hidden filter-radio" id="filterNoMagnetRadio" {% if filter == 'no_magnet' %}checked{% endif %}>
+        <input type="radio" name="filter" value="magnet" class="hidden filter-radio" id="filterMagnetRadio" {% if filter == 'magnet' %}checked{% endif %}>
+        <input type="radio" name="filter" value="current_year" class="hidden filter-radio" id="filterCurrentYearRadio" {% if filter == 'current_year' %}checked{% endif %}>
+        <input type="radio" name="filter" value="last_year" class="hidden filter-radio" id="filterLastYearRadio" {% if filter == 'last_year' %}checked{% endif %}>
 
         <hr class="my-4 border-gray-200 dark:border-neutral-700">
 
         <h6 class="text-sm font-semibold text-gray-800 dark:text-neutral-200 mb-3">Сортировка</h6>
 
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="name_down" {% if sort == 'name_down' or not sort|in_list:"name_down,name_up,first_visit_date_down,first_visit_date_up,last_visit_date_down,last_visit_date_up" %}checked{% endif %} id="sortNameDown">
-            <label for="sortNameDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По названию (убывание)
-            </label>
+        <!-- Выбор типа сортировки -->
+        <div class="mb-4">
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <label for="sortTypeName" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                        {% if default_sort|startswith:'name' %}
+                        <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-name">* </span>
+                        {% endif %}
+                        По названию
+                    </label>
+                    <label for="sortTypeName" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                        <input type="checkbox" name="sort_type" value="name" id="sortTypeName" class="peer sr-only sort-type-switch" {% if sort == 'name_down' or sort == 'name_up' %}checked{% endif %}>
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <!-- Left Icon (Off) -->
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <!-- Right Icon (On) -->
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="sortTypeFirstVisitDate" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                        {% if default_sort|startswith:'first_visit_date' %}
+                        <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-first_visit_date">* </span>
+                        {% endif %}
+                        По дате первого посещения
+                    </label>
+                    <label for="sortTypeFirstVisitDate" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                        <input type="checkbox" name="sort_type" value="first_visit_date" id="sortTypeFirstVisitDate" class="peer sr-only sort-type-switch" {% if sort == 'first_visit_date_down' or sort == 'first_visit_date_up' %}checked{% endif %}>
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <!-- Left Icon (Off) -->
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <!-- Right Icon (On) -->
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="sortTypeLastVisitDate" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                        {% if default_sort|startswith:'last_visit_date' %}
+                        <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-last_visit_date">* </span>
+                        {% endif %}
+                        По дате последнего посещения
+                    </label>
+                    <label for="sortTypeLastVisitDate" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                        <input type="checkbox" name="sort_type" value="last_visit_date" id="sortTypeLastVisitDate" class="peer sr-only sort-type-switch" {% if sort == 'last_visit_date_down' or sort == 'last_visit_date_up' %}checked{% endif %}>
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <!-- Left Icon (Off) -->
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <!-- Right Icon (On) -->
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="sortTypeNumberOfVisits" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                        {% if default_sort|startswith:'number_of_visits' and not default_sort|startswith:'number_of_visits_all_users' %}
+                        <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-number_of_visits">* </span>
+                        {% endif %}
+                        По количеству посещений
+                    </label>
+                    <label for="sortTypeNumberOfVisits" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                        <input type="checkbox" name="sort_type" value="number_of_visits" id="sortTypeNumberOfVisits" class="peer sr-only sort-type-switch" {% if sort == 'number_of_visits_down' or sort == 'number_of_visits_up' %}checked{% endif %}>
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <!-- Left Icon (Off) -->
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <!-- Right Icon (On) -->
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="sortTypeDateOfFoundation" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                        {% if default_sort|startswith:'date_of_foundation' %}
+                        <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-date_of_foundation">* </span>
+                        {% endif %}
+                        По дате основания
+                    </label>
+                    <label for="sortTypeDateOfFoundation" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                        <input type="checkbox" name="sort_type" value="date_of_foundation" id="sortTypeDateOfFoundation" class="peer sr-only sort-type-switch" {% if sort == 'date_of_foundation_down' or sort == 'date_of_foundation_up' %}checked{% endif %}>
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <!-- Left Icon (Off) -->
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <!-- Right Icon (On) -->
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="sortTypeNumberOfUsersWhoVisitCity" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                        {% if default_sort|startswith:'number_of_users_who_visit_city' %}
+                        <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-number_of_users_who_visit_city">* </span>
+                        {% endif %}
+                        По количеству посетивших пользователей
+                    </label>
+                    <label for="sortTypeNumberOfUsersWhoVisitCity" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                        <input type="checkbox" name="sort_type" value="number_of_users_who_visit_city" id="sortTypeNumberOfUsersWhoVisitCity" class="peer sr-only sort-type-switch" {% if sort == 'number_of_users_who_visit_city_down' or sort == 'number_of_users_who_visit_city_up' %}checked{% endif %}>
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <!-- Left Icon (Off) -->
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <!-- Right Icon (On) -->
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="sortTypeNumberOfVisitsAllUsers" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
+                        {% if default_sort|startswith:'number_of_visits_all_users' %}
+                        <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-number_of_visits_all_users">* </span>
+                        {% endif %}
+                        По общему количеству посещений
+                    </label>
+                    <label for="sortTypeNumberOfVisitsAllUsers" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                        <input type="checkbox" name="sort_type" value="number_of_visits_all_users" id="sortTypeNumberOfVisitsAllUsers" class="peer sr-only sort-type-switch" {% if sort == 'number_of_visits_all_users_down' or sort == 'number_of_visits_all_users_up' %}checked{% endif %}>
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <!-- Left Icon (Off) -->
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <!-- Right Icon (On) -->
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+            </div>
         </div>
 
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="name_up" {% if sort == 'name_up' %}checked{% endif %} id="sortNameUp">
-            <label for="sortNameUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По названию (возрастание)
-            </label>
+        <hr class="my-4 border-gray-200 dark:border-neutral-700">
+
+        <!-- Выбор направления сортировки -->
+        <div class="mb-4">
+            <div class="flex items-center justify-between">
+                <label for="sortDirectionSwitch" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                    По убыванию
+                </label>
+                <label for="sortDirectionSwitch" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                    <input type="checkbox" name="sort_direction" value="up" id="sortDirectionSwitch" class="peer sr-only sort-direction-switch" {% if sort|slice:"-3:" == '_up' %}checked{% endif %}>
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                    <!-- Left Icon (Off) - стрелка вниз -->
+                    <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14"></path>
+                            <path d="m19 12-7 7-7-7"></path>
+                        </svg>
+                    </span>
+                    <!-- Right Icon (On) - стрелка вверх -->
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 19V5"></path>
+                            <path d="m5 12 7-7 7 7"></path>
+                        </svg>
+                    </span>
+                </label>
+                <span class="text-sm text-gray-800 dark:text-neutral-200 flex-1 text-end">По возрастанию</span>
+            </div>
         </div>
 
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="first_visit_date_down" {% if sort == 'first_visit_date_down' %}checked{% endif %} id="sortFirstVisitDateDown">
-            <label for="sortFirstVisitDateDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По дате первого посещения (убывание)
-            </label>
+        <!-- Сохранение сортировки по умолчанию -->
+        <div class="mt-4 pt-3 border-t border-gray-200 dark:border-neutral-700">
+            <div class="flex items-center justify-between">
+                <label for="saveSortDefault" class="text-sm text-gray-500 dark:text-neutral-400 cursor-pointer flex-1">
+                    Сохранить по умолчанию
+                </label>
+                <label for="saveSortDefault" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
+                    <input type="checkbox" name="save_sort_default" id="saveSortDefault" class="peer sr-only">
+                    <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                    <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                    <!-- Left Icon (Off) -->
+                    <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </span>
+                    <!-- Right Icon (On) -->
+                    <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                        <svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                </label>
+            </div>
         </div>
 
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="first_visit_date_up" {% if sort == 'first_visit_date_up' %}checked{% endif %} id="sortFirstVisitDateUp">
-            <label for="sortFirstVisitDateUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По дате первого посещения (возрастание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="last_visit_date_down" {% if sort == 'last_visit_date_down' %}checked{% endif %} id="sortLastVisitDateDown">
-            <label for="sortLastVisitDateDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По дате последнего посещения (убывание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="last_visit_date_up" {% if sort == 'last_visit_date_up' %}checked{% endif %} id="sortLastVisitDateUp">
-            <label for="sortLastVisitDateUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По дате последнего посещения (возрастание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_visits_down" {% if sort == 'number_of_visits_down' %}checked{% endif %} id="sortNumberOfVisitsDown">
-            <label for="sortNumberOfVisitsDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По количеству посещений (убывание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_visits_up" {% if sort == 'number_of_visits_up' %}checked{% endif %} id="sortNumberOfVisitsUp">
-            <label for="sortNumberOfVisitsUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По количеству посещений (возрастание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="date_of_foundation_down" {% if sort == 'date_of_foundation_down' %}checked{% endif %} id="sortDateOfFoundationDown">
-            <label for="sortDateOfFoundationDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По дате основания (убывание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="date_of_foundation_up" {% if sort == 'date_of_foundation_up' %}checked{% endif %} id="sortDateOfFoundationUp">
-            <label for="sortDateOfFoundationUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По дате основания (возрастание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_users_who_visit_city_down" {% if sort == 'number_of_users_who_visit_city_down' %}checked{% endif %} id="sortNumberOfUsersWhoVisitCityDown">
-            <label for="sortNumberOfUsersWhoVisitCityDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По количеству посетивших пользователей (убывание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_users_who_visit_city_up" {% if sort == 'number_of_users_who_visit_city_up' %}checked{% endif %} id="sortNumberOfUsersWhoVisitCityUp">
-            <label for="sortNumberOfUsersWhoVisitCityUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По количеству посетивших пользователей (возрастание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_visits_all_users_down" {% if sort == 'number_of_visits_all_users_down' %}checked{% endif %} id="sortNumberOfVisitsAllUsersDown">
-            <label for="sortNumberOfVisitsAllUsersDown" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По общему количеству посещений (убывание)
-            </label>
-        </div>
-
-        <div class="flex items-center mb-3">
-            <input class="shrink-0 mt-0.5 border-gray-200 rounded-full text-red-600 focus:ring-red-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-red-500 dark:checked:border-red-500 dark:focus:ring-offset-gray-800" type="radio" name="sort" value="number_of_visits_all_users_up" {% if sort == 'number_of_visits_all_users_up' %}checked{% endif %} id="sortNumberOfVisitsAllUsersUp">
-            <label for="sortNumberOfVisitsAllUsersUp" class="text-sm text-gray-800 ms-2 dark:text-neutral-200 cursor-pointer">
-                По общему количеству посещений (возрастание)
-            </label>
-        </div>
+        <!-- Скрытые радиокнопки для отправки формы -->
+        <input type="radio" name="sort" value="name_down" class="hidden sort-radio" id="sortNameDown" {% if sort == 'name_down' %}checked{% endif %}>
+        <input type="radio" name="sort" value="name_up" class="hidden sort-radio" id="sortNameUp" {% if sort == 'name_up' %}checked{% endif %}>
+        <input type="radio" name="sort" value="first_visit_date_down" class="hidden sort-radio" id="sortFirstVisitDateDown" {% if sort == 'first_visit_date_down' %}checked{% endif %}>
+        <input type="radio" name="sort" value="first_visit_date_up" class="hidden sort-radio" id="sortFirstVisitDateUp" {% if sort == 'first_visit_date_up' %}checked{% endif %}>
+        <input type="radio" name="sort" value="last_visit_date_down" class="hidden sort-radio" id="sortLastVisitDateDown" {% if sort == 'last_visit_date_down' %}checked{% endif %}>
+        <input type="radio" name="sort" value="last_visit_date_up" class="hidden sort-radio" id="sortLastVisitDateUp" {% if sort == 'last_visit_date_up' %}checked{% endif %}>
+        <input type="radio" name="sort" value="number_of_visits_down" class="hidden sort-radio" id="sortNumberOfVisitsDown" {% if sort == 'number_of_visits_down' %}checked{% endif %}>
+        <input type="radio" name="sort" value="number_of_visits_up" class="hidden sort-radio" id="sortNumberOfVisitsUp" {% if sort == 'number_of_visits_up' %}checked{% endif %}>
+        <input type="radio" name="sort" value="date_of_foundation_down" class="hidden sort-radio" id="sortDateOfFoundationDown" {% if sort == 'date_of_foundation_down' %}checked{% endif %}>
+        <input type="radio" name="sort" value="date_of_foundation_up" class="hidden sort-radio" id="sortDateOfFoundationUp" {% if sort == 'date_of_foundation_up' %}checked{% endif %}>
+        <input type="radio" name="sort" value="number_of_users_who_visit_city_down" class="hidden sort-radio" id="sortNumberOfUsersWhoVisitCityDown" {% if sort == 'number_of_users_who_visit_city_down' %}checked{% endif %}>
+        <input type="radio" name="sort" value="number_of_users_who_visit_city_up" class="hidden sort-radio" id="sortNumberOfUsersWhoVisitCityUp" {% if sort == 'number_of_users_who_visit_city_up' %}checked{% endif %}>
+        <input type="radio" name="sort" value="number_of_visits_all_users_down" class="hidden sort-radio" id="sortNumberOfVisitsAllUsersDown" {% if sort == 'number_of_visits_all_users_down' %}checked{% endif %}>
+        <input type="radio" name="sort" value="number_of_visits_all_users_up" class="hidden sort-radio" id="sortNumberOfVisitsAllUsersUp" {% if sort == 'number_of_visits_all_users_up' %}checked{% endif %}>
 
     </div>
     <div class="p-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">

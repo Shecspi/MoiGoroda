@@ -291,14 +291,14 @@ class TestCityListDefaultSettingsModel:
         )
 
     @pytest.mark.django_db
-    def test_city_list_default_settings_str(
-        self, visited_city_instance: VisitedCity
-    ) -> None:
+    def test_city_list_default_settings_str(self, visited_city_instance: VisitedCity) -> None:
         """Проверяет строковое представление настроек по умолчанию."""
         # Убеждаемся, что user сохранён в БД
-        if visited_city_instance.user.pk is None:
-            visited_city_instance.user.save()
-        
+        user = visited_city_instance.user
+        user_pk = getattr(user, 'pk', None)
+        if user_pk is None:
+            user.save()
+
         settings = CityListDefaultSettings(
             user=visited_city_instance.user,
             parameter_type='filter',

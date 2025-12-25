@@ -65,9 +65,7 @@ def test_save_settings_guest_cannot_access(api_client: APIClient) -> None:
 @pytest.mark.integration
 def test_delete_settings_guest_cannot_access(api_client: APIClient) -> None:
     """Проверяет, что гость не может получить доступ к API удаления."""
-    response = api_client.delete(
-        DELETE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json'
-    )
+    response = api_client.delete(DELETE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json')
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
@@ -97,27 +95,29 @@ def test_delete_settings_prohibited_methods(
 
 
 @pytest.mark.integration
-def test_save_settings_missing_parameter_type(api_client: APIClient, authenticated_user: User) -> None:
+def test_save_settings_missing_parameter_type(
+    api_client: APIClient, authenticated_user: User
+) -> None:
     """Проверяет валидацию при отсутствии parameter_type."""
-    response = api_client.post(
-        SAVE_SETTINGS_URL, {'parameter_value': 'no_filter'}, format='json'
-    )
+    response = api_client.post(SAVE_SETTINGS_URL, {'parameter_value': 'no_filter'}, format='json')
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert 'parameter_type' in response.data['detail'].lower()
 
 
 @pytest.mark.integration
-def test_save_settings_missing_parameter_value(api_client: APIClient, authenticated_user: User) -> None:
+def test_save_settings_missing_parameter_value(
+    api_client: APIClient, authenticated_user: User
+) -> None:
     """Проверяет валидацию при отсутствии parameter_value."""
-    response = api_client.post(
-        SAVE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json'
-    )
+    response = api_client.post(SAVE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json')
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert 'parameter_value' in response.data['detail'].lower()
 
 
 @pytest.mark.integration
-def test_save_settings_invalid_parameter_type(api_client: APIClient, authenticated_user: User) -> None:
+def test_save_settings_invalid_parameter_type(
+    api_client: APIClient, authenticated_user: User
+) -> None:
     """Проверяет валидацию при недопустимом parameter_type."""
     response = api_client.post(
         SAVE_SETTINGS_URL,
@@ -129,7 +129,9 @@ def test_save_settings_invalid_parameter_type(api_client: APIClient, authenticat
 
 
 @pytest.mark.integration
-def test_save_settings_invalid_filter_value(api_client: APIClient, authenticated_user: User) -> None:
+def test_save_settings_invalid_filter_value(
+    api_client: APIClient, authenticated_user: User
+) -> None:
     """Проверяет валидацию при недопустимом значении фильтра."""
     response = api_client.post(
         SAVE_SETTINGS_URL,
@@ -153,7 +155,9 @@ def test_save_settings_invalid_sort_value(api_client: APIClient, authenticated_u
 
 
 @pytest.mark.integration
-def test_delete_settings_missing_parameter_type(api_client: APIClient, authenticated_user: User) -> None:
+def test_delete_settings_missing_parameter_type(
+    api_client: APIClient, authenticated_user: User
+) -> None:
     """Проверяет валидацию при отсутствии parameter_type при удалении."""
     response = api_client.delete(DELETE_SETTINGS_URL, {}, format='json')
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -161,11 +165,11 @@ def test_delete_settings_missing_parameter_type(api_client: APIClient, authentic
 
 
 @pytest.mark.integration
-def test_delete_settings_invalid_parameter_type(api_client: APIClient, authenticated_user: User) -> None:
+def test_delete_settings_invalid_parameter_type(
+    api_client: APIClient, authenticated_user: User
+) -> None:
     """Проверяет валидацию при недопустимом parameter_type при удалении."""
-    response = api_client.delete(
-        DELETE_SETTINGS_URL, {'parameter_type': 'invalid'}, format='json'
-    )
+    response = api_client.delete(DELETE_SETTINGS_URL, {'parameter_type': 'invalid'}, format='json')
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert 'parameter_type' in response.data['detail'].lower()
 
@@ -298,9 +302,7 @@ def test_delete_filter_settings_existing(api_client: APIClient, authenticated_us
         user=authenticated_user, parameter_type='filter', parameter_value='no_filter'
     )
 
-    response = api_client.delete(
-        DELETE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json'
-    )
+    response = api_client.delete(DELETE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json')
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data['status'] == 'success'
@@ -316,9 +318,7 @@ def test_delete_sort_settings_existing(api_client: APIClient, authenticated_user
         user=authenticated_user, parameter_type='sort', parameter_value='name_down'
     )
 
-    response = api_client.delete(
-        DELETE_SETTINGS_URL, {'parameter_type': 'sort'}, format='json'
-    )
+    response = api_client.delete(DELETE_SETTINGS_URL, {'parameter_type': 'sort'}, format='json')
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data['status'] == 'success'
@@ -330,9 +330,7 @@ def test_delete_sort_settings_existing(api_client: APIClient, authenticated_user
 @pytest.mark.integration
 def test_delete_settings_nonexistent(api_client: APIClient, authenticated_user: User) -> None:
     """Проверяет удаление несуществующей настройки."""
-    response = api_client.delete(
-        DELETE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json'
-    )
+    response = api_client.delete(DELETE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json')
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data['status'] == 'success'
@@ -351,9 +349,7 @@ def test_delete_settings_does_not_affect_other_type(
         user=authenticated_user, parameter_type='sort', parameter_value='name_down'
     )
 
-    response = api_client.delete(
-        DELETE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json'
-    )
+    response = api_client.delete(DELETE_SETTINGS_URL, {'parameter_type': 'filter'}, format='json')
 
     assert response.status_code == status.HTTP_200_OK
     assert CityListDefaultSettings.objects.filter(
@@ -368,9 +364,7 @@ def test_delete_settings_does_not_affect_other_type(
 
 
 @pytest.mark.integration
-def test_settings_are_user_specific(
-    api_client: APIClient, django_user_model: Type[User]
-) -> None:
+def test_settings_are_user_specific(api_client: APIClient, django_user_model: Type[User]) -> None:
     """Проверяет, что настройки изолированы для каждого пользователя."""
     user1 = django_user_model.objects.create_user(username='user1', password='pass')
     user2 = django_user_model.objects.create_user(username='user2', password='pass')
@@ -391,11 +385,6 @@ def test_settings_are_user_specific(
     )
     assert response2.status_code == status.HTTP_200_OK
 
-    assert CityListDefaultSettings.objects.filter(
-        user=user1, parameter_value='no_filter'
-    ).exists()
-    assert CityListDefaultSettings.objects.filter(
-        user=user2, parameter_value='magnet'
-    ).exists()
+    assert CityListDefaultSettings.objects.filter(user=user1, parameter_value='no_filter').exists()
+    assert CityListDefaultSettings.objects.filter(user=user2, parameter_value='magnet').exists()
     assert CityListDefaultSettings.objects.count() == 2
-

@@ -199,7 +199,7 @@ class TestApplySort:
         view_instance.request = request
         view_instance.queryset = empty_qs
 
-        view_instance.apply_sort()
+        view_instance.apply_sort(default_sort=None)
 
         mock_apply_sort.assert_called_once_with(empty_qs, 'name_down')
         assert view_instance.queryset == sorted_qs
@@ -223,7 +223,7 @@ class TestApplySort:
         view_instance.request = mock_request
         view_instance.queryset = empty_qs
 
-        view_instance.apply_sort()
+        view_instance.apply_sort(default_sort=None)
 
         mock_apply_sort.assert_called_once_with(empty_qs, 'last_visit_date_down')
         assert view_instance.sort == 'last_visit_date_down'
@@ -249,10 +249,34 @@ class TestApplySort:
         view_instance.request = request
         view_instance.queryset = empty_qs
 
-        view_instance.apply_sort()
+        view_instance.apply_sort(default_sort=None)
 
         # Должна быть только одна попытка - с 'invalid'
         # После чего обрабатывается исключение и sort устанавливается в default
         assert mock_apply_sort.call_count == 1
         mock_logger.warning.assert_called_once()
         assert view_instance.sort == 'last_visit_date_down'
+
+    @pytest.mark.django_db
+    @patch('city.views.apply_sort_to_queryset')
+    @patch('city.views.logger')
+    def test_apply_sort_with_saved_default_sort(
+        self,
+        mock_logger: MagicMock,
+        mock_apply_sort: MagicMock,
+        view_instance: VisitedCity_List,
+        mock_request: HttpRequest,
+    ) -> None:
+        """Проверяет применение сохранённой сортировки по умолчанию."""
+        empty_qs = VisitedCity.objects.none()
+        sorted_qs = VisitedCity.objects.none()
+        mock_apply_sort.return_value = sorted_qs
+
+        view_instance.request = mock_request
+        view_instance.queryset = empty_qs
+
+        # Передаём сохранённую сортировку по умолчанию
+        view_instance.apply_sort(default_sort='name_up')
+
+        mock_apply_sort.assert_called_once_with(empty_qs, 'name_up')
+        assert view_instance.sort == 'name_up'

@@ -4,7 +4,11 @@
 <!-- Backdrop -->
 <div class="hs-overlay-backdrop hs-overlay-backdrop-open:opacity-100 hs-overlay-backdrop-open:pointer-events-auto opacity-0 pointer-events-none fixed inset-0 z-[1060] bg-gray-900/50 transition" data-hs-overlay-backdrop="#offcanvasRight"></div>
 
-<div id="offcanvasRight" class="fixed top-0 right-0 translate-x-full transition-transform duration-300 h-full max-w-xs w-full z-[1070] bg-white border-s border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 flex flex-col" tabindex="-1">
+<div id="offcanvasRight" 
+     class="fixed top-0 right-0 translate-x-full transition-transform duration-300 h-full max-w-xs w-full z-[1070] bg-white border-s border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 flex flex-col" 
+     tabindex="-1"
+     data-default-filter="{{ default_filter|default:'' }}"
+     data-default-sort="{{ default_sort|default:'' }}">
     <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700 shrink-0">
         <h3 class="font-bold text-gray-800 dark:text-neutral-200">
             Фильтрация и сортировка

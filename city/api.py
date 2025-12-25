@@ -21,7 +21,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from account.models import ShareSettings
-from city.models import City, VisitedCity
+from city.models import City, CityListDefaultSettings, VisitedCity
 from city.serializers import (
     AddVisitedCitySerializer,
     CitySearchParamsSerializer,
@@ -631,3 +631,167 @@ def country_list_by_cities(request: Request) -> Response:
     ]
 
     return Response(countries_data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def save_city_list_default_settings(request: Request) -> Response:
+    """
+    Сохраняет настройки по умолчанию фильтрации или сортировки для списка городов.
+
+    Принимает POST-параметры:
+      - parameter_type (обязательный): 'filter' или 'sort'
+      - parameter_value (обязательный): значение фильтра или сортировки
+
+    Возвращает статус успешного сохранения или ошибку валидации.
+
+    :param request: DRF Request с POST-параметрами
+    :return: Response со статусом операции
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {'detail': 'Требуется аутентификация'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    parameter_type = request.data.get('parameter_type')
+    parameter_value = request.data.get('parameter_value')
+
+    if not parameter_type or not parameter_value:
+        return Response(
+            {'detail': 'Параметры parameter_type и parameter_value являются обязательными'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if parameter_type not in ['filter', 'sort']:
+        return Response(
+            {'detail': 'parameter_type должен быть "filter" или "sort"'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Валидация значений фильтра
+    if parameter_type == 'filter':
+        valid_filter_values = ['no_filter', 'no_magnet', 'magnet', 'current_year', 'last_year']
+        if parameter_value not in valid_filter_values:
+            return Response(
+                {'detail': f'Недопустимое значение фильтра: {parameter_value}'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    # Валидация значений сортировки
+    if parameter_type == 'sort':
+        valid_sort_values = [
+            'name_down',
+            'name_up',
+            'first_visit_date_down',
+            'first_visit_date_up',
+            'last_visit_date_down',
+            'last_visit_date_up',
+            'number_of_visits_down',
+            'number_of_visits_up',
+            'date_of_foundation_down',
+            'date_of_foundation_up',
+            'number_of_users_who_visit_city_down',
+            'number_of_users_who_visit_city_up',
+            'number_of_visits_all_users_down',
+            'number_of_visits_all_users_up',
+        ]
+        if parameter_value not in valid_sort_values:
+            return Response(
+                {'detail': f'Недопустимое значение сортировки: {parameter_value}'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    user = request.user
+    user_id = user.id if isinstance(user, User) else None
+    if user_id is None:
+        raise drf_exc.PermissionDenied('User must be authenticated')
+
+    # Сохранение или обновление настройки
+    _, created = CityListDefaultSettings.objects.update_or_create(
+        user_id=user_id,
+        parameter_type=parameter_type,
+        defaults={'parameter_value': parameter_value},
+    )
+
+    logger.info(
+        request,
+        f'(API: Save city list default settings) Settings {"created" if created else "updated"} '
+        f'for user #{user_id}: {parameter_type}={parameter_value}',
+    )
+
+    return Response(
+        {
+            'status': 'success',
+            'message': 'Настройки успешно сохранены',
+            'created': created,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(['DELETE'])
+def delete_city_list_default_settings(request: Request) -> Response:
+    """
+    Удаляет настройки по умолчанию фильтрации или сортировки для списка городов.
+
+    Принимает DELETE-параметры:
+      - parameter_type (обязательный): 'filter' или 'sort'
+
+    Возвращает статус успешного удаления или ошибку валидации.
+
+    :param request: DRF Request с DELETE-параметрами
+    :return: Response со статусом операции
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {'detail': 'Требуется аутентификация'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    parameter_type = request.data.get('parameter_type')
+
+    if not parameter_type:
+        return Response(
+            {'detail': 'Параметр parameter_type является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if parameter_type not in ['filter', 'sort']:
+        return Response(
+            {'detail': 'parameter_type должен быть "filter" или "sort"'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = request.user
+    user_id = user.id if isinstance(user, User) else None
+    if user_id is None:
+        raise drf_exc.PermissionDenied('User must be authenticated')
+
+    try:
+        settings = CityListDefaultSettings.objects.get(
+            user_id=user_id,
+            parameter_type=parameter_type,
+        )
+        settings.delete()
+
+        logger.info(
+            request,
+            f'(API: Delete city list default settings) Settings deleted '
+            f'for user #{user_id}: {parameter_type}',
+        )
+
+        return Response(
+            {
+                'status': 'success',
+                'message': 'Настройки успешно удалены',
+            },
+            status=status.HTTP_200_OK,
+        )
+    except CityListDefaultSettings.DoesNotExist:
+        return Response(
+            {
+                'status': 'success',
+                'message': 'Настройки не найдены',
+            },
+            status=status.HTTP_200_OK,
+        )

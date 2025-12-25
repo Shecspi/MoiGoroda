@@ -56,6 +56,31 @@ document.addEventListener('DOMContentLoaded', function () {
 // Управление переключателями фильтров
 document.addEventListener('DOMContentLoaded', function () {
     const filterSwitches = document.querySelectorAll('.filter-switch');
+    const offcanvas = document.getElementById('offcanvasRight');
+    let defaultFilter = offcanvas?.dataset.defaultFilter || '';
+    const saveFilterDefaultSwitch = document.getElementById('saveFilterDefault');
+    
+    // Функция для проверки совпадения фильтра с дефолтным и управления switch'ем
+    function checkAndUpdateFilterSwitch(filterValue) {
+        if (saveFilterDefaultSwitch && defaultFilter && filterValue === defaultFilter) {
+            saveFilterDefaultSwitch.checked = true;
+        } else if (saveFilterDefaultSwitch) {
+            saveFilterDefaultSwitch.checked = false;
+        }
+    }
+    
+    // Функция для обновления значения defaultFilter
+    function updateDefaultFilter(newValue) {
+        defaultFilter = newValue || '';
+        // После обновления проверяем текущий выбранный фильтр
+        const selectedFilter = document.querySelector('.filter-switch:checked')?.value;
+        if (selectedFilter) {
+            checkAndUpdateFilterSwitch(selectedFilter);
+        }
+    }
+    
+    // Экспортируем функцию для использования в других обработчиках
+    window.updateDefaultFilter = updateDefaultFilter;
     
     // Функция для отключения всех переключателей фильтров кроме указанного
     function disableAllFilterSwitchesExcept(activeSwitch) {
@@ -81,6 +106,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (filterRadio) {
                 filterRadio.checked = true;
             }
+            
+            // Проверяем совпадение с дефолтным значением
+            checkAndUpdateFilterSwitch(selectedFilter);
         }
     }
     
@@ -115,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
         disableAllFilterSwitchesExcept(checkedFilter);
     }
     
-    // Инициализация скрытых радиокнопок
+    // Инициализация скрытых радиокнопок и проверка совпадения с дефолтным значением
     updateFilterRadio();
 });
 
@@ -123,6 +151,34 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
     const sortTypeSwitches = document.querySelectorAll('.sort-type-switch');
     const sortDirectionSwitch = document.querySelector('.sort-direction-switch');
+    const offcanvas = document.getElementById('offcanvasRight');
+    let defaultSort = offcanvas?.dataset.defaultSort || '';
+    const saveSortDefaultSwitch = document.getElementById('saveSortDefault');
+    
+    // Функция для проверки совпадения сортировки с дефолтной и управления switch'ем
+    function checkAndUpdateSortSwitch() {
+        const selectedType = document.querySelector('.sort-type-switch:checked')?.value;
+        const selectedDirection = sortDirectionSwitch?.checked ? 'up' : 'down';
+        
+        if (selectedType && selectedDirection) {
+            const sortValue = `${selectedType}_${selectedDirection}`;
+            if (saveSortDefaultSwitch && defaultSort && sortValue === defaultSort) {
+                saveSortDefaultSwitch.checked = true;
+            } else if (saveSortDefaultSwitch) {
+                saveSortDefaultSwitch.checked = false;
+            }
+        }
+    }
+    
+    // Функция для обновления значения defaultSort
+    function updateDefaultSort(newValue) {
+        defaultSort = newValue || '';
+        // После обновления проверяем текущую выбранную сортировку
+        checkAndUpdateSortSwitch();
+    }
+    
+    // Экспортируем функцию для использования в других обработчиках
+    window.updateDefaultSort = updateDefaultSort;
     
     // Функция для отключения всех переключателей типа кроме указанного
     function disableAllTypeSwitchesExcept(activeSwitch) {
@@ -151,6 +207,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (sortRadio) {
                 sortRadio.checked = true;
             }
+            
+            // Проверяем совпадение с дефолтным значением
+            checkAndUpdateSortSwitch();
         }
     }
     
@@ -192,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
         disableAllTypeSwitchesExcept(checkedType);
     }
     
-    // Инициализация скрытых радиокнопок
+    // Инициализация скрытых радиокнопок и проверка совпадения с дефолтным значением
     updateSortRadio();
 });
 
@@ -304,3 +363,156 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// Обработка переключения switch'а "Сохранить фильтр по умолчанию"
+document.addEventListener('DOMContentLoaded', function () {
+    const saveFilterDefaultSwitch = document.getElementById('saveFilterDefault');
+    
+    if (saveFilterDefaultSwitch) {
+        saveFilterDefaultSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                // Получаем текущий выбранный фильтр
+                const selectedFilter = document.querySelector('.filter-switch:checked')?.value;
+                
+                if (selectedFilter) {
+                    // Сохраняем настройки фильтрации по умолчанию
+                    fetch('/api/city/list/default_settings', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        },
+                        body: JSON.stringify({
+                            parameter_type: 'filter',
+                            parameter_value: selectedFilter,
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            console.log('Настройки фильтрации сохранены:', data);
+                            // Обновляем актуальное значение defaultFilter
+                            if (window.updateDefaultFilter) {
+                                window.updateDefaultFilter(selectedFilter);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при сохранении настроек фильтрации:', error);
+                    });
+                }
+            } else {
+                // Удаляем настройки фильтрации по умолчанию
+                fetch('/api/city/list/default_settings/delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify({
+                        parameter_type: 'filter',
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        console.log('Настройки фильтрации удалены:', data);
+                        // Очищаем актуальное значение defaultFilter
+                        if (window.updateDefaultFilter) {
+                            window.updateDefaultFilter('');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при удалении настроек фильтрации:', error);
+                });
+            }
+        });
+    }
+});
+
+// Обработка переключения switch'а "Сохранить сортировку по умолчанию"
+document.addEventListener('DOMContentLoaded', function () {
+    const saveSortDefaultSwitch = document.getElementById('saveSortDefault');
+    const sortTypeSwitches = document.querySelectorAll('.sort-type-switch');
+    const sortDirectionSwitch = document.querySelector('.sort-direction-switch');
+    
+    if (saveSortDefaultSwitch) {
+        saveSortDefaultSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                // Получаем текущую выбранную сортировку
+                const selectedType = document.querySelector('.sort-type-switch:checked')?.value;
+                const selectedDirection = sortDirectionSwitch?.checked ? 'up' : 'down';
+                
+                if (selectedType && selectedDirection) {
+                    const sortValue = `${selectedType}_${selectedDirection}`;
+                    
+                    // Сохраняем настройки сортировки по умолчанию
+                    fetch('/api/city/list/default_settings', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        },
+                        body: JSON.stringify({
+                            parameter_type: 'sort',
+                            parameter_value: sortValue,
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            console.log('Настройки сортировки сохранены:', data);
+                            // Обновляем актуальное значение defaultSort
+                            if (window.updateDefaultSort) {
+                                window.updateDefaultSort(sortValue);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при сохранении настроек сортировки:', error);
+                    });
+                }
+            } else {
+                // Удаляем настройки сортировки по умолчанию
+                fetch('/api/city/list/default_settings/delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify({
+                        parameter_type: 'sort',
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        console.log('Настройки сортировки удалены:', data);
+                        // Очищаем актуальное значение defaultSort
+                        if (window.updateDefaultSort) {
+                            window.updateDefaultSort('');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при удалении настроек сортировки:', error);
+                });
+            }
+        });
+    }
+});
+
+// Функция для получения CSRF токена из cookies
+function getCookie(c_name) {
+    if (document.cookie.length > 0) {
+        let c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1) {
+            c_start = c_start + c_name.length + 1;
+            let c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start, c_end));
+        }
+    }
+    return "";
+}

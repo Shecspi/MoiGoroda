@@ -91,10 +91,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const label = document.querySelector(`label[for="${noFilterSwitch.id}"]`);
                 if (label) {
                     const star = document.createElement('span');
-                    star.className = 'text-red-600 dark:text-red-500';
+                    star.className = 'text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5';
                     star.setAttribute('data-default-star', 'filter-no_filter');
-                    star.textContent = '*';
-                    label.appendChild(star);
+                    star.textContent = '* ';
+                    // Вставляем звёздочку в начало label
+                    label.insertBefore(star, label.firstChild);
                 }
             }
         } else if (defaultFilter !== 'no_filter') {
@@ -104,10 +105,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const label = document.querySelector(`label[for="${filterSwitch.id}"]`);
                 if (label) {
                     const star = document.createElement('span');
-                    star.className = 'text-red-600 dark:text-red-500';
+                    star.className = 'text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5';
                     star.setAttribute('data-default-star', `filter-${defaultFilter}`);
-                    star.textContent = '*';
-                    label.appendChild(star);
+                    star.textContent = '* ';
+                    // Вставляем звёздочку в начало label
+                    label.insertBefore(star, label.firstChild);
                 }
             }
         }
@@ -253,10 +255,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     const label = document.querySelector(`label[for="${sortSwitch.id}"]`);
                     if (label) {
                         const star = document.createElement('span');
-                        star.className = 'text-red-600 dark:text-red-500';
+                        star.className = 'text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5';
                         star.setAttribute('data-default-star', `sort-${sortType}`);
-                        star.textContent = '*';
-                        label.appendChild(star);
+                        star.textContent = '* ';
+                        // Вставляем звёздочку в начало label
+                        label.insertBefore(star, label.firstChild);
                     }
                 }
             }

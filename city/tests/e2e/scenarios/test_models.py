@@ -2,7 +2,7 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
-from city.models import City, VisitedCity
+from city.models import City, CityListDefaultSettings, VisitedCity
 from country.models import Country
 from region.models import Region, RegionType
 
@@ -269,6 +269,54 @@ class TestCityModel:
         assert city.coordinate_longitude == 0.0
         assert city.population == 0
         assert city.date_of_foundation == 1
+
+
+@pytest.mark.e2e
+class TestCityListDefaultSettingsModel:
+    """Тесты для модели CityListDefaultSettings."""
+
+    def test_city_list_default_settings_model_structure(self) -> None:
+        """Проверяет структуру модели CityListDefaultSettings."""
+        expected_fields = {
+            'user',
+            'parameter_type',
+            'parameter_value',
+        }
+        model_fields = set(
+            f.name for f in CityListDefaultSettings._meta.get_fields() if not f.auto_created
+        )
+        assert model_fields == expected_fields, (
+            'Модель CityListDefaultSettings изменилась. '
+            'Обновите тесты и добавьте тесты для новых полей.'
+        )
+
+    @pytest.mark.django_db
+    def test_city_list_default_settings_str(
+        self, visited_city_instance: VisitedCity
+    ) -> None:
+        """Проверяет строковое представление настроек по умолчанию."""
+        # Убеждаемся, что user сохранён в БД
+        if visited_city_instance.user.pk is None:
+            visited_city_instance.user.save()
+        
+        settings = CityListDefaultSettings(
+            user=visited_city_instance.user,
+            parameter_type='filter',
+            parameter_value='no_filter',
+        )
+        settings.save()
+        assert 'Фильтрация' in str(settings)
+        assert str(visited_city_instance.user.username) in str(settings)
+        assert 'no_filter' in str(settings)
+
+    def test_city_list_default_settings_meta_options(self) -> None:
+        """Проверяет мета-опции модели CityListDefaultSettings."""
+        assert CityListDefaultSettings._meta.verbose_name == 'Настройка по умолчанию списка городов'
+        assert (
+            CityListDefaultSettings._meta.verbose_name_plural
+            == 'Настройки по умолчанию списка городов'
+        )
+        assert CityListDefaultSettings._meta.ordering == ['user', 'parameter_type']
 
 
 @pytest.mark.e2e

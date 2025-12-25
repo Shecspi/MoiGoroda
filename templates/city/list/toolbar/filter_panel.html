@@ -200,7 +200,7 @@
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
                     <label for="sortTypeName" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
-                        {% if default_sort|slice:":4" == 'name' %}
+                        {% if default_sort|startswith:'name' %}
                         <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-name">* </span>
                         {% endif %}
                         По названию
@@ -226,7 +226,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <label for="sortTypeFirstVisitDate" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
-                        {% if default_sort|slice:":18" == 'first_visit_date' %}
+                        {% if default_sort|startswith:'first_visit_date' %}
                         <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-first_visit_date">* </span>
                         {% endif %}
                         По дате первого посещения
@@ -252,7 +252,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <label for="sortTypeLastVisitDate" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
-                        {% if default_sort|slice:":17" == 'last_visit_date' %}
+                        {% if default_sort|startswith:'last_visit_date' %}
                         <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-last_visit_date">* </span>
                         {% endif %}
                         По дате последнего посещения
@@ -278,7 +278,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <label for="sortTypeNumberOfVisits" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
-                        {% if default_sort|slice:":19" == 'number_of_visits' %}
+                        {% if default_sort|startswith:'number_of_visits' and not default_sort|startswith:'number_of_visits_all_users' %}
                         <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-number_of_visits">* </span>
                         {% endif %}
                         По количеству посещений
@@ -304,7 +304,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <label for="sortTypeDateOfFoundation" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
-                        {% if default_sort|slice:":20" == 'date_of_foundation' %}
+                        {% if default_sort|startswith:'date_of_foundation' %}
                         <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-date_of_foundation">* </span>
                         {% endif %}
                         По дате основания
@@ -330,7 +330,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <label for="sortTypeNumberOfUsersWhoVisitCity" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
-                        {% if default_sort|slice:":33" == 'number_of_users_who_visit_city' %}
+                        {% if default_sort|startswith:'number_of_users_who_visit_city' %}
                         <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-number_of_users_who_visit_city">* </span>
                         {% endif %}
                         По количеству посетивших пользователей
@@ -356,7 +356,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <label for="sortTypeNumberOfVisitsAllUsers" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
-                        {% if default_sort|slice:":28" == 'number_of_visits_all_users' %}
+                        {% if default_sort|startswith:'number_of_visits_all_users' %}
                         <span class="text-red-600 dark:text-red-500 inline-flex items-center leading-none -mt-0.5" data-default-star="sort-number_of_visits_all_users">* </span>
                         {% endif %}
                         По общему количеству посещений

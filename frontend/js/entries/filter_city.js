@@ -69,9 +69,35 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     
+    // Функция для обновления звездочек фильтров
+    function updateFilterStars() {
+        // Удаляем все существующие звездочки фильтров
+        document.querySelectorAll('[data-default-star^="filter-"]').forEach(star => {
+            star.remove();
+        });
+        
+        // Добавляем звездочку для текущего значения по умолчанию
+        if (defaultFilter) {
+            // Находим соответствующий switch и добавляем звездочку
+            const filterSwitch = document.querySelector(`.filter-switch[value="${defaultFilter}"]`);
+            if (filterSwitch) {
+                const label = document.querySelector(`label[for="${filterSwitch.id}"]`);
+                if (label) {
+                    const star = document.createElement('span');
+                    star.className = 'text-red-600 dark:text-red-500';
+                    star.setAttribute('data-default-star', `filter-${defaultFilter}`);
+                    star.textContent = '*';
+                    label.appendChild(star);
+                }
+            }
+        }
+    }
+    
     // Функция для обновления значения defaultFilter
     function updateDefaultFilter(newValue) {
         defaultFilter = newValue || '';
+        // Обновляем звездочки
+        updateFilterStars();
         // После обновления проверяем текущий выбранный фильтр
         const selectedFilter = document.querySelector('.filter-switch:checked')?.value;
         if (selectedFilter) {
@@ -81,6 +107,9 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Экспортируем функцию для использования в других обработчиках
     window.updateDefaultFilter = updateDefaultFilter;
+    
+    // Инициализация звездочек при загрузке страницы
+    updateFilterStars();
     
     // Функция для отключения всех переключателей фильтров кроме указанного
     function disableAllFilterSwitchesExcept(activeSwitch) {
@@ -170,15 +199,55 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     
+    // Функция для обновления звездочек типов сортировки
+    function updateSortStars() {
+        // Удаляем все существующие звездочки сортировки
+        document.querySelectorAll('[data-default-star^="sort-"]').forEach(star => {
+            star.remove();
+        });
+        
+        // Добавляем звездочку для текущего значения по умолчанию
+        if (defaultSort) {
+            // Определяем тип сортировки из значения (например, name_down -> name)
+            // Удаляем суффикс _down или _up
+            let sortType = defaultSort;
+            if (defaultSort.endsWith('_down')) {
+                sortType = defaultSort.slice(0, -5); // Удаляем '_down'
+            } else if (defaultSort.endsWith('_up')) {
+                sortType = defaultSort.slice(0, -3); // Удаляем '_up'
+            }
+            
+            if (sortType) {
+                // Находим соответствующий switch и добавляем звездочку
+                const sortSwitch = document.querySelector(`.sort-type-switch[value="${sortType}"]`);
+                if (sortSwitch) {
+                    const label = document.querySelector(`label[for="${sortSwitch.id}"]`);
+                    if (label) {
+                        const star = document.createElement('span');
+                        star.className = 'text-red-600 dark:text-red-500';
+                        star.setAttribute('data-default-star', `sort-${sortType}`);
+                        star.textContent = '*';
+                        label.appendChild(star);
+                    }
+                }
+            }
+        }
+    }
+    
     // Функция для обновления значения defaultSort
     function updateDefaultSort(newValue) {
         defaultSort = newValue || '';
+        // Обновляем звездочки
+        updateSortStars();
         // После обновления проверяем текущую выбранную сортировку
         checkAndUpdateSortSwitch();
     }
     
     // Экспортируем функцию для использования в других обработчиках
     window.updateDefaultSort = updateDefaultSort;
+    
+    // Инициализация звездочек при загрузке страницы
+    updateSortStars();
     
     // Функция для отключения всех переключателей типа кроме указанного
     function disableAllTypeSwitchesExcept(activeSwitch) {

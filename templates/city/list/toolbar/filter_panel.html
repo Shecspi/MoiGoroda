@@ -26,8 +26,11 @@
 
         <div class="space-y-3">
             <div class="flex items-center justify-between">
-                <label for="filterNoFilter" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                <label for="filterNoFilter" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                     Без фильтрации
+                    {% if default_filter == 'no_filter' %}
+                    <span class="text-red-600 dark:text-red-500" data-default-star="filter-no_filter">*</span>
+                    {% endif %}
                 </label>
                 <label for="filterNoFilter" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="no_filter" id="filterNoFilter" class="peer sr-only filter-switch" {% if filter is None or not filter|in_list:"no_magnet,magnet,current_year,last_year" %}checked{% endif %}>
@@ -49,8 +52,11 @@
                 </label>
             </div>
             <div class="flex items-center justify-between">
-                <label for="filterNoMagnet" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                <label for="filterNoMagnet" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                     Без сувенира
+                    {% if default_filter == 'no_magnet' %}
+                    <span class="text-red-600 dark:text-red-500" data-default-star="filter-no_magnet">*</span>
+                    {% endif %}
                 </label>
                 <label for="filterNoMagnet" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="no_magnet" id="filterNoMagnet" class="peer sr-only filter-switch" {% if filter == 'no_magnet' %}checked{% endif %}>
@@ -72,8 +78,11 @@
                 </label>
             </div>
             <div class="flex items-center justify-between">
-                <label for="filterMagnet" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                <label for="filterMagnet" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                     С сувениром
+                    {% if default_filter == 'magnet' %}
+                    <span class="text-red-600 dark:text-red-500" data-default-star="filter-magnet">*</span>
+                    {% endif %}
                 </label>
                 <label for="filterMagnet" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="magnet" id="filterMagnet" class="peer sr-only filter-switch" {% if filter == 'magnet' %}checked{% endif %}>
@@ -95,8 +104,11 @@
                 </label>
             </div>
             <div class="flex items-center justify-between">
-                <label for="filterCurrentYear" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                <label for="filterCurrentYear" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                     В этом году
+                    {% if default_filter == 'current_year' %}
+                    <span class="text-red-600 dark:text-red-500" data-default-star="filter-current_year">*</span>
+                    {% endif %}
                 </label>
                 <label for="filterCurrentYear" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="current_year" id="filterCurrentYear" class="peer sr-only filter-switch" {% if filter == 'current_year' %}checked{% endif %}>
@@ -118,8 +130,11 @@
                 </label>
             </div>
             <div class="flex items-center justify-between">
-                <label for="filterLastYear" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                <label for="filterLastYear" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                     В прошлом году
+                    {% if default_filter == 'last_year' %}
+                    <span class="text-red-600 dark:text-red-500" data-default-star="filter-last_year">*</span>
+                    {% endif %}
                 </label>
                 <label for="filterLastYear" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                     <input type="checkbox" name="filter_switch" value="last_year" id="filterLastYear" class="peer sr-only filter-switch" {% if filter == 'last_year' %}checked{% endif %}>
@@ -184,8 +199,11 @@
         <div class="mb-4">
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
-                    <label for="sortTypeName" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                    <label for="sortTypeName" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                         По названию
+                        {% if default_sort|slice:":4" == 'name' %}
+                        <span class="text-red-600 dark:text-red-500" data-default-star="sort-name">*</span>
+                        {% endif %}
                     </label>
                     <label for="sortTypeName" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                         <input type="checkbox" name="sort_type" value="name" id="sortTypeName" class="peer sr-only sort-type-switch" {% if sort == 'name_down' or sort == 'name_up' or not sort|in_list:"name_down,name_up,first_visit_date_down,first_visit_date_up,last_visit_date_down,last_visit_date_up" %}checked{% endif %}>
@@ -207,8 +225,11 @@
                     </label>
                 </div>
                 <div class="flex items-center justify-between">
-                    <label for="sortTypeFirstVisitDate" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                    <label for="sortTypeFirstVisitDate" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                         По дате первого посещения
+                        {% if default_sort|slice:":18" == 'first_visit_date' %}
+                        <span class="text-red-600 dark:text-red-500" data-default-star="sort-first_visit_date">*</span>
+                        {% endif %}
                     </label>
                     <label for="sortTypeFirstVisitDate" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                         <input type="checkbox" name="sort_type" value="first_visit_date" id="sortTypeFirstVisitDate" class="peer sr-only sort-type-switch" {% if sort == 'first_visit_date_down' or sort == 'first_visit_date_up' %}checked{% endif %}>
@@ -230,8 +251,11 @@
                     </label>
                 </div>
                 <div class="flex items-center justify-between">
-                    <label for="sortTypeLastVisitDate" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                    <label for="sortTypeLastVisitDate" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                         По дате последнего посещения
+                        {% if default_sort|slice:":17" == 'last_visit_date' %}
+                        <span class="text-red-600 dark:text-red-500" data-default-star="sort-last_visit_date">*</span>
+                        {% endif %}
                     </label>
                     <label for="sortTypeLastVisitDate" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                         <input type="checkbox" name="sort_type" value="last_visit_date" id="sortTypeLastVisitDate" class="peer sr-only sort-type-switch" {% if sort == 'last_visit_date_down' or sort == 'last_visit_date_up' %}checked{% endif %}>
@@ -253,8 +277,11 @@
                     </label>
                 </div>
                 <div class="flex items-center justify-between">
-                    <label for="sortTypeNumberOfVisits" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                    <label for="sortTypeNumberOfVisits" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                         По количеству посещений
+                        {% if default_sort|slice:":19" == 'number_of_visits' %}
+                        <span class="text-red-600 dark:text-red-500" data-default-star="sort-number_of_visits">*</span>
+                        {% endif %}
                     </label>
                     <label for="sortTypeNumberOfVisits" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                         <input type="checkbox" name="sort_type" value="number_of_visits" id="sortTypeNumberOfVisits" class="peer sr-only sort-type-switch" {% if sort == 'number_of_visits_down' or sort == 'number_of_visits_up' %}checked{% endif %}>
@@ -276,8 +303,11 @@
                     </label>
                 </div>
                 <div class="flex items-center justify-between">
-                    <label for="sortTypeDateOfFoundation" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                    <label for="sortTypeDateOfFoundation" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                         По дате основания
+                        {% if default_sort|slice:":20" == 'date_of_foundation' %}
+                        <span class="text-red-600 dark:text-red-500" data-default-star="sort-date_of_foundation">*</span>
+                        {% endif %}
                     </label>
                     <label for="sortTypeDateOfFoundation" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                         <input type="checkbox" name="sort_type" value="date_of_foundation" id="sortTypeDateOfFoundation" class="peer sr-only sort-type-switch" {% if sort == 'date_of_foundation_down' or sort == 'date_of_foundation_up' %}checked{% endif %}>
@@ -299,8 +329,11 @@
                     </label>
                 </div>
                 <div class="flex items-center justify-between">
-                    <label for="sortTypeNumberOfUsersWhoVisitCity" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                    <label for="sortTypeNumberOfUsersWhoVisitCity" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                         По количеству посетивших пользователей
+                        {% if default_sort|slice:":33" == 'number_of_users_who_visit_city' %}
+                        <span class="text-red-600 dark:text-red-500" data-default-star="sort-number_of_users_who_visit_city">*</span>
+                        {% endif %}
                     </label>
                     <label for="sortTypeNumberOfUsersWhoVisitCity" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                         <input type="checkbox" name="sort_type" value="number_of_users_who_visit_city" id="sortTypeNumberOfUsersWhoVisitCity" class="peer sr-only sort-type-switch" {% if sort == 'number_of_users_who_visit_city_down' or sort == 'number_of_users_who_visit_city_up' %}checked{% endif %}>
@@ -322,8 +355,11 @@
                     </label>
                 </div>
                 <div class="flex items-center justify-between">
-                    <label for="sortTypeNumberOfVisitsAllUsers" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1">
+                    <label for="sortTypeNumberOfVisitsAllUsers" class="text-sm text-gray-800 dark:text-neutral-200 cursor-pointer flex-1 flex items-center gap-1">
                         По общему количеству посещений
+                        {% if default_sort|slice:":28" == 'number_of_visits_all_users' %}
+                        <span class="text-red-600 dark:text-red-500" data-default-star="sort-number_of_visits_all_users">*</span>
+                        {% endif %}
                     </label>
                     <label for="sortTypeNumberOfVisitsAllUsers" class="relative inline-block w-[44px] h-6 cursor-pointer shrink-0">
                         <input type="checkbox" name="sort_type" value="number_of_visits_all_users" id="sortTypeNumberOfVisitsAllUsers" class="peer sr-only sort-type-switch" {% if sort == 'number_of_visits_all_users_down' or sort == 'number_of_visits_all_users_up' %}checked{% endif %}>

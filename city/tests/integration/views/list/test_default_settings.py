@@ -332,4 +332,3 @@ class TestDefaultSettingsApplication:
         assert response.context['filter'] == 'last_year'
         # Проверяем применение сортировки
         assert response.context['sort'] == 'first_visit_date_up'
-

@@ -30,7 +30,7 @@ from django.views.generic import (
 )
 
 from city.forms import VisitedCity_Create_Form
-from city.models import VisitedCity, City
+from city.models import VisitedCity, City, CityListDefaultSettings
 from city.services.db import (
     get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
@@ -378,6 +378,8 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
         self.qty_of_visited_cities: int = 0
         self.has_subscriptions: bool = False
         self.all_visited_cities: QuerySet[VisitedCity] | None = None
+        self.default_filter_settings: CityListDefaultSettings | None = None
+        self.default_sort_settings: CityListDefaultSettings | None = None
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         # Если в URL передан несуществующий код страны, то перенаправляем пользователя на страницу всех городов
@@ -391,7 +393,20 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
         self.user_id = self.request.user.pk
         if self.user_id is None:
             raise Http404('User must be authenticated')
+
+        # Получаем сохранённые настройки по умолчанию
+        self.default_filter_settings = CityListDefaultSettings.objects.filter(
+            user_id=self.user_id, parameter_type='filter'
+        ).first()
+        self.default_sort_settings = CityListDefaultSettings.objects.filter(
+            user_id=self.user_id, parameter_type='sort'
+        ).first()
+
+        # Используем GET-параметры, если они есть, иначе используем сохранённые настройки по умолчанию
         self.filter = self.request.GET.get('filter')
+        if not self.filter and self.default_filter_settings:
+            self.filter = self.default_filter_settings.parameter_value
+
         self.country_code = self.request.GET.get('country')
 
         if self.country_code:
@@ -400,7 +415,9 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
 
         self.queryset = get_unique_visited_cities(self.user_id, self.country_code)
         self.apply_filter()
-        self.apply_sort()
+        self.apply_sort(
+            self.default_sort_settings.parameter_value if self.default_sort_settings else None
+        )
 
         logger.info(self.request, '(Visited city) Viewing the list of visited cities')
 
@@ -424,10 +441,12 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
                     self.request, f"(Region) Unexpected value of the filter '{self.filter}'"
                 )
 
-    def apply_sort(self) -> None:
-        self.sort = (
-            self.request.GET.get('sort') if self.request.GET.get('sort') else 'last_visit_date_down'
-        )
+    def apply_sort(self, default_sort: str | None = None) -> None:
+        # Используем GET-параметр, если он есть, иначе используем переданное значение по умолчанию или стандартное
+        self.sort = self.request.GET.get('sort')
+        if not self.sort:
+            self.sort = default_sort if default_sort else 'last_visit_date_down'
+
         if self.queryset is not None and self.sort is not None:
             try:
                 self.queryset = apply_sort_to_queryset(self.queryset, self.sort)
@@ -478,6 +497,14 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
         )
         context['page_description'] = (
             'Список всех посещённых городов, отсортированный в порядке посещения'
+        )
+
+        # Используем сохранённые настройки по умолчанию из атрибутов класса
+        context['default_filter'] = (
+            self.default_filter_settings.parameter_value if self.default_filter_settings else None
+        )
+        context['default_sort'] = (
+            self.default_sort_settings.parameter_value if self.default_sort_settings else None
         )
 
         return context

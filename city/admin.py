@@ -15,7 +15,7 @@ from django.contrib.admin import SimpleListFilter
 from django.db.models import Q, Count, QuerySet
 from django.http import HttpRequest
 
-from .models import City, VisitedCity
+from .models import City, CityListDefaultSettings, VisitedCity
 
 
 class HasImageFilter(SimpleListFilter):
@@ -153,3 +153,19 @@ class VisitedCityAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     search_fields = ('user__username', 'city__title')
     readonly_fields = ('created_at', 'updated_at')
     date_hierarchy = 'created_at'
+
+
+@admin.register(CityListDefaultSettings)
+class CityListDefaultSettingsAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
+    list_display = (
+        'id',
+        'user',
+        'parameter_type',
+        'parameter_value',
+    )
+    list_filter = (
+        'parameter_type',
+        UserFilter,
+    )
+    search_fields = ('user__username', 'parameter_value')
+    list_editable = ('parameter_value',)

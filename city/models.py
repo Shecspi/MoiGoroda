@@ -141,3 +141,42 @@ class VisitedCity(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse('city-selected', kwargs={'pk': self.pk})
+
+
+class CityListDefaultSettings(models.Model):
+    """
+    Модель для хранения настроек по умолчанию фильтрации и сортировки
+    списка городов для каждого пользователя.
+    """
+
+    class ParameterType(models.TextChoices):
+        FILTER = 'filter', 'Фильтрация'
+        SORT = 'sort', 'Сортировка'
+
+    user = models.ForeignKey(
+        User, on_delete=CASCADE, verbose_name='Пользователь', blank=False, null=False
+    )
+    parameter_type = models.CharField(
+        max_length=10,
+        choices=ParameterType.choices,
+        verbose_name='Тип параметра',
+        blank=False,
+        null=False,
+    )
+    parameter_value = models.CharField(
+        max_length=50,
+        verbose_name='Значение параметра',
+        blank=False,
+        null=False,
+        help_text='Значение фильтра или сортировки, аналогичное тем, что указаны '
+        'в панели фильтрации и сортировки.',
+    )
+
+    class Meta:
+        ordering = ['user', 'parameter_type']
+        verbose_name = 'Настройка по умолчанию списка городов'
+        verbose_name_plural = 'Настройки по умолчанию списка городов'
+        unique_together = ['user', 'parameter_type']
+
+    def __str__(self) -> str:
+        return f'{self.get_parameter_type_display()} для {self.user}: {self.parameter_value}'

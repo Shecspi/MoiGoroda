@@ -242,242 +242,26 @@ function createLegendControl(map) {
 }
 
 /**
- * Инициализирует выпадающий список с годами для фильтрации регионов.
+ * Инициализирует обработчик изменений для фильтра по годам.
+ * Preline UI автоматически инициализирует компонент через autoInit().
  */
 function initYearFilter() {
-    if (!window.IS_AUTHENTICATED || !window.ALL_VISIT_YEARS || window.ALL_VISIT_YEARS.length === 0) {
-        return;
-    }
-
-    const yearFilterContainer = document.getElementById('year-filter-container');
     const yearSelect = document.getElementById('id_year_filter');
 
-    if (!yearFilterContainer || !yearSelect) {
+    if (!yearSelect) {
         return;
     }
 
-    // Показываем контейнер фильтра по годам
-    yearFilterContainer.style.display = 'block';
-
-    // Сначала уничтожаем существующий экземпляр Preline UI, если он есть
-    // Это важно, чтобы Preline UI не инициализировался автоматически до добавления опций
-    let existingInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
-    if (existingInstance && typeof existingInstance.destroy === 'function') {
-        existingInstance.destroy();
-    }
-
-    // Удаляем старую разметку Preline UI, если она есть
-    const oldSelectContainer = yearSelect.closest('.hs-select');
-    if (oldSelectContainer && oldSelectContainer !== yearSelect.parentElement) {
-        const parent = oldSelectContainer.parentElement;
-        parent.insertBefore(yearSelect, oldSelectContainer);
-        oldSelectContainer.remove();
-    }
-
-    // Убеждаемся, что select элемент видимый (не hidden)
-    if (yearSelect.classList.contains('hidden')) {
-        yearSelect.classList.remove('hidden');
-    }
-
-    // Сохраняем опцию "Все годы" из шаблона, если она есть
-    // Проверяем как старое значение (пустая строка), так и новое ("all")
-    const existingAllYearsOption = yearSelect.querySelector('option[value="all"]') || yearSelect.querySelector('option[value=""]');
-    const allYearsText = existingAllYearsOption ? existingAllYearsOption.textContent.trim() : 'Все годы';
-    
-    // Очищаем select полностью
-    yearSelect.innerHTML = '';
-
-    // Добавляем опцию "Все годы" первой
-    // Используем специальное значение "all" вместо пустой строки,
-    // так как Preline UI может игнорировать опции с пустым значением
-    const allYearsOption = document.createElement('option');
-    allYearsOption.value = 'all';
-    allYearsOption.textContent = allYearsText;
-    yearSelect.appendChild(allYearsOption);
-
-    // Заполняем выпадающий список годами (после опции "Все годы")
-    window.ALL_VISIT_YEARS.forEach(year => {
-        const option = document.createElement('option');
-        option.value = year;
-        option.textContent = year;
-        yearSelect.appendChild(option);
-    });
-    
-    // Финальная проверка: опция "Все годы" должна быть первой
-    const firstOption = yearSelect.firstElementChild;
-    if (!firstOption || firstOption.value !== 'all') {
-        const allYearsOpt = yearSelect.querySelector('option[value="all"]');
-        if (allYearsOpt && allYearsOpt !== firstOption) {
-            yearSelect.insertBefore(allYearsOpt, firstOption);
-        }
-    }
-    
-    // Проверяем, что опции добавлены
-    const optionsAfterAdd = yearSelect.options.length;
-    const allYearsAfterAdd = yearSelect.querySelector('option[value="all"]');
-    
-    if (!allYearsAfterAdd || optionsAfterAdd < 1) {
-        console.error('Ошибка: опции не добавлены в select', {
-            hasAllYears: !!allYearsAfterAdd,
-            optionsCount: optionsAfterAdd,
-            firstOptionValue: yearSelect.firstElementChild?.value,
-            firstOptionText: yearSelect.firstElementChild?.textContent
-        });
-        return;
-    }
-
-    // Инициализируем Preline UI компонент после небольшой задержки
-    // чтобы убедиться, что DOM обновлен и Preline UI загружен
-    const initPrelineSelect = () => {
-        // Финальная проверка: опции должны быть в DOM
-        const finalOptionsCount = yearSelect.options.length;
-        const finalAllYearsOption = yearSelect.querySelector('option[value="all"]');
-        const firstOption = yearSelect.firstElementChild;
-        
-        // Проверяем, что опция "Все годы" есть и она первая
-        if (!finalAllYearsOption) {
-            console.error('Опция "Все годы" не найдена перед инициализацией Preline UI');
-            // Добавляем опцию "Все годы" если её нет
-            const allYearsOpt = document.createElement('option');
-            allYearsOpt.value = 'all';
-            allYearsOpt.textContent = 'Все годы';
-            yearSelect.insertBefore(allYearsOpt, yearSelect.firstChild);
-        } else if (firstOption && firstOption.value !== 'all') {
-            // Если опция "Все годы" не первая, перемещаем её
-            yearSelect.insertBefore(finalAllYearsOption, firstOption);
-        }
-        
-        if (finalOptionsCount < 1) {
-            console.error('Нет опций в select перед инициализацией Preline UI');
-            return;
-        }
-        
-        // Проверяем, что опция "Все годы" действительно первая
-        const finalFirstOption = yearSelect.firstElementChild;
-        if (!finalFirstOption || finalFirstOption.value !== 'all') {
-            console.error('Опция "Все годы" не является первой опцией', {
-                firstOptionValue: finalFirstOption?.value,
-                firstOptionText: finalFirstOption?.textContent,
-                allOptions: Array.from(yearSelect.options).map(opt => ({ value: opt.value, text: opt.textContent }))
-            });
-            return;
-        }
-
-        // Проверяем, инициализирован ли компонент уже (на случай, если autoInit сработал)
-        let hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
-
-        // Если компонент уже был инициализирован, уничтожаем его
-        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
-            hsSelectInstance.destroy();
-            hsSelectInstance = null;
-        }
-
-        // Удаляем старую разметку Preline UI, если она есть
-        const oldSelectContainer = yearSelect.closest('.hs-select');
-        if (oldSelectContainer && oldSelectContainer !== yearSelect.parentElement) {
-            // Восстанавливаем оригинальный select на место
-            const parent = oldSelectContainer.parentElement;
-            parent.insertBefore(yearSelect, oldSelectContainer);
-            oldSelectContainer.remove();
-        }
-        
-        // Убеждаемся, что select элемент видимый для Preline UI (не hidden)
-        if (yearSelect.classList.contains('hidden')) {
-            yearSelect.classList.remove('hidden');
-        }
-        
-        if (window.HSSelect) {
-            try {
-                // Создаем новый экземпляр Preline Select, передавая элемент напрямую
-                hsSelectInstance = new window.HSSelect(yearSelect);
-            } catch (e) {
-                // Если не получилось создать через конструктор с элементом, пробуем через селектор
-                try {
-                    hsSelectInstance = new window.HSSelect('#id_year_filter');
-                } catch (e2) {
-                    // Если не получилось создать через конструктор, используем autoInit
-                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-                        window.HSStaticMethods.autoInit();
-                        hsSelectInstance = window.HSSelect.getInstance('#id_year_filter');
-                    }
-                }
-            }
-        }
-
-        // Обработчик изменений значения
-        const handleChange = () => {
-            // Получаем значение из select элемента
-            const selectedValue = yearSelect.value || '';
-            // Если выбрано "all", передаем пустую строку для сброса фильтра
-            const filterValue = selectedValue === 'all' ? '' : selectedValue;
-            filterRegionsByYear(filterValue);
-        };
-
-        if (hsSelectInstance) {
-            // Используем Preline UI API для обработки изменений
-            // Слушаем клики на опциях в выпадающем списке
-            const selectContainer = yearSelect.closest('.hs-select');
-            if (selectContainer) {
-                selectContainer.addEventListener('click', (e) => {
-                    const option = e.target.closest('.hs-select-option, [class*="hs-select-option"]');
-                    if (option) {
-                        // Получаем значение опции из data-value атрибута или из соответствующей option
-                        const optionValue = option.getAttribute('data-value') || option.dataset.value || '';
-                        
-                        // Находим соответствующую option в select элементе
-                        const selectOption = Array.from(yearSelect.options).find(opt => {
-                            return opt.value === optionValue || 
-                                   (optionValue === 'all' && opt.value === 'all') ||
-                                   opt.textContent.trim() === option.textContent.trim();
-                        });
-                        
-                        // Небольшая задержка, чтобы Preline UI успел обновить значение
-                        setTimeout(() => {
-                            if (selectOption) {
-                                // Устанавливаем значение в select элементе
-                                yearSelect.value = selectOption.value;
-                            }
-                            handleChange();
-                        }, 50);
-                    }
-                });
-            }
-        }
-
-        // Также слушаем изменения напрямую на select элементе (fallback)
-        yearSelect.addEventListener('change', handleChange);
+    // Обработчик изменений значения
+    const handleChange = () => {
+        const selectedValue = yearSelect.value || '';
+        // Если выбрано "all", передаем пустую строку для сброса фильтра
+        const filterValue = selectedValue === 'all' ? '' : selectedValue;
+        filterRegionsByYear(filterValue);
     };
 
-    // Ждем загрузки Preline UI и обновления DOM
-    const waitAndInit = () => {
-        requestAnimationFrame(() => {
-            if (window.HSSelect) {
-                initPrelineSelect();
-            } else {
-                // Если Preline UI еще не загружен, ждем его загрузки
-                const checkPreline = setInterval(() => {
-                    if (window.HSSelect) {
-                        clearInterval(checkPreline);
-                        requestAnimationFrame(() => {
-                            initPrelineSelect();
-                        });
-                    }
-                }, 50);
-                
-                // Таймаут на случай, если Preline UI не загрузится
-                setTimeout(() => {
-                    clearInterval(checkPreline);
-                    if (window.HSSelect) {
-                        requestAnimationFrame(() => {
-                            initPrelineSelect();
-                        });
-                    }
-                }, 2000);
-            }
-        });
-    };
-    
-    waitAndInit();
+    // Слушаем изменения напрямую на select элементе
+    yearSelect.addEventListener('change', handleChange);
 }
 
 /**

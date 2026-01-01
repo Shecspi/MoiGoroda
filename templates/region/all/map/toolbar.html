@@ -60,8 +60,8 @@
         </span>
     </div>
 
-    {% if user.is_authenticated %}
-        <div class="hs-tooltip [--placement:top] z-[40] relative inline-block basis-full self-center sm:basis-auto sm:min-w-[200px] sm:order-2" id="year-filter-container" style="display: none;">
+    {% if user.is_authenticated and all_visit_years %}
+        <div class="hs-tooltip [--placement:top] z-[40] relative inline-block basis-full self-center sm:basis-auto sm:min-w-[200px] sm:order-2">
             <div class="hs-tooltip-toggle relative w-full">
                 <select
                     id="id_year_filter"
@@ -76,6 +76,9 @@
                     }'
                     class="hidden">
                     <option value="all">Все годы</option>
+                    {% for year in all_visit_years %}
+                        <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <span class="hs-tooltip-content" role="tooltip">

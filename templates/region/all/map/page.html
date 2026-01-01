@@ -47,15 +47,29 @@
         window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}"
         window.NUMBER_OF_REGIONS = {{ qty_of_regions }};
         window.COUNTRY_CODE = "{{ country_code }}";
+        window.IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
         window.REGION_LIST = new Map();
         {% for item in all_regions %}
             window.REGION_LIST.set('{{ item.iso3166 }}', {
                 'num_visited': '{{ item.num_visited }}',
                 'ratio_visited': {% if item.ratio_visited %}{{ item.ratio_visited|unlocalize }}{% else %}0{% endif %},
                 'title': '{{ item }}',
-                'id': {{ item.id }}
+                'id': {{ item.id }},
+                'visit_years': {% if user.is_authenticated and item.visit_years %}[{{ item.visit_years|join:", " }}]{% else %}[]{% endif %},
             });
         {% endfor %}
+        {% if user.is_authenticated %}
+            // Собираем все уникальные годы из всех регионов
+            window.ALL_VISIT_YEARS = new Set();
+            window.REGION_LIST.forEach((region) => {
+                if (region.visit_years && Array.isArray(region.visit_years)) {
+                    region.visit_years.forEach(year => window.ALL_VISIT_YEARS.add(year));
+                }
+            });
+            window.ALL_VISIT_YEARS = Array.from(window.ALL_VISIT_YEARS).sort((a, b) => b - a);
+        {% else %}
+            window.ALL_VISIT_YEARS = [];
+        {% endif %}
     </script>
     {% vite_asset 'js/entries/leaflet_css.js' %}
     {% vite_asset 'js/entries/choices_css.js' %}

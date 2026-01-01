@@ -33,7 +33,7 @@ from django.db.models import (
     Case,
     When,
 )
-from django.db.models.functions import Coalesce, Cast, Round
+from django.db.models.functions import Coalesce, Cast, Round, ExtractYear
 
 from city.models import City, VisitedCity
 from region.models import Region, Area
@@ -72,6 +72,8 @@ def get_all_region_with_visited_cities(
     """
     Возвращает QuerySet со всеми регионами, количеством городов в каждом из них и
     количеством посещённых городов пользователем с ID равным user_id.
+    Для каждого региона также добавляется поле visit_years - список уникальных годов,
+    в которые пользователь посещал города данного региона.
     """
     queryset = Region.objects.all()
 
@@ -94,6 +96,15 @@ def get_all_region_with_visited_cities(
                     ),
                     output_field=FloatField(),
                 )
+            ),
+            visit_years=Coalesce(
+                ArrayAgg(
+                    ExtractYear('city__visitedcity__date_of_visit'),
+                    filter=Q(city__visitedcity__user_id=user_id)
+                    & Q(city__visitedcity__date_of_visit__isnull=False),
+                    distinct=True,
+                ),
+                Value([], output_field=ArrayField(IntegerField())),
             ),
         )
         .order_by('-num_visited', 'title')

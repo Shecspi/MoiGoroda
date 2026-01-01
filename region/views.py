@@ -127,6 +127,18 @@ class RegionList(ListView):
         context['country_name'] = self.country
         context['country_code'] = self.country_code
 
+        # Собираем все уникальные годы посещения для фильтра
+        if self.request.user.is_authenticated and self.list_or_map == 'map':
+            all_visit_years = set()
+            for region in self.all_regions:
+                if hasattr(region, 'visit_years') and region.visit_years:
+                    all_visit_years.update(region.visit_years)
+            context['all_visit_years'] = (
+                sorted(all_visit_years, reverse=True) if all_visit_years else None
+            )
+        else:
+            context['all_visit_years'] = None
+
         if self.list_or_map == 'list':
             context['page_title'] = (
                 'Список регионов ' + f'{to_genitive(self.country).title()}'

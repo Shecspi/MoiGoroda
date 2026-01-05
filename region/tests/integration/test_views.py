@@ -117,9 +117,7 @@ class TestRegionListView:
         assert 'all_regions' in response.context
 
         # Проверяем что у региона есть поле visit_years
-        region = next(
-            (r for r in response.context['all_regions'] if r.id == test_region.id), None
-        )
+        region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
         assert region is not None
         assert hasattr(region, 'visit_years')
         assert isinstance(region.visit_years, list)
@@ -148,9 +146,7 @@ class TestRegionListView:
         response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
 
         assert response.status_code == 200
-        region = next(
-            (r for r in response.context['all_regions'] if r.id == test_region.id), None
-        )
+        region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
         assert region is not None
         assert hasattr(region, 'visit_years')
         assert 2022 in region.visit_years
@@ -169,9 +165,7 @@ class TestRegionListView:
         response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
 
         assert response.status_code == 200
-        region = next(
-            (r for r in response.context['all_regions'] if r.id == test_region.id), None
-        )
+        region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
         assert region is not None
         assert hasattr(region, 'visit_years')
         assert region.visit_years == []
@@ -226,9 +220,7 @@ class TestRegionMapView:
         assert 'all_regions' in response.context
 
         # Проверяем что у региона есть поле visit_years
-        region = next(
-            (r for r in response.context['all_regions'] if r.id == test_region.id), None
-        )
+        region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
         assert region is not None
         assert hasattr(region, 'visit_years')
         assert isinstance(region.visit_years, list)

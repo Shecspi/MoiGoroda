@@ -95,6 +95,81 @@ class TestRegionListView:
         assert 'qty_of_visited_regions' in response.context
         assert response.context['qty_of_visited_regions'] >= 0
 
+    def test_authenticated_user_sees_visit_years_in_context(
+        self,
+        client: Client,
+        test_user: Any,
+        test_country: Any,
+        test_region: Region,
+        test_city: City,
+    ) -> None:
+        """Тест что авторизованный пользователь видит поле visit_years в контексте"""
+        from datetime import date
+
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2023, 6, 15)
+        )
+
+        client.force_login(test_user)
+        response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
+
+        assert response.status_code == 200
+        assert 'all_regions' in response.context
+
+        # Проверяем что у региона есть поле visit_years
+        region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
+        assert region is not None
+        assert hasattr(region, 'visit_years')
+        assert isinstance(region.visit_years, list)
+        assert 2023 in region.visit_years
+
+    def test_visit_years_contains_multiple_years(
+        self,
+        client: Client,
+        test_user: Any,
+        test_country: Any,
+        test_region: Region,
+        test_city: City,
+    ) -> None:
+        """Тест что visit_years содержит несколько лет"""
+        from datetime import date
+
+        # Создаём посещения в разные годы
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2022, 1, 15)
+        )
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2024, 3, 10)
+        )
+
+        client.force_login(test_user)
+        response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
+
+        assert response.status_code == 200
+        region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
+        assert region is not None
+        assert hasattr(region, 'visit_years')
+        assert 2022 in region.visit_years
+        assert 2024 in region.visit_years
+        assert len(region.visit_years) == 2
+
+    def test_visit_years_empty_for_region_without_visits(
+        self,
+        client: Client,
+        test_user: Any,
+        test_country: Any,
+        test_region: Region,
+    ) -> None:
+        """Тест что visit_years пустой для региона без посещений"""
+        client.force_login(test_user)
+        response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
+
+        assert response.status_code == 200
+        region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
+        assert region is not None
+        assert hasattr(region, 'visit_years')
+        assert region.visit_years == []
+
 
 @pytest.mark.integration
 @pytest.mark.django_db
@@ -122,6 +197,34 @@ class TestRegionMapView:
         response = client.get(reverse('region-all-map') + f'?country={test_country.code}')
         assert response.status_code == 200
         assert 'all_regions' in response.context
+
+    def test_authenticated_user_sees_visit_years_in_map_context(
+        self,
+        client: Client,
+        test_user: Any,
+        test_country: Any,
+        test_region: Region,
+        test_city: City,
+    ) -> None:
+        """Тест что авторизованный пользователь видит поле visit_years в контексте карты"""
+        from datetime import date
+
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2023, 6, 15)
+        )
+
+        client.force_login(test_user)
+        response = client.get(reverse('region-all-map') + f'?country={test_country.code}')
+
+        assert response.status_code == 200
+        assert 'all_regions' in response.context
+
+        # Проверяем что у региона есть поле visit_years
+        region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
+        assert region is not None
+        assert hasattr(region, 'visit_years')
+        assert isinstance(region.visit_years, list)
+        assert 2023 in region.visit_years
 
 
 @pytest.mark.integration

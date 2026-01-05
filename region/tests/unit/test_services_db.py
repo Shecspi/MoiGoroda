@@ -220,6 +220,128 @@ class TestGetAllRegionWithVisitedCities:
         queryset = get_all_region_with_visited_cities(test_user.id, test_country.id)
         assert all(region.country_id == test_country.id for region in queryset)
 
+    def test_annotates_visit_years(
+        self,
+        test_user: User,
+        test_country: Any,
+        test_region: Region,
+        test_city: City,
+    ) -> None:
+        """Тест что добавляется аннотация visit_years"""
+        from datetime import date
+
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2023, 6, 15)
+        )
+
+        queryset = get_all_region_with_visited_cities(test_user.id, test_country.id)
+        region = queryset.filter(id=test_region.id).first()
+
+        assert hasattr(region, 'visit_years')
+        assert isinstance(region.visit_years, list)
+        assert 2023 in region.visit_years
+
+    def test_visit_years_contains_unique_years(
+        self,
+        test_user: User,
+        test_country: Any,
+        test_region: Region,
+        test_city: City,
+    ) -> None:
+        """Тест что visit_years содержит уникальные годы"""
+        from datetime import date
+
+        # Создаём несколько посещений в разные годы
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2022, 1, 15)
+        )
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2023, 6, 15)
+        )
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2023, 8, 20)
+        )
+
+        queryset = get_all_region_with_visited_cities(test_user.id, test_country.id)
+        region = queryset.filter(id=test_region.id).first()
+
+        assert hasattr(region, 'visit_years')
+        assert 2022 in region.visit_years
+        assert 2023 in region.visit_years
+        # Проверяем что годы уникальны (нет дубликатов)
+        assert len(region.visit_years) == len(set(region.visit_years))
+        assert len(region.visit_years) == 2
+
+    def test_visit_years_empty_for_unvisited_regions(
+        self, test_user: User, test_country: Any, test_region: Region
+    ) -> None:
+        """Тест что visit_years пустой список для регионов без посещений"""
+        queryset = get_all_region_with_visited_cities(test_user.id, test_country.id)
+        region = queryset.filter(id=test_region.id).first()
+
+        assert hasattr(region, 'visit_years')
+        assert region.visit_years == []
+
+    def test_visit_years_excludes_visits_without_date(
+        self,
+        test_user: User,
+        test_country: Any,
+        test_region: Region,
+        test_city: City,
+    ) -> None:
+        """Тест что visit_years не включает посещения без даты"""
+        from datetime import date
+
+        # Создаём посещение с датой
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2023, 6, 15)
+        )
+        # Создаём посещение без даты
+        VisitedCity.objects.create(user=test_user, city=test_city, rating=5, date_of_visit=None)
+
+        queryset = get_all_region_with_visited_cities(test_user.id, test_country.id)
+        region = queryset.filter(id=test_region.id).first()
+
+        assert hasattr(region, 'visit_years')
+        assert 2023 in region.visit_years
+        # Проверяем что None не попал в список
+        assert None not in region.visit_years
+
+    def test_visit_years_includes_years_from_multiple_cities(
+        self,
+        test_user: User,
+        test_country: Any,
+        test_region: Region,
+        test_city: City,
+    ) -> None:
+        """Тест что visit_years включает годы из разных городов региона"""
+        from datetime import date
+
+        # Создаём второй город в том же регионе
+        city2 = City.objects.create(
+            title='City2',
+            region=test_region,
+            country=test_country,
+            coordinate_width=56.0,
+            coordinate_longitude=38.0,
+        )
+
+        # Посещения в разные годы в разных городах
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2022, 1, 15)
+        )
+        VisitedCity.objects.create(
+            user=test_user, city=city2, rating=5, date_of_visit=date(2024, 3, 10)
+        )
+
+        queryset = get_all_region_with_visited_cities(test_user.id, test_country.id)
+        region = queryset.filter(id=test_region.id).first()
+
+        assert hasattr(region, 'visit_years')
+        assert 2022 in region.visit_years
+        assert 2024 in region.visit_years
+        assert len(region.visit_years) == 2
+
 
 @pytest.mark.unit
 @pytest.mark.django_db

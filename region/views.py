@@ -77,9 +77,9 @@ class RegionList(ListView):
     def get_queryset(self):
         """
         Достаёт из базы данных все регионы, добавляя дополнительные поля:
-        Достаёт из базы данных все регионы, добавляя дополнительные поля:
             * num_total - общее количество городов в регионе
             * num_visited - количество посещённых пользователем городов в регионе (для авторизованных пользователей)
+            * visit_years - список уникальных годов, в которые пользователь посещал города региона (для авторизованных пользователей)
         """
         try:
             country = Country.objects.get(code=self.country_code)
@@ -126,6 +126,18 @@ class RegionList(ListView):
         context['country_id'] = self.country_id
         context['country_name'] = self.country
         context['country_code'] = self.country_code
+
+        # Собираем все уникальные годы посещения для фильтра
+        if self.request.user.is_authenticated and self.list_or_map == 'map':
+            all_visit_years = set()
+            for region in self.all_regions:
+                if hasattr(region, 'visit_years') and region.visit_years:
+                    all_visit_years.update(region.visit_years)
+            context['all_visit_years'] = (
+                sorted(all_visit_years, reverse=True) if all_visit_years else None
+            )
+        else:
+            context['all_visit_years'] = None
 
         if self.list_or_map == 'list':
             context['page_title'] = (

@@ -1,7 +1,6 @@
 import * as L from 'leaflet';
 import 'leaflet-fullscreen';
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
-import {initCountrySelect} from "../components/initCountrySelect";
 import {addLoadControl, addErrorControl, create_map} from "../components/map";
 
 const fillOpacity = 0.7;
@@ -13,13 +12,16 @@ const strokeWidth = 1;
 const strokeWidthHighlight = 2;
 
 let map;
+// Хранилище полигонов регионов для фильтрации по годам
+const regionPolygons = new Map();
 
 document.addEventListener('DOMContentLoaded', async (event) => {
-    await initCountrySelect({showAllOption: false});
+    initCountryFilter();
+    initYearFilter();
 });
 
 function init() {
-    const map = create_map();
+    map = create_map();
     if (window.NUMBER_OF_REGIONS > 0) {
         createLegendControl(map);
     }
@@ -78,6 +80,9 @@ function init() {
                         style: myStyle,
                         onEachFeature: onEachFeature
                     }).addTo(map);
+
+                    // Сохраняем ссылку на полигон для фильтрации по годам
+                    regionPolygons.set(iso3166, geojson);
 
                     let description = '';
                     if (num_visited > 0) {
@@ -233,6 +238,165 @@ function createLegendControl(map) {
       }
     }
   });
+}
+
+/**
+ * Инициализирует выпадающий список стран и обработчик изменений.
+ * Загружает страны асинхронно через API и добавляет опции в select.
+ * Preline UI автоматически инициализирует компонент через autoInit().
+ */
+async function initCountryFilter() {
+    const countrySelect = document.getElementById('id_country');
+
+    if (!countrySelect) {
+        return;
+    }
+
+    // Получаем текущий выбранный код страны из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedCountryCode = urlParams.get('country');
+
+    try {
+        // Загружаем список стран через API
+        const response = await fetch('/api/country/list_by_cities');
+        if (!response.ok) {
+            throw new Error('Ошибка загрузки списка стран');
+        }
+        const countries = await response.json();
+
+        // Добавляем опции в select
+        countries.forEach((country) => {
+            const option = document.createElement('option');
+            option.value = country.code;
+            
+            // Формируем текст опции
+            if (country.number_of_visited_cities !== undefined && country.number_of_cities !== undefined) {
+                option.textContent = `${country.name} (${country.number_of_visited_cities} из ${country.number_of_cities})`;
+            } else {
+                option.textContent = country.name;
+            }
+            
+            // Выбираем текущую страну, если она есть в URL
+            if (selectedCountryCode === country.code) {
+                option.selected = true;
+            }
+            
+            countrySelect.appendChild(option);
+        });
+
+        // Preline UI автоматически обновит компонент при изменении опций в DOM
+        // Если компонент уже был инициализирован, переинициализируем его
+        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_country') : null;
+        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
+            hsSelectInstance.destroy();
+        }
+        
+        // Переинициализируем компонент с новыми опциями
+        if (window.HSSelect) {
+            try {
+                new window.HSSelect('#id_country');
+            } catch (e) {
+                // Если не получилось, используем autoInit
+                if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                    window.HSStaticMethods.autoInit();
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка при загрузке списка стран:', error);
+    }
+
+    // Обработчик изменений значения
+    const handleChange = () => {
+        const selectedValue = countrySelect.value || '';
+        const url = new URL(window.location.href);
+        
+        if (selectedValue) {
+            url.searchParams.set('country', selectedValue);
+        } else {
+            url.searchParams.delete('country');
+        }
+        
+        // Перенаправляем на обновлённый URL
+        window.location.href = url.toString();
+    };
+
+    // Слушаем изменения напрямую на select элементе
+    countrySelect.addEventListener('change', handleChange);
+}
+
+/**
+ * Инициализирует обработчик изменений для фильтра по годам.
+ * Preline UI автоматически инициализирует компонент через autoInit().
+ */
+function initYearFilter() {
+    const yearSelect = document.getElementById('id_year_filter');
+
+    if (!yearSelect) {
+        return;
+    }
+
+    // Обработчик изменений значения
+    const handleChange = () => {
+        const selectedValue = yearSelect.value || '';
+        // Если выбрано "all", передаем пустую строку для сброса фильтра
+        const filterValue = selectedValue === 'all' ? '' : selectedValue;
+        filterRegionsByYear(filterValue);
+    };
+
+    // Слушаем изменения напрямую на select элементе
+    yearSelect.addEventListener('change', handleChange);
+}
+
+/**
+ * Фильтрует регионы на карте по выбранному году.
+ * @param {string} selectedYear - Выбранный год (пустая строка для показа всех регионов)
+ */
+function filterRegionsByYear(selectedYear) {
+    if (!window.REGION_LIST || regionPolygons.size === 0) {
+        return;
+    }
+
+    const visiblePolygons = [];
+
+    regionPolygons.forEach((polygon, iso3166) => {
+        const regionData = window.REGION_LIST.get(iso3166);
+        
+        if (!regionData) {
+            return;
+        }
+
+        // Если год не выбран или выбрано "Все годы" (значение "all"), показываем все регионы
+        if (!selectedYear || selectedYear === 'all') {
+            if (!map.hasLayer(polygon)) {
+                polygon.addTo(map);
+            }
+            visiblePolygons.push(polygon);
+        } else {
+            // Проверяем, содержит ли регион выбранный год в visit_years
+            const year = parseInt(selectedYear, 10);
+            const visitYears = regionData.visit_years || [];
+            
+            if (visitYears.includes(year)) {
+                // Показываем регион
+                if (!map.hasLayer(polygon)) {
+                    polygon.addTo(map);
+                }
+                visiblePolygons.push(polygon);
+            } else {
+                // Скрываем регион
+                if (map.hasLayer(polygon)) {
+                    map.removeLayer(polygon);
+                }
+            }
+        }
+    });
+
+    // Перецентрируем карту по видимым регионам
+    if (visiblePolygons.length > 0) {
+        const group = new L.featureGroup(visiblePolygons);
+        map.fitBounds(group.getBounds());
+    }
 }
 
 

@@ -14,6 +14,7 @@ from typing import Any
 from django.contrib.auth.models import User
 import rest_framework.exceptions as drf_exc
 from django.db.models import QuerySet
+from django.db.models.functions import ExtractYear
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
@@ -795,3 +796,69 @@ def delete_city_list_default_settings(request: Request) -> Response:
             },
             status=status.HTTP_200_OK,
         )
+
+
+@api_view(['GET'])
+def get_visit_years(request: Request) -> Response:
+    """
+    Возвращает список всех уникальных годов, в которые пользователь посещал города.
+
+    Принимает опциональный параметр:
+    - country: код страны (ISO 3166-1 alpha-2) для фильтрации по стране
+
+    Возвращает список годов в порядке убывания (от новых к старым).
+
+    :param request: DRF Request
+    :return: Response со списком годов
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {'detail': 'Пользователь должен быть авторизован'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    user = request.user
+    if not isinstance(user, User):
+        return Response(
+            {'detail': 'Не удалось определить пользователя'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user_id = user.id
+
+    # Получаем queryset посещённых городов с датами посещений
+    queryset = VisitedCity.objects.filter(
+        user_id=user_id,
+        date_of_visit__isnull=False,
+    ).select_related('city')
+
+    # Фильтруем по стране, если указан параметр country
+    country_code = request.GET.get('country')
+    if country_code:
+        print('\n\n\n', country_code, '\n\n\n')
+        try:
+            country = Country.objects.get(code=country_code)
+            queryset = queryset.filter(city__country=country)
+        except Country.DoesNotExist:
+            return Response(
+                {'detail': f'Страна с кодом {country_code} не найдена'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+    # Извлекаем уникальные годы из дат посещений
+    years = (
+        queryset.annotate(year=ExtractYear('date_of_visit'))
+        .values_list('year', flat=True)
+        .distinct()
+        .order_by('-year')
+    )
+
+    years_list = list(years)
+
+    logger.info(
+        request,
+        f'(API) Successful request for visit years list (user #{user_id}, '
+        f'country: {country_code or "all"}, years count: {len(years_list)})',
+    )
+
+    return Response({'years': years_list})

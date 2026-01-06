@@ -89,4 +89,24 @@
     [class*="selected"] .ms-auto span.hidden {
         display: block !important;
     }
+
+    /* Стили для Preline Select - применяем opacity и изменяем фон/границу когда select disabled */
+    select[disabled] + .hs-select button,
+    select[disabled] ~ .hs-select button,
+    .hs-select:has(select[disabled]) button,
+    .hs-select-disabled button {
+        opacity: 0.5 !important;
+        pointer-events: none !important;
+        background-color: #f3f4f6 !important; /* bg-gray-100 */
+        border-color: #e5e7eb !important; /* border-gray-200 - лёгкая рамка */
+    }
+
+    /* Dark mode для disabled состояния */
+    .dark select[disabled] + .hs-select button,
+    .dark select[disabled] ~ .hs-select button,
+    .dark .hs-select:has(select[disabled]) button,
+    .dark .hs-select-disabled button {
+        background-color: #404040 !important; /* dark:bg-neutral-700 */
+        border-color: #525252 !important; /* dark:border-neutral-600 - лёгкая рамка */
+    }
 }

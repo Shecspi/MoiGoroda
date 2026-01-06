@@ -31,4 +31,5 @@ urlpatterns = [
         api.delete_city_list_default_settings,
         name='api__delete_city_list_default_settings',
     ),
+    path('visit_years', api.get_visit_years, name='api__get_visit_years'),
 ]

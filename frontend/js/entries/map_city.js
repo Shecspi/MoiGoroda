@@ -16,6 +16,7 @@ import {ToolbarActions} from "../components/toolbar_actions.js";
 import {initCountrySelect} from "../components/initCountrySelect";
 import {initAddCityForm} from "../components/add_city_modal.js";
 import {City, MarkerStyle} from "../components/schemas.js";
+import {showDangerToast} from "../components/toast.js";
 
 let actions;
 let map;
@@ -134,7 +135,26 @@ async function initYearFilter() {
         // Загружаем список годов через API
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error('Ошибка загрузки списка годов');
+            // Пытаемся получить детали ошибки из ответа
+            let errorMessage = 'Ошибка загрузки списка годов';
+            try {
+                const errorData = await response.json();
+                if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                } else if (errorData.message) {
+                    errorMessage = errorData.message;
+                }
+            } catch (e) {
+                // Если не удалось распарсить JSON, используем стандартное сообщение
+                if (response.status === 401) {
+                    errorMessage = 'Требуется авторизация';
+                } else if (response.status === 404) {
+                    errorMessage = 'Страна не найдена';
+                } else if (response.status >= 500) {
+                    errorMessage = 'Ошибка сервера. Попробуйте позже';
+                }
+            }
+            throw new Error(errorMessage);
         }
         const data = await response.json();
         const years = data.years || [];
@@ -204,7 +224,42 @@ async function initYearFilter() {
         yearSelect.addEventListener('change', handleChange);
     } catch (error) {
         console.error('Ошибка при загрузке списка годов:', error);
-        // В случае ошибки оставляем компонент disabled
+        
+        // Показываем сообщение об ошибке пользователю
+        const errorMessage = error.message || 'Не удалось загрузить список годов посещений';
+        showDangerToast('Ошибка загрузки', errorMessage);
+        
+        // Обновляем placeholder для отображения ошибки
+        const dataHsSelect = yearSelect.getAttribute('data-hs-select');
+        if (dataHsSelect) {
+            try {
+                const config = JSON.parse(dataHsSelect);
+                config.placeholder = 'Ошибка загрузки';
+                yearSelect.setAttribute('data-hs-select', JSON.stringify(config));
+            } catch (e) {
+                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
+            }
+        }
+        
+        // Переинициализируем компонент с обновлённым placeholder
+        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
+        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
+            hsSelectInstance.destroy();
+        }
+        
+        requestAnimationFrame(() => {
+            if (window.HSSelect) {
+                try {
+                    new window.HSSelect('#id_year_filter');
+                } catch (e) {
+                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                        window.HSStaticMethods.autoInit();
+                    }
+                }
+            }
+        });
+        
+        // Компонент остаётся в disabled состоянии
     }
 }
 

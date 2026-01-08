@@ -852,7 +852,8 @@ def get_visit_years(request: Request) -> Response:
         .order_by('-year')
     )
 
-    years_list = list(years)
+    # Явно приводим годы к int для гарантии корректного типа
+    years_list = [int(year) for year in years]
 
     logger.info(
         request,

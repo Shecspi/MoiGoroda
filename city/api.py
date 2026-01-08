@@ -817,14 +817,8 @@ def get_visit_years(request: Request) -> Response:
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
-    user = request.user
-    if not isinstance(user, User):
-        return Response(
-            {'detail': 'Не удалось определить пользователя'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    user_id = user.id
+    assert isinstance(request.user, User)
+    user_id = request.user.id
 
     # Получаем queryset посещённых городов с датами посещений
     queryset = VisitedCity.objects.filter(

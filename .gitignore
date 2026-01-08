@@ -164,9 +164,7 @@ cython_debug/
 /db.sqlite3
 /news/tests/__pycache__/
 
-poetry.lock
 .vscode/
 */node_modules/
 /static/js/
 /media/
-.vscode/

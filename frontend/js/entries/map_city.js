@@ -37,24 +37,30 @@ window.onload = async () => {
         if (own_cities.length === 0) {
             map.setView([55.7522, 37.6156], 6);
 
-            const btn = document.getElementById('btn_show-not-visited-cities');
-            if (!btn) {
-                console.error('Кнопка не найдена!');
-            } else {
-                btn.click();
-                let attempts = 0;
-                const maxAttempts = 50; // Максимум 10 секунд (50 * 200мс)
-                const checkInterval = setInterval(() => {
-                    attempts++;
-                    if (actions.stateNotVisitedCities.size > 0) {
-                        const group = new L.featureGroup(Array.from(actions.stateNotVisitedCities.values()));
-                        map.fitBounds(group.getBounds());
-                        clearInterval(checkInterval);
-                    } else if (attempts >= maxAttempts) {
-                        clearInterval(checkInterval);
-                        console.warn('Таймаут ожидания загрузки непосещённых городов');
-                    }
-                }, 200); // проверяем каждые 200 мс
+            // Загружаем непосещённые города только если выбрана конкретная страна
+            // По умолчанию для всех стран грузить города не нужно
+            const hasCountrySelected = selectedCountryCode && selectedCountryCode !== '' && selectedCountryCode !== 'all';
+            
+            if (hasCountrySelected) {
+                const btn = document.getElementById('btn_show-not-visited-cities');
+                if (!btn) {
+                    console.error('Кнопка не найдена!');
+                } else {
+                    btn.click();
+                    let attempts = 0;
+                    const maxAttempts = 50; // Максимум 10 секунд (50 * 200мс)
+                    const checkInterval = setInterval(() => {
+                        attempts++;
+                        if (actions.stateNotVisitedCities.size > 0) {
+                            const group = new L.featureGroup(Array.from(actions.stateNotVisitedCities.values()));
+                            map.fitBounds(group.getBounds());
+                            clearInterval(checkInterval);
+                        } else if (attempts >= maxAttempts) {
+                            clearInterval(checkInterval);
+                            console.warn('Таймаут ожидания загрузки непосещённых городов');
+                        }
+                    }, 200); // проверяем каждые 200 мс
+                }
             }
         } else {
             const allMarkers = actions.addOwnCitiesOnMap();

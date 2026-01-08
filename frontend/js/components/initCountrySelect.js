@@ -25,7 +25,26 @@ export async function initCountrySelect({
 
     try {
         const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error('Ошибка загрузки списка стран');
+        if (!response.ok) {
+            // Пытаемся получить детали ошибки из ответа
+            let errorMessage = 'Ошибка загрузки списка стран';
+            try {
+                const errorData = await response.json();
+                if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                } else if (errorData.message) {
+                    errorMessage = errorData.message;
+                }
+            } catch (e) {
+                // Если не удалось распарсить JSON, используем стандартное сообщение
+                if (response.status === 401) {
+                    errorMessage = 'Требуется авторизация';
+                } else if (response.status >= 500) {
+                    errorMessage = 'Ошибка сервера. Попробуйте позже';
+                }
+            }
+            throw new Error(errorMessage);
+        }
         const countries = await response.json();
 
         // Очищаем существующие опции
@@ -67,6 +86,9 @@ export async function initCountrySelect({
             countrySelect.appendChild(option);
         });
 
+        // Убираем disabled и обновляем placeholder
+        countrySelect.removeAttribute('disabled');
+        
         // Обновляем placeholder в data-hs-select
         const dataHsSelect = countrySelect.getAttribute('data-hs-select');
         if (dataHsSelect) {
@@ -107,13 +129,45 @@ export async function initCountrySelect({
             });
         });
     } catch (error) {
-        console.error(error);
-        countrySelect.textContent = '';
-        const errorOption = document.createElement('option');
-        errorOption.value = '';
-        errorOption.textContent = 'Ошибка загрузки';
-        errorOption.disabled = true;
-        countrySelect.appendChild(errorOption);
+        console.error('Ошибка при загрузке списка стран:', error);
+        
+        // Показываем сообщение об ошибке пользователю, если функция доступна
+        if (typeof window.showDangerToast === 'function') {
+            const errorMessage = error.message || 'Не удалось загрузить список стран';
+            window.showDangerToast('Ошибка загрузки', errorMessage);
+        }
+        
+        // Обновляем placeholder для отображения ошибки
+        const dataHsSelect = countrySelect.getAttribute('data-hs-select');
+        if (dataHsSelect) {
+            try {
+                const config = JSON.parse(dataHsSelect);
+                config.placeholder = 'Ошибка загрузки';
+                countrySelect.setAttribute('data-hs-select', JSON.stringify(config));
+            } catch (e) {
+                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
+            }
+        }
+        
+        // Переинициализируем компонент с обновлённым placeholder
+        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance(`#${selectId}`) : null;
+        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
+            hsSelectInstance.destroy();
+        }
+        
+        requestAnimationFrame(() => {
+            if (window.HSSelect) {
+                try {
+                    new window.HSSelect(`#${selectId}`);
+                } catch (e) {
+                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                        window.HSStaticMethods.autoInit();
+                    }
+                }
+            }
+        });
+        
+        // Компонент остаётся в disabled состоянии
     }
 
     // Обработка выбора

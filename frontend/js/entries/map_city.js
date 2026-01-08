@@ -15,6 +15,7 @@ import {addExternalBorderControl, addInternalBorderControl, create_map} from "..
 import {ToolbarActions} from "../components/toolbar_actions.js";
 import {initCountrySelect} from "../components/initCountrySelect";
 import {initAddCityForm} from "../components/add_city_modal.js";
+import {City, MarkerStyle} from "../components/schemas.js";
 
 let actions;
 let map;
@@ -28,38 +29,48 @@ window.onload = async () => {
     addExternalBorderControl(map, selectedCountryCode);
     addInternalBorderControl(map, selectedCountryCode);
 
-    getVisitedCities()
-        .then(own_cities => {
-            actions = new ToolbarActions(map, own_cities);
+    try {
+        const own_cities = await getVisitedCities();
+        actions = new ToolbarActions(map, own_cities);
 
-            if (own_cities.length === 0) {
-                map.setView([55.7522, 37.6156], 6);
+        if (own_cities.length === 0) {
+            map.setView([55.7522, 37.6156], 6);
 
-                const btn = document.getElementById('btn_show-not-visited-cities');
-                if (!btn) {
-                    console.error('Кнопка не найдена!');
-                } else if (own_cities.length === 0) {
-                    btn.click();
-                    const checkInterval = setInterval(() => {
-                        if (actions.stateNotVisitedCities.size > 0) {
-                            const group = new L.featureGroup(Array.from(actions.stateNotVisitedCities.values()));
-                            map.fitBounds(group.getBounds());
-                            clearInterval(checkInterval);
-                        }
-                    }, 200); // проверяем каждые 200 мс
-                }
+            const btn = document.getElementById('btn_show-not-visited-cities');
+            if (!btn) {
+                console.error('Кнопка не найдена!');
             } else {
-                const allMarkers = actions.addOwnCitiesOnMap();
-                const group = new L.featureGroup([...allMarkers]);
-                map.fitBounds(group.getBounds());
+                btn.click();
+                let attempts = 0;
+                const maxAttempts = 50; // Максимум 10 секунд (50 * 200мс)
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (actions.stateNotVisitedCities.size > 0) {
+                        const group = new L.featureGroup(Array.from(actions.stateNotVisitedCities.values()));
+                        map.fitBounds(group.getBounds());
+                        clearInterval(checkInterval);
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        console.warn('Таймаут ожидания загрузки непосещённых городов');
+                    }
+                }, 200); // проверяем каждые 200 мс
             }
-        })
-        .then(() => {
-            initAddCityForm(actions);
-        });
+        } else {
+            const allMarkers = actions.addOwnCitiesOnMap();
+            const group = new L.featureGroup([...allMarkers]);
+            map.fitBounds(group.getBounds());
+        }
+
+        initAddCityForm(actions);
+    } catch (error) {
+        console.error('Ошибка при загрузке посещённых городов:', error);
+    }
 
     await initCountrySelect();
     await initYearFilter();
+
+    // Делаем функцию фильтрации доступной глобально для вызова из других модулей
+    window.filterCitiesByYear = filterCitiesByYear;
 }
 
 /**
@@ -71,10 +82,15 @@ async function getVisitedCities() {
 
     const url = baseUrl + queryParams;
 
-    return fetch(url, {
+    const response = await fetch(url, {
         method: 'GET'
-    })
-        .then(response => response.json());
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Ошибка загрузки городов: ${response.status} ${response.statusText}`);
+    }
+    
+    return response.json();
 }
 
 /**
@@ -102,8 +118,7 @@ async function initYearFilter() {
     });
 
     // Получаем текущий выбранный код страны из URL для фильтрации
-    const urlParams = new URLSearchParams(window.location.search);
-    const countryCode = urlParams.get('country');
+    const countryCode = selectedCountryCode;
 
     try {
         // Формируем URL для запроса годов
@@ -120,8 +135,12 @@ async function initYearFilter() {
         const data = await response.json();
         const years = data.years || [];
 
-        // Очищаем существующие опции
-        yearSelect.innerHTML = '<option value="all">Все годы</option>';
+        // Очищаем существующие опции и добавляем "Все годы"
+        yearSelect.textContent = '';
+        const allYearsOption = document.createElement('option');
+        allYearsOption.value = 'all';
+        allYearsOption.textContent = 'Все годы';
+        yearSelect.appendChild(allYearsOption);
 
         // Добавляем опции годов
         years.forEach((year) => {
@@ -175,6 +194,8 @@ async function initYearFilter() {
             filterCitiesByYear(filterValue);
         };
 
+        // Удаляем старый обработчик, если он был добавлен ранее
+        yearSelect.removeEventListener('change', handleChange);
         // Слушаем изменения напрямую на select элементе
         yearSelect.addEventListener('change', handleChange);
     } catch (error) {
@@ -192,16 +213,91 @@ function filterCitiesByYear(selectedYear) {
         return;
     }
 
-    // Если год не выбран или выбрано "Все годы", показываем все города
+    // Если год не выбран или выбрано "Все годы", пересоздаём все маркеры без фильтрации
     if (!selectedYear || selectedYear === 'all') {
+        // Удаляем все существующие маркеры своих городов и городов подписок с карты
         actions.stateOwnCities.forEach((marker) => {
-            if (!map.hasLayer(marker)) {
-                marker.addTo(map);
+            if (map.hasLayer(marker)) {
+                map.removeLayer(marker);
             }
         });
+        if (actions.stateSubscriptionCities) {
+            actions.stateSubscriptionCities.forEach((marker) => {
+                if (map.hasLayer(marker)) {
+                    map.removeLayer(marker);
+                }
+            });
+        }
+
+        // Очищаем словари маркеров
+        actions.stateOwnCities.clear();
+        actions.stateSubscriptionCities.clear();
+
+        // Пересоздаём все маркеры без фильтрации по годам
+        const allMarkers = [];
+        
+        // Добавляем свои города
+        if (actions.ownCities) {
+            actions.ownCities.forEach((cityData) => {
+                const city = new City();
+                city.id = cityData.id;
+                city.name = cityData.title;
+                city.region = cityData.region_title;
+                city.country = cityData.country;
+                city.lat = cityData.lat;
+                city.lon = cityData.lon;
+                city.visit_years = cityData.visit_years;
+                city.first_visit_date = cityData.first_visit_date;
+                city.last_visit_date = cityData.last_visit_date;
+                city.number_of_visits = cityData.number_of_visits;
+
+                const marker = actions.addMarkerToMap(city, MarkerStyle.OWN);
+                actions.stateOwnCities.set(city.id, marker);
+                allMarkers.push(marker);
+            });
+        }
+
+        // Добавляем города подписок (они могут включать города, посещённые и мной, и подписчиками)
+        if (actions.subscriptionCities && actions.subscriptionCities.length > 0) {
+            // Получаем информацию о пользователях без фильтрации по годам
+            const usersWhoVisitedCity = actions.getUsersWhoVisitedCity();
+            const processedCityIds = new Set(Array.from(actions.stateOwnCities.keys()));
+
+            actions.subscriptionCities.forEach((cityData) => {
+                const cityId = cityData.id;
+                
+                // Пропускаем города, которые уже добавлены как свои
+                if (processedCityIds.has(cityId)) {
+                    return;
+                }
+
+                const city = new City();
+                city.id = cityId;
+                city.name = cityData.title;
+                city.region = cityData.region_title;
+                city.country = cityData.country;
+                city.lat = cityData.lat;
+                city.lon = cityData.lon;
+                
+                // Для городов подписок visit_years берём из ownCities по названию, если город есть там
+                const ownCityData = actions.ownCities?.find(c => c.id === cityId);
+                if (ownCityData) {
+                    city.visit_years = ownCityData.visit_years;
+                    city.first_visit_date = ownCityData.first_visit_date;
+                    city.last_visit_date = ownCityData.last_visit_date;
+                    city.number_of_visits = ownCityData.number_of_visits;
+                }
+
+                const users = usersWhoVisitedCity.get(cityId) || [];
+                const markerStyle = ownCityData ? MarkerStyle.TOGETHER : MarkerStyle.SUBSCRIPTION;
+                const marker = actions.addMarkerToMap(city, markerStyle, users);
+                actions.stateSubscriptionCities.set(cityId, marker);
+                allMarkers.push(marker);
+                processedCityIds.add(cityId);
+            });
+        }
 
         // Перецентрируем карту по всем городам
-        const allMarkers = Array.from(actions.stateOwnCities.values());
         if (allMarkers.length > 0) {
             const group = new L.featureGroup(allMarkers);
             map.fitBounds(group.getBounds());
@@ -214,39 +310,171 @@ function filterCitiesByYear(selectedYear) {
         return;
     }
 
-    // Создаём Map для быстрого доступа к данным города по ID
-    const citiesMap = new Map();
+    // Создаём Map для быстрого доступа к данным своих городов по ID
+    // Одновременно создаём объект ownCities по названию для получения данных о посещениях пользователя
+    const ownCitiesMap = new Map();
+    const ownCitiesByName = {};
     if (actions.ownCities) {
         actions.ownCities.forEach((city) => {
-            citiesMap.set(city.id, city);
+            ownCitiesMap.set(city.id, city);
+            // Сохраняем данные по названию для городов подписок
+            if (!ownCitiesByName[city.title]) {
+                ownCitiesByName[city.title] = {
+                    visit_years: city.visit_years,
+                    first_visit_date: city.first_visit_date,
+                    last_visit_date: city.last_visit_date
+                };
+            }
         });
     }
 
-    // Фильтруем города по году посещения
-    const visibleMarkers = [];
-    actions.stateOwnCities.forEach((marker, cityId) => {
-        const cityData = citiesMap.get(cityId);
-        if (!cityData) {
-            return;
-        }
-
-        // Проверяем, есть ли у города посещения в выбранном году
-        const visitYears = cityData.visit_years || [];
-        const hasVisitInYear = visitYears.includes(year);
-
-        if (hasVisitInYear) {
-            // Показываем город
-            if (!map.hasLayer(marker)) {
-                marker.addTo(map);
+    // Создаём Map для быстрого доступа к данным городов подписок по ID
+    // Важно: один город может быть посещён несколькими подписчиками, поэтому собираем все годы посещений
+    const subscriptionCitiesMap = new Map();
+    const subscriptionCitiesDataMap = new Map(); // Полные данные о городах подписок (первый объект для каждого города)
+    if (actions.subscriptionCities) {
+        actions.subscriptionCities.forEach((city) => {
+            if (!subscriptionCitiesMap.has(city.id)) {
+                subscriptionCitiesMap.set(city.id, {
+                    id: city.id,
+                    visit_years: []
+                });
+                // Сохраняем первый объект города для получения полных данных
+                subscriptionCitiesDataMap.set(city.id, city);
             }
-            visibleMarkers.push(marker);
-        } else {
-            // Скрываем город
+            // Добавляем годы посещений из текущего объекта
+            if (city.visit_years && Array.isArray(city.visit_years)) {
+                city.visit_years.forEach((visitYear) => {
+                    const cityData = subscriptionCitiesMap.get(city.id);
+                    if (cityData && !cityData.visit_years.includes(visitYear)) {
+                        cityData.visit_years.push(visitYear);
+                    }
+                });
+            }
+        });
+    }
+
+    // Получаем информацию о пользователях, которые посещали города в выбранном году (один раз перед циклом)
+    const usersWhoVisitedCity = actions.getUsersWhoVisitedCity(year);
+
+    // Собираем все уникальные ID городов, которые нужно обработать
+    // Собираем из ownCities и subscriptionCities, а не из существующих маркеров
+    const allCityIds = new Set();
+    if (actions.ownCities) {
+        actions.ownCities.forEach((city) => {
+            allCityIds.add(city.id);
+        });
+    }
+    if (actions.subscriptionCities) {
+        actions.subscriptionCities.forEach((city) => {
+            allCityIds.add(city.id);
+        });
+    }
+
+    // Удаляем все существующие маркеры своих городов и городов подписок с карты
+    actions.stateOwnCities.forEach((marker, cityId) => {
+        if (map.hasLayer(marker)) {
+            map.removeLayer(marker);
+        }
+    });
+    if (actions.stateSubscriptionCities) {
+        actions.stateSubscriptionCities.forEach((marker, cityId) => {
             if (map.hasLayer(marker)) {
                 map.removeLayer(marker);
             }
+        });
+    }
+
+    // Очищаем словари маркеров
+    actions.stateOwnCities.clear();
+    actions.stateSubscriptionCities.clear();
+
+    // Пересоздаём маркеры с правильным типом в зависимости от того, кто посещал город в выбранном году
+    const visibleMarkers = [];
+
+    for (const cityId of allCityIds) {
+        const ownCityData = ownCitiesMap.get(cityId);
+        const subscriptionCityData = subscriptionCitiesMap.get(cityId);
+        const subscriptionCityFullData = subscriptionCitiesDataMap.get(cityId);
+
+        // Определяем, кто посещал город в выбранном году
+        const iVisitedInYear = ownCityData && ownCityData.visit_years && ownCityData.visit_years.includes(year);
+        const subscriptionVisitedInYear = subscriptionCityData && subscriptionCityData.visit_years && subscriptionCityData.visit_years.includes(year);
+
+        // Если никто не посещал город в выбранном году, пропускаем его
+        if (!iVisitedInYear && !subscriptionVisitedInYear) {
+            continue;
         }
-    });
+
+        let marker;
+        let city;
+
+        if (iVisitedInYear && subscriptionVisitedInYear) {
+            // Город посещён и мной, и подписчиком → маркер TOGETHER
+            city = new City();
+            city.id = cityId;
+            city.name = ownCityData.title;
+            city.region = ownCityData.region_title;
+            city.country = ownCityData.country;
+            city.lat = ownCityData.lat;
+            city.lon = ownCityData.lon;
+            city.visit_years = ownCityData.visit_years;
+            city.first_visit_date = ownCityData.first_visit_date;
+            city.last_visit_date = ownCityData.last_visit_date;
+            city.number_of_visits = ownCityData.number_of_visits;
+
+            // Получаем список пользователей с учётом выбранного года (используем предварительно полученный Map)
+            const users = usersWhoVisitedCity.get(cityId) || [];
+            marker = actions.addMarkerToMap(city, MarkerStyle.TOGETHER, users);
+            actions.stateSubscriptionCities.set(cityId, marker);
+        } else if (subscriptionVisitedInYear) {
+            // Город посещён только подписчиком → маркер SUBSCRIPTION
+            if (!subscriptionCityFullData) {
+                continue; // Пропускаем, если нет данных о городе подписок
+            }
+            city = new City();
+            city.id = cityId;
+            city.name = subscriptionCityFullData.title;
+            city.region = subscriptionCityFullData.region_title;
+            city.country = subscriptionCityFullData.country;
+            city.lat = subscriptionCityFullData.lat;
+            city.lon = subscriptionCityFullData.lon;
+            // Для городов подписок visit_years берём из ownCities по названию, если город есть там
+            const ownCityForSubscription = ownCitiesByName[city.name];
+            city.visit_years = ownCityForSubscription ? ownCityForSubscription.visit_years : undefined;
+            city.first_visit_date = ownCityForSubscription ? ownCityForSubscription.first_visit_date : undefined;
+            city.last_visit_date = ownCityForSubscription ? ownCityForSubscription.last_visit_date : undefined;
+            // Получаем number_of_visits из ownCityData, если город есть там
+            if (ownCityData) {
+                city.number_of_visits = ownCityData.number_of_visits;
+            }
+
+            // Получаем список пользователей с учётом выбранного года (используем предварительно полученный Map)
+            const users = usersWhoVisitedCity.get(cityId) || [];
+            marker = actions.addMarkerToMap(city, MarkerStyle.SUBSCRIPTION, users);
+            actions.stateSubscriptionCities.set(cityId, marker);
+        } else if (iVisitedInYear) {
+            // Город посещён только мной → маркер OWN
+            city = new City();
+            city.id = cityId;
+            city.name = ownCityData.title;
+            city.region = ownCityData.region_title;
+            city.country = ownCityData.country;
+            city.lat = ownCityData.lat;
+            city.lon = ownCityData.lon;
+            city.visit_years = ownCityData.visit_years;
+            city.first_visit_date = ownCityData.first_visit_date;
+            city.last_visit_date = ownCityData.last_visit_date;
+            city.number_of_visits = ownCityData.number_of_visits;
+
+            marker = actions.addMarkerToMap(city, MarkerStyle.OWN);
+            actions.stateOwnCities.set(cityId, marker);
+        }
+
+        if (marker) {
+            visibleMarkers.push(marker);
+        }
+    }
 
     // Перецентрируем карту по видимым городам
     if (visibleMarkers.length > 0) {

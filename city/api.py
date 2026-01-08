@@ -835,7 +835,6 @@ def get_visit_years(request: Request) -> Response:
     # Фильтруем по стране, если указан параметр country
     country_code = request.GET.get('country')
     if country_code:
-        print('\n\n\n', country_code, '\n\n\n')
         try:
             country = Country.objects.get(code=country_code)
             queryset = queryset.filter(city__country=country)

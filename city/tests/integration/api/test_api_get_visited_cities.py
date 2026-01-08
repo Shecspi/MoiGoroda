@@ -17,7 +17,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Type
 from unittest.mock import MagicMock, patch
 
@@ -102,11 +102,12 @@ def test_get_visited_cities_authenticated_user_gets_list(
     mock_city.city.region_id = 7
     mock_city.city.coordinate_width = '55.7558'
     mock_city.city.coordinate_longitude = '37.6173'
+    from datetime import date
     mock_city.date_of_visit = datetime(2024, 1, 15)
     mock_city.number_of_visits = 3
     mock_city.first_visit_date = '2022-06-01'
     mock_city.last_visit_date = '2024-01-15'
-    mock_city.visit_years = [2024]
+    mock_city.visit_dates = [date(2024, 1, 15)]  # Добавляем visit_dates для сериализатора
     mock_city.average_rating = 4.5
 
     mock_queryset = MagicMock()
@@ -162,7 +163,7 @@ def test_get_visited_cities_multiple_cities(
     mock_city_1.number_of_visits = 1
     mock_city_1.first_visit_date = '2020-01-01'
     mock_city_1.last_visit_date = '2020-01-01'
-    mock_city_1.visit_years = [2020]
+    mock_city_1.visit_dates = [date(2020, 1, 1)]  # Добавляем visit_dates для сериализатора
     mock_city_1.average_rating = 3.0
 
     mock_city_2 = MagicMock()
@@ -177,7 +178,7 @@ def test_get_visited_cities_multiple_cities(
     mock_city_2.number_of_visits = 2
     mock_city_2.first_visit_date = '2021-06-15'
     mock_city_2.last_visit_date = '2021-06-15'
-    mock_city_2.visit_years = [2021]
+    mock_city_2.visit_dates = [date(2021, 6, 15)]  # Добавляем visit_dates для сериализатора
     mock_city_2.average_rating = 4.0
 
     mock_get_unique_visited_cities.return_value = [mock_city_1, mock_city_2]
@@ -357,7 +358,7 @@ def test_get_visited_cities_logs_successful_request(
     mock_city.number_of_visits = 1
     mock_city.first_visit_date = '2024-01-01'
     mock_city.last_visit_date = '2024-01-01'
-    mock_city.visit_years = [2024]
+    mock_city.visit_dates = [date(2024, 1, 1)]  # Добавляем visit_dates для сериализатора
     mock_city.average_rating = 4.0
 
     mock_get_unique_visited_cities.return_value = [mock_city]

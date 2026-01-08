@@ -227,7 +227,7 @@ function updateNotVisitedCitiesButtonState() {
 
     // Проверяем, выбрана ли конкретная страна
     const countrySelect = document.getElementById('id_country');
-    const hasCountrySelected = countrySelect && countrySelect.value && countrySelect.value !== '';
+    const hasCountrySelected = countrySelect && countrySelect.value && countrySelect.value !== '' && countrySelect.value !== 'all';
 
     // Проверяем, показаны ли города подписок (есть ли маркеры на карте)
     const hasSubscriptionCitiesShown = actions.stateSubscriptionCities && 

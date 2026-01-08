@@ -146,6 +146,14 @@ export class ToolbarActions {
             if (this.elementShowNotVisitedCities.dataset.type === 'hide') {
                 this.addNotVisitedCitiesOnMap();
             }
+
+            // Применяем фильтр по годам, если он выбран
+            const yearSelect = document.getElementById('id_year_filter');
+            if (yearSelect && typeof window.filterCitiesByYear === 'function') {
+                const selectedYear = yearSelect.value || '';
+                const filterValue = selectedYear === 'all' ? '' : selectedYear;
+                window.filterCitiesByYear(filterValue);
+            }
         } else {
             const element = document.getElementById('toast_validation_error');
             const toast = new bootstrap.Toast(element);
@@ -241,7 +249,7 @@ export class ToolbarActions {
          * удаляется из stateOwnCities и помещается в stateSubscriptionCities.
          * @param year Необязательный параметр, указывающий за какой год нужно добавлять города на карту
          */
-        let usersWhoVisitedCity = this.getUsersWhoVisitedCity();
+        let usersWhoVisitedCity = this.getUsersWhoVisitedCity(year);
 
         // Объект, содержащий даты посещения городов пользователя, который просматривает страницу.
         // Нужен для того, чтобы в балун вставлять корректные даты, а не даты посещения того, на кого подписан.
@@ -361,8 +369,23 @@ export class ToolbarActions {
          * Добавляет к маркеру окно, открывающееся по клику на него, в котором содержится
          * дополнительная информация о городе.
          *
+         * Если users не передан, получает список пользователей с учётом текущего фильтра по годам.
+         *
          * Возвращает созданный маркер.
          */
+        // Если users не передан, получаем список пользователей с учётом текущего фильтра по годам
+        if (users === undefined) {
+            const yearSelect = document.getElementById('id_year_filter');
+            let selectedYear = undefined;
+            if (yearSelect && yearSelect.value && yearSelect.value !== 'all') {
+                selectedYear = parseInt(yearSelect.value, 10);
+                if (isNaN(selectedYear)) {
+                    selectedYear = undefined;
+                }
+            }
+            const usersMap = this.getUsersWhoVisitedCity(selectedYear);
+            users = usersMap.get(city.id) || [];
+        }
         let icon;
         let zIndexOffset;
 
@@ -396,17 +419,34 @@ export class ToolbarActions {
         const visit_years = city.visit_years ? city.visit_years : undefined;
         const number_of_visits = city.number_of_visits;
 
+        // Получаем текущий выбранный год из фильтра для отображения в статусе
+        const getSelectedYear = () => {
+            const yearSelect = document.getElementById('id_year_filter');
+            if (yearSelect && yearSelect.value && yearSelect.value !== 'all') {
+                const year = parseInt(yearSelect.value, 10);
+                if (!isNaN(year)) {
+                    return year;
+                }
+            }
+            return null;
+        };
+
         // Вспомогательная функция для генерации контента информации о посещениях
         // Смешанный вариант: компактность и горизонтальное расположение (вариант 2) + иконки (вариант 3) + бейджики для дат (вариант 5)
         const generateVisitInfo = () => {
             let info = '';
+            const selectedYear = getSelectedYear();
+            const statusText = selectedYear 
+                ? `Вы не были в этом городе в ${selectedYear} году`
+                : 'Вы не были в этом городе';
+            
             if (marker_style === MarkerStyle.SUBSCRIPTION) {
                 info += `<div class="flex items-center justify-between gap-2 text-sm">`;
                 info += `<div class="flex items-center gap-2">`;
                 info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
                 info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
                 info += `</div>`;
-                info += `<span class="text-gray-900 dark:text-white">Вы не были в этом городе</span>`;
+                info += `<span class="text-gray-900 dark:text-white">${statusText}</span>`;
                 info += `</div>`;
                 
                 info += `<div class="flex items-center justify-between gap-2 text-sm">`;
@@ -458,12 +498,16 @@ export class ToolbarActions {
                 info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${number_of_visits}</span>`;
                 info += `</div>`;
             } else if (marker_style === MarkerStyle.NOT_VISITED) {
+                const selectedYear = getSelectedYear();
+                const statusText = selectedYear 
+                    ? `Вы не были в этом городе в ${selectedYear} году`
+                    : 'Вы не были в этом городе';
                 info += `<div class="flex items-center justify-between gap-2 text-sm">`;
                 info += `<div class="flex items-center gap-2">`;
                 info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
                 info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
                 info += `</div>`;
-                info += `<span class="text-gray-900 dark:text-white">Вы не были в этом городе</span>`;
+                info += `<span class="text-gray-900 dark:text-white">${statusText}</span>`;
                 info += `</div>`;
             } else {
                 if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
@@ -598,7 +642,16 @@ export class ToolbarActions {
 
             // Добавляем новую метку на карту
             this.ownCities.push(city);
-            let usersWhoVisitedCity = this.getUsersWhoVisitedCity();
+            // Получаем текущий выбранный год из фильтра
+            const yearSelect = document.getElementById('id_year_filter');
+            let selectedYear = undefined;
+            if (yearSelect && yearSelect.value && yearSelect.value !== 'all') {
+                selectedYear = parseInt(yearSelect.value, 10);
+                if (isNaN(selectedYear)) {
+                    selectedYear = undefined;
+                }
+            }
+            let usersWhoVisitedCity = this.getUsersWhoVisitedCity(selectedYear);
             let new_marker = this.addMarkerToMap(
                 city,
                 MarkerStyle.TOGETHER,
@@ -648,15 +701,50 @@ export class ToolbarActions {
         }
     }
 
-    getUsersWhoVisitedCity() {
+    getUsersWhoVisitedCity(year) {
+        /**
+         * Возвращает Map, где ключ - ID города, значение - массив имён пользователей, которые посещали город.
+         * Если указан year, возвращаются только те пользователи, которые посещали город в указанном году.
+         * @param {number|undefined} year - Год для фильтрации (опционально)
+         * @returns {Map<number, string[]>}
+         */
         let usersWhoVisitedCity = new Map();
+
+        // Получаем данные о своих городах для проверки, посещал ли пользователь город в выбранном году
+        const ownCitiesMap = new Map();
+        if (this.ownCities) {
+            this.ownCities.forEach((city) => {
+                ownCitiesMap.set(city.id, city);
+            });
+        }
 
         for (let i = 0; i < (this.subscriptionCities.length); i++) {
             let city = this.subscriptionCities[i];
+            
+            // Если указан год, проверяем, был ли этот город посещён в указанном году
+            if (year !== undefined) {
+                const cityVisitYears = city.visit_years || [];
+                if (!cityVisitYears.includes(year)) {
+                    continue; // Пропускаем, если город не был посещён в указанном году
+                }
+            }
+
             if (!usersWhoVisitedCity.has(city.id)) {
-                usersWhoVisitedCity.set(city.id, [])
-                if (this.stateOwnCities.has(city.id)) {
-                    usersWhoVisitedCity.get(city.id).push('Вы');
+                usersWhoVisitedCity.set(city.id, []);
+                
+                // Добавляем "Вы" если пользователь посещал город
+                // Если год указан, проверяем по visit_years, иначе просто проверяем наличие города в ownCities
+                const ownCityData = ownCitiesMap.get(city.id);
+                if (ownCityData) {
+                    if (year !== undefined) {
+                        // Если год указан, проверяем, был ли город посещён в этом году
+                        if (ownCityData.visit_years && ownCityData.visit_years.includes(year)) {
+                            usersWhoVisitedCity.get(city.id).push('Вы');
+                        }
+                    } else {
+                        // Если год не указан, добавляем "Вы" если город есть в ownCities
+                        usersWhoVisitedCity.get(city.id).push('Вы');
+                    }
                 }
             }
             usersWhoVisitedCity.get(city.id).push(city.username);

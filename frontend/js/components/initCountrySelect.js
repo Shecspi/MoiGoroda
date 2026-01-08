@@ -86,6 +86,12 @@ export async function initCountrySelect({
     // Обработка выбора
     countrySelect.addEventListener('change', (event) => {
         const selectedValue = event.target.value;
+        
+        // Обновляем состояние кнопки "Показать непосещённые города" перед редиректом
+        if (typeof window.updateNotVisitedCitiesButtonState === 'function') {
+            window.updateNotVisitedCitiesButtonState();
+        }
+        
         const query = new URLSearchParams(window.location.search);
         if (selectedValue) {
             query.set(urlParamName, selectedValue);

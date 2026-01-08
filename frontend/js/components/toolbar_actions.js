@@ -154,6 +154,11 @@ export class ToolbarActions {
                 const filterValue = selectedYear === 'all' ? '' : selectedYear;
                 window.filterCitiesByYear(filterValue);
             }
+            
+            // Обновляем состояние кнопки "Показать непосещённые города"
+            if (typeof window.updateNotVisitedCitiesButtonState === 'function') {
+                window.updateNotVisitedCitiesButtonState();
+            }
         } else {
             const element = document.getElementById('toast_validation_error');
             const toast = new bootstrap.Toast(element);

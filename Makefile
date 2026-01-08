@@ -74,7 +74,7 @@ lint:
 
 lint-mypy:
 	@printf "\033[0;32mПроверка типизации (mypy)...\033[0m\n"
-	poetry run mypy .
+	poetry run mypy . --no-incremental
 
 lint-ruff:
 	@printf "\033[0;32mПроверка кода (ruff check)...\033[0m\n"

@@ -68,7 +68,42 @@ window.onload = async () => {
             map.fitBounds(group.getBounds());
         }
 
-        initAddCityForm(actions);
+        initAddCityForm(actions, async (city) => {
+            // После успешного добавления города обновляем данные о посещённых городах
+            // и список годов, если это первое посещение в этом году
+            // Передаём данные добавленного города для локального обновления без запроса к серверу
+            updateVisitedCitiesData(city);
+            
+            // Удаляем маркер непосещённого города, если он был отображён
+            // Это необходимо, чтобы старый маркер не оставался на карте
+            if (city && city.id && actions && actions.stateNotVisitedCities) {
+                const notVisitedMarker = actions.stateNotVisitedCities.get(city.id);
+                if (notVisitedMarker) {
+                    actions.stateNotVisitedCities.delete(city.id);
+                    if (map.hasLayer(notVisitedMarker)) {
+                        map.removeLayer(notVisitedMarker);
+                    }
+                }
+            }
+            
+            // Используем date_of_visit, так как это дата именно добавленного посещения
+            if (city && city.date_of_visit) {
+                const visitDate = new Date(city.date_of_visit);
+                if (!isNaN(visitDate.getTime())) {
+                    const visitYear = visitDate.getFullYear();
+                    await updateYearFilterIfNeeded(visitYear);
+                }
+            }
+            
+            // Всегда применяем текущий фильтр по годам после обновления данных
+            // Это необходимо для отображения нового города, если он соответствует фильтру
+            const yearSelect = document.getElementById('id_year_filter');
+            if (yearSelect) {
+                const selectedValue = yearSelect.value || '';
+                const filterValue = selectedValue === 'all' ? '' : selectedValue;
+                filterCitiesByYear(filterValue);
+            }
+        });
     } catch (error) {
         console.error('Ошибка при загрузке посещённых городов:', error);
     }
@@ -266,6 +301,176 @@ async function initYearFilter() {
         });
         
         // Компонент остаётся в disabled состоянии
+    }
+}
+
+/**
+ * Обновляет данные о посещённых городах после добавления нового посещения.
+ * Использует данные из ответа API без дополнительных запросов к серверу.
+ * @param {Object} addedCity - Данные о добавленном городе из API ответа
+ */
+function updateVisitedCitiesData(addedCity) {
+    if (!actions || !actions.ownCities || !addedCity) {
+        return;
+    }
+
+    // В объекте city из callback поле id содержит ID города (data.city.city)
+    const cityId = addedCity.id;
+    if (!cityId) {
+        return;
+    }
+
+    const existingCityIndex = actions.ownCities.findIndex(c => c.id === cityId);
+
+    if (existingCityIndex !== -1) {
+        // Город уже есть в списке - обновляем локально
+        const existingCity = actions.ownCities[existingCityIndex];
+        
+        // Обновляем количество посещений
+        if (addedCity.number_of_visits !== undefined) {
+            existingCity.number_of_visits = addedCity.number_of_visits;
+        }
+        
+        // Обновляем даты посещений
+        if (addedCity.first_visit_date) {
+            existingCity.first_visit_date = addedCity.first_visit_date;
+        }
+        if (addedCity.last_visit_date) {
+            existingCity.last_visit_date = addedCity.last_visit_date;
+        }
+        
+        // Добавляем новый год в visit_years, если его там ещё нет
+        if (addedCity.date_of_visit) {
+            const visitDate = new Date(addedCity.date_of_visit);
+            if (!isNaN(visitDate.getTime())) {
+                const visitYear = visitDate.getFullYear();
+                if (!existingCity.visit_years) {
+                    existingCity.visit_years = [];
+                }
+                if (!existingCity.visit_years.includes(visitYear)) {
+                    existingCity.visit_years.push(visitYear);
+                    // Сортируем годы по убыванию для консистентности
+                    existingCity.visit_years.sort((a, b) => b - a);
+                }
+            }
+        }
+    } else {
+        // Города нет в списке - добавляем новый город с данными из API
+        // Вычисляем visit_years из date_of_visit
+        let visit_years = null;
+        if (addedCity.date_of_visit) {
+            const visitDate = new Date(addedCity.date_of_visit);
+            if (!isNaN(visitDate.getTime())) {
+                visit_years = [visitDate.getFullYear()];
+            }
+        }
+
+        const newCity = {
+            id: cityId,
+            title: addedCity.name, // В объекте city из callback используется name, а не city_title
+            region_title: addedCity.region, // В объекте city используется region, а не region_title
+            country: addedCity.country,
+            lat: addedCity.lat,
+            lon: addedCity.lon,
+            number_of_visits: addedCity.number_of_visits || 1,
+            first_visit_date: addedCity.first_visit_date,
+            last_visit_date: addedCity.last_visit_date,
+            visit_years: visit_years,
+            average_rating: null, // В объекте city из callback нет поля rating напрямую
+        };
+
+        actions.ownCities.push(newCity);
+    }
+}
+
+/**
+ * Обновляет список годов в фильтре, если указанный год отсутствует.
+ * Вызывается после добавления города для обновления списка годов.
+ * @param {number} year - Год для добавления в список
+ */
+async function updateYearFilterIfNeeded(year) {
+    const yearSelect = document.getElementById('id_year_filter');
+    if (!yearSelect) {
+        return;
+    }
+
+    // Проверяем, есть ли уже этот год в списке опций
+    const existingOptions = Array.from(yearSelect.options);
+    const yearExists = existingOptions.some(option => {
+        const optionValue = option.value;
+        return optionValue === String(year) || optionValue === year;
+    });
+
+    // Если год уже есть, ничего не делаем
+    if (yearExists) {
+        return;
+    }
+
+    // Получаем текущий выбранный код страны из URL для фильтрации
+    const countryCode = selectedCountryCode;
+
+    try {
+        // Формируем URL для запроса годов
+        let url = '/api/city/visit_years';
+        if (countryCode) {
+            url += `?country=${countryCode}`;
+        }
+
+        // Загружаем актуальный список годов через API
+        const response = await fetch(url);
+        if (!response.ok) {
+            return; // Если ошибка, просто выходим без обновления
+        }
+        const data = await response.json();
+        const years = data.years || [];
+
+        // Очищаем существующие опции и добавляем "Все годы"
+        yearSelect.textContent = '';
+        const allYearsOption = document.createElement('option');
+        allYearsOption.value = 'all';
+        allYearsOption.textContent = 'Все годы';
+        yearSelect.appendChild(allYearsOption);
+
+        // Добавляем опции годов
+        years.forEach((yearOption) => {
+            const option = document.createElement('option');
+            option.value = yearOption;
+            option.textContent = yearOption;
+            yearSelect.appendChild(option);
+        });
+
+        // Обновляем data-hs-select для изменения placeholder
+        const dataHsSelect = yearSelect.getAttribute('data-hs-select');
+        if (dataHsSelect) {
+            try {
+                const config = JSON.parse(dataHsSelect);
+                config.placeholder = 'Все годы';
+                yearSelect.setAttribute('data-hs-select', JSON.stringify(config));
+            } catch (e) {
+                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
+            }
+        }
+
+        // Если компонент уже был инициализирован, переинициализируем его
+        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
+        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
+            hsSelectInstance.destroy();
+        }
+        
+        // Переинициализируем компонент с новыми опциями
+        requestAnimationFrame(() => {
+            if (window.HSSelect) {
+                try {
+                    new window.HSSelect('#id_year_filter');
+                } catch (e) {
+                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                        window.HSStaticMethods.autoInit();
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Ошибка при обновлении списка годов:', error);
     }
 }
 

@@ -103,6 +103,7 @@ def test_get_visited_cities_authenticated_user_gets_list(
     mock_city.city.coordinate_width = '55.7558'
     mock_city.city.coordinate_longitude = '37.6173'
     from datetime import date
+
     mock_city.date_of_visit = datetime(2024, 1, 15)
     mock_city.number_of_visits = 3
     mock_city.first_visit_date = '2022-06-01'

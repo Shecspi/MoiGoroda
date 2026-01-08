@@ -69,8 +69,12 @@ window.onload = async () => {
     await initCountrySelect();
     await initYearFilter();
 
-    // Делаем функцию фильтрации доступной глобально для вызова из других модулей
+    // Делаем функции доступными глобально для вызова из других модулей
     window.filterCitiesByYear = filterCitiesByYear;
+    window.updateNotVisitedCitiesButtonState = updateNotVisitedCitiesButtonState;
+    
+    // Обновляем состояние кнопки "Показать непосещённые города" при загрузке
+    updateNotVisitedCitiesButtonState();
 }
 
 /**
@@ -205,6 +209,42 @@ async function initYearFilter() {
 }
 
 /**
+ * Обновляет состояние кнопки "Показать непосещённые города".
+ * Кнопка активна только если:
+ * - Выбрана конкретная страна (не "все страны")
+ * - Не показаны города подписчиков
+ * - Не применена фильтрация по годам
+ */
+function updateNotVisitedCitiesButtonState() {
+    if (!actions) {
+        return;
+    }
+
+    const btn = document.getElementById('btn_show-not-visited-cities');
+    if (!btn) {
+        return;
+    }
+
+    // Проверяем, выбрана ли конкретная страна
+    const countrySelect = document.getElementById('id_country');
+    const hasCountrySelected = countrySelect && countrySelect.value && countrySelect.value !== '';
+
+    // Проверяем, показаны ли города подписок (есть ли маркеры на карте)
+    const hasSubscriptionCitiesShown = actions.stateSubscriptionCities && 
+        actions.stateSubscriptionCities.size > 0 &&
+        Array.from(actions.stateSubscriptionCities.values()).some(marker => map.hasLayer(marker));
+
+    // Проверяем, применена ли фильтрация по годам
+    const yearSelect = document.getElementById('id_year_filter');
+    const hasYearFilter = yearSelect && yearSelect.value && yearSelect.value !== '' && yearSelect.value !== 'all';
+
+    // Кнопка активна только если все условия выполнены
+    const shouldBeEnabled = hasCountrySelected && !hasSubscriptionCitiesShown && !hasYearFilter;
+
+    btn.disabled = !shouldBeEnabled;
+}
+
+/**
  * Фильтрует города на карте по выбранному году.
  * @param {string} selectedYear - Выбранный год (пустая строка для показа всех городов)
  */
@@ -302,6 +342,9 @@ function filterCitiesByYear(selectedYear) {
             const group = new L.featureGroup(allMarkers);
             map.fitBounds(group.getBounds());
         }
+        
+        // Обновляем состояние кнопки "Показать непосещённые города"
+        updateNotVisitedCitiesButtonState();
         return;
     }
 
@@ -481,4 +524,7 @@ function filterCitiesByYear(selectedYear) {
         const group = new L.featureGroup(visibleMarkers);
         map.fitBounds(group.getBounds());
     }
+    
+    // Обновляем состояние кнопки "Показать непосещённые города"
+    updateNotVisitedCitiesButtonState();
 }

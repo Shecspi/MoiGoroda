@@ -48,8 +48,6 @@ export class ToolbarActions {
         this.elementShowSubscriptionCities = document.getElementById('btn_show-subscriptions-cities');
         this.elementShowPlaces = document.getElementById('btn_show-places');
         this.elementShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
-        this.elementShowVisitedCitiesPreviousYear = document.getElementById('btn_show-visited-cities-previous-year');
-        this.elementShowVisitedCitiesCurrentYear = document.getElementById('btn_show-visited-cities-current-year');
 
         this.set_handlers();
     }
@@ -57,9 +55,6 @@ export class ToolbarActions {
     set_handlers() {
         this.elementShowSubscriptionCities.addEventListener('click', () => {
             this.showSubscriptionCities();
-
-            this.setButtonState(this.elementShowVisitedCitiesPreviousYear, false);
-            this.setButtonState(this.elementShowVisitedCitiesCurrentYear, false);
         });
 
         this.elementShowPlaces.addEventListener('click', () => {
@@ -79,35 +74,6 @@ export class ToolbarActions {
             } else {
                 this.hideNotVisitedCities();
                 this.setButtonState(this.elementShowNotVisitedCities, false);
-            }
-        })
-
-        this.elementShowVisitedCitiesPreviousYear.addEventListener('click', () => {
-            if (this.elementShowVisitedCitiesPreviousYear.dataset.type === 'show') {
-                this.showVisitedCitiesPreviousYear();
-                this.setButtonState(this.elementShowVisitedCitiesPreviousYear, true);
-                this.setButtonState(this.elementShowNotVisitedCities, false);
-                this.disableButton(this.elementShowNotVisitedCities, true);
-                this.setButtonState(this.elementShowVisitedCitiesCurrentYear, false);
-            } else {
-                this.hideVisitedCitiesPreviousYear();
-                this.setButtonState(this.elementShowVisitedCitiesPreviousYear, false);
-                this.disableButton(this.elementShowNotVisitedCities, false);
-            }
-        });
-
-        this.elementShowVisitedCitiesCurrentYear.addEventListener('click', () => {
-            if (this.elementShowVisitedCitiesCurrentYear.dataset.type === 'show') {
-                this.showVisitedCitiesCurrentYear();
-
-                this.setButtonState(this.elementShowVisitedCitiesCurrentYear, true);
-                this.setButtonState(this.elementShowNotVisitedCities, false);
-                this.disableButton(this.elementShowNotVisitedCities, true);
-                this.setButtonState(this.elementShowVisitedCitiesPreviousYear, false);
-            } else {
-                this.hideVisitedCitiesCurrentYear();
-                this.setButtonState(this.elementShowVisitedCitiesCurrentYear, false);
-                this.disableButton(this.elementShowNotVisitedCities, false);
             }
         });
     }
@@ -260,50 +226,6 @@ export class ToolbarActions {
         this.allPlaceMarkers.forEach(marker => {
             this.myMap.removeLayer(marker);
         });
-    }
-
-    showVisitedCitiesPreviousYear() {
-        this.removeOwnMarkers();
-        this.removeSubscriptionMarkers();
-        this.removeNotVisitedMarkers();
-        this.stateOwnCities.clear();
-        this.stateSubscriptionCities.clear();
-
-        this.addOwnCitiesOnMap(new Date().getFullYear() - 1);
-        this.addSubscriptionsCitiesOnMap(new Date().getFullYear() - 1);
-    }
-
-    showVisitedCitiesCurrentYear() {
-        this.removeOwnMarkers();
-        this.removeSubscriptionMarkers();
-        this.removeNotVisitedMarkers();
-        this.stateOwnCities.clear();
-        this.stateSubscriptionCities.clear();
-
-        this.addOwnCitiesOnMap(new Date().getFullYear());
-        this.addSubscriptionsCitiesOnMap(new Date().getFullYear());
-    }
-
-    hideVisitedCitiesPreviousYear() {
-        this.removeOwnMarkers();
-        this.removeSubscriptionMarkers();
-        this.removeNotVisitedMarkers();
-        this.stateOwnCities.clear();
-        this.stateSubscriptionCities.clear();
-
-        this.addOwnCitiesOnMap();
-        this.addSubscriptionsCitiesOnMap();
-    }
-
-    hideVisitedCitiesCurrentYear() {
-        this.removeOwnMarkers();
-        this.removeSubscriptionMarkers();
-        this.removeNotVisitedMarkers();
-        this.stateOwnCities.clear();
-        this.stateSubscriptionCities.clear();
-
-        this.addOwnCitiesOnMap();
-        this.addSubscriptionsCitiesOnMap();
     }
 
     hideNotVisitedCities() {

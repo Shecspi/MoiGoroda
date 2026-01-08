@@ -630,15 +630,15 @@ export class ToolbarActions {
         const id = city.id;
 
         if (this.stateNotVisitedCities.has(id)) {
-            // Удаляем метку на карте и в глобальном состоянии
-            let marker = this.stateNotVisitedCities.get(id);
+            // Удаляем метку непосещённого города на карте и в глобальном состоянии
+            let oldMarker = this.stateNotVisitedCities.get(id);
             this.stateNotVisitedCities.delete(id);
-            this.myMap.removeLayer(marker);
+            this.myMap.removeLayer(oldMarker);
 
-            // Добавляем новую метку на карту
-            this.ownCities.push(city);
-            this.stateOwnCities.set(id, marker);
-            this.addMarkerToMap(city, MarkerStyle.OWN);
+            // Добавляем новый маркер посещённого города на карту
+            // Не используем старый маркер, создаём новый с правильным стилем
+            const newMarker = this.addMarkerToMap(city, MarkerStyle.OWN);
+            this.stateOwnCities.set(id, newMarker);
         } else if (this.stateSubscriptionCities.has(id)) {
             // Удаляем старую метку на карте и в глобальном состоянии
             let old_marker = this.stateSubscriptionCities.get(id);

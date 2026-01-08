@@ -38,24 +38,60 @@
         {% endif %}
     </div>
 
-    <div class="hs-tooltip [--placement:top] relative inline-block grow basis-full self-center md:basis-auto md:min-w-[240px] z-10">
+    <div class="hs-tooltip [--placement:top] relative inline-block grow basis-full self-center md:basis-auto md:min-w-[280px] z-10">
         <div class="hs-tooltip-toggle relative w-full">
-            <select class="block w-full rounded-xl border border-gray-200 bg-white py-2 pe-10 ps-4 text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
-                    id="id_country"></select>
-            <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500">
-                <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </span>
+            <select id="id_country"
+                    disabled
+                    class="hidden disabled:opacity-50 disabled:pointer-events-none"
+                    data-hs-select='{
+                        "hasSearch": true,
+                        "searchPlaceholder": "Поиск...",
+                        "searchClasses": "block w-full sm:text-sm border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none before:absolute before:inset-0 before:z-1 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 py-1.5 sm:py-2 px-3",
+                        "searchWrapperClasses": "bg-white p-2 -mx-1 sticky top-0 dark:bg-neutral-900",
+                        "placeholder": "Загрузка...",
+                        "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"text-gray-800 dark:text-neutral-200\" data-title></span></button>",
+                        "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:outline-hidden dark:focus:ring-1 dark:focus:ring-neutral-600",
+                        "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-20 w-full bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 dark:bg-neutral-900 dark:border-neutral-700",
+                        "optionClasses": "py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:text-neutral-200 dark:focus:bg-neutral-800 whitespace-nowrap",
+                        "optionTemplate": "<div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div><div class=\"text-sm text-gray-800 dark:text-neutral-200\" data-title></div></div><div class=\"ms-auto\"><span class=\"hidden\"><svg class=\"shrink-0 size-4 text-blue-600 dark:text-blue-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\"><path d=\"M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z\"/></svg></span></div></div>",
+                        "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-neutral-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
+                    }'>
+                <option value="">Загрузка...</option>
+            </select>
         </div>
         <span class="hs-tooltip-content" role="tooltip">
             Выберите страну для фильтрации городов на карте
         </span>
     </div>
 
+    {% if user.is_authenticated %}
+        <div class="hs-tooltip [--placement:top] z-[40] relative inline-block basis-full self-center sm:basis-auto sm:min-w-[200px] sm:order-2">
+            <div class="hs-tooltip-toggle relative w-full">
+                <select
+                    id="id_year_filter"
+                    disabled
+                    class="hidden disabled:opacity-50 disabled:pointer-events-none"
+                    data-hs-select='{
+                        "placeholder": "Загрузка...",
+                        "toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
+                        "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:outline-hidden dark:focus:ring-1 dark:focus:ring-neutral-600",
+                        "dropdownClasses": "mt-2 z-50 w-full max-h-72 p-1 space-y-0.5 bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 dark:bg-neutral-900 dark:border-neutral-700",
+                        "optionClasses": "py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:text-neutral-200 dark:focus:bg-neutral-800",
+                        "optionTemplate": "<div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div><div class=\"text-sm text-gray-800 dark:text-neutral-200\" data-title></div></div><div class=\"ms-auto\"><span class=\"hidden\"><svg class=\"shrink-0 size-4 text-blue-600 dark:text-blue-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\"><path d=\"M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z\"/></svg></span></div></div>",
+                        "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-neutral-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
+                    }'>
+                    <option value="">Загрузка...</option>
+                </select>
+            </div>
+            <span class="hs-tooltip-content" role="tooltip">
+                Выберите год для фильтрации городов на карте
+            </span>
+        </div>
+    {% endif %}
+
     <!-- Помощь -->
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
+        <button class="hs-tooltip-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
                 id="btn_help"
                 data-hs-overlay="#helpModal">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,43 +105,10 @@
     </div>
     <!-- ^^^ Помощь -->
 
-    <!-- В прошлом году -->
-    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 text-blue-500 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-40 dark:border-blue-500/40 dark:text-blue-300 dark:hover:bg-blue-500/10 data-[type=hide]:bg-blue-600 data-[type=hide]:text-white data-[type=hide]:border-blue-600 data-[type=hide]:hover:bg-blue-600 data-[type=hide]:focus:ring-blue-400 data-[type=hide]:shadow-md data-[type=hide]:shadow-blue-500/30 dark:data-[type=hide]:border-blue-400 dark:data-[type=hide]:text-white dark:data-[type=hide]:bg-blue-500/20 dark:data-[type=hide]:hover:bg-blue-500/30"
-                id="btn_show-visited-cities-previous-year"
-                data-type="show"
-                {% if qty_of_visited_cities == 0 %}disabled{% endif %}>
-            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-        </button>
-        <span class="hs-tooltip-content" role="tooltip">
-            Показать города, которые Вы посетили в прошлом году
-        </span>
-    </div>
-    <!-- ^^^ В прошлом году -->
-
-    <!-- В этом году -->
-    <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-300 disabled:opacity-40 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10 data-[type=hide]:bg-emerald-600 data-[type=hide]:text-white data-[type=hide]:border-emerald-600 data-[type=hide]:hover:bg-emerald-600 data-[type=hide]:focus:ring-emerald-400 data-[type=hide]:shadow-md data-[type=hide]:shadow-emerald-500/30 dark:data-[type=hide]:border-emerald-400 dark:data-[type=hide]:text-white dark:data-[type=hide]:bg-emerald-500/20 dark:data-[type=hide]:hover:bg-emerald-500/30"
-                id="btn_show-visited-cities-current-year"
-                data-type="show"
-                {% if qty_of_visited_cities == 0 %}disabled{% endif %}>
-            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-        </button>
-        <span class="hs-tooltip-content" role="tooltip">
-            Показать города, которые Вы посетили в этом году
-        </span>
-    </div>
-    <!-- ^^^ В этом году -->
-
     <!-- Показать маркеры посещённых мест -->
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-200 text-sky-600 transition hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-sky-500/40 dark:text-sky-300 dark:hover:bg-sky-500/10 data-[type=hide]:bg-sky-600 data-[type=hide]:text-white data-[type=hide]:border-sky-600 data-[type=hide]:hover:bg-sky-600 data-[type=hide]:focus:ring-sky-400 data-[type=hide]:shadow-md data-[type=hide]:shadow-sky-500/30 dark:data-[type=hide]:border-sky-400 dark:data-[type=hide]:text-white dark:data-[type=hide]:bg-sky-500/20 dark:data-[type=hide]:hover:bg-sky-500/30"
-                id="btn_show-places"
-                data-type="show">
+        <button class="hs-tooltip-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-blue-600 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-blue-500 transition-colors"
+                id="btn_show-places">
             <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
             </svg>
@@ -118,7 +121,7 @@
 
     <!-- Показать непосещённые города -->
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-200 text-rose-600 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-300 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10 data-[type=hide]:bg-rose-600 data-[type=hide]:text-white data-[type=hide]:border-rose-600 data-[type=hide]:hover:bg-rose-600 data-[type=hide]:focus:ring-rose-400 data-[type=hide]:shadow-md data-[type=hide]:shadow-rose-500/30 dark:data-[type=hide]:border-rose-400 dark:data-[type=hide]:text-white dark:data-[type=hide]:bg-rose-500/20 dark:data-[type=hide]:hover:bg-rose-500/30"
+        <button class="hs-tooltip-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-red-500 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
                 id="btn_show-not-visited-cities"
                 data-url="{% url 'api__get_not_visited_cities' %}{% if country_code %}?country={{ country_code }}{% endif %}"
                 data-type="show">
@@ -135,7 +138,7 @@
 
     <!-- Подписки -->
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-        <button class="hs-tooltip-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-amber-200 text-amber-600 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-300 disabled:opacity-40 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10"
+        <button class="hs-tooltip-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-yellow-600 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-yellow-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
                 id="btn_open_modal_with_subscriptions"
                 data-hs-overlay="#subscriptionsModal"
                 {% if not is_user_has_subscriptions %}disabled{% endif %}>
@@ -151,7 +154,7 @@
 
     <div class="hs-tooltip [--placement:top] relative inline-block self-center">
         <a href="{% url 'city-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-           class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
+           class="hs-tooltip-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-teal-600 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-teal-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
             <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
             </svg>

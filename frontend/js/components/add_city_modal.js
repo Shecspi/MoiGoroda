@@ -80,14 +80,14 @@ export function initAddCityForm(actions, onSuccess) {
                 city.number_of_visits = data.city.number_of_visits;
                 city.first_visit_date = data.city.first_visit_date;
                 city.last_visit_date = data.city.last_visit_date;
+                city.date_of_visit = data.city.date_of_visit;
                 city.number_of_users_who_visit_city = data.city.number_of_users_who_visit_city;
                 city.number_of_visits_all_users = data.city.number_of_visits_all_users;
 
                 const is_added_new_city = city.number_of_visits === 1;
 
-                if (actions && typeof actions.updateMarker === 'function') {
-                    actions.updateMarker(city);
-                }
+                // Обновление маркеров происходит в callback onSuccess через filterCitiesByYear
+                // Не вызываем updateMarker здесь, чтобы избежать дублирования маркеров
                 if (typeof onSuccess === 'function') {
                     onSuccess(city);
                 }

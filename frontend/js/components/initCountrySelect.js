@@ -1,6 +1,3 @@
-import Choices from "choices.js";
-import 'choices.js/public/assets/styles/choices.min.css';
-
 export async function initCountrySelect({
                                             selectId = 'id_country',
                                             apiUrl = '/api/country/list_by_cities',
@@ -14,73 +11,109 @@ export async function initCountrySelect({
     const countrySelect = document.getElementById(selectId);
     if (!countrySelect) return;
 
-    const choices = new Choices(countrySelect, {
-        searchEnabled: true,
-        shouldSort: false,
-        placeholderValue: 'Загрузка...',
-        noResultsText: 'Ничего не найдено',
-        noChoicesText: 'Нет доступных вариантов',
-        itemSelectText: '',
-        loadingText: 'Загрузка...',
+    // Убираем класс hidden перед инициализацией Preline UI
+    if (countrySelect.classList.contains('hidden')) {
+        countrySelect.classList.remove('hidden');
+    }
+
+    // Инициализируем Preline UI компонент с disabled состоянием
+    requestAnimationFrame(() => {
+        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+            window.HSStaticMethods.autoInit();
+        }
     });
-    choices.disable();
 
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error('Ошибка загрузки списка стран');
         const countries = await response.json();
 
-        const countryChoices = [];
+        // Очищаем существующие опции
+        countrySelect.textContent = '';
+
+        // Добавляем опцию "Все страны" первой, если нужно
+        if (showAllOption) {
+            const allOption = document.createElement('option');
+            allOption.value = 'all';
+            allOption.textContent = 'Все страны';
+            if (!selectedCountryCode) {
+                allOption.selected = true;
+            }
+            countrySelect.appendChild(allOption);
+        }
+
         let separatorAdded = false;
 
+        // Добавляем опции стран
         countries.forEach((country) => {
             if (!separatorAdded && country.number_of_visited_cities === 0) {
                 // Вставляем разделитель перед первой страной с 0 посещённых городов
-                countryChoices.push({
-                    value: '',
-                    label: 'Непосещённые страны', // или любой другой разделитель
-                    disabled: true,
-                });
+                const separatorOption = document.createElement('option');
+                separatorOption.value = '';
+                separatorOption.textContent = 'Непосещённые страны';
+                separatorOption.disabled = true;
+                countrySelect.appendChild(separatorOption);
                 separatorAdded = true;
             }
 
-            countryChoices.push({
-                value: country.code,
-                label: (country.number_of_visited_cities === undefined || country.number_of_cities === undefined)
-                    ? country.name
-                    : `${country.name} (${country.number_of_visited_cities} из ${country.number_of_cities})`,
-                selected: selectedCountryCode === country.code,
-                disabled: false,
-            });
+            const option = document.createElement('option');
+            option.value = country.code;
+            option.textContent = (country.number_of_visited_cities === undefined || country.number_of_cities === undefined)
+                ? country.name
+                : `${country.name} (${country.number_of_visited_cities} из ${country.number_of_cities})`;
+            if (selectedCountryCode === country.code) {
+                option.selected = true;
+            }
+            countrySelect.appendChild(option);
         });
 
-        // const countryChoices = countries.map((country) => ({
-        //     value: country.code,
-        //     label: `${country.name} (${country.number_of_visited_cities} из ${country.number_of_cities})`,
-        //     selected: selectedCountryCode === country.code,
-        //     disabled: false,
-        // }));
-
-        if (showAllOption) {
-            countryChoices.unshift({
-                value: '',
-                label: 'Все страны',
-                selected: !selectedCountryCode,
-                disabled: false,
-            });
+        // Обновляем placeholder в data-hs-select
+        const dataHsSelect = countrySelect.getAttribute('data-hs-select');
+        if (dataHsSelect) {
+            try {
+                const config = JSON.parse(dataHsSelect);
+                config.placeholder = showAllOption ? 'Все страны' : 'Выберите страну...';
+                countrySelect.setAttribute('data-hs-select', JSON.stringify(config));
+            } catch (e) {
+                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
+            }
         }
 
-        choices.setChoices(countryChoices, 'value', 'label', true);
-        choices.enable();
+        // Если компонент уже был инициализирован, переинициализируем его
+        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance(`#${selectId}`) : null;
+        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
+            hsSelectInstance.destroy();
+        }
+
+        // Убеждаемся, что select не скрыт перед переинициализацией
+        if (countrySelect.classList.contains('hidden')) {
+            countrySelect.classList.remove('hidden');
+        }
+
+        // Переинициализируем компонент с новыми опциями
+        // Используем двойной requestAnimationFrame для гарантии, что DOM обновлен
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                if (window.HSSelect) {
+                    try {
+                        new window.HSSelect(`#${selectId}`);
+                    } catch (e) {
+                        // Если не получилось, используем autoInit
+                        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                            window.HSStaticMethods.autoInit();
+                        }
+                    }
+                }
+            });
+        });
     } catch (error) {
         console.error(error);
-        choices.clearChoices();
-        choices.setChoices(
-            [{value: '', label: 'Ошибка загрузки', disabled: true}],
-            'value',
-            'label',
-            true
-        );
+        countrySelect.textContent = '';
+        const errorOption = document.createElement('option');
+        errorOption.value = '';
+        errorOption.textContent = 'Ошибка загрузки';
+        errorOption.disabled = true;
+        countrySelect.appendChild(errorOption);
     }
 
     // Обработка выбора
@@ -93,7 +126,8 @@ export async function initCountrySelect({
         }
         
         const query = new URLSearchParams(window.location.search);
-        if (selectedValue) {
+        // Если выбрано "all", удаляем параметр country из URL
+        if (selectedValue && selectedValue !== 'all') {
             query.set(urlParamName, selectedValue);
         } else {
             query.delete(urlParamName);

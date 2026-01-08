@@ -37,8 +37,23 @@ class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
         return None
 
     def get_visit_years(self, obj: VisitedCity) -> list[int] | None:
+        """
+        Возвращает список всех уникальных годов, в которые был посещён город.
+        Использует visit_dates из аннотации queryset, если доступно,
+        иначе fallback на date_of_visit текущей записи.
+        """
+        # Проверяем наличие visit_dates из аннотации queryset
+        visit_dates = getattr(obj, 'visit_dates', None)
+
+        if visit_dates:
+            # Извлекаем уникальные годы из всех дат посещений
+            years = sorted(set(date.year for date in visit_dates if date), reverse=True)
+            return years if years else None
+
+        # Fallback: если visit_dates нет, используем date_of_visit текущей записи
         if obj.date_of_visit:
             return [obj.date_of_visit.year]
+
         return None
 
     class Meta:

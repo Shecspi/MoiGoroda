@@ -57,13 +57,15 @@ export class ToolbarActions {
             this.showSubscriptionCities();
         });
 
+
         this.elementShowPlaces.addEventListener('click', () => {
-            if (this.elementShowPlaces.dataset.type === 'show') {
-                this.showPlaces();
-                this.setButtonState(this.elementShowPlaces, true);
-            } else {
+            const isActive = this.elementShowPlaces.classList.contains('bg-blue-100');
+            if (isActive) {
                 this.hidePlaces();
-                this.setButtonState(this.elementShowPlaces, false);
+                this.setPlacesButtonActive(false);
+            } else {
+                this.showPlaces();
+                this.setPlacesButtonActive(true);
             }
         });
 
@@ -80,6 +82,27 @@ export class ToolbarActions {
 
     setButtonState(element, isActive) {
         element.dataset.type = isActive ? 'hide' : 'show';
+    }
+
+    /**
+     * Устанавливает активное состояние кнопки "Показать места" через CSS классы.
+     * В активном состоянии добавляется только фон, остальные стили остаются без изменений.
+     * @param {boolean} isActive - Активна ли кнопка
+     */
+    setPlacesButtonActive(isActive) {
+        if (!this.elementShowPlaces) {
+            return;
+        }
+
+        if (isActive) {
+            // Активное состояние: добавляем синий фон, остальное не меняем
+            this.elementShowPlaces.classList.remove('bg-white', 'hover:bg-gray-50', 'focus:bg-gray-50', 'dark:bg-neutral-800', 'dark:hover:bg-neutral-700', 'dark:focus:bg-neutral-700');
+            this.elementShowPlaces.classList.add('bg-blue-100', 'hover:bg-blue-200', 'focus:bg-blue-200', 'dark:bg-blue-800/30', 'dark:hover:bg-blue-800/20', 'dark:focus:bg-blue-800/20');
+        } else {
+            // Неактивное состояние: возвращаем стандартный фон
+            this.elementShowPlaces.classList.remove('bg-blue-100', 'hover:bg-blue-200', 'focus:bg-blue-200', 'dark:bg-blue-800/30', 'dark:hover:bg-blue-800/20', 'dark:focus:bg-blue-800/20');
+            this.elementShowPlaces.classList.add('bg-white', 'hover:bg-gray-50', 'focus:bg-gray-50', 'dark:bg-neutral-800', 'dark:hover:bg-neutral-700', 'dark:focus:bg-neutral-700');
+        }
     }
 
     disableButton(element, shouldDisable) {

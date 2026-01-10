@@ -210,6 +210,13 @@ function displayDistrictsOnMap(geoJsonData, districtsDataMap) {
             // Добавляем popup при клике
             layer.bindPopup(() => {
                 return createPopupContent(districtName, districtInfo);
+            }, {maxWidth: 400, minWidth: 280});
+            
+            // Инициализируем Preline UI для элементов в popup после его открытия
+            layer.on('popupopen', function() {
+                if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                    window.HSStaticMethods.autoInit();
+                }
             });
             
             // Добавляем tooltip при наведении
@@ -272,36 +279,73 @@ function displayDistrictsOnMap(geoJsonData, districtsDataMap) {
  * Создаёт содержимое popup для района.
  */
 function createPopupContent(districtName, districtInfo) {
-    let content = `<div class="p-2">`;
-    content += `<h3 class="font-semibold text-lg mb-2">${districtName}</h3>`;
+    let content = '<div class="px-1.5 py-1.5 min-w-[280px] max-w-[400px]">';
+    
+    // Заголовок (стиль аналогичный popup для городов)
+    content += `<div class="mb-2 pb-1 border-b border-gray-200 dark:border-neutral-700">`;
+    content += `<h3 class="text-base font-semibold text-gray-900 dark:text-white mb-0">${districtName}</h3>`;
+    content += `</div>`;
     
     if (districtInfo) {
+        // Информация о районе (с иконками и бейджиками, как в popup для городов)
+        content += '<div class="space-y-1.5 text-sm">';
+        
         if (districtInfo.area) {
-            content += `<p class="text-sm text-gray-600 dark:text-neutral-400 mb-1">Площадь: ${districtInfo.area} км²</p>`;
-        }
-        if (districtInfo.population) {
-            content += `<p class="text-sm text-gray-600 dark:text-neutral-400 mb-1">Население: ${districtInfo.population.toLocaleString()}</p>`;
+            content += `<div class="flex items-center justify-between gap-2">`;
+            content += `<div class="flex items-center gap-2">`;
+            content += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>`;
+            content += `<span class="text-gray-500 dark:text-neutral-400">Площадь:</span>`;
+            content += `</div>`;
+            content += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${districtInfo.area} км²</span>`;
+            content += `</div>`;
         }
         
-        // Для авторизованных пользователей добавляем форму отметки посещения
+        if (districtInfo.population) {
+            content += `<div class="flex items-center justify-between gap-2">`;
+            content += `<div class="flex items-center gap-2">`;
+            content += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+            content += `<span class="text-gray-500 dark:text-neutral-400">Население:</span>`;
+            content += `</div>`;
+            content += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${districtInfo.population.toLocaleString()}</span>`;
+            content += `</div>`;
+        }
+        
+        if (districtInfo.is_visited) {
+            content += `<div class="flex items-center justify-between gap-2">`;
+            content += `<div class="flex items-center gap-2">`;
+            content += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+            content += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
+            content += `</div>`;
+            content += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">Посещён</span>`;
+            content += `</div>`;
+        }
+        
+        content += '</div>';
+        
+        // Форма отметки посещения для авторизованных пользователей
         if (window.IS_AUTHENTICATED) {
-            content += `<hr class="my-3 border-gray-200 dark:border-neutral-700">`;
-            content += `<form id="visit-district-form-${districtInfo.id}" class="mt-2">`;
+            content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
+            content += `<form id="visit-district-form-${districtInfo.id}">`;
             content += `<input type="hidden" name="city_district_id" value="${districtInfo.id}">`;
-            content += `<label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">`;
-            content += `Дата посещения (необязательно):`;
-            content += `</label>`;
-            content += `<input type="date" name="date_of_visit" class="block w-full rounded-lg border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white mb-2">`;
-            content += `<button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">`;
+            content += `<div class="mb-2">`;
+            content += `<label class="block text-xs text-gray-600 dark:text-neutral-400 mb-1">Дата посещения (необязательно):</label>`;
+            content += `<input type="date" name="date_of_visit" class="block w-full rounded-lg border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white text-sm px-2 py-1">`;
+            content += `</div>`;
+            content += `<button type="submit" class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors">`;
             content += districtInfo.is_visited ? 'Обновить посещение' : 'Отметить как посещённый';
             content += `</button>`;
             content += `</form>`;
+            content += '</div>';
         }
     } else {
-        content += `<p class="text-sm text-gray-500 dark:text-neutral-500">Информация о районе отсутствует</p>`;
+        content += '<div class="space-y-1.5 text-sm">';
+        content += `<div class="text-sm">`;
+        content += `<span class="text-gray-900 dark:text-white">Информация о районе отсутствует</span>`;
+        content += `</div>`;
+        content += '</div>';
     }
     
-    content += `</div>`;
+    content += '</div>';
     return content;
 }
 

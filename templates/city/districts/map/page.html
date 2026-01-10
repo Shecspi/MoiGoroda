@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+    {% vite_css 'css/select-field' %}
+    {% vite_css 'css/leaflet-controls' %}
+{% endblock %}
+
+{% block content %}
+    <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
+        <div class="space-y-3">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+                Карта районов города {{ city.title }}
+            </h1>
+        </div>
+    </header>
+
+    {% if not DEBUG %}
+    {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
+
+    <!-- Селектор выбора города -->
+    <div class="mx-3 mb-6">
+        <label for="city-select" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
+            Выберите город:
+        </label>
+        <select id="city-select" class="block w-full rounded-lg border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
+            <option value="">Загрузка...</option>
+        </select>
+    </div>
+
+    <!-- Карта -->
+    <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>
+    <!-- ^^^ Карта -->
+
+    {% if not DEBUG %}
+    {% include 'advertisement/rtb_feed.html' %}
+    {% endif %}
+
+    <script>
+        window.CITY_ID = {{ city_id }};
+        window.COUNTRY_CODE = "{{ country_code }}";
+        window.CITY_NAME = "{{ city_name }}";
+        window.REGION_CODE = {% if region_code %}"{{ region_code }}"{% else %}null{% endif %};
+        window.URL_GEO_POLYGONS = "{{ url_geo_polygons }}";
+        window.TILE_LAYER = "{{ TILE_LAYER }}";
+        window.IS_AUTHENTICATED = {{ is_authenticated|yesno:"true,false" }};
+        window.API_DISTRICTS_URL = "{{ api_districts_url }}";
+        window.API_VISIT_URL = "{{ api_visit_url }}";
+        window.API_CITIES_URL = "{{ api_cities_url }}";
+    </script>
+    {% vite_asset 'js/entries/leaflet_css.js' %}
+    {% vite_asset 'js/entries/choices_css.js' %}
+    {% vite_asset 'js/entries/map_districts.js' %}
+
+    {% include 'parts/toast/danger.html' with error_title="Ошибка соединения с сервером" error_message='Не получилось загрузить данные о районах.' error_id='toast_request_error' %}
+    {% include 'parts/toast/success.html' with title="Успешно" message="Район <span id='district-title-in-toast' class='font-semibold'></span> успешно отмечен как посещённый" %}
+{% endblock %}

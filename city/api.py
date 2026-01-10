@@ -22,9 +22,11 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from account.models import ShareSettings
-from city.models import City, CityListDefaultSettings, VisitedCity
+from city.models import City, CityDistrict, CityListDefaultSettings, VisitedCity
 from city.serializers import (
+    AddVisitedCityDistrictSerializer,
     AddVisitedCitySerializer,
+    CityDistrictSerializer,
     CitySearchParamsSerializer,
     CitySerializer,
     NotVisitedCitySerializer,
@@ -195,7 +197,7 @@ class GetNotVisitedCities(generics.ListAPIView):  # type: ignore[type-arg]
         )
         return super().get(*args, **kwargs)
 
-    def get_queryset(self) -> QuerySet[City, City]:  # type: ignore[override]
+    def get_queryset(self) -> QuerySet[City, City]:
         user_pk = self.request.user.pk
         if user_pk is None:
             return City.objects.none()
@@ -270,7 +272,7 @@ def city_list_by_region(request: Request) -> Response:
         )
 
     cities = City.objects.filter(region_id=region_id).order_by('title')
-    serializer = CitySerializer(cities, many=True, context={'request': request})  # type: ignore[arg-type]
+    serializer = CitySerializer(cities, many=True, context={'request': request})
 
     return Response(serializer.data)
 
@@ -285,7 +287,7 @@ def city_list_by_country(request: Request) -> Response:
         )
 
     cities = City.objects.filter(country_id=country_id).order_by('title')
-    serializer = CitySerializer(cities, many=True, context={'request': request})  # type: ignore[arg-type]
+    serializer = CitySerializer(cities, many=True, context={'request': request})
 
     return Response(serializer.data)
 
@@ -602,7 +604,7 @@ def city_search(request: Request) -> Response:
     cities_queryset = CitySearchService.search_cities(query=query, country=country, limit=limit)
 
     # Использование сериализатора для формирования ответа
-    city_serializer = CitySerializer(cities_queryset, many=True, context={'request': request})  # type: ignore[arg-type]
+    city_serializer = CitySerializer(cities_queryset, many=True, context={'request': request})
 
     return Response(city_serializer.data, status=status.HTTP_200_OK)
 
@@ -856,3 +858,109 @@ def get_visit_years(request: Request) -> Response:
     )
 
     return Response({'years': years_list})
+
+
+@api_view(['GET'])
+def get_city_districts(request: Request, city_id: int) -> Response:
+    """
+    Возвращает список районов города с метаданными.
+
+    Для авторизованных пользователей добавляется поле is_visited,
+    указывающее, посещён ли район пользователем.
+
+    :param request: DRF Request
+    :param city_id: ID города
+    :return: Response со списком районов
+    """
+    try:
+        city = City.objects.get(pk=city_id)
+    except City.DoesNotExist:
+        return Response(
+            {'detail': f'Город с id {city_id} не найден'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    districts = CityDistrict.objects.filter(city=city).order_by('title')
+
+    serializer = CityDistrictSerializer(districts, many=True, context={'request': request})
+
+    logger.info(
+        request,
+        f'(API) Successful request for city districts list (city_id: {city_id}, '
+        f'districts count: {len(districts)})',
+    )
+
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def add_visited_city_district(request: Request) -> Response:
+    """
+    Отмечает район как посещённый.
+
+    Требует авторизации. В теле запроса передаются:
+    - city_district_id (обязательное) - ID района
+    - date_of_visit (опциональное) - дата посещения
+
+    :param request: DRF Request
+    :return: Response с созданной записью
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {'detail': 'Пользователь должен быть авторизован'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    serializer = AddVisitedCityDistrictSerializer(data=request.data, context={'request': request})
+
+    if serializer.is_valid():
+        try:
+            visited_district = serializer.save()
+            assert isinstance(request.user, User)
+            logger.info(
+                request,
+                f'(API) Successful creation of visited city district '
+                f'(user_id: {request.user.id}, district_id: {visited_district.city_district.id})',
+            )
+            return Response(
+                {
+                    'id': visited_district.id,
+                    'city_district_id': visited_district.city_district.id,
+                    'date_of_visit': visited_district.date_of_visit,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except Exception as e:
+            logger.warning(
+                request,
+                f'(API) Error creating visited city district: {str(e)}',
+            )
+            return Response(
+                {'detail': 'Ошибка при создании записи о посещении района'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def get_cities_with_districts(request: Request) -> Response:
+    """
+    Возвращает список городов, для которых есть районы.
+
+    :param request: DRF Request
+    :return: Response со списком городов
+    """
+    cities_with_districts = (
+        City.objects.filter(districts__isnull=False).distinct().order_by('title')
+    )
+
+    serializer = CitySerializer(cities_with_districts, many=True, context={'request': request})
+
+    logger.info(
+        request,
+        f'(API) Successful request for cities with districts list '
+        f'(cities count: {len(cities_with_districts)})',
+    )
+
+    return Response(serializer.data)

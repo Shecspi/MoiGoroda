@@ -32,4 +32,7 @@ urlpatterns = [
         name='api__delete_city_list_default_settings',
     ),
     path('visit_years', api.get_visit_years, name='api__get_visit_years'),
+    path('districts/<int:city_id>/', api.get_city_districts, name='api__get_city_districts'),
+    path('districts/visit/', api.add_visited_city_district, name='api__add_visited_city_district'),
+    path('districts/cities/', api.get_cities_with_districts, name='api__get_cities_with_districts'),
 ]

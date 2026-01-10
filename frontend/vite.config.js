@@ -38,6 +38,7 @@ export default defineConfig({
         map_city: path.resolve(entriesDir, 'map_city.js'),
         map_city_selected: path.resolve(entriesDir, 'map_city_selected.js'),
         map_collection: path.resolve(entriesDir, 'map_collection.js'),
+        map_districts: path.resolve(entriesDir, 'map_districts.js'),
         map_country: path.resolve(entriesDir, 'map_country.js'),
         map_place: path.resolve(entriesDir, 'map_place.js'),
         map_region: path.resolve(entriesDir, 'map_region.js'),

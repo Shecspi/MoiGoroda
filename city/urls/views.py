@@ -38,4 +38,9 @@ urlpatterns = [
         views.get_cities_based_on_region,
         name='get_cities_based_on_region',
     ),
+    path(
+        'districts/<int:city_id>/map',
+        views.CityDistrictMapView.as_view(),
+        name='city-districts-map',
+    ),
 ]

@@ -15,7 +15,7 @@ from django.contrib.admin import SimpleListFilter
 from django.db.models import Q, Count, QuerySet
 from django.http import HttpRequest
 
-from .models import City, CityListDefaultSettings, VisitedCity
+from .models import City, CityDistrict, CityListDefaultSettings, VisitedCity, VisitedCityDistrict
 
 
 class HasImageFilter(SimpleListFilter):
@@ -169,3 +169,39 @@ class CityListDefaultSettingsAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     )
     search_fields = ('user__username', 'parameter_value')
     list_editable = ('parameter_value',)
+
+
+@admin.register(CityDistrict)
+class CityDistrictAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
+    list_display = (
+        'id',
+        'title',
+        'city',
+        'area',
+        'population',
+    )
+    list_filter = ('city__country', 'city')
+    search_fields = ('title', 'city__title')
+    autocomplete_fields = ('city',)
+
+
+@admin.register(VisitedCityDistrict)
+class VisitedCityDistrictAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
+    list_display = (
+        'id',
+        'city_district',
+        'user',
+        'date_of_visit',
+        'created_at',
+        'updated_at',
+    )
+    list_filter = (
+        UserFilter,
+        'created_at',
+        'updated_at',
+        'date_of_visit',
+    )
+    search_fields = ('user__username', 'city_district__title')
+    readonly_fields = ('created_at', 'updated_at')
+    date_hierarchy = 'created_at'
+    autocomplete_fields = ('city_district',)

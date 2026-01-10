@@ -7,10 +7,13 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import Any
+
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import CASCADE, PROTECT
+from django.db.models import CASCADE, PROTECT, Q
 from django.urls import reverse
 
 from country.models import Country
@@ -180,3 +183,123 @@ class CityListDefaultSettings(models.Model):
 
     def __str__(self) -> str:
         return f'{self.get_parameter_type_display()} для {self.user}: {self.parameter_value}'
+
+
+class CityDistrict(models.Model):
+    """
+    Модель для хранения метаданных о районах городов.
+    """
+
+    title = models.CharField(max_length=100, verbose_name='Название', blank=False, null=False)
+    city = models.ForeignKey(
+        City,
+        on_delete=CASCADE,
+        verbose_name='Город',
+        blank=False,
+        null=False,
+        related_name='districts',
+    )
+    area = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name='Площадь',
+        blank=True,
+        null=True,
+        help_text='Площадь района в квадратных километрах',
+    )
+    population = models.PositiveIntegerField(
+        verbose_name='Численность населения',
+        blank=True,
+        null=True,
+    )
+
+    class Meta:
+        ordering = ['title']
+        verbose_name = 'Район города'
+        verbose_name_plural = 'Районы городов'
+        unique_together = ['title', 'city']
+
+    def __str__(self) -> str:
+        return f'{self.title} ({self.city.title})'
+
+
+class VisitedCityDistrict(models.Model):
+    """
+    Модель для хранения информации о посещённых районах городов пользователями.
+    """
+
+    user = models.ForeignKey(
+        User,
+        on_delete=CASCADE,
+        verbose_name='Пользователь',
+        blank=False,
+        null=False,
+        related_name='visited_city_districts',
+    )
+    city_district = models.ForeignKey(
+        CityDistrict,
+        on_delete=CASCADE,
+        verbose_name='Район города',
+        blank=False,
+        null=False,
+        related_name='visits',
+    )
+    date_of_visit = models.DateField(
+        verbose_name='Дата посещения',
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text='Дата посещения района. Можно оставить пустым, но для одного района у одного пользователя может быть только одна запись без даты.',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата и время создания',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата и время изменения',
+    )
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Посещённый район города'
+        verbose_name_plural = 'Посещённые районы городов'
+        unique_together = ['user', 'city_district', 'date_of_visit']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'city_district'],
+                condition=Q(date_of_visit__isnull=True),
+                name='unique_user_city_district_without_date',
+            ),
+        ]
+
+    def clean(self) -> None:
+        """
+        Валидация: может быть только одна запись без даты для одного района у одного пользователя.
+        """
+        if self.date_of_visit is None:
+            existing = VisitedCityDistrict.objects.filter(
+                user=self.user,
+                city_district=self.city_district,
+                date_of_visit__isnull=True,
+            )
+            if self.pk:
+                existing = existing.exclude(pk=self.pk)
+            if existing.exists():
+                raise ValidationError(
+                    {
+                        'date_of_visit': 'Для этого района уже существует запись без даты посещения. '
+                        'Удалите существующую запись или укажите дату посещения.'
+                    }
+                )
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Вызываем clean перед сохранением для валидации.
+        """
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        date_str = self.date_of_visit.strftime('%d.%m.%Y') if self.date_of_visit else 'без даты'
+        return f'{self.user.username} - {self.city_district.title} ({date_str})'

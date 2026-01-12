@@ -12,6 +12,7 @@ import L from 'leaflet';
 import {create_map, addLoadControl, addErrorControl} from '../components/map.js';
 import {showDangerToast, showSuccessToast} from '../components/toast.js';
 import {getCookie} from '../components/get_cookie.js';
+import {pluralize} from '../components/search_services.js';
 
 let map;
 let districtsData = new Map(); // district_name -> {id, is_visited, area, population}
@@ -185,6 +186,9 @@ async function loadDistrictsData(cityId, countryCode, cityName, regionCode) {
         
         // Отображаем полигоны на карте
         displayDistrictsOnMap(geoJsonData, districtsData);
+        
+        // Обновляем бейджик со статистикой
+        updateStatsBadge();
         
         // Центрируем карту по полигонам
         if (geoJsonLayers.length > 0) {
@@ -384,6 +388,44 @@ function createPopupContent(districtName, districtInfo) {
 }
 
 /**
+ * Обновляет текст бейджика со статистикой посещённых районов.
+ */
+function updateStatsBadge() {
+    if (!window.IS_AUTHENTICATED) {
+        return;
+    }
+
+    const badgeElement = document.querySelector('#section-stats .stat-badge');
+    if (!badgeElement) {
+        return;
+    }
+
+    // Подсчитываем количество посещённых районов
+    let qtyOfVisitedDistricts = 0;
+    let qtyOfDistricts = 0;
+    
+    districtsData.forEach((districtInfo) => {
+        qtyOfDistricts++;
+        if (districtInfo.is_visited) {
+            qtyOfVisitedDistricts++;
+        }
+    });
+
+    if (qtyOfDistricts > 0) {
+        const word = pluralize(qtyOfVisitedDistricts, 'район', 'района', 'районов');
+        badgeElement.innerHTML = `
+            <span class="stat-badge-dot"></span>
+            Посещено <strong>${qtyOfVisitedDistricts}</strong> ${word} из ${qtyOfDistricts}
+        `;
+    } else {
+        badgeElement.innerHTML = `
+            <span class="stat-badge-dot"></span>
+            Нет информации о районах
+        `;
+    }
+}
+
+/**
  * Обрабатывает отправку формы отметки посещения.
  */
 function handleVisitFormSubmit(event, districtId, districtName) {
@@ -432,6 +474,9 @@ function handleVisitFormSubmit(event, districtId, districtName) {
                     if (cachedGeoJson) {
                         displayDistrictsOnMap(cachedGeoJson, districtsData);
                     }
+                    
+                    // Обновляем бейджик со статистикой
+                    updateStatsBadge();
                 }
             }
             
@@ -496,6 +541,9 @@ async function handleDeleteVisit(districtId, districtName) {
                 if (cachedGeoJson) {
                     displayDistrictsOnMap(cachedGeoJson, districtsData);
                 }
+                
+                // Обновляем бейджик со статистикой
+                updateStatsBadge();
             }
         }
 

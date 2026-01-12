@@ -31,7 +31,13 @@ from django.views.generic import (
 )
 
 from city.forms import VisitedCity_Create_Form
-from city.models import City, CityListDefaultSettings, VisitedCity
+from city.models import (
+    City,
+    CityListDefaultSettings,
+    VisitedCity,
+    CityDistrict,
+    VisitedCityDistrict,
+)
 from city.services.db import (
     get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
@@ -561,6 +567,14 @@ class CityDistrictMapView(TemplateView):
             raise Http404('ID города не указан')
         city = City.objects.get(pk=int(city_id))
 
+        # Подсчитываем количество районов и посещённых районов
+        qty_of_districts = CityDistrict.objects.filter(city=city).count()
+        qty_of_visited_districts = 0
+        if self.request.user.is_authenticated:
+            qty_of_visited_districts = VisitedCityDistrict.objects.filter(
+                user=self.request.user, city_district__city=city
+            ).count()
+
         context['city'] = city
         context['city_id'] = city_id
         context['country_code'] = city.country.code
@@ -568,6 +582,8 @@ class CityDistrictMapView(TemplateView):
         context['region_code'] = city.region.iso3166.split('-')[1] if city.region else None
         context['url_geo_polygons'] = settings.URL_GEO_POLYGONS
         context['is_authenticated'] = self.request.user.is_authenticated
+        context['qty_of_districts'] = qty_of_districts
+        context['qty_of_visited_districts'] = qty_of_visited_districts
         context['api_districts_url'] = reverse(
             'api__get_city_districts', kwargs={'city_id': city_id}
         )

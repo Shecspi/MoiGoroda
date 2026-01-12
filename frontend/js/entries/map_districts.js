@@ -326,12 +326,18 @@ function createPopupContent(districtName, districtInfo) {
         // Форма отметки посещения для авторизованных пользователей
         if (window.IS_AUTHENTICATED) {
             content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
-            content += `<form id="visit-district-form-${districtInfo.id}">`;
-            content += `<input type="hidden" name="city_district_id" value="${districtInfo.id}">`;
-            content += `<button type="submit" class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors">`;
-            content += districtInfo.is_visited ? 'Обновить посещение' : 'Отметить как посещённый';
-            content += `</button>`;
-            content += `</form>`;
+            if (districtInfo.is_visited) {
+                // Если район посещён, показываем ссылку для удаления
+                content += `<a href="#" id="delete-visit-link-${districtInfo.id}" class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">Удалить посещение</a>`;
+            } else {
+                // Если район не посещён, показываем форму для отметки
+                content += `<form id="visit-district-form-${districtInfo.id}">`;
+                content += `<input type="hidden" name="city_district_id" value="${districtInfo.id}">`;
+                content += `<button type="submit" class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors">`;
+                content += 'Отметить как посещённый';
+                content += `</button>`;
+                content += `</form>`;
+            }
             content += '</div>';
         }
     } else {
@@ -412,6 +418,69 @@ function handleVisitFormSubmit(event, districtId, districtName) {
 }
 
 /**
+ * Обрабатывает удаление посещения района.
+ */
+async function handleDeleteVisit(districtId, districtName) {
+    if (!window.API_VISIT_DELETE_URL) {
+        console.error('URL для удаления посещения не определён');
+        return;
+    }
+
+    const data = {
+        city_district_id: districtId,
+    };
+
+    try {
+        const response = await fetch(window.API_VISIT_DELETE_URL, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            const errorMessage = err.detail || 'Ошибка при удалении посещения';
+            throw new Error(errorMessage);
+        }
+
+        // Перезагружаем данные о районах для обновления статуса is_visited
+        if (window.CITY_ID && window.COUNTRY_CODE && window.CITY_NAME) {
+            const districtsResponse = await fetch(`${window.API_DISTRICTS_URL}`);
+            if (districtsResponse.ok) {
+                const districts = await districtsResponse.json();
+                districtsData.clear();
+                districts.forEach(district => {
+                    districtsData.set(district.title, {
+                        id: district.id,
+                        is_visited: district.is_visited || false,
+                        area: district.area,
+                        population: district.population,
+                    });
+                });
+
+                // Перерисовываем полигоны с обновлёнными стилями
+                if (cachedGeoJson) {
+                    displayDistrictsOnMap(cachedGeoJson, districtsData);
+                }
+            }
+        }
+
+        // Показываем уведомление об успехе
+        const message = `Посещение района <span class="font-semibold">${districtName}</span> успешно удалено`;
+        showSuccessToast('Успешно', message);
+
+        // Закрываем popup
+        map.closePopup();
+    } catch (error) {
+        console.error('Ошибка при удалении посещения:', error);
+        alert('Ошибка при удалении: ' + error.message);
+    }
+}
+
+/**
  * Инициализация карты при загрузке страницы.
  */
 async function initDistrictsMap() {
@@ -438,6 +507,22 @@ async function initDistrictsMap() {
             });
             if (districtName) {
                 handleVisitFormSubmit(event, districtId, districtName);
+            }
+        }
+    });
+
+    // Обработчик клика на ссылки удаления посещения (делегирование событий)
+    document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target.id && target.id.startsWith('delete-visit-link-')) {
+            event.preventDefault();
+            const districtId = parseInt(target.id.replace('delete-visit-link-', ''));
+            const districtName = Array.from(districtsData.keys()).find(name => {
+                const info = districtsData.get(name);
+                return info && info.id === districtId;
+            });
+            if (districtName) {
+                handleDeleteVisit(districtId, districtName);
             }
         }
     });

@@ -50,6 +50,7 @@
         window.IS_AUTHENTICATED = {{ is_authenticated|yesno:"true,false" }};
         window.API_DISTRICTS_URL = "{{ api_districts_url }}";
         window.API_VISIT_URL = "{{ api_visit_url }}";
+        window.API_VISIT_DELETE_URL = "{{ api_visit_delete_url }}";
         window.API_CITIES_URL = "{{ api_cities_url }}";
     </script>
     {% vite_asset 'js/entries/leaflet_css.js' %}

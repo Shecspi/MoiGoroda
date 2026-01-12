@@ -572,6 +572,7 @@ class CityDistrictMapView(TemplateView):
             'api__get_city_districts', kwargs={'city_id': city_id}
         )
         context['api_visit_url'] = reverse('api__add_visited_city_district')
+        context['api_visit_delete_url'] = reverse('api__delete_visited_city_district')
         context['api_cities_url'] = reverse('api__get_cities_with_districts')
 
         context['active_page'] = 'city_districts_map'

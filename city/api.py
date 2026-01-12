@@ -22,7 +22,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from account.models import ShareSettings
-from city.models import City, CityDistrict, CityListDefaultSettings, VisitedCity
+from city.models import (
+    City,
+    CityDistrict,
+    CityListDefaultSettings,
+    VisitedCity,
+    VisitedCityDistrict,
+)
 from city.serializers import (
     AddVisitedCityDistrictSerializer,
     AddVisitedCitySerializer,
@@ -939,6 +945,71 @@ def add_visited_city_district(request: Request) -> Response:
             )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def delete_visited_city_district(request: Request) -> Response:
+    """
+    Удаляет запись о посещении района.
+
+    Требует авторизации. В теле запроса передаётся:
+    - city_district_id (обязательное) - ID района
+
+    :param request: DRF Request
+    :return: Response со статусом операции
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {'detail': 'Пользователь должен быть авторизован'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    city_district_id = request.data.get('city_district_id')
+    if not city_district_id:
+        return Response(
+            {'detail': 'Параметр city_district_id является обязательным'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        city_district_id = int(city_district_id)
+    except (ValueError, TypeError):
+        return Response(
+            {'detail': 'city_district_id должен быть числом'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        city_district = CityDistrict.objects.get(pk=city_district_id)
+    except CityDistrict.DoesNotExist:
+        return Response(
+            {'detail': f'Район с id {city_district_id} не найден'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    user = request.user
+    assert isinstance(user, User)
+
+    try:
+        visited_district = VisitedCityDistrict.objects.get(user=user, city_district=city_district)
+    except VisitedCityDistrict.DoesNotExist:
+        return Response(
+            {'detail': 'Запись о посещении района не найдена'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    visited_district.delete()
+
+    logger.info(
+        request,
+        f'(API) Successful deletion of visited city district '
+        f'(user_id: {user.id}, district_id: {city_district_id})',
+    )
+
+    return Response(
+        {'detail': 'Посещение района успешно удалено'},
+        status=status.HTTP_200_OK,
+    )
 
 
 @api_view(['GET'])

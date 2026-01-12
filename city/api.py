@@ -898,9 +898,8 @@ def add_visited_city_district(request: Request) -> Response:
     """
     Отмечает район как посещённый.
 
-    Требует авторизации. В теле запроса передаются:
+    Требует авторизации. В теле запроса передаётся:
     - city_district_id (обязательное) - ID района
-    - date_of_visit (опциональное) - дата посещения
 
     :param request: DRF Request
     :return: Response с созданной записью
@@ -926,7 +925,6 @@ def add_visited_city_district(request: Request) -> Response:
                 {
                     'id': visited_district.id,
                     'city_district_id': visited_district.city_district.id,
-                    'date_of_visit': visited_district.date_of_visit,
                 },
                 status=status.HTTP_201_CREATED,
             )

@@ -46,17 +46,18 @@ const defaultStyle = {
 
 /**
  * Загружает список городов с районами для селектора.
+ * Инициализирует Preline UI компонент HSSelect с поиском.
  */
 async function loadCitiesForSelect() {
+    const select = document.getElementById('city-select');
+    if (!select) return;
+
     try {
         const response = await fetch(window.API_CITIES_URL);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const cities = await response.json();
-        
-        const select = document.getElementById('city-select');
-        if (!select) return;
         
         // Очищаем селектор
         select.innerHTML = '';
@@ -72,19 +73,49 @@ async function loadCitiesForSelect() {
             const option = document.createElement('option');
             option.value = city.id;
             option.textContent = city.title;
-            if (city.id === window.CITY_ID) {
+            if (parseInt(city.id) === parseInt(window.CITY_ID)) {
                 option.selected = true;
             }
             select.appendChild(option);
         });
+
+        // Preline UI автоматически обновит компонент при изменении опций в DOM
+        // Если компонент уже был инициализирован, переинициализируем его
+        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#city-select') : null;
+        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
+            hsSelectInstance.destroy();
+        }
         
-        // Обработчик изменения города
-        select.addEventListener('change', (e) => {
+        // Переинициализируем компонент с новыми опциями
+        if (window.HSSelect) {
+            try {
+                new window.HSSelect('#city-select');
+            } catch (e) {
+                // Если не получилось, используем autoInit
+                if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                    window.HSStaticMethods.autoInit();
+                }
+            }
+        }
+        
+        // Обработчик изменения города (используем делегирование событий, чтобы избежать множественных обработчиков)
+        // Удаляем старый обработчик, если он был добавлен ранее
+        const oldHandler = select._changeHandler;
+        if (oldHandler) {
+            select.removeEventListener('change', oldHandler);
+        }
+        
+        // Создаём новый обработчик
+        const changeHandler = (e) => {
             const cityId = parseInt(e.target.value);
             if (cityId) {
                 window.location.href = `/city/districts/${cityId}/map`;
             }
-        });
+        };
+        
+        // Сохраняем ссылку на обработчик для возможности удаления в будущем
+        select._changeHandler = changeHandler;
+        select.addEventListener('change', changeHandler);
     } catch (error) {
         console.error('Ошибка загрузки списка городов:', error);
     }

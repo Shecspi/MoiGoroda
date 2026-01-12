@@ -22,7 +22,7 @@ let cachedGeoJson = null;
 // Стили для полигонов
 const visitedStyle = {
     fillColor: '#22c55e', // зелёный
-    fillOpacity: 0.3,
+    fillOpacity: 0.7,
     color: '#16a34a',
     weight: 2,
     opacity: 0.8,
@@ -30,7 +30,7 @@ const visitedStyle = {
 
 const notVisitedStyle = {
     fillColor: '#9ca3af', // серый
-    fillOpacity: 0.3,
+    fillOpacity: 0.7,
     color: '#6b7280',
     weight: 2,
     opacity: 0.8,
@@ -38,10 +38,10 @@ const notVisitedStyle = {
 
 const defaultStyle = {
     fillColor: '#9ca3af',
-    fillOpacity: 0.2,
+    fillOpacity: 0.4,
     color: '#6b7280',
-    weight: 1,
-    opacity: 0.5,
+    weight: 2,
+    opacity: 0.8,
 };
 
 /**

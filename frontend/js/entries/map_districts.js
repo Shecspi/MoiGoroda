@@ -19,29 +19,29 @@ let geoJsonLayers = [];
 let currentCityId = null;
 let cachedGeoJson = null;
 
-// Стили для полигонов
+// Стили для полигонов (используются те же параметры, что и на карте регионов)
 const visitedStyle = {
-    fillColor: '#22c55e', // зелёный
+    fillColor: '#4fbf4f', // зелёный для 41-60% посещённости - более светлый оттенок
     fillOpacity: 0.7,
-    color: '#16a34a',
-    weight: 2,
-    opacity: 0.8,
+    color: '#444444', // тёмно-серый цвет границы
+    weight: 1,
+    opacity: 0.6,
 };
 
 const notVisitedStyle = {
-    fillColor: '#9ca3af', // серый
-    fillOpacity: 0.7,
-    color: '#6b7280',
-    weight: 2,
-    opacity: 0.8,
+    fillColor: '#bbbbbb', // серый - цвет для непосещённого региона
+    fillOpacity: 0.85,
+    color: '#444444', // тёмно-серый цвет границы
+    weight: 1,
+    opacity: 0.6,
 };
 
 const defaultStyle = {
-    fillColor: '#9ca3af',
-    fillOpacity: 0.4,
-    color: '#6b7280',
-    weight: 2,
-    opacity: 0.8,
+    fillColor: 'red',
+    fillOpacity: 0.6,
+    color: '#444444', // тёмно-серый цвет границы
+    weight: 1,
+    opacity: 0.6,
 };
 
 /**

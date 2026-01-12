@@ -11,6 +11,7 @@
 import L from 'leaflet';
 import {create_map, addLoadControl, addErrorControl} from '../components/map.js';
 import {showDangerToast, showSuccessToast} from '../components/toast.js';
+import {getCookie} from '../components/get_cookie.js';
 
 let map;
 let districtsData = new Map(); // district_name -> {id, is_visited, area, population}
@@ -366,6 +367,7 @@ function handleVisitFormSubmit(event, districtId, districtName) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
         },
         body: JSON.stringify(data),
     })

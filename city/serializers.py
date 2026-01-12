@@ -192,7 +192,6 @@ class AddVisitedCityDistrictSerializer(serializers.Serializer[VisitedCityDistric
     """
 
     city_district_id = serializers.IntegerField(required=True)
-    date_of_visit = serializers.DateField(required=False, allow_null=True)
 
     def create(self, validated_data: dict[str, Any]) -> VisitedCityDistrict:
         """
@@ -210,8 +209,4 @@ class AddVisitedCityDistrictSerializer(serializers.Serializer[VisitedCityDistric
         user = self.context['request'].user
         assert isinstance(user, User)
 
-        date_of_visit = validated_data.get('date_of_visit')
-
-        return VisitedCityDistrict.objects.create(
-            user=user, city_district=city_district, date_of_visit=date_of_visit
-        )
+        return VisitedCityDistrict.objects.create(user=user, city_district=city_district)

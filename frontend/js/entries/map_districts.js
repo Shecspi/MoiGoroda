@@ -328,10 +328,6 @@ function createPopupContent(districtName, districtInfo) {
             content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
             content += `<form id="visit-district-form-${districtInfo.id}">`;
             content += `<input type="hidden" name="city_district_id" value="${districtInfo.id}">`;
-            content += `<div class="mb-2">`;
-            content += `<label class="block text-xs text-gray-600 dark:text-neutral-400 mb-1">Дата посещения (необязательно):</label>`;
-            content += `<input type="date" name="date_of_visit" class="block w-full rounded-lg border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white text-sm px-2 py-1">`;
-            content += `</div>`;
             content += `<button type="submit" class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors">`;
             content += districtInfo.is_visited ? 'Обновить посещение' : 'Отметить как посещённый';
             content += `</button>`;
@@ -360,7 +356,6 @@ function handleVisitFormSubmit(event, districtId, districtName) {
     const formData = new FormData(form);
     const data = {
         city_district_id: parseInt(formData.get('city_district_id')),
-        date_of_visit: formData.get('date_of_visit') || null,
     };
     
     fetch(window.API_VISIT_URL, {
@@ -374,7 +369,7 @@ function handleVisitFormSubmit(event, districtId, districtName) {
         .then(response => {
             if (!response.ok) {
                 return response.json().then(err => {
-                    const errorMessage = err.detail || err.city_district_id?.[0] || err.date_of_visit?.[0] || 'Ошибка при сохранении';
+                    const errorMessage = err.detail || err.city_district_id?.[0] || 'Ошибка при сохранении';
                     throw new Error(errorMessage);
                 });
             }

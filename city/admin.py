@@ -191,7 +191,6 @@ class VisitedCityDistrictAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         'id',
         'city_district',
         'user',
-        'date_of_visit',
         'created_at',
         'updated_at',
     )
@@ -199,7 +198,6 @@ class VisitedCityDistrictAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         UserFilter,
         'created_at',
         'updated_at',
-        'date_of_visit',
     )
     search_fields = ('user__username', 'city_district__title')
     readonly_fields = ('created_at', 'updated_at')

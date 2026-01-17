@@ -540,19 +540,51 @@ class CityDistrictMapView(TemplateView):
 
     template_name = 'city/districts/map/page.html'
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        """
-        Обрабатывает GET запрос. Проверяет существование города.
-        """
-        city_id = kwargs.get('city_id')
+    def __init__(self) -> None:
+        super().__init__()
+        self._city: City | None = None
 
+    def _get_city(self) -> City:
+        """
+        Возвращает город по id из URL или выбрасывает Http404.
+        """
+        if self._city is not None:
+            return self._city
+
+        city_id = self.kwargs.get('city_id')
         if city_id is None:
             raise Http404('ID города не указан')
 
         try:
-            City.objects.get(pk=int(city_id))
-        except (City.DoesNotExist, ValueError):
+            city_id_int = int(city_id)
+        except (TypeError, ValueError):
+            raise Http404('Некорректный ID города')
+
+        try:
+            self._city = City.objects.select_related('country', 'region').get(pk=city_id_int)
+            return self._city
+        except City.DoesNotExist:
             raise Http404(f'Город с id {city_id} не найден')
+
+    @staticmethod
+    def _get_region_code(city: City) -> str | None:
+        """
+        Возвращает код региона из iso3166, если формат корректен.
+        """
+        if not city.region or not city.region.iso3166:
+            return None
+
+        parts = city.region.iso3166.split('-', maxsplit=1)
+        if len(parts) != 2:
+            return None
+
+        return parts[1] or None
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        """
+        Обрабатывает GET запрос. Проверяет существование города.
+        """
+        self._get_city()
 
         return super().get(request, *args, **kwargs)
 
@@ -562,10 +594,8 @@ class CityDistrictMapView(TemplateView):
         """
         context = super().get_context_data(**kwargs)
 
-        city_id = self.kwargs.get('city_id')
-        if city_id is None:
-            raise Http404('ID города не указан')
-        city = City.objects.get(pk=int(city_id))
+        city = self._get_city()
+        city_id = city.pk
 
         # Подсчитываем количество районов и посещённых районов
         qty_of_districts = CityDistrict.objects.filter(city=city).count()
@@ -579,7 +609,7 @@ class CityDistrictMapView(TemplateView):
         context['city_id'] = city_id
         context['country_code'] = city.country.code
         context['city_name'] = city.title
-        context['region_code'] = city.region.iso3166.split('-')[1] if city.region else None
+        context['region_code'] = self._get_region_code(city)
         context['url_geo_polygons'] = settings.URL_GEO_POLYGONS
         context['is_authenticated'] = self.request.user.is_authenticated
         context['qty_of_districts'] = qty_of_districts

@@ -13,6 +13,7 @@ from typing import Any
 
 from django.contrib.auth.models import User
 import rest_framework.exceptions as drf_exc
+from django.db import IntegrityError
 from django.db.models import QuerySet
 from django.db.models.functions import ExtractYear
 from rest_framework import generics, status
@@ -887,13 +888,25 @@ def get_city_districts(request: Request, city_id: int) -> Response:
         )
 
     districts = CityDistrict.objects.filter(city=city).order_by('title')
+    visited_district_ids: set[int] | None = None
+    if request.user.is_authenticated:
+        assert isinstance(request.user, User)
+        visited_district_ids = set(
+            VisitedCityDistrict.objects.filter(
+                user=request.user, city_district__city=city
+            ).values_list('city_district_id', flat=True)
+        )
 
-    serializer = CityDistrictSerializer(districts, many=True, context={'request': request})
+    serializer = CityDistrictSerializer(
+        districts,
+        many=True,
+        context={'request': request, 'visited_district_ids': visited_district_ids},
+    )
 
     logger.info(
         request,
         f'(API) Successful request for city districts list (city_id: {city_id}, '
-        f'districts count: {len(districts)})',
+        f'districts count: {districts.count()})',
     )
 
     return Response(serializer.data)
@@ -917,34 +930,29 @@ def add_visited_city_district(request: Request) -> Response:
         )
 
     serializer = AddVisitedCityDistrictSerializer(data=request.data, context={'request': request})
+    serializer.is_valid(raise_exception=True)
 
-    if serializer.is_valid():
-        try:
-            visited_district = serializer.save()
-            assert isinstance(request.user, User)
-            logger.info(
-                request,
-                f'(API) Successful creation of visited city district '
-                f'(user_id: {request.user.id}, district_id: {visited_district.city_district.id})',
-            )
-            return Response(
-                {
-                    'id': visited_district.id,
-                    'city_district_id': visited_district.city_district.id,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-        except Exception as e:
-            logger.warning(
-                request,
-                f'(API) Error creating visited city district: {str(e)}',
-            )
-            return Response(
-                {'detail': 'Ошибка при создании записи о посещении района'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+    try:
+        visited_district = serializer.save()
+    except IntegrityError:
+        return Response(
+            {'detail': 'Район уже отмечен как посещённый.'},
+            status=status.HTTP_409_CONFLICT,
+        )
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    assert isinstance(request.user, User)
+    logger.info(
+        request,
+        f'(API) Successful creation of visited city district '
+        f'(user_id: {request.user.id}, district_id: {visited_district.city_district.id})',
+    )
+    return Response(
+        {
+            'id': visited_district.id,
+            'city_district_id': visited_district.city_district.id,
+        },
+        status=status.HTTP_201_CREATED,
+    )
 
 
 @api_view(['DELETE'])
@@ -1029,7 +1037,7 @@ def get_cities_with_districts(request: Request) -> Response:
     logger.info(
         request,
         f'(API) Successful request for cities with districts list '
-        f'(cities count: {len(cities_with_districts)})',
+        f'(cities count: {cities_with_districts.count()})',
     )
 
     return Response(serializer.data)

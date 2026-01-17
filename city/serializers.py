@@ -175,6 +175,10 @@ class CityDistrictSerializer(serializers.ModelSerializer[CityDistrict]):
         """
         Проверяет, посещён ли район текущим пользователем.
         """
+        visited_district_ids = self.context.get('visited_district_ids')
+        if isinstance(visited_district_ids, set):
+            return obj.pk in visited_district_ids
+
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             assert isinstance(request.user, User)
@@ -208,5 +212,8 @@ class AddVisitedCityDistrictSerializer(serializers.Serializer[VisitedCityDistric
 
         user = self.context['request'].user
         assert isinstance(user, User)
+
+        if VisitedCityDistrict.objects.filter(user=user, city_district=city_district).exists():
+            raise serializers.ValidationError({'detail': 'Район уже отмечен как посещённый.'})
 
         return VisitedCityDistrict.objects.create(user=user, city_district=city_district)

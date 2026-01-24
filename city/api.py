@@ -204,7 +204,7 @@ class GetNotVisitedCities(generics.ListAPIView):  # type: ignore[type-arg]
         )
         return super().get(*args, **kwargs)
 
-    def get_queryset(self) -> QuerySet[City, City]:
+    def get_queryset(self) -> QuerySet[City, City]:  # type: ignore[override]
         user_pk = self.request.user.pk
         if user_pk is None:
             return City.objects.none()
@@ -278,7 +278,7 @@ def city_list_by_region(request: Request) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    cities = City.objects.filter(region_id=region_id).order_by('title')
+    cities = list(City.objects.filter(region_id=region_id).order_by('title'))
     serializer = CitySerializer(cities, many=True, context={'request': request})
 
     return Response(serializer.data)
@@ -293,7 +293,7 @@ def city_list_by_country(request: Request) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    cities = City.objects.filter(country_id=country_id).order_by('title')
+    cities = list(City.objects.filter(country_id=country_id).order_by('title'))
     serializer = CitySerializer(cities, many=True, context={'request': request})
 
     return Response(serializer.data)
@@ -609,9 +609,10 @@ def city_search(request: Request) -> Response:
 
     # Поиск городов через сервис
     cities_queryset = CitySearchService.search_cities(query=query, country=country, limit=limit)
+    cities_list = list(cities_queryset)
 
     # Использование сериализатора для формирования ответа
-    city_serializer = CitySerializer(cities_queryset, many=True, context={'request': request})
+    city_serializer = CitySerializer(cities_list, many=True, context={'request': request})
 
     return Response(city_serializer.data, status=status.HTTP_200_OK)
 
@@ -887,7 +888,8 @@ def get_city_districts(request: Request, city_id: int) -> Response:
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    districts = CityDistrict.objects.filter(city=city).order_by('title')
+    districts_qs = CityDistrict.objects.filter(city=city).order_by('title')
+    districts_list = list(districts_qs)
     visited_district_ids: set[int] | None = None
     if request.user.is_authenticated:
         assert isinstance(request.user, User)
@@ -898,7 +900,7 @@ def get_city_districts(request: Request, city_id: int) -> Response:
         )
 
     serializer = CityDistrictSerializer(
-        districts,
+        districts_list,
         many=True,
         context={'request': request, 'visited_district_ids': visited_district_ids},
     )
@@ -906,7 +908,7 @@ def get_city_districts(request: Request, city_id: int) -> Response:
     logger.info(
         request,
         f'(API) Successful request for city districts list (city_id: {city_id}, '
-        f'districts count: {districts.count()})',
+        f'districts count: {len(districts_list)})',
     )
 
     return Response(serializer.data)
@@ -1028,16 +1030,17 @@ def get_cities_with_districts(request: Request) -> Response:
     :param request: DRF Request
     :return: Response со списком городов
     """
-    cities_with_districts = (
+    cities_with_districts_qs = (
         City.objects.filter(districts__isnull=False).distinct().order_by('title')
     )
+    cities_with_districts_list = list(cities_with_districts_qs)
 
-    serializer = CitySerializer(cities_with_districts, many=True, context={'request': request})
+    serializer = CitySerializer(cities_with_districts_list, many=True, context={'request': request})
 
     logger.info(
         request,
         f'(API) Successful request for cities with districts list '
-        f'(cities count: {cities_with_districts.count()})',
+        f'(cities count: {len(cities_with_districts_list)})',
     )
 
     return Response(serializer.data)

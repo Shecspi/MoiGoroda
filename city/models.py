@@ -180,3 +180,81 @@ class CityListDefaultSettings(models.Model):
 
     def __str__(self) -> str:
         return f'{self.get_parameter_type_display()} для {self.user}: {self.parameter_value}'
+
+
+class CityDistrict(models.Model):
+    """
+    Модель для хранения метаданных о районах городов.
+    """
+
+    title = models.CharField(max_length=100, verbose_name='Название', blank=False, null=False)
+    city = models.ForeignKey(
+        City,
+        on_delete=CASCADE,
+        verbose_name='Город',
+        blank=False,
+        null=False,
+        related_name='districts',
+    )
+    area = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name='Площадь',
+        blank=True,
+        null=True,
+        help_text='Площадь района в квадратных километрах',
+    )
+    population = models.PositiveIntegerField(
+        verbose_name='Численность населения',
+        blank=True,
+        null=True,
+    )
+
+    class Meta:
+        ordering = ['title']
+        verbose_name = 'Район города'
+        verbose_name_plural = 'Районы городов'
+        unique_together = ['title', 'city']
+
+    def __str__(self) -> str:
+        return f'{self.title} ({self.city.title})'
+
+
+class VisitedCityDistrict(models.Model):
+    """
+    Модель для хранения информации о посещённых районах городов пользователями.
+    """
+
+    user = models.ForeignKey(
+        User,
+        on_delete=CASCADE,
+        verbose_name='Пользователь',
+        blank=False,
+        null=False,
+        related_name='visited_city_districts',
+    )
+    city_district = models.ForeignKey(
+        CityDistrict,
+        on_delete=CASCADE,
+        verbose_name='Район города',
+        blank=False,
+        null=False,
+        related_name='visits',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата и время создания',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата и время изменения',
+    )
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Посещённый район города'
+        verbose_name_plural = 'Посещённые районы городов'
+        unique_together = ['user', 'city_district']
+
+    def __str__(self) -> str:
+        return f'{self.user.username} - {self.city_district.title}'

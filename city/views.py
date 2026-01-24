@@ -12,6 +12,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Any, NoReturn, Callable
 
+from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.forms import BaseModelForm
 from django.http import Http404, HttpResponse, HttpRequest, HttpResponseBase
@@ -30,7 +31,13 @@ from django.views.generic import (
 )
 
 from city.forms import VisitedCity_Create_Form
-from city.models import VisitedCity, City, CityListDefaultSettings
+from city.models import (
+    City,
+    CityListDefaultSettings,
+    VisitedCity,
+    CityDistrict,
+    VisitedCityDistrict,
+)
 from city.services.db import (
     get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
@@ -522,3 +529,105 @@ def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:
         logger.info(request, "(Visited city) Couldn't find cities in the requested region")
         cities = None
     return render(request, 'city/create/dropdown_list.html', {'cities': cities})
+
+
+class CityDistrictMapView(TemplateView):
+    """
+    Отображает страницу с картой районов выбранного города.
+
+    Доступна всем пользователям (авторизованным и неавторизованным).
+    """
+
+    template_name = 'city/districts/map/page.html'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._city: City | None = None
+
+    def _get_city(self) -> City:
+        """
+        Возвращает город по id из URL или выбрасывает Http404.
+        """
+        if self._city is not None:
+            return self._city
+
+        city_id = self.kwargs.get('city_id')
+        if city_id is None:
+            raise Http404('ID города не указан')
+
+        try:
+            city_id_int = int(city_id)
+        except (TypeError, ValueError):
+            raise Http404('Некорректный ID города')
+
+        try:
+            self._city = City.objects.select_related('country', 'region').get(pk=city_id_int)
+            return self._city
+        except City.DoesNotExist:
+            raise Http404(f'Город с id {city_id} не найден')
+
+    @staticmethod
+    def _get_region_code(city: City) -> str | None:
+        """
+        Возвращает код региона из iso3166, если формат корректен.
+        """
+        if not city.region or not city.region.iso3166:
+            return None
+
+        parts = city.region.iso3166.split('-', maxsplit=1)
+        if len(parts) != 2:
+            return None
+
+        return parts[1] or None
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        """
+        Обрабатывает GET запрос. Проверяет существование города.
+        """
+        self._get_city()
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        """
+        Формирует контекст для шаблона.
+        """
+        context = super().get_context_data(**kwargs)
+
+        city = self._get_city()
+        city_id = city.pk
+
+        # Подсчитываем количество районов и посещённых районов
+        qty_of_districts = CityDistrict.objects.filter(city=city).count()
+        qty_of_visited_districts = 0
+        if self.request.user.is_authenticated:
+            qty_of_visited_districts = VisitedCityDistrict.objects.filter(
+                user=self.request.user, city_district__city=city
+            ).count()
+
+        context['city'] = city
+        context['city_id'] = city_id
+        context['country_code'] = city.country.code
+        context['city_name'] = city.title
+        context['region_code'] = self._get_region_code(city)
+        context['url_geo_polygons'] = settings.URL_GEO_POLYGONS
+        context['is_authenticated'] = self.request.user.is_authenticated
+        context['qty_of_districts'] = qty_of_districts
+        context['qty_of_visited_districts'] = qty_of_visited_districts
+        context['api_districts_url'] = reverse(
+            'api__get_city_districts', kwargs={'city_id': city_id}
+        )
+        context['api_visit_url'] = reverse('api__add_visited_city_district')
+        context['api_visit_delete_url'] = reverse('api__delete_visited_city_district')
+        context['api_cities_url'] = reverse('api__get_cities_with_districts')
+
+        context['active_page'] = 'city_districts_map'
+        context['page_title'] = f'Карта районов города {city.title}'
+        context['page_description'] = f'Интерактивная карта районов города {city.title}'
+
+        logger.info(
+            self.request,
+            f'(City districts) Viewing districts map for city {city.title} (id: {city_id})',
+        )
+
+        return context

@@ -11,9 +11,10 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any
 
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from city.models import City, VisitedCity
+from city.models import City, CityDistrict, VisitedCity, VisitedCityDistrict
 
 
 class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
@@ -161,3 +162,58 @@ class CitySearchParamsSerializer(serializers.Serializer[dict[str, Any]]):
         default=50,
         help_text='Максимальное количество результатов (по умолчанию 50, максимум 200)',
     )
+
+
+class CityDistrictSerializer(serializers.ModelSerializer[CityDistrict]):
+    """
+    Сериализатор для района города.
+    """
+
+    is_visited = serializers.SerializerMethodField()
+
+    def get_is_visited(self, obj: CityDistrict) -> bool:
+        """
+        Проверяет, посещён ли район текущим пользователем.
+        """
+        visited_district_ids = self.context.get('visited_district_ids')
+        if isinstance(visited_district_ids, set):
+            return obj.pk in visited_district_ids
+
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            assert isinstance(request.user, User)
+            return VisitedCityDistrict.objects.filter(user=request.user, city_district=obj).exists()
+        return False
+
+    class Meta:
+        model = CityDistrict
+        fields = ['id', 'title', 'area', 'population', 'is_visited']
+
+
+class AddVisitedCityDistrictSerializer(serializers.Serializer[VisitedCityDistrict]):
+    """
+    Сериализатор для создания записи о посещении района.
+    """
+
+    city_district_id = serializers.IntegerField(required=True)
+
+    def create(self, validated_data: dict[str, Any]) -> VisitedCityDistrict:
+        """
+        Создаёт запись о посещении района.
+        """
+        city_district_id = validated_data['city_district_id']
+
+        try:
+            city_district = CityDistrict.objects.get(pk=city_district_id)
+        except CityDistrict.DoesNotExist:
+            raise serializers.ValidationError(
+                {'city_district_id': f'Район с id {city_district_id} не найден.'}
+            )
+
+        user = self.context['request'].user
+        assert isinstance(user, User)
+
+        if VisitedCityDistrict.objects.filter(user=user, city_district=city_district).exists():
+            raise serializers.ValidationError({'detail': 'Район уже отмечен как посещённый.'})
+
+        return VisitedCityDistrict.objects.create(user=user, city_district=city_district)

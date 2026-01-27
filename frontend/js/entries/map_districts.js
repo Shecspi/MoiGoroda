@@ -26,7 +26,7 @@ const visitedStyle = {
     fillOpacity: 0.6,
     color: '#444444', // тёмно-серый цвет границы
     weight: 1,
-    opacity: 0.6,
+    opacity: 0.4,
 };
 
 const notVisitedStyle = {
@@ -34,7 +34,7 @@ const notVisitedStyle = {
     fillOpacity: 0.6,
     color: '#444444', // тёмно-серый цвет границы
     weight: 1,
-    opacity: 0.6,
+    opacity: 0.4,
 };
 
 const defaultStyle = {
@@ -42,7 +42,7 @@ const defaultStyle = {
     fillOpacity: 0.6,
     color: '#444444', // тёмно-серый цвет границы
     weight: 1,
-    opacity: 0.6,
+    opacity: 0.4,
 };
 
 /**

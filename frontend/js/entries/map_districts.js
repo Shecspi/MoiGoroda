@@ -23,7 +23,7 @@ let cachedGeoJson = null;
 // Стили для полигонов (используются те же параметры, что и на карте регионов)
 const visitedStyle = {
     fillColor: '#4fbf4f', // зелёный для 41-60% посещённости - более светлый оттенок
-    fillOpacity: 0.7,
+    fillOpacity: 0.6,
     color: '#444444', // тёмно-серый цвет границы
     weight: 1,
     opacity: 0.6,
@@ -31,7 +31,7 @@ const visitedStyle = {
 
 const notVisitedStyle = {
     fillColor: '#bbbbbb', // серый - цвет для непосещённого региона
-    fillOpacity: 0.85,
+    fillOpacity: 0.6,
     color: '#444444', // тёмно-серый цвет границы
     weight: 1,
     opacity: 0.6,

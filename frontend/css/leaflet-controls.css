@@ -485,36 +485,22 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
     border-top-color: #404040;
 }
 
-#map .district-colors-reset-btn {
-    width: 100%;
-    padding: 0.375rem 0.5rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.375rem;
-    background-color: #ffffff;
-    color: #374151;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.dark #map .district-colors-reset-btn {
-    border-color: #404040;
-    background-color: #262626;
-    color: #d1d5db;
-}
-
 #map .district-colors-reset-btn:hover {
     background-color: #f9fafb;
-    color: #111827;
+    border-color: #d1d5db;
 }
 
 .dark #map .district-colors-reset-btn:hover {
-    background-color: #404040;
-    color: #e5e7eb;
+    background-color: #262626;
+    border-color: #525252;
 }
 
-#map .district-colors-reset-btn:active {
-    transform: scale(0.98);
+#map .district-colors-reset-btn:focus {
+    background-color: #f3f4f6;
+}
+
+.dark #map .district-colors-reset-btn:focus {
+    background-color: #404040;
 }
 
 #map .leaflet-control-district-colors-row {

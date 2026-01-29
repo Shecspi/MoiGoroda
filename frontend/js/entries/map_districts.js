@@ -123,7 +123,7 @@ function addColorPickersControl(map) {
                     <input type="color" id="color-not-visited" value="#bbbbbb" class="leaflet-control-district-colors-input" title="Цвет заливки непосещённых районов">
                 </div>
                 <div class="leaflet-control-district-colors-reset-row">
-                    <button type="button" id="reset-district-colors-btn" class="district-colors-reset-btn" title="Вернуть цвета по умолчанию">Сбросить</button>
+                    <button type="button" id="reset-district-colors-btn" class="py-1.5 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-layer border border-layer-line text-muted-foreground-1 shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none w-full justify-center district-colors-reset-btn" title="Вернуть цвета по умолчанию">Сбросить</button>
                 </div>
             </div>
         `;

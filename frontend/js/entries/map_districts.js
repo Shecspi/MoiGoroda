@@ -59,6 +59,12 @@ const defaultStyle = {
     opacity: DEFAULT_BORDER_OPACITY / 100,
 };
 
+/** Проверяет, что строка — цвет в формате #rrggbb (7 символов). */
+function isValidHexColor(value) {
+    if (typeof value !== 'string' || value.length !== 7 || value[0] !== '#') return false;
+    return /^#[0-9a-fA-F]{6}$/.test(value);
+}
+
 /**
  * Применяет выбранные пользователем цвета к полигонам (перерисовывает карту).
  * defaultStyle не меняется.
@@ -98,10 +104,6 @@ function throttle(intervalMs, callback) {
 
 /** Перерисовка полигонов по цвету, не чаще чем раз в 120 ms при движении ползунка. */
 const applyPolygonColorsThrottled = throttle(120, applyPolygonColors);
-
-/** Дебаунс для сохранения цветов на бэкенд (мс). */
-const SAVE_COLORS_DEBOUNCE_MS = 500;
-let saveColorsTimeoutId = null;
 
 /** Селекторы панели и кнопки настроек цветов (для переключения видимости). */
 const DISTRICT_COLORS_PANEL_SELECTOR = '#map .district-colors-panel';
@@ -201,8 +203,9 @@ function addColorPickersControl(map) {
                         </div>
                     </div>
                 </div>
-                <div class="leaflet-control-district-colors-reset-row">
-                    <button type="button" id="reset-district-colors-btn" class="py-1.5 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-layer border border-layer-line text-muted-foreground-1 shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none w-full justify-center district-colors-reset-btn" title="Вернуть цвета по умолчанию">Сбросить</button>
+                <div class="leaflet-control-district-colors-actions-row">
+                    <button type="button" id="reset-district-colors-btn" class="py-1.5 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-layer border border-layer-line text-muted-foreground-1 shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none flex-1 justify-center district-colors-reset-btn" title="Вернуть цвета по умолчанию">Сбросить</button>
+                    <button type="button" id="save-district-colors-btn" class="py-1.5 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg shadow-2xs disabled:opacity-50 disabled:pointer-events-none flex-1 justify-center district-colors-save-btn" title="Сохранить настройки на сервер">Сохранить</button>
                 </div>
             </div>
         `;
@@ -245,16 +248,18 @@ function addColorPickersControl(map) {
         }
     });
 
-    // Сброс цветов по клику на «Сбросить»
+    // Сброс и сохранение по клику на кнопки
     document.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'reset-district-colors-btn') {
             resetDistrictMapColors();
+        } else if (e.target && e.target.id === 'save-district-colors-btn') {
+            saveDistrictMapColors();
         }
     });
 }
 
 /**
- * Сбрасывает цвета полигонов на значения по умолчанию и сохраняет на бэкенд.
+ * Сбрасывает цвета полигонов на значения по умолчанию (без сохранения на сервер).
  */
 function resetDistrictMapColors() {
     visitedStyle.fillColor = DEFAULT_COLOR_VISITED;
@@ -288,7 +293,6 @@ function resetDistrictMapColors() {
     if (borderOpacityInput) borderOpacityInput.value = String(DEFAULT_BORDER_OPACITY);
 
     applyPolygonColors();
-    scheduleSaveDistrictMapColors();
 }
 
 /**
@@ -306,15 +310,15 @@ async function loadDistrictMapColors() {
         const colorNotVisitedInput = document.getElementById('color-not-visited');
         const colorBorderInput = document.getElementById('color-border');
 
-        if (data.color_visited != null && data.color_visited !== '') {
+        if (data.color_visited != null && data.color_visited !== '' && isValidHexColor(data.color_visited)) {
             visitedStyle.fillColor = data.color_visited;
             if (colorVisitedInput) colorVisitedInput.value = data.color_visited;
         }
-        if (data.color_not_visited != null && data.color_not_visited !== '') {
+        if (data.color_not_visited != null && data.color_not_visited !== '' && isValidHexColor(data.color_not_visited)) {
             notVisitedStyle.fillColor = data.color_not_visited;
             if (colorNotVisitedInput) colorNotVisitedInput.value = data.color_not_visited;
         }
-        if (data.color_border != null && data.color_border !== '') {
+        if (data.color_border != null && data.color_border !== '' && isValidHexColor(data.color_border)) {
             visitedStyle.color = data.color_border;
             notVisitedStyle.color = data.color_border;
             defaultStyle.color = data.color_border;
@@ -367,42 +371,45 @@ async function loadDistrictMapColors() {
 }
 
 /**
- * Сохраняет текущие цвета на бэкенд (вызов дебаунсится).
+ * Отправляет текущие настройки цветов карты районов на бэкенд.
+ * Показывает toast об успехе или ошибке.
  */
-function scheduleSaveDistrictMapColors() {
+function saveDistrictMapColors() {
     if (!window.IS_AUTHENTICATED || !window.API_MAP_COLORS_SAVE_URL) return;
 
-    if (saveColorsTimeoutId !== null) {
-        clearTimeout(saveColorsTimeoutId);
-    }
-
-    saveColorsTimeoutId = setTimeout(() => {
-        saveColorsTimeoutId = null;
-        const body = {
-            color_visited: visitedStyle.fillColor,
-            color_not_visited: notVisitedStyle.fillColor,
-            color_border: visitedStyle.color,
-            border_weight: visitedStyle.weight,
-            fill_opacity_visited: Math.round(visitedStyle.fillOpacity * 100),
-            fill_opacity_not_visited: Math.round(notVisitedStyle.fillOpacity * 100),
-            border_opacity: Math.round(visitedStyle.opacity * 100),
-        };
-        fetch(window.API_MAP_COLORS_SAVE_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: JSON.stringify(body),
-        }).catch((err) => {
+    const body = {
+        color_visited: visitedStyle.fillColor,
+        color_not_visited: notVisitedStyle.fillColor,
+        color_border: visitedStyle.color,
+        border_weight: visitedStyle.weight,
+        fill_opacity_visited: Math.round(visitedStyle.fillOpacity * 100),
+        fill_opacity_not_visited: Math.round(notVisitedStyle.fillOpacity * 100),
+        border_opacity: Math.round(visitedStyle.opacity * 100),
+    };
+    fetch(window.API_MAP_COLORS_SAVE_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify(body),
+    })
+        .then((response) => {
+            if (response.ok) {
+                showSuccessToast('Успешно', 'Настройки цветов карты сохранены.');
+            } else {
+                showDangerToast('Ошибка', 'Не удалось сохранить настройки. Попробуйте позже.');
+            }
+        })
+        .catch((err) => {
             console.warn('Не удалось сохранить цвета карты районов:', err);
+            showDangerToast('Ошибка', 'Не удалось сохранить настройки. Проверьте соединение.');
         });
-    }, SAVE_COLORS_DEBOUNCE_MS);
 }
 
 /**
  * Подключает обработчики color picker для цветов посещённых/непосещённых районов и границ.
- * На input — throttle перерисовки; на change — немедленная перерисовка и отложенное сохранение.
+ * На input — throttle перерисовки; на change — немедленная перерисовка. Сохранение на сервер — по кнопке «Сохранить».
  */
 function initColorPickers() {
     const colorVisitedInput = document.getElementById('color-visited');
@@ -432,7 +439,6 @@ function initColorPickers() {
     colorVisitedInput.addEventListener('change', () => {
         visitedStyle.fillColor = colorVisitedInput.value;
         applyPolygonColors();
-        scheduleSaveDistrictMapColors();
     });
 
     colorNotVisitedInput.addEventListener('input', () => {
@@ -442,7 +448,6 @@ function initColorPickers() {
     colorNotVisitedInput.addEventListener('change', () => {
         notVisitedStyle.fillColor = colorNotVisitedInput.value;
         applyPolygonColors();
-        scheduleSaveDistrictMapColors();
     });
 
     colorBorderInput.addEventListener('input', () => {
@@ -456,7 +461,6 @@ function initColorPickers() {
         notVisitedStyle.color = colorBorderInput.value;
         defaultStyle.color = colorBorderInput.value;
         applyPolygonColors();
-        scheduleSaveDistrictMapColors();
     });
 
     const applyBorderWeight = (value) => {
@@ -475,7 +479,6 @@ function initColorPickers() {
             const next = Math.max(BORDER_WEIGHT_MIN, current - 1);
             applyBorderWeight(next);
             applyPolygonColors();
-            scheduleSaveDistrictMapColors();
         });
     }
     if (borderWeightIncrement) {
@@ -484,7 +487,6 @@ function initColorPickers() {
             const next = Math.min(BORDER_WEIGHT_MAX, current + 1);
             applyBorderWeight(next);
             applyPolygonColors();
-            scheduleSaveDistrictMapColors();
         });
     }
     borderWeightInput.addEventListener('input', () => {
@@ -494,7 +496,6 @@ function initColorPickers() {
     borderWeightInput.addEventListener('change', () => {
         applyBorderWeight(borderWeightInput.value);
         applyPolygonColors();
-        scheduleSaveDistrictMapColors();
     });
 
     // Непрозрачность: заливка посещённых, заливка непосещённых, границы
@@ -531,7 +532,6 @@ function initColorPickers() {
                 const cur = clampOpacityToStep(inputEl.value) ?? OPACITY_MIN;
                 apply(Math.max(OPACITY_MIN, cur - OPACITY_STEP));
                 applyPolygonColors();
-                scheduleSaveDistrictMapColors();
             });
         }
         if (inc) {
@@ -539,7 +539,6 @@ function initColorPickers() {
                 const cur = clampOpacityToStep(inputEl.value) ?? OPACITY_MIN;
                 apply(Math.min(OPACITY_MAX, cur + OPACITY_STEP));
                 applyPolygonColors();
-                scheduleSaveDistrictMapColors();
             });
         }
         inputEl.addEventListener('input', () => {
@@ -549,7 +548,6 @@ function initColorPickers() {
         inputEl.addEventListener('change', () => {
             apply(inputEl.value);
             applyPolygonColors();
-            scheduleSaveDistrictMapColors();
         });
     };
 

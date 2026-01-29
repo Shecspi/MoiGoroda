@@ -1061,10 +1061,11 @@ def get_district_map_colors(request: Request) -> Response:
     """
     Возвращает настройки цветов заливки полигонов карты районов для текущего пользователя.
 
-    Требует авторизации. Возвращает color_visited и color_not_visited (могут быть null).
+    Требует авторизации. Возвращает color_visited, color_not_visited, color_border (могут быть null),
+    border_weight (1–10), fill_opacity_visited, fill_opacity_not_visited, border_opacity (0–100).
 
     :param request: DRF Request
-    :return: Response с полями color_visited, color_not_visited
+    :return: Response с полями color_visited, color_not_visited, color_border, border_weight, прозрачности, border_weight
     """
     if not request.user.is_authenticated:
         return Response(
@@ -1077,9 +1078,22 @@ def get_district_map_colors(request: Request) -> Response:
         data = {
             'color_visited': settings_obj.color_visited,
             'color_not_visited': settings_obj.color_not_visited,
+            'color_border': settings_obj.color_border,
+            'border_weight': settings_obj.border_weight,
+            'fill_opacity_visited': settings_obj.fill_opacity_visited,
+            'fill_opacity_not_visited': settings_obj.fill_opacity_not_visited,
+            'border_opacity': settings_obj.border_opacity,
         }
     except DistrictMapColorSettings.DoesNotExist:
-        data = {'color_visited': None, 'color_not_visited': None}
+        data = {
+            'color_visited': None,
+            'color_not_visited': None,
+            'color_border': None,
+            'border_weight': 1,
+            'fill_opacity_visited': 60,
+            'fill_opacity_not_visited': 60,
+            'border_opacity': 40,
+        }
 
     return Response(data, status=status.HTTP_200_OK)
 
@@ -1089,8 +1103,10 @@ def save_district_map_colors(request: Request) -> Response:
     """
     Сохраняет настройки цветов заливки полигонов карты районов.
 
-    Требует авторизации. Тело запроса: color_visited (опционально), color_not_visited (опционально).
-    Значения в формате #rrggbb. Можно передать только один из цветов.
+    Требует авторизации. Тело запроса: color_visited (опционально), color_not_visited (опционально),
+    color_border (опционально), border_weight (опционально, 1–10),
+    fill_opacity_visited, fill_opacity_not_visited, border_opacity (опционально, 0–100).
+    Значения цветов в формате #rrggbb. Можно передать только один параметр.
 
     :param request: DRF Request
     :return: Response со статусом операции
@@ -1103,6 +1119,11 @@ def save_district_map_colors(request: Request) -> Response:
 
     color_visited = request.data.get('color_visited')
     color_not_visited = request.data.get('color_not_visited')
+    color_border = request.data.get('color_border')
+    border_weight = request.data.get('border_weight')
+    fill_opacity_visited = request.data.get('fill_opacity_visited')
+    fill_opacity_not_visited = request.data.get('fill_opacity_not_visited')
+    border_opacity = request.data.get('border_opacity')
 
     if color_visited is not None and color_visited != '' and not _validate_hex_color(color_visited):
         return Response(
@@ -1116,10 +1137,69 @@ def save_district_map_colors(request: Request) -> Response:
             {'detail': 'Недопустимый формат color_not_visited (ожидается #rrggbb)'},
             status=status.HTTP_400_BAD_REQUEST,
         )
-
-    if color_visited is None and color_not_visited is None:
+    if color_border is not None and color_border != '' and not _validate_hex_color(color_border):
         return Response(
-            {'detail': 'Укажите хотя бы один цвет (color_visited или color_not_visited)'},
+            {'detail': 'Недопустимый формат color_border (ожидается #rrggbb)'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if border_weight is not None:
+        try:
+            weight_val = int(border_weight)
+        except (TypeError, ValueError):
+            weight_val = None
+        if weight_val is None or weight_val < 1 or weight_val > 10:
+            return Response(
+                {'detail': 'border_weight должен быть целым числом от 1 до 10'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    def _validate_opacity(value, name: str):
+        if value is None:
+            return None
+        try:
+            v = int(value)
+        except (TypeError, ValueError):
+            return None
+        if v < 0 or v > 100:
+            return None
+        return v
+
+    if fill_opacity_visited is not None:
+        ov = _validate_opacity(fill_opacity_visited, 'fill_opacity_visited')
+        if ov is None:
+            return Response(
+                {'detail': 'fill_opacity_visited должен быть целым числом от 0 до 100'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+    if fill_opacity_not_visited is not None:
+        ov = _validate_opacity(fill_opacity_not_visited, 'fill_opacity_not_visited')
+        if ov is None:
+            return Response(
+                {'detail': 'fill_opacity_not_visited должен быть целым числом от 0 до 100'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+    if border_opacity is not None:
+        ov = _validate_opacity(border_opacity, 'border_opacity')
+        if ov is None:
+            return Response(
+                {'detail': 'border_opacity должен быть целым числом от 0 до 100'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    if (
+        color_visited is None
+        and color_not_visited is None
+        and color_border is None
+        and border_weight is None
+        and fill_opacity_visited is None
+        and fill_opacity_not_visited is None
+        and border_opacity is None
+    ):
+        return Response(
+            {
+                'detail': 'Укажите хотя бы один параметр (цвета, border_weight или прозрачности)'
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -1130,6 +1210,16 @@ def save_district_map_colors(request: Request) -> Response:
         defaults['color_visited'] = color_visited if color_visited != '' else None
     if color_not_visited is not None:
         defaults['color_not_visited'] = color_not_visited if color_not_visited != '' else None
+    if color_border is not None:
+        defaults['color_border'] = color_border if color_border != '' else None
+    if border_weight is not None:
+        defaults['border_weight'] = int(border_weight)
+    if fill_opacity_visited is not None:
+        defaults['fill_opacity_visited'] = _validate_opacity(fill_opacity_visited, '')
+    if fill_opacity_not_visited is not None:
+        defaults['fill_opacity_not_visited'] = _validate_opacity(fill_opacity_not_visited, '')
+    if border_opacity is not None:
+        defaults['border_opacity'] = _validate_opacity(border_opacity, '')
 
     DistrictMapColorSettings.objects.update_or_create(
         user=user,

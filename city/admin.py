@@ -214,7 +214,19 @@ class VisitedCityDistrictAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
 @admin.register(DistrictMapColorSettings)
 class DistrictMapColorSettingsAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
-    list_display = ('id', 'user', 'color_visited', 'color_not_visited', 'created_at', 'updated_at')
+    list_display = (
+        'id',
+        'user',
+        'color_visited',
+        'color_not_visited',
+        'color_border',
+        'border_weight',
+        'fill_opacity_visited',
+        'fill_opacity_not_visited',
+        'border_opacity',
+        'created_at',
+        'updated_at',
+    )
     list_filter = (UserFilter,)
     search_fields = ('user__username',)
     readonly_fields = ('created_at', 'updated_at')

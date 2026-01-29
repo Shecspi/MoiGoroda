@@ -77,27 +77,33 @@ def test_get_colors_prohibited_methods(
 def test_get_colors_when_no_settings_returns_nulls(
     api_client: APIClient, authenticated_user: User
 ) -> None:
-    """Если у пользователя нет записи, возвращаются оба null."""
+    """Если у пользователя нет записи, цвета null, border_weight по умолчанию 1."""
     response = api_client.get(GET_COLORS_URL)
     assert response.status_code == status.HTTP_200_OK
     assert response.data['color_visited'] is None
     assert response.data['color_not_visited'] is None
+    assert response.data['color_border'] is None
+    assert response.data['border_weight'] == 1
 
 
 @pytest.mark.integration
 def test_get_colors_returns_saved_settings(
     api_client: APIClient, authenticated_user: User
 ) -> None:
-    """Возвращаются сохранённые цвета пользователя."""
+    """Возвращаются сохранённые цвета и ширина границ пользователя."""
     DistrictMapColorSettings.objects.create(
         user=authenticated_user,
         color_visited='#4fbf4f',
         color_not_visited='#bbbbbb',
+        color_border='#444444',
+        border_weight=3,
     )
     response = api_client.get(GET_COLORS_URL)
     assert response.status_code == status.HTTP_200_OK
     assert response.data['color_visited'] == '#4fbf4f'
     assert response.data['color_not_visited'] == '#bbbbbb'
+    assert response.data['color_border'] == '#444444'
+    assert response.data['border_weight'] == 3
 
 
 @pytest.mark.integration
@@ -114,6 +120,7 @@ def test_get_colors_returns_partial_settings(
     assert response.status_code == status.HTTP_200_OK
     assert response.data['color_visited'] == '#ff0000'
     assert response.data['color_not_visited'] is None
+    assert response.data['border_weight'] == 1
 
 
 # POST save_district_map_colors — доступ и методы
@@ -148,11 +155,14 @@ def test_save_colors_prohibited_methods(
 def test_save_colors_missing_both_returns_400(
     api_client: APIClient, authenticated_user: User
 ) -> None:
-    """Если не передан ни color_visited, ни color_not_visited — 400."""
+    """Если не передан ни один параметр (цвета или border_weight) — 400."""
     response = api_client.post(SAVE_COLORS_URL, {}, format='json')
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert 'detail' in response.data
-    assert 'хотя бы один' in response.data['detail'].lower() or 'color' in response.data['detail'].lower()
+    assert (
+        'хотя бы один' in response.data['detail'].lower()
+        or 'color' in response.data['detail'].lower()
+    )
 
 
 @pytest.mark.integration
@@ -209,6 +219,41 @@ def test_save_colors_no_hash_returns_400(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
+@pytest.mark.integration
+def test_save_colors_invalid_hex_border_returns_400(
+    api_client: APIClient, authenticated_user: User
+) -> None:
+    """Недопустимый формат color_border возвращает 400."""
+    response = api_client.post(
+        SAVE_COLORS_URL,
+        {'color_visited': '#4fbf4f', 'color_border': 'invalid'},
+        format='json',
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'color_border' in response.data['detail'].lower()
+
+
+@pytest.mark.integration
+def test_save_colors_invalid_border_weight_returns_400(
+    api_client: APIClient, authenticated_user: User
+) -> None:
+    """Недопустимое значение border_weight (вне 1–10) возвращает 400."""
+    response = api_client.post(
+        SAVE_COLORS_URL,
+        {'color_visited': '#4fbf4f', 'border_weight': 0},
+        format='json',
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'border_weight' in response.data['detail'].lower()
+
+    response = api_client.post(
+        SAVE_COLORS_URL,
+        {'color_visited': '#4fbf4f', 'border_weight': 11},
+        format='json',
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
 # POST save_district_map_colors — успешное сохранение
 
 
@@ -216,10 +261,15 @@ def test_save_colors_no_hash_returns_400(
 def test_save_colors_both_valid_creates_record(
     api_client: APIClient, authenticated_user: User
 ) -> None:
-    """Передача обоих валидных цветов создаёт запись."""
+    """Передача валидных цветов и ширины границ создаёт запись."""
     response = api_client.post(
         SAVE_COLORS_URL,
-        {'color_visited': '#4fbf4f', 'color_not_visited': '#bbbbbb'},
+        {
+            'color_visited': '#4fbf4f',
+            'color_not_visited': '#bbbbbb',
+            'color_border': '#444444',
+            'border_weight': 2,
+        },
         format='json',
     )
     assert response.status_code == status.HTTP_200_OK
@@ -228,6 +278,8 @@ def test_save_colors_both_valid_creates_record(
     settings = DistrictMapColorSettings.objects.get(user=authenticated_user)
     assert settings.color_visited == '#4fbf4f'
     assert settings.color_not_visited == '#bbbbbb'
+    assert settings.color_border == '#444444'
+    assert settings.border_weight == 2
 
 
 @pytest.mark.integration
@@ -237,13 +289,18 @@ def test_save_colors_uppercase_hex_accepted(
     """Принимается hex в верхнем регистре (#RRGGBB)."""
     response = api_client.post(
         SAVE_COLORS_URL,
-        {'color_visited': '#4FBF4F', 'color_not_visited': '#BBBBBB'},
+        {
+            'color_visited': '#4FBF4F',
+            'color_not_visited': '#BBBBBB',
+            'color_border': '#444444',
+        },
         format='json',
     )
     assert response.status_code == status.HTTP_200_OK
     settings = DistrictMapColorSettings.objects.get(user=authenticated_user)
     assert settings.color_visited == '#4FBF4F'
     assert settings.color_not_visited == '#BBBBBB'
+    assert settings.color_border == '#444444'
 
 
 @pytest.mark.integration
@@ -279,6 +336,42 @@ def test_save_colors_only_not_visited_updates_one_field(
 
 
 @pytest.mark.integration
+def test_save_colors_only_border_updates_one_field(
+    api_client: APIClient, authenticated_user: User
+) -> None:
+    """Можно передать только color_border."""
+    response = api_client.post(
+        SAVE_COLORS_URL,
+        {'color_border': '#333333'},
+        format='json',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    settings = DistrictMapColorSettings.objects.get(user=authenticated_user)
+    assert settings.color_visited is None
+    assert settings.color_not_visited is None
+    assert settings.color_border == '#333333'
+    assert settings.border_weight == 1
+
+
+@pytest.mark.integration
+def test_save_colors_only_border_weight_updates_one_field(
+    api_client: APIClient, authenticated_user: User
+) -> None:
+    """Можно передать только border_weight."""
+    response = api_client.post(
+        SAVE_COLORS_URL,
+        {'border_weight': 5},
+        format='json',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    settings = DistrictMapColorSettings.objects.get(user=authenticated_user)
+    assert settings.color_visited is None
+    assert settings.color_not_visited is None
+    assert settings.color_border is None
+    assert settings.border_weight == 5
+
+
+@pytest.mark.integration
 def test_save_colors_update_existing(
     api_client: APIClient, authenticated_user: User
 ) -> None:
@@ -287,11 +380,18 @@ def test_save_colors_update_existing(
         user=authenticated_user,
         color_visited='#4fbf4f',
         color_not_visited='#bbbbbb',
+        color_border='#444444',
+        border_weight=1,
     )
 
     response = api_client.post(
         SAVE_COLORS_URL,
-        {'color_visited': '#ff0000', 'color_not_visited': '#00ff00'},
+        {
+            'color_visited': '#ff0000',
+            'color_not_visited': '#00ff00',
+            'color_border': '#333333',
+            'border_weight': 4,
+        },
         format='json',
     )
     assert response.status_code == status.HTTP_200_OK
@@ -299,6 +399,8 @@ def test_save_colors_update_existing(
     settings = DistrictMapColorSettings.objects.get(user=authenticated_user)
     assert settings.color_visited == '#ff0000'
     assert settings.color_not_visited == '#00ff00'
+    assert settings.color_border == '#333333'
+    assert settings.border_weight == 4
 
 
 @pytest.mark.integration
@@ -310,6 +412,7 @@ def test_save_colors_partial_update_only_visited(
         user=authenticated_user,
         color_visited='#4fbf4f',
         color_not_visited='#bbbbbb',
+        color_border='#444444',
     )
 
     response = api_client.post(
@@ -332,6 +435,7 @@ def test_save_colors_empty_string_clears_field(
         user=authenticated_user,
         color_visited='#4fbf4f',
         color_not_visited='#bbbbbb',
+        color_border='#444444',
     )
 
     response = api_client.post(
@@ -360,11 +464,15 @@ def test_get_colors_is_user_specific(
         user=user1,
         color_visited='#ff0000',
         color_not_visited='#00ff00',
+        color_border='#444444',
+        border_weight=2,
     )
     DistrictMapColorSettings.objects.create(
         user=user2,
         color_visited='#0000ff',
         color_not_visited='#ffff00',
+        color_border='#333333',
+        border_weight=5,
     )
 
     api_client.force_authenticate(user=user1)
@@ -372,12 +480,16 @@ def test_get_colors_is_user_specific(
     assert response.status_code == status.HTTP_200_OK
     assert response.data['color_visited'] == '#ff0000'
     assert response.data['color_not_visited'] == '#00ff00'
+    assert response.data['color_border'] == '#444444'
+    assert response.data['border_weight'] == 2
 
     api_client.force_authenticate(user=user2)
     response = api_client.get(GET_COLORS_URL)
     assert response.status_code == status.HTTP_200_OK
     assert response.data['color_visited'] == '#0000ff'
     assert response.data['color_not_visited'] == '#ffff00'
+    assert response.data['color_border'] == '#333333'
+    assert response.data['border_weight'] == 5
 
 
 @pytest.mark.integration
@@ -391,14 +503,24 @@ def test_save_colors_is_user_specific(
     api_client.force_authenticate(user=user1)
     api_client.post(
         SAVE_COLORS_URL,
-        {'color_visited': '#ff0000', 'color_not_visited': '#00ff00'},
+        {
+            'color_visited': '#ff0000',
+            'color_not_visited': '#00ff00',
+            'color_border': '#444444',
+            'border_weight': 2,
+        },
         format='json',
     )
 
     api_client.force_authenticate(user=user2)
     api_client.post(
         SAVE_COLORS_URL,
-        {'color_visited': '#0000ff', 'color_not_visited': '#ffff00'},
+        {
+            'color_visited': '#0000ff',
+            'color_not_visited': '#ffff00',
+            'color_border': '#333333',
+            'border_weight': 5,
+        },
         format='json',
     )
 
@@ -406,4 +528,8 @@ def test_save_colors_is_user_specific(
     settings1 = DistrictMapColorSettings.objects.get(user=user1)
     settings2 = DistrictMapColorSettings.objects.get(user=user2)
     assert settings1.color_visited == '#ff0000'
+    assert settings1.color_border == '#444444'
+    assert settings1.border_weight == 2
     assert settings2.color_visited == '#0000ff'
+    assert settings2.color_border == '#333333'
+    assert settings2.border_weight == 5

@@ -20,9 +20,13 @@ let geoJsonLayers = [];
 let currentCityId = null;
 let cachedGeoJson = null;
 
+// Цвета по умолчанию для сброса настроек
+const DEFAULT_COLOR_VISITED = '#4fbf4f';
+const DEFAULT_COLOR_NOT_VISITED = '#bbbbbb';
+
 // Стили для полигонов (используются те же параметры, что и на карте регионов)
 const visitedStyle = {
-    fillColor: '#4fbf4f', // зелёный для 41-60% посещённости - более светлый оттенок
+    fillColor: DEFAULT_COLOR_VISITED, // зелёный для 41-60% посещённости - более светлый оттенок
     fillOpacity: 0.6,
     color: '#444444', // тёмно-серый цвет границы
     weight: 1,
@@ -30,7 +34,7 @@ const visitedStyle = {
 };
 
 const notVisitedStyle = {
-    fillColor: '#bbbbbb', // серый - цвет для непосещённого региона
+    fillColor: DEFAULT_COLOR_NOT_VISITED, // серый - цвет для непосещённого региона
     fillOpacity: 0.6,
     color: '#444444', // тёмно-серый цвет границы
     weight: 1,
@@ -88,6 +92,103 @@ const applyPolygonColorsThrottled = throttle(120, applyPolygonColors);
 /** Дебаунс для сохранения цветов на бэкенд (мс). */
 const SAVE_COLORS_DEBOUNCE_MS = 500;
 let saveColorsTimeoutId = null;
+
+/** Селекторы панели и кнопки настроек цветов (для переключения видимости). */
+const DISTRICT_COLORS_PANEL_SELECTOR = '#map .district-colors-panel';
+const DISTRICT_COLORS_TOGGLE_BTN_SELECTOR = '#map .district-colors-toggle-btn';
+
+/**
+ * Добавляет на карту раскрывающийся контрол с выбором цветов заливки полигонов.
+ * По умолчанию видна кнопка с шестерёнкой (настройки); по клику раскрывается блок с цветами.
+ * По аналогии с легендой в map_region.js.
+ */
+function addColorPickersControl(map) {
+    // Панель с выбором цветов (скрыта по умолчанию)
+    const panelControl = L.control({position: 'topright'});
+    panelControl.onAdd = function () {
+        const div = L.DomUtil.create('div', 'leaflet-control district-colors-panel');
+        div.style.display = 'none';
+        div.innerHTML = `
+            <div class="district-colors-panel-title">
+                <span>Цвета полигонов</span>
+                <button type="button" id="toggle-district-colors-btn" class="district-colors-close-btn" title="Скрыть">×</button>
+            </div>
+            <div class="leaflet-control-district-colors-inner">
+                <div class="leaflet-control-district-colors-row">
+                    <label for="color-visited" class="leaflet-control-district-colors-label">Посещённые</label>
+                    <input type="color" id="color-visited" value="#4fbf4f" class="leaflet-control-district-colors-input" title="Цвет заливки посещённых районов">
+                </div>
+                <div class="leaflet-control-district-colors-row">
+                    <label for="color-not-visited" class="leaflet-control-district-colors-label">Не посещённые</label>
+                    <input type="color" id="color-not-visited" value="#bbbbbb" class="leaflet-control-district-colors-input" title="Цвет заливки непосещённых районов">
+                </div>
+                <div class="leaflet-control-district-colors-reset-row">
+                    <button type="button" id="reset-district-colors-btn" class="district-colors-reset-btn" title="Вернуть цвета по умолчанию">Сбросить</button>
+                </div>
+            </div>
+        `;
+        L.DomEvent.disableClickPropagation(div);
+        return div;
+    };
+    panelControl.addTo(map);
+
+    // Кнопка-шестерёнка для открытия панели
+    const toggleControl = L.control({position: 'topright'});
+    toggleControl.onAdd = function () {
+        const div = L.DomUtil.create('div', 'district-colors-toggle-btn');
+        div.innerHTML = `
+            <button type="button" class="district-colors-toggle-button" title="Настройки цветов полигонов">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+        `;
+        L.DomEvent.disableClickPropagation(div);
+        div.querySelector('button').addEventListener('click', () => {
+            const panel = document.querySelector(DISTRICT_COLORS_PANEL_SELECTOR);
+            if (panel) panel.style.display = 'block';
+            div.style.display = 'none';
+        });
+        return div;
+    };
+    toggleControl.addTo(map);
+
+    // Закрытие панели по клику на ×
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'toggle-district-colors-btn') {
+            const panel = document.querySelector(DISTRICT_COLORS_PANEL_SELECTOR);
+            const toggleBtn = document.querySelector(DISTRICT_COLORS_TOGGLE_BTN_SELECTOR);
+            if (panel && toggleBtn) {
+                panel.style.display = 'none';
+                toggleBtn.style.display = 'block';
+            }
+        }
+    });
+
+    // Сброс цветов по клику на «Сбросить»
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'reset-district-colors-btn') {
+            resetDistrictMapColors();
+        }
+    });
+}
+
+/**
+ * Сбрасывает цвета полигонов на значения по умолчанию и сохраняет на бэкенд.
+ */
+function resetDistrictMapColors() {
+    visitedStyle.fillColor = DEFAULT_COLOR_VISITED;
+    notVisitedStyle.fillColor = DEFAULT_COLOR_NOT_VISITED;
+
+    const colorVisitedInput = document.getElementById('color-visited');
+    const colorNotVisitedInput = document.getElementById('color-not-visited');
+    if (colorVisitedInput) colorVisitedInput.value = DEFAULT_COLOR_VISITED;
+    if (colorNotVisitedInput) colorNotVisitedInput.value = DEFAULT_COLOR_NOT_VISITED;
+
+    applyPolygonColors();
+    scheduleSaveDistrictMapColors();
+}
 
 /**
  * Загружает сохранённые цвета карты районов с бэкенда и применяет к стилям и пикерам.
@@ -698,11 +799,14 @@ async function handleDeleteVisit(districtId, districtName) {
 async function initDistrictsMap() {
     map = create_map();
     window.MG_MAIN_MAP = map;
-    
+
+    // Контрол выбора цветов полигонов на карте (посещённые / не посещённые)
+    addColorPickersControl(map);
+
     // Загружаем список городов для селектора
     await loadCitiesForSelect();
 
-    // Цвета полигонов (посещённые / не посещённые)
+    // Подключаем обработчики color picker и загружаем сохранённые цвета
     initColorPickers();
     await loadDistrictMapColors();
 

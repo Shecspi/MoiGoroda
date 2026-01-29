@@ -288,6 +288,37 @@ class DistrictMapColorSettings(models.Model):
         null=True,
         help_text='Цвет в формате #rrggbb',
     )
+    color_border = models.CharField(
+        max_length=7,
+        verbose_name='Цвет границ полигонов',
+        blank=True,
+        null=True,
+        help_text='Цвет в формате #rrggbb',
+    )
+    border_weight = models.PositiveSmallIntegerField(
+        verbose_name='Ширина границ (px)',
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        help_text='Ширина границ полигонов от 1 до 10 пикселей',
+    )
+    fill_opacity_visited = models.PositiveSmallIntegerField(
+        verbose_name='Прозрачность заливки посещённых (%)',
+        default=60,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text='Прозрачность заливки посещённых районов, 0–100',
+    )
+    fill_opacity_not_visited = models.PositiveSmallIntegerField(
+        verbose_name='Прозрачность заливки непосещённых (%)',
+        default=60,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text='Прозрачность заливки непосещённых районов, 0–100',
+    )
+    border_opacity = models.PositiveSmallIntegerField(
+        verbose_name='Прозрачность границ (%)',
+        default=40,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text='Прозрачность границ полигонов, 0–100',
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата и время создания',

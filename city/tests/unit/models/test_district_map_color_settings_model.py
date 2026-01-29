@@ -3,7 +3,7 @@
 
 Покрывает:
 - Структуру модели и мета-данные
-- Поля модели (user, color_visited, color_not_visited, created_at, updated_at)
+- Поля модели (user, color_visited, color_not_visited, color_border, border_weight, created_at, updated_at)
 - Методы модели (__str__)
 - Создание записей с полными и частичными данными
 - Изоляцию по пользователю (OneToOne)
@@ -83,6 +83,34 @@ def test_district_map_color_settings_has_field_color_not_visited() -> None:
 
 
 @pytest.mark.unit
+def test_district_map_color_settings_has_field_color_border() -> None:
+    """Проверяет поле color_border — nullable, без default."""
+    field = DistrictMapColorSettings._meta.get_field('color_border')
+
+    assert field.verbose_name == 'Цвет границ полигонов'
+    assert field.blank is True
+    assert field.null is True
+    assert field.max_length == 7
+    assert isinstance(field, models.CharField)
+    assert 'rrggbb' in (field.help_text or '').lower()
+
+
+@pytest.mark.unit
+def test_district_map_color_settings_has_field_border_weight() -> None:
+    """Проверяет поле border_weight — default 1, validators 1–10."""
+    field = DistrictMapColorSettings._meta.get_field('border_weight')
+
+    assert field.verbose_name == 'Ширина границ (px)'
+    assert field.default == 1
+    assert field.blank is False
+    assert field.null is False
+    assert isinstance(field, models.PositiveSmallIntegerField)
+    validators = field.validators
+    assert any(v.limit_value == 1 for v in validators)
+    assert any(v.limit_value == 10 for v in validators)
+
+
+@pytest.mark.unit
 def test_district_map_color_settings_has_field_created_at() -> None:
     """Проверяет поле created_at (auto_now_add)."""
     field = DistrictMapColorSettings._meta.get_field('created_at')
@@ -112,6 +140,7 @@ def test_district_map_color_settings_str_method(django_user_model: type[User]) -
         user=user,
         color_visited='#4fbf4f',
         color_not_visited='#bbbbbb',
+        color_border='#444444',
     )
     assert 'testuser' in str(settings)
     assert 'Цвета' in str(settings) or 'карты' in str(settings).lower()
@@ -131,11 +160,14 @@ def test_district_map_color_settings_create_with_both_colors(
         user=user,
         color_visited='#4fbf4f',
         color_not_visited='#bbbbbb',
+        color_border='#444444',
     )
 
     assert settings.user == user
     assert settings.color_visited == '#4fbf4f'
     assert settings.color_not_visited == '#bbbbbb'
+    assert settings.color_border == '#444444'
+    assert settings.border_weight == 1
     assert settings.created_at is not None
     assert settings.updated_at is not None
 
@@ -183,6 +215,7 @@ def test_district_map_color_settings_one_per_user(django_user_model: type[User])
         user=user,
         color_visited='#4fbf4f',
         color_not_visited='#bbbbbb',
+        color_border='#444444',
     )
 
     with pytest.raises(IntegrityError):
@@ -202,7 +235,9 @@ def test_district_map_color_settings_related_name(django_user_model: type[User])
         user=user,
         color_visited='#4fbf4f',
         color_not_visited='#bbbbbb',
+        color_border='#444444',
     )
 
     assert hasattr(user, 'district_map_color_settings')
     assert user.district_map_color_settings.color_visited == '#4fbf4f'
+    assert user.district_map_color_settings.color_border == '#444444'

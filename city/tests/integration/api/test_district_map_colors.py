@@ -87,9 +87,7 @@ def test_get_colors_when_no_settings_returns_nulls(
 
 
 @pytest.mark.integration
-def test_get_colors_returns_saved_settings(
-    api_client: APIClient, authenticated_user: User
-) -> None:
+def test_get_colors_returns_saved_settings(api_client: APIClient, authenticated_user: User) -> None:
     """Возвращаются сохранённые цвета и ширина границ пользователя."""
     DistrictMapColorSettings.objects.create(
         user=authenticated_user,
@@ -176,7 +174,10 @@ def test_save_colors_invalid_hex_visited_returns_400(
         format='json',
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert 'color_visited' in response.data['detail'].lower() or 'формат' in response.data['detail'].lower()
+    assert (
+        'color_visited' in response.data['detail'].lower()
+        or 'формат' in response.data['detail'].lower()
+    )
 
 
 @pytest.mark.integration
@@ -190,13 +191,14 @@ def test_save_colors_invalid_hex_not_visited_returns_400(
         format='json',
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert 'color_not_visited' in response.data['detail'].lower() or 'формат' in response.data['detail'].lower()
+    assert (
+        'color_not_visited' in response.data['detail'].lower()
+        or 'формат' in response.data['detail'].lower()
+    )
 
 
 @pytest.mark.integration
-def test_save_colors_short_hex_returns_400(
-    api_client: APIClient, authenticated_user: User
-) -> None:
+def test_save_colors_short_hex_returns_400(api_client: APIClient, authenticated_user: User) -> None:
     """Короткая строка вместо #rrggbb возвращает 400."""
     response = api_client.post(
         SAVE_COLORS_URL,
@@ -207,9 +209,7 @@ def test_save_colors_short_hex_returns_400(
 
 
 @pytest.mark.integration
-def test_save_colors_no_hash_returns_400(
-    api_client: APIClient, authenticated_user: User
-) -> None:
+def test_save_colors_no_hash_returns_400(api_client: APIClient, authenticated_user: User) -> None:
     """Строка без # возвращает 400."""
     response = api_client.post(
         SAVE_COLORS_URL,
@@ -372,9 +372,7 @@ def test_save_colors_only_border_weight_updates_one_field(
 
 
 @pytest.mark.integration
-def test_save_colors_update_existing(
-    api_client: APIClient, authenticated_user: User
-) -> None:
+def test_save_colors_update_existing(api_client: APIClient, authenticated_user: User) -> None:
     """Повторный POST обновляет существующую запись (update_or_create)."""
     DistrictMapColorSettings.objects.create(
         user=authenticated_user,
@@ -453,9 +451,7 @@ def test_save_colors_empty_string_clears_field(
 
 
 @pytest.mark.integration
-def test_get_colors_is_user_specific(
-    api_client: APIClient, django_user_model: Type[User]
-) -> None:
+def test_get_colors_is_user_specific(api_client: APIClient, django_user_model: Type[User]) -> None:
     """GET возвращает только настройки текущего пользователя."""
     user1 = django_user_model.objects.create_user(username='user1', password='pass')
     user2 = django_user_model.objects.create_user(username='user2', password='pass')
@@ -493,9 +489,7 @@ def test_get_colors_is_user_specific(
 
 
 @pytest.mark.integration
-def test_save_colors_is_user_specific(
-    api_client: APIClient, django_user_model: Type[User]
-) -> None:
+def test_save_colors_is_user_specific(api_client: APIClient, django_user_model: Type[User]) -> None:
     """POST сохраняет настройки только для текущего пользователя."""
     user1 = django_user_model.objects.create_user(username='user1', password='pass')
     user2 = django_user_model.objects.create_user(username='user2', password='pass')

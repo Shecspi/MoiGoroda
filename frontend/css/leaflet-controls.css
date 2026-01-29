@@ -509,12 +509,15 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
     margin-top: 0.5rem;
 }
 
-#map .leaflet-control-district-colors-reset-row {
+#map .leaflet-control-district-colors-actions-row {
     padding-top: 0.25rem;
     border-top: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.dark #map .leaflet-control-district-colors-reset-row {
+.dark #map .leaflet-control-district-colors-actions-row {
     border-top-color: #404040;
 }
 
@@ -534,6 +537,37 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
 
 .dark #map .district-colors-reset-btn:focus {
     background-color: #404040;
+}
+
+#map .district-colors-save-btn {
+    background-color: #2563eb;
+    border: 1px solid #2563eb;
+    color: #fff;
+}
+
+#map .district-colors-save-btn:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #fff;
+}
+
+#map .district-colors-save-btn:focus {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #fff;
+}
+
+.dark #map .district-colors-save-btn {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+.dark #map .district-colors-save-btn:hover,
+.dark #map .district-colors-save-btn:focus {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #fff;
 }
 
 #map .leaflet-control-district-colors-row {

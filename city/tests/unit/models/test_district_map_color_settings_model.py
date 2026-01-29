@@ -18,6 +18,7 @@ Licensed under the Apache License, Version 2.0
 
 import pytest
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import IntegrityError, models
 
 from city.models import DistrictMapColorSettings
@@ -36,9 +37,7 @@ def test_district_map_color_settings_can_create_model_instance() -> None:
 def test_district_map_color_settings_has_valid_verbose_name() -> None:
     """Проверяет корректные verbose_name и verbose_name_plural."""
     assert DistrictMapColorSettings._meta.verbose_name == 'Настройки цветов карты районов'
-    assert (
-        DistrictMapColorSettings._meta.verbose_name_plural == 'Настройки цветов карты районов'
-    )
+    assert DistrictMapColorSettings._meta.verbose_name_plural == 'Настройки цветов карты районов'
 
 
 # Тесты полей модели
@@ -106,8 +105,8 @@ def test_district_map_color_settings_has_field_border_weight() -> None:
     assert field.null is False
     assert isinstance(field, models.PositiveSmallIntegerField)
     validators = field.validators
-    assert any(v.limit_value == 1 for v in validators)
-    assert any(v.limit_value == 10 for v in validators)
+    assert any(isinstance(v, MinValueValidator) and v.limit_value == 1 for v in validators)
+    assert any(isinstance(v, MaxValueValidator) and v.limit_value == 10 for v in validators)
 
 
 @pytest.mark.unit

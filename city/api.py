@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import Any
+from typing import Any, cast
 
 from django.contrib.auth.models import User
 import rest_framework.exceptions as drf_exc
@@ -1074,7 +1074,7 @@ def get_district_map_colors(request: Request) -> Response:
         )
 
     try:
-        settings_obj = DistrictMapColorSettings.objects.get(user=request.user)
+        settings_obj = DistrictMapColorSettings.objects.get(user=cast(User, request.user))
         data = {
             'color_visited': settings_obj.color_visited,
             'color_not_visited': settings_obj.color_not_visited,
@@ -1130,8 +1130,10 @@ def save_district_map_colors(request: Request) -> Response:
             {'detail': 'Недопустимый формат color_visited (ожидается #rrggbb)'},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if color_not_visited is not None and color_not_visited != '' and not _validate_hex_color(
-        color_not_visited
+    if (
+        color_not_visited is not None
+        and color_not_visited != ''
+        and not _validate_hex_color(color_not_visited)
     ):
         return Response(
             {'detail': 'Недопустимый формат color_not_visited (ожидается #rrggbb)'},
@@ -1154,11 +1156,11 @@ def save_district_map_colors(request: Request) -> Response:
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-    def _validate_opacity(value, name: str):
+    def _validate_opacity(value: Any) -> int | None:
         if value is None:
             return None
         try:
-            v = int(value)
+            v: int = int(value)
         except (TypeError, ValueError):
             return None
         if v < 0 or v > 100:
@@ -1166,21 +1168,21 @@ def save_district_map_colors(request: Request) -> Response:
         return v
 
     if fill_opacity_visited is not None:
-        ov = _validate_opacity(fill_opacity_visited, 'fill_opacity_visited')
+        ov = _validate_opacity(fill_opacity_visited)
         if ov is None:
             return Response(
                 {'detail': 'fill_opacity_visited должен быть целым числом от 0 до 100'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
     if fill_opacity_not_visited is not None:
-        ov = _validate_opacity(fill_opacity_not_visited, 'fill_opacity_not_visited')
+        ov = _validate_opacity(fill_opacity_not_visited)
         if ov is None:
             return Response(
                 {'detail': 'fill_opacity_not_visited должен быть целым числом от 0 до 100'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
     if border_opacity is not None:
-        ov = _validate_opacity(border_opacity, 'border_opacity')
+        ov = _validate_opacity(border_opacity)
         if ov is None:
             return Response(
                 {'detail': 'border_opacity должен быть целым числом от 0 до 100'},
@@ -1197,9 +1199,7 @@ def save_district_map_colors(request: Request) -> Response:
         and border_opacity is None
     ):
         return Response(
-            {
-                'detail': 'Укажите хотя бы один параметр (цвета, border_weight или прозрачности)'
-            },
+            {'detail': 'Укажите хотя бы один параметр (цвета, border_weight или прозрачности)'},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -1215,11 +1215,11 @@ def save_district_map_colors(request: Request) -> Response:
     if border_weight is not None:
         defaults['border_weight'] = int(border_weight)
     if fill_opacity_visited is not None:
-        defaults['fill_opacity_visited'] = _validate_opacity(fill_opacity_visited, '')
+        defaults['fill_opacity_visited'] = _validate_opacity(fill_opacity_visited)
     if fill_opacity_not_visited is not None:
-        defaults['fill_opacity_not_visited'] = _validate_opacity(fill_opacity_not_visited, '')
+        defaults['fill_opacity_not_visited'] = _validate_opacity(fill_opacity_not_visited)
     if border_opacity is not None:
-        defaults['border_opacity'] = _validate_opacity(border_opacity, '')
+        defaults['border_opacity'] = _validate_opacity(border_opacity)
 
     DistrictMapColorSettings.objects.update_or_create(
         user=user,

@@ -20,30 +20,552 @@ let geoJsonLayers = [];
 let currentCityId = null;
 let cachedGeoJson = null;
 
+// Цвета и ширина по умолчанию для сброса настроек
+const DEFAULT_COLOR_VISITED = '#4fbf4f';
+const DEFAULT_COLOR_NOT_VISITED = '#bbbbbb';
+const DEFAULT_COLOR_BORDER = '#444444';
+const DEFAULT_BORDER_WEIGHT = 1;
+const BORDER_WEIGHT_MIN = 1;
+const BORDER_WEIGHT_MAX = 10;
+const DEFAULT_FILL_OPACITY_VISITED = 60;
+const DEFAULT_FILL_OPACITY_NOT_VISITED = 60;
+const DEFAULT_BORDER_OPACITY = 40;
+const OPACITY_MIN = 0;
+const OPACITY_MAX = 100;
+const OPACITY_STEP = 10;
+
 // Стили для полигонов (используются те же параметры, что и на карте регионов)
 const visitedStyle = {
-    fillColor: '#4fbf4f', // зелёный для 41-60% посещённости - более светлый оттенок
-    fillOpacity: 0.6,
-    color: '#444444', // тёмно-серый цвет границы
-    weight: 1,
-    opacity: 0.4,
+    fillColor: DEFAULT_COLOR_VISITED, // зелёный для 41-60% посещённости - более светлый оттенок
+    fillOpacity: DEFAULT_FILL_OPACITY_VISITED / 100,
+    color: DEFAULT_COLOR_BORDER,
+    weight: DEFAULT_BORDER_WEIGHT,
+    opacity: DEFAULT_BORDER_OPACITY / 100,
 };
 
 const notVisitedStyle = {
-    fillColor: '#bbbbbb', // серый - цвет для непосещённого региона
-    fillOpacity: 0.6,
-    color: '#444444', // тёмно-серый цвет границы
-    weight: 1,
-    opacity: 0.4,
+    fillColor: DEFAULT_COLOR_NOT_VISITED, // серый - цвет для непосещённого региона
+    fillOpacity: DEFAULT_FILL_OPACITY_NOT_VISITED / 100,
+    color: DEFAULT_COLOR_BORDER,
+    weight: DEFAULT_BORDER_WEIGHT,
+    opacity: DEFAULT_BORDER_OPACITY / 100,
 };
 
 const defaultStyle = {
     fillColor: 'red',
-    fillOpacity: 0.6,
-    color: '#444444', // тёмно-серый цвет границы
-    weight: 1,
-    opacity: 0.4,
+    fillOpacity: DEFAULT_FILL_OPACITY_NOT_VISITED / 100,
+    color: DEFAULT_COLOR_BORDER,
+    weight: DEFAULT_BORDER_WEIGHT,
+    opacity: DEFAULT_BORDER_OPACITY / 100,
 };
+
+/** Проверяет, что строка — цвет в формате #rrggbb (7 символов). */
+function isValidHexColor(value) {
+    if (typeof value !== 'string' || value.length !== 7 || value[0] !== '#') return false;
+    return /^#[0-9a-fA-F]{6}$/.test(value);
+}
+
+/**
+ * Применяет выбранные пользователем цвета к полигонам (перерисовывает карту).
+ * defaultStyle не меняется.
+ */
+function applyPolygonColors() {
+    if (!cachedGeoJson || !districtsData.size) return;
+    displayDistrictsOnMap(cachedGeoJson, districtsData);
+}
+
+/**
+ * Возвращает функцию, вызывающую callback не чаще чем раз в intervalMs.
+ * Последний вызов после остановки серии выполняется через requestAnimationFrame
+ * или по таймеру, чтобы финальное состояние не терялось.
+ */
+function throttle(intervalMs, callback) {
+    let lastRun = 0;
+    let scheduled = null;
+    return function throttled(...args) {
+        const now = Date.now();
+        const elapsed = now - lastRun;
+        if (elapsed >= intervalMs || lastRun === 0) {
+            if (scheduled) {
+                cancelAnimationFrame(scheduled);
+                scheduled = null;
+            }
+            lastRun = now;
+            callback.apply(this, args);
+        } else if (!scheduled) {
+            scheduled = requestAnimationFrame(() => {
+                scheduled = null;
+                lastRun = Date.now();
+                callback.apply(this, args);
+            });
+        }
+    };
+}
+
+/** Перерисовка полигонов по цвету, не чаще чем раз в 120 ms при движении ползунка. */
+const applyPolygonColorsThrottled = throttle(120, applyPolygonColors);
+
+/** Селекторы панели и кнопки настроек цветов (для переключения видимости). */
+const DISTRICT_COLORS_PANEL_SELECTOR = '#map .district-colors-panel';
+const DISTRICT_COLORS_TOGGLE_BTN_SELECTOR = '#map .district-colors-toggle-btn';
+
+/**
+ * Добавляет на карту раскрывающийся контрол с выбором цветов заливки полигонов.
+ * По умолчанию видна кнопка с шестерёнкой (настройки); по клику раскрывается блок с цветами.
+ * По аналогии с легендой в map_region.js.
+ */
+function addColorPickersControl(map) {
+    // Панель с выбором цветов (скрыта по умолчанию)
+    const panelControl = L.control({position: 'topright'});
+    panelControl.onAdd = function () {
+        const div = L.DomUtil.create('div', 'leaflet-control district-colors-panel');
+        div.style.display = 'none';
+        div.innerHTML = `
+            <div class="district-colors-panel-title">
+                <span>Цвета полигонов</span>
+                <button type="button" id="toggle-district-colors-btn" class="district-colors-close-btn" title="Скрыть">×</button>
+            </div>
+            <div class="leaflet-control-district-colors-inner">
+                <div class="district-colors-section">
+                    <div class="district-colors-section-title">Посещённые</div>
+                    <div class="leaflet-control-district-colors-row">
+                        <label for="color-visited" class="leaflet-control-district-colors-label">Цвет</label>
+                        <input type="color" id="color-visited" value="#4fbf4f" class="leaflet-control-district-colors-input" title="Цвет заливки посещённых районов">
+                    </div>
+                    <div class="leaflet-control-district-colors-row">
+                        <label for="fill-opacity-visited-input" class="leaflet-control-district-colors-label">Непрозрачность</label>
+                        <div class="py-1 px-1.5 inline-block bg-layer border border-layer-line rounded-lg" data-district-input-number>
+                            <div class="flex items-center gap-x-1.5">
+                                <button type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none" tabindex="-1" aria-label="Уменьшить" data-district-input-number-decrement>
+                                    <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                                </button>
+                                <input id="fill-opacity-visited-input" class="p-0 w-6 bg-transparent border-0 text-foreground placeholder:text-muted-foreground-1 text-center focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" style="-moz-appearance: textfield;" type="number" min="0" max="100" value="60" step="10" aria-roledescription="Число" title="Непрозрачность 0–100%, шаг 10" data-district-input-number-input>
+                                <button type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none" tabindex="-1" aria-label="Увеличить" data-district-input-number-increment>
+                                    <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="district-colors-section">
+                    <div class="district-colors-section-title">Не посещённые</div>
+                    <div class="leaflet-control-district-colors-row">
+                        <label for="color-not-visited" class="leaflet-control-district-colors-label">Цвет</label>
+                        <input type="color" id="color-not-visited" value="#bbbbbb" class="leaflet-control-district-colors-input" title="Цвет заливки непосещённых районов">
+                    </div>
+                    <div class="leaflet-control-district-colors-row">
+                        <label for="fill-opacity-not-visited-input" class="leaflet-control-district-colors-label">Непрозрачность</label>
+                        <div class="py-1 px-1.5 inline-block bg-layer border border-layer-line rounded-lg" data-district-input-number>
+                            <div class="flex items-center gap-x-1.5">
+                                <button type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none" tabindex="-1" aria-label="Уменьшить" data-district-input-number-decrement>
+                                    <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                                </button>
+                                <input id="fill-opacity-not-visited-input" class="p-0 w-6 bg-transparent border-0 text-foreground placeholder:text-muted-foreground-1 text-center focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" style="-moz-appearance: textfield;" type="number" min="0" max="100" value="60" step="10" aria-roledescription="Число" title="Непрозрачность 0–100%, шаг 10" data-district-input-number-input>
+                                <button type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none" tabindex="-1" aria-label="Увеличить" data-district-input-number-increment>
+                                    <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="district-colors-section">
+                    <div class="district-colors-section-title">Границы</div>
+                    <div class="leaflet-control-district-colors-row">
+                        <label for="color-border" class="leaflet-control-district-colors-label">Цвет</label>
+                        <input type="color" id="color-border" value="#444444" class="leaflet-control-district-colors-input" title="Цвет границ полигонов">
+                    </div>
+                    <div class="leaflet-control-district-colors-row">
+                        <label for="border-weight-input" class="leaflet-control-district-colors-label">Ширина</label>
+                        <div class="py-1 px-1.5 inline-block bg-layer border border-layer-line rounded-lg" data-district-input-number>
+                            <div class="flex items-center gap-x-1.5">
+                                <button type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none" tabindex="-1" aria-label="Уменьшить" data-district-input-number-decrement>
+                                    <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                                </button>
+                                <input id="border-weight-input" class="p-0 w-6 bg-transparent border-0 text-foreground placeholder:text-muted-foreground-1 text-center focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" style="-moz-appearance: textfield;" type="number" min="1" max="10" value="1" aria-roledescription="Число" title="Ширина границ 1–10 px" data-district-input-number-input>
+                                <button type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none" tabindex="-1" aria-label="Увеличить" data-district-input-number-increment>
+                                    <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="leaflet-control-district-colors-row">
+                        <label for="border-opacity-input" class="leaflet-control-district-colors-label">Непрозрачность</label>
+                        <div class="py-1 px-1.5 inline-block bg-layer border border-layer-line rounded-lg" data-district-input-number>
+                            <div class="flex items-center gap-x-1.5">
+                                <button type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none" tabindex="-1" aria-label="Уменьшить" data-district-input-number-decrement>
+                                    <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                                </button>
+                                <input id="border-opacity-input" class="p-0 w-6 bg-transparent border-0 text-foreground placeholder:text-muted-foreground-1 text-center focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" style="-moz-appearance: textfield;" type="number" min="0" max="100" value="40" step="10" aria-roledescription="Число" title="Непрозрачность границ 0–100%, шаг 10" data-district-input-number-input>
+                                <button type="button" class="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none" tabindex="-1" aria-label="Увеличить" data-district-input-number-increment>
+                                    <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="leaflet-control-district-colors-actions-row">
+                    <button type="button" id="reset-district-colors-btn" class="py-1.5 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-layer border border-layer-line text-muted-foreground-1 shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none flex-1 justify-center district-colors-reset-btn" title="Вернуть цвета по умолчанию">Сбросить</button>
+                    <button type="button" id="save-district-colors-btn" class="py-1.5 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg shadow-2xs disabled:opacity-50 disabled:pointer-events-none flex-1 justify-center district-colors-save-btn" title="Сохранить настройки на сервер">Сохранить</button>
+                </div>
+            </div>
+        `;
+        L.DomEvent.disableClickPropagation(div);
+        return div;
+    };
+    panelControl.addTo(map);
+
+    // Кнопка-шестерёнка для открытия панели
+    const toggleControl = L.control({position: 'topright'});
+    toggleControl.onAdd = function () {
+        const div = L.DomUtil.create('div', 'district-colors-toggle-btn');
+        div.innerHTML = `
+            <button type="button" class="district-colors-toggle-button" title="Настройки цветов полигонов">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+        `;
+        L.DomEvent.disableClickPropagation(div);
+        div.querySelector('button').addEventListener('click', () => {
+            const panel = document.querySelector(DISTRICT_COLORS_PANEL_SELECTOR);
+            if (panel) panel.style.display = 'block';
+            div.style.display = 'none';
+        });
+        return div;
+    };
+    toggleControl.addTo(map);
+
+    // Закрытие панели по клику на ×
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'toggle-district-colors-btn') {
+            const panel = document.querySelector(DISTRICT_COLORS_PANEL_SELECTOR);
+            const toggleBtn = document.querySelector(DISTRICT_COLORS_TOGGLE_BTN_SELECTOR);
+            if (panel && toggleBtn) {
+                panel.style.display = 'none';
+                toggleBtn.style.display = 'block';
+            }
+        }
+    });
+
+    // Сброс и сохранение по клику на кнопки
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'reset-district-colors-btn') {
+            resetDistrictMapColors();
+        } else if (e.target && e.target.id === 'save-district-colors-btn') {
+            saveDistrictMapColors();
+        }
+    });
+}
+
+/**
+ * Сбрасывает цвета полигонов на значения по умолчанию (без сохранения на сервер).
+ */
+function resetDistrictMapColors() {
+    visitedStyle.fillColor = DEFAULT_COLOR_VISITED;
+    notVisitedStyle.fillColor = DEFAULT_COLOR_NOT_VISITED;
+    visitedStyle.color = DEFAULT_COLOR_BORDER;
+    notVisitedStyle.color = DEFAULT_COLOR_BORDER;
+    defaultStyle.color = DEFAULT_COLOR_BORDER;
+    visitedStyle.weight = DEFAULT_BORDER_WEIGHT;
+    notVisitedStyle.weight = DEFAULT_BORDER_WEIGHT;
+    defaultStyle.weight = DEFAULT_BORDER_WEIGHT;
+    visitedStyle.fillOpacity = DEFAULT_FILL_OPACITY_VISITED / 100;
+    notVisitedStyle.fillOpacity = DEFAULT_FILL_OPACITY_NOT_VISITED / 100;
+    defaultStyle.fillOpacity = DEFAULT_FILL_OPACITY_NOT_VISITED / 100;
+    visitedStyle.opacity = DEFAULT_BORDER_OPACITY / 100;
+    notVisitedStyle.opacity = DEFAULT_BORDER_OPACITY / 100;
+    defaultStyle.opacity = DEFAULT_BORDER_OPACITY / 100;
+
+    const colorVisitedInput = document.getElementById('color-visited');
+    const colorNotVisitedInput = document.getElementById('color-not-visited');
+    const colorBorderInput = document.getElementById('color-border');
+    const borderWeightInput = document.getElementById('border-weight-input');
+    const fillOpacityVisitedInput = document.getElementById('fill-opacity-visited-input');
+    const fillOpacityNotVisitedInput = document.getElementById('fill-opacity-not-visited-input');
+    const borderOpacityInput = document.getElementById('border-opacity-input');
+    if (colorVisitedInput) colorVisitedInput.value = DEFAULT_COLOR_VISITED;
+    if (colorNotVisitedInput) colorNotVisitedInput.value = DEFAULT_COLOR_NOT_VISITED;
+    if (colorBorderInput) colorBorderInput.value = DEFAULT_COLOR_BORDER;
+    if (borderWeightInput) borderWeightInput.value = String(DEFAULT_BORDER_WEIGHT);
+    if (fillOpacityVisitedInput) fillOpacityVisitedInput.value = String(DEFAULT_FILL_OPACITY_VISITED);
+    if (fillOpacityNotVisitedInput) fillOpacityNotVisitedInput.value = String(DEFAULT_FILL_OPACITY_NOT_VISITED);
+    if (borderOpacityInput) borderOpacityInput.value = String(DEFAULT_BORDER_OPACITY);
+
+    applyPolygonColors();
+}
+
+/**
+ * Загружает сохранённые цвета карты районов с бэкенда и применяет к стилям и пикерам.
+ */
+async function loadDistrictMapColors() {
+    if (!window.IS_AUTHENTICATED || !window.API_MAP_COLORS_URL) return;
+
+    try {
+        const response = await fetch(window.API_MAP_COLORS_URL);
+        if (!response.ok) return;
+        const data = await response.json();
+
+        const colorVisitedInput = document.getElementById('color-visited');
+        const colorNotVisitedInput = document.getElementById('color-not-visited');
+        const colorBorderInput = document.getElementById('color-border');
+
+        if (data.color_visited != null && data.color_visited !== '' && isValidHexColor(data.color_visited)) {
+            visitedStyle.fillColor = data.color_visited;
+            if (colorVisitedInput) colorVisitedInput.value = data.color_visited;
+        }
+        if (data.color_not_visited != null && data.color_not_visited !== '' && isValidHexColor(data.color_not_visited)) {
+            notVisitedStyle.fillColor = data.color_not_visited;
+            if (colorNotVisitedInput) colorNotVisitedInput.value = data.color_not_visited;
+        }
+        if (data.color_border != null && data.color_border !== '' && isValidHexColor(data.color_border)) {
+            visitedStyle.color = data.color_border;
+            notVisitedStyle.color = data.color_border;
+            defaultStyle.color = data.color_border;
+            if (colorBorderInput) colorBorderInput.value = data.color_border;
+        }
+        if (data.border_weight != null) {
+            const w = Math.max(BORDER_WEIGHT_MIN, Math.min(BORDER_WEIGHT_MAX, Number(data.border_weight)));
+            if (Number.isFinite(w)) {
+                visitedStyle.weight = w;
+                notVisitedStyle.weight = w;
+                defaultStyle.weight = w;
+                const borderWeightInput = document.getElementById('border-weight-input');
+                if (borderWeightInput) borderWeightInput.value = String(Math.round(w));
+            }
+        }
+        const snapOpacityToStep = (o) => Math.round(Math.max(OPACITY_MIN, Math.min(OPACITY_MAX, o)) / OPACITY_STEP) * OPACITY_STEP;
+        if (data.fill_opacity_visited != null) {
+            const o = Math.max(OPACITY_MIN, Math.min(OPACITY_MAX, Number(data.fill_opacity_visited)));
+            if (Number.isFinite(o)) {
+                const stepped = snapOpacityToStep(o);
+                visitedStyle.fillOpacity = stepped / 100;
+                const el = document.getElementById('fill-opacity-visited-input');
+                if (el) el.value = String(stepped);
+            }
+        }
+        if (data.fill_opacity_not_visited != null) {
+            const o = Math.max(OPACITY_MIN, Math.min(OPACITY_MAX, Number(data.fill_opacity_not_visited)));
+            if (Number.isFinite(o)) {
+                const stepped = snapOpacityToStep(o);
+                notVisitedStyle.fillOpacity = stepped / 100;
+                defaultStyle.fillOpacity = stepped / 100;
+                const el = document.getElementById('fill-opacity-not-visited-input');
+                if (el) el.value = String(stepped);
+            }
+        }
+        if (data.border_opacity != null) {
+            const o = Math.max(OPACITY_MIN, Math.min(OPACITY_MAX, Number(data.border_opacity)));
+            if (Number.isFinite(o)) {
+                const stepped = snapOpacityToStep(o);
+                visitedStyle.opacity = stepped / 100;
+                notVisitedStyle.opacity = stepped / 100;
+                defaultStyle.opacity = stepped / 100;
+                const el = document.getElementById('border-opacity-input');
+                if (el) el.value = String(stepped);
+            }
+        }
+    } catch (err) {
+        console.warn('Не удалось загрузить настройки цветов карты районов:', err);
+    }
+}
+
+/**
+ * Отправляет текущие настройки цветов карты районов на бэкенд.
+ * Показывает toast об успехе или ошибке.
+ */
+function saveDistrictMapColors() {
+    if (!window.IS_AUTHENTICATED || !window.API_MAP_COLORS_SAVE_URL) return;
+
+    const body = {
+        color_visited: visitedStyle.fillColor,
+        color_not_visited: notVisitedStyle.fillColor,
+        color_border: visitedStyle.color,
+        border_weight: visitedStyle.weight,
+        fill_opacity_visited: Math.round(visitedStyle.fillOpacity * 100),
+        fill_opacity_not_visited: Math.round(notVisitedStyle.fillOpacity * 100),
+        border_opacity: Math.round(visitedStyle.opacity * 100),
+    };
+    fetch(window.API_MAP_COLORS_SAVE_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify(body),
+    })
+        .then((response) => {
+            if (response.ok) {
+                showSuccessToast('Успешно', 'Настройки цветов карты сохранены.');
+            } else {
+                showDangerToast('Ошибка', 'Не удалось сохранить настройки. Попробуйте позже.');
+            }
+        })
+        .catch((err) => {
+            console.warn('Не удалось сохранить цвета карты районов:', err);
+            showDangerToast('Ошибка', 'Не удалось сохранить настройки. Проверьте соединение.');
+        });
+}
+
+/**
+ * Подключает обработчики color picker для цветов посещённых/непосещённых районов и границ.
+ * На input — throttle перерисовки; на change — немедленная перерисовка. Сохранение на сервер — по кнопке «Сохранить».
+ */
+function initColorPickers() {
+    const colorVisitedInput = document.getElementById('color-visited');
+    const colorNotVisitedInput = document.getElementById('color-not-visited');
+    const colorBorderInput = document.getElementById('color-border');
+    const borderWeightInput = document.getElementById('border-weight-input');
+    const borderWeightContainer = borderWeightInput
+        ? borderWeightInput.closest('[data-district-input-number]')
+        : null;
+    const borderWeightDecrement = borderWeightContainer
+        ? borderWeightContainer.querySelector('[data-district-input-number-decrement]')
+        : null;
+    const borderWeightIncrement = borderWeightContainer
+        ? borderWeightContainer.querySelector('[data-district-input-number-increment]')
+        : null;
+    if (!colorVisitedInput || !colorNotVisitedInput || !colorBorderInput || !borderWeightInput) return;
+
+    colorVisitedInput.value = visitedStyle.fillColor;
+    colorNotVisitedInput.value = notVisitedStyle.fillColor;
+    colorBorderInput.value = visitedStyle.color;
+    borderWeightInput.value = String(visitedStyle.weight);
+
+    colorVisitedInput.addEventListener('input', () => {
+        visitedStyle.fillColor = colorVisitedInput.value;
+        applyPolygonColorsThrottled();
+    });
+    colorVisitedInput.addEventListener('change', () => {
+        visitedStyle.fillColor = colorVisitedInput.value;
+        applyPolygonColors();
+    });
+
+    colorNotVisitedInput.addEventListener('input', () => {
+        notVisitedStyle.fillColor = colorNotVisitedInput.value;
+        applyPolygonColorsThrottled();
+    });
+    colorNotVisitedInput.addEventListener('change', () => {
+        notVisitedStyle.fillColor = colorNotVisitedInput.value;
+        applyPolygonColors();
+    });
+
+    colorBorderInput.addEventListener('input', () => {
+        visitedStyle.color = colorBorderInput.value;
+        notVisitedStyle.color = colorBorderInput.value;
+        defaultStyle.color = colorBorderInput.value;
+        applyPolygonColorsThrottled();
+    });
+    colorBorderInput.addEventListener('change', () => {
+        visitedStyle.color = colorBorderInput.value;
+        notVisitedStyle.color = colorBorderInput.value;
+        defaultStyle.color = colorBorderInput.value;
+        applyPolygonColors();
+    });
+
+    const applyBorderWeight = (value) => {
+        const w = Math.max(BORDER_WEIGHT_MIN, Math.min(BORDER_WEIGHT_MAX, Number(value)));
+        if (!Number.isFinite(w)) return;
+        const rounded = Math.round(w);
+        visitedStyle.weight = rounded;
+        notVisitedStyle.weight = rounded;
+        defaultStyle.weight = rounded;
+        borderWeightInput.value = String(rounded);
+    };
+
+    if (borderWeightDecrement) {
+        borderWeightDecrement.addEventListener('click', () => {
+            const current = Math.max(BORDER_WEIGHT_MIN, Math.min(BORDER_WEIGHT_MAX, Number(borderWeightInput.value) || 1));
+            const next = Math.max(BORDER_WEIGHT_MIN, current - 1);
+            applyBorderWeight(next);
+            applyPolygonColors();
+        });
+    }
+    if (borderWeightIncrement) {
+        borderWeightIncrement.addEventListener('click', () => {
+            const current = Math.max(BORDER_WEIGHT_MIN, Math.min(BORDER_WEIGHT_MAX, Number(borderWeightInput.value) || 1));
+            const next = Math.min(BORDER_WEIGHT_MAX, current + 1);
+            applyBorderWeight(next);
+            applyPolygonColors();
+        });
+    }
+    borderWeightInput.addEventListener('input', () => {
+        applyBorderWeight(borderWeightInput.value);
+        applyPolygonColorsThrottled();
+    });
+    borderWeightInput.addEventListener('change', () => {
+        applyBorderWeight(borderWeightInput.value);
+        applyPolygonColors();
+    });
+
+    // Непрозрачность: заливка посещённых, заливка непосещённых, границы
+    const fillOpacityVisitedInput = document.getElementById('fill-opacity-visited-input');
+    const fillOpacityNotVisitedInput = document.getElementById('fill-opacity-not-visited-input');
+    const borderOpacityInput = document.getElementById('border-opacity-input');
+    const opacityToStep = (o) => Math.round((o * 100) / OPACITY_STEP) * OPACITY_STEP;
+    if (fillOpacityVisitedInput) fillOpacityVisitedInput.value = String(opacityToStep(visitedStyle.fillOpacity));
+    if (fillOpacityNotVisitedInput) fillOpacityNotVisitedInput.value = String(opacityToStep(notVisitedStyle.fillOpacity));
+    if (borderOpacityInput) borderOpacityInput.value = String(opacityToStep(visitedStyle.opacity));
+
+    /** Округляет значение прозрачности до шага 10 (0, 10, 20, …, 100). */
+    const clampOpacityToStep = (v) => {
+        const n = Number(v);
+        if (!Number.isFinite(n)) return null;
+        const clamped = Math.max(OPACITY_MIN, Math.min(OPACITY_MAX, n));
+        const stepped = Math.round(clamped / OPACITY_STEP) * OPACITY_STEP;
+        return Math.max(OPACITY_MIN, Math.min(OPACITY_MAX, stepped));
+    };
+
+    const bindOpacityControls = (inputEl, setValue) => {
+        if (!inputEl) return;
+        const container = inputEl.closest('[data-district-input-number]');
+        const dec = container?.querySelector('[data-district-input-number-decrement]');
+        const inc = container?.querySelector('[data-district-input-number-increment]');
+        const apply = (value) => {
+            const n = clampOpacityToStep(value);
+            if (n === null) return;
+            setValue(n);
+            inputEl.value = String(n);
+        };
+        if (dec) {
+            dec.addEventListener('click', () => {
+                const cur = clampOpacityToStep(inputEl.value) ?? OPACITY_MIN;
+                apply(Math.max(OPACITY_MIN, cur - OPACITY_STEP));
+                applyPolygonColors();
+            });
+        }
+        if (inc) {
+            inc.addEventListener('click', () => {
+                const cur = clampOpacityToStep(inputEl.value) ?? OPACITY_MIN;
+                apply(Math.min(OPACITY_MAX, cur + OPACITY_STEP));
+                applyPolygonColors();
+            });
+        }
+        inputEl.addEventListener('input', () => {
+            apply(inputEl.value);
+            applyPolygonColorsThrottled();
+        });
+        inputEl.addEventListener('change', () => {
+            apply(inputEl.value);
+            applyPolygonColors();
+        });
+    };
+
+    bindOpacityControls(fillOpacityVisitedInput, (n) => {
+        visitedStyle.fillOpacity = n / 100;
+    });
+
+    bindOpacityControls(fillOpacityNotVisitedInput, (n) => {
+        notVisitedStyle.fillOpacity = n / 100;
+        defaultStyle.fillOpacity = n / 100;
+    });
+
+    bindOpacityControls(borderOpacityInput, (n) => {
+        visitedStyle.opacity = n / 100;
+        notVisitedStyle.opacity = n / 100;
+        defaultStyle.opacity = n / 100;
+    });
+}
 
 /**
  * Загружает список городов с районами для селектора.
@@ -565,10 +1087,17 @@ async function handleDeleteVisit(districtId, districtName) {
 async function initDistrictsMap() {
     map = create_map();
     window.MG_MAIN_MAP = map;
-    
+
+    // Контрол выбора цветов полигонов на карте (посещённые / не посещённые)
+    addColorPickersControl(map);
+
     // Загружаем список городов для селектора
     await loadCitiesForSelect();
-    
+
+    // Подключаем обработчики color picker и загружаем сохранённые цвета
+    initColorPickers();
+    await loadDistrictMapColors();
+
     // Загружаем данные о районах текущего города
     if (window.CITY_ID && window.COUNTRY_CODE && window.CITY_NAME) {
         currentCityId = window.CITY_ID;

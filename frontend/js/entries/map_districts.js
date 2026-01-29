@@ -46,6 +46,77 @@ const defaultStyle = {
 };
 
 /**
+ * Применяет выбранные пользователем цвета к полигонам (перерисовывает карту).
+ * defaultStyle не меняется.
+ */
+function applyPolygonColors() {
+    if (!cachedGeoJson || !districtsData.size) return;
+    displayDistrictsOnMap(cachedGeoJson, districtsData);
+}
+
+/**
+ * Возвращает функцию, вызывающую callback не чаще чем раз в intervalMs.
+ * Последний вызов после остановки серии выполняется через requestAnimationFrame
+ * или по таймеру, чтобы финальное состояние не терялось.
+ */
+function throttle(intervalMs, callback) {
+    let lastRun = 0;
+    let scheduled = null;
+    return function throttled(...args) {
+        const now = Date.now();
+        const elapsed = now - lastRun;
+        if (elapsed >= intervalMs || lastRun === 0) {
+            if (scheduled) {
+                cancelAnimationFrame(scheduled);
+                scheduled = null;
+            }
+            lastRun = now;
+            callback.apply(this, args);
+        } else if (!scheduled) {
+            scheduled = requestAnimationFrame(() => {
+                scheduled = null;
+                lastRun = Date.now();
+                callback.apply(this, args);
+            });
+        }
+    };
+}
+
+/** Перерисовка полигонов по цвету, не чаще чем раз в 120 ms при движении ползунка. */
+const applyPolygonColorsThrottled = throttle(120, applyPolygonColors);
+
+/**
+ * Подключает обработчики color picker для цветов посещённых/непосещённых районов.
+ * На input — throttle перерисовки; на change — немедленная финальная перерисовка.
+ */
+function initColorPickers() {
+    const colorVisitedInput = document.getElementById('color-visited');
+    const colorNotVisitedInput = document.getElementById('color-not-visited');
+    if (!colorVisitedInput || !colorNotVisitedInput) return;
+
+    colorVisitedInput.value = visitedStyle.fillColor;
+    colorNotVisitedInput.value = notVisitedStyle.fillColor;
+
+    colorVisitedInput.addEventListener('input', () => {
+        visitedStyle.fillColor = colorVisitedInput.value;
+        applyPolygonColorsThrottled();
+    });
+    colorVisitedInput.addEventListener('change', () => {
+        visitedStyle.fillColor = colorVisitedInput.value;
+        applyPolygonColors();
+    });
+
+    colorNotVisitedInput.addEventListener('input', () => {
+        notVisitedStyle.fillColor = colorNotVisitedInput.value;
+        applyPolygonColorsThrottled();
+    });
+    colorNotVisitedInput.addEventListener('change', () => {
+        notVisitedStyle.fillColor = colorNotVisitedInput.value;
+        applyPolygonColors();
+    });
+}
+
+/**
  * Загружает список городов с районами для селектора.
  * Инициализирует Preline UI компонент HSSelect с поиском.
  */
@@ -568,6 +639,9 @@ async function initDistrictsMap() {
     
     // Загружаем список городов для селектора
     await loadCitiesForSelect();
+
+    // Цвета полигонов (посещённые / не посещённые)
+    initColorPickers();
     
     // Загружаем данные о районах текущего города
     if (window.CITY_ID && window.COUNTRY_CODE && window.CITY_NAME) {

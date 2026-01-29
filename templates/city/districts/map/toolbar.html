@@ -57,6 +57,26 @@
         </span>
     </div>
 
+    <!-- Цвета полигонов: посещённые / не посещённые -->
+    <div class="flex flex-wrap items-center gap-3 self-center sm:justify-end" id="section-colors">
+        <div class="flex items-center gap-2">
+            <label for="color-visited" class="text-sm text-gray-600 dark:text-neutral-400 whitespace-nowrap">Посещённые:</label>
+            <input type="color"
+                   id="color-visited"
+                   value="#4fbf4f"
+                   class="h-8 w-10 cursor-pointer rounded border border-gray-200 bg-white p-0.5 dark:border-neutral-600 dark:bg-neutral-800"
+                   title="Цвет заливки посещённых районов">
+        </div>
+        <div class="flex items-center gap-2">
+            <label for="color-not-visited" class="text-sm text-gray-600 dark:text-neutral-400 whitespace-nowrap">Не посещённые:</label>
+            <input type="color"
+                   id="color-not-visited"
+                   value="#bbbbbb"
+                   class="h-8 w-10 cursor-pointer rounded border border-gray-200 bg-white p-0.5 dark:border-neutral-600 dark:bg-neutral-800"
+                   title="Цвет заливки непосещённых районов">
+        </div>
+    </div>
+
     <!-- Пустой элемент для баланса на больших экранах -->
     <div class="hidden sm:block"></div>
 </div>

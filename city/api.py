@@ -27,6 +27,7 @@ from city.models import (
     City,
     CityDistrict,
     CityListDefaultSettings,
+    DistrictMapColorSettings,
     VisitedCity,
     VisitedCityDistrict,
 )
@@ -1044,3 +1045,103 @@ def get_cities_with_districts(request: Request) -> Response:
     )
 
     return Response(serializer.data)
+
+
+def _validate_hex_color(value: str | None) -> bool:
+    """Проверяет формат цвета #rrggbb (7 символов)."""
+    if value is None or value == '':
+        return True
+    if len(value) != 7 or value[0] != '#':
+        return False
+    return all(c in '0123456789abcdefABCDEF' for c in value[1:7])
+
+
+@api_view(['GET'])
+def get_district_map_colors(request: Request) -> Response:
+    """
+    Возвращает настройки цветов заливки полигонов карты районов для текущего пользователя.
+
+    Требует авторизации. Возвращает color_visited и color_not_visited (могут быть null).
+
+    :param request: DRF Request
+    :return: Response с полями color_visited, color_not_visited
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {'detail': 'Требуется авторизация'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    try:
+        settings_obj = DistrictMapColorSettings.objects.get(user=request.user)
+        data = {
+            'color_visited': settings_obj.color_visited,
+            'color_not_visited': settings_obj.color_not_visited,
+        }
+    except DistrictMapColorSettings.DoesNotExist:
+        data = {'color_visited': None, 'color_not_visited': None}
+
+    return Response(data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def save_district_map_colors(request: Request) -> Response:
+    """
+    Сохраняет настройки цветов заливки полигонов карты районов.
+
+    Требует авторизации. Тело запроса: color_visited (опционально), color_not_visited (опционально).
+    Значения в формате #rrggbb. Можно передать только один из цветов.
+
+    :param request: DRF Request
+    :return: Response со статусом операции
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {'detail': 'Требуется авторизация'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    color_visited = request.data.get('color_visited')
+    color_not_visited = request.data.get('color_not_visited')
+
+    if color_visited is not None and color_visited != '' and not _validate_hex_color(color_visited):
+        return Response(
+            {'detail': 'Недопустимый формат color_visited (ожидается #rrggbb)'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if color_not_visited is not None and color_not_visited != '' and not _validate_hex_color(
+        color_not_visited
+    ):
+        return Response(
+            {'detail': 'Недопустимый формат color_not_visited (ожидается #rrggbb)'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if color_visited is None and color_not_visited is None:
+        return Response(
+            {'detail': 'Укажите хотя бы один цвет (color_visited или color_not_visited)'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = request.user
+    assert isinstance(user, User)
+    defaults = {}
+    if color_visited is not None:
+        defaults['color_visited'] = color_visited if color_visited != '' else None
+    if color_not_visited is not None:
+        defaults['color_not_visited'] = color_not_visited if color_not_visited != '' else None
+
+    DistrictMapColorSettings.objects.update_or_create(
+        user=user,
+        defaults=defaults,
+    )
+
+    logger.info(
+        request,
+        f'(API) Saved district map colors for user #{user.id}',
+    )
+
+    return Response(
+        {'status': 'success', 'message': 'Цвета сохранены'},
+        status=status.HTTP_200_OK,
+    )

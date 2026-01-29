@@ -85,9 +85,69 @@ function throttle(intervalMs, callback) {
 /** Перерисовка полигонов по цвету, не чаще чем раз в 120 ms при движении ползунка. */
 const applyPolygonColorsThrottled = throttle(120, applyPolygonColors);
 
+/** Дебаунс для сохранения цветов на бэкенд (мс). */
+const SAVE_COLORS_DEBOUNCE_MS = 500;
+let saveColorsTimeoutId = null;
+
+/**
+ * Загружает сохранённые цвета карты районов с бэкенда и применяет к стилям и пикерам.
+ */
+async function loadDistrictMapColors() {
+    if (!window.IS_AUTHENTICATED || !window.API_MAP_COLORS_URL) return;
+
+    try {
+        const response = await fetch(window.API_MAP_COLORS_URL);
+        if (!response.ok) return;
+        const data = await response.json();
+
+        const colorVisitedInput = document.getElementById('color-visited');
+        const colorNotVisitedInput = document.getElementById('color-not-visited');
+
+        if (data.color_visited != null && data.color_visited !== '') {
+            visitedStyle.fillColor = data.color_visited;
+            if (colorVisitedInput) colorVisitedInput.value = data.color_visited;
+        }
+        if (data.color_not_visited != null && data.color_not_visited !== '') {
+            notVisitedStyle.fillColor = data.color_not_visited;
+            if (colorNotVisitedInput) colorNotVisitedInput.value = data.color_not_visited;
+        }
+    } catch (err) {
+        console.warn('Не удалось загрузить настройки цветов карты районов:', err);
+    }
+}
+
+/**
+ * Сохраняет текущие цвета на бэкенд (вызов дебаунсится).
+ */
+function scheduleSaveDistrictMapColors() {
+    if (!window.IS_AUTHENTICATED || !window.API_MAP_COLORS_SAVE_URL) return;
+
+    if (saveColorsTimeoutId !== null) {
+        clearTimeout(saveColorsTimeoutId);
+    }
+
+    saveColorsTimeoutId = setTimeout(() => {
+        saveColorsTimeoutId = null;
+        const body = {
+            color_visited: visitedStyle.fillColor,
+            color_not_visited: notVisitedStyle.fillColor,
+        };
+        fetch(window.API_MAP_COLORS_SAVE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify(body),
+        }).catch((err) => {
+            console.warn('Не удалось сохранить цвета карты районов:', err);
+        });
+    }, SAVE_COLORS_DEBOUNCE_MS);
+}
+
 /**
  * Подключает обработчики color picker для цветов посещённых/непосещённых районов.
- * На input — throttle перерисовки; на change — немедленная финальная перерисовка.
+ * На input — throttle перерисовки; на change — немедленная перерисовка и отложенное сохранение.
  */
 function initColorPickers() {
     const colorVisitedInput = document.getElementById('color-visited');
@@ -104,6 +164,7 @@ function initColorPickers() {
     colorVisitedInput.addEventListener('change', () => {
         visitedStyle.fillColor = colorVisitedInput.value;
         applyPolygonColors();
+        scheduleSaveDistrictMapColors();
     });
 
     colorNotVisitedInput.addEventListener('input', () => {
@@ -113,6 +174,7 @@ function initColorPickers() {
     colorNotVisitedInput.addEventListener('change', () => {
         notVisitedStyle.fillColor = colorNotVisitedInput.value;
         applyPolygonColors();
+        scheduleSaveDistrictMapColors();
     });
 }
 
@@ -642,7 +704,8 @@ async function initDistrictsMap() {
 
     // Цвета полигонов (посещённые / не посещённые)
     initColorPickers();
-    
+    await loadDistrictMapColors();
+
     // Загружаем данные о районах текущего города
     if (window.CITY_ID && window.COUNTRY_CODE && window.CITY_NAME) {
         currentCityId = window.CITY_ID;

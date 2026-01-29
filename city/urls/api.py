@@ -40,4 +40,14 @@ urlpatterns = [
         name='api__delete_visited_city_district',
     ),
     path('districts/cities/', api.get_cities_with_districts, name='api__get_cities_with_districts'),
+    path(
+        'districts/map_colors/',
+        api.get_district_map_colors,
+        name='api__get_district_map_colors',
+    ),
+    path(
+        'districts/map_colors/save/',
+        api.save_district_map_colors,
+        name='api__save_district_map_colors',
+    ),
 ]

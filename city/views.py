@@ -620,6 +620,8 @@ class CityDistrictMapView(TemplateView):
         context['api_visit_url'] = reverse('api__add_visited_city_district')
         context['api_visit_delete_url'] = reverse('api__delete_visited_city_district')
         context['api_cities_url'] = reverse('api__get_cities_with_districts')
+        context['api_map_colors_url'] = reverse('api__get_district_map_colors')
+        context['api_map_colors_save_url'] = reverse('api__save_district_map_colors')
 
         context['active_page'] = 'city_districts_map'
         context['page_title'] = f'Карта районов города {city.title}'

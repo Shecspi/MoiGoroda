@@ -258,3 +258,48 @@ class VisitedCityDistrict(models.Model):
 
     def __str__(self) -> str:
         return f'{self.user.username} - {self.city_district.title}'
+
+
+class DistrictMapColorSettings(models.Model):
+    """
+    Настройки цветов заливки полигонов на карте районов города:
+    посещённые и непосещённые районы. Одна запись на пользователя.
+    """
+
+    user = models.OneToOneField(
+        User,
+        on_delete=CASCADE,
+        verbose_name='Пользователь',
+        blank=False,
+        null=False,
+        related_name='district_map_color_settings',
+    )
+    color_visited = models.CharField(
+        max_length=7,
+        verbose_name='Цвет посещённых районов',
+        blank=True,
+        null=True,
+        help_text='Цвет в формате #rrggbb',
+    )
+    color_not_visited = models.CharField(
+        max_length=7,
+        verbose_name='Цвет непосещённых районов',
+        blank=True,
+        null=True,
+        help_text='Цвет в формате #rrggbb',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата и время создания',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата и время изменения',
+    )
+
+    class Meta:
+        verbose_name = 'Настройки цветов карты районов'
+        verbose_name_plural = 'Настройки цветов карты районов'
+
+    def __str__(self) -> str:
+        return f'Цвета карты районов: {self.user.username}'

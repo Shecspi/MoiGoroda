@@ -336,6 +336,220 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e5e7eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/%3e%3ccircle cx='12' cy='13' r='4'/%3e%3c/svg%3e") !important;
 }
 
+/* Контрол выбора цветов полигонов на карте районов (раскрывающаяся панель + кнопка-шестерёнка) */
+
+/* Кнопка открытия панели (шестерёнка) */
+#map .district-colors-toggle-btn {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+        0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dark #map .district-colors-toggle-btn {
+    border-color: #404040;
+    background-color: #171717;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3),
+        0 1px 2px -1px rgba(0, 0, 0, 0.2);
+}
+
+#map .district-colors-toggle-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: none;
+    border-radius: 0.75rem;
+    background-color: transparent;
+    color: #111827;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+#map .district-colors-toggle-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.dark #map .district-colors-toggle-button {
+    color: #e5e7eb;
+}
+
+#map .district-colors-toggle-button:hover {
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+.dark #map .district-colors-toggle-button:hover {
+    background-color: #262626;
+    color: #e5e7eb;
+}
+
+#map .district-colors-toggle-button:active {
+    transform: scale(0.98);
+}
+
+/* Раскрывающаяся панель с выбором цветов */
+#map .district-colors-panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+        0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    min-width: 220px;
+}
+
+.dark #map .district-colors-panel {
+    border-color: #404040;
+    background-color: #171717;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3),
+        0 1px 2px -1px rgba(0, 0, 0, 0.2);
+}
+
+#map .district-colors-panel-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.625rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #111827;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark #map .district-colors-panel-title {
+    color: #e5e7eb;
+    border-bottom-color: #404040;
+}
+
+#map .district-colors-panel-title span {
+    flex: 1;
+}
+
+#map .district-colors-close-btn {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #6b7280;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+}
+
+.dark #map .district-colors-close-btn {
+    color: #9ca3af;
+}
+
+#map .district-colors-close-btn:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.dark #map .district-colors-close-btn:hover {
+    background-color: #262626;
+    color: #e5e7eb;
+}
+
+#map .district-colors-close-btn:active {
+    transform: scale(0.95);
+}
+
+#map .leaflet-control-district-colors-inner {
+    padding: 0.5rem 0.625rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#map .leaflet-control-district-colors-reset-row {
+    padding-top: 0.25rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.dark #map .leaflet-control-district-colors-reset-row {
+    border-top-color: #404040;
+}
+
+#map .district-colors-reset-btn {
+    width: 100%;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: #ffffff;
+    color: #374151;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dark #map .district-colors-reset-btn {
+    border-color: #404040;
+    background-color: #262626;
+    color: #d1d5db;
+}
+
+#map .district-colors-reset-btn:hover {
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+.dark #map .district-colors-reset-btn:hover {
+    background-color: #404040;
+    color: #e5e7eb;
+}
+
+#map .district-colors-reset-btn:active {
+    transform: scale(0.98);
+}
+
+#map .leaflet-control-district-colors-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+#map .leaflet-control-district-colors-label {
+    font-size: 0.875rem;
+    color: #374151;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.dark #map .leaflet-control-district-colors-label {
+    color: #d1d5db;
+}
+
+#map .leaflet-control-district-colors-input {
+    width: 2rem;
+    height: 1.75rem;
+    padding: 0.125rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+.dark #map .leaflet-control-district-colors-input {
+    border-color: #404040;
+    background-color: #262626;
+}
+
 /* Кастомные контролы для границ */
 #map .custom-control-for-map {
     width: 2.5rem;

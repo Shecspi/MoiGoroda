@@ -66,12 +66,12 @@ Licensed under the Apache License, Version 2.0
 
             <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
 
-            {% if user.is_authenticated %}
-                <li>
-                    <span class="flex items-center gap-3 px-3 py-2 mt-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
-                        Города
-                    </span>
-                    <ul class="mt-1 space-y-1">
+            <li>
+                <span class="flex items-center gap-3 px-3 py-2 mt-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
+                    Города
+                </span>
+                <ul class="mt-1 space-y-1">
+                    {% if user.is_authenticated %}
                         <li>
                             <a href="{% url 'city-all-list' %}"
                                class="flex items-center gap-x-2 py-2 pl-8 pr-2 text-start text-sm text-gray-800 rounded-md hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700{% if active_page == 'city_list' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
@@ -100,19 +100,19 @@ Licensed under the Apache License, Version 2.0
                                 Коллекции городов
                             </a>
                         </li>
-                        <li>
-                            <a href="{% url 'city-districts-map' city_id=98 %}"
-                               class="flex items-center gap-x-2 py-2 pl-8 pr-2 text-start text-sm text-gray-800 rounded-md hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700{% if active_page == 'city_districts_map' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
-                                <svg class="shrink-0 size-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-                                </svg>
-                                Карта районов городов
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
-            {% endif %}
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'city-districts-map' city_id=98 %}"
+                           class="flex items-center gap-x-2 py-2 pl-8 pr-2 text-start text-sm text-gray-800 rounded-md hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700{% if active_page == 'city_districts_map' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                            <svg class="shrink-0 size-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                            </svg>
+                            Карта районов городов
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
 
             <li>
                 <span class="flex items-center gap-3 px-3 py-2 mt-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">

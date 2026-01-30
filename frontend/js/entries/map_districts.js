@@ -209,6 +209,10 @@ function addColorPickersControl(map) {
                 </div>
             </div>
         `;
+        if (typeof window !== 'undefined' && !window.IS_AUTHENTICATED) {
+            const saveBtn = div.querySelector('#save-district-colors-btn');
+            if (saveBtn) saveBtn.remove();
+        }
         L.DomEvent.disableClickPropagation(div);
         return div;
     };

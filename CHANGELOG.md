@@ -35,6 +35,8 @@
 
 - *(collections)* Исправлено отображение цветов бейджей городов в персональных коллекциях ([bf367bc](https://github.com/Shecspi/MoiGoroda/commit/bf367bce2561b8a47e180d79ae667192161c291a))
 
+- *(districts)* Добавлена возможность просмотра карты районов города неавторизованными пользователями ([c991fa3](https://github.com/Shecspi/MoiGoroda/commit/c991fa3b9dd78b3c21ea42c9bb62fe51601ff8f5))
+
 
 #### Изменено
 

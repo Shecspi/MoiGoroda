@@ -86,6 +86,22 @@ function updateFilterBadges() {
     }
 }
 
+/**
+ * Обновляет URL в адресной строке по текущему выбранному фильтру коллекции:
+ * при выбранной коллекции — ?collection=<uuid>, при «Все коллекции» — параметр collection убирается.
+ */
+function updateCollectionUrl() {
+    const params = new URLSearchParams(window.location.search);
+    if (selectedCollectionId === null || selectedCollectionId === undefined) {
+        params.delete('collection');
+    } else {
+        params.set('collection', String(selectedCollectionId));
+    }
+    const search = params.toString();
+    const url = window.location.pathname + (search ? '?' + search : '');
+    window.history.replaceState(null, '', url);
+}
+
 allPromises.push(loadPlacesFromServer());
 allPromises.push(loadCategoriesFromServer());
 allPromises.push(loadPlaceCollectionsFromServer());
@@ -186,6 +202,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
             updateMarkers();
             updateDropdownCheckmarks(dropdownMenuCollection, selectedCollectionId === null ? '' : selectedCollectionId);
             updateFilterBadges();
+            updateCollectionUrl();
         });
 
         (allPlaceCollections || []).forEach(coll => {
@@ -202,10 +219,21 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
                 updateMarkers();
                 updateDropdownCheckmarks(dropdownMenuCollection, selectedCollectionId === null ? '' : selectedCollectionId);
                 updateFilterBadges();
+                updateCollectionUrl();
             });
         });
         updateDropdownCheckmarks(dropdownMenuCollection, selectedCollectionId === null ? '' : selectedCollectionId);
         updateFilterBadges();
+
+        const initialCollectionUuid = typeof window.PLACE_MAP_COLLECTION_UUID === 'string' && window.PLACE_MAP_COLLECTION_UUID.trim() !== ''
+            ? window.PLACE_MAP_COLLECTION_UUID.trim()
+            : null;
+        if (initialCollectionUuid) {
+            selectedCollectionId = initialCollectionUuid;
+            updateMarkers();
+            updateDropdownCheckmarks(dropdownMenuCollection, selectedCollectionId === null ? '' : selectedCollectionId);
+            updateFilterBadges();
+        }
 
         dropdownMenuCollection.classList.remove('hidden');
         dropdownMenuCollection.classList.add('opacity-0', 'pointer-events-none');

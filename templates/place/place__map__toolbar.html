@@ -65,5 +65,18 @@
             <ul class="hs-dropdown-menu absolute end-0 opacity-0 pointer-events-none transition-[opacity,margin] duration-150 mt-2 max-h-72 overflow-y-auto overscroll-contain min-w-[280px] bg-white border border-gray-200 rounded-lg py-1 px-1 space-y-0.5 z-[1000] dark:bg-neutral-900 dark:border-neutral-700 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" id="dropdown-menu-filter-collection"></ul>
         </div>
         <!-- ^^^ Фильтр по коллекции -->
+
+        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+            <a href="{% url 'place_collections_list' %}"
+               class="hs-tooltip-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-teal-600 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-teal-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
+                <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+                <span>Список коллекций</span>
+            </a>
+            <span class="hs-tooltip-content" role="tooltip">
+                Открыть список ваших коллекций мест
+            </span>
+        </div>
     </div>
 </div>

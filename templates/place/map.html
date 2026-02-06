@@ -27,6 +27,7 @@
 
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
+        window.PLACE_MAP_COLLECTION_UUID = "{{ collection_uuid|escapejs }}";
     </script>
     {% vite_asset 'js/entries/leaflet_css.js' %}
     {% vite_asset 'js/entries/map_place.js' %}

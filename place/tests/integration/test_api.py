@@ -12,7 +12,7 @@ from typing import Any
 from django.urls import reverse
 from rest_framework import status
 
-from place.models import TagOSM, Category, Place
+from place.models import TagOSM, Category, Place, PlaceCollection
 
 
 # ===== Тесты для GetCategory =====
@@ -216,6 +216,7 @@ def test_create_place_authenticated(api_client: Any, django_user_model: Any) -> 
     assert Place.objects.filter(name='Новое место').exists()
     place = Place.objects.get(name='Новое место')
     assert place.user == user
+    assert place.is_visited is True  # default
 
 
 @pytest.mark.integration
@@ -531,6 +532,151 @@ def test_delete_place_other_user(api_client: Any, django_user_model: Any) -> Non
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert Place.objects.filter(id=place.id).exists()
+
+
+# ===== Тесты для GetPlaceCollections =====
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_place_collections_authenticated(api_client: Any, django_user_model: Any) -> None:
+    """Тест получения списка коллекций мест авторизованным пользователем"""
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    api_client.force_authenticate(user=user)
+
+    PlaceCollection.objects.create(user=user, title='Коллекция 1', is_public=False)
+    PlaceCollection.objects.create(user=user, title='Коллекция 2', is_public=True)
+
+    url = reverse('get_place_collections')
+    response = api_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 2
+    titles = [c['title'] for c in response.data]
+    assert 'Коллекция 1' in titles
+    assert 'Коллекция 2' in titles
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_place_collections_unauthenticated(api_client: Any) -> None:
+    """Тест что неавторизованный пользователь не получает список коллекций"""
+    url = reverse('get_place_collections')
+    response = api_client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_place_collections_only_own(api_client: Any, django_user_model: Any) -> None:
+    """Тест что возвращаются только коллекции текущего пользователя"""
+    user1 = django_user_model.objects.create_user(username='user1', password='password123')
+    user2 = django_user_model.objects.create_user(username='user2', password='password123')
+    api_client.force_authenticate(user=user1)
+
+    PlaceCollection.objects.create(user=user1, title='Моя', is_public=False)
+    PlaceCollection.objects.create(user=user2, title='Чужая', is_public=True)
+
+    url = reverse('get_place_collections')
+    response = api_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+    assert response.data[0]['title'] == 'Моя'
+
+
+# ===== Тесты для CreatePlaceCollection =====
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_create_place_collection_authenticated(api_client: Any, django_user_model: Any) -> None:
+    """Тест создания коллекции мест авторизованным пользователем"""
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    api_client.force_authenticate(user=user)
+
+    url = reverse('create_place_collection')
+    data = {'title': 'Новая коллекция', 'is_public': True}
+    response = api_client.post(url, data, format='json')
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.data['title'] == 'Новая коллекция'
+    assert response.data['is_public'] is True
+    assert PlaceCollection.objects.filter(title='Новая коллекция', user=user).exists()
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_create_place_collection_unauthenticated(api_client: Any) -> None:
+    """Тест что неавторизованный пользователь не может создать коллекцию"""
+    url = reverse('create_place_collection')
+    data = {'title': 'Коллекция', 'is_public': False}
+    response = api_client.post(url, data, format='json')
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+# ===== Тесты для Place с is_visited и collection =====
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_create_place_with_is_visited_and_collection(
+    api_client: Any, django_user_model: Any
+) -> None:
+    """Тест создания места с is_visited и коллекцией"""
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    api_client.force_authenticate(user=user)
+
+    category = Category.objects.create(name='Кафе')
+    collection = PlaceCollection.objects.create(user=user, title='Избранное', is_public=False)
+
+    url = reverse('create_place')
+    data = {
+        'name': 'Место в коллекции',
+        'latitude': 55.7558,
+        'longitude': 37.6173,
+        'category': category.id,
+        'is_visited': False,
+        'collection': collection.id,
+    }
+    response = api_client.post(url, data, format='json')
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.data['is_visited'] is False
+    assert response.data['collection_detail'] is not None
+    assert response.data['collection_detail']['title'] == 'Избранное'
+    place = Place.objects.get(name='Место в коллекции')
+    assert place.is_visited is False
+    assert place.collection_id == collection.id
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_update_place_is_visited_and_collection(api_client: Any, django_user_model: Any) -> None:
+    """Тест обновления is_visited и collection места"""
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    api_client.force_authenticate(user=user)
+
+    category = Category.objects.create(name='Кафе')
+    collection = PlaceCollection.objects.create(user=user, title='Коллекция', is_public=False)
+    place = Place.objects.create(
+        name='Место',
+        latitude=55.7558,
+        longitude=37.6173,
+        category=category,
+        user=user,
+        is_visited=True,
+        collection=None,
+    )
+
+    url = reverse('update_place', kwargs={'pk': place.id})
+    data = {'is_visited': False, 'collection': collection.id}
+    response = api_client.patch(url, data, format='json')
+
+    assert response.status_code == status.HTTP_200_OK
+    place.refresh_from_db()
+    assert place.is_visited is False
+    assert place.collection_id == collection.id
 
 
 @pytest.mark.integration

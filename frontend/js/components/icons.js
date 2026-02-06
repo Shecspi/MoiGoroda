@@ -69,9 +69,19 @@ export const icon_blue_pin = L.divIcon({
 
 export const icon_purple_pin = L.divIcon({
     className: 'custom-icon-place-pin',
-    html: locationPinSvg('rgb(219, 39, 119)'), // pink-600
+    html: locationPinSvg('rgb(107, 114, 128)'), // gray-500 — новое место при клике по карте
     iconSize: [21, 28],
     anchor: [10.5, 28],
+    iconAnchor: [10.5, 28],
+    popupAnchor: [0, -28],
+    tooltipAnchor: [0, -28]
+});
+
+// Место добавлено, но не посещено (оранжевый, чтобы отличался от зелёного и розового)
+export const icon_place_not_visited_pin = L.divIcon({
+    className: 'custom-icon-place-not-visited-pin',
+    html: locationPinSvg('rgb(234, 88, 12)'), // orange-600
+    iconSize: [21, 28],
     iconAnchor: [10.5, 28],
     popupAnchor: [0, -28],
     tooltipAnchor: [0, -28]

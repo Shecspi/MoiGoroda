@@ -21,6 +21,15 @@
         Мои места
     </a>
     {% else %}
+    <style>
+        /* Переключатель видимости: зелёный в положении «Публичная» (peer-checked не срабатывает в сборке) */
+        #toolbar-collection-is-public:checked + .place-collection-toggle-track {
+            background-color: rgb(22 163 74);
+        }
+        .dark #toolbar-collection-is-public:checked + .place-collection-toggle-track {
+            background-color: rgb(21 128 61);
+        }
+    </style>
     <!-- Полный тулбар для владельца: статистика, фильтры, список коллекций -->
     <!-- Статистика -->
     <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
@@ -43,23 +52,24 @@
 
     <div class="ml-auto flex items-center gap-3 self-center">
         <!-- Публичность и «Поделиться» — показываются при выбранной коллекции, слева от кнопок -->
-        <div id="toolbar-collection-actions" class="hidden flex items-center gap-2 self-center">
+        <div id="toolbar-collection-actions" class="flex items-center gap-2 self-center">
             <div class="hs-tooltip [--placement:top] relative inline-block self-center">
                 <div class="hs-tooltip-toggle flex items-center gap-2">
                     <span class="text-sm text-gray-600 dark:text-neutral-400">Приватная</span>
                     <label for="toolbar-collection-is-public" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0">
                         <input type="checkbox"
                                id="toolbar-collection-is-public"
-                               class="peer sr-only">
-                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
-                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
-                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                               class="peer sr-only"
+                               disabled>
+                        <span class="place-collection-toggle-track absolute inset-0 rounded-full transition-colors duration-200 ease-in-out bg-red-500 dark:bg-red-600 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-white"></span>
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-white peer-checked:text-white transition-colors duration-200">
                             <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 6 6 18"></path>
                                 <path d="m6 6 12 12"></path>
                             </svg>
                         </span>
-                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-white peer-checked:text-white transition-colors duration-200">
                             <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
@@ -83,8 +93,21 @@
                     Поделиться ссылкой на коллекцию
                 </span>
             </div>
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <button type="button" id="toolbar-collection-edit" disabled
+                    class="hs-tooltip-toggle inline-flex items-center justify-center size-10 rounded-xl border border-gray-300 text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:focus:ring-neutral-500 dark:disabled:border-neutral-700 dark:disabled:text-neutral-500 dark:disabled:hover:bg-transparent"
+                    aria-label="Редактировать коллекцию"
+                    data-hs-overlay="#modal-edit-place-collection">
+                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Редактировать название коллекции
+                </span>
+            </div>
         </div>
-        <!-- ^^^ Публичность и Поделиться -->
+        <!-- ^^^ Публичность, Поделиться и Редактировать -->
 
         <!-- Фильтр по категории (как на /city/districts/98/map) -->
         <div class="hs-dropdown relative inline-block z-[40] min-w-[220px]">

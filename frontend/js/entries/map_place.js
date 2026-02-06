@@ -96,32 +96,45 @@ function updateFilterBadges() {
             collectionButtonText.title = 'Коллекции';
         }
     }
+    const viewContextEl = document.getElementById('place-map-view-context');
+    if (viewContextEl) {
+        if (selectedCollectionId !== null && selectedCollectionId !== undefined) {
+            const coll = allPlaceCollections.find(c => String(c.id) === String(selectedCollectionId));
+            viewContextEl.textContent = coll ? `Коллекция: «${coll.title}»` : 'Все коллекции';
+        } else {
+            viewContextEl.textContent = 'Все коллекции';
+        }
+    }
     updateCollectionToolbarActions();
 }
 
-/** Показывает блок «Публичная коллекция» и «Поделиться», синхронизирует с выбранной коллекцией. */
+/** Показывает блок «Публичная коллекция», «Поделиться» и «Редактировать»; при «все коллекции» элементы неактивны. */
 function updateCollectionToolbarActions() {
     const block = document.getElementById('toolbar-collection-actions');
     const checkbox = document.getElementById('toolbar-collection-is-public');
     const shareBtn = document.getElementById('toolbar-collection-share');
+    const editBtn = document.getElementById('toolbar-collection-edit');
     if (!block || !checkbox || !shareBtn) return;
 
-    if (selectedCollectionId === null || selectedCollectionId === undefined) {
-        block.classList.add('hidden');
+    const hasCollection = selectedCollectionId != null && allPlaceCollections.find(
+        c => String(c.id) === String(selectedCollectionId)
+    );
+
+    if (!hasCollection) {
+        checkbox.disabled = true;
+        shareBtn.disabled = true;
+        if (editBtn) editBtn.disabled = true;
+        checkbox.checked = false;
         return;
     }
 
     const collection = allPlaceCollections.find(
         c => String(c.id) === String(selectedCollectionId)
     );
-    if (!collection) {
-        block.classList.add('hidden');
-        return;
-    }
-
-    block.classList.remove('hidden');
+    checkbox.disabled = false;
     checkbox.checked = collection.is_public === true;
     shareBtn.disabled = !collection.is_public;
+    if (editBtn) editBtn.disabled = false;
 
     if (!shareBtn.dataset.collectionActionsBound) {
         shareBtn.dataset.collectionActionsBound = '1';
@@ -176,6 +189,68 @@ function updateCollectionToolbarActions() {
         });
     }
 }
+
+/** Модальное окно редактирования названия коллекции */
+function setupEditCollectionModal() {
+    const modal = document.getElementById('modal-edit-place-collection');
+    const form = document.getElementById('form-edit-place-collection');
+    const titleInput = document.getElementById('modal-edit-place-collection-title');
+    const submitBtn = document.getElementById('modal-edit-place-collection-submit');
+    if (!modal || !form || !titleInput || !submitBtn) return;
+
+    modal.addEventListener('open.hs.overlay', function () {
+        if (selectedCollectionId === null || selectedCollectionId === undefined) return;
+        const coll = allPlaceCollections.find(c => String(c.id) === String(selectedCollectionId));
+        titleInput.value = coll ? (coll.title || '') : '';
+    });
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const title = titleInput.value.trim();
+        if (!title) {
+            showDangerToast('Ошибка', 'Введите название коллекции');
+            return;
+        }
+        if (selectedCollectionId === null || selectedCollectionId === undefined) return;
+        const coll = allPlaceCollections.find(c => String(c.id) === String(selectedCollectionId));
+        if (!coll) return;
+        if (title === (coll.title || '')) {
+            document.querySelector('[data-hs-overlay="#modal-edit-place-collection"]')?.click();
+            return;
+        }
+        submitBtn.disabled = true;
+        fetch(`/api/place/collections/${selectedCollectionId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ title: title })
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Не удалось переименовать коллекцию');
+                return response.json();
+            })
+            .then(updated => {
+                const idx = allPlaceCollections.findIndex(c => String(c.id) === String(updated.id));
+                if (idx !== -1) allPlaceCollections[idx] = updated;
+                updateFilterBadges();
+                const viewContextEl = document.getElementById('place-map-view-context');
+                if (viewContextEl && String(selectedCollectionId) === String(updated.id)) {
+                    viewContextEl.textContent = `Коллекция: «${updated.title}»`;
+                }
+                showSuccessToast('Сохранено', 'Название коллекции обновлено');
+                document.querySelector('[data-hs-overlay="#modal-edit-place-collection"]')?.click();
+            })
+            .catch(() => {
+                showDangerToast('Ошибка', 'Не удалось переименовать коллекцию');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+            });
+    });
+}
+setupEditCollectionModal();
 
 /**
  * Обновляет URL в адресной строке по текущему выбранному фильтру коллекции:

@@ -51,6 +51,16 @@ def place(request: HttpRequest) -> HttpResponse:
     place_map_tooltip_only = bool(
         collection_uuid_ctx and (not request.user.is_authenticated or viewing_others_collection)
     )
+    # Шапка: «Мои места» для владельца, иначе название коллекции (гость/не-владелец)
+    is_owner_view = request.user.is_authenticated and not viewing_others_collection
+    place_map_header_title = 'Мои места' if is_owner_view else (collection_title or 'Мои места')
+    # Под шапкой: какая коллекция просматривается или «все коллекции»
+    if collection_title:
+        view_context_label = f'Коллекция: «{collection_title}»'
+    elif request.user.is_authenticated:
+        view_context_label = 'Все коллекции'
+    else:
+        view_context_label = ''
 
     return render(
         request,
@@ -64,6 +74,8 @@ def place(request: HttpRequest) -> HttpResponse:
             'collection_places_count': collection_places_count,
             'collection_title': collection_title,
             'place_map_tooltip_only': place_map_tooltip_only,
+            'place_map_header_title': place_map_header_title,
+            'view_context_label': view_context_label,
         },
     )
 

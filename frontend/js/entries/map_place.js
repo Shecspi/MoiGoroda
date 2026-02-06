@@ -719,6 +719,29 @@ function toggleNewCollectionField(checkbox) {
 }
 
 /**
+ * Добавляет пункт коллекции в выпадающий список «Коллекции» (при создании новой коллекции при добавлении места).
+ */
+function appendCollectionToDropdown(coll) {
+    const dropdownMenuCollection = document.getElementById('dropdown-menu-filter-collection');
+    if (!dropdownMenuCollection) return;
+    const li = document.createElement('li');
+    li.setAttribute('data-value', String(coll.id));
+    const item = document.createElement('a');
+    item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
+    item.innerHTML = `<span class="flex items-center min-h-5">${coll.title}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
+    item.style.cursor = 'pointer';
+    li.appendChild(item);
+    dropdownMenuCollection.appendChild(li);
+    item.addEventListener('click', () => {
+        selectedCollectionId = coll.id;
+        updateMarkers();
+        updateDropdownCheckmarks(dropdownMenuCollection, selectedCollectionId === null ? '' : selectedCollectionId);
+        updateFilterBadges();
+        updateCollectionUrl();
+    });
+}
+
+/**
  * Возвращает Promise с id коллекции для места:
  * если отмечено «Добавить новую коллекцию» и введено название — создаёт коллекцию через API;
  * иначе возвращает выбранное значение из выпадающего списка или null.
@@ -749,6 +772,7 @@ function resolveCollectionIdForPlace() {
             })
             .then(collection => {
                 allPlaceCollections.push(collection);
+                appendCollectionToDropdown(collection);
                 return collection.id;
             });
     }
@@ -784,11 +808,21 @@ function handleClickOnMap(map) {
         let content = '<form id="place-form">';
         content += generatePopupContentForNewPlace('Загрузка…', lat, lon, undefined, false);
         content += '<p class="mt-3 flex gap-2">';
-        content += `<button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-add-place" onclick="add_place();">Добавить</button>`;
+        content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-add-place" onclick="add_place();">Добавить</button>`;
         content += '</p>';
         content += '</form>';
 
         marker.bindPopup(content, { minWidth: POPUP_WIDTH, maxWidth: POPUP_WIDTH });
+        marker.on('popupopen', function () {
+            const popupForm = this.getPopup().getElement().querySelector('#place-form');
+            if (popupForm && !popupForm.dataset.submitBound) {
+                popupForm.dataset.submitBound = '1';
+                popupForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    add_place();
+                });
+            }
+        });
         marker.openPopup();
 
         marker.on("dragend", function (e) {
@@ -1078,10 +1112,6 @@ function delete_place(id) {
 }
 
 function add_place() {
-    document.querySelector('form').addEventListener('submit', function(event) {
-        event.preventDefault();
-    });
-
     const isVisitedEl = document.getElementById('form-is-visited');
     const data = {
         name: document.getElementById('form-name').value,

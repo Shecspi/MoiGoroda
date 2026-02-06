@@ -1,7 +1,11 @@
 import * as L from 'leaflet';
 
 import {create_map} from '../components/map';
-import {icon_blue_pin, icon_purple_pin} from "../components/icons";
+import {
+    icon_visited_pin,
+    icon_place_not_visited_pin,
+    icon_purple_pin
+} from "../components/icons";
 import {showDangerToast, showSuccessToast} from '../components/toast';
 import {getCookie} from '../components/get_cookie.js';
 
@@ -25,6 +29,7 @@ const allPlaces = new Map();
 // Массив, хранящий в себе все добавленные на карту маркеры.
 const allMarkers = [];
 const allCategories = [];
+const allPlaceCollections = [];
 
 let moved_lat = undefined;
 let moved_lon = undefined;
@@ -35,7 +40,8 @@ let marker = undefined;
 
 allPromises.push(loadPlacesFromServer());
 allPromises.push(loadCategoriesFromServer());
-Promise.all([...allPromises]).then(([places, categories]) => {
+allPromises.push(loadPlaceCollectionsFromServer());
+Promise.all([...allPromises]).then(([places, categories, collections]) => {
     // Получаем все категории и заполняем фильтр по ним
     const button = document.getElementById('btn-filter-category');
     const select_filter_by_category = document.getElementById('dropdown-menu-filter-category')
@@ -56,6 +62,10 @@ Promise.all([...allPromises]).then(([places, categories]) => {
     if (buttonText) {
         buttonText.classList.remove('hidden');
     }
+
+    (collections || []).forEach(coll => {
+        allPlaceCollections.push(coll);
+    });
 
     categories.forEach(category => {
         allCategories.push(category);
@@ -183,6 +193,53 @@ function loadPlacesFromServer() {
         });
 }
 
+function loadPlaceCollectionsFromServer() {
+    return fetch('/api/place/collections/')
+        .then(response => {
+            if (!response.ok) {
+                return [];
+            }
+            return response.json();
+        })
+        .then(data => {
+            return data;
+        });
+}
+
+/**
+ * Возвращает Promise с id коллекции для места:
+ * если заполнено поле "Новая коллекция", создаёт коллекцию через API и возвращает её id;
+ * иначе возвращает выбранное значение из выпадающего списка или null.
+ */
+function resolveCollectionIdForPlace() {
+    const newTitleEl = document.getElementById('form-new-collection-title');
+    const newTitle = newTitleEl ? newTitleEl.value.trim() : '';
+    const collectionEl = document.getElementById('form-collection');
+    const dropdownValue = collectionEl && collectionEl.value ? parseInt(collectionEl.value, 10) : null;
+
+    if (newTitle) {
+        return fetch('/api/place/collections/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'X-CSRFToken': getCookie("csrftoken")
+            },
+            body: JSON.stringify({ title: newTitle, is_public: false })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Не удалось создать коллекцию');
+                }
+                return response.json();
+            })
+            .then(collection => {
+                allPlaceCollections.push(collection);
+                return collection.id;
+            });
+    }
+    return Promise.resolve(dropdownValue);
+}
+
 function handleClickOnMap(map) {
     map.addEventListener('click', function (ev) {
         const lat = ev.latlng.lat;
@@ -190,15 +247,42 @@ function handleClickOnMap(map) {
         moved_lon = undefined;
         moved_lat = undefined;
 
-        let url = `https://nominatim.openstreetmap.org/reverse?email=shecspi@yandex.ru&format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=0&zoom=18&layer=natural,poi`;
+        if (marker !== undefined) {
+            map.removeLayer(marker);
+        }
 
+        // Сразу показываем маркер и попап с заглушкой, не ждём ответа API
+        marker = L.marker(
+            [lat, lon],
+            {
+                icon: icon_purple_pin,
+                draggable: true,
+                bounceOnAdd: true
+            }
+        ).addTo(map);
+
+        allMarkers.push(marker);
+
+        let content = '<form id="place-form">';
+        content += generatePopupContentForNewPlace('Загрузка…', lat, lon, undefined, false);
+        content += '<p class="mt-3 flex gap-2">';
+        content += `<button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-add-place" onclick="add_place();">Добавить</button>`;
+        content += '</p>';
+        content += '</form>';
+
+        marker.bindPopup(content, {minWidth: 250});
+        marker.openPopup();
+
+        marker.on("dragend", function (e) {
+            moved_lat = e.target.getLatLng().lat;
+            moved_lon = e.target.getLatLng().lng;
+        });
+
+        // Запрос к Nominatim в фоне; по ответу обновляем попап
+        const url = `https://nominatim.openstreetmap.org/reverse?email=shecspi@yandex.ru&format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=0&zoom=18&layer=natural,poi`;
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                if (marker !== undefined) {
-                    map.removeLayer(marker);
-                }
-
                 let name;
                 let lat_marker;
                 let lon_marker;
@@ -219,56 +303,61 @@ function handleClickOnMap(map) {
                     lat_marker = data.lat;
                     lon_marker = data.lon;
                 }
-                let name_escaped = name.replaceAll('"', "'");
 
-                if (data.type !== undefined) {
-                    if (tags.has(data.type)) {
-                        type_marker = tags.get(data.type);
-                    }
+                if (data.type !== undefined && tags.has(data.type)) {
+                    type_marker = tags.get(data.type);
                 }
 
-                marker = L.marker(
-                    [lat_marker, lon_marker],
-                    {
-                        icon: icon_purple_pin,
-                        draggable: true,
-                        bounceOnAdd: true
+                if (marker && marker.setLatLng) {
+                    marker.setLatLng([lat_marker, lon_marker]);
+                }
+                // Обновляем поля попапа без замены разметки, чтобы интерфейс не скакал
+                if (marker && marker.getPopup()) {
+                    const el = marker.getPopup().getElement();
+                    if (el) {
+                        const nameInput = el.querySelector('#form-name');
+                        if (nameInput) nameInput.value = name;
+                        const latInput = el.querySelector('#form-latitude');
+                        if (latInput) latInput.value = lat_marker;
+                        const lonInput = el.querySelector('#form-longitude');
+                        if (lonInput) lonInput.value = lon_marker;
+                        const coordsP = el.querySelector('#popup-coords');
+                        if (coordsP) {
+                            coordsP.innerHTML = '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ' + lat_marker + '<br>' +
+                                '<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ' + lon_marker;
+                        }
+                        const categorySelect = el.querySelector('#form-type-object');
+                        if (categorySelect && type_marker !== undefined) {
+                            for (let i = 0; i < categorySelect.options.length; i++) {
+                                if (categorySelect.options[i].text === type_marker) {
+                                    categorySelect.selectedIndex = i;
+                                    break;
+                                }
+                            }
+                        }
                     }
-                ).addTo(map);
-
-                allMarkers.push(marker);
-
-                let content = '<form id="place-form">';
-                content += generatePopupContentForNewPlace(name, lat_marker, lon_marker, type_marker);
-                content += '<p class="mt-3 flex gap-2">';
-                content += `<button class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-add-place" onclick="add_place();">Добавить</button>`;
-                content += '</p>';
-                content += '</form>';
-
-                marker.bindPopup(content, {minWidth: 250});
-                marker.openPopup();
-
-                marker.on("dragend", function (e) {
-                    moved_lat = e.target.getLatLng().lat;
-                    moved_lon = e.target.getLatLng().lng;
-                });
+                }
             });
     });
 }
 
-function generatePopupContentForNewPlace(name, latitude, longitude, place_category) {
+function generatePopupContentForNewPlace(name, latitude, longitude, place_category, showCoordinates) {
+    if (showCoordinates === undefined) {
+        showCoordinates = true;
+    }
     let content = '<div style="min-width: 250px;">';
     content += '<p class="text-sm">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Название:</span> ';
     content += `<input type="text" id="form-name" name="name" value="${name.replace(/"/g, '&quot;')}" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">`;
     content += '</p>';
 
-    content += '<p class="text-sm mt-2">';
-    content += '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ';
-    content += `${latitude}<br>`;
     content += `<input type="text" id="form-latitude" name="latitude" value="${latitude}" hidden>`;
-    content += `<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ${longitude}`;
     content += `<input type="text" id="form-longitude" name="longitude" value="${longitude}" hidden>`;
+    content += '<p id="popup-coords" class="text-sm mt-2">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ';
+    content += showCoordinates ? `${latitude}<br>` : '—<br>';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ';
+    content += showCoordinates ? longitude : '—';
     content += '</p>';
 
     content += '<p id="category_select_form" class="text-sm mt-2">';
@@ -284,47 +373,70 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
     });
     content += '</select>';
     content += '</p>';
+
+    content += '<p class="text-sm mt-2">';
+    content += '<label class="flex items-center gap-2 cursor-pointer">';
+    content += '<input type="checkbox" id="form-is-visited" name="is_visited" class="rounded border-gray-200 bg-white text-blue-600 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Посещено</span>';
+    content += '</label>';
+    content += '</p>';
+
+    content += '<p class="text-sm mt-2">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Коллекция:</span> ';
+    content += '<select name="collection" id="form-collection" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += '<option value="">Без коллекции</option>';
+    allPlaceCollections.forEach(coll => {
+        content += `<option value="${coll.id}">${coll.title}</option>`;
+    });
+    content += '</select>';
+    content += '</p>';
+    content += '<p class="text-sm mt-2">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Новая коллекция:</span> ';
+    content += '<input type="text" id="form-new-collection-title" name="new_collection_title" placeholder="Введите название, чтобы создать и добавить в новую коллекцию" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder-neutral-400 dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += '</p>';
     content += '</div>';
 
     return content;
 }
 
-function generatePopupContent(name, latitide, longitude, place_category, id) {
-    let name_escaped = name.replaceAll('"', "'");
+function generatePopupContent(place) {
+    const name = place.name;
+    const name_escaped = name.replaceAll('"', "'");
+    const place_category = place.category_detail?.name;
+    const is_visited = place.is_visited === true;
+    const collection_title = place.collection_detail?.title || null;
 
     let content = '';
-                content += '<div class="flex items-center justify-between gap-3 text-lg">';
-        content += `<div id="place_name_text">${name}</div>`;
-        content += '<div id="place_name_input_form" class="hidden">';
-            content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder-neutral-400 dark:focus:border-blue-500 dark:focus:ring-blue-500">`;
-        content += '</div>';
-        content += '<div class="flex items-center gap-2">';
-            content += '<a href="#" id="link_to_edit_place" onclick="event.preventDefault(); switch_popup_elements(); return false;" class="inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-neutral-400 dark:hover:text-neutral-300 dark:hover:bg-neutral-800" title="Изменить место"><i class="fa-solid fa-pencil"></i></a>';
-            content += '<a href="#" id="lint_to_cancel_edit_place" onclick="event.preventDefault(); switch_popup_elements(); return false;" class="hidden inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10" title="Отменить изменения"><i class="fa-solid fa-ban"></i></a>';
-        content += '</div>';
+    content += '<div class="flex items-center justify-between gap-3 text-lg">';
+    content += `<div id="place_name_text">${name}</div>`;
+    content += '<div id="place_name_input_form" class="hidden">';
+    content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder-neutral-400 dark:focus:border-blue-500 dark:focus:ring-blue-500">`;
+    content += '</div>';
+    content += '<div class="flex items-center gap-2">';
+    content += '<a href="#" id="link_to_edit_place" onclick="event.preventDefault(); switch_popup_elements(); return false;" class="inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-neutral-400 dark:hover:text-neutral-300 dark:hover:bg-neutral-800" title="Изменить место"><i class="fa-solid fa-pencil"></i></a>';
+    content += '<a href="#" id="lint_to_cancel_edit_place" onclick="event.preventDefault(); switch_popup_elements(); return false;" class="hidden inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10" title="Отменить изменения"><i class="fa-solid fa-ban"></i></a>';
+    content += '</div>';
     content += '</div>';
 
-    content += '<p class="text-sm text-gray-600 dark:text-neutral-400">'
-        content += `<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ${latitide}<br>`
-        content += `<input type="text" id="form-latitude" name="name" value="${latitide}" hidden>`;
-        content += `<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ${longitude}`;
-        content += `<input type="text" id="form-longitude" name="name" value="${longitude}" hidden>`;
+    content += '<p class="text-sm text-gray-600 dark:text-neutral-400">';
+    content += `<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ${place.latitude}<br>`;
+    content += `<input type="text" id="form-latitude" name="latitude" value="${place.latitude}" hidden>`;
+    content += `<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ${place.longitude}`;
+    content += `<input type="text" id="form-longitude" name="longitude" value="${place.longitude}" hidden>`;
     content += '</p>';
 
-    content += '<p id="category_select_form" class="hidden text-sm">'
-        content += '<span class="font-semibold text-gray-900 dark:text-white">Категория:</span> ';
-        content += '<select name="category" id="form-type-object" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
-        if (place_category === undefined) {
-            content += `<option value="" selected disabled>Выберите категорию...</option>`;
+    content += '<p id="category_select_form" class="hidden text-sm">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Категория:</span> ';
+    content += '<select name="category" id="form-type-object" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += '<option value="" disabled>Выберите категорию...</option>';
+    allCategories.forEach(category => {
+        if (category.name === place_category) {
+            content += `<option value="${category.id}" selected>${category.name}</option>`;
+        } else {
+            content += `<option value="${category.id}">${category.name}</option>`;
         }
-        allCategories.forEach(category => {
-            if (category.name === place_category) {
-                content += `<option value="${category.id}" selected>${category.name}</option>`;
-            } else {
-                content += `<option value="${category.id}">${category.name}</option>`;
-            }
-        })
-        content += '</select>';
+    });
+    content += '</select>';
     content += '</p>';
 
     content += '<p id="category_place" class="text-sm text-gray-600 dark:text-neutral-400">';
@@ -332,11 +444,35 @@ function generatePopupContent(name, latitide, longitude, place_category, id) {
     content += ` ${place_category !== undefined ? place_category : 'Не известно'}`;
     content += '</p>';
 
+    content += '<p id="place_visited_collection_view" class="text-sm text-gray-600 dark:text-neutral-400">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Посещено:</span> ' + (is_visited ? 'да' : 'нет') + '<br>';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Коллекция:</span> ' + (collection_title || 'Без коллекции');
+    content += '</p>';
+
+    content += '<p id="place_visited_collection_edit" class="hidden text-sm mt-2">';
+    content += '<label class="flex items-center gap-2 cursor-pointer mb-2">';
+    content += `<input type="checkbox" id="form-is-visited" name="is_visited" class="rounded border-gray-200 bg-white text-blue-600 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900" ${is_visited ? 'checked' : ''}>`;
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Посещено</span>';
+    content += '</label>';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Коллекция:</span> ';
+    content += '<select name="collection" id="form-collection" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += '<option value="">Без коллекции</option>';
+    const current_collection_id = place.collection_detail?.id ?? place.collection ?? null;
+    allPlaceCollections.forEach(coll => {
+        const sel = (current_collection_id && String(coll.id) === String(current_collection_id)) ? ' selected' : '';
+        content += `<option value="${coll.id}"${sel}>${coll.title}</option>`;
+    });
+    content += '</select>';
+    content += '</p>';
+    content += '<p class="text-sm mt-2">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Новая коллекция:</span> ';
+    content += '<input type="text" id="form-new-collection-title" name="new_collection_title" placeholder="Введите название, чтобы создать и добавить в новую коллекцию" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder-neutral-400 dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += '</p>';
+
     return content;
 }
 
 function update_place(id) {
-    // Проверяем, что форма в режиме редактирования (кнопка "Сохранить" видна)
     const btn_update_place = document.getElementById('btn-update-place');
     if (!btn_update_place || btn_update_place.classList.contains('hidden')) {
         return;
@@ -349,44 +485,46 @@ function update_place(id) {
         });
     }
 
-    const formData = new FormData();
-    let name = document.getElementById('form-name').value
-    let category_el = document.getElementById('form-type-object');
+    const category_el = document.getElementById('form-type-object');
     if (!category_el) {
         return;
     }
-    let category_id = category_el.value;
-    let category_name = category_el.options[category_el.selectedIndex].text;
+    const category_id = category_el.value;
+    const isVisitedEl = document.getElementById('form-is-visited');
 
-    formData.set('name', name);
-    formData.set('category', category_id)
+    const data = {
+        name: document.getElementById('form-name').value,
+        category: category_id,
+        is_visited: isVisitedEl ? isVisitedEl.checked : true,
+        collection: null
+    };
 
-    fetch(`/api/place/update/${id}`, {
-        method: 'PATCH',
-        body: formData,
-        headers: {
-            'X-CSRFToken': getCookie("csrftoken")
-        }
-    })
+    resolveCollectionIdForPlace()
+        .then(collectionId => {
+            data.collection = collectionId;
+            return fetch(`/api/place/update/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'X-CSRFToken': getCookie("csrftoken")
+                },
+                body: JSON.stringify(data)
+            });
+        })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Произошла ошибка при редактировании места');
             }
-            if (response.status === 200) {
-                let old_place = allPlaces.get(id);
-                old_place.name = name;
-                old_place.category_detail.id = category_id;
-                old_place.category_detail.name = category_name;
-
-                updateMarkers();
-                showSuccessToast('Изменено', 'Указанное Вами место успешно отредактировано')
-
-                return false;
-            } else {
-                showDangerToast('Ошибка', 'Произошла неизвестная ошибка и отредактировать место не получилось. Пожалуйста, обновите страницу и попробуйте ещё раз');
-                throw new Error('Произошла неизвестная ошибка и отредактировать место не получилось');
-            }
+            return response.json();
         })
+        .then(updated => {
+            allPlaces.set(id, updated);
+            updateMarkers();
+            showSuccessToast('Изменено', 'Указанное Вами место успешно отредактировано');
+        })
+        .catch(() => {
+            showDangerToast('Ошибка', 'Произошла неизвестная ошибка и отредактировать место не получилось. Пожалуйста, обновите страницу и попробуйте ещё раз');
+        });
 }
 
 function delete_place(id) {
@@ -420,9 +558,12 @@ function add_place() {
         event.preventDefault();
     });
 
+    const isVisitedEl = document.getElementById('form-is-visited');
     const data = {
         name: document.getElementById('form-name').value,
-        category: document.getElementById('form-type-object').value
+        category: document.getElementById('form-type-object').value,
+        is_visited: isVisitedEl ? isVisitedEl.checked : false,
+        collection: null
     };
 
     // В зависимости от того, был перемещён маркер или нет, используются разные источники для координат
@@ -444,25 +585,32 @@ function add_place() {
         return false;
     }
 
-    fetch('/api/place/create/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json;charset=utf-8',
-            'X-CSRFToken': getCookie("csrftoken")
-        },
-        body: JSON.stringify(data)
-    })
+    resolveCollectionIdForPlace()
+        .then(collectionId => {
+            data.collection = collectionId;
+            return fetch('/api/place/create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'X-CSRFToken': getCookie("csrftoken")
+                },
+                body: JSON.stringify(data)
+            });
+        })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Произошла ошибка при получении данных с сервера');
             }
-            return response.json()
+            return response.json();
         })
-        .then(data => {
-            allPlaces.set(data.id, data);
+        .then(created => {
+            allPlaces.set(created.id, created);
             updateMarkers();
-            showSuccessToast('Добавлено', 'Указанное Вами место успешно добавлено.')
+            showSuccessToast('Добавлено', 'Указанное Вами место успешно добавлено.');
         })
+        .catch(() => {
+            showDangerToast('Ошибка', 'Не удалось добавить место. Проверьте название новой коллекции или попробуйте выбрать существующую.');
+        });
 }
 
 /**
@@ -482,15 +630,16 @@ function addMarkers(categoryName) {
     allMarkers.length = 0;
     allPlaces.forEach(place => {
         if (categoryName === undefined || categoryName === '__all__' || categoryName === place.category_detail.name) {
+            const placeIcon = place.is_visited ? icon_visited_pin : icon_place_not_visited_pin;
             const marker = L.marker(
                 [place.latitude, place.longitude],
                 {
-                    icon: icon_blue_pin
+                    icon: placeIcon
                 }).addTo(map);
             marker.bindTooltip(place.name, {direction: 'top'});
 
             let content = '<form id="place-form">';
-            content += generatePopupContent(place.name, place.latitude, place.longitude, place.category_detail.name, place.id);
+            content += generatePopupContent(place);
             content += '<p class="mt-3 flex gap-2">';
             content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-edit-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Изменить</button>`;
             content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-update-place" onclick="update_place(${place.id}); return false;">Сохранить</button>`;
@@ -536,6 +685,16 @@ function switch_popup_elements() {
     const category_select_form = document.getElementById('category_select_form');
     if (category_select_form) {
         category_select_form.classList.toggle('hidden');
+    }
+
+    const place_visited_collection_view = document.getElementById('place_visited_collection_view');
+    if (place_visited_collection_view) {
+        place_visited_collection_view.classList.toggle('hidden');
+    }
+
+    const place_visited_collection_edit = document.getElementById('place_visited_collection_edit');
+    if (place_visited_collection_edit) {
+        place_visited_collection_edit.classList.toggle('hidden');
     }
 
     const btn_edit_place = document.getElementById('btn-edit-place');

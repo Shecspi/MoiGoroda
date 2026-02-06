@@ -6,8 +6,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 
-from place.models import Place, Category
-from place.serializers import PlaceSerializer, CategorySerializer
+from place.models import Place, Category, PlaceCollection
+from place.serializers import (
+    PlaceSerializer,
+    CategorySerializer,
+    PlaceCollectionSerializer,
+)
 from services import logger
 
 
@@ -39,6 +43,40 @@ class GetPlaces(generics.ListAPIView[Place]):
 
     def get_queryset(self) -> Any:
         return Place.objects.filter(user=cast(User, self.request.user))
+
+
+class GetPlaceCollections(generics.ListAPIView[PlaceCollection]):
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+    serializer_class = PlaceCollectionSerializer
+
+    def get_queryset(self) -> Any:
+        return PlaceCollection.objects.filter(user=cast(User, self.request.user)).order_by(
+            '-created_at'
+        )
+
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        logger.info(
+            request,
+            '(API: Place): Getting a list of place collections',
+        )
+        return super(GetPlaceCollections, self).get(request, *args, **kwargs)
+
+
+class CreatePlaceCollection(generics.CreateAPIView[PlaceCollection]):
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['post']
+    serializer_class = PlaceCollectionSerializer
+
+    def perform_create(self, serializer: BaseSerializer[PlaceCollection]) -> None:
+        instance = serializer.save(user=cast(User, self.request.user))
+        logger.info(
+            self.request,
+            f'(API: Place): Creation of place collection #{instance.id}',
+        )
+
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        return super(CreatePlaceCollection, self).post(request, *args, **kwargs)
 
 
 class CreatePlace(generics.CreateAPIView[Place]):

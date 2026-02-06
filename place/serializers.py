@@ -2,7 +2,7 @@ from typing import Any
 
 from rest_framework import serializers
 
-from place.models import Place, TagOSM, Category
+from place.models import Place, TagOSM, Category, PlaceCollection
 
 
 class TagOSMSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
@@ -24,8 +24,36 @@ class CategorySerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
         }
 
 
+class PlaceCollectionSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
+    class Meta:
+        model = PlaceCollection
+        fields = ('id', 'title', 'is_public', 'user')
+        extra_kwargs = {
+            'user': {'write_only': True, 'required': False},
+        }
+
+
 class PlaceSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     category_detail = CategorySerializer(source='category', read_only=True)
+    collection_detail = PlaceCollectionSerializer(source='collection', read_only=True)
+
+    def _validate_collection_for_user(
+        self, collection: PlaceCollection | int | None, user: Any
+    ) -> PlaceCollection | None:
+        if collection is None:
+            return None
+        if isinstance(collection, PlaceCollection):
+            if collection.user_id != getattr(user, 'id', user):
+                raise serializers.ValidationError(
+                    {'collection': 'Коллекция не найдена или недоступна.'}
+                )
+            return collection
+        try:
+            return PlaceCollection.objects.get(pk=collection, user=user)
+        except PlaceCollection.DoesNotExist:
+            raise serializers.ValidationError(
+                {'collection': 'Коллекция не найдена или недоступна.'}
+            )
 
     def create(self, validated_data: dict[str, Any]) -> Place:
         """
@@ -40,15 +68,21 @@ class PlaceSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
         # А если пользователь авторизован и отправит параметр 'user', то этот параметр будет проигнорирован
         # и вместо него подставится значение из request.user.
         if self.context.get('request') and self.context['request'].user:
+            user = self.context['request'].user
             if 'user' in validated_data:
                 validated_data.pop('user')
-            return Place.objects.create(user=self.context['request'].user, **validated_data)
+            collection_id = validated_data.pop('collection', None)
+            validated_data['collection'] = self._validate_collection_for_user(collection_id, user)
+            return Place.objects.create(user=user, **validated_data)
         return super(PlaceSerializer, self).create(validated_data)  # type: ignore[no-any-return]
 
     def update(self, instance: Place, validated_data: dict[str, Any]) -> Place:
-        # Поля, доступные для редактирования
-        editable_fields = ['name', 'category']
-
+        editable_fields = ['name', 'category', 'is_visited', 'collection']
+        request = self.context.get('request')
+        if 'collection' in validated_data:
+            collection_id = validated_data['collection']
+            user = request.user if request else instance.user
+            validated_data['collection'] = self._validate_collection_for_user(collection_id, user)
         filtered_data = {
             key: value for key, value in validated_data.items() if key in editable_fields
         }
@@ -69,6 +103,9 @@ class PlaceSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
             'created_at',
             'updated_at',
             'user',
+            'is_visited',
+            'collection',
+            'collection_detail',
         ]
         read_only_fields = ['created_at', 'updated_at']
         extra_kwargs = {
@@ -78,5 +115,10 @@ class PlaceSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
             'user': {
                 'write_only': True,
                 'required': False,
+            },
+            'collection': {
+                'write_only': True,
+                'required': False,
+                'allow_null': True,
             },
         }

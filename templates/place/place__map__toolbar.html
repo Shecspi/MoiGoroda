@@ -19,24 +19,51 @@
     <!-- ^^^ Статистика -->
 
     <div class="ml-auto flex items-center gap-3 self-center">
-        <!-- Фильтр по категории -->
-        <div class="hs-dropdown relative inline-block z-[40]">
-            <button class="hs-dropdown-toggle relative inline-flex items-center gap-x-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition dark:focus:ring-offset-neutral-900 border border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-500/10 disabled:pointer-events-none disabled:opacity-50"
+        <!-- Фильтр по категории (как на /city/districts/98/map) -->
+        <div class="hs-dropdown relative inline-block z-[40] min-w-[180px]">
+            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600"
                     id="btn-filter-category"
                     disabled>
                 <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
                     <span class="sr-only">Загрузка...</span>
                 </span>
-                <span id="btn-filter-category-icon" class="hidden inline-block shrink-0" aria-hidden="true">
+                <span id="btn-filter-category-icon" class="hidden shrink-0" aria-hidden="true">
                     <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 512 512" fill="currentColor">
                         <path d="M12.41 148.02l232.94 105.67c6.8 3.09 14.49 3.09 21.29 0l232.94-105.67c16.55-7.51 16.55-32.52 0-40.03L266.65 2.31a25.607 25.607 0 0 0-21.29 0L12.41 107.98c-16.55 7.51-16.55 32.52 0 40.03zm487.18 88.28l-58.09-26.33-161.64 73.27c-7.56 3.43-15.59 5.17-23.86 5.17s-16.29-1.74-23.86-5.17L70.88 209.97l-58.1 26.33c-16.55 7.5-16.55 32.52 0 40.02l232.94 105.59c6.8 3.08 14.49 3.08 21.29 0L499.59 276.3c16.55-7.5 16.55-32.52 0-40.02zm0 127.8l-57.87-26.23-161.86 73.37c-7.56 3.43-15.59 5.17-23.86 5.17s-16.29-1.74-23.86-5.17L70.88 337.97 12.23 364.1c-16.55 7.5-16.55 32.52 0 40.02l232.94 105.59c6.8 3.08 14.49 3.08 21.29 0L499.59 404.1c16.55-7.5 16.55-32.52 0-40.02z"/>
                     </svg>
                 </span>
                 <span id="btn-filter-category-text" class="hidden">Категории</span>
+                <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
+                    <svg class="shrink-0 size-3.5 text-gray-500 dark:text-neutral-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                </div>
+                <span id="badge-filter-category" class="absolute top-0 end-0 inline-flex items-center size-3.5 rounded-full border-2 border-white transform -translate-y-1/2 translate-x-1/2 bg-orange-500 dark:border-neutral-900 hidden" aria-hidden="true"></span>
             </button>
-
-            <ul class="hs-dropdown-menu absolute end-0 opacity-0 pointer-events-none transition-[opacity,margin] duration-150 min-w-[20rem] max-h-96 overflow-y-auto overscroll-contain bg-white shadow-lg rounded-xl p-2 mt-2 border border-gray-200 dark:bg-neutral-900 dark:border-neutral-700 z-[1000]" id="dropdown-menu-filter-category"></ul>
+            <ul class="hs-dropdown-menu absolute end-0 opacity-0 pointer-events-none transition-[opacity,margin] duration-150 mt-2 max-h-72 overflow-y-auto overscroll-contain min-w-[280px] bg-white border border-gray-200 rounded-lg py-1 px-1 space-y-0.5 z-[1000] dark:bg-neutral-900 dark:border-neutral-700 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" id="dropdown-menu-filter-category"></ul>
         </div>
         <!-- ^^^ Фильтр по категории -->
+
+        <!-- Фильтр по коллекции (как на /city/districts/98/map) -->
+        <div class="hs-dropdown relative inline-block z-[40] min-w-[180px]" id="dropdown-collection-wrap">
+            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600"
+                    id="btn-filter-collection"
+                    disabled>
+                <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
+                    <span class="sr-only">Загрузка...</span>
+                </span>
+                <span id="btn-filter-collection-icon" class="hidden shrink-0" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 11H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2z"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </span>
+                <span id="btn-filter-collection-text" class="hidden">Коллекции</span>
+                <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
+                    <svg class="shrink-0 size-3.5 text-gray-500 dark:text-neutral-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                </div>
+                <span id="badge-filter-collection" class="absolute top-0 end-0 inline-flex items-center size-3.5 rounded-full border-2 border-white transform -translate-y-1/2 translate-x-1/2 bg-orange-500 dark:border-neutral-900 hidden" aria-hidden="true"></span>
+            </button>
+            <ul class="hs-dropdown-menu absolute end-0 opacity-0 pointer-events-none transition-[opacity,margin] duration-150 mt-2 max-h-72 overflow-y-auto overscroll-contain min-w-[280px] bg-white border border-gray-200 rounded-lg py-1 px-1 space-y-0.5 z-[1000] dark:bg-neutral-900 dark:border-neutral-700 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" id="dropdown-menu-filter-collection"></ul>
+        </div>
+        <!-- ^^^ Фильтр по коллекции -->
     </div>
 </div>

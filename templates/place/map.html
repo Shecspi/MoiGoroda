@@ -11,8 +11,11 @@
 {% block content %}
     <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
         <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
-            {% if collection_title %}{{ collection_title }}{% else %}Мои места{% endif %}
+            {{ place_map_header_title }}
         </h1>
+        {% if view_context_label %}
+        <p class="mt-2 text-sm text-gray-600 dark:text-neutral-400" id="place-map-view-context">{{ view_context_label }}</p>
+        {% endif %}
     </header>
 
     {% if not DEBUG %}
@@ -20,6 +23,7 @@
     {% endif %}
 
     {% include 'place/place__map__toolbar.html' %}
+    {% include 'place/modals/edit_collection.html' %}
 
     <!-- Карта -->
     <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>

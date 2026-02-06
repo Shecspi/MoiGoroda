@@ -141,7 +141,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
         li.setAttribute('data-value', category.name);
         const filter_by_category_item = document.createElement('a');
         filter_by_category_item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-        filter_by_category_item.innerHTML = `<span>${category.name}</span><span class="place-filter-check hidden">${CHECK_ICON_HTML}</span>`;
+        filter_by_category_item.innerHTML = `<span class="flex items-center min-h-5">${category.name}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
         filter_by_category_item.style.cursor = 'pointer';
         filter_by_category_item.addEventListener('click', () => {
             selectedCategoryName = category.name;
@@ -164,7 +164,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
     allCategoriesLi.setAttribute('data-value', '__all__');
     const all_categories = document.createElement('a');
     all_categories.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-    all_categories.innerHTML = '<span>Показать все категории</span><span class="place-filter-check hidden">' + CHECK_ICON_HTML + '</span>';
+    all_categories.innerHTML = '<span class="flex items-center min-h-5">Показать все категории</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">' + CHECK_ICON_HTML + '</span>';
     all_categories.style.cursor = 'pointer';
     allCategoriesLi.appendChild(all_categories);
     select_filter_by_category.appendChild(allCategoriesLi);
@@ -193,7 +193,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
         allCollectionsLi.setAttribute('data-value', '');
         const allCollectionsItem = document.createElement('a');
         allCollectionsItem.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-        allCollectionsItem.innerHTML = '<span>Все коллекции</span><span class="place-filter-check hidden">' + CHECK_ICON_HTML + '</span>';
+        allCollectionsItem.innerHTML = '<span class="flex items-center min-h-5">Все коллекции</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">' + CHECK_ICON_HTML + '</span>';
         allCollectionsItem.style.cursor = 'pointer';
         allCollectionsLi.appendChild(allCollectionsItem);
         dropdownMenuCollection.appendChild(allCollectionsLi);
@@ -210,7 +210,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
             li.setAttribute('data-value', String(coll.id));
             const item = document.createElement('a');
             item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-            item.innerHTML = `<span>${coll.title}</span><span class="place-filter-check hidden">${CHECK_ICON_HTML}</span>`;
+            item.innerHTML = `<span class="flex items-center min-h-5">${coll.title}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
             item.style.cursor = 'pointer';
             li.appendChild(item);
             dropdownMenuCollection.appendChild(li);

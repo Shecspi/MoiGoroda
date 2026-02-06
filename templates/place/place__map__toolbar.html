@@ -21,13 +21,13 @@
     <div class="ml-auto flex items-center gap-3 self-center">
         <!-- Фильтр по категории (как на /city/districts/98/map) -->
         <div class="hs-dropdown relative inline-block z-[40] min-w-[180px]">
-            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600"
+            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex items-center gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600"
                     id="btn-filter-category"
                     disabled>
                 <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
                     <span class="sr-only">Загрузка...</span>
                 </span>
-                <span id="btn-filter-category-icon" class="hidden shrink-0" aria-hidden="true">
+                <span id="btn-filter-category-icon" class="hidden shrink-0 inline-flex items-center" aria-hidden="true">
                     <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 512 512" fill="currentColor">
                         <path d="M12.41 148.02l232.94 105.67c6.8 3.09 14.49 3.09 21.29 0l232.94-105.67c16.55-7.51 16.55-32.52 0-40.03L266.65 2.31a25.607 25.607 0 0 0-21.29 0L12.41 107.98c-16.55 7.51-16.55 32.52 0 40.03zm487.18 88.28l-58.09-26.33-161.64 73.27c-7.56 3.43-15.59 5.17-23.86 5.17s-16.29-1.74-23.86-5.17L70.88 209.97l-58.1 26.33c-16.55 7.5-16.55 32.52 0 40.02l232.94 105.59c6.8 3.08 14.49 3.08 21.29 0L499.59 276.3c16.55-7.5 16.55-32.52 0-40.02zm0 127.8l-57.87-26.23-161.86 73.37c-7.56 3.43-15.59 5.17-23.86 5.17s-16.29-1.74-23.86-5.17L70.88 337.97 12.23 364.1c-16.55 7.5-16.55 32.52 0 40.02l232.94 105.59c6.8 3.08 14.49 3.08 21.29 0L499.59 404.1c16.55-7.5 16.55-32.52 0-40.02z"/>
                     </svg>
@@ -44,16 +44,15 @@
 
         <!-- Фильтр по коллекции (как на /city/districts/98/map) -->
         <div class="hs-dropdown relative inline-block z-[40] min-w-[180px]" id="dropdown-collection-wrap">
-            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600"
+            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex items-center gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600"
                     id="btn-filter-collection"
                     disabled>
                 <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
                     <span class="sr-only">Загрузка...</span>
                 </span>
-                <span id="btn-filter-collection-icon" class="hidden shrink-0" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 11H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2z"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                <span id="btn-filter-collection-icon" class="hidden shrink-0 inline-flex items-center" aria-hidden="true">
+                    <svg class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                     </svg>
                 </span>
                 <span id="btn-filter-collection-text" class="hidden">Коллекции</span>

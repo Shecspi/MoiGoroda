@@ -62,12 +62,22 @@ def place(request: HttpRequest) -> HttpResponse:
     else:
         view_context_label = ''
 
+    # SEO: динамические title и description для просмотра публичной коллекции
+    if collection_title:
+        page_title = f'Коллекция «{collection_title}»'
+        page_description = f'Карта мест: {collection_title}. Посмотреть коллекцию мест на карте.'
+        if len(page_description) > 160:
+            page_description = page_description[:157] + '…'
+    else:
+        page_title = 'Мои места'
+        page_description = 'Мои места, отмеченные на карте'
+
     return render(
         request,
         'place/map.html',
         context={
-            'page_title': 'Мои места',
-            'page_description': 'Мои места, отмеченные на карте',
+            'page_title': page_title,
+            'page_description': page_description,
             'active_page': 'places',
             'collection_uuid': collection_uuid_ctx,
             'viewing_others_collection': viewing_others_collection,

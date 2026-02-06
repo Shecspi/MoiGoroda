@@ -52,6 +52,32 @@ const POPUP_WIDTH = 300;
 /** SVG галочки для выбранного пункта (как на /region/all/map) */
 const CHECK_ICON_HTML = '<svg class="shrink-0 size-4 text-blue-600 dark:text-blue-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/></svg>';
 
+/**
+ * Выставляет класс start-0 или end-0 у меню, чтобы оно не выходило за пределы экрана.
+ * @param {HTMLElement} trigger - кнопка, открывающая выпадающий список
+ * @param {HTMLElement} menu - элемент ul.hs-dropdown-menu
+ */
+function positionDropdownInViewport(trigger, menu) {
+    if (!trigger || !menu) return;
+    const triggerRect = trigger.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const gap = 8;
+    // Ширина меню: по классу sm:min-w-[280px], можно измерить после показа
+    const menuWidth = menu.offsetWidth || 280;
+    const spaceOnRight = viewportWidth - triggerRect.left;
+    const spaceOnLeft = triggerRect.right;
+    if (spaceOnRight >= menuWidth + gap) {
+        menu.classList.remove('end-0');
+        menu.classList.add('start-0');
+    } else if (spaceOnLeft >= menuWidth + gap) {
+        menu.classList.remove('start-0');
+        menu.classList.add('end-0');
+    } else {
+        menu.classList.remove('end-0');
+        menu.classList.add('start-0');
+    }
+}
+
 function updateDropdownCheckmarks(menuEl, selectedValue) {
     if (!menuEl) return;
     const valueStr = selectedValue === null || selectedValue === undefined ? '' : String(selectedValue);
@@ -559,10 +585,17 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
                 dropdownMenu.classList.remove('opacity-100');
                 dropdownMenu.classList.add('opacity-0', 'pointer-events-none');
                 button.setAttribute('aria-expanded', 'false');
+                const wrapCategory = document.getElementById('dropdown-category-wrap');
+                const wrapCollection = document.getElementById('dropdown-collection-wrap');
+                if (wrapCategory) wrapCategory.classList.remove('z-[50]');
+                if (wrapCollection) wrapCollection.classList.add('z-[50]');
+                positionDropdownInViewport(btnFilterCollection, dropdownMenuCollection);
                 dropdownMenuCollection.classList.remove('opacity-0', 'pointer-events-none');
                 dropdownMenuCollection.classList.add('opacity-100');
                 btnFilterCollection.setAttribute('aria-expanded', 'true');
             } else {
+                const wrapCollection = document.getElementById('dropdown-collection-wrap');
+                if (wrapCollection) wrapCollection.classList.remove('z-[50]');
                 dropdownMenuCollection.classList.remove('opacity-100');
                 dropdownMenuCollection.classList.add('opacity-0', 'pointer-events-none');
                 btnFilterCollection.setAttribute('aria-expanded', 'false');
@@ -570,6 +603,8 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
         });
         document.addEventListener('click', function(e) {
             if (dropdownElementCollection && !dropdownElementCollection.contains(e.target)) {
+                const wrapCollection = document.getElementById('dropdown-collection-wrap');
+                if (wrapCollection) wrapCollection.classList.remove('z-[50]');
                 dropdownMenuCollection.classList.remove('opacity-100');
                 dropdownMenuCollection.classList.add('opacity-0', 'pointer-events-none');
                 btnFilterCollection.setAttribute('aria-expanded', 'false');
@@ -598,10 +633,17 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
                 dropdownMenuCollection.classList.add('opacity-0', 'pointer-events-none');
                 if (btnFilterCollection) btnFilterCollection.setAttribute('aria-expanded', 'false');
             }
+            const wrapCategory = document.getElementById('dropdown-category-wrap');
+            const wrapCollection = document.getElementById('dropdown-collection-wrap');
+            if (wrapCollection) wrapCollection.classList.remove('z-[50]');
+            if (wrapCategory) wrapCategory.classList.add('z-[50]');
+            positionDropdownInViewport(button, dropdownMenu);
             dropdownMenu.classList.remove('opacity-0', 'pointer-events-none');
             dropdownMenu.classList.add('opacity-100');
             button.setAttribute('aria-expanded', 'true');
         } else {
+            const wrapCategory = document.getElementById('dropdown-category-wrap');
+            if (wrapCategory) wrapCategory.classList.remove('z-[50]');
             dropdownMenu.classList.remove('opacity-100');
             dropdownMenu.classList.add('opacity-0', 'pointer-events-none');
             button.setAttribute('aria-expanded', 'false');
@@ -611,6 +653,8 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
     // Закрываем dropdown при клике вне его
     document.addEventListener('click', function(e) {
         if (!dropdownElement.contains(e.target)) {
+            const wrapCategory = document.getElementById('dropdown-category-wrap');
+            if (wrapCategory) wrapCategory.classList.remove('z-[50]');
             dropdownMenu.classList.remove('opacity-100');
             dropdownMenu.classList.add('opacity-0', 'pointer-events-none');
             button.setAttribute('aria-expanded', 'false');

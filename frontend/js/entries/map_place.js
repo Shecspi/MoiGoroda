@@ -114,6 +114,7 @@ function updateCollectionToolbarActions() {
     const checkbox = document.getElementById('toolbar-collection-is-public');
     const shareBtn = document.getElementById('toolbar-collection-share');
     const editBtn = document.getElementById('toolbar-collection-edit');
+    const deleteBtn = document.getElementById('toolbar-collection-delete');
     if (!block || !checkbox || !shareBtn) return;
 
     const hasCollection = selectedCollectionId != null && allPlaceCollections.find(
@@ -124,6 +125,7 @@ function updateCollectionToolbarActions() {
         checkbox.disabled = true;
         shareBtn.disabled = true;
         if (editBtn) editBtn.disabled = true;
+        if (deleteBtn) deleteBtn.disabled = true;
         checkbox.checked = false;
         return;
     }
@@ -135,6 +137,7 @@ function updateCollectionToolbarActions() {
     checkbox.checked = collection.is_public === true;
     shareBtn.disabled = !collection.is_public;
     if (editBtn) editBtn.disabled = false;
+    if (deleteBtn) deleteBtn.disabled = false;
 
     if (!shareBtn.dataset.collectionActionsBound) {
         shareBtn.dataset.collectionActionsBound = '1';
@@ -251,6 +254,126 @@ function setupEditCollectionModal() {
     });
 }
 setupEditCollectionModal();
+
+/** Модальное окно удаления коллекции */
+function setupDeleteCollectionModal() {
+    const modal = document.getElementById('modal-delete-place-collection');
+    const form = document.getElementById('form-delete-place-collection');
+    const nameDisplay = document.getElementById('modal-delete-place-collection-name-display');
+    const nameInput = document.getElementById('modal-delete-place-collection-confirm-name');
+    const deletePlacesCheckbox = document.getElementById('modal-delete-place-collection-delete-places');
+    const submitBtn = document.getElementById('modal-delete-place-collection-submit');
+    if (!modal || !form || !nameInput || !submitBtn) return;
+
+    function checkConfirmName() {
+        if (selectedCollectionId == null) return;
+        const coll = allPlaceCollections.find(c => String(c.id) === String(selectedCollectionId));
+        const expected = coll ? (coll.title || '').trim() : '';
+        submitBtn.disabled = nameInput.value.trim() !== expected;
+    }
+
+    const nameCopyWrap = document.getElementById('modal-delete-place-collection-name-copy');
+    if (nameCopyWrap && nameDisplay) {
+        nameCopyWrap.addEventListener('click', function () {
+            const text = nameDisplay.textContent;
+            if (!text || text === '—') return;
+            navigator.clipboard.writeText(text).then(
+                () => showSuccessToast('Скопировано', 'Название коллекции скопировано в буфер обмена'),
+                () => showDangerToast('Ошибка', 'Не удалось скопировать')
+            );
+        });
+        nameCopyWrap.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                nameCopyWrap.click();
+            }
+        });
+    }
+
+    modal.addEventListener('open.hs.overlay', function () {
+        if (selectedCollectionId === null || selectedCollectionId === undefined) return;
+        const coll = allPlaceCollections.find(c => String(c.id) === String(selectedCollectionId));
+        if (!coll) return;
+        if (nameDisplay) nameDisplay.textContent = coll.title || '—';
+        nameInput.value = '';
+        nameInput.placeholder = coll.title || '';
+        if (deletePlacesCheckbox) deletePlacesCheckbox.checked = false;
+        submitBtn.disabled = true;
+    });
+
+    nameInput.addEventListener('input', checkConfirmName);
+    nameInput.addEventListener('change', checkConfirmName);
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (selectedCollectionId === null || selectedCollectionId === undefined) return;
+        const coll = allPlaceCollections.find(c => String(c.id) === String(selectedCollectionId));
+        if (!coll || nameInput.value.trim() !== (coll.title || '').trim()) return;
+        const deletePlaces = deletePlacesCheckbox ? deletePlacesCheckbox.checked : false;
+        submitBtn.disabled = true;
+        fetch(`/api/place/collections/${selectedCollectionId}/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ delete_places: deletePlaces })
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Не удалось удалить коллекцию');
+            })
+            .then(() => {
+                const deletedId = String(selectedCollectionId);
+                const idx = allPlaceCollections.findIndex(c => String(c.id) === deletedId);
+                if (idx !== -1) allPlaceCollections.splice(idx, 1);
+                if (String(selectedCollectionId) === deletedId) {
+                    selectedCollectionId = null;
+                    updateCollectionUrl();
+                }
+                if (deletePlaces) {
+                    const idsToDelete = [];
+                    allPlaces.forEach((place, id) => {
+                        if ((place.collection_detail && String(place.collection_detail.id) === deletedId) ||
+                            (place.collection != null && String(place.collection) === deletedId)) {
+                            idsToDelete.push(id);
+                        }
+                    });
+                    idsToDelete.forEach(id => allPlaces.delete(id));
+                } else {
+                    allPlaces.forEach((place, id) => {
+                        if ((place.collection_detail && String(place.collection_detail.id) === deletedId) ||
+                            (place.collection != null && String(place.collection) === deletedId)) {
+                            place.collection = null;
+                            place.collection_detail = null;
+                            allPlaces.set(id, place);
+                        }
+                    });
+                }
+                updateMarkers();
+                const dropdownMenuCollection = document.getElementById('dropdown-menu-filter-collection');
+                if (dropdownMenuCollection) {
+                    dropdownMenuCollection.querySelectorAll('li[data-value]').forEach(li => {
+                        if (li.getAttribute('data-value') === deletedId) li.remove();
+                    });
+                }
+                updateFilterBadges();
+                if (initialCollectionUuid && String(initialCollectionUuid) === deletedId) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
+                showSuccessToast('Удалено', 'Коллекция удалена');
+                const modal = document.getElementById('modal-delete-place-collection');
+                const closeBtn = modal?.querySelector('[data-hs-overlay="#modal-delete-place-collection"]');
+                if (closeBtn) closeBtn.click();
+            })
+            .catch(() => {
+                showDangerToast('Ошибка', 'Не удалось удалить коллекцию');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+            });
+    });
+}
+setupDeleteCollectionModal();
 
 /**
  * Обновляет URL в адресной строке по текущему выбранному фильтру коллекции:

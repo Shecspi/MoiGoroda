@@ -1,0 +1,91 @@
+<style>
+    #modal-delete-place-collection .modal-delete-place-collection-input:focus {
+        border-color: rgb(239 68 68);
+        outline: none;
+        box-shadow: 0 0 0 1px rgb(239 68 68);
+    }
+    .dark #modal-delete-place-collection .modal-delete-place-collection-input:focus {
+        border-color: rgb(220 38 38);
+        box-shadow: 0 0 0 1px rgb(220 38 38);
+    }
+</style>
+<div id="modal-delete-place-collection" class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center" role="dialog" tabindex="-1" aria-labelledby="modal-delete-place-collection-label">
+    <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-md sm:w-full m-3 sm:mx-auto">
+        <div class="flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700">
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white" id="modal-delete-place-collection-label">
+                    Удалить коллекцию
+                </h3>
+                <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#modal-delete-place-collection">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="form-delete-place-collection" class="p-4">
+                <p class="text-sm text-gray-600 dark:text-neutral-400 mb-2">
+                    Это действие нельзя отменить. Введите название коллекции для подтверждения.
+                </p>
+                <p class="mb-4 text-sm text-gray-600 dark:text-neutral-400 flex items-center gap-1.5 flex-wrap">
+                    <span>Коллекция:</span>
+                    <span id="modal-delete-place-collection-name-copy" class="inline-flex items-center gap-1 font-medium text-red-600 dark:text-red-400 cursor-pointer hover:underline" role="button" tabindex="0" title="Нажмите, чтобы скопировать название">
+                        <span id="modal-delete-place-collection-name-display">—</span>
+                        <svg class="shrink-0 size-4 opacity-80" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                        </svg>
+                    </span>
+                </p>
+                <label for="modal-delete-place-collection-confirm-name" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-300">
+                    Название коллекции
+                </label>
+                <input type="text"
+                       id="modal-delete-place-collection-confirm-name"
+                       name="confirm_name"
+                       autocomplete="off"
+                       placeholder="Введите название"
+                       class="modal-delete-place-collection-input py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200"
+                       aria-describedby="modal-delete-place-collection-confirm-hint">
+                <p id="modal-delete-place-collection-confirm-hint" class="mt-2 text-xs text-gray-500 dark:text-neutral-500">
+                    Должно совпадать с названием удаляемой коллекции
+                </p>
+                <label for="modal-delete-place-collection-delete-places" class="mt-4 flex items-center gap-3 cursor-pointer">
+                    <span class="relative inline-block w-[52px] h-7 shrink-0">
+                        <input type="checkbox"
+                               id="modal-delete-place-collection-delete-places"
+                               name="delete_places"
+                               class="peer sr-only"
+                               aria-hidden="true">
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-red-500 dark:bg-neutral-700 dark:peer-checked:bg-red-600 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 pointer-events-none">
+                            <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-red-600 transition-colors duration-200 pointer-events-none">
+                            <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </span>
+                    <span class="text-sm text-gray-700 dark:text-neutral-300">
+                        Удалить все места коллекции. Если не отмечено — будет удалена только коллекция, места останутся в «Моих местах» без привязки к коллекции.
+                    </span>
+                </label>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button type="button" class="py-2 px-4 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-700" data-hs-overlay="#modal-delete-place-collection">
+                        Отмена
+                    </button>
+                    <button type="submit" id="modal-delete-place-collection-submit" disabled
+                        class="py-2 px-4 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:focus:ring-offset-neutral-800">
+                        Удалить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

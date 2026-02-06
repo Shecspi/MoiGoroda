@@ -547,7 +547,7 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
 
     content += '<p class="text-sm mt-2 flex items-center gap-2">';
     content += toggleSwitchHtml('form-is-visited', 'is_visited', false, '');
-    content += '<span class="font-semibold text-gray-900 dark:text-white">Посещено</span>';
+    content += '<label for="form-is-visited" class="cursor-pointer"><span class="font-semibold text-gray-900 dark:text-white">Посещено</span></label>';
     content += '</p>';
 
     content += '<p id="place-collection-dropdown-wrap" class="text-sm mt-2 min-h-[4.5rem]">';
@@ -565,7 +565,7 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
     content += '</p>';
     content += '<p class="text-sm mt-2 flex items-center gap-2">';
     content += toggleSwitchHtml('form-add-new-collection', 'add_new_collection', false, ' onchange="toggleNewCollectionField(this)"');
-    content += '<span class="font-semibold text-gray-900 dark:text-white">Добавить новую коллекцию</span>';
+    content += '<label for="form-add-new-collection" class="cursor-pointer"><span class="font-semibold text-gray-900 dark:text-white">Добавить новую коллекцию</span></label>';
     content += '</p>';
     content += '</div>';
 
@@ -622,7 +622,7 @@ function generatePopupContent(place) {
     content += '<div id="place_visited_collection_edit" class="hidden text-sm mt-2">';
     content += '<p class="flex items-center gap-2 mb-2">';
     content += toggleSwitchHtml('form-is-visited', 'is_visited', is_visited, '');
-    content += '<span class="font-semibold text-gray-900 dark:text-white">Посещено</span>';
+    content += '<label for="form-is-visited" class="cursor-pointer"><span class="font-semibold text-gray-900 dark:text-white">Посещено</span></label>';
     content += '</p>';
     content += '<div id="place-collection-dropdown-wrap" class="text-sm mt-2 mb-2 min-h-[4.5rem]">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Коллекция:</span> ';
@@ -641,7 +641,7 @@ function generatePopupContent(place) {
     content += '</div>';
     content += '<p class="flex items-center gap-2 mb-2">';
     content += toggleSwitchHtml('form-add-new-collection', 'add_new_collection', false, ' onchange="toggleNewCollectionField(this)"');
-    content += '<span class="font-semibold text-gray-900 dark:text-white">Добавить новую коллекцию</span>';
+    content += '<label for="form-add-new-collection" class="cursor-pointer"><span class="font-semibold text-gray-900 dark:text-white">Добавить новую коллекцию</span></label>';
     content += '</p>';
     content += '</div>';
     content += '</div>';

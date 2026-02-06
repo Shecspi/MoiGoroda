@@ -1,3 +1,4 @@
+import json
 import uuid
 from typing import Any, cast
 
@@ -109,7 +110,7 @@ class CreatePlaceCollection(generics.CreateAPIView[PlaceCollection]):
 
 class UpdatePlaceCollection(generics.UpdateAPIView[PlaceCollection]):
     permission_classes = (IsAuthenticated,)
-    http_method_names = ['patch']
+    http_method_names = ['patch', 'delete']
     serializer_class = PlaceCollectionSerializer
 
     def get_queryset(self) -> Any:
@@ -122,6 +123,35 @@ class UpdatePlaceCollection(generics.UpdateAPIView[PlaceCollection]):
             f'(API: Place): Updating place collection {kwargs["pk"]}',
         )
         return response
+
+    def delete(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        collection = self.get_object()
+        delete_places = False
+        if request.content_type and 'application/json' in request.content_type and request.body:
+            try:
+                body = json.loads(request.body)
+                delete_places = body.get('delete_places') is True
+            except (ValueError, TypeError):
+                pass
+
+        collection_id = collection.id
+        places_in_collection = Place.objects.filter(
+            collection=collection, user=cast(User, request.user)
+        )
+
+        if delete_places:
+            places_in_collection.delete()
+        else:
+            places_in_collection.update(collection=None)
+
+        collection.delete()
+
+        logger.info(
+            request,
+            f'(API: Place): Deleted place collection {collection_id}, delete_places={delete_places}',
+        )
+
+        return Response(status=204)
 
 
 class CreatePlace(generics.CreateAPIView[Place]):

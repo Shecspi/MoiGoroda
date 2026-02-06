@@ -13,6 +13,7 @@ window.add_place = add_place;
 window.delete_place = delete_place;
 window.update_place = update_place;
 window.switch_popup_elements = switch_popup_elements;
+window.toggleNewCollectionField = toggleNewCollectionField;
 
 // Карта, на которой будут отображаться все объекты
 // const [center_lat, center_lon, zoom] = calculate_center_of_coordinates()
@@ -37,6 +38,11 @@ let moved_lon = undefined;
 // Словарь, хранящий в себе все известные OSM теги и типы объектов, которые ссылаются на указанные теги
 const tags = new Map();
 let marker = undefined;
+
+// Классы полей ввода и выпадающих списков (как на тулбаре /city/districts/98/map)
+const FORM_INPUT_CLASS = 'w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:border-blue-500 dark:focus:ring-blue-500 h-10';
+const FORM_INPUT_PLACEHOLDER_CLASS = FORM_INPUT_CLASS + ' dark:placeholder-neutral-400';
+const POPUP_WIDTH = 300;
 
 allPromises.push(loadPlacesFromServer());
 allPromises.push(loadCategoriesFromServer());
@@ -207,17 +213,50 @@ function loadPlaceCollectionsFromServer() {
 }
 
 /**
+ * HTML переключателя (toggle) как на странице персональной коллекции: уменьшенный, с иконками крестика и галочки.
+ */
+function toggleSwitchHtml(id, name, checked, onchangeAttr) {
+    const checkedStr = checked ? ' checked' : '';
+    return '<label for="' + id + '" class="relative inline-block w-10 h-5 cursor-pointer shrink-0">' +
+        '<input type="checkbox" id="' + id + '" name="' + name + '" class="peer sr-only"' + checkedStr + onchangeAttr + '>' +
+        '<span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>' +
+        '<span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-4 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-5 dark:bg-neutral-400 dark:peer-checked:bg-white"></span>' +
+        '<span class="absolute top-1/2 start-0.5 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">' +
+        '<svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>' +
+        '</span>' +
+        '<span class="absolute top-1/2 end-0.5 -translate-y-1/2 flex justify-center items-center size-4 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">' +
+        '<svg class="shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
+        '</span>' +
+        '</label>';
+}
+
+function toggleNewCollectionField(checkbox) {
+    const dropdownWrap = document.getElementById('place-collection-dropdown-wrap');
+    const inputWrap = document.getElementById('place-new-collection-wrap');
+    if (!dropdownWrap || !inputWrap) return;
+    if (checkbox.checked) {
+        dropdownWrap.classList.add('hidden');
+        inputWrap.classList.remove('hidden');
+    } else {
+        dropdownWrap.classList.remove('hidden');
+        inputWrap.classList.add('hidden');
+    }
+}
+
+/**
  * Возвращает Promise с id коллекции для места:
- * если заполнено поле "Новая коллекция", создаёт коллекцию через API и возвращает её id;
+ * если отмечено «Добавить новую коллекцию» и введено название — создаёт коллекцию через API;
  * иначе возвращает выбранное значение из выпадающего списка или null.
  */
 function resolveCollectionIdForPlace() {
+    const addNewCheckbox = document.getElementById('form-add-new-collection');
+    const useNewCollection = addNewCheckbox && addNewCheckbox.checked;
     const newTitleEl = document.getElementById('form-new-collection-title');
     const newTitle = newTitleEl ? newTitleEl.value.trim() : '';
     const collectionEl = document.getElementById('form-collection');
     const dropdownValue = collectionEl && collectionEl.value ? parseInt(collectionEl.value, 10) : null;
 
-    if (newTitle) {
+    if (useNewCollection && newTitle) {
         return fetch('/api/place/collections/create/', {
             method: 'POST',
             headers: {
@@ -270,7 +309,7 @@ function handleClickOnMap(map) {
         content += '</p>';
         content += '</form>';
 
-        marker.bindPopup(content, {minWidth: 250});
+        marker.bindPopup(content, { minWidth: POPUP_WIDTH, maxWidth: POPUP_WIDTH });
         marker.openPopup();
 
         marker.on("dragend", function (e) {
@@ -345,10 +384,10 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
     if (showCoordinates === undefined) {
         showCoordinates = true;
     }
-    let content = '<div style="min-width: 250px;">';
+    let content = `<div class="w-full" style="min-width: ${POPUP_WIDTH}px;">`;
     content += '<p class="text-sm">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Название:</span> ';
-    content += `<input type="text" id="form-name" name="name" value="${name.replace(/"/g, '&quot;')}" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">`;
+    content += `<input type="text" id="form-name" name="name" value="${name.replace(/"/g, '&quot;')}" class="mt-1 ${FORM_INPUT_CLASS}">`;
     content += '</p>';
 
     content += `<input type="text" id="form-latitude" name="latitude" value="${latitude}" hidden>`;
@@ -362,7 +401,7 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
 
     content += '<p id="category_select_form" class="text-sm mt-2">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Категория:</span> ';
-    content += '<select name="category" id="form-type-object" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += `<select name="category" id="form-type-object" class="mt-1 ${FORM_INPUT_CLASS}">`;
     content += '<option value="" selected disabled>Выберите категорию...</option>';
     allCategories.forEach(category => {
         if (category.name === place_category) {
@@ -374,25 +413,27 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
     content += '</select>';
     content += '</p>';
 
-    content += '<p class="text-sm mt-2">';
-    content += '<label class="flex items-center gap-2 cursor-pointer">';
-    content += '<input type="checkbox" id="form-is-visited" name="is_visited" class="rounded border-gray-200 bg-white text-blue-600 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900">';
+    content += '<p class="text-sm mt-2 flex items-center gap-2">';
+    content += toggleSwitchHtml('form-is-visited', 'is_visited', false, '');
     content += '<span class="font-semibold text-gray-900 dark:text-white">Посещено</span>';
-    content += '</label>';
     content += '</p>';
 
-    content += '<p class="text-sm mt-2">';
+    content += '<p id="place-collection-dropdown-wrap" class="text-sm mt-2 min-h-[4.5rem]">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Коллекция:</span> ';
-    content += '<select name="collection" id="form-collection" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += `<select name="collection" id="form-collection" class="mt-1 ${FORM_INPUT_CLASS}">`;
     content += '<option value="">Без коллекции</option>';
     allPlaceCollections.forEach(coll => {
         content += `<option value="${coll.id}">${coll.title}</option>`;
     });
     content += '</select>';
     content += '</p>';
-    content += '<p class="text-sm mt-2">';
-    content += '<span class="font-semibold text-gray-900 dark:text-white">Новая коллекция:</span> ';
-    content += '<input type="text" id="form-new-collection-title" name="new_collection_title" placeholder="Введите название, чтобы создать и добавить в новую коллекцию" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder-neutral-400 dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += '<p id="place-new-collection-wrap" class="text-sm mt-2 hidden min-h-[4.5rem]">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Название новой коллекции:</span> ';
+    content += `<input type="text" id="form-new-collection-title" name="new_collection_title" placeholder="Введите название" class="mt-1 ${FORM_INPUT_PLACEHOLDER_CLASS}">`;
+    content += '</p>';
+    content += '<p class="text-sm mt-2 flex items-center gap-2">';
+    content += toggleSwitchHtml('form-add-new-collection', 'add_new_collection', false, ' onchange="toggleNewCollectionField(this)"');
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Добавить новую коллекцию</span>';
     content += '</p>';
     content += '</div>';
 
@@ -407,14 +448,11 @@ function generatePopupContent(place) {
     const collection_title = place.collection_detail?.title || null;
 
     let content = '';
-    content += '<div class="flex items-center justify-between gap-3 text-lg">';
+    content += `<div class="w-full" style="min-width: ${POPUP_WIDTH}px;">`;
+    content += '<div class="text-lg">';
     content += `<div id="place_name_text">${name}</div>`;
-    content += '<div id="place_name_input_form" class="hidden">';
-    content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder-neutral-400 dark:focus:border-blue-500 dark:focus:ring-blue-500">`;
-    content += '</div>';
-    content += '<div class="flex items-center gap-2">';
-    content += '<a href="#" id="link_to_edit_place" onclick="event.preventDefault(); switch_popup_elements(); return false;" class="inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-neutral-400 dark:hover:text-neutral-300 dark:hover:bg-neutral-800" title="Изменить место"><i class="fa-solid fa-pencil"></i></a>';
-    content += '<a href="#" id="lint_to_cancel_edit_place" onclick="event.preventDefault(); switch_popup_elements(); return false;" class="hidden inline-flex items-center gap-x-1.5 rounded-lg border border-transparent px-2 py-1 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10" title="Отменить изменения"><i class="fa-solid fa-ban"></i></a>';
+    content += '<div id="place_name_input_form" class="hidden w-full">';
+    content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="${FORM_INPUT_CLASS}">`;
     content += '</div>';
     content += '</div>';
 
@@ -427,7 +465,7 @@ function generatePopupContent(place) {
 
     content += '<p id="category_select_form" class="hidden text-sm">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Категория:</span> ';
-    content += '<select name="category" id="form-type-object" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += `<select name="category" id="form-type-object" class="mt-1 ${FORM_INPUT_CLASS}">`;
     content += '<option value="" disabled>Выберите категорию...</option>';
     allCategories.forEach(category => {
         if (category.name === place_category) {
@@ -449,13 +487,14 @@ function generatePopupContent(place) {
     content += '<span class="font-semibold text-gray-900 dark:text-white">Коллекция:</span> ' + (collection_title || 'Без коллекции');
     content += '</p>';
 
-    content += '<p id="place_visited_collection_edit" class="hidden text-sm mt-2">';
-    content += '<label class="flex items-center gap-2 cursor-pointer mb-2">';
-    content += `<input type="checkbox" id="form-is-visited" name="is_visited" class="rounded border-gray-200 bg-white text-blue-600 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900" ${is_visited ? 'checked' : ''}>`;
+    content += '<div id="place_visited_collection_edit" class="hidden text-sm mt-2">';
+    content += '<p class="flex items-center gap-2 mb-2">';
+    content += toggleSwitchHtml('form-is-visited', 'is_visited', is_visited, '');
     content += '<span class="font-semibold text-gray-900 dark:text-white">Посещено</span>';
-    content += '</label>';
+    content += '</p>';
+    content += '<div id="place-collection-dropdown-wrap" class="text-sm mt-2 mb-2 min-h-[4.5rem]">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Коллекция:</span> ';
-    content += '<select name="collection" id="form-collection" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500">';
+    content += `<select name="collection" id="form-collection" class="mt-1 ${FORM_INPUT_CLASS}">`;
     content += '<option value="">Без коллекции</option>';
     const current_collection_id = place.collection_detail?.id ?? place.collection ?? null;
     allPlaceCollections.forEach(coll => {
@@ -463,11 +502,17 @@ function generatePopupContent(place) {
         content += `<option value="${coll.id}"${sel}>${coll.title}</option>`;
     });
     content += '</select>';
+    content += '</div>';
+    content += '<div id="place-new-collection-wrap" class="text-sm mt-2 hidden min-h-[4.5rem] mb-2">';
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Название новой коллекции:</span> ';
+    content += `<input type="text" id="form-new-collection-title" name="new_collection_title" placeholder="Введите название" class="mt-1 ${FORM_INPUT_PLACEHOLDER_CLASS}">`;
+    content += '</div>';
+    content += '<p class="flex items-center gap-2 mb-2">';
+    content += toggleSwitchHtml('form-add-new-collection', 'add_new_collection', false, ' onchange="toggleNewCollectionField(this)"');
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Добавить новую коллекцию</span>';
     content += '</p>';
-    content += '<p class="text-sm mt-2">';
-    content += '<span class="font-semibold text-gray-900 dark:text-white">Новая коллекция:</span> ';
-    content += '<input type="text" id="form-new-collection-title" name="new_collection_title" placeholder="Введите название, чтобы создать и добавить в новую коллекцию" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder-neutral-400 dark:focus:border-blue-500 dark:focus:ring-blue-500">';
-    content += '</p>';
+    content += '</div>';
+    content += '</div>';
 
     return content;
 }
@@ -642,12 +687,13 @@ function addMarkers(categoryName) {
             content += generatePopupContent(place);
             content += '<p class="mt-3 flex gap-2">';
             content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-edit-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Изменить</button>`;
+            content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-neutral-200 text-gray-800 hover:bg-neutral-300 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-cancel-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Отменить</button>`;
             content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-update-place" onclick="update_place(${place.id}); return false;">Сохранить</button>`;
             content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-delete-place" onclick="delete_place(${place.id}); return false;">Удалить</button>`;
             content += '</p>';
             content += '</form>';
 
-            marker.bindPopup(content, {maxWidth: 800});
+            marker.bindPopup(content, { minWidth: POPUP_WIDTH, maxWidth: POPUP_WIDTH });
 
             allMarkers.push(marker);
         }
@@ -657,16 +703,6 @@ function addMarkers(categoryName) {
 }
 
 function switch_popup_elements() {
-    const link_to_edit_place = document.getElementById('link_to_edit_place');
-    if (link_to_edit_place) {
-        link_to_edit_place.classList.toggle('hidden');
-    }
-
-    const link_to_cancel_edit_place = document.getElementById('lint_to_cancel_edit_place');
-    if (link_to_cancel_edit_place) {
-        link_to_cancel_edit_place.classList.toggle('hidden');
-    }
-
     const place_name_text = document.getElementById('place_name_text');
     if (place_name_text) {
         place_name_text.classList.toggle('hidden');
@@ -700,6 +736,11 @@ function switch_popup_elements() {
     const btn_edit_place = document.getElementById('btn-edit-place');
     if (btn_edit_place) {
         btn_edit_place.classList.toggle('hidden');
+    }
+
+    const btn_cancel_place = document.getElementById('btn-cancel-place');
+    if (btn_cancel_place) {
+        btn_cancel_place.classList.toggle('hidden');
     }
 
     const btn_delete_place = document.getElementById('btn-delete-place');

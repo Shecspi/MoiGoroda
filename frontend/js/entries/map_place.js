@@ -818,6 +818,9 @@ function addMarkers() {
                     icon: placeIcon
                 }).addTo(map);
             marker.bindTooltip(place.name, {direction: 'top'});
+            marker.on('popupopen', function () {
+                this.closeTooltip();
+            });
 
             let content = '<form id="place-form">';
             content += generatePopupContent(place);

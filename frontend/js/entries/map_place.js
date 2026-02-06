@@ -233,6 +233,15 @@ function setupEditCollectionModal() {
         titleInput.value = coll ? (coll.title || '') : '';
     });
 
+    // Preline перехватывает Enter и блокирует submit формы. Явно обрабатываем Enter в поле ввода:
+    titleInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            form.requestSubmit();
+        }
+    });
+
     form.addEventListener('submit', function (e) {
         e.preventDefault();
         const title = titleInput.value.trim();

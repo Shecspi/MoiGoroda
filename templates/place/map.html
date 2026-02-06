@@ -11,7 +11,7 @@
 {% block content %}
     <header class="mx-3 mt-10 mb-8 text-center" id="section-page_header">
         <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
-            Мои места
+            {% if collection_title %}{{ collection_title }}{% else %}Мои места{% endif %}
         </h1>
     </header>
 
@@ -28,6 +28,8 @@
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
         window.PLACE_MAP_COLLECTION_UUID = "{{ collection_uuid|escapejs }}";
+        window.PLACE_MAP_USER_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
+        window.PLACE_MAP_TOOLTIP_ONLY = {{ place_map_tooltip_only|yesno:"true,false" }};
     </script>
     {% vite_asset 'js/entries/leaflet_css.js' %}
     {% vite_asset 'js/entries/map_place.js' %}

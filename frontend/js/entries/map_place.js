@@ -193,14 +193,36 @@ function updateCollectionUrl() {
     window.history.replaceState(null, '', url);
 }
 
-allPromises.push(loadPlacesFromServer());
-allPromises.push(loadCategoriesFromServer());
-allPromises.push(loadPlaceCollectionsFromServer());
+const isAuthenticated = window.PLACE_MAP_USER_AUTHENTICATED !== false;
+const initialCollectionUuid = typeof window.PLACE_MAP_COLLECTION_UUID === 'string' && window.PLACE_MAP_COLLECTION_UUID.trim() !== ''
+    ? window.PLACE_MAP_COLLECTION_UUID.trim()
+    : null;
+const placeMapTooltipOnly = window.PLACE_MAP_TOOLTIP_ONLY === true;
+if (initialCollectionUuid) {
+    // Открыта страница конкретной коллекции (своей или чужой) — запрашиваем места этой коллекции
+    allPromises.push(loadPlacesFromServer(initialCollectionUuid));
+    if (isAuthenticated) {
+        allPromises.push(loadCategoriesFromServer());
+        allPromises.push(loadPlaceCollectionsFromServer());
+    } else {
+        allPromises.push(Promise.resolve([]));
+        allPromises.push(Promise.resolve([]));
+    }
+} else if (isAuthenticated) {
+    allPromises.push(loadPlacesFromServer(null));
+    allPromises.push(loadCategoriesFromServer());
+    allPromises.push(loadPlaceCollectionsFromServer());
+} else {
+    allPromises.push(Promise.resolve([]));
+    allPromises.push(Promise.resolve([]));
+    allPromises.push(Promise.resolve([]));
+}
 Promise.all([...allPromises]).then(([places, categories, collections]) => {
-    // Получаем все категории и заполняем фильтр по ним
+    // Получаем все категории и заполняем фильтр по ним (элементы есть только у авторизованных)
     const button = document.getElementById('btn-filter-category');
-    const select_filter_by_category = document.getElementById('dropdown-menu-filter-category')
+    const select_filter_by_category = document.getElementById('dropdown-menu-filter-category');
 
+    if (button && select_filter_by_category) {
     button.disabled = false;
     // Убираем спиннер
     const spinner = button.querySelector('span[role="status"]');
@@ -401,6 +423,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
     if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
         window.HSStaticMethods.autoInit();
     }
+    }
 
     // Расставляем метки
     places.forEach(place => {
@@ -420,7 +443,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
 
 function updateBlockQtyPlaces(qty_places) {
     const block_qty_places_text = document.getElementById('block-qty_places-text');
-
+    if (!block_qty_places_text) return;
     block_qty_places_text.innerHTML = `Отмечено мест: <strong>${qty_places}</strong>`;
 }
 
@@ -437,8 +460,11 @@ function loadCategoriesFromServer() {
         });
 }
 
-function loadPlacesFromServer() {
-    return fetch('/api/place/')
+function loadPlacesFromServer(collectionUuid) {
+    const url = collectionUuid
+        ? `/api/place/?collection=${encodeURIComponent(collectionUuid)}`
+        : '/api/place/';
+    return fetch(url)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Произошла ошибка при получении данных с сервера');
@@ -532,6 +558,9 @@ function resolveCollectionIdForPlace() {
 }
 
 function handleClickOnMap(map) {
+    if (placeMapTooltipOnly) {
+        return;
+    }
     map.addEventListener('click', function (ev) {
         const lat = ev.latlng.lat;
         const lon = ev.latlng.lng;
@@ -938,22 +967,21 @@ function addMarkers() {
                     icon: placeIcon
                 }).addTo(map);
             marker.bindTooltip(place.name, {direction: 'top'});
-            marker.on('popupopen', function () {
-                this.closeTooltip();
-            });
-
-            let content = '<form id="place-form">';
-            content += generatePopupContent(place);
-            content += '<p class="mt-3 flex gap-2">';
-            content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-edit-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Изменить</button>`;
-            content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-neutral-200 text-gray-800 hover:bg-neutral-300 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-cancel-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Отменить</button>`;
-            content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-update-place" onclick="update_place(${place.id}); return false;">Сохранить</button>`;
-            content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-delete-place" onclick="delete_place(${place.id}); return false;">Удалить</button>`;
-            content += '</p>';
-            content += '</form>';
-
-            marker.bindPopup(content, { minWidth: POPUP_WIDTH, maxWidth: POPUP_WIDTH });
-
+            if (!placeMapTooltipOnly) {
+                marker.on('popupopen', function () {
+                    this.closeTooltip();
+                });
+                let content = '<form id="place-form">';
+                content += generatePopupContent(place);
+                content += '<p class="mt-3 flex gap-2">';
+                content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-edit-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Изменить</button>`;
+                content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-neutral-200 text-gray-800 hover:bg-neutral-300 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-cancel-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Отменить</button>`;
+                content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-update-place" onclick="update_place(${place.id}); return false;">Сохранить</button>`;
+                content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-delete-place" onclick="delete_place(${place.id}); return false;">Удалить</button>`;
+                content += '</p>';
+                content += '</form>';
+                marker.bindPopup(content, { minWidth: POPUP_WIDTH, maxWidth: POPUP_WIDTH });
+            }
             allMarkers.push(marker);
         }
     });

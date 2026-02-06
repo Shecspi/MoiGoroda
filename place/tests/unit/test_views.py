@@ -22,12 +22,11 @@ def test_place_view_function_exists() -> None:
 
 
 @pytest.mark.unit
-def test_place_view_decorator() -> None:
-    """Тест что функция place имеет декоратор login_required"""
+def test_place_view_is_callable_without_decorator() -> None:
+    """Тест что функция place вызываема (проверка доступа выполняется внутри view)"""
     from place import views
 
-    # Проверяем, что функция имеет атрибут декоратора
-    assert hasattr(views.place, '__wrapped__') or hasattr(views.place, 'login_required')
+    assert callable(views.place)
 
 
 @pytest.mark.unit
@@ -36,10 +35,12 @@ def test_place_view_calls_render(mock_render: Any) -> None:
     """Тест что функция place вызывает render с правильными параметрами"""
     from place import views
 
-    # Создаём мок request
+    # Создаём мок request (авторизованный, без параметра collection)
     mock_request = Mock()
     mock_request.user = Mock()
     mock_request.user.is_authenticated = True
+    mock_request.GET = {}
+    mock_request.get_full_path = Mock(return_value='/place/map')
 
     # Вызываем функцию
     views.place(mock_request)

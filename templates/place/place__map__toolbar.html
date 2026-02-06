@@ -1,4 +1,27 @@
 <div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
+    {% if not user.is_authenticated %}
+    <p class="text-sm text-gray-600 dark:text-neutral-400 py-2">
+        Зарегистрируйтесь, чтобы тоже отмечать свои места на карте.
+    </p>
+    <a href="{% url 'signup' %}" class="ml-auto inline-flex items-center gap-x-2 rounded-lg border border-blue-600 bg-white px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 dark:border-blue-500 dark:bg-transparent dark:text-blue-400 dark:hover:bg-blue-500/10">
+        Регистрация
+    </a>
+    {% elif viewing_others_collection %}
+    <!-- Просмотр чужой публичной коллекции: только счётчик и кнопка «Мои места» -->
+    <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
+        <span class="stat-badge stat-badge-success">
+            <span class="stat-badge-dot"></span>
+            <span>Мест в коллекции: <strong>{{ collection_places_count }}</strong></span>
+        </span>
+    </div>
+    <a href="{% url 'place_map' %}" class="ml-auto inline-flex items-center gap-x-2 py-3 px-4 text-sm font-medium rounded-lg border border-gray-200 bg-white text-teal-600 shadow-2xs hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-teal-500 dark:hover:bg-neutral-700">
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+        </svg>
+        Мои места
+    </a>
+    {% else %}
+    <!-- Полный тулбар для владельца: статистика, фильтры, список коллекций -->
     <!-- Статистика -->
     <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
         <div class="hs-tooltip [--placement:top] relative inline-block" id="block-statistic">
@@ -122,4 +145,5 @@
             </span>
         </div>
     </div>
+    {% endif %}
 </div>

@@ -5,21 +5,53 @@ Licensed under the Apache License, Version 2.0
 
 """
 
+import uuid
 from typing import Any, cast
 
-from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.http import Http404
+from django.shortcuts import redirect, render
 from django.views.generic import ListView
 
 from place.models import PlaceCollection
 
 
-@login_required
 def place(request: HttpRequest) -> HttpResponse:
+    collection_uuid_raw = request.GET.get('collection', '').strip()
+    collection_uuid_ctx = collection_uuid_raw
+    viewing_others_collection = False
+    collection_places_count = 0
+    collection_title = ''
+
+    if collection_uuid_raw:
+        try:
+            collection_uuid = uuid.UUID(collection_uuid_raw)
+        except (ValueError, TypeError):
+            raise Http404('Коллекция не найдена')
+        collection = PlaceCollection.objects.filter(pk=collection_uuid).first()
+        if collection is None:
+            raise Http404('Коллекция не найдена')
+        if not collection.is_public:
+            if not request.user.is_authenticated or request.user != collection.user:
+                return redirect(f'{settings.LOGIN_URL}?next={request.get_full_path()}')
+        if not request.user.is_authenticated or request.user != collection.user:
+            collection_title = collection.title
+        if request.user.is_authenticated and request.user != collection.user:
+            viewing_others_collection = True
+            collection_places_count = collection.places.count()
+    else:
+        if not request.user.is_authenticated:
+            return redirect(f'{settings.LOGIN_URL}?next={request.get_full_path()}')
+
+    # Popup только для владельца; для гостя и не-владельца — только tooltip
+    place_map_tooltip_only = bool(
+        collection_uuid_ctx and (not request.user.is_authenticated or viewing_others_collection)
+    )
+
     return render(
         request,
         'place/map.html',
@@ -27,7 +59,11 @@ def place(request: HttpRequest) -> HttpResponse:
             'page_title': 'Мои места',
             'page_description': 'Мои места, отмеченные на карте',
             'active_page': 'places',
-            'collection_uuid': request.GET.get('collection', ''),
+            'collection_uuid': collection_uuid_ctx,
+            'viewing_others_collection': viewing_others_collection,
+            'collection_places_count': collection_places_count,
+            'collection_title': collection_title,
+            'place_map_tooltip_only': place_map_tooltip_only,
         },
     )
 

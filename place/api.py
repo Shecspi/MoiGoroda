@@ -1,10 +1,13 @@
+import uuid
 from typing import Any, cast
+
 from django.contrib.auth.models import User
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
+from rest_framework.exceptions import PermissionDenied
 
 from place.models import Place, Category, PlaceCollection
 from place.serializers import (
@@ -30,7 +33,7 @@ class GetCategory(generics.ListAPIView[Category]):
 
 
 class GetPlaces(generics.ListAPIView[Place]):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     http_method_names = ['get']
     serializer_class = PlaceSerializer
 
@@ -42,7 +45,32 @@ class GetPlaces(generics.ListAPIView[Place]):
         return super(GetPlaces, self).get(request, *args, **kwargs)
 
     def get_queryset(self) -> Any:
-        return Place.objects.filter(user=cast(User, self.request.user))
+        request = self.request
+        collection_uuid_raw = request.GET.get('collection', '').strip()
+
+        if not collection_uuid_raw:
+            if not request.user.is_authenticated:
+                raise PermissionDenied('Необходима авторизация.')
+            return Place.objects.filter(user=cast(User, request.user))
+
+        try:
+            collection_uuid = uuid.UUID(collection_uuid_raw)
+        except (ValueError, TypeError):
+            return Place.objects.none()
+
+        collection = PlaceCollection.objects.filter(pk=collection_uuid).first()
+
+        if collection is None:
+            return Place.objects.none()
+
+        if not collection.is_public:
+            if not request.user.is_authenticated or request.user != collection.user:
+                return Place.objects.none()
+
+        if request.user.is_authenticated and request.user == collection.user:
+            return Place.objects.filter(user=cast(User, request.user))
+
+        return Place.objects.filter(collection=collection)
 
 
 class GetPlaceCollections(generics.ListAPIView[PlaceCollection]):

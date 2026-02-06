@@ -414,7 +414,8 @@ function resolveCollectionIdForPlace() {
     const newTitleEl = document.getElementById('form-new-collection-title');
     const newTitle = newTitleEl ? newTitleEl.value.trim() : '';
     const collectionEl = document.getElementById('form-collection');
-    const dropdownValue = collectionEl && collectionEl.value ? parseInt(collectionEl.value, 10) : null;
+    const rawCollection = collectionEl ? collectionEl.value : '';
+    const dropdownValue = rawCollection.trim() === '' ? null : rawCollection.trim();
 
     if (useNewCollection && newTitle) {
         return fetch('/api/place/collections/create/', {

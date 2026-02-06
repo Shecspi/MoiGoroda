@@ -19,11 +19,55 @@
     <!-- ^^^ Статистика -->
 
     <div class="ml-auto flex items-center gap-3 self-center">
+        <!-- Публичность и «Поделиться» — показываются при выбранной коллекции, слева от кнопок -->
+        <div id="toolbar-collection-actions" class="hidden flex items-center gap-2 self-center">
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <div class="hs-tooltip-toggle flex items-center gap-2">
+                    <span class="text-sm text-gray-600 dark:text-neutral-400">Приватная</span>
+                    <label for="toolbar-collection-is-public" class="relative inline-block w-[52px] h-7 cursor-pointer shrink-0">
+                        <input type="checkbox"
+                               id="toolbar-collection-is-public"
+                               class="peer sr-only">
+                        <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
+                        <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
+                        <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"></path>
+                                <path d="m6 6 12 12"></path>
+                            </svg>
+                        </span>
+                        <span class="absolute top-1/2 end-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-blue-600 transition-colors duration-200 dark:text-neutral-500">
+                            <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    </label>
+                    <span class="text-sm text-gray-600 dark:text-neutral-400">Публичная</span>
+                </div>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Переключить видимость коллекции: только вы или любой по ссылке
+                </span>
+            </div>
+            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+                <button type="button" id="toolbar-collection-share" disabled
+                    class="hs-tooltip-toggle inline-flex items-center justify-center size-10 rounded-xl border border-blue-500 text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none disabled:border-gray-300 disabled:text-gray-400 disabled:hover:bg-white dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-500/10 dark:disabled:border-neutral-600 dark:disabled:text-neutral-500 dark:disabled:hover:bg-transparent"
+                    aria-label="Поделиться коллекцией">
+                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                    </svg>
+                </button>
+                <span class="hs-tooltip-content" role="tooltip">
+                    Поделиться ссылкой на коллекцию
+                </span>
+            </div>
+        </div>
+        <!-- ^^^ Публичность и Поделиться -->
+
         <!-- Фильтр по категории (как на /city/districts/98/map) -->
-        <div class="hs-dropdown relative inline-block z-[40] min-w-[180px]">
-            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex items-center gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600"
+        <div class="hs-dropdown relative inline-block z-[40] min-w-[220px]">
+            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex items-center gap-x-2 min-w-0 cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600 overflow-hidden"
                     id="btn-filter-category"
-                    disabled>
+                    disabled style="width: 220px; min-width: 220px; max-width: 220px; box-sizing: border-box;">
                 <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
                     <span class="sr-only">Загрузка...</span>
                 </span>
@@ -36,18 +80,18 @@
                 <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
                     <svg class="shrink-0 size-3.5 text-gray-500 dark:text-neutral-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
                 </div>
-                <span id="badge-filter-category" class="absolute top-0 end-0 inline-flex items-center size-3.5 rounded-full border-2 border-white transform -translate-y-1/2 translate-x-1/2 bg-orange-500 dark:border-neutral-900 hidden" aria-hidden="true"></span>
             </button>
+            <span id="badge-filter-category" class="absolute top-0 end-0 inline-flex items-center size-3.5 rounded-full border-2 border-white transform -translate-y-1/2 translate-x-1/2 bg-orange-500 dark:border-neutral-900 hidden pointer-events-none" aria-hidden="true"></span>
             <ul class="hs-dropdown-menu absolute end-0 opacity-0 pointer-events-none transition-[opacity,margin] duration-150 mt-2 max-h-72 overflow-y-auto overscroll-contain min-w-[280px] bg-white border border-gray-200 rounded-lg py-1 px-1 space-y-0.5 z-[1000] dark:bg-neutral-900 dark:border-neutral-700 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" id="dropdown-menu-filter-category"></ul>
         </div>
         <!-- ^^^ Фильтр по категории -->
 
         <!-- Фильтр по коллекции (как на /city/districts/98/map) -->
-        <div class="hs-dropdown relative inline-block z-[40] min-w-[180px]" id="dropdown-collection-wrap">
-            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex items-center gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600"
+        <div class="hs-dropdown relative inline-block z-[40] min-w-[220px]" id="dropdown-collection-wrap">
+            <button class="hs-dropdown-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex items-center gap-x-2 min-w-0 cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:ring-neutral-600 overflow-hidden"
                     id="btn-filter-collection"
-                    disabled>
-                <span class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
+                    disabled style="width: 220px; min-width: 220px; max-width: 220px; box-sizing: border-box;">
+                <span class="inline-block size-4 shrink-0 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
                     <span class="sr-only">Загрузка...</span>
                 </span>
                 <span id="btn-filter-collection-icon" class="hidden shrink-0 inline-flex items-center" aria-hidden="true">
@@ -55,12 +99,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                     </svg>
                 </span>
-                <span id="btn-filter-collection-text" class="hidden">Коллекции</span>
+                <span id="btn-filter-collection-text" class="hidden min-w-0 truncate block" title="Коллекции">Коллекции</span>
                 <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
                     <svg class="shrink-0 size-3.5 text-gray-500 dark:text-neutral-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
                 </div>
-                <span id="badge-filter-collection" class="absolute top-0 end-0 inline-flex items-center size-3.5 rounded-full border-2 border-white transform -translate-y-1/2 translate-x-1/2 bg-orange-500 dark:border-neutral-900 hidden" aria-hidden="true"></span>
             </button>
+            <span id="badge-filter-collection" class="absolute top-0 end-0 inline-flex items-center size-3.5 rounded-full border-2 border-white transform -translate-y-1/2 translate-x-1/2 bg-orange-500 dark:border-neutral-900 hidden pointer-events-none" aria-hidden="true"></span>
             <ul class="hs-dropdown-menu absolute end-0 opacity-0 pointer-events-none transition-[opacity,margin] duration-150 mt-2 max-h-72 overflow-y-auto overscroll-contain min-w-[280px] bg-white border border-gray-200 rounded-lg py-1 px-1 space-y-0.5 z-[1000] dark:bg-neutral-900 dark:border-neutral-700 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" id="dropdown-menu-filter-collection"></ul>
         </div>
         <!-- ^^^ Фильтр по коллекции -->

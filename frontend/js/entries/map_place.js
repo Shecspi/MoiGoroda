@@ -32,6 +32,11 @@ const allMarkers = [];
 const allCategories = [];
 const allPlaceCollections = [];
 
+/** Текущий фильтр по категории: '__all__' или имя категории */
+let selectedCategoryName = '__all__';
+/** Текущий фильтр по коллекции: null = все, иначе id коллекции */
+let selectedCollectionId = null;
+
 let moved_lat = undefined;
 let moved_lon = undefined;
 
@@ -43,6 +48,43 @@ let marker = undefined;
 const FORM_INPUT_CLASS = 'w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:border-blue-500 dark:focus:ring-blue-500 h-10';
 const FORM_INPUT_PLACEHOLDER_CLASS = FORM_INPUT_CLASS + ' dark:placeholder-neutral-400';
 const POPUP_WIDTH = 300;
+
+/** SVG галочки для выбранного пункта (как на /region/all/map) */
+const CHECK_ICON_HTML = '<svg class="shrink-0 size-4 text-blue-600 dark:text-blue-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/></svg>';
+
+function updateDropdownCheckmarks(menuEl, selectedValue) {
+    if (!menuEl) return;
+    const valueStr = selectedValue === null || selectedValue === undefined ? '' : String(selectedValue);
+    menuEl.querySelectorAll('li[data-value]').forEach(li => {
+        const check = li.querySelector('.place-filter-check');
+        if (check) {
+            if (li.getAttribute('data-value') === valueStr) {
+                check.classList.remove('hidden');
+            } else {
+                check.classList.add('hidden');
+            }
+        }
+    });
+}
+
+function updateFilterBadges() {
+    const badgeCategory = document.getElementById('badge-filter-category');
+    const badgeCollection = document.getElementById('badge-filter-collection');
+    if (badgeCategory) {
+        if (selectedCategoryName !== '__all__') {
+            badgeCategory.classList.remove('hidden');
+        } else {
+            badgeCategory.classList.add('hidden');
+        }
+    }
+    if (badgeCollection) {
+        if (selectedCollectionId !== null && selectedCollectionId !== undefined) {
+            badgeCollection.classList.remove('hidden');
+        } else {
+            badgeCollection.classList.add('hidden');
+        }
+    }
+}
 
 allPromises.push(loadPlacesFromServer());
 allPromises.push(loadCategoriesFromServer());
@@ -79,15 +121,18 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
             tags.set(tag.name, category.name);
         });
 
+        const li = document.createElement('li');
+        li.setAttribute('data-value', category.name);
         const filter_by_category_item = document.createElement('a');
-        filter_by_category_item.classList.add('flex', 'items-center', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-        filter_by_category_item.innerHTML = category.name;
+        filter_by_category_item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
+        filter_by_category_item.innerHTML = `<span>${category.name}</span><span class="place-filter-check hidden">${CHECK_ICON_HTML}</span>`;
         filter_by_category_item.style.cursor = 'pointer';
         filter_by_category_item.addEventListener('click', () => {
-            updateMarkers(category.name);
-            updateBlockQtyPlaces(allMarkers.length);
+            selectedCategoryName = category.name;
+            updateMarkers();
+            updateDropdownCheckmarks(select_filter_by_category, selectedCategoryName);
+            updateFilterBadges();
         });
-        const li = document.createElement('li');
         li.appendChild(filter_by_category_item);
         select_filter_by_category.appendChild(li);
     });
@@ -99,17 +144,99 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
     dividerLi.appendChild(divider);
     select_filter_by_category.appendChild(dividerLi);
 
-    const all_categories = document.createElement('a');
-    all_categories.classList.add('flex', 'items-center', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-    all_categories.innerHTML = 'Показать все категории';
-    all_categories.style.cursor = 'pointer';
     const allCategoriesLi = document.createElement('li');
+    allCategoriesLi.setAttribute('data-value', '__all__');
+    const all_categories = document.createElement('a');
+    all_categories.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
+    all_categories.innerHTML = '<span>Показать все категории</span><span class="place-filter-check hidden">' + CHECK_ICON_HTML + '</span>';
+    all_categories.style.cursor = 'pointer';
     allCategoriesLi.appendChild(all_categories);
     select_filter_by_category.appendChild(allCategoriesLi);
     all_categories.addEventListener('click', () => {
-        updateMarkers('__all__');
-        updateBlockQtyPlaces(allMarkers.length);
+        selectedCategoryName = '__all__';
+        updateMarkers();
+        updateDropdownCheckmarks(select_filter_by_category, selectedCategoryName);
+        updateFilterBadges();
     });
+    updateDropdownCheckmarks(select_filter_by_category, selectedCategoryName);
+    updateFilterBadges();
+
+    // Выпадающий список коллекций
+    const btnFilterCollection = document.getElementById('btn-filter-collection');
+    const dropdownMenuCollection = document.getElementById('dropdown-menu-filter-collection');
+    if (btnFilterCollection && dropdownMenuCollection) {
+        btnFilterCollection.disabled = false;
+        const spinnerColl = btnFilterCollection.querySelector('span[role="status"]');
+        if (spinnerColl) spinnerColl.remove();
+        const iconColl = document.getElementById('btn-filter-collection-icon');
+        if (iconColl) iconColl.classList.remove('hidden');
+        const textColl = document.getElementById('btn-filter-collection-text');
+        if (textColl) textColl.classList.remove('hidden');
+
+        const allCollectionsLi = document.createElement('li');
+        allCollectionsLi.setAttribute('data-value', '');
+        const allCollectionsItem = document.createElement('a');
+        allCollectionsItem.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
+        allCollectionsItem.innerHTML = '<span>Все коллекции</span><span class="place-filter-check hidden">' + CHECK_ICON_HTML + '</span>';
+        allCollectionsItem.style.cursor = 'pointer';
+        allCollectionsLi.appendChild(allCollectionsItem);
+        dropdownMenuCollection.appendChild(allCollectionsLi);
+        allCollectionsItem.addEventListener('click', () => {
+            selectedCollectionId = null;
+            updateMarkers();
+            updateDropdownCheckmarks(dropdownMenuCollection, selectedCollectionId === null ? '' : selectedCollectionId);
+            updateFilterBadges();
+        });
+
+        (allPlaceCollections || []).forEach(coll => {
+            const li = document.createElement('li');
+            li.setAttribute('data-value', String(coll.id));
+            const item = document.createElement('a');
+            item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
+            item.innerHTML = `<span>${coll.title}</span><span class="place-filter-check hidden">${CHECK_ICON_HTML}</span>`;
+            item.style.cursor = 'pointer';
+            li.appendChild(item);
+            dropdownMenuCollection.appendChild(li);
+            item.addEventListener('click', () => {
+                selectedCollectionId = coll.id;
+                updateMarkers();
+                updateDropdownCheckmarks(dropdownMenuCollection, selectedCollectionId === null ? '' : selectedCollectionId);
+                updateFilterBadges();
+            });
+        });
+        updateDropdownCheckmarks(dropdownMenuCollection, selectedCollectionId === null ? '' : selectedCollectionId);
+        updateFilterBadges();
+
+        dropdownMenuCollection.classList.remove('hidden');
+        dropdownMenuCollection.classList.add('opacity-0', 'pointer-events-none');
+
+        const dropdownElementCollection = btnFilterCollection.closest('.hs-dropdown');
+        btnFilterCollection.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const isHidden = dropdownMenuCollection.classList.contains('opacity-0');
+            if (isHidden) {
+                // Закрываем выпадающий список категорий, если открыт
+                dropdownMenu.classList.remove('opacity-100');
+                dropdownMenu.classList.add('opacity-0', 'pointer-events-none');
+                button.setAttribute('aria-expanded', 'false');
+                dropdownMenuCollection.classList.remove('opacity-0', 'pointer-events-none');
+                dropdownMenuCollection.classList.add('opacity-100');
+                btnFilterCollection.setAttribute('aria-expanded', 'true');
+            } else {
+                dropdownMenuCollection.classList.remove('opacity-100');
+                dropdownMenuCollection.classList.add('opacity-0', 'pointer-events-none');
+                btnFilterCollection.setAttribute('aria-expanded', 'false');
+            }
+        });
+        document.addEventListener('click', function(e) {
+            if (dropdownElementCollection && !dropdownElementCollection.contains(e.target)) {
+                dropdownMenuCollection.classList.remove('opacity-100');
+                dropdownMenuCollection.classList.add('opacity-0', 'pointer-events-none');
+                btnFilterCollection.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
 
     // Инициализируем Preline UI dropdown после добавления элементов
     const dropdownElement = button.closest('.hs-dropdown');
@@ -124,9 +251,14 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
         e.preventDefault();
         e.stopPropagation();
         
-        // Переключаем видимость меню
         const isHidden = dropdownMenu.classList.contains('opacity-0');
         if (isHidden) {
+            // Закрываем выпадающий список коллекций, если открыт
+            if (dropdownMenuCollection) {
+                dropdownMenuCollection.classList.remove('opacity-100');
+                dropdownMenuCollection.classList.add('opacity-0', 'pointer-events-none');
+                if (btnFilterCollection) btnFilterCollection.setAttribute('aria-expanded', 'false');
+            }
             dropdownMenu.classList.remove('opacity-0', 'pointer-events-none');
             dropdownMenu.classList.add('opacity-100');
             button.setAttribute('aria-expanded', 'true');
@@ -659,22 +791,26 @@ function add_place() {
 }
 
 /**
- * Удаляет все маркеры с карты и добавляет их заного.
+ * Удаляет все маркеры с карты и добавляет их заново по текущим фильтрам (категория и коллекция).
  */
-function updateMarkers(categoryName) {
-    allMarkers.forEach(marker => {
-        map.removeLayer(marker);
+function updateMarkers() {
+    allMarkers.forEach(m => {
+        map.removeLayer(m);
     });
-    addMarkers(categoryName);
+    addMarkers();
 }
 
 /**
- * Добавляет маркеры на карту.
+ * Добавляет на карту маркеры с учётом выбранной категории и коллекции.
  */
-function addMarkers(categoryName) {
+function addMarkers() {
     allMarkers.length = 0;
     allPlaces.forEach(place => {
-        if (categoryName === undefined || categoryName === '__all__' || categoryName === place.category_detail.name) {
+        const matchCategory = selectedCategoryName === '__all__' || (place.category_detail && place.category_detail.name === selectedCategoryName);
+        const matchCollection = selectedCollectionId === null ||
+            (place.collection_detail && place.collection_detail.id === selectedCollectionId) ||
+            (place.collection != null && Number(place.collection) === Number(selectedCollectionId));
+        if (matchCategory && matchCollection) {
             const placeIcon = place.is_visited ? icon_visited_pin : icon_place_not_visited_pin;
             const marker = L.marker(
                 [place.latitude, place.longitude],
@@ -699,7 +835,7 @@ function addMarkers(categoryName) {
         }
     });
 
-    updateBlockQtyPlaces(allPlaces.size);
+    updateBlockQtyPlaces(allMarkers.length);
 }
 
 function switch_popup_elements() {

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load vite %}
+{% load static %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
+
+{% block content %}
+    <header class="mx-3 mt-10 mb-8 text-center" id="block-page_header">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            Коллекции мест
+        </h1>
+        <p class="mt-3 text-sm text-gray-600 dark:text-neutral-400">
+            Ваши коллекции мест. Нажмите на название — откроется карта «Мои места» с фильтром по этой коллекции.
+        </p>
+    </header>
+
+    {% if not DEBUG %}
+        {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
+
+    <div class="mx-3 mb-6 flex justify-end items-center gap-3">
+        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+            <a href="{% url 'place_map' %}"
+               class="hs-tooltip-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-teal-600 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-teal-500 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
+                <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
+                </svg>
+                <span>К карте</span>
+            </a>
+            <span class="hs-tooltip-content" role="tooltip">
+                Открыть карту «Мои места»
+            </span>
+        </div>
+    </div>
+
+    {% if collection_list %}
+        <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="place-collections-content">
+            {% for collection in collection_list %}
+                {% include 'place/collections/card.html' %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="mx-3 mb-8 flex items-center justify-center">
+            <div class="w-full max-w-2xl">
+                <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" role="alert">
+                    <p class="text-sm text-gray-600 dark:text-neutral-300 mb-4">
+                        У вас пока нет коллекций мест. Создайте коллекцию на карте «Мои места».
+                    </p>
+                    <a href="{% url 'place_map' %}"
+                       class="inline-flex items-center gap-x-2 px-4 py-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                        </svg>
+                        Открыть карту
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if not DEBUG %}
+        {% include 'advertisement/rtb_banner.html' %}
+    {% endif %}
+
+    {% include 'parts/pagination.html' %}
+{% endblock %}

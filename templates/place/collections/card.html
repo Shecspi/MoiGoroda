@@ -1,0 +1,47 @@
+<div class="h-full">
+    <div class="relative flex h-full flex-col gap-3 rounded-2xl border border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900 p-4 shadow-sm"
+         id="place-collection-card-{{ collection.id }}">
+        <div class="flex h-full flex-col gap-3">
+            <div class="text-center">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    <a href="{% url 'place_map' %}?collection={{ collection.id }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ collection.title }}
+                    </a>
+                </h3>
+                <div class="mt-2 flex justify-center">
+                    {% if collection.is_public %}
+                        <span class="inline-flex items-center gap-x-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:border-blue-600 dark:bg-blue-500/10 dark:text-blue-400" title="Публичная коллекция">
+                            <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Публичная
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center gap-x-1 rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-400" title="Приватная коллекция">
+                            <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            Приватная
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex flex-1 flex-col gap-3 justify-center">
+                <p class="text-center text-sm text-gray-600 dark:text-neutral-400">
+                    Мест в коллекции: <strong>{{ collection.places_count }}</strong>
+                </p>
+                <div class="flex justify-center">
+                    <a href="{% url 'place_map' %}?collection={{ collection.id }}"
+                       class="inline-flex items-center gap-x-1 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20">
+                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                        </svg>
+                        Открыть на карте
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

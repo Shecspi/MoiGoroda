@@ -79,6 +79,23 @@ class CreatePlaceCollection(generics.CreateAPIView[PlaceCollection]):
         return super(CreatePlaceCollection, self).post(request, *args, **kwargs)
 
 
+class UpdatePlaceCollection(generics.UpdateAPIView[PlaceCollection]):
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['patch']
+    serializer_class = PlaceCollectionSerializer
+
+    def get_queryset(self) -> Any:
+        return PlaceCollection.objects.filter(user=cast(User, self.request.user))
+
+    def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            request,
+            f'(API: Place): Updating place collection {kwargs["pk"]}',
+        )
+        return response
+
+
 class CreatePlace(generics.CreateAPIView[Place]):
     permission_classes = (IsAuthenticated,)
     http_method_names = ['post']

@@ -84,6 +84,97 @@ function updateFilterBadges() {
             badgeCollection.classList.add('hidden');
         }
     }
+    const collectionButtonText = document.getElementById('btn-filter-collection-text');
+    if (collectionButtonText) {
+        if (selectedCollectionId !== null && selectedCollectionId !== undefined) {
+            const coll = allPlaceCollections.find(c => String(c.id) === String(selectedCollectionId));
+            const title = coll ? coll.title : 'Коллекции';
+            collectionButtonText.textContent = title;
+            collectionButtonText.title = title;
+        } else {
+            collectionButtonText.textContent = 'Коллекции';
+            collectionButtonText.title = 'Коллекции';
+        }
+    }
+    updateCollectionToolbarActions();
+}
+
+/** Показывает блок «Публичная коллекция» и «Поделиться», синхронизирует с выбранной коллекцией. */
+function updateCollectionToolbarActions() {
+    const block = document.getElementById('toolbar-collection-actions');
+    const checkbox = document.getElementById('toolbar-collection-is-public');
+    const shareBtn = document.getElementById('toolbar-collection-share');
+    if (!block || !checkbox || !shareBtn) return;
+
+    if (selectedCollectionId === null || selectedCollectionId === undefined) {
+        block.classList.add('hidden');
+        return;
+    }
+
+    const collection = allPlaceCollections.find(
+        c => String(c.id) === String(selectedCollectionId)
+    );
+    if (!collection) {
+        block.classList.add('hidden');
+        return;
+    }
+
+    block.classList.remove('hidden');
+    checkbox.checked = collection.is_public === true;
+    shareBtn.disabled = !collection.is_public;
+
+    if (!shareBtn.dataset.collectionActionsBound) {
+        shareBtn.dataset.collectionActionsBound = '1';
+        checkbox.addEventListener('change', function () {
+            const newPublic = checkbox.checked;
+            fetch(`/api/place/collections/${selectedCollectionId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ is_public: newPublic })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Не удалось обновить коллекцию');
+                    return response.json();
+                })
+                .then(updated => {
+                    const idx = allPlaceCollections.findIndex(c => String(c.id) === String(updated.id));
+                    if (idx !== -1) allPlaceCollections[idx] = updated;
+                    updateCollectionToolbarActions();
+                    showSuccessToast('Сохранено', newPublic ? 'Коллекция теперь публичная' : 'Коллекция теперь приватная');
+                })
+                .catch(() => {
+                    checkbox.checked = !newPublic;
+                    showDangerToast('Ошибка', 'Не удалось изменить видимость коллекции');
+                });
+        });
+        shareBtn.addEventListener('click', function () {
+            if (shareBtn.disabled) return;
+            const coll = allPlaceCollections.find(c => String(c.id) === String(selectedCollectionId));
+            if (!coll || !coll.is_public) return;
+            const shareData = {
+                title: coll.title,
+                text: `Коллекция мест: ${coll.title}`,
+                url: window.location.href
+            };
+            if (navigator.share) {
+                navigator.share(shareData)
+                    .then(() => showSuccessToast('Готово', 'Ссылка передана'))
+                    .catch(err => {
+                        if (err.name !== 'AbortError') {
+                            showDangerToast('Ошибка', 'Не удалось поделиться');
+                        }
+                    });
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(
+                    () => showSuccessToast('Скопировано', 'Ссылка на коллекцию скопирована в буфер обмена'),
+                    () => showDangerToast('Ошибка', 'Не удалось скопировать ссылку')
+                );
+            }
+        });
+    }
 }
 
 /**

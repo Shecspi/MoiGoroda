@@ -17,6 +17,7 @@ from place.api import (
     GetPlaces,
     GetCategory,
     UpdatePlace,
+    UpdatePlaceCollection,
 )
 
 urlpatterns = [
@@ -30,5 +31,10 @@ urlpatterns = [
         'collections/create/',
         CreatePlaceCollection.as_view(),
         name='create_place_collection',
+    ),
+    path(
+        'collections/<uuid:pk>/',
+        UpdatePlaceCollection.as_view(),
+        name='update_place_collection',
     ),
 ]

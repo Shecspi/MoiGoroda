@@ -11,7 +11,12 @@ import pytest
 from typing import Any
 from unittest.mock import Mock
 
-from place.serializers import TagOSMSerializer, CategorySerializer, PlaceSerializer
+from place.serializers import (
+    TagOSMSerializer,
+    CategorySerializer,
+    PlaceSerializer,
+    PlaceCollectionSerializer,
+)
 
 
 # ===== Тесты для TagOSMSerializer =====
@@ -103,6 +108,9 @@ def test_place_serializer_meta() -> None:
     assert 'created_at' in PlaceSerializer.Meta.fields
     assert 'updated_at' in PlaceSerializer.Meta.fields
     assert 'user' in PlaceSerializer.Meta.fields
+    assert 'is_visited' in PlaceSerializer.Meta.fields
+    assert 'collection' in PlaceSerializer.Meta.fields
+    assert 'collection_detail' in PlaceSerializer.Meta.fields
 
 
 @pytest.mark.unit
@@ -128,6 +136,24 @@ def test_place_serializer_user_write_only() -> None:
     user_field = PlaceSerializer().fields['user']
     assert user_field.write_only is True
     assert user_field.required is False
+
+
+@pytest.mark.unit
+def test_place_serializer_has_collection_detail() -> None:
+    """Тест наличия поля collection_detail в PlaceSerializer"""
+    serializer = PlaceSerializer()
+    assert 'collection_detail' in serializer.fields
+    collection_detail = serializer.fields['collection_detail']
+    assert collection_detail.read_only is True
+    assert collection_detail.source == 'collection'
+
+
+@pytest.mark.unit
+def test_place_serializer_collection_write_only() -> None:
+    """Тест что поле collection является write_only и allow_null"""
+    collection_field = PlaceSerializer().fields['collection']
+    assert collection_field.write_only is True
+    assert collection_field.required is False
 
 
 @pytest.mark.unit
@@ -375,3 +401,82 @@ def test_place_serializer_invalid_longitude(django_user_model: Any) -> None:
     serializer = PlaceSerializer(data=data)
     # Django FloatField не проверяет диапазон, но мы можем проверить тип
     assert serializer.is_valid() or 'longitude' in serializer.errors
+
+
+# ===== Тесты для PlaceCollectionSerializer =====
+
+
+@pytest.mark.unit
+def test_place_collection_serializer_meta() -> None:
+    """Тест мета-класса PlaceCollectionSerializer"""
+    from place.models import PlaceCollection
+
+    assert PlaceCollectionSerializer.Meta.model == PlaceCollection
+    assert 'id' in PlaceCollectionSerializer.Meta.fields
+    assert 'title' in PlaceCollectionSerializer.Meta.fields
+    assert 'is_public' in PlaceCollectionSerializer.Meta.fields
+    assert 'user' in PlaceCollectionSerializer.Meta.fields
+
+
+@pytest.mark.unit
+@pytest.mark.django_db
+def test_place_serializer_create_with_is_visited_and_collection(
+    django_user_model: Any,
+) -> None:
+    """Тест создания места с is_visited и collection"""
+    from place.models import Category, PlaceCollection
+
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    category = Category.objects.create(name='Кафе')
+    collection = PlaceCollection.objects.create(user=user, title='Мои места', is_public=False)
+    mock_request = Mock()
+    mock_request.user = user
+
+    serializer = PlaceSerializer(
+        data={
+            'name': 'Место',
+            'latitude': 55.7558,
+            'longitude': 37.6173,
+            'category': category.id,
+            'is_visited': False,
+            'collection': collection.id,
+        },
+        context={'request': mock_request},
+    )
+    assert serializer.is_valid(), serializer.errors
+    place = serializer.save()
+    assert place.is_visited is False
+    assert place.collection_id == collection.id
+
+
+@pytest.mark.unit
+@pytest.mark.django_db
+def test_place_serializer_create_rejects_other_user_collection(
+    django_user_model: Any,
+) -> None:
+    """Тест что нельзя привязать место к коллекции другого пользователя"""
+    from place.models import Category, PlaceCollection
+
+    from rest_framework import serializers as drf_serializers
+
+    user1 = django_user_model.objects.create_user(username='user1', password='password123')
+    user2 = django_user_model.objects.create_user(username='user2', password='password123')
+    category = Category.objects.create(name='Кафе')
+    collection = PlaceCollection.objects.create(user=user2, title='Чужая коллекция', is_public=True)
+    mock_request = Mock()
+    mock_request.user = user1
+
+    serializer = PlaceSerializer(
+        data={
+            'name': 'Место',
+            'latitude': 55.7558,
+            'longitude': 37.6173,
+            'category': category.id,
+            'collection': collection.id,
+        },
+        context={'request': mock_request},
+    )
+    assert serializer.is_valid(), serializer.errors
+    with pytest.raises(drf_serializers.ValidationError) as exc_info:
+        serializer.save()
+    assert 'collection' in exc_info.value.detail

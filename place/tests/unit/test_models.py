@@ -8,6 +8,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import pytest
+from typing import Any
 from django.db import models
 
 
@@ -102,6 +103,8 @@ def test_place_field_types() -> None:
     assert isinstance(Place._meta.get_field('created_at'), models.DateTimeField)
     assert isinstance(Place._meta.get_field('updated_at'), models.DateTimeField)
     assert isinstance(Place._meta.get_field('user'), models.ForeignKey)
+    assert isinstance(Place._meta.get_field('is_visited'), models.BooleanField)
+    assert isinstance(Place._meta.get_field('collection'), models.ForeignKey)
 
     # Проверяем параметры полей
     name_field = Place._meta.get_field('name')
@@ -134,6 +137,13 @@ def test_place_field_types() -> None:
     # Проверяем, что это ForeignKey
     assert isinstance(user_field, models.ForeignKey)
 
+    is_visited_field = Place._meta.get_field('is_visited')
+    assert is_visited_field.default is True
+
+    collection_field = Place._meta.get_field('collection')
+    assert collection_field.null is True
+    assert collection_field.blank is True
+
 
 @pytest.mark.unit
 def test_place_model_ordering() -> None:
@@ -162,3 +172,37 @@ def test_category_has_tags_relation() -> None:
     assert hasattr(Category, 'tags')
     tags_field = Category._meta.get_field('tags')
     assert tags_field.many_to_many is True
+
+
+# ===== Тесты для PlaceCollection =====
+
+
+@pytest.mark.unit
+def test_place_collection_meta_verbose_name() -> None:
+    """Тест verbose_name модели PlaceCollection"""
+    from place.models import PlaceCollection
+
+    assert PlaceCollection._meta.verbose_name == 'Коллекция мест'
+    assert PlaceCollection._meta.verbose_name_plural == 'Коллекции мест'
+
+
+@pytest.mark.unit
+@pytest.mark.django_db
+def test_place_collection_str_method(django_user_model: Any) -> None:
+    """Тест строкового представления PlaceCollection"""
+    from place.models import PlaceCollection
+
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    collection = PlaceCollection.objects.create(user=user, title='Избранное', is_public=False)
+    assert str(collection) == 'testuser - Избранное'
+
+
+@pytest.mark.unit
+def test_place_collection_has_created_at_updated_at() -> None:
+    """Тест наличия полей created_at и updated_at в PlaceCollection"""
+    from place.models import PlaceCollection
+
+    assert hasattr(PlaceCollection, 'created_at')
+    assert hasattr(PlaceCollection, 'updated_at')
+    assert isinstance(PlaceCollection._meta.get_field('created_at'), models.DateTimeField)
+    assert isinstance(PlaceCollection._meta.get_field('updated_at'), models.DateTimeField)

@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from rest_framework import serializers
@@ -38,7 +39,9 @@ class PlaceSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     collection_detail = PlaceCollectionSerializer(source='collection', read_only=True)
 
     def _validate_collection_for_user(
-        self, collection: PlaceCollection | int | None, user: Any
+        self,
+        collection: PlaceCollection | uuid.UUID | str | None,
+        user: Any,
     ) -> PlaceCollection | None:
         if collection is None:
             return None

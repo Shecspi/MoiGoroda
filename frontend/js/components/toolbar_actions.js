@@ -235,7 +235,7 @@ export class ToolbarActions {
                 marker.addTo(this.myMap);
             });
         } else {
-            fetch('/api/place/')
+            fetch('/api/place/?visited_only=true')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Произошла ошибка при получении данных с сервера');

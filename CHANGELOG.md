@@ -39,6 +39,8 @@
 
 - *(districts)* Добавлена возможность просмотра карты районов города неавторизованными пользователями ([c991fa3](https://github.com/Shecspi/MoiGoroda/commit/c991fa3b9dd78b3c21ea42c9bb62fe51601ff8f5))
 
+- *(place-collection)* Исправлена ошибка, из-за которой при перетаскивании маркера места по карте не подгружались новые координаты и не заполнялся popup. ([a82f1a7](https://github.com/Shecspi/MoiGoroda/commit/a82f1a7b628c45cdb5579203b71c5558d9c27c82))
+
 
 #### Изменено
 

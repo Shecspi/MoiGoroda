@@ -29,7 +29,7 @@ class PlaceCollectionSerializer(serializers.ModelSerializer):  # type: ignore[ty
         model = PlaceCollection
         fields = ('id', 'title', 'is_public', 'user')
         extra_kwargs = {
-            'user': {'write_only': True, 'required': False},
+            'user': {'read_only': True, 'required': False},
         }
 
 

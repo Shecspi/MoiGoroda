@@ -53,6 +53,22 @@ const POPUP_WIDTH = 300;
 const CHECK_ICON_HTML = '<svg class="shrink-0 size-4 text-blue-600 dark:text-blue-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/></svg>';
 
 /**
+ * Экранирует строку для безопасной вставки в HTML (защита от XSS).
+ * @param {string|number|null|undefined} text - значение для экранирования
+ * @returns {string}
+ */
+function escapeHtml(text) {
+    if (text == null || text === undefined) return '';
+    const s = String(text);
+    return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
  * Выставляет класс start-0 или end-0 у меню, чтобы оно не выходило за пределы экрана.
  * @param {HTMLElement} trigger - кнопка, открывающая выпадающий список
  * @param {HTMLElement} menu - элемент ul.hs-dropdown-menu
@@ -487,7 +503,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
         li.setAttribute('data-value', category.name);
         const filter_by_category_item = document.createElement('a');
         filter_by_category_item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-        filter_by_category_item.innerHTML = `<span class="flex items-center min-h-5">${category.name}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
+        filter_by_category_item.innerHTML = `<span class="flex items-center min-h-5">${escapeHtml(category.name)}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
         filter_by_category_item.style.cursor = 'pointer';
         filter_by_category_item.addEventListener('click', () => {
             selectedCategoryName = category.name;
@@ -556,7 +572,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
             li.setAttribute('data-value', String(coll.id));
             const item = document.createElement('a');
             item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-            item.innerHTML = `<span class="flex items-center min-h-5">${coll.title}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
+            item.innerHTML = `<span class="flex items-center min-h-5">${escapeHtml(coll.title)}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
             item.style.cursor = 'pointer';
             li.appendChild(item);
             dropdownMenuCollection.appendChild(li);
@@ -781,7 +797,7 @@ function appendCollectionToDropdown(coll) {
     li.setAttribute('data-value', String(coll.id));
     const item = document.createElement('a');
     item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-    item.innerHTML = `<span class="flex items-center min-h-5">${coll.title}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
+    item.innerHTML = `<span class="flex items-center min-h-5">${escapeHtml(coll.title)}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
     item.style.cursor = 'pointer';
     li.appendChild(item);
     dropdownMenuCollection.appendChild(li);
@@ -928,8 +944,8 @@ function handleClickOnMap(map) {
                         if (lonInput) lonInput.value = lon_marker;
                         const coordsP = el.querySelector('#popup-coords');
                         if (coordsP) {
-                            coordsP.innerHTML = '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ' + lat_marker + '<br>' +
-                                '<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ' + lon_marker;
+                            coordsP.innerHTML = '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ' + escapeHtml(lat_marker) + '<br>' +
+                                '<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ' + escapeHtml(lon_marker);
                         }
                         const categorySelect = el.querySelector('#form-type-object');
                         if (categorySelect && type_marker !== undefined) {
@@ -950,19 +966,22 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
     if (showCoordinates === undefined) {
         showCoordinates = true;
     }
+    const nameSafe = name ?? '';
+    const latSafe = latitude ?? '';
+    const lonSafe = longitude ?? '';
     let content = `<div class="w-full" style="min-width: ${POPUP_WIDTH}px;">`;
     content += '<p class="text-sm">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Название:</span> ';
-    content += `<input type="text" id="form-name" name="name" value="${name.replace(/"/g, '&quot;')}" class="mt-1 ${FORM_INPUT_CLASS}">`;
+    content += `<input type="text" id="form-name" name="name" value="${escapeHtml(nameSafe)}" class="mt-1 ${FORM_INPUT_CLASS}">`;
     content += '</p>';
 
-    content += `<input type="text" id="form-latitude" name="latitude" value="${latitude}" hidden>`;
-    content += `<input type="text" id="form-longitude" name="longitude" value="${longitude}" hidden>`;
+    content += `<input type="text" id="form-latitude" name="latitude" value="${escapeHtml(latSafe)}" hidden>`;
+    content += `<input type="text" id="form-longitude" name="longitude" value="${escapeHtml(lonSafe)}" hidden>`;
     content += '<p id="popup-coords" class="text-sm mt-2">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ';
-    content += showCoordinates ? `${latitude}<br>` : '—<br>';
+    content += showCoordinates ? `${escapeHtml(latSafe)}<br>` : '—<br>';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ';
-    content += showCoordinates ? longitude : '—';
+    content += showCoordinates ? escapeHtml(lonSafe) : '—';
     content += '</p>';
 
     content += '<p id="category_select_form" class="text-sm mt-2">';
@@ -971,9 +990,9 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
     content += '<option value="" selected disabled>Выберите категорию...</option>';
     allCategories.forEach(category => {
         if (category.name === place_category) {
-            content += `<option value="${category.id}" selected>${category.name}</option>`;
+            content += `<option value="${escapeHtml(category.id)}" selected>${escapeHtml(category.name)}</option>`;
         } else {
-            content += `<option value="${category.id}">${category.name}</option>`;
+            content += `<option value="${escapeHtml(category.id)}">${escapeHtml(category.name)}</option>`;
         }
     });
     content += '</select>';
@@ -989,7 +1008,7 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
     content += `<select name="collection" id="form-collection" class="mt-1 ${FORM_INPUT_CLASS}">`;
     content += '<option value="">Без коллекции</option>';
     allPlaceCollections.forEach(coll => {
-        content += `<option value="${coll.id}">${coll.title}</option>`;
+        content += `<option value="${escapeHtml(coll.id)}">${escapeHtml(coll.title)}</option>`;
     });
     content += '</select>';
     content += '</p>';
@@ -1007,8 +1026,7 @@ function generatePopupContentForNewPlace(name, latitude, longitude, place_catego
 }
 
 function generatePopupContent(place) {
-    const name = place.name;
-    const name_escaped = name.replaceAll('"', "'");
+    const name = place.name ?? '';
     const place_category = place.category_detail?.name;
     const is_visited = place.is_visited === true;
     const collection_title = place.collection_detail?.title || null;
@@ -1016,17 +1034,17 @@ function generatePopupContent(place) {
     let content = '';
     content += `<div class="w-full" style="min-width: ${POPUP_WIDTH}px;">`;
     content += '<div class="text-lg">';
-    content += `<div id="place_name_text">${name}</div>`;
+    content += `<div id="place_name_text">${escapeHtml(name)}</div>`;
     content += '<div id="place_name_input_form" class="hidden w-full">';
-    content += `<input type="text" id="form-name" name="name" value="${name_escaped}" class="${FORM_INPUT_CLASS}">`;
+    content += `<input type="text" id="form-name" name="name" value="${escapeHtml(name)}" class="${FORM_INPUT_CLASS}">`;
     content += '</div>';
     content += '</div>';
 
     content += '<p class="text-sm text-gray-600 dark:text-neutral-400">';
-    content += `<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ${place.latitude}<br>`;
-    content += `<input type="text" id="form-latitude" name="latitude" value="${place.latitude}" hidden>`;
-    content += `<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ${place.longitude}`;
-    content += `<input type="text" id="form-longitude" name="longitude" value="${place.longitude}" hidden>`;
+    content += `<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ${escapeHtml(place.latitude)}<br>`;
+    content += `<input type="text" id="form-latitude" name="latitude" value="${escapeHtml(place.latitude)}" hidden>`;
+    content += `<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ${escapeHtml(place.longitude)}`;
+    content += `<input type="text" id="form-longitude" name="longitude" value="${escapeHtml(place.longitude)}" hidden>`;
     content += '</p>';
 
     content += '<p id="category_select_form" class="hidden text-sm">';
@@ -1035,9 +1053,9 @@ function generatePopupContent(place) {
     content += '<option value="" disabled>Выберите категорию...</option>';
     allCategories.forEach(category => {
         if (category.name === place_category) {
-            content += `<option value="${category.id}" selected>${category.name}</option>`;
+            content += `<option value="${escapeHtml(category.id)}" selected>${escapeHtml(category.name)}</option>`;
         } else {
-            content += `<option value="${category.id}">${category.name}</option>`;
+            content += `<option value="${escapeHtml(category.id)}">${escapeHtml(category.name)}</option>`;
         }
     });
     content += '</select>';
@@ -1045,12 +1063,12 @@ function generatePopupContent(place) {
 
     content += '<p id="category_place" class="text-sm text-gray-600 dark:text-neutral-400">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Категория:</span> ';
-    content += ` ${place_category !== undefined ? place_category : 'Не известно'}`;
+    content += ` ${place_category !== undefined ? escapeHtml(place_category) : 'Не известно'}`;
     content += '</p>';
 
     content += '<p id="place_visited_collection_view" class="text-sm text-gray-600 dark:text-neutral-400">';
     content += '<span class="font-semibold text-gray-900 dark:text-white">Посещено:</span> ' + (is_visited ? 'да' : 'нет') + '<br>';
-    content += '<span class="font-semibold text-gray-900 dark:text-white">Коллекция:</span> ' + (collection_title || 'Без коллекции');
+    content += '<span class="font-semibold text-gray-900 dark:text-white">Коллекция:</span> ' + escapeHtml(collection_title || 'Без коллекции');
     content += '</p>';
 
     content += '<div id="place_visited_collection_edit" class="hidden text-sm mt-2">';
@@ -1065,7 +1083,7 @@ function generatePopupContent(place) {
     const current_collection_id = place.collection_detail?.id ?? place.collection ?? null;
     allPlaceCollections.forEach(coll => {
         const sel = (current_collection_id && String(coll.id) === String(current_collection_id)) ? ' selected' : '';
-        content += `<option value="${coll.id}"${sel}>${coll.title}</option>`;
+        content += `<option value="${escapeHtml(coll.id)}"${sel}>${escapeHtml(coll.title)}</option>`;
     });
     content += '</select>';
     content += '</div>';

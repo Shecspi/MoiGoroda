@@ -26,6 +26,7 @@ def place(request: HttpRequest) -> HttpResponse:
     viewing_others_collection = False
     collection_places_count = 0
     collection_title = ''
+    collection_obj: PlaceCollection | None = None
 
     if collection_uuid_raw:
         try:
@@ -43,6 +44,7 @@ def place(request: HttpRequest) -> HttpResponse:
         if request.user.is_authenticated and request.user != collection.user:
             viewing_others_collection = True
             collection_places_count = collection.places.count()
+        collection_obj = collection
     else:
         if not request.user.is_authenticated:
             return redirect(f'{settings.LOGIN_URL}?next={request.get_full_path()}')
@@ -72,6 +74,13 @@ def place(request: HttpRequest) -> HttpResponse:
         page_title = 'Мои места'
         page_description = 'Мои места, отмеченные на карте'
 
+    # SEO: список названий мест в HTML для публичной коллекции (видим роботам)
+    collection_place_names: list[str] = []
+    if collection_obj and collection_title:
+        collection_place_names = list(
+            collection_obj.places.values_list('name', flat=True).order_by('name')[:30]
+        )
+
     return render(
         request,
         'place/map.html',
@@ -86,6 +95,7 @@ def place(request: HttpRequest) -> HttpResponse:
             'place_map_tooltip_only': place_map_tooltip_only,
             'place_map_header_title': place_map_header_title,
             'view_context_label': view_context_label,
+            'collection_place_names': collection_place_names,
         },
     )
 

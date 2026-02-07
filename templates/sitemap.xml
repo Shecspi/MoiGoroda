@@ -31,6 +31,11 @@
 	<priority>0.8</priority>
 </url>
 <url>
+	<loc>https://moi-goroda.ru/place/map</loc>
+	<lastmod>2025-02-06T12:00:00+03:00</lastmod>
+	<priority>0.8</priority>
+</url>
+<url>
 	<loc>https://moi-goroda.ru/account/password/reset</loc>
 	<lastmod>2023-09-14T16:24:26+01:00</lastmod>
 	<priority>0.6</priority>

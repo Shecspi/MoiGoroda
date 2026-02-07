@@ -30,6 +30,15 @@
     <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>
     <!-- ^^^ Карта -->
 
+    {% if collection_place_names %}
+    <section class="sr-only" aria-hidden="true">
+        <h2>Места в коллекции</h2>
+        <p>
+            {% for name in collection_place_names %}{{ name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        </p>
+    </section>
+    {% endif %}
+
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
         window.PLACE_MAP_COLLECTION_UUID = "{{ collection_uuid|escapejs }}";

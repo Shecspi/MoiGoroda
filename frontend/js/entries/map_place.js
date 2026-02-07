@@ -894,71 +894,91 @@ function handleClickOnMap(map) {
         });
         marker.openPopup();
 
-        marker.on("dragend", function (e) {
-            moved_lat = e.target.getLatLng().lat;
-            moved_lon = e.target.getLatLng().lng;
-        });
+        function fetchNominatimAndUpdatePopup(targetMarker, lat, lon, snapMarker) {
+            moved_lat = lat;
+            moved_lon = lon;
+            const url = `https://nominatim.openstreetmap.org/reverse?email=shecspi@yandex.ru&format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=0&zoom=18&layer=natural,poi`;
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    let name;
+                    let lat_marker;
+                    let lon_marker;
+                    let type_marker;
 
-        // Запрос к Nominatim в фоне; по ответу обновляем попап
-        const url = `https://nominatim.openstreetmap.org/reverse?email=shecspi@yandex.ru&format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=0&zoom=18&layer=natural,poi`;
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                let name;
-                let lat_marker;
-                let lon_marker;
-                let type_marker;
-
-                if (data.hasOwnProperty('error')) {
-                    name = 'Неизвестный объект';
-                    lat_marker = lat;
-                    lon_marker = lon;
-                } else {
-                    if (data.name !== '') {
-                        name = data.name;
-                    } else if (data.display_name !== '') {
-                        name = data.display_name;
-                    } else {
+                    if (data.hasOwnProperty('error')) {
                         name = 'Неизвестный объект';
-                    }
-                    lat_marker = data.lat;
-                    lon_marker = data.lon;
-                }
-
-                if (data.type !== undefined && tags.has(data.type)) {
-                    type_marker = tags.get(data.type);
-                }
-
-                if (marker && marker.setLatLng) {
-                    marker.setLatLng([lat_marker, lon_marker]);
-                }
-                // Обновляем поля попапа без замены разметки, чтобы интерфейс не скакал
-                if (marker && marker.getPopup()) {
-                    const el = marker.getPopup().getElement();
-                    if (el) {
-                        const nameInput = el.querySelector('#form-name');
-                        if (nameInput) nameInput.value = name;
-                        const latInput = el.querySelector('#form-latitude');
-                        if (latInput) latInput.value = lat_marker;
-                        const lonInput = el.querySelector('#form-longitude');
-                        if (lonInput) lonInput.value = lon_marker;
-                        const coordsP = el.querySelector('#popup-coords');
-                        if (coordsP) {
-                            coordsP.innerHTML = '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ' + escapeHtml(lat_marker) + '<br>' +
-                                '<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ' + escapeHtml(lon_marker);
+                        lat_marker = lat;
+                        lon_marker = lon;
+                    } else {
+                        if (data.name !== '') {
+                            name = data.name;
+                        } else if (data.display_name !== '') {
+                            name = data.display_name;
+                        } else {
+                            name = 'Неизвестный объект';
                         }
-                        const categorySelect = el.querySelector('#form-type-object');
-                        if (categorySelect && type_marker !== undefined) {
-                            for (let i = 0; i < categorySelect.options.length; i++) {
-                                if (categorySelect.options[i].text === type_marker) {
-                                    categorySelect.selectedIndex = i;
-                                    break;
+                        lat_marker = data.lat;
+                        lon_marker = data.lon;
+                    }
+
+                    if (data.type !== undefined && tags.has(data.type)) {
+                        type_marker = tags.get(data.type);
+                    }
+
+                    // При клике — подтягиваем маркер к ближайшему POI; при перетаскивании — оставляем где пользователь поставил
+                    if (snapMarker && targetMarker && targetMarker.setLatLng) {
+                        targetMarker.setLatLng([lat_marker, lon_marker]);
+                    }
+                    // Обновляем поля попапа без замены разметки, чтобы интерфейс не скакал
+                    if (targetMarker && targetMarker.getPopup()) {
+                        const el = targetMarker.getPopup().getElement();
+                        if (el) {
+                            const nameInput = el.querySelector('#form-name');
+                            if (nameInput) nameInput.value = name;
+                            const latInput = el.querySelector('#form-latitude');
+                            if (latInput) latInput.value = lat_marker;
+                            const lonInput = el.querySelector('#form-longitude');
+                            if (lonInput) lonInput.value = lon_marker;
+                            const coordsP = el.querySelector('#popup-coords');
+                            if (coordsP) {
+                                coordsP.innerHTML = '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ' + escapeHtml(lat_marker) + '<br>' +
+                                    '<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ' + escapeHtml(lon_marker);
+                            }
+                            const categorySelect = el.querySelector('#form-type-object');
+                            if (categorySelect && type_marker !== undefined) {
+                                for (let i = 0; i < categorySelect.options.length; i++) {
+                                    if (categorySelect.options[i].text === type_marker) {
+                                        categorySelect.selectedIndex = i;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
+                });
+        }
+
+        marker.on('dragend', function (e) {
+            const latLng = e.target.getLatLng();
+            const newLat = latLng.lat;
+            const newLon = latLng.lng;
+            const popupEl = marker.getPopup() && marker.getPopup().getElement();
+            if (popupEl) {
+                const nameInput = popupEl.querySelector('#form-name');
+                if (nameInput) nameInput.value = 'Загрузка…';
+                const coordsP = popupEl.querySelector('#popup-coords');
+                if (coordsP) {
+                    coordsP.innerHTML = '<span class="font-semibold text-gray-900 dark:text-white">Широта:</span> ' + escapeHtml(newLat) + '<br>' +
+                        '<span class="font-semibold text-gray-900 dark:text-white">Долгота:</span> ' + escapeHtml(newLon);
                 }
-            });
+            }
+            marker.openPopup();
+            fetchNominatimAndUpdatePopup(marker, newLat, newLon, false);
+        });
+
+        // Запрос к Nominatim в фоне; по ответу обновляем попап
+        fetchNominatimAndUpdatePopup(marker, lat, lon, true);
     });
 }
 

@@ -68,6 +68,8 @@ class GetPlaces(generics.ListAPIView[Place]):
             if not request.user.is_authenticated or request.user != collection.user:
                 return Place.objects.none()
 
+        # Владельцу отдаём все его места: можно переключаться между коллекциями и редактировать их,
+        # по умолчанию отображается выбранная коллекция на фронте.
         if request.user.is_authenticated and request.user == collection.user:
             return Place.objects.filter(user=cast(User, request.user))
 
@@ -171,6 +173,10 @@ class CreatePlace(generics.CreateAPIView[Place]):
 
 
 class DeletePlace(generics.DestroyAPIView[Place]):
+    """
+    Удаление места. get_queryset фильтрует по user — пользователь может удалять только свои места.
+    """
+
     permission_classes = (IsAuthenticated,)
     http_method_names = ['delete']
 
@@ -186,6 +192,10 @@ class DeletePlace(generics.DestroyAPIView[Place]):
 
 
 class UpdatePlace(generics.UpdateAPIView[Place]):
+    """
+    Обновление места. get_queryset фильтрует по user — пользователь может редактировать только свои места.
+    """
+
     permission_classes = (IsAuthenticated,)
     http_method_names = ['patch']
     serializer_class = PlaceSerializer

@@ -185,6 +185,122 @@ def test_get_places_list_empty(api_client: Any, django_user_model: Any) -> None:
     assert len(response.data) == 0
 
 
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_places_public_collection_unauthenticated(
+    api_client: Any, django_user_model: Any
+) -> None:
+    """Неавторизованный пользователь получает места из публичной коллекции"""
+    owner = django_user_model.objects.create_user(username='owner', password='pass')
+    category = Category.objects.create(name='Кафе')
+    collection = PlaceCollection.objects.create(
+        user=owner, title='Публичная коллекция', is_public=True
+    )
+    Place.objects.create(
+        name='Место в публичной коллекции',
+        latitude=55.7558,
+        longitude=37.6173,
+        category=category,
+        user=owner,
+        collection=collection,
+    )
+
+    url = reverse('get_places') + f'?collection={collection.id}'
+    response = api_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+    assert response.data[0]['name'] == 'Место в публичной коллекции'
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_places_private_collection_unauthenticated(
+    api_client: Any, django_user_model: Any
+) -> None:
+    """Неавторизованный пользователь получает пустой список при запросе приватной коллекции"""
+    owner = django_user_model.objects.create_user(username='owner', password='pass')
+    category = Category.objects.create(name='Кафе')
+    collection = PlaceCollection.objects.create(
+        user=owner, title='Приватная коллекция', is_public=False
+    )
+    Place.objects.create(
+        name='Место в приватной коллекции',
+        latitude=55.7558,
+        longitude=37.6173,
+        category=category,
+        user=owner,
+        collection=collection,
+    )
+
+    url = reverse('get_places') + f'?collection={collection.id}'
+    response = api_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 0
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_places_public_collection_authenticated_other_user(
+    api_client: Any, django_user_model: Any
+) -> None:
+    """Авторизованный пользователь получает места из чужой публичной коллекции"""
+    owner = django_user_model.objects.create_user(username='owner', password='pass')
+    other = django_user_model.objects.create_user(username='other', password='pass')
+    api_client.force_authenticate(user=other)
+
+    category = Category.objects.create(name='Кафе')
+    collection = PlaceCollection.objects.create(
+        user=owner, title='Публичная коллекция', is_public=True
+    )
+    Place.objects.create(
+        name='Место владельца',
+        latitude=55.7558,
+        longitude=37.6173,
+        category=category,
+        user=owner,
+        collection=collection,
+    )
+
+    url = reverse('get_places') + f'?collection={collection.id}'
+    response = api_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+    assert response.data[0]['name'] == 'Место владельца'
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_places_private_collection_authenticated_other_user(
+    api_client: Any, django_user_model: Any
+) -> None:
+    """Авторизованный пользователь получает пустой список при запросе чужой приватной коллекции"""
+    owner = django_user_model.objects.create_user(username='owner', password='pass')
+    other = django_user_model.objects.create_user(username='other', password='pass')
+    api_client.force_authenticate(user=other)
+
+    category = Category.objects.create(name='Кафе')
+    collection = PlaceCollection.objects.create(
+        user=owner, title='Приватная коллекция', is_public=False
+    )
+    Place.objects.create(
+        name='Место владельца',
+        latitude=55.7558,
+        longitude=37.6173,
+        category=category,
+        user=owner,
+        collection=collection,
+    )
+
+    url = reverse('get_places') + f'?collection={collection.id}'
+    response = api_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 0
+
+
 # ===== Тесты для CreatePlace =====
 
 
@@ -613,6 +729,28 @@ def test_create_place_collection_unauthenticated(api_client: Any) -> None:
     data = {'title': 'Коллекция', 'is_public': False}
     response = api_client.post(url, data, format='json')
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_update_place_collection_user_read_only(api_client: Any, django_user_model: Any) -> None:
+    """Тест что PATCH коллекции с полем user не меняет владельца (user — read_only)"""
+    owner = django_user_model.objects.create_user(username='owner', password='pass')
+    other = django_user_model.objects.create_user(username='other', password='pass')
+    api_client.force_authenticate(user=owner)
+
+    collection = PlaceCollection.objects.create(user=owner, title='Моя коллекция', is_public=False)
+
+    url = reverse('update_place_collection', kwargs={'pk': collection.id})
+    data = {'title': 'Новое название', 'user': other.id}
+
+    response = api_client.patch(url, data, format='json')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data['title'] == 'Новое название'
+    collection.refresh_from_db()
+    assert collection.user_id == owner.id
+    assert collection.user_id != other.id
 
 
 # ===== Тесты для Place с is_visited и collection =====

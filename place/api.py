@@ -48,32 +48,37 @@ class GetPlaces(generics.ListAPIView[Place]):
     def get_queryset(self) -> Any:
         request = self.request
         collection_uuid_raw = request.GET.get('collection', '').strip()
+        visited_only = request.GET.get('visited_only', '').lower() in ('true', '1', 'yes')
 
         if not collection_uuid_raw:
             if not request.user.is_authenticated:
                 raise PermissionDenied('Необходима авторизация.')
-            return Place.objects.filter(user=cast(User, request.user))
-
-        try:
-            collection_uuid = uuid.UUID(collection_uuid_raw)
-        except (ValueError, TypeError):
-            return Place.objects.none()
-
-        collection = PlaceCollection.objects.filter(pk=collection_uuid).first()
-
-        if collection is None:
-            return Place.objects.none()
-
-        if not collection.is_public:
-            if not request.user.is_authenticated or request.user != collection.user:
+            qs = Place.objects.filter(user=cast(User, request.user))
+        else:
+            try:
+                collection_uuid = uuid.UUID(collection_uuid_raw)
+            except (ValueError, TypeError):
                 return Place.objects.none()
 
-        # Владельцу отдаём все его места: можно переключаться между коллекциями и редактировать их,
-        # по умолчанию отображается выбранная коллекция на фронте.
-        if request.user.is_authenticated and request.user == collection.user:
-            return Place.objects.filter(user=cast(User, request.user))
+            collection = PlaceCollection.objects.filter(pk=collection_uuid).first()
 
-        return Place.objects.filter(collection=collection)
+            if collection is None:
+                return Place.objects.none()
+
+            if not collection.is_public:
+                if not request.user.is_authenticated or request.user != collection.user:
+                    return Place.objects.none()
+
+            # Владельцу отдаём все его места: можно переключаться между коллекциями и редактировать их,
+            # по умолчанию отображается выбранная коллекция на фронте.
+            if request.user.is_authenticated and request.user == collection.user:
+                qs = Place.objects.filter(user=cast(User, request.user))
+            else:
+                qs = Place.objects.filter(collection=collection)
+
+        if visited_only:
+            qs = qs.filter(is_visited=True)
+        return qs
 
 
 class GetPlaceCollections(generics.ListAPIView[PlaceCollection]):

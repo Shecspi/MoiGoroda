@@ -301,6 +301,40 @@ def test_get_places_private_collection_authenticated_other_user(
     assert len(response.data) == 0
 
 
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_places_visited_only_filter(api_client: Any, django_user_model: Any) -> None:
+    """При visited_only=true возвращаются только посещённые места (для карты городов)"""
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    api_client.force_authenticate(user=user)
+
+    category = Category.objects.create(name='Кафе')
+
+    Place.objects.create(
+        name='Посещённое место',
+        latitude=55.7558,
+        longitude=37.6173,
+        category=category,
+        user=user,
+        is_visited=True,
+    )
+    Place.objects.create(
+        name='Непосещённое место',
+        latitude=56.7558,
+        longitude=38.6173,
+        category=category,
+        user=user,
+        is_visited=False,
+    )
+
+    url = reverse('get_places') + '?visited_only=true'
+    response = api_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+    assert response.data[0]['name'] == 'Посещённое место'
+
+
 # ===== Тесты для CreatePlace =====
 
 

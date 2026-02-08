@@ -15,6 +15,7 @@ urlpatterns = [
     path('place/', include('place.urls.views')),
     path('collection/', include('collection.urls.views')),
     path('news/', include('news.urls')),
+    path('blog/', include('blog.urls')),
     path('subscribe/', include('subscribe.urls')),
     path('share/', include('share.urls')),
     path('dashboard/', include('dashboard.urls.views')),

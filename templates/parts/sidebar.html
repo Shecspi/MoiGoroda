@@ -208,6 +208,16 @@ Licensed under the Apache License, Version 2.0
                 </a>
             </li>
 
+            <li>
+                <a href="{% url 'blog-list' %}"
+                   class="flex items-center gap-x-2 py-2 pl-8 pr-2 text-start text-sm text-gray-800 rounded-md hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700{% if active_page == 'blog' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}">
+                    <svg class="shrink-0 size-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                    </svg>
+                    Блог
+                </a>
+            </li>
+
             <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
 
             {% if user.is_authenticated and user.is_superuser %}

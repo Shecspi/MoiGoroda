@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'account.apps.AuthConfig',
     'city',
     'news',
+    'blog',
     'region',
     'collection',
     'mathfilters',

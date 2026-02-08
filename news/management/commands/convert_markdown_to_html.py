@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from markdown import markdown
+from markdown import markdown  # type: ignore[import-untyped]
 from news.models import News
 from typing import Any
 

@@ -1,0 +1,81 @@
+"""
+Реализует классы для отображения статей блога.
+
+* BlogArticleList - Отображает список статей
+* BlogArticleDetail - Отображает полный текст статьи
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+"""
+
+from typing import Any
+
+from django.db.models import QuerySet
+from django.http import HttpRequest
+from django.views.generic import DetailView, ListView
+
+from blog.models import BlogArticle, BlogArticleView
+
+
+class BlogArticleList(ListView):  # type: ignore[type-arg]
+    """
+    Отображает список статей блога с разделением по страницам.
+    """
+
+    model = BlogArticle
+    paginate_by = 5
+    ordering = '-created_at'
+    template_name = 'blog/article_list.html'
+    context_object_name = 'article_list'
+
+    def get_queryset(self) -> QuerySet[BlogArticle]:
+        return super().get_queryset().prefetch_related('tags', 'city')
+
+    def get_context_data(
+        self, *, object_list: QuerySet[BlogArticle] | None = None, **kwargs: Any
+    ) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['active_page'] = 'blog'
+        context['page_title'] = 'Блог'
+        context['page_description'] = 'Блог проекта «Мои города»'
+        return context
+
+
+class BlogArticleDetail(DetailView):  # type: ignore[type-arg]
+    """
+    Отображает полный текст статьи.
+    При каждом просмотре создаёт запись BlogArticleView.
+    """
+
+    model = BlogArticle
+    template_name = 'blog/article_detail.html'
+    context_object_name = 'article'
+
+    def get_queryset(self) -> QuerySet[BlogArticle]:
+        return super().get_queryset().prefetch_related('tags').select_related('city')
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        # Создаём запись о просмотре
+        ip_address = self._get_client_ip(self.request)
+        BlogArticleView.objects.create(
+            article=self.object,
+            user=self.request.user if self.request.user.is_authenticated else None,
+            ip_address=ip_address,
+        )
+
+        context['active_page'] = 'blog'
+        context['page_title'] = self.object.title
+        context['page_description'] = self.object.title
+        return context
+
+    def _get_client_ip(self, request: HttpRequest) -> str | None:
+        """Извлекает IP-адрес клиента из запроса."""
+        ip = request.META.get('REMOTE_ADDR')
+        if ip:
+            return ip
+        return None

@@ -51,8 +51,9 @@ INSTALLED_APPS = [
     'region',
     'collection',
     'mathfilters',
-    'mdeditor',
     'markdownify',
+    'django_ckeditor_5',
+    'storages',
     'dashboard',
     'share.apps.ShareConfig',
     'subscribe',
@@ -285,12 +286,8 @@ LOGGING = {
     },
 }
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'https://s3.twcstorage.ru/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# MDEditor
-X_FRAME_OPTIONS = 'SAMEORIGIN'
-MDEDITOR_CONFIGS = {'default': {'language': 'en'}}
 
 # Markdownify
 MARKDOWNIFY = {
@@ -348,3 +345,58 @@ ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS = (
     if os.getenv('ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS')
     else ''
 )
+
+# CKeditor
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            'heading',
+            '|',
+            'bold',
+            'italic',
+            'link',
+            'bulletedList',
+            'numberedList',
+            '|',
+            'imageUpload',
+            'blockQuote',
+            'insertTable',
+            'codeBlock',
+            '|',
+            'undo',
+            'redo',
+        ],
+        'image': {
+            'toolbar': [
+                'imageTextAlternative',
+                'imageStyle:inline',
+                'imageStyle:block',
+                'imageStyle:side',
+            ]
+        },
+        'table': {
+            'contentToolbar': [
+                'tableColumn',
+                'tableRow',
+                'mergeTableCells',
+            ]
+        },
+    }
+}
+
+# Django Storage
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+}
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = False

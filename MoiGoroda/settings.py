@@ -51,10 +51,9 @@ INSTALLED_APPS = [
     'region',
     'collection',
     'mathfilters',
-    'mdeditor',
+    'markdownify',
     'django_ckeditor_5',
     'storages',
-    'markdownify',
     'dashboard',
     'share.apps.ShareConfig',
     'subscribe',
@@ -289,10 +288,6 @@ LOGGING = {
 
 MEDIA_URL = 'https://s3.twcstorage.ru/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# MDEditor
-X_FRAME_OPTIONS = 'SAMEORIGIN'
-MDEDITOR_CONFIGS = {'default': {'language': 'en'}}
 
 # Markdownify
 MARKDOWNIFY = {

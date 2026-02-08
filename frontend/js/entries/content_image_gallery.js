@@ -23,8 +23,20 @@ function initContentImageGallery() {
       anchor.href = href;
       anchor.className = 'glightbox-content';
       anchor.setAttribute('data-gallery', galleryId);
+      if (img.alt) {
+        const desc = img.alt.replace(/;/g, ',').replace(/"/g, '&quot;');
+        anchor.setAttribute('data-glightbox', `description: ${desc}`);
+      }
+      const parent = img.parentNode;
       img.parentNode.insertBefore(anchor, img);
       anchor.appendChild(img);
+
+      if (img.alt) {
+        const caption = document.createElement('figcaption');
+        caption.className = 'content-image-caption';
+        caption.textContent = img.alt;
+        parent.insertBefore(caption, anchor.nextSibling);
+      }
     });
   });
 

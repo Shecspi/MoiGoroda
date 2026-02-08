@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'collection',
     'mathfilters',
     'markdownify',
-    'django_ckeditor_5',
+    'tinymce',
     'storages',
     'dashboard',
     'share.apps.ShareConfig',
@@ -347,43 +347,20 @@ ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS = (
     else ''
 )
 
-# CKeditor
+# TinyMCE
 
-CKEDITOR_5_CONFIGS = {
-    'default': {
-        'toolbar': [
-            'heading',
-            '|',
-            'bold',
-            'italic',
-            'link',
-            'bulletedList',
-            'numberedList',
-            '|',
-            'imageUpload',
-            'blockQuote',
-            'insertTable',
-            'codeBlock',
-            '|',
-            'undo',
-            'redo',
-        ],
-        'image': {
-            'toolbar': [
-                'imageTextAlternative',
-                'imageStyle:inline',
-                'imageStyle:block',
-                'imageStyle:side',
-            ]
-        },
-        'table': {
-            'contentToolbar': [
-                'tableColumn',
-                'tableRow',
-                'mergeTableCells',
-            ]
-        },
-    }
+TINYMCE_FILEBROWSER = False
+
+TINYMCE_DEFAULT_CONFIG = {
+    'height': 500,
+    'menubar': False,
+    'plugins': 'advlist autolink lists link image charmap anchor searchreplace visualblocks code '
+    'fullscreen insertdatetime media table help wordcount',
+    'toolbar': 'undo redo | blocks | bold italic | alignleft aligncenter alignright | '
+    'bullist numlist outdent indent | link image | removeformat | help',
+    'content_style': 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+    'images_upload_url': '/tinymce/upload-image/',
+    'automatic_uploads': True,
 }
 
 # Django Storage

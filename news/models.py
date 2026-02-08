@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0
 
 from django.contrib.auth.models import User
 from django.db import models
-from django_ckeditor_5.fields import CKEditor5Field  # type: ignore[import-untyped]
+from tinymce.models import HTMLField
 
 
 class News(models.Model):
@@ -28,7 +28,7 @@ class News(models.Model):
         help_text='Указанный заголовок новости будет отображатьсят только в админ-панели.<br>'
         'Пользователи его не увидят. Для них необходимо указывать заголовок новости в поле ниже.',
     )
-    content = CKEditor5Field(verbose_name='Новость', blank=False, null=False)
+    content = HTMLField(verbose_name='Новость', blank=False, null=False)
     created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     last_modified = models.DateTimeField(auto_now=True, verbose_name='Дата изменения')
     users_read = models.ManyToManyField(User, blank=True)

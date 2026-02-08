@@ -53,6 +53,7 @@ export default defineConfig({
         embedded_region_map: path.resolve(entriesDir, 'embedded_region_map.js'),
         profile: path.resolve(entriesDir, 'profile.js'),
         notification: path.resolve(entriesDir, 'notification.js'),
+        content_image_gallery: path.resolve(entriesDir, 'content_image_gallery.js'),
         collection_search: path.resolve(entriesDir, 'collection_search.js'),
         collection_favorite: path.resolve(entriesDir, 'collection_favorite.js'),
         collection_tabs: path.resolve(entriesDir, 'collection_tabs.js'),

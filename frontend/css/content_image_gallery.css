@@ -17,5 +17,19 @@
     height: auto;
     object-fit: contain;
     display: block;
-    margin: 1rem auto;
+    margin: 1rem auto 0.5rem;
+}
+
+.content-with-image-gallery .content-image-caption {
+    display: block;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    line-height: 1rem;
+    color: var(--caption-color, #6b7280);
+    text-align: center;
+}
+
+.dark .content-with-image-gallery .content-image-caption {
+    --caption-color: #9ca3af;
 }

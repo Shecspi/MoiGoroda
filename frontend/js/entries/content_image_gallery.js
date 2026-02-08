@@ -4,6 +4,7 @@
  */
 import GLightbox from 'glightbox';
 import 'glightbox/dist/css/glightbox.min.css';
+import '../../css/content_image_gallery.css';
 
 function initContentImageGallery() {
   const containers = document.querySelectorAll('.content-with-image-gallery');

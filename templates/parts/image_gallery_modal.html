@@ -1,0 +1,54 @@
+{% comment %}
+Модальное окно с каруселью для просмотра изображений из контента статей/новостей.
+Заполняется динамически через content_image_gallery.js
+{% endcomment %}
+{# Скрытая кнопка для программного открытия модалки #}
+<button type="button" id="image-gallery-modal-trigger" data-hs-overlay="#image-gallery-modal" class="hidden" aria-hidden="true"></button>
+<div id="image-gallery-modal"
+     class="hs-overlay hidden size-full fixed top-0 start-0 z-[1070] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center"
+     role="dialog"
+     tabindex="-1"
+     aria-labelledby="image-gallery-modal-label">
+    <div class="hs-overlay-open:opacity-100 hs-overlay-open:duration-500 opacity-0 transition-opacity fixed inset-0 bg-gray-900/90 pointer-events-none"
+         aria-hidden="true"></div>
+    <div class="hs-overlay-animation-target hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all w-full max-w-6xl m-4 pointer-events-auto relative">
+        <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-xl border border-gray-200 dark:border-neutral-700 overflow-hidden">
+            <div class="flex justify-end items-center p-2 border-b border-gray-200 dark:border-neutral-700">
+                <button type="button"
+                        class="flex justify-center items-center size-9 text-sm font-semibold rounded-full border border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-200"
+                        data-hs-overlay="#image-gallery-modal"
+                        aria-label="Закрыть">
+                    <svg class="size-5" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m18 6-12 12M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="image-gallery-carousel-wrapper" class="relative p-4 min-h-[200px]">
+                <div id="image-gallery-carousel"
+                     data-hs-carousel='{"loadingClasses":"opacity-0","dotsItemClasses":"hs-carousel-active:bg-blue-700 size-3 border border-gray-400 rounded-full cursor-pointer dark:border-neutral-600 dark:hs-carousel-active:bg-blue-500","isAutoPlay":false,"isInfiniteLoop":true}'
+                     class="relative --prevent-on-load-init">
+                    <div class="hs-carousel relative overflow-hidden w-full bg-gray-100 dark:bg-neutral-800 rounded-lg min-h-[300px]">
+                        <div class="hs-carousel-body flex flex-nowrap transition-transform duration-500">
+                            <!-- Слайды заполняются через JS -->
+                        </div>
+                    </div>
+                    <button type="button"
+                            class="hs-carousel-prev absolute inset-y-0 start-0 inline-flex justify-center items-center w-12 h-full text-gray-800 hover:bg-gray-900/10 dark:text-white dark:hover:bg-white/10">
+                        <span class="sr-only">Предыдущее</span>
+                        <svg class="size-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/>
+                        </svg>
+                    </button>
+                    <button type="button"
+                            class="hs-carousel-next absolute inset-y-0 end-0 inline-flex justify-center items-center w-12 h-full text-gray-800 hover:bg-gray-900/10 dark:text-white dark:hover:bg-white/10">
+                        <span class="sr-only">Следующее</span>
+                        <svg class="size-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/>
+                        </svg>
+                    </button>
+                    <div class="hs-carousel-pagination flex justify-center gap-x-2 mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

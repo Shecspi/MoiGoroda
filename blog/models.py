@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE, SET_NULL
 from django.urls import reverse
-from django_ckeditor_5.fields import CKEditor5Field  # type: ignore[import-untyped]
+from tinymce.models import HTMLField
 
 from city.models import City
 
@@ -54,11 +54,7 @@ class BlogArticle(models.Model):
         blank=False,
         null=False,
     )
-    content = CKEditor5Field(
-        verbose_name='Содержание',
-        blank=False,
-        null=False,
-    )
+    content = HTMLField(verbose_name='Содержание', blank=False, null=False)
     city = models.ForeignKey(
         City,
         on_delete=SET_NULL,

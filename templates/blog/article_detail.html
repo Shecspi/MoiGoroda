@@ -4,6 +4,29 @@
 {% block extra_css %}
     {{ block.super }}
     {% vite_css 'css/tailwind' %}
+    <style>
+        /* Изображения в один ряд, одинакового размера */
+        .article-detail-content p:has(> img:only-child),
+        .article-detail-content figure:has(> img) {
+            display: inline-block;
+            width: 180px;
+            margin: 0 0.5rem 0.5rem 0;
+            vertical-align: top;
+        }
+        .article-detail-content p:has(> img:only-child) img,
+        .article-detail-content figure:has(> img) img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+        /* Изображения внутри текста — обычный вид */
+        .article-detail-content p:not(:has(> img:only-child)) img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+    </style>
 {% endblock %}
 
 {% block extra_js %}
@@ -21,7 +44,7 @@
                 </h1>
 
                 <!-- Контент статьи -->
-                <div class="content-with-image-gallery text-gray-900 dark:text-white [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-4 [&_a]:text-blue-600 [&_a]:dark:text-blue-400 [&_a]:hover:underline [&_strong]:font-semibold [&_code]:bg-gray-100 [&_code]:dark:bg-neutral-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_pre]:bg-gray-100 [&_pre]:dark:bg-neutral-800 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-4 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_img]:mb-4 [&_img]:cursor-pointer [&_img]:transition-opacity [&_img]:duration-200 [&_img]:hover:opacity-90">
+                <div class="content-with-image-gallery article-detail-content text-gray-900 dark:text-white [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-4 [&_a]:text-blue-600 [&_a]:dark:text-blue-400 [&_a]:hover:underline [&_strong]:font-semibold [&_code]:bg-gray-100 [&_code]:dark:bg-neutral-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_pre]:bg-gray-100 [&_pre]:dark:bg-neutral-800 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-4 [&_img]:rounded-lg [&_img]:cursor-pointer [&_img]:transition-opacity [&_img]:duration-200 [&_img]:hover:opacity-90">
                     {{ article.content|safe }}
                 </div>
 

@@ -13,16 +13,19 @@ Licensed under the Apache License, Version 2.0
 
 from typing import Any
 
-from django.db.models import QuerySet
+from django.db.models import Count, Q, QuerySet
 from django.http import HttpRequest
 from django.views.generic import DetailView, ListView
 
-from blog.models import BlogArticle, BlogArticleView
+from django.shortcuts import get_object_or_404
+
+from blog.models import BlogArticle, BlogTag, BlogArticleView
 
 
 class BlogArticleList(ListView):  # type: ignore[type-arg]
     """
     Отображает список статей блога с разделением по страницам.
+    Поддерживает фильтрацию по тегу через URL blog/tag/<tag_slug>/.
     """
 
     model = BlogArticle
@@ -32,7 +35,20 @@ class BlogArticleList(ListView):  # type: ignore[type-arg]
     context_object_name = 'article_list'
 
     def get_queryset(self) -> QuerySet[BlogArticle]:
-        return super().get_queryset().prefetch_related('tags', 'city')
+        qs = super().get_queryset().prefetch_related('tags', 'city')
+        tag_slug = self.kwargs.get('tag_slug')
+
+        if tag_slug is not None:
+            qs = qs.filter(tags__slug=tag_slug)
+
+        if self.request.user.is_superuser:
+            qs = qs.annotate(
+                view_count_total=Count('views'),
+                view_count_auth=Count('views', filter=Q(views__user__isnull=False)),
+                view_count_guest=Count('views', filter=Q(views__user__isnull=True)),
+            )
+
+        return qs
 
     def get_context_data(
         self, *, object_list: QuerySet[BlogArticle] | None = None, **kwargs: Any
@@ -41,6 +57,15 @@ class BlogArticleList(ListView):  # type: ignore[type-arg]
         context['active_page'] = 'blog'
         context['page_title'] = 'Блог'
         context['page_description'] = 'Блог проекта «Мои города»'
+        tag_slug = self.kwargs.get('tag_slug')
+
+        if tag_slug is not None:
+            tag = get_object_or_404(BlogTag, slug=tag_slug)
+            context['filter_tag'] = tag
+            context['page_description'] = f'Статьи блога с тегом «{tag.name}»'
+
+        context['show_view_stats'] = self.request.user.is_superuser
+
         return context
 
 
@@ -71,11 +96,22 @@ class BlogArticleDetail(DetailView):  # type: ignore[type-arg]
         context['active_page'] = 'blog'
         context['page_title'] = self.object.title
         context['page_description'] = self.object.title
+        if self.request.user.is_superuser:
+            views_qs = self.object.views
+            context['show_view_stats'] = True
+            context['view_count_total'] = views_qs.count()
+            context['view_count_auth'] = views_qs.filter(user__isnull=False).count()
+            context['view_count_guest'] = views_qs.filter(user__isnull=True).count()
+        else:
+            context['show_view_stats'] = False
+
         return context
 
     def _get_client_ip(self, request: HttpRequest) -> str | None:
         """Извлекает IP-адрес клиента из запроса."""
         ip = request.META.get('REMOTE_ADDR')
+
         if ip:
             return ip
+
         return None

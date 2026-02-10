@@ -47,7 +47,7 @@ class BlogArticleListViewTests(TestCase):
             content='<p>text</p>',
             is_published=False,
         )
-        # два просмотра: один авторизованный, один гость
+        # два просмотра: суперюзер (не учитывается) и гость
         BlogArticleView.objects.create(article=article, user=admin, ip_address='1.1.1.1')
         BlogArticleView.objects.create(article=article, user=None, ip_address='2.2.2.2')
 
@@ -58,10 +58,10 @@ class BlogArticleListViewTests(TestCase):
         self.assertIn(article, articles)
         self.assertTrue(response.context['show_view_stats'])
 
-        # Аннотированные поля должны быть доступны
+        # Просмотры суперюзеров не учитываются
         obj = articles[0]
-        self.assertEqual(getattr(obj, 'view_count_total', None), 2)
-        self.assertEqual(getattr(obj, 'view_count_auth', None), 1)
+        self.assertEqual(getattr(obj, 'view_count_total', None), 1)
+        self.assertEqual(getattr(obj, 'view_count_auth', None), 0)
         self.assertEqual(getattr(obj, 'view_count_guest', None), 1)
 
     def test_filter_by_tag_and_context_filter_tag(self) -> None:
@@ -164,7 +164,7 @@ class BlogArticleDetailViewTests(TestCase):
             email='admin@example.com',
             password='secret',
         )
-        # Предварительно создаём два просмотра: один авторизованный, один гость
+        # Предварительно создаём два просмотра: суперюзер (не учитывается) и гость
         BlogArticleView.objects.create(
             article=self.article,
             user=admin,
@@ -181,12 +181,10 @@ class BlogArticleDetailViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['show_view_stats'])
 
-        # Внутри get_context_data при заходе администратора создаётся ещё один лог просмотра (auth)
-        self.assertEqual(BlogArticleView.objects.filter(article=self.article).count(), 3)
-        self.assertEqual(response.context['view_count_total'], 3)
-        self.assertEqual(
-            response.context['view_count_auth'], 2
-        )  # 1 предсозданный + 1 от текущего GET
+        # Просмотры суперюзеров не создаются и не учитываются
+        self.assertEqual(BlogArticleView.objects.filter(article=self.article).count(), 2)
+        self.assertEqual(response.context['view_count_total'], 1)
+        self.assertEqual(response.context['view_count_auth'], 0)
         self.assertEqual(response.context['view_count_guest'], 1)
 
     def test_get_queryset_filters_unpublished_for_non_superuser(self) -> None:

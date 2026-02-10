@@ -47,14 +47,15 @@ class BlogArticleAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     def get_queryset(self, request: HttpRequest) -> QuerySet[BlogArticle]:
         base_qs = super().get_queryset(request)
         qs: QuerySet[BlogArticle] = cast(QuerySet[BlogArticle], base_qs)
+        exclude_superuser = Q(views__user__is_superuser=False) | Q(views__user__isnull=True)
         return qs.annotate(
             _views_authenticated=Count(
                 'views',
-                filter=Q(views__user__isnull=False),
+                filter=exclude_superuser & Q(views__user__isnull=False),
             ),
             _views_guest=Count(
                 'views',
-                filter=Q(views__user__isnull=True),
+                filter=exclude_superuser & Q(views__user__isnull=True),
             ),
         )
 

@@ -46,10 +46,17 @@ class BlogArticleList(ListView):  # type: ignore[type-arg]
             qs = qs.filter(tags__slug=tag_slug)
 
         if self.request.user.is_superuser:
+            exclude_superuser = Q(views__user__is_superuser=False) | Q(views__user__isnull=True)
             qs = qs.annotate(
-                view_count_total=Count('views'),
-                view_count_auth=Count('views', filter=Q(views__user__isnull=False)),
-                view_count_guest=Count('views', filter=Q(views__user__isnull=True)),
+                view_count_total=Count('views', filter=exclude_superuser),
+                view_count_auth=Count(
+                    'views',
+                    filter=exclude_superuser & Q(views__user__isnull=False),
+                ),
+                view_count_guest=Count(
+                    'views',
+                    filter=exclude_superuser & Q(views__user__isnull=True),
+                ),
             )
 
         return qs
@@ -98,19 +105,20 @@ class BlogArticleDetail(DetailView):  # type: ignore[type-arg]
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        # Создаём запись о просмотре
-        ip_address = self._get_client_ip(self.request)
-        BlogArticleView.objects.create(
-            article=self.object,
-            user=self.request.user if self.request.user.is_authenticated else None,
-            ip_address=ip_address,
-        )
+        # Создаём запись о просмотре (просмотры суперюзеров не учитываются)
+        if not self.request.user.is_superuser:
+            ip_address = self._get_client_ip(self.request)
+            BlogArticleView.objects.create(
+                article=self.object,
+                user=self.request.user if self.request.user.is_authenticated else None,
+                ip_address=ip_address,
+            )
 
         context['active_page'] = 'blog'
         context['page_title'] = self.object.title
         context['page_description'] = self.object.title
         if self.request.user.is_superuser:
-            views_qs = self.object.views
+            views_qs = self.object.views.filter(Q(user__isnull=True) | Q(user__is_superuser=False))
             context['show_view_stats'] = True
             context['view_count_total'] = views_qs.count()
             context['view_count_auth'] = views_qs.filter(user__isnull=False).count()

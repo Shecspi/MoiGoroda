@@ -357,15 +357,31 @@ TINYMCE_DEFAULT_CONFIG = {
     'plugins': 'advlist autolink lists link image charmap anchor searchreplace visualblocks code '
     'fullscreen insertdatetime media table help wordcount',
     'toolbar': 'undo redo | blocks | bold italic | alignleft aligncenter alignright | '
-    'bullist numlist outdent indent | link image | removeformat | help',
-    'content_style': 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+    'bullist numlist outdent indent | link image | rtb_banner | removeformat | help',
+    'content_style': (
+        'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } '
+        '.ad-placeholder-rtb-banner { '
+        'display: block; min-height: 2.5em; margin: 1em 0; '
+        'background: #fff3cd; border: 1px dashed #856404; border-radius: 4px; '
+        'color: #856404; padding: 0.5em 0.75em; font-size: 13px; '
+        '} '
+        '.ad-placeholder-rtb-banner::before { '
+        'content: "Рекламный блок"; font-weight: 600; '
+        '}'
+    ),
     'images_upload_url': '/tinymce/upload-image/',
     'images_upload_handler': 'djangoTinyMCEImagesUploadHandler',
     'automatic_uploads': True,
+    'setup': 'djangoTinyMCESetupRtbBanner',
+    # Сохранять div-маркер рекламы (кнопка «Рекламный блок»)
+    'extended_valid_elements': 'div[class|data-ad]',
 }
 
 TINYMCE_EXTRA_MEDIA = {
-    'js': ['tinymce/js/tinymce_csrf_upload.js'],
+    'js': [
+        'tinymce/js/tinymce_csrf_upload.js',
+        'tinymce/js/tinymce_rtb_button.js',
+    ],
 }
 
 # Django Storage

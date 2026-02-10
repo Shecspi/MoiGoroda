@@ -20,6 +20,7 @@ django-storages = "^1.14.6"
 boto3 = "^1.42.44"
 django-markdownify = "^0.9.6"
 django-tinymce = "^5.0.0"
+django-ckeditor-5 = "^0.2.19"
 
 
 [tool.poetry.group.dev.dependencies]

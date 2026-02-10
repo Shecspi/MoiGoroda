@@ -290,8 +290,9 @@ class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
             **asdict(city_dto),
             'page_title': city_dto.page_title,
             'page_description': city_dto.page_description,
-            'city_blog_articles': BlogArticle.objects.filter(city_id=self.kwargs['pk'])
-            .order_by('-created_at'),
+            'city_blog_articles': BlogArticle.objects.filter(
+                city_id=self.kwargs['pk'], is_published=True
+            ).order_by('-created_at'),
         }
 
         return context

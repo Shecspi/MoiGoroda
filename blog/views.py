@@ -54,9 +54,7 @@ class BlogArticleList(ListView):  # type: ignore[type-arg]
 
         return qs
 
-    def get_context_data(
-        self, *, object_list: QuerySet[BlogArticle] | None = None, **kwargs: Any
-    ) -> dict[str, Any]:
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'blog'
         context['page_title'] = 'Блог о городах и достопримечательностях'
@@ -124,7 +122,7 @@ class BlogArticleDetail(DetailView):  # type: ignore[type-arg]
         """Извлекает IP-адрес клиента из запроса."""
         ip = request.META.get('REMOTE_ADDR')
 
-        if ip:
+        if isinstance(ip, str) and ip:
             return ip
 
         return None

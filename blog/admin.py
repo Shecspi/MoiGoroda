@@ -7,6 +7,8 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import cast
+
 from django.contrib import admin
 from django.db.models import Count, Q, QuerySet
 from django.http import HttpRequest
@@ -42,19 +44,17 @@ class BlogArticleAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     filter_horizontal = ('tags',)
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[BlogArticle]:
-        return (
-            super()
-            .get_queryset(request)
-            .annotate(
-                _views_authenticated=Count(
-                    'views',
-                    filter=Q(views__user__isnull=False),
-                ),
-                _views_guest=Count(
-                    'views',
-                    filter=Q(views__user__isnull=True),
-                ),
-            )
+        base_qs = super().get_queryset(request)
+        qs: QuerySet[BlogArticle] = cast(QuerySet[BlogArticle], base_qs)
+        return qs.annotate(
+            _views_authenticated=Count(
+                'views',
+                filter=Q(views__user__isnull=False),
+            ),
+            _views_guest=Count(
+                'views',
+                filter=Q(views__user__isnull=True),
+            ),
         )
 
     def get_views_authenticated(self, obj: BlogArticle) -> int:

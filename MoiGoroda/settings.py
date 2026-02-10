@@ -357,7 +357,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'plugins': 'advlist autolink lists link image charmap anchor searchreplace visualblocks code '
     'fullscreen insertdatetime media table help wordcount',
     'toolbar': 'undo redo | blocks | bold italic | alignleft aligncenter alignright | '
-    'bullist numlist outdent indent | link image | rtb_banner | removeformat | help',
+    'bullist numlist outdent indent | link image | rtb_banner_inside_article_1 rtb_banner_inside_article_2 rtb_banner_inside_article_3 | removeformat | help',
     'content_style': (
         'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } '
         '.ad-placeholder-rtb-banner { '
@@ -365,9 +365,10 @@ TINYMCE_DEFAULT_CONFIG = {
         'background: #fff3cd; border: 1px dashed #856404; border-radius: 4px; '
         'color: #856404; padding: 0.5em 0.75em; font-size: 13px; '
         '} '
-        '.ad-placeholder-rtb-banner::before { '
-        'content: "Рекламный блок"; font-weight: 600; '
-        '}'
+        '.ad-placeholder-rtb-banner[data-ad="rtb_banner_inside_article_1"]::before { content: "Рекламный блок 1"; font-weight: 600; } '
+        '.ad-placeholder-rtb-banner[data-ad="rtb_banner_inside_article_2"]::before { content: "Рекламный блок 2"; font-weight: 600; } '
+        '.ad-placeholder-rtb-banner[data-ad="rtb_banner_inside_article_3"]::before { content: "Рекламный блок 3"; font-weight: 600; } '
+        '.ad-placeholder-rtb-banner:not([data-ad])::before { content: "Рекламный блок"; font-weight: 600; }'
     ),
     'images_upload_url': '/tinymce/upload-image/',
     'images_upload_handler': 'djangoTinyMCEImagesUploadHandler',

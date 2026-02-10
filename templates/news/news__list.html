@@ -4,12 +4,6 @@
 {% block extra_css %}
     {{ block.super }}
     {% vite_css 'css/tailwind' %}
-    {% vite_css 'css/content_image_gallery' %}
-{% endblock %}
-
-{% block extra_js %}
-    {{ block.super }}
-    {% vite_asset 'js/entries/content_image_gallery.js' %}
 {% endblock %}
 
 {% block content %}
@@ -26,7 +20,7 @@
             {% for item in object_list %}
                 <div class="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="news_{{ item.id }}">
                     <!-- Контент новости -->
-                    <div class="content-with-image-gallery text-gray-900 dark:text-white [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-4 [&_a]:text-blue-600 [&_a]:dark:text-blue-400 [&_a]:hover:underline [&_strong]:font-semibold [&_code]:bg-gray-100 [&_code]:dark:bg-neutral-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_pre]:bg-gray-100 [&_pre]:dark:bg-neutral-800 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-4 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_img]:mb-4 [&_img]:cursor-pointer [&_img]:transition-opacity [&_img]:duration-200 [&_img]:hover:opacity-90">
+                    <div class="text-gray-900 dark:text-white [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-2 [&_h3]:mt-4 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-4 [&_a]:text-blue-600 [&_a]:dark:text-blue-400 [&_a]:hover:underline [&_strong]:font-semibold [&_code]:bg-gray-100 [&_code]:dark:bg-neutral-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_pre]:bg-gray-100 [&_pre]:dark:bg-neutral-800 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-4 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_img]:mb-4">
                         {{ item.content|safe }}
                     </div>
 

@@ -1,10 +1,12 @@
 # Generated manually
 
+from django.apps.registry import Apps
 from django.db import migrations, models
+from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 from django.utils.text import slugify
 
 
-def populate_slug(apps, schema_editor):  # noqa: ARG001
+def populate_slug(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
     BlogArticle = apps.get_model('blog', 'BlogArticle')
     for article in BlogArticle.objects.all():
         base = slugify(article.title, allow_unicode=True) or 'article'
@@ -18,7 +20,7 @@ def populate_slug(apps, schema_editor):  # noqa: ARG001
         article.save(update_fields=['slug'])
 
 
-def noop(apps, schema_editor):  # noqa: ARG001
+def noop(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
     pass
 
 

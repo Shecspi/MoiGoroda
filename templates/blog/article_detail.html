@@ -38,7 +38,7 @@
 
     <div class="mx-3 mb-8 flex justify-center">
         <div class="w-full max-w-4xl">
-            <article class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="article_{{ article.id }}">
+            <article class="rounded-xl border border-gray-200 bg-white px-6 pt-6 pb-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="article_{{ article.id }}">
                 <!-- Бейджи: город, теги -->
                 <div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-neutral-400">
                     {% if article.city %}
@@ -70,7 +70,7 @@
                     {{ article.content|safe }}
                 </div>
                 <footer class="mt-4 text-sm text-gray-600 dark:text-neutral-400">
-                    <div class="border-y border-gray-200 dark:border-neutral-700 py-3">
+                    <div class="border-t border-gray-200 dark:border-neutral-700 pt-3 pb-0">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 {% if show_view_stats %}

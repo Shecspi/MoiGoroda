@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE, SET_NULL
 from django.urls import reverse
+from django.utils.text import slugify
 from tinymce.models import HTMLField
 
 from city.models import City
@@ -33,6 +34,13 @@ class BlogTag(models.Model):
         blank=False,
         null=False,
     )
+    slug = models.SlugField(
+        max_length=60,
+        unique=True,
+        verbose_name='Слаг для URL',
+        blank=False,
+        null=False,
+    )
 
     class Meta:
         ordering = ['name']
@@ -41,6 +49,25 @@ class BlogTag(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def save(self, *args: object, **kwargs: object) -> None:
+        if not self.slug:
+            self.slug = self._generate_slug()
+        super().save(*args, **kwargs)
+
+    def _generate_slug(self) -> str:
+        base = slugify(self.name, allow_unicode=True) or 'tag'
+        base = base[:60].rstrip('-')
+        slug = base
+        suffix = 0
+        while True:
+            qs = BlogTag.objects.filter(slug=slug)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if not qs.exists():
+                return slug
+            suffix += 1
+            slug = f'{base}-{suffix}'[:60]
 
 
 class BlogArticle(models.Model):

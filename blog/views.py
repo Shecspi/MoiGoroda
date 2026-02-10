@@ -55,14 +55,18 @@ class BlogArticleList(ListView):  # type: ignore[type-arg]
     ) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'blog'
-        context['page_title'] = 'Блог'
-        context['page_description'] = 'Блог проекта «Мои города»'
+        context['page_title'] = 'Блог о городах и достопримечательностях'
+        context['page_description'] = (
+            'Статьи о городах и достопримечательностях проекта «Мои города»'
+        )
         tag_slug = self.kwargs.get('tag_slug')
 
         if tag_slug is not None:
             tag = get_object_or_404(BlogTag, slug=tag_slug)
             context['filter_tag'] = tag
-            context['page_description'] = f'Статьи блога с тегом «{tag.name}»'
+            context['page_description'] = (
+                f'Статьи о городах и достопримечательностях с тегом «{tag.name}»'
+            )
 
         context['show_view_stats'] = self.request.user.is_superuser
 

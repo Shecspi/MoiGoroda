@@ -18,8 +18,9 @@ from .models import BlogArticle, BlogArticleView, BlogTag
 class BlogTagAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     """Административная панель для модели BlogTag."""
 
-    list_display = ('name',)
-    search_fields = ('name',)
+    list_display = ('name', 'slug')
+    search_fields = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
 
 
 @admin.register(BlogArticle)

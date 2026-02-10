@@ -1,8 +1,9 @@
-from django.conf.urls.static import static
-from django.urls import path, include
-from django.contrib import admin
-
 from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import path, include
+
+from MoiGoroda.tinymce_views import upload_image
 from django.views.generic import TemplateView
 
 
@@ -15,6 +16,7 @@ urlpatterns = [
     path('place/', include('place.urls.views')),
     path('collection/', include('collection.urls.views')),
     path('news/', include('news.urls')),
+    path('blog/', include('blog.urls')),
     path('subscribe/', include('subscribe.urls')),
     path('share/', include('share.urls')),
     path('dashboard/', include('dashboard.urls.views')),
@@ -29,7 +31,8 @@ urlpatterns = [
     path('api/region/', include('region.urls.api')),
     path('api/collection/', include('collection.urls.api')),
     # Plugins
-    path('ckeditor5/', include('django_ckeditor_5.urls')),
+    path('tinymce/upload-image/', upload_image, name='tinymce-upload-image'),
+    path('tinymce/', include('tinymce.urls')),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

@@ -18,6 +18,11 @@
         <h1 class="flex items-end justify-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
             Блог о городах
         </h1>
+
+        {% if not DEBUG %}
+            {% include 'advertisement/rtb_banner.html' %}
+        {% endif %}
+
         <nav aria-label="Хлебные крошки" class="flex justify-center mt-6">
             <ol class="flex flex-wrap items-center justify-center whitespace-nowrap py-2 border-y border-gray-200 dark:border-neutral-700 text-sm">
                 {% if filter_tag %}
@@ -166,4 +171,13 @@
     <!-- Пагинация -->
     {% include 'parts/pagination.html' %}
     <!-- ^^^ Пагинация -->
+
+    {% if not DEBUG %}
+        {% include 'advertisement/rtb_feed.html' %}
+
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_ad_mobile.html' %}
+            {% include 'advertisement/rtb_floor_ad_desktop.html' %}
+        {% endif %}
+    {% endif %}
 {% endblock %}

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import cast
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser, User
 from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
 
 from blog.models import BlogArticle, BlogArticleView, BlogTag
-from blog.views import BlogArticleDetail, BlogArticleList
+from blog.views import BlogArticleDetail
 
 
 class BlogArticleListViewTests(TestCase):
@@ -201,10 +201,10 @@ class BlogArticleDetailViewTests(TestCase):
         class DummyUser:
             is_superuser = False
 
-        request.user = DummyUser()  # type: ignore[assignment]
+        request.user = cast(User | AnonymousUser, DummyUser())
 
         view = BlogArticleDetail()
-        view.request = request  # type: ignore[assignment]
+        view.request = request
         qs = view.get_queryset()
         self.assertIn(self.article, qs)
         self.assertNotIn(other_article, qs)
@@ -221,10 +221,10 @@ class BlogArticleDetailViewTests(TestCase):
         class DummySuperUser:
             is_superuser = True
 
-        request.user = DummySuperUser()  # type: ignore[assignment]
+        request.user = cast(User | AnonymousUser, DummySuperUser())
 
         view = BlogArticleDetail()
-        view.request = request  # type: ignore[assignment]
+        view.request = request
         qs = view.get_queryset()
         self.assertIn(self.article, qs)
         self.assertIn(other_article, qs)

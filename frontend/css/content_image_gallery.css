@@ -9,6 +9,8 @@
     width: 100%;
     margin-bottom: 1rem;
     text-align: center;
+    /* Убираем тень с контейнеров, чтобы она была только у самого изображения */
+    box-shadow: none !important;
 }
 
 .content-with-image-gallery img {

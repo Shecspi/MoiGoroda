@@ -9,6 +9,7 @@
 """
 
 import re
+from typing import Any, cast
 
 from django import template
 from django.template import loader
@@ -45,7 +46,9 @@ def content_with_ads(context: template.Context, html_content: str, ad_template_n
         return mark_safe(html_content)
 
     parts = normalized.split(PLACEHOLDER_COMMENT)
-    ad_html = loader.get_template(ad_template_name).render(context.flatten())
+    ad_html = loader.get_template(ad_template_name).render(
+        cast(dict[str, Any] | None, context.flatten())
+    )
     # Обёртка с вертикальными отступами, чтобы сверху и снизу от рекламы был одинаковый зазор
     ad_wrapped = f'<div class="ad-insert-in-content" style="margin: 1rem 0;">{ad_html}</div>'
 

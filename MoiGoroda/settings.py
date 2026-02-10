@@ -360,7 +360,12 @@ TINYMCE_DEFAULT_CONFIG = {
     'bullist numlist outdent indent | link image | removeformat | help',
     'content_style': 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
     'images_upload_url': '/tinymce/upload-image/',
+    'images_upload_handler': 'djangoTinyMCEImagesUploadHandler',
     'automatic_uploads': True,
+}
+
+TINYMCE_EXTRA_MEDIA = {
+    'js': ['tinymce/js/tinymce_csrf_upload.js'],
 }
 
 # Django Storage

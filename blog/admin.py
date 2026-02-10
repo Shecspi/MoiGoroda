@@ -30,12 +30,13 @@ class BlogArticleAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = (
         'title',
         'city',
+        'is_published',
         'created_at',
         'get_views_authenticated',
         'get_views_guest',
         'get_views_total',
     )
-    list_filter = ('city', 'tags', 'created_at')
+    list_filter = ('is_published', 'city', 'tags', 'created_at')
     search_fields = ('title', 'content')
     autocomplete_fields = ('city',)
     filter_horizontal = ('tags',)

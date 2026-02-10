@@ -104,6 +104,10 @@ class BlogArticle(models.Model):
         auto_now=True,
         verbose_name='Дата изменения',
     )
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name='Опубликована',
+    )
 
     class Meta:
         ordering = ['-created_at']

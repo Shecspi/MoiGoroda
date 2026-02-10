@@ -36,6 +36,10 @@ class BlogArticleList(ListView):  # type: ignore[type-arg]
 
     def get_queryset(self) -> QuerySet[BlogArticle]:
         qs = super().get_queryset().prefetch_related('tags', 'city')
+
+        if not self.request.user.is_superuser:
+            qs = qs.filter(is_published=True)
+
         tag_slug = self.kwargs.get('tag_slug')
 
         if tag_slug is not None:
@@ -84,7 +88,12 @@ class BlogArticleDetail(DetailView):  # type: ignore[type-arg]
     context_object_name = 'article'
 
     def get_queryset(self) -> QuerySet[BlogArticle]:
-        return super().get_queryset().prefetch_related('tags').select_related('city')
+        qs = super().get_queryset().prefetch_related('tags').select_related('city')
+
+        if not self.request.user.is_superuser:
+            qs = qs.filter(is_published=True)
+
+        return qs
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)

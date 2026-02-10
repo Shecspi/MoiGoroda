@@ -15,7 +15,10 @@
 {% block content %}
     <!-- Заголовок и хлебные крошки -->
     <header class="mx-3 mt-10 mb-6" id="block-page_header">
-        <h1 class="flex items-end justify-center text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+        <h1 class="flex flex-wrap items-center justify-center gap-2 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            {% if not article.is_published %}
+                <span class="inline-flex items-center gap-1 rounded-full border border-red-300 bg-red-100 px-3 py-1 text-sm font-medium text-red-800 dark:border-red-500/40 dark:bg-red-500/20 dark:text-red-300">Черновик</span>
+            {% endif %}
             {{ article.title }}
         </h1>
         <nav aria-label="Хлебные крошки" class="flex justify-center mt-6">

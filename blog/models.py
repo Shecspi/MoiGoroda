@@ -12,12 +12,14 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from typing import Any
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE, SET_NULL
 from django.urls import reverse
 from django.utils.text import slugify
-from tinymce.models import HTMLField
+from tinymce.models import HTMLField  # type: ignore[import-untyped]
 
 from city.models import City
 
@@ -50,7 +52,7 @@ class BlogTag(models.Model):
     def __str__(self) -> str:
         return self.name
 
-    def save(self, *args: object, **kwargs: object) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.slug:
             self.slug = self._generate_slug()
         super().save(*args, **kwargs)

@@ -18,6 +18,8 @@
     object-fit: contain;
     display: block;
     margin: 1rem auto 0.5rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+    border-radius: 0.75rem;
 }
 
 .content-with-image-gallery .content-image-caption {
@@ -32,4 +34,9 @@
 
 .dark .content-with-image-gallery .content-image-caption {
     --caption-color: #9ca3af;
+}
+
+/* В полноэкранной галерее показываем только изображение, без подписи */
+.glightbox-container .gdesc {
+    display: none !important;
 }

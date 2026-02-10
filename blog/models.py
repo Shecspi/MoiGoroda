@@ -83,6 +83,13 @@ class BlogArticle(models.Model):
         blank=False,
         null=False,
     )
+    slug = models.SlugField(
+        max_length=256,
+        unique=True,
+        verbose_name='Слаг для URL',
+        blank=False,
+        null=False,
+    )
     content = HTMLField(verbose_name='Содержание', blank=False, null=False)
     city = models.ForeignKey(
         City,
@@ -119,8 +126,32 @@ class BlogArticle(models.Model):
     def __str__(self) -> str:
         return self.title
 
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        if not self.slug:
+            self.slug = self._generate_slug()
+
+        super().save(*args, **kwargs)
+
+    def _generate_slug(self) -> str:
+        base = slugify(self.title, allow_unicode=True) or 'article'
+        base = base[:256].rstrip('-')
+        slug = base
+        suffix = 0
+
+        while True:
+            qs = BlogArticle.objects.filter(slug=slug)
+
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+
+            if not qs.exists():
+                return slug
+
+            suffix += 1
+            slug = f'{base}-{suffix}'[:256]
+
     def get_absolute_url(self) -> str:
-        return reverse('blog-article-detail', kwargs={'pk': self.pk})
+        return reverse('blog-article-detail', kwargs={'slug': self.slug})
 
 
 class BlogArticleView(models.Model):

@@ -42,6 +42,7 @@ class BlogArticleAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     search_fields = ('title', 'content')
     autocomplete_fields = ('city',)
     filter_horizontal = ('tags',)
+    prepopulated_fields = {'slug': ('title',)}
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[BlogArticle]:
         base_qs = super().get_queryset(request)

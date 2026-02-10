@@ -46,7 +46,7 @@ class BlogArticleModelTests(TestCase):
             content='<p>Контент</p>',
             is_published=True,
         )
-        expected = reverse('blog-article-detail', kwargs={'pk': article.pk})
+        expected = reverse('blog-article-detail', kwargs={'slug': article.slug})
         self.assertEqual(article.get_absolute_url(), expected)
 
 

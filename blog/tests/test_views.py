@@ -110,7 +110,7 @@ class BlogArticleDetailViewTests(TestCase):
             content='<p>text</p>',
             is_published=True,
         )
-        self.detail_url = reverse('blog-article-detail', kwargs={'pk': self.article.pk})
+        self.detail_url = reverse('blog-article-detail', kwargs={'slug': self.article.slug})
 
     def test_unpublished_article_not_visible_for_anonymous(self) -> None:
         self.article.is_published = False

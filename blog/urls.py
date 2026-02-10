@@ -13,5 +13,5 @@ from . import views
 urlpatterns = [
     path('', views.BlogArticleList.as_view(), name='blog-list'),
     path('tag/<slug:tag_slug>/', views.BlogArticleList.as_view(), name='blog-list-by-tag'),
-    path('<int:pk>/', views.BlogArticleDetail.as_view(), name='blog-article-detail'),
+    path('<str:slug>/', views.BlogArticleDetail.as_view(), name='blog-article-detail'),
 ]

@@ -84,6 +84,8 @@ class BlogArticleDetail(DetailView):  # type: ignore[type-arg]
     model = BlogArticle
     template_name = 'blog/article_detail.html'
     context_object_name = 'article'
+    slug_url_kwarg = 'slug'
+    slug_field = 'slug'
 
     def get_queryset(self) -> QuerySet[BlogArticle]:
         qs = super().get_queryset().prefetch_related('tags').select_related('city')

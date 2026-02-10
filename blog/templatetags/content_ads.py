@@ -1,11 +1,11 @@
 """
 Тег для вывода HTML-контента с подстановкой рекламных блоков в места маркеров.
 
-Поддерживаются два варианта маркера (TinyMCE при сохранении вырезает комментарии):
-  - <!-- rtb_banner --> (если вставлен вручную в исходном коде)
-  - <div class="ad-placeholder-rtb-banner" data-ad="rtb_banner"></div> (кнопка в редакторе)
+Поддерживаются:
+  - <!-- rtb_banner --> (ручная вставка в исходном коде)
+  - <div class="ad-placeholder-rtb-banner" data-ad="..."></div> (кнопки в редакторе)
 
-При рендере каждый маркер заменяется на вывод указанного шаблона.
+Каждый маркер заменяется на вывод соответствующего шаблона (см. AD_TEMPLATE_MAP).
 """
 
 import re
@@ -17,43 +17,55 @@ from django.utils.safestring import mark_safe
 
 register = template.Library()
 
-# Комментарий (для ручной вставки в исходном коде)
-PLACEHOLDER_COMMENT = '<!-- rtb_banner -->'
-# Регулярка для div, вставляемого кнопкой (атрибуты и пробелы могут отличаться)
-PLACEHOLDER_DIV_PATTERN = re.compile(
-    r'<div\s+[^>]*class="[^"]*ad-placeholder-rtb-banner[^"]*"[^>]*data-ad="rtb_banner"[^>]*>\s*</div>'
-    r'|<div\s+[^>]*data-ad="rtb_banner"[^>]*class="[^"]*ad-placeholder-rtb-banner[^"]*"[^>]*>\s*</div>',
+# data-ad -> шаблон (None = использовать default_template из вызова тега)
+AD_TEMPLATE_MAP: dict[str, str | None] = {
+    'rtb_banner': None,  # default
+    'rtb_banner_inside_article_1': 'advertisement/rtb_banner inside_article_1.html',
+    'rtb_banner_inside_article_2': 'advertisement/rtb_banner inside_article_2.html',
+    'rtb_banner_inside_article_3': 'advertisement/rtb_banner inside_article_3.html',
+}
+
+# Регулярка: комментарий или div с data-ad (захватываем значение data-ad)
+PLACEHOLDER_PATTERN = re.compile(
+    r'<!--\s*rtb_banner\s*-->'
+    r'|'
+    r'<div\s+[^>]*class="[^"]*ad-placeholder-rtb-banner[^"]*"[^>]*data-ad="([^"]+)"[^>]*>\s*</div>'
+    r'|'
+    r'<div\s+[^>]*data-ad="([^"]+)"[^>]*class="[^"]*ad-placeholder-rtb-banner[^"]*"[^>]*>\s*</div>',
     re.IGNORECASE,
 )
 
 
-def _normalize_placeholders(html_content: str) -> str:
-    """Заменяет div-маркеры на комментарий, чтобы дальше обрабатывать единообразно."""
-    return PLACEHOLDER_DIV_PATTERN.sub(PLACEHOLDER_COMMENT, html_content)
+def _get_template_name(ad_type: str, default_template: str) -> str:
+    """Возвращает имя шаблона для типа рекламы."""
+    tpl = AD_TEMPLATE_MAP.get(ad_type, None)
+    return default_template if tpl is None else tpl
 
 
 @register.simple_tag(takes_context=True)
 def content_with_ads(context: template.Context, html_content: str, ad_template_name: str) -> str:
     """
-    Разбивает html_content по маркерам рекламы и между частями вставляет
-    рендер шаблона ad_template_name. Поддерживаются комментарий и div с data-ad.
+    Разбивает html_content по маркерам рекламы и вставляет рендер соответствующего
+    шаблона. ad_template_name — шаблон по умолчанию для rtb_banner.
     """
     if not html_content:
         return mark_safe(html_content)
 
-    normalized = _normalize_placeholders(html_content)
-    if PLACEHOLDER_COMMENT not in normalized:
+    flat_context = cast(dict[str, Any] | None, context.flatten())
+
+    def replace_placeholder(match: re.Match[str]) -> str:
+        # Комментарий <!-- rtb_banner -->: группа 0 — вся строка, групп 1 и 2 нет
+        if match.group(0).strip().startswith('<!--'):
+            ad_type = 'rtb_banner'
+        else:
+            ad_type = (match.group(1) or match.group(2) or 'rtb_banner').strip()
+
+        tpl_name = _get_template_name(ad_type, ad_template_name)
+        ad_html = loader.get_template(tpl_name).render(flat_context)
+        return f'<div class="ad-insert-in-content" style="margin: 1rem 0;">{ad_html}</div>'
+
+    if not PLACEHOLDER_PATTERN.search(html_content):
         return mark_safe(html_content)
 
-    parts = normalized.split(PLACEHOLDER_COMMENT)
-    ad_html = loader.get_template(ad_template_name).render(
-        cast(dict[str, Any] | None, context.flatten())
-    )
-    # Обёртка с вертикальными отступами, чтобы сверху и снизу от рекламы был одинаковый зазор
-    ad_wrapped = f'<div class="ad-insert-in-content" style="margin: 1rem 0;">{ad_html}</div>'
-
-    result = parts[0]
-    for part in parts[1:]:
-        result += ad_wrapped + part
-
+    result = PLACEHOLDER_PATTERN.sub(replace_placeholder, html_content)
     return mark_safe(result)

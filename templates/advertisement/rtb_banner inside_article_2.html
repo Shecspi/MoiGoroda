@@ -1,0 +1,16 @@
+{% load excluded_users %}
+
+{% get_excluded_users as excluded_users %}
+
+{% if user.id not in excluded_users %}
+    <!-- Yandex.RTB R-A-8433502-11 -->
+    <div id="yandex_rtb_R-A-8433502-11"></div>
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-8433502-11",
+            "renderTo": "yandex_rtb_R-A-8433502-11"
+        })
+    })
+    </script>
+{% endif %}

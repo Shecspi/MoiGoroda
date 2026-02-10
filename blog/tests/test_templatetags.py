@@ -56,6 +56,30 @@ class ContentWithAdsTagTests(TestCase):
         self.assertNotIn('ad-placeholder-rtb-banner', rendered)
 
     @patch('blog.templatetags.content_ads.loader.get_template')
+    def test_inserts_correct_template_for_inside_article_placeholder(
+        self, mock_get_template: Mock
+    ) -> None:
+        mock_tpl1 = Mock()
+        mock_tpl1.render.return_value = '[AD_INSIDE_1]'
+        mock_tpl2 = Mock()
+        mock_tpl2.render.return_value = '[AD_INSIDE_2]'
+        mock_get_template.side_effect = lambda name: mock_tpl1 if '1' in name else mock_tpl2
+
+        html = (
+            '<p>До</p>'
+            '<div class="ad-placeholder-rtb-banner" data-ad="rtb_banner_inside_article_1"></div>'
+            '<p>Между</p>'
+            '<div class="ad-placeholder-rtb-banner" data-ad="rtb_banner_inside_article_2"></div>'
+            '<p>После</p>'
+        )
+        result = content_ads.content_with_ads(self.context, html, 'advertisement/rtb_banner.html')
+        rendered = str(result)
+
+        self.assertIn('[AD_INSIDE_1]', rendered)
+        self.assertIn('[AD_INSIDE_2]', rendered)
+        self.assertNotIn('ad-placeholder-rtb-banner', rendered)
+
+    @patch('blog.templatetags.content_ads.loader.get_template')
     def test_multiple_placeholders_insert_multiple_ads(self, mock_get_template: Mock) -> None:
         mock_tpl = Mock()
         mock_tpl.render.return_value = '[AD]'

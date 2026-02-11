@@ -10,6 +10,7 @@ alwaysApply: false
 
 -   Приоритетно использовать **pytest**, не использовать **unittest** (насколько это возможно).
 -   Использовать фикстуры pytest вместо setUp/tearDown.
+-   Тесты размещать в **функциях**, не в классах.
 
 ## Структура тестов
 
@@ -55,5 +56,10 @@ def test_something():
 # unittest вместо pytest
 class TestSomething(unittest.TestCase):
     def setUp(self):
+        ...
+
+# Класс с тестами — не использовать, писать функции
+class TestSomething:
+    def test_foo(self):
         ...
 ```

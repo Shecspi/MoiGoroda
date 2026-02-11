@@ -1,0 +1,65 @@
+---
+description: Правила написания тестов — pytest, типы тестов, маркеры
+globs: "**/tests/**/*.py,**/test_*.py"
+alwaysApply: false
+---
+
+# Правила написания тестов
+
+## Фреймворк
+
+-   Приоритетно использовать **pytest**, не использовать **unittest** (насколько это возможно).
+-   Использовать фикстуры pytest вместо setUp/tearDown.
+-   Тесты размещать в **функциях**, не в классах.
+
+## Структура тестов
+
+Тесты должны быть чётко разделены по типам, каждый тип — в своей папке:
+
+| Тип теста   | Папка                     | Декоратор                  |
+| ----------- | ------------------------- | -------------------------- |
+| unit        | `tests/unit/`             | `@pytest.mark.unit`        |
+| integration | `tests/integration/`      | `@pytest.mark.integration` |
+| e2e         | `tests/e2e/`              | `@pytest.mark.e2e`         |
+| slow        | `tests/slow/` или в любом | `@pytest.mark.slow`        |
+
+**Обязательно** помечать каждый тест соответствующим декоратором.
+
+## Покрытие и corner cases
+
+-   Тесты должны проверять **максимум возможного**.
+-   Включать различные **corner cases**: пустые значения, граничные значения, невалидный ввод, None, пустые коллекции и т.п.
+-   Покрывать как «happy path», так и сценарии ошибок.
+
+## Примеры
+
+**✅ Правильно:**
+
+```python
+@pytest.mark.unit
+def test_normalize_name_handles_empty_string():
+    assert normalize_name("") == ""
+
+@pytest.mark.integration
+def test_create_city_with_db(db):
+    city = create_city(name="Test")
+    assert City.objects.filter(name="Test").exists()
+```
+
+**❌ Неправильно:**
+
+```python
+# Без декоратора
+def test_something():
+    ...
+
+# unittest вместо pytest
+class TestSomething(unittest.TestCase):
+    def setUp(self):
+        ...
+
+# Класс с тестами — не использовать, писать функции
+class TestSomething:
+    def test_foo(self):
+        ...
+```

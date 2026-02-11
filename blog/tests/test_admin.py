@@ -17,6 +17,7 @@ class BlogArticleAdminTests(TestCase):
         article = BlogArticle.objects.create(
             title='Админская статья',
             content='<p>text</p>',
+            meta_description='Описание админской статьи',
             is_published=True,
         )
         # два просмотра: один авторизованный, один гость

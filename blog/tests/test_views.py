@@ -19,11 +19,13 @@ class BlogArticleListViewTests(TestCase):
         published = BlogArticle.objects.create(
             title='Опубликовано',
             content='<p>text</p>',
+            meta_description='Описание опубликованной статьи',
             is_published=True,
         )
         BlogArticle.objects.create(
             title='Черновик',
             content='<p>text</p>',
+            meta_description='Описание черновика',
             is_published=False,
         )
 
@@ -45,6 +47,7 @@ class BlogArticleListViewTests(TestCase):
         article = BlogArticle.objects.create(
             title='Статья для статистики',
             content='<p>text</p>',
+            meta_description='Описание статьи для статистики',
             is_published=False,
         )
         # два просмотра: суперюзер (не учитывается) и гость
@@ -69,6 +72,7 @@ class BlogArticleListViewTests(TestCase):
         article_with_tag = BlogArticle.objects.create(
             title='С тегом',
             content='<p>text</p>',
+            meta_description='Описание статьи с тегом',
             is_published=True,
         )
         article_with_tag.tags.add(tag)
@@ -76,6 +80,7 @@ class BlogArticleListViewTests(TestCase):
         BlogArticle.objects.create(
             title='Без тега',
             content='<p>text</p>',
+            meta_description='Описание статьи без тега',
             is_published=True,
         )
 
@@ -92,6 +97,7 @@ class BlogArticleListViewTests(TestCase):
             BlogArticle.objects.create(
                 title=f'Article {i}',
                 content='<p>text</p>',
+                meta_description=f'Описание статьи {i}',
                 is_published=True,
             )
 
@@ -108,6 +114,7 @@ class BlogArticleDetailViewTests(TestCase):
         self.article = BlogArticle.objects.create(
             title='Детальная статья',
             content='<p>text</p>',
+            meta_description='Описание детальной статьи',
             is_published=True,
         )
         self.detail_url = reverse('blog-article-detail', kwargs={'slug': self.article.slug})
@@ -154,7 +161,7 @@ class BlogArticleDetailViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['active_page'], 'blog')
         self.assertEqual(response.context['page_title'], self.article.title)
-        self.assertEqual(response.context['page_description'], self.article.title)
+        self.assertEqual(response.context['page_description'], self.article.meta_description)
         self.assertFalse(response.context['show_view_stats'])
         self.assertNotIn('view_count_total', response.context)
 
@@ -192,6 +199,7 @@ class BlogArticleDetailViewTests(TestCase):
         other_article = BlogArticle.objects.create(
             title='Черновик',
             content='<p>draft</p>',
+            meta_description='Описание черновика',
             is_published=False,
         )
         request = factory.get(self.detail_url)
@@ -212,6 +220,7 @@ class BlogArticleDetailViewTests(TestCase):
         other_article = BlogArticle.objects.create(
             title='Черновик',
             content='<p>draft</p>',
+            meta_description='Описание черновика',
             is_published=False,
         )
         request = factory.get(self.detail_url)

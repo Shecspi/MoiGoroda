@@ -116,7 +116,7 @@ class BlogArticleDetail(DetailView):  # type: ignore[type-arg]
 
         context['active_page'] = 'blog'
         context['page_title'] = self.object.title
-        context['page_description'] = self.object.title
+        context['page_description'] = self.object.meta_description
         if self.request.user.is_superuser:
             views_qs = self.object.views.filter(Q(user__isnull=True) | Q(user__is_superuser=False))
             context['show_view_stats'] = True

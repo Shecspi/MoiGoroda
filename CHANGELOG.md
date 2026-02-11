@@ -47,6 +47,8 @@
 
 - *(place-collection)* Исправлено вылезание выпадающего списка за пределы экрана на маленьких устройствах ([1026521](https://github.com/Shecspi/MoiGoroda/commit/1026521eb1a70230e920032f3b0f0533fc660c8b))
 
+- *(notification)* Активирован сигнал уведомления подписчиков при добавлении города ([8f30c08](https://github.com/Shecspi/MoiGoroda/commit/8f30c08e3843a0a753e65a48aca3f5142ef8cb77))
+
 
 #### Изменено
 

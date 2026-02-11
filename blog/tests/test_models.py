@@ -36,6 +36,7 @@ class BlogArticleModelTests(TestCase):
         article = BlogArticle.objects.create(
             title='Тестовая статья',
             content='<p>Контент</p>',
+            meta_description='Описание тестовой статьи',
             is_published=True,
         )
         self.assertEqual(str(article), 'Тестовая статья')
@@ -44,6 +45,7 @@ class BlogArticleModelTests(TestCase):
         article = BlogArticle.objects.create(
             title='URL статья',
             content='<p>Контент</p>',
+            meta_description='Описание URL статьи',
             is_published=True,
         )
         expected = reverse('blog-article-detail', kwargs={'slug': article.slug})
@@ -56,6 +58,7 @@ class BlogArticleViewModelTests(TestCase):
         self.article = BlogArticle.objects.create(
             title='Просматриваемая статья',
             content='<p>Текст</p>',
+            meta_description='Описание просматриваемой статьи',
             is_published=True,
         )
 

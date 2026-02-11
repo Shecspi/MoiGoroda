@@ -91,6 +91,13 @@ class BlogArticle(models.Model):
         null=False,
     )
     content = HTMLField(verbose_name='Содержание', blank=False, null=False)
+    meta_description = models.CharField(
+        max_length=160,
+        verbose_name='Описание для meta description',
+        blank=False,
+        null=False,
+        help_text='Текст для мета-тега description на странице статьи (рекомендуется до 160 символов)',
+    )
     city = models.ForeignKey(
         City,
         on_delete=SET_NULL,

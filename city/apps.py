@@ -16,4 +16,4 @@ class CityConfig(AppConfig):
     verbose_name = 'Города'
 
     def ready(self) -> None:
-        pass
+        import city.signals  # noqa: F401 — регистрация обработчиков сигналов

@@ -92,7 +92,7 @@ class BlogArticle(models.Model):
     )
     content = HTMLField(verbose_name='Содержание', blank=False, null=False)
     meta_description = models.CharField(
-        max_length=160,
+        max_length=256,
         verbose_name='Описание для meta description',
         blank=False,
         null=False,

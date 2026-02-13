@@ -129,10 +129,16 @@ class BlogArticleDetail(DetailView):  # type: ignore[type-arg]
         return context
 
     def _get_client_ip(self, request: HttpRequest) -> str | None:
-        """Извлекает IP-адрес клиента из запроса."""
-        ip = request.META.get('REMOTE_ADDR')
-
-        if isinstance(ip, str) and ip:
-            return ip
-
+        """
+        Извлекает IP-адрес клиента из запроса.
+        Учитывает X-Forwarded-For (первый адрес — клиент) для работы за обратным прокси.
+        """
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if isinstance(x_forwarded_for, str) and x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0].strip()
+            if ip:
+                return ip
+        remote_addr: str | None = request.META.get('REMOTE_ADDR')
+        if isinstance(remote_addr, str) and remote_addr:
+            return remote_addr
         return None

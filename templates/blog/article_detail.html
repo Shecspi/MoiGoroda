@@ -13,6 +13,12 @@
     {% vite_asset 'js/entries/content_image_gallery.js' %}
 {% endblock %}
 
+{% if not DEBUG %}
+    {% if not user.is_authenticated %}
+        {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+    {% endif %}
+{% endif %}
+
 {% block content %}
     <!-- Заголовок и хлебные крошки -->
     <header class="mx-3 mt-10 mb-6" id="block-page_header">

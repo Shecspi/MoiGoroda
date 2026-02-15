@@ -51,6 +51,8 @@
 
 - *(notification)* Активирован сигнал уведомления подписчиков при добавлении города ([8f30c08](https://github.com/Shecspi/MoiGoroda/commit/8f30c08e3843a0a753e65a48aca3f5142ef8cb77))
 
+- *(city)* Улучшена вёрстка модальных окон карты и статистики города ([b9c8f3d](https://github.com/Shecspi/MoiGoroda/commit/b9c8f3dbae4bbd823f3c067b75d122832560b596))
+
 
 #### Изменено
 

@@ -13,13 +13,12 @@
     {% vite_asset 'js/entries/content_image_gallery.js' %}
 {% endblock %}
 
-{% if not DEBUG %}
-    {% if not user.is_authenticated %}
-        {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
-    {% endif %}
-{% endif %}
-
 {% block content %}
+    {% if not DEBUG %}
+        {% if not user.is_authenticated %}
+            {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
+        {% endif %}
+    {% endif %}
     <!-- Заголовок и хлебные крошки -->
     <header class="mx-3 mt-10 mb-6" id="block-page_header">
         <h1 class="mb-6 flex flex-wrap items-center justify-center gap-2 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">

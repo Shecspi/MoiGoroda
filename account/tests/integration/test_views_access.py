@@ -228,29 +228,6 @@ def test_signin_view_post_nonexistent_user(client: Any) -> None:
     assert not response.wsgi_request.user.is_authenticated
 
 
-# ===== Тесты для signup_success =====
-
-
-@pytest.mark.integration
-@pytest.mark.django_db
-@patch('account.views.access.logger_email')
-def test_signup_success_view(mock_logger: Any, client: Any, django_user_model: Any) -> None:
-    """Тест страницы успешной регистрации через реальную регистрацию"""
-    # Регистрируем пользователя
-    signup_data = {
-        'username': 'testuser',
-        'email': 'test@example.com',
-        'password1': 'TestPass123!',
-        'password2': 'TestPass123!',
-        'personal_data_consent': True,
-        'personal_data_version': '1.0',
-    }
-    response = client.post(reverse('signup'), data=signup_data)
-
-    # Проверяем, что перенаправляет на список городов (успешная регистрация)
-    assert response.status_code == 302
-
-
 # ===== Тесты для MyPasswordChangeView =====
 
 

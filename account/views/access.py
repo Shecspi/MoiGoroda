@@ -12,11 +12,10 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from django.urls import reverse_lazy
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.views.generic import CreateView
 from django.contrib.auth.views import LoginView, PasswordResetDoneView, PasswordChangeView
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
@@ -36,7 +35,6 @@ class SignUp(CreateView):  # type: ignore[type-arg]
     """
 
     form_class = SignUpForm
-    success_url = reverse_lazy('signup_success')
     template_name = 'account/auth/signup.html'
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
@@ -112,10 +110,6 @@ class SignIn(LoginView):
         )
 
         return context
-
-
-def signup_success(request: HttpRequest) -> HttpResponse:
-    return render(request, 'account/auth/signup_success.html')
 
 
 class MyPasswordChangeView(PasswordChangeView):

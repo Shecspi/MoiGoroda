@@ -53,6 +53,8 @@
 
 - *(city)* Улучшена вёрстка модальных окон карты и статистики города ([b9c8f3d](https://github.com/Shecspi/MoiGoroda/commit/b9c8f3dbae4bbd823f3c067b75d122832560b596))
 
+- Удалена неиспользуемая страница signup_success ([be81e50](https://github.com/Shecspi/MoiGoroda/commit/be81e50797419cfb7ad9e1f64e8ed76d233e2953))
+
 
 #### Изменено
 

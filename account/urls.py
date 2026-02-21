@@ -17,7 +17,6 @@ from .views.access import MyPasswordResetDoneView, MyPasswordChangeView
 urlpatterns = [
     path('signin/', access.SignIn.as_view(), name='signin'),
     path('signup/', access.SignUp.as_view(), name='signup'),
-    path('signup/success/', access.signup_success, name='signup_success'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('profile/', profile.Profile.as_view(), name='profile'),
     # -----  Сброс пароля  ----- #

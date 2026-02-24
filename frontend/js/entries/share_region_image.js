@@ -24,6 +24,7 @@ const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 520;
 const PADDING = 48;
 const CAPTION_HEIGHT = 56;
+const CAPTION_PADDING = 12;
 
 // Цвета как на карте региона
 const FILL_COLOR = 'rgba(99, 130, 255, 0.12)';
@@ -191,21 +192,101 @@ function renderToCanvas(geoJson) {
         ctx.stroke();
     }
 
-    // Подпись сверху
     const caption = `Поздравляем! Вы посетили ${numVisited} из ${numCities} городов региона ${regionName}`;
+    const captionOptions = getCaptionOptions();
+    drawCaption(ctx, caption, captionOptions);
+
+    return canvas;
+}
+
+function getCaptionOptions() {
+    const positionEl = document.querySelector('input[name="caption-position"]:checked');
+    const alignEl = document.querySelector('input[name="caption-align"]:checked');
+    return {
+        position: (positionEl && positionEl.value) || 'bottom',
+        alignment: (alignEl && alignEl.value) || 'center',
+    };
+}
+
+/**
+ * Возвращает прямоугольник блока подписи в зависимости от положения.
+ */
+function getCaptionBox(position) {
+    const pad = CAPTION_PADDING;
+    if (position === 'top') {
+        return { x: pad, y: pad, w: CANVAS_WIDTH - 2 * pad, h: CAPTION_HEIGHT };
+    }
+    if (position === 'bottom') {
+        return { x: pad, y: CANVAS_HEIGHT - pad - CAPTION_HEIGHT, w: CANVAS_WIDTH - 2 * pad, h: CAPTION_HEIGHT };
+    }
+    if (position === 'center') {
+        const w = Math.min(0.85 * CANVAS_WIDTH, 620);
+        const h = CAPTION_HEIGHT + 16;
+        return { x: (CANVAS_WIDTH - w) / 2, y: (CANVAS_HEIGHT - h) / 2, w, h };
+    }
+    return { x: pad, y: CANVAS_HEIGHT - pad - CAPTION_HEIGHT, w: CANVAS_WIDTH - 2 * pad, h: CAPTION_HEIGHT };
+}
+
+/**
+ * Разбивает текст на строки по maxWidth.
+ */
+function measureWrappedLines(ctx, text, maxWidth) {
+    const words = text.split(/\s+/);
+    const lines = [];
+    let line = '';
+    for (let i = 0; i < words.length; i++) {
+        const next = line ? line + ' ' + words[i] : words[i];
+        const m = ctx.measureText(next);
+        if (m.width > maxWidth && line) {
+            lines.push(line);
+            line = words[i];
+        } else line = next;
+    }
+    if (line) lines.push(line);
+    return lines;
+}
+
+function drawCaption(ctx, caption, options) {
+    const { position, alignment } = options;
+    const box = getCaptionBox(position);
+    const { x: boxX, y: boxY, w: boxW, h: boxH } = box;
+    const maxTextWidth = boxW - 2 * CAPTION_PADDING;
+    const lineHeight = 22;
+    const fontSize = 20;
+
+    ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
+    const lines = measureWrappedLines(ctx, caption, maxTextWidth);
+    const textBlockHeight = lines.length * lineHeight;
+    const startY = boxY + (boxH - textBlockHeight) / 2 + lineHeight / 2;
+
     ctx.fillStyle = 'rgba(255,255,255,0.96)';
     ctx.strokeStyle = 'rgba(0,0,0,0.06)';
     ctx.lineWidth = 1;
-    roundRect(ctx, 12, 12, CANVAS_WIDTH - 24, CAPTION_HEIGHT - 16, 10);
+    roundRect(ctx, boxX, boxY, boxW, boxH, 10);
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = '#1f2937';
-    ctx.font = 'bold 20px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    wrapText(ctx, caption, CANVAS_WIDTH / 2, CAPTION_HEIGHT / 2, CANVAS_WIDTH - 48, 24);
 
-    return canvas;
+    ctx.fillStyle = '#1f2937';
+    ctx.textBaseline = 'middle';
+    if (alignment === 'left') {
+        ctx.textAlign = 'left';
+        const textX = boxX + CAPTION_PADDING;
+        for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], textX, startY + i * lineHeight);
+        }
+    } else if (alignment === 'right') {
+        ctx.textAlign = 'right';
+        const textX = boxX + boxW - CAPTION_PADDING;
+        for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], textX, startY + i * lineHeight);
+        }
+    } else {
+        ctx.textAlign = 'center';
+        const textX = boxX + boxW / 2;
+        for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], textX, startY + i * lineHeight);
+        }
+    }
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -220,25 +301,6 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.lineTo(x, y + r);
     ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
-}
-
-function wrapText(ctx, text, cx, cy, maxWidth, lineHeight) {
-    const words = text.split(/\s+/);
-    const lines = [];
-    let line = '';
-    for (let i = 0; i < words.length; i++) {
-        const next = line ? line + ' ' + words[i] : words[i];
-        const m = ctx.measureText(next);
-        if (m.width > maxWidth && line) {
-            lines.push(line);
-            line = words[i];
-        } else line = next;
-    }
-    if (line) lines.push(line);
-    const startY = cy - ((lines.length - 1) * lineHeight) / 2;
-    for (let i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], cx, startY + i * lineHeight);
-    }
 }
 
 function getRegionFileName() {
@@ -349,3 +411,15 @@ if (btnShare) {
         });
     }
 }
+
+function redrawOnCaptionOptionsChange() {
+    if (!geoJsonData) return;
+    renderToCanvas(geoJsonData);
+}
+
+document.querySelectorAll('input[name="caption-position"]').forEach((el) => {
+    el.addEventListener('change', redrawOnCaptionOptionsChange);
+});
+document.querySelectorAll('input[name="caption-align"]').forEach((el) => {
+    el.addEventListener('change', redrawOnCaptionOptionsChange);
+});

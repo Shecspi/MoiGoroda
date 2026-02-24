@@ -35,6 +35,43 @@
             </div>
         </div>
 
+        <!-- Панель редактирования текста -->
+        <div id="share-caption-panel" class="mt-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
+            <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-neutral-300">Текст на изображении</h3>
+            <div class="flex flex-wrap gap-6">
+                <fieldset class="flex flex-wrap gap-2">
+                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Положение</legend>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-position" value="top" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        Сверху
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-position" value="center" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        По центру
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-position" value="bottom" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                        Снизу
+                    </label>
+                </fieldset>
+                <fieldset class="flex flex-wrap gap-2">
+                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Выравнивание текста</legend>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-align" value="left" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        По левому краю
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-align" value="center" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                        По центру
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-align" value="right" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        По правому краю
+                    </label>
+                </fieldset>
+            </div>
+        </div>
+
         <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
             <button type="button" id="btn-download-share-image"
                     class="inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">

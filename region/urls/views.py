@@ -23,5 +23,10 @@ urlpatterns = [
         views.CitiesByRegionList.as_view(list_or_map='map'),
         name='region-selected-map',
     ),
+    path(
+        '<int:pk>/share/',
+        views.RegionShareView.as_view(),
+        name='region-share',
+    ),
     path('embedded/<str:quality>/RU/<str:iso3166>', views.embedded_map, name='region-embedded-map'),
 ]

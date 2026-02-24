@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load vite %}
+{% load static %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
+
+{% block content %}
+    <header class="mx-3 mt-10 mb-6 text-center" id="section-page_header">
+        <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+            Поделиться прогрессом по региону
+        </h1>
+        <p class="mt-2 text-gray-600 dark:text-neutral-400">
+            Скачайте изображение или поделитесь им в соцсетях
+        </p>
+    </header>
+
+    <div class="mx-3 mb-6 flex flex-wrap items-center justify-center gap-3">
+        <a href="{% url 'region-selected-list' pk=region_id %}" class="text-sm text-blue-600 hover:underline dark:text-blue-400">
+            ← Вернуться к списку городов
+        </a>
+    </div>
+
+    <!-- Изображение: полигон региона и точки городов (без подложки карты) -->
+    <div class="mx-auto mb-6 max-w-4xl">
+        <div id="share-image-wrapper" class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div id="iso3166_code" data-iso3166_code="{{ iso3166_code }}" hidden></div>
+            <div class="relative flex items-center justify-center bg-gray-100 dark:bg-neutral-800" style="height: 520px;">
+                <canvas id="share-image-canvas" width="800" height="520" class="block max-w-full h-auto"></canvas>
+                <div id="share-image-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-neutral-900/80">
+                    <span class="text-gray-600 dark:text-neutral-400">Загрузка границ региона…</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <button type="button" id="btn-download-share-image"
+                    class="inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Скачать изображение
+            </button>
+            <button type="button" id="btn-share-image" disabled
+                    class="inline-flex items-center gap-x-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                Поделиться
+            </button>
+        </div>
+    </div>
+
+    <script>
+        window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
+        window.REGION_NAME = "{{ region_name|escapejs }}";
+        window.SHARE_NUMBER_OF_VISITED = {{ number_of_visited_cities }};
+        window.SHARE_NUMBER_OF_CITIES = {{ number_of_cities }};
+        window.ALL_CITIES = [];
+        {% for city in all_cities %}
+            window.ALL_CITIES.push({
+                id: {{ city.id }},
+                name: "{{ city.title|escapejs }}",
+                lat: parseFloat('{{ city.coordinate_width }}'.replace(/,/, '.')),
+                lon: parseFloat('{{ city.coordinate_longitude }}'.replace(/,/, '.')),
+                isVisited: {{ city.is_visited|yesno:"true,false" }},
+                numberOfVisits: {{ city.number_of_visits|default:'null' }},
+                firstVisitDate: "{{ city.first_visit_date|date:'Y-m-d'|default_if_none:'' }}",
+                lastVisitDate: "{{ city.last_visit_date|date:'Y-m-d'|default_if_none:'' }}",
+                numberOfUsersWhoVisitCity: {{ city.number_of_users_who_visit_city|default:'null' }},
+                numberOfVisitsAllUsers: {{ city.number_of_visits_all_users|default:'null' }}
+            });
+        {% endfor %}
+    </script>
+    {% vite_asset 'js/entries/share_region_image.js' %}
+{% endblock %}

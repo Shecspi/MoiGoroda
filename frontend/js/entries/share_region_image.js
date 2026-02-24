@@ -202,9 +202,15 @@ function renderToCanvas(geoJson) {
 function getCaptionOptions() {
     const positionEl = document.querySelector('input[name="caption-position"]:checked');
     const alignEl = document.querySelector('input[name="caption-align"]:checked');
+    const sizeEl = document.querySelector('input[name="caption-font-size"]:checked');
+    const familyEl = document.querySelector('input[name="caption-font-family"]:checked');
+    const weightEl = document.querySelector('input[name="caption-font-weight"]:checked');
     return {
         position: (positionEl && positionEl.value) || 'bottom',
         alignment: (alignEl && alignEl.value) || 'center',
+        fontSize: sizeEl ? parseInt(sizeEl.value, 10) : 20,
+        fontFamily: (familyEl && familyEl.value) || 'sans',
+        fontWeight: (weightEl && weightEl.value) || 'bold',
     };
 }
 
@@ -246,15 +252,20 @@ function measureWrappedLines(ctx, text, maxWidth) {
     return lines;
 }
 
+const FONT_FAMILIES = {
+    sans: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+    serif: 'Georgia, "Times New Roman", serif',
+    mono: '"ui-monospace", "Cascadia Code", "Source Code Pro", monospace',
+};
+
 function drawCaption(ctx, caption, options) {
-    const { position, alignment } = options;
+    const { position, alignment, fontSize, fontFamily, fontWeight } = options;
     const box = getCaptionBox(position);
     const { x: boxX, y: boxY, w: boxW, h: boxH } = box;
     const maxTextWidth = boxW - 2 * CAPTION_PADDING;
-    const lineHeight = 22;
-    const fontSize = 20;
+    const lineHeight = Math.round(fontSize * 1.15);
 
-    ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `${fontWeight} ${fontSize}px ${FONT_FAMILIES[fontFamily] || FONT_FAMILIES.sans}`;
     const lines = measureWrappedLines(ctx, caption, maxTextWidth);
     const textBlockHeight = lines.length * lineHeight;
     const startY = boxY + (boxH - textBlockHeight) / 2 + lineHeight / 2;
@@ -417,9 +428,8 @@ function redrawOnCaptionOptionsChange() {
     renderToCanvas(geoJsonData);
 }
 
-document.querySelectorAll('input[name="caption-position"]').forEach((el) => {
-    el.addEventListener('change', redrawOnCaptionOptionsChange);
-});
-document.querySelectorAll('input[name="caption-align"]').forEach((el) => {
-    el.addEventListener('change', redrawOnCaptionOptionsChange);
+['caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight'].forEach((name) => {
+    document.querySelectorAll(`input[name="${name}"]`).forEach((el) => {
+        el.addEventListener('change', redrawOnCaptionOptionsChange);
+    });
 });

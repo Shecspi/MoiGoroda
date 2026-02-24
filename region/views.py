@@ -15,11 +15,12 @@ Licensed under the Apache License, Version 2.0
 # mypy: disable-error-code="no-untyped-def,type-arg,var-annotated,assignment,misc,union-attr,arg-type,no-any-return"
 
 from typing import Any
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.generic import ListView
+from django.views.generic import ListView, View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet, Subquery, IntegerField, OuterRef, Count
 
@@ -396,6 +397,48 @@ class CitiesByRegionList(ListView):
             else 'region/selected/list/page.html'
         )
         return [template_name]
+
+
+class RegionShareView(LoginRequiredMixin, View):
+    """
+    Страница для генерации изображения «Поделиться закрытием региона»:
+    карта с полигоном и маркерами городов и надпись с поздравлением.
+    """
+
+    def get(self, request, *args, **kwargs):
+        pk = self.kwargs['pk']
+        try:
+            region = Region.objects.get(id=pk)
+        except ObjectDoesNotExist:
+            logger.warning(request, f'(Region) Share: non-existent region #{pk}')
+            raise Http404 from None
+
+        queryset = get_all_cities_in_region(request.user, pk).values(
+            'id',
+            'title',
+            'coordinate_width',
+            'coordinate_longitude',
+            'is_visited',
+            'number_of_visits',
+            'first_visit_date',
+            'last_visit_date',
+            'number_of_users_who_visit_city',
+            'number_of_visits_all_users',
+        )
+        all_cities = list(queryset)
+        number_of_cities = len(all_cities)
+        number_of_visited_cities = sum(1 for c in all_cities if c['is_visited'])
+
+        context = {
+            'region_id': pk,
+            'region_name': str(region),
+            'country_name': str(region.country),
+            'iso3166_code': str(region.iso3166),
+            'all_cities': all_cities,
+            'number_of_cities': number_of_cities,
+            'number_of_visited_cities': number_of_visited_cities,
+        }
+        return render(request, 'region/selected/share/page.html', context)
 
 
 @xframe_options_exempt

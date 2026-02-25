@@ -460,26 +460,47 @@ async function renderToCanvas(geoJson, exportDimensions) {
     return canvas;
 }
 
+function hexToRgb(hex) {
+    const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : { r: 255, g: 255, b: 255 };
+}
+
 function getCaptionOptions() {
     const positionEl = document.querySelector('input[name="caption-position"]:checked');
     const alignEl = document.querySelector('input[name="caption-align"]:checked');
     const sizeEl = document.querySelector('input[name="caption-font-size"]:checked');
     const familyEl = document.querySelector('input[name="caption-font-family"]:checked');
     const weightEl = document.querySelector('input[name="caption-font-weight"]:checked');
+    const bgEl = document.querySelector('input[name="caption-background"]:checked');
+    const bgColorEl = document.getElementById('caption-bg-color');
+    const bgSizeEl = document.getElementById('caption-bg-size');
+    const bgOpacityEl = document.getElementById('caption-bg-opacity');
+    const bgBlurEl = document.getElementById('caption-bg-blur');
+    const bgColor = (bgColorEl && bgColorEl.value) ? bgColorEl.value : '#ef4444';
+    const bgSizeRaw = bgSizeEl && bgSizeEl.value !== undefined ? parseInt(bgSizeEl.value, 10) : 100;
+    const bgSize = Math.max(50, Math.min(300, bgSizeRaw)) / 100;
+    const bgOpacity = bgOpacityEl && bgOpacityEl.value !== undefined ? parseInt(bgOpacityEl.value, 10) : 50;
+    const bgBlur = bgBlurEl && bgBlurEl.value !== undefined ? parseInt(bgBlurEl.value, 10) : 10;
     return {
         position: (positionEl && positionEl.value) || 'bottom',
         alignment: (alignEl && alignEl.value) || 'center',
         fontSize: sizeEl ? parseInt(sizeEl.value, 10) : 20,
         fontFamily: (familyEl && familyEl.value) || 'sans',
         fontWeight: (weightEl && weightEl.value) || 'bold',
+        background: (bgEl && bgEl.value) || 'box',
+        bgColor,
+        bgSize,
+        // bgOpacitySlider: 0% = нет прозрачности (полностью видно), 100% = полностью прозрачно
+        bgOpacity: 1 - Math.max(0, Math.min(100, bgOpacity)) / 100,
+        bgBlur: Math.max(0, Math.min(20, bgBlur)),
     };
 }
 
 /**
- * Возвращает прямоугольник блока подписи в зависимости от положения.
- * Масштабируется по scale, чтобы визуальный размер не зависел от разрешения.
+ * Возвращает прямоугольник области для подписи в зависимости от положения.
+ * Якорная область не зависит от «Размера» (размер влияет только на бокс/обводку).
  */
-function getCaptionBox(position, canvasWidth, canvasHeight, scale) {
+function getCaptionAnchorBox(position, canvasWidth, canvasHeight, scale) {
     const pad = CAPTION_PADDING * scale;
     const capHeight = CAPTION_HEIGHT * scale;
     if (position === 'top') {
@@ -522,45 +543,106 @@ const FONT_FAMILIES = {
 };
 
 function drawCaption(ctx, caption, options, canvasWidth, canvasHeight, scale) {
-    const { position, alignment, fontSize, fontFamily, fontWeight } = options;
-    const box = getCaptionBox(position, canvasWidth, canvasHeight, scale || 1);
-    const { x: boxX, y: boxY, w: boxW, h: boxH } = box;
-    const pad = CAPTION_PADDING * (scale || 1);
-    const effectiveFontSize = fontSize * (scale || 1);
-    const maxTextWidth = boxW - 2 * pad;
+    const { position, alignment, fontSize, fontFamily, fontWeight, background, bgColor, bgSize, bgOpacity, bgBlur } = options;
+    const s = scale || 1;
+    const sizeMult = (bgSize && bgSize > 0) ? bgSize : 1;
+    const anchorBox = getCaptionAnchorBox(position, canvasWidth, canvasHeight, s);
+    const padWrap = CAPTION_PADDING * s;
+    const padBox = CAPTION_PADDING * s * sizeMult;
+    const effectiveFontSize = fontSize * s;
+
+    const maxTextWidthForWrap = anchorBox.w - 2 * padWrap;
     const lineHeight = Math.round(effectiveFontSize * 1.15);
 
     ctx.font = `${fontWeight} ${effectiveFontSize}px ${FONT_FAMILIES[fontFamily] || FONT_FAMILIES.sans}`;
-    const lines = measureWrappedLines(ctx, caption, maxTextWidth);
+    const lines = measureWrappedLines(ctx, caption, maxTextWidthForWrap);
     const textBlockHeight = lines.length * lineHeight;
+
+    // Фактическая ширина текста (для бокса по тексту)
+    let actualMaxLineWidth = 0;
+    for (let i = 0; i < lines.length; i++) {
+        const w = ctx.measureText(lines[i]).width;
+        if (w > actualMaxLineWidth) actualMaxLineWidth = w;
+    }
+
+    // Базовый бокс: либо якорный (для old full box), либо «по тексту»
+    let boxX = anchorBox.x;
+    let boxY = anchorBox.y;
+    let boxW = anchorBox.w;
+    let boxH = anchorBox.h;
+
+    const boxBg = background || 'box';
+    if (boxBg === 'box') {
+        const desiredW = Math.min(anchorBox.w, actualMaxLineWidth + 2 * padBox);
+        const desiredH = textBlockHeight + 2 * padBox;
+        boxW = desiredW;
+        boxH = desiredH;
+
+        if (alignment === 'center') {
+            boxX = canvasWidth / 2 - boxW / 2;
+        } else if (alignment === 'right') {
+            boxX = anchorBox.x + anchorBox.w - boxW;
+        } else {
+            boxX = anchorBox.x;
+        }
+        boxY = anchorBox.y + (anchorBox.h - boxH) / 2;
+    }
+
     const startY = boxY + (boxH - textBlockHeight) / 2 + lineHeight / 2;
 
-    ctx.fillStyle = 'rgba(255,255,255,0.96)';
-    ctx.strokeStyle = 'rgba(0,0,0,0.06)';
-    ctx.lineWidth = 1;
-    roundRect(ctx, boxX, boxY, boxW, boxH, 10);
-    ctx.fill();
-    ctx.stroke();
+    const rgb = hexToRgb(bgColor || '#ffffff');
+    const alpha = typeof bgOpacity === 'number' ? bgOpacity : 0.5;
+    const bgRgba = `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
+    const borderRgba = 'rgba(0,0,0,0.06)';
+
+    const blurPx = (typeof bgBlur === 'number' ? bgBlur : 0) * s;
+    const needFilter = blurPx > 0 && (boxBg === 'box' || boxBg === 'outline');
+
+    if (boxBg === 'box') {
+        if (needFilter) ctx.save();
+        if (needFilter) ctx.filter = `blur(${blurPx}px)`;
+        ctx.fillStyle = bgRgba;
+        roundRect(ctx, boxX, boxY, boxW, boxH, 10 * s);
+        ctx.fill();
+        if (needFilter) ctx.restore();
+    }
 
     ctx.fillStyle = '#1f2937';
     ctx.textBaseline = 'middle';
+    const hasOutline = boxBg === 'outline';
+    if (hasOutline) {
+        ctx.strokeStyle = bgRgba;
+        ctx.lineWidth = 2 * s * sizeMult;
+    }
+
+    function drawLine(x, y, line) {
+        if (hasOutline) {
+            if (needFilter) ctx.save();
+            if (needFilter) ctx.filter = `blur(${blurPx}px)`;
+            ctx.strokeText(line, x, y);
+            if (needFilter) ctx.restore();
+        }
+        ctx.fillText(line, x, y);
+    }
+
+    const padText = boxBg === 'box' ? padBox : padWrap;
     if (alignment === 'left') {
         ctx.textAlign = 'left';
-        const textX = boxX + pad;
+        const textX = boxX + padText;
         for (let i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i], textX, startY + i * lineHeight);
+            drawLine(textX, startY + i * lineHeight, lines[i]);
         }
     } else if (alignment === 'right') {
         ctx.textAlign = 'right';
-        const textX = boxX + boxW - pad;
+        const textX = boxX + boxW - padText;
         for (let i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i], textX, startY + i * lineHeight);
+            drawLine(textX, startY + i * lineHeight, lines[i]);
         }
     } else {
         ctx.textAlign = 'center';
         const textX = boxX + boxW / 2;
         for (let i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i], textX, startY + i * lineHeight);
+            drawLine(textX, startY + i * lineHeight, lines[i]);
         }
     }
 }
@@ -702,8 +784,34 @@ function redrawOnCaptionOptionsChange() {
     renderToCanvas(geoJsonData).catch((e) => console.warn(e));
 }
 
-['share-aspect-ratio', 'share-resolution', 'share-background', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight'].forEach((name) => {
+['share-aspect-ratio', 'share-resolution', 'share-background', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight', 'caption-background'].forEach((name) => {
     document.querySelectorAll(`input[name="${name}"]`).forEach((el) => {
         el.addEventListener('change', redrawOnCaptionOptionsChange);
     });
 });
+const captionBgOpacityEl = document.getElementById('caption-bg-opacity');
+const captionBgOpacityValue = document.getElementById('caption-bg-opacity-value');
+const captionBgBlurEl = document.getElementById('caption-bg-blur');
+const captionBgBlurValue = document.getElementById('caption-bg-blur-value');
+if (captionBgOpacityEl) {
+    captionBgOpacityEl.addEventListener('input', () => {
+        if (captionBgOpacityValue) captionBgOpacityValue.textContent = captionBgOpacityEl.value;
+        redrawOnCaptionOptionsChange();
+    });
+}
+if (captionBgBlurEl) {
+    captionBgBlurEl.addEventListener('input', () => {
+        if (captionBgBlurValue) captionBgBlurValue.textContent = captionBgBlurEl.value;
+        redrawOnCaptionOptionsChange();
+    });
+}
+const captionBgColorEl = document.getElementById('caption-bg-color');
+if (captionBgColorEl) captionBgColorEl.addEventListener('input', redrawOnCaptionOptionsChange);
+const captionBgSizeEl = document.getElementById('caption-bg-size');
+const captionBgSizeValue = document.getElementById('caption-bg-size-value');
+if (captionBgSizeEl) {
+    captionBgSizeEl.addEventListener('input', () => {
+        if (captionBgSizeValue) captionBgSizeValue.textContent = (parseInt(captionBgSizeEl.value, 10) / 100).toString();
+        redrawOnCaptionOptionsChange();
+    });
+}

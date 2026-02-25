@@ -24,7 +24,7 @@ const PADDING = 48;
 const CAPTION_HEIGHT = 56;
 const CAPTION_PADDING = 12;
 
-/** Соотношения сторон: большая сторона 800px. */
+/** Соотношения сторон: базовая длинная сторона 800px. */
 const ASPECT_PRESETS = {
     '16:9': { width: 800, height: 450 },
     '4:3': { width: 800, height: 600 },
@@ -34,11 +34,30 @@ const ASPECT_PRESETS = {
 };
 
 const DEFAULT_ASPECT = '4:3';
+const BASE_LONG_SIDE = 800;
 
-function getCanvasDimensions() {
-    const el = document.querySelector('input[name="share-aspect-ratio"]:checked');
-    const key = (el && el.value && ASPECT_PRESETS[el.value]) ? el.value : DEFAULT_ASPECT;
-    return ASPECT_PRESETS[key];
+/** Разрешение: длинная сторона в пикселях (720p, 1080p, 2K=1440p). Влияет только на скачиваемый/шаримый файл. */
+const RESOLUTION_LONG_SIDE = { '720': 720, '1080': 1080, '1440': 1440 };
+const DEFAULT_RESOLUTION = '1080';
+
+/** Размеры для отображения на странице (без учёта разрешения — визуально не меняется). */
+function getDisplayDimensions() {
+    const aspectEl = document.querySelector('input[name="share-aspect-ratio"]:checked');
+    const aspectKey = (aspectEl && aspectEl.value && ASPECT_PRESETS[aspectEl.value]) ? aspectEl.value : DEFAULT_ASPECT;
+    return ASPECT_PRESETS[aspectKey];
+}
+
+/** Размеры для экспорта (скачать / поделиться) — с учётом выбранного разрешения. */
+function getExportDimensions() {
+    const base = getDisplayDimensions();
+    const resEl = document.querySelector('input[name="share-resolution"]:checked');
+    const resKey = (resEl && resEl.value && RESOLUTION_LONG_SIDE[resEl.value]) ? resEl.value : DEFAULT_RESOLUTION;
+    const longSide = RESOLUTION_LONG_SIDE[resKey];
+    const scale = longSide / BASE_LONG_SIDE;
+    return {
+        width: Math.round(base.width * scale),
+        height: Math.round(base.height * scale),
+    };
 }
 
 // Цвета как на карте региона
@@ -343,8 +362,9 @@ function mercatorToCanvas(lon, lat, zoom, scaleX, scaleY, offsetX, offsetY) {
     return { x: offsetX + p.x * scaleX, y: offsetY + p.y * scaleY };
 }
 
-function drawGeoJSONMercator(ctx, geoJson, mercatorState) {
+function drawGeoJSONMercator(ctx, geoJson, mercatorState, scale) {
     const { scaleX, scaleY, offsetX, offsetY, zoom } = mercatorState;
+    const strokeWidth = STROKE_WIDTH * (scale || 1);
 
     function drawRing(coordRing, close) {
         if (coordRing.length < 2) return;
@@ -370,20 +390,32 @@ function drawGeoJSONMercator(ctx, geoJson, mercatorState) {
         ctx.fillStyle = FILL_COLOR;
         ctx.fill();
         ctx.strokeStyle = STROKE_COLOR;
-        ctx.lineWidth = STROKE_WIDTH;
+        ctx.lineWidth = strokeWidth;
         ctx.stroke();
     }
 }
 
-async function renderToCanvas(geoJson) {
-    const canvas = document.getElementById('share-image-canvas');
+/**
+ * Рисует сцену на холсте. Если переданы dimensions — рисует в offscreen-холст (для экспорта).
+ * Иначе — в видимый холст в разрешении экспорта (как при скачивании), отображаемый в фиксированном размере через CSS.
+ */
+async function renderToCanvas(geoJson, exportDimensions) {
+    const forExport = exportDimensions && exportDimensions.width > 0 && exportDimensions.height > 0;
+    const canvas = forExport
+        ? document.createElement('canvas')
+        : document.getElementById('share-image-canvas');
     if (!canvas) return null;
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    const { width: w, height: h } = getCanvasDimensions();
+    const { width: w, height: h } = forExport ? exportDimensions : getExportDimensions();
     canvas.width = w;
     canvas.height = h;
+    if (!forExport) {
+        const display = getDisplayDimensions();
+        canvas.style.width = display.width + 'px';
+        canvas.style.height = display.height + 'px';
+    }
 
     const mapWidth = w;
     const mapHeight = h;
@@ -405,20 +437,25 @@ async function renderToCanvas(geoJson) {
         }
     }
 
-    drawGeoJSONMercator(ctx, geoJson, mercatorState);
+    const markerScale = Math.max(w, h) / BASE_LONG_SIDE;
+    const pinW = PIN_WIDTH * markerScale;
+    const pinH = PIN_HEIGHT * markerScale;
+    const pinAnchorX = PIN_ANCHOR_X * markerScale;
+    const pinAnchorY = PIN_ANCHOR_Y * markerScale;
+    drawGeoJSONMercator(ctx, geoJson, mercatorState, markerScale);
     await ensurePinImages();
     for (let i = 0; i < all_cities.length; i++) {
         const c = all_cities[i];
         const p = mercatorToCanvas(c.lon, c.lat, mercatorState.zoom, mercatorState.scaleX, mercatorState.scaleY, mercatorState.offsetX, mercatorState.offsetY);
         const pinImg = c.isVisited ? pinVisitedImg : pinNotVisitedImg;
         if (pinImg && pinImg.complete && pinImg.naturalWidth) {
-            ctx.drawImage(pinImg, p.x - PIN_ANCHOR_X, p.y - PIN_ANCHOR_Y, PIN_WIDTH, PIN_HEIGHT);
+            ctx.drawImage(pinImg, p.x - pinAnchorX, p.y - pinAnchorY, pinW, pinH);
         }
     }
 
     const caption = `Поздравляем! Вы посетили ${numVisited} из ${numCities} городов региона ${regionName}`;
     const captionOptions = getCaptionOptions();
-    drawCaption(ctx, caption, captionOptions, w, h);
+    drawCaption(ctx, caption, captionOptions, w, h, markerScale);
 
     return canvas;
 }
@@ -440,21 +477,23 @@ function getCaptionOptions() {
 
 /**
  * Возвращает прямоугольник блока подписи в зависимости от положения.
+ * Масштабируется по scale, чтобы визуальный размер не зависел от разрешения.
  */
-function getCaptionBox(position, canvasWidth, canvasHeight) {
-    const pad = CAPTION_PADDING;
+function getCaptionBox(position, canvasWidth, canvasHeight, scale) {
+    const pad = CAPTION_PADDING * scale;
+    const capHeight = CAPTION_HEIGHT * scale;
     if (position === 'top') {
-        return { x: pad, y: pad, w: canvasWidth - 2 * pad, h: CAPTION_HEIGHT };
+        return { x: pad, y: pad, w: canvasWidth - 2 * pad, h: capHeight };
     }
     if (position === 'bottom') {
-        return { x: pad, y: canvasHeight - pad - CAPTION_HEIGHT, w: canvasWidth - 2 * pad, h: CAPTION_HEIGHT };
+        return { x: pad, y: canvasHeight - pad - capHeight, w: canvasWidth - 2 * pad, h: capHeight };
     }
     if (position === 'center') {
-        const boxW = Math.min(0.85 * canvasWidth, 620);
-        const boxH = CAPTION_HEIGHT + 16;
+        const boxW = Math.min(0.85 * canvasWidth, 620 * scale);
+        const boxH = capHeight + 16 * scale;
         return { x: (canvasWidth - boxW) / 2, y: (canvasHeight - boxH) / 2, w: boxW, h: boxH };
     }
-    return { x: pad, y: canvasHeight - pad - CAPTION_HEIGHT, w: canvasWidth - 2 * pad, h: CAPTION_HEIGHT };
+    return { x: pad, y: canvasHeight - pad - capHeight, w: canvasWidth - 2 * pad, h: capHeight };
 }
 
 /**
@@ -482,14 +521,16 @@ const FONT_FAMILIES = {
     mono: '"ui-monospace", "Cascadia Code", "Source Code Pro", monospace',
 };
 
-function drawCaption(ctx, caption, options, canvasWidth, canvasHeight) {
+function drawCaption(ctx, caption, options, canvasWidth, canvasHeight, scale) {
     const { position, alignment, fontSize, fontFamily, fontWeight } = options;
-    const box = getCaptionBox(position, canvasWidth, canvasHeight);
+    const box = getCaptionBox(position, canvasWidth, canvasHeight, scale || 1);
     const { x: boxX, y: boxY, w: boxW, h: boxH } = box;
-    const maxTextWidth = boxW - 2 * CAPTION_PADDING;
-    const lineHeight = Math.round(fontSize * 1.15);
+    const pad = CAPTION_PADDING * (scale || 1);
+    const effectiveFontSize = fontSize * (scale || 1);
+    const maxTextWidth = boxW - 2 * pad;
+    const lineHeight = Math.round(effectiveFontSize * 1.15);
 
-    ctx.font = `${fontWeight} ${fontSize}px ${FONT_FAMILIES[fontFamily] || FONT_FAMILIES.sans}`;
+    ctx.font = `${fontWeight} ${effectiveFontSize}px ${FONT_FAMILIES[fontFamily] || FONT_FAMILIES.sans}`;
     const lines = measureWrappedLines(ctx, caption, maxTextWidth);
     const textBlockHeight = lines.length * lineHeight;
     const startY = boxY + (boxH - textBlockHeight) / 2 + lineHeight / 2;
@@ -505,13 +546,13 @@ function drawCaption(ctx, caption, options, canvasWidth, canvasHeight) {
     ctx.textBaseline = 'middle';
     if (alignment === 'left') {
         ctx.textAlign = 'left';
-        const textX = boxX + CAPTION_PADDING;
+        const textX = boxX + pad;
         for (let i = 0; i < lines.length; i++) {
             ctx.fillText(lines[i], textX, startY + i * lineHeight);
         }
     } else if (alignment === 'right') {
         ctx.textAlign = 'right';
-        const textX = boxX + boxW - CAPTION_PADDING;
+        const textX = boxX + boxW - pad;
         for (let i = 0; i < lines.length; i++) {
             ctx.fillText(lines[i], textX, startY + i * lineHeight);
         }
@@ -613,9 +654,11 @@ fetch(polygonUrl)
         console.warn('Ошибка загрузки границ региона:', err);
         const canvas = document.getElementById('share-image-canvas');
         if (canvas) {
-            const { width, height } = getCanvasDimensions();
+            const { width, height } = getDisplayDimensions();
             canvas.width = width;
             canvas.height = height;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
             const ctx = canvas.getContext('2d');
             if (ctx) {
                 ctx.fillStyle = '#f8fafc';
@@ -635,7 +678,8 @@ const btnShare = document.getElementById('btn-share-image');
 if (btnDownload) {
     btnDownload.addEventListener('click', () => {
         if (!geoJsonData) return;
-        renderToCanvas(geoJsonData).then((canvas) => {
+        const exportSize = getExportDimensions();
+        renderToCanvas(geoJsonData, exportSize).then((canvas) => {
             if (canvas) canvasToBlob(canvas).then(downloadImage).catch((e) => console.error(e));
         }).catch((e) => console.error(e));
     });
@@ -645,7 +689,8 @@ if (btnShare) {
     if (navigator.share && navigator.canShare) {
         btnShare.addEventListener('click', () => {
             if (!geoJsonData) return;
-            renderToCanvas(geoJsonData).then((canvas) => {
+            const exportSize = getExportDimensions();
+            renderToCanvas(geoJsonData, exportSize).then((canvas) => {
                 if (canvas) canvasToBlob(canvas).then(shareImage).catch((e) => console.error(e));
             }).catch((e) => console.error(e));
         });
@@ -657,7 +702,7 @@ function redrawOnCaptionOptionsChange() {
     renderToCanvas(geoJsonData).catch((e) => console.warn(e));
 }
 
-['share-aspect-ratio', 'share-background', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight'].forEach((name) => {
+['share-aspect-ratio', 'share-resolution', 'share-background', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight'].forEach((name) => {
     document.querySelectorAll(`input[name="${name}"]`).forEach((el) => {
         el.addEventListener('change', redrawOnCaptionOptionsChange);
     });

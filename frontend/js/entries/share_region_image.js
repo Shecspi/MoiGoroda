@@ -595,11 +595,13 @@ function getCaptionOptions() {
     const bgSizeEl = document.getElementById('caption-bg-size');
     const bgOpacityEl = document.getElementById('caption-bg-opacity');
     const bgBlurEl = document.getElementById('caption-bg-blur');
+    const textColorEl = document.getElementById('caption-text-color');
     const bgColor = (bgColorEl && bgColorEl.value) ? bgColorEl.value : '#ef4444';
     const bgSizeRaw = bgSizeEl && bgSizeEl.value !== undefined ? parseInt(bgSizeEl.value, 10) : 100;
     const bgSize = Math.max(50, Math.min(300, bgSizeRaw)) / 100;
     const bgOpacity = bgOpacityEl && bgOpacityEl.value !== undefined ? parseInt(bgOpacityEl.value, 10) : 50;
     const bgBlur = bgBlurEl && bgBlurEl.value !== undefined ? parseInt(bgBlurEl.value, 10) : 10;
+    const textColor = (textColorEl && textColorEl.value) ? textColorEl.value : '#1f2937';
     return {
         position: (positionEl && positionEl.value) || 'bottom',
         alignment: (alignEl && alignEl.value) || 'center',
@@ -612,6 +614,7 @@ function getCaptionOptions() {
         // bgOpacitySlider: 0% = нет прозрачности (полностью видно), 100% = полностью прозрачно
         bgOpacity: 1 - Math.max(0, Math.min(100, bgOpacity)) / 100,
         bgBlur: Math.max(0, Math.min(20, bgBlur)),
+        textColor,
     };
 }
 
@@ -662,7 +665,7 @@ const FONT_FAMILIES = {
 };
 
 function drawCaption(ctx, caption, options, canvasWidth, canvasHeight, scale) {
-    const { position, alignment, fontSize, fontFamily, fontWeight, background, bgColor, bgSize, bgOpacity, bgBlur } = options;
+    const { position, alignment, fontSize, fontFamily, fontWeight, background, bgColor, bgSize, bgOpacity, bgBlur, textColor } = options;
     const s = scale || 1;
     const sizeMult = (bgSize && bgSize > 0) ? bgSize : 1;
     const anchorBox = getCaptionAnchorBox(position, canvasWidth, canvasHeight, s);
@@ -726,7 +729,7 @@ function drawCaption(ctx, caption, options, canvasWidth, canvasHeight, scale) {
         if (needFilter) ctx.restore();
     }
 
-    ctx.fillStyle = '#1f2937';
+    ctx.fillStyle = textColor || '#1f2937';
     ctx.textBaseline = 'middle';
     const hasOutline = boxBg === 'outline';
     if (hasOutline) {
@@ -1001,7 +1004,9 @@ if (captionBgBlurEl) {
     });
 }
 const captionBgColorEl = document.getElementById('caption-bg-color');
+const captionTextColorEl = document.getElementById('caption-text-color');
 if (captionBgColorEl) captionBgColorEl.addEventListener('input', redrawOnCaptionOptionsChange);
+if (captionTextColorEl) captionTextColorEl.addEventListener('input', redrawOnCaptionOptionsChange);
 const captionBgSizeEl = document.getElementById('caption-bg-size');
 const captionBgSizeValue = document.getElementById('caption-bg-size-value');
 if (captionBgSizeEl) {

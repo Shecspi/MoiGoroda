@@ -23,20 +23,23 @@
         </a>
     </div>
 
-    <!-- Изображение: полигон региона и точки городов (без подложки карты) -->
-    <div class="mx-auto mb-6 max-w-4xl">
-        <div id="share-image-wrapper" class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <div id="iso3166_code" data-iso3166_code="{{ iso3166_code }}" hidden></div>
-            <div id="share-image-container" class="relative flex min-h-[320px] items-center justify-center bg-gray-100 dark:bg-neutral-800">
-                <canvas id="share-image-canvas" width="800" height="520" class="block max-w-full h-auto"></canvas>
-                <div id="share-image-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-neutral-900/80">
-                    <span class="text-gray-600 dark:text-neutral-400">Загрузка границ региона…</span>
+    <!-- Изображение и настройки: на больших экранах в один ряд (настройки справа) -->
+    <div class="mb-6 w-full px-4 sm:px-6">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:gap-6">
+            <div class="min-w-0 lg:flex-1">
+                <div id="share-image-wrapper" class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                    <div id="iso3166_code" data-iso3166_code="{{ iso3166_code }}" hidden></div>
+                    <div id="share-image-container" class="relative flex items-center justify-center bg-gray-100 dark:bg-neutral-800">
+                        <canvas id="share-image-canvas" width="800" height="520" class="block max-w-full h-auto"></canvas>
+                        <div id="share-image-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-neutral-900/80">
+                            <span class="text-gray-600 dark:text-neutral-400">Загрузка границ региона…</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Панель редактирования -->
-        <div id="share-caption-panel" class="mt-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
+            <!-- Панель редактирования -->
+            <div id="share-caption-panel" class="mt-4 lg:mt-0 min-w-0 flex-1 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
             <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-neutral-300">Изображение</h3>
             <div class="flex flex-wrap gap-6">
                 <fieldset class="flex flex-wrap gap-2">
@@ -204,6 +207,7 @@
                     </div>
                 </fieldset>
             </div>
+        </div>
         </div>
 
         <div class="mt-4 flex flex-wrap items-center justify-center gap-3">

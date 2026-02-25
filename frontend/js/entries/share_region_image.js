@@ -40,16 +40,29 @@ const BASE_LONG_SIDE = 800;
 const RESOLUTION_LONG_SIDE = { '720': 720, '1080': 1080, '1440': 1440 };
 const DEFAULT_RESOLUTION = '1080';
 
-/** Размеры для отображения на странице (без учёта разрешения — визуально не меняется). */
-function getDisplayDimensions() {
+/** Текущее соотношение сторон (пресет) — для расчёта экспорта и отображения. */
+function getAspectPreset() {
     const aspectEl = document.querySelector('input[name="share-aspect-ratio"]:checked');
     const aspectKey = (aspectEl && aspectEl.value && ASPECT_PRESETS[aspectEl.value]) ? aspectEl.value : DEFAULT_ASPECT;
     return ASPECT_PRESETS[aspectKey];
 }
 
+/** Размеры для отображения на странице: по ширине контейнера с сохранением соотношения сторон. */
+function getDisplayDimensions() {
+    const preset = getAspectPreset();
+    const container = document.getElementById('share-image-container');
+    if (container && container.clientWidth > 0) {
+        return {
+            width: container.clientWidth,
+            height: Math.round(container.clientWidth * (preset.height / preset.width)),
+        };
+    }
+    return preset;
+}
+
 /** Размеры для экспорта (скачать / поделиться) — с учётом выбранного разрешения. */
 function getExportDimensions() {
-    const base = getDisplayDimensions();
+    const base = getAspectPreset();
     const resEl = document.querySelector('input[name="share-resolution"]:checked');
     const resKey = (resEl && resEl.value && RESOLUTION_LONG_SIDE[resEl.value]) ? resEl.value : DEFAULT_RESOLUTION;
     const longSide = RESOLUTION_LONG_SIDE[resKey];
@@ -815,3 +828,16 @@ if (captionBgSizeEl) {
         redrawOnCaptionOptionsChange();
     });
 }
+
+// При изменении ширины контейнера обновляем отображаемый размер canvas (сохраняя соотношение сторон)
+(function () {
+    const container = document.getElementById('share-image-container');
+    const canvas = document.getElementById('share-image-canvas');
+    if (!container || !canvas) return;
+    const ro = new ResizeObserver(() => {
+        const display = getDisplayDimensions();
+        canvas.style.width = display.width + 'px';
+        canvas.style.height = display.height + 'px';
+    });
+    ro.observe(container);
+})();

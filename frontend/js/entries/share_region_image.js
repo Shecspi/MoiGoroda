@@ -33,6 +33,9 @@ const STROKE_WIDTH = 2;
 const VISITED_COLOR = 'rgb(66, 178, 66)';
 const NOT_VISITED_COLOR = 'rgb(210, 90, 90)';
 const MARKER_RADIUS = 5;
+const TILE_SIZE = 256;
+
+const DEFAULT_TILE_LAYER = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 /**
  * Возвращает массив геометрий для отрисовки (поддержка Feature, FeatureCollection, Geometry).
@@ -159,7 +162,153 @@ function computeBbox(polygonCoords, cityPoints) {
     return [minLon - padLon, minLat - padLat, maxLon + padLon, maxLat + padLat];
 }
 
-function renderToCanvas(geoJson) {
+function getBackgroundOption() {
+    const el = document.querySelector('input[name="share-background"]:checked');
+    return (el && el.value) || 'none';
+}
+
+/**
+ * Преобразует lon/lat в пиксели карты Web Mercator при заданном zoom (0–18).
+ * Мир = 256 * 2^z пикселей по ширине и высоте.
+ */
+function lonLatToMercatorPixel(lon, lat, zoom) {
+    const n = Math.pow(2, zoom);
+    const x = ((lon + 180) / 360) * TILE_SIZE * n;
+    const latRad = (lat * Math.PI) / 180;
+    const y = (1 - Math.log(Math.tan(Math.PI / 4 + latRad / 2)) / Math.PI) / 2 * TILE_SIZE * n;
+    return { x, y };
+}
+
+/**
+ * Подбирает zoom так, чтобы bbox помещался в область (mapWidth, mapHeight) с отступами.
+ */
+function getZoomForBbox(bbox, mapWidth, mapHeight, pad) {
+    const [minLon, minLat, maxLon, maxLat] = bbox;
+    const availableW = mapWidth - 2 * pad;
+    const availableH = mapHeight - 2 * pad;
+    let bestZ = 10;
+    for (let z = 18; z >= 0; z--) {
+        const minPx = lonLatToMercatorPixel(minLon, maxLat, z);
+        const maxPx = lonLatToMercatorPixel(maxLon, minLat, z);
+        const bboxW = maxPx.x - minPx.x;
+        const bboxH = maxPx.y - minPx.y;
+        const scale = Math.min(availableW / bboxW, availableH / bboxH);
+        if (scale >= 0.25) {
+            bestZ = z;
+            break;
+        }
+    }
+    return bestZ;
+}
+
+/**
+ * Загружает один тайл как Image. Для CORS используйте прокси или тайл-сервер с заголовком Access-Control-Allow-Origin.
+ */
+function loadTile(url) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Tile load failed: ${url}`));
+        img.src = url;
+    });
+}
+
+/**
+ * Общий расчёт вида (zoom, scale, offset) в проекции Web Mercator.
+ * Используется и с подложкой OSM, и без неё — чтобы масштаб полигона совпадал.
+ */
+function computeMercatorView(bbox, mapWidth, mapHeight, pad) {
+    const [minLon, minLat, maxLon, maxLat] = bbox;
+    const zoom = getZoomForBbox(bbox, mapWidth, mapHeight, pad);
+    const minPx = lonLatToMercatorPixel(minLon, maxLat, zoom);
+    const maxPx = lonLatToMercatorPixel(maxLon, minLat, zoom);
+    const bboxW = maxPx.x - minPx.x;
+    const bboxH = maxPx.y - minPx.y;
+    const availableW = mapWidth - 2 * pad;
+    const availableH = mapHeight - 2 * pad;
+    const scale = Math.min(availableW / bboxW, availableH / bboxH);
+    const offsetX = mapWidth / 2 - (minPx.x + bboxW / 2) * scale;
+    const offsetY = mapHeight / 2 - (minPx.y + bboxH / 2) * scale;
+    return { scale, offsetX, offsetY, zoom };
+}
+
+/**
+ * Рисует подложку из тайлов OpenStreetMap. Вид (scale, offset, zoom) задаётся mercatorState.
+ */
+async function drawOsmTiles(ctx, bbox, mercatorState) {
+    const { scale, offsetX, offsetY, zoom } = mercatorState;
+    const [minLon, minLat, maxLon, maxLat] = bbox;
+    const minPx = lonLatToMercatorPixel(minLon, maxLat, zoom);
+    const maxPx = lonLatToMercatorPixel(maxLon, minLat, zoom);
+
+    const minTileX = Math.floor(minPx.x / TILE_SIZE);
+    const maxTileX = Math.ceil(maxPx.x / TILE_SIZE);
+    const minTileY = Math.floor(minPx.y / TILE_SIZE);
+    const maxTileY = Math.ceil(maxPx.y / TILE_SIZE);
+
+    const tileLayer = (typeof window !== 'undefined' && window.TILE_LAYER && String(window.TILE_LAYER) !== 'None') ? window.TILE_LAYER : DEFAULT_TILE_LAYER;
+    const urlTemplate = tileLayer.replace('{s}', 'a').replace('{z}', String(zoom));
+
+    const promises = [];
+    const tiles = [];
+    for (let ty = minTileY; ty < maxTileY; ty++) {
+        for (let tx = minTileX; tx < maxTileX; tx++) {
+            const url = urlTemplate.replace('{x}', String(tx)).replace('{y}', String(ty));
+            promises.push(loadTile(url).then((img) => ({ img, tx, ty })));
+        }
+    }
+    const results = await Promise.all(promises.map((p) => p.catch(() => null)));
+    results.forEach((t) => {
+        if (t) tiles.push(t);
+    });
+
+    for (let i = 0; i < tiles.length; i++) {
+        const { img, tx, ty } = tiles[i];
+        const dx = offsetX + tx * TILE_SIZE * scale;
+        const dy = offsetY + ty * TILE_SIZE * scale;
+        ctx.drawImage(img, dx, dy, TILE_SIZE * scale, TILE_SIZE * scale);
+    }
+}
+
+function mercatorToCanvas(lon, lat, zoom, scale, offsetX, offsetY) {
+    const p = lonLatToMercatorPixel(lon, lat, zoom);
+    return { x: offsetX + p.x * scale, y: offsetY + p.y * scale };
+}
+
+function drawGeoJSONMercator(ctx, geoJson, mercatorState) {
+    const { scale, offsetX, offsetY, zoom } = mercatorState;
+
+    function drawRing(coordRing, close) {
+        if (coordRing.length < 2) return;
+        const first = mercatorToCanvas(coordRing[0][0], coordRing[0][1], zoom, scale, offsetX, offsetY);
+        ctx.moveTo(first.x, first.y);
+        for (let i = 1; i < coordRing.length; i++) {
+            const p = mercatorToCanvas(coordRing[i][0], coordRing[i][1], zoom, scale, offsetX, offsetY);
+            ctx.lineTo(p.x, p.y);
+        }
+        if (close) ctx.closePath();
+    }
+
+    const geometries = getGeometries(geoJson);
+    for (let g = 0; g < geometries.length; g++) {
+        const geom = geometries[g];
+        if (!geom || (geom.type !== 'Polygon' && geom.type !== 'MultiPolygon')) continue;
+        ctx.beginPath();
+        if (geom.type === 'Polygon') {
+            geom.coordinates.forEach((ring) => drawRing(ring, true));
+        } else {
+            geom.coordinates.forEach((poly) => poly.forEach((ring) => drawRing(ring, true)));
+        }
+        ctx.fillStyle = FILL_COLOR;
+        ctx.fill();
+        ctx.strokeStyle = STROKE_COLOR;
+        ctx.lineWidth = STROKE_WIDTH;
+        ctx.stroke();
+    }
+}
+
+async function renderToCanvas(geoJson) {
     const canvas = document.getElementById('share-image-canvas');
     if (!canvas) return null;
     const ctx = canvas.getContext('2d');
@@ -167,24 +316,30 @@ function renderToCanvas(geoJson) {
 
     const mapWidth = CANVAS_WIDTH;
     const mapHeight = CANVAS_HEIGHT;
-    const pad = PADDING;
+    const pad = 0;
 
     const polygonCoords = collectCoordsFromGeoJSON(geoJson);
     const bbox = computeBbox(polygonCoords, all_cities);
+    const background = getBackgroundOption();
+    const mercatorState = computeMercatorView(bbox, mapWidth, mapHeight, pad);
 
-    // Фон
     ctx.fillStyle = '#f8fafc';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Полигон и маркеры центрируем по центру всего изображения (mapWidth/2, mapHeight/2)
-    drawGeoJSON(ctx, geoJson, bbox, mapWidth, mapHeight, pad);
+    if (background === 'osm') {
+        try {
+            await drawOsmTiles(ctx, bbox, mercatorState);
+        } catch (e) {
+            console.warn('Не удалось загрузить тайлы карты:', e);
+        }
+    }
 
-    // Точки городов
+    drawGeoJSONMercator(ctx, geoJson, mercatorState);
     for (let i = 0; i < all_cities.length; i++) {
         const c = all_cities[i];
-        const [x, y] = project(c.lon, c.lat, bbox, mapWidth, mapHeight, pad);
+        const p = mercatorToCanvas(c.lon, c.lat, mercatorState.zoom, mercatorState.scale, mercatorState.offsetX, mercatorState.offsetY);
         ctx.beginPath();
-        ctx.arc(x, y, MARKER_RADIUS, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, MARKER_RADIUS, 0, Math.PI * 2);
         ctx.fillStyle = c.isVisited ? VISITED_COLOR : NOT_VISITED_COLOR;
         ctx.fill();
         ctx.strokeStyle = 'rgba(0,0,0,0.25)';
@@ -377,8 +532,10 @@ fetch(polygonUrl)
     .then((geoJson) => {
         geoJsonData = geoJson;
         setLoading(true);
-        requestAnimationFrame(() => {
-            renderToCanvas(geoJson);
+        renderToCanvas(geoJson).then(() => {
+            setLoading(false);
+            setButtonsReady();
+        }).catch(() => {
             setLoading(false);
             setButtonsReady();
         });
@@ -406,9 +563,9 @@ const btnShare = document.getElementById('btn-share-image');
 if (btnDownload) {
     btnDownload.addEventListener('click', () => {
         if (!geoJsonData) return;
-        renderToCanvas(geoJsonData);
-        const canvas = document.getElementById('share-image-canvas');
-        if (canvas) canvasToBlob(canvas).then(downloadImage).catch((e) => console.error(e));
+        renderToCanvas(geoJsonData).then((canvas) => {
+            if (canvas) canvasToBlob(canvas).then(downloadImage).catch((e) => console.error(e));
+        }).catch((e) => console.error(e));
     });
 }
 
@@ -416,19 +573,19 @@ if (btnShare) {
     if (navigator.share && navigator.canShare) {
         btnShare.addEventListener('click', () => {
             if (!geoJsonData) return;
-            renderToCanvas(geoJsonData);
-            const canvas = document.getElementById('share-image-canvas');
-            if (canvas) canvasToBlob(canvas).then(shareImage).catch((e) => console.error(e));
+            renderToCanvas(geoJsonData).then((canvas) => {
+                if (canvas) canvasToBlob(canvas).then(shareImage).catch((e) => console.error(e));
+            }).catch((e) => console.error(e));
         });
     }
 }
 
 function redrawOnCaptionOptionsChange() {
     if (!geoJsonData) return;
-    renderToCanvas(geoJsonData);
+    renderToCanvas(geoJsonData).catch((e) => console.warn(e));
 }
 
-['caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight'].forEach((name) => {
+['share-background', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight'].forEach((name) => {
     document.querySelectorAll(`input[name="${name}"]`).forEach((el) => {
         el.addEventListener('change', redrawOnCaptionOptionsChange);
     });

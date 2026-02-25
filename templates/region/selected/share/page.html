@@ -27,7 +27,7 @@
     <div class="mx-auto mb-6 max-w-4xl">
         <div id="share-image-wrapper" class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
             <div id="iso3166_code" data-iso3166_code="{{ iso3166_code }}" hidden></div>
-            <div class="relative flex items-center justify-center bg-gray-100 dark:bg-neutral-800" style="height: 520px;">
+            <div id="share-image-container" class="relative flex min-h-[320px] items-center justify-center bg-gray-100 dark:bg-neutral-800">
                 <canvas id="share-image-canvas" width="800" height="520" class="block max-w-full h-auto"></canvas>
                 <div id="share-image-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-neutral-900/80">
                     <span class="text-gray-600 dark:text-neutral-400">Загрузка границ региона…</span>
@@ -39,6 +39,29 @@
         <div id="share-caption-panel" class="mt-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
             <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-neutral-300">Изображение</h3>
             <div class="flex flex-wrap gap-6">
+                <fieldset class="flex flex-wrap gap-2">
+                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Соотношение сторон</legend>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="share-aspect-ratio" value="16:9" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        16∶9
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="share-aspect-ratio" value="4:3" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                        4∶3
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="share-aspect-ratio" value="1:1" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        1∶1
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="share-aspect-ratio" value="3:4" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        3∶4
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="share-aspect-ratio" value="9:16" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        9∶16
+                    </label>
+                </fieldset>
                 <fieldset class="flex flex-wrap gap-2">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Подложка</legend>
                     <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">

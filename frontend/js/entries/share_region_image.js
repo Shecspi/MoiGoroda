@@ -20,11 +20,26 @@ const regionName = window.REGION_NAME || '';
 const numVisited = window.SHARE_NUMBER_OF_VISITED ?? 0;
 const numCities = window.SHARE_NUMBER_OF_CITIES ?? 0;
 
-const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 520;
 const PADDING = 48;
 const CAPTION_HEIGHT = 56;
 const CAPTION_PADDING = 12;
+
+/** Соотношения сторон: большая сторона 800px. */
+const ASPECT_PRESETS = {
+    '16:9': { width: 800, height: 450 },
+    '4:3': { width: 800, height: 600 },
+    '1:1': { width: 800, height: 800 },
+    '3:4': { width: 600, height: 800 },
+    '9:16': { width: 450, height: 800 },
+};
+
+const DEFAULT_ASPECT = '4:3';
+
+function getCanvasDimensions() {
+    const el = document.querySelector('input[name="share-aspect-ratio"]:checked');
+    const key = (el && el.value && ASPECT_PRESETS[el.value]) ? el.value : DEFAULT_ASPECT;
+    return ASPECT_PRESETS[key];
+}
 
 // Цвета как на карте региона
 const FILL_COLOR = 'rgba(99, 130, 255, 0.12)';
@@ -250,7 +265,8 @@ function loadTile(url) {
 
 /**
  * Общий расчёт вида (zoom, scale, offset) в проекции Web Mercator.
- * Используется и с подложкой OSM, и без неё — чтобы масштаб полигона совпадал.
+ * Пропорции карты сохраняются (один scale). Видимая область расширена под соотношение
+ * сторон холста, чтобы подложка заполняла 100% без полос и без растягивания.
  */
 function computeMercatorView(bbox, mapWidth, mapHeight, pad) {
     const [minLon, minLat, maxLon, maxLat] = bbox;
@@ -261,25 +277,40 @@ function computeMercatorView(bbox, mapWidth, mapHeight, pad) {
     const bboxH = maxPx.y - minPx.y;
     const availableW = mapWidth - 2 * pad;
     const availableH = mapHeight - 2 * pad;
-    const scale = Math.min(availableW / bboxW, availableH / bboxH);
-    const offsetX = mapWidth / 2 - (minPx.x + bboxW / 2) * scale;
-    const offsetY = mapHeight / 2 - (minPx.y + bboxH / 2) * scale;
-    return { scale, offsetX, offsetY, zoom };
+    const canvasAspect = availableW / availableH;
+    const bboxAspect = bboxW / bboxH;
+    const viewW = bboxAspect >= canvasAspect ? bboxW : bboxH * canvasAspect;
+    const viewH = bboxAspect >= canvasAspect ? bboxW / canvasAspect : bboxH;
+    const centerX = (minPx.x + maxPx.x) / 2;
+    const centerY = (minPx.y + maxPx.y) / 2;
+    const viewMinX = centerX - viewW / 2;
+    const viewMinY = centerY - viewH / 2;
+    const scale = availableW / viewW;
+    const offsetX = pad - viewMinX * scale;
+    const offsetY = pad - viewMinY * scale;
+    return {
+        scaleX: scale,
+        scaleY: scale,
+        offsetX,
+        offsetY,
+        zoom,
+        viewMinX,
+        viewMinY,
+        viewMaxX: viewMinX + viewW,
+        viewMaxY: viewMinY + viewH,
+    };
 }
 
 /**
- * Рисует подложку из тайлов OpenStreetMap. Вид (scale, offset, zoom) задаётся mercatorState.
+ * Рисует подложку из тайлов OpenStreetMap. Вид задаётся mercatorState (расширенная область viewMinX/Y, viewMaxX/Y).
  */
 async function drawOsmTiles(ctx, bbox, mercatorState) {
-    const { scale, offsetX, offsetY, zoom } = mercatorState;
-    const [minLon, minLat, maxLon, maxLat] = bbox;
-    const minPx = lonLatToMercatorPixel(minLon, maxLat, zoom);
-    const maxPx = lonLatToMercatorPixel(maxLon, minLat, zoom);
+    const { scaleX, scaleY, offsetX, offsetY, zoom, viewMinX, viewMinY, viewMaxX, viewMaxY } = mercatorState;
 
-    const minTileX = Math.floor(minPx.x / TILE_SIZE);
-    const maxTileX = Math.ceil(maxPx.x / TILE_SIZE);
-    const minTileY = Math.floor(minPx.y / TILE_SIZE);
-    const maxTileY = Math.ceil(maxPx.y / TILE_SIZE);
+    const minTileX = Math.floor(viewMinX / TILE_SIZE);
+    const maxTileX = Math.ceil(viewMaxX / TILE_SIZE);
+    const minTileY = Math.floor(viewMinY / TILE_SIZE);
+    const maxTileY = Math.ceil(viewMaxY / TILE_SIZE);
 
     const tileLayer = (typeof window !== 'undefined' && window.TILE_LAYER && String(window.TILE_LAYER) !== 'None') ? window.TILE_LAYER : DEFAULT_TILE_LAYER;
     const urlTemplate = tileLayer.replace('{s}', 'a').replace('{z}', String(zoom));
@@ -297,28 +328,30 @@ async function drawOsmTiles(ctx, bbox, mercatorState) {
         if (t) tiles.push(t);
     });
 
+    const tileW = TILE_SIZE * scaleX;
+    const tileH = TILE_SIZE * scaleY;
     for (let i = 0; i < tiles.length; i++) {
         const { img, tx, ty } = tiles[i];
-        const dx = offsetX + tx * TILE_SIZE * scale;
-        const dy = offsetY + ty * TILE_SIZE * scale;
-        ctx.drawImage(img, dx, dy, TILE_SIZE * scale, TILE_SIZE * scale);
+        const dx = offsetX + tx * TILE_SIZE * scaleX;
+        const dy = offsetY + ty * TILE_SIZE * scaleY;
+        ctx.drawImage(img, dx, dy, tileW, tileH);
     }
 }
 
-function mercatorToCanvas(lon, lat, zoom, scale, offsetX, offsetY) {
+function mercatorToCanvas(lon, lat, zoom, scaleX, scaleY, offsetX, offsetY) {
     const p = lonLatToMercatorPixel(lon, lat, zoom);
-    return { x: offsetX + p.x * scale, y: offsetY + p.y * scale };
+    return { x: offsetX + p.x * scaleX, y: offsetY + p.y * scaleY };
 }
 
 function drawGeoJSONMercator(ctx, geoJson, mercatorState) {
-    const { scale, offsetX, offsetY, zoom } = mercatorState;
+    const { scaleX, scaleY, offsetX, offsetY, zoom } = mercatorState;
 
     function drawRing(coordRing, close) {
         if (coordRing.length < 2) return;
-        const first = mercatorToCanvas(coordRing[0][0], coordRing[0][1], zoom, scale, offsetX, offsetY);
+        const first = mercatorToCanvas(coordRing[0][0], coordRing[0][1], zoom, scaleX, scaleY, offsetX, offsetY);
         ctx.moveTo(first.x, first.y);
         for (let i = 1; i < coordRing.length; i++) {
-            const p = mercatorToCanvas(coordRing[i][0], coordRing[i][1], zoom, scale, offsetX, offsetY);
+            const p = mercatorToCanvas(coordRing[i][0], coordRing[i][1], zoom, scaleX, scaleY, offsetX, offsetY);
             ctx.lineTo(p.x, p.y);
         }
         if (close) ctx.closePath();
@@ -348,8 +381,12 @@ async function renderToCanvas(geoJson) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    const mapWidth = CANVAS_WIDTH;
-    const mapHeight = CANVAS_HEIGHT;
+    const { width: w, height: h } = getCanvasDimensions();
+    canvas.width = w;
+    canvas.height = h;
+
+    const mapWidth = w;
+    const mapHeight = h;
     const pad = 0;
 
     const polygonCoords = collectCoordsFromGeoJSON(geoJson);
@@ -358,7 +395,7 @@ async function renderToCanvas(geoJson) {
     const mercatorState = computeMercatorView(bbox, mapWidth, mapHeight, pad);
 
     ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    ctx.fillRect(0, 0, w, h);
 
     if (background === 'osm') {
         try {
@@ -372,7 +409,7 @@ async function renderToCanvas(geoJson) {
     await ensurePinImages();
     for (let i = 0; i < all_cities.length; i++) {
         const c = all_cities[i];
-        const p = mercatorToCanvas(c.lon, c.lat, mercatorState.zoom, mercatorState.scale, mercatorState.offsetX, mercatorState.offsetY);
+        const p = mercatorToCanvas(c.lon, c.lat, mercatorState.zoom, mercatorState.scaleX, mercatorState.scaleY, mercatorState.offsetX, mercatorState.offsetY);
         const pinImg = c.isVisited ? pinVisitedImg : pinNotVisitedImg;
         if (pinImg && pinImg.complete && pinImg.naturalWidth) {
             ctx.drawImage(pinImg, p.x - PIN_ANCHOR_X, p.y - PIN_ANCHOR_Y, PIN_WIDTH, PIN_HEIGHT);
@@ -381,7 +418,7 @@ async function renderToCanvas(geoJson) {
 
     const caption = `Поздравляем! Вы посетили ${numVisited} из ${numCities} городов региона ${regionName}`;
     const captionOptions = getCaptionOptions();
-    drawCaption(ctx, caption, captionOptions);
+    drawCaption(ctx, caption, captionOptions, w, h);
 
     return canvas;
 }
@@ -404,20 +441,20 @@ function getCaptionOptions() {
 /**
  * Возвращает прямоугольник блока подписи в зависимости от положения.
  */
-function getCaptionBox(position) {
+function getCaptionBox(position, canvasWidth, canvasHeight) {
     const pad = CAPTION_PADDING;
     if (position === 'top') {
-        return { x: pad, y: pad, w: CANVAS_WIDTH - 2 * pad, h: CAPTION_HEIGHT };
+        return { x: pad, y: pad, w: canvasWidth - 2 * pad, h: CAPTION_HEIGHT };
     }
     if (position === 'bottom') {
-        return { x: pad, y: CANVAS_HEIGHT - pad - CAPTION_HEIGHT, w: CANVAS_WIDTH - 2 * pad, h: CAPTION_HEIGHT };
+        return { x: pad, y: canvasHeight - pad - CAPTION_HEIGHT, w: canvasWidth - 2 * pad, h: CAPTION_HEIGHT };
     }
     if (position === 'center') {
-        const w = Math.min(0.85 * CANVAS_WIDTH, 620);
-        const h = CAPTION_HEIGHT + 16;
-        return { x: (CANVAS_WIDTH - w) / 2, y: (CANVAS_HEIGHT - h) / 2, w, h };
+        const boxW = Math.min(0.85 * canvasWidth, 620);
+        const boxH = CAPTION_HEIGHT + 16;
+        return { x: (canvasWidth - boxW) / 2, y: (canvasHeight - boxH) / 2, w: boxW, h: boxH };
     }
-    return { x: pad, y: CANVAS_HEIGHT - pad - CAPTION_HEIGHT, w: CANVAS_WIDTH - 2 * pad, h: CAPTION_HEIGHT };
+    return { x: pad, y: canvasHeight - pad - CAPTION_HEIGHT, w: canvasWidth - 2 * pad, h: CAPTION_HEIGHT };
 }
 
 /**
@@ -445,9 +482,9 @@ const FONT_FAMILIES = {
     mono: '"ui-monospace", "Cascadia Code", "Source Code Pro", monospace',
 };
 
-function drawCaption(ctx, caption, options) {
+function drawCaption(ctx, caption, options, canvasWidth, canvasHeight) {
     const { position, alignment, fontSize, fontFamily, fontWeight } = options;
-    const box = getCaptionBox(position);
+    const box = getCaptionBox(position, canvasWidth, canvasHeight);
     const { x: boxX, y: boxY, w: boxW, h: boxH } = box;
     const maxTextWidth = boxW - 2 * CAPTION_PADDING;
     const lineHeight = Math.round(fontSize * 1.15);
@@ -576,14 +613,17 @@ fetch(polygonUrl)
         console.warn('Ошибка загрузки границ региона:', err);
         const canvas = document.getElementById('share-image-canvas');
         if (canvas) {
+            const { width, height } = getCanvasDimensions();
+            canvas.width = width;
+            canvas.height = height;
             const ctx = canvas.getContext('2d');
             if (ctx) {
                 ctx.fillStyle = '#f8fafc';
-                ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                ctx.fillRect(0, 0, width, height);
                 ctx.fillStyle = '#64748b';
                 ctx.font = '16px system-ui, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Не удалось загрузить границы региона', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+                ctx.fillText('Не удалось загрузить границы региона', width / 2, height / 2);
             }
         }
         setButtonsReady();
@@ -617,7 +657,7 @@ function redrawOnCaptionOptionsChange() {
     renderToCanvas(geoJsonData).catch((e) => console.warn(e));
 }
 
-['share-background', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight'].forEach((name) => {
+['share-aspect-ratio', 'share-background', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight'].forEach((name) => {
     document.querySelectorAll(`input[name="${name}"]`).forEach((el) => {
         el.addEventListener('change', redrawOnCaptionOptionsChange);
     });

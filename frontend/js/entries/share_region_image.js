@@ -87,6 +87,21 @@ const PIN_HEIGHT = 22;
 const PIN_ANCHOR_X = 8;
 const PIN_ANCHOR_Y = 22;
 
+const WATERMARK_PAD = 14;
+const WATERMARK_INNER_PAD = 8;
+const WATERMARK_LOGO_HEIGHT = 20;
+const WATERMARK_LOGO_GAP = 8;
+const WATERMARK_TEXT = 'moi-goroda.ru';
+const WATERMARK_FONT_SIZE = 14;
+const WATERMARK_BG = '#f3f4f6';
+const WATERMARK_BORDER = '#9ca3af';
+const WATERMARK_BORDER_WIDTH = 1;
+const WATERMARK_RADIUS = 6;
+
+/** Логотип сайта (глобус из шапки сайдбара), viewBox 0 0 576 512. */
+const SITE_LOGO_PATH = 'M408 120c0 54.6-73.1 151.9-105.2 192c-7.7 9.6-22 9.6-29.6 0C241.1 271.9 168 174.6 168 120C168 53.7 221.7 0 288 0s120 53.7 120 120zm8 80.4c3.5-6.9 6.7-13.8 9.6-20.6c.5-1.2 1-2.5 1.5-3.7l116-46.4C558.9 123.4 576 135 576 152V422.8c0 9.8-6 18.6-15.1 22.3L416 503V200.4zM137.6 138.3c2.4 14.1 7.2 28.3 12.8 41.5c2.9 6.8 6.1 13.7 9.6 20.6V451.8L32.9 502.7C17.1 509 0 497.4 0 480.4V209.6c0-9.8 6-18.6 15.1-22.3l122.6-49zM327.8 332c13.9-17.4 35.7-45.7 56.2-77V504.3L192 449.4V255c20.5 31.3 42.3 59.6 56.2 77c20.5 25.6 59.1 25.6 79.6 0zM288 152a40 40 0 1 0 0-80 40 40 0 1 0 0 80z';
+const SITE_LOGO_VIEWBOX = { w: 576, h: 512 };
+
 /** SVG пина локации (тот же путь, что в icons.js — locationPinSvg), без тени. */
 function locationPinSvgDataUrl(color) {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="${PIN_WIDTH}" height="${PIN_HEIGHT}"><path fill="${color}" stroke="rgba(0, 0, 0, 0.45)" stroke-width="1" stroke-linejoin="round" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>`;
@@ -470,6 +485,8 @@ async function renderToCanvas(geoJson, exportDimensions) {
     const captionOptions = getCaptionOptions();
     drawCaption(ctx, caption, captionOptions, w, h, markerScale);
 
+    drawWatermark(ctx, w, h, markerScale);
+
     return canvas;
 }
 
@@ -660,6 +677,71 @@ function drawCaption(ctx, caption, options, canvasWidth, canvasHeight, scale) {
     }
 }
 
+function getWatermarkPosition() {
+    const el = document.querySelector('input[name="share-watermark"]:checked');
+    return (el && el.value && el.value !== 'off') ? el.value : 'off';
+}
+
+function drawWatermark(ctx, canvasWidth, canvasHeight, scale) {
+    const pos = getWatermarkPosition();
+    if (pos === 'off') return;
+    const s = scale || 1;
+    const pad = WATERMARK_PAD * s;
+    const innerPad = WATERMARK_INNER_PAD * s;
+    const logoGap = WATERMARK_LOGO_GAP * s;
+    const logoH = WATERMARK_LOGO_HEIGHT * s;
+    const logoW = (SITE_LOGO_VIEWBOX.w / SITE_LOGO_VIEWBOX.h) * logoH;
+    const fontSize = Math.round(WATERMARK_FONT_SIZE * s);
+    ctx.font = `${fontSize}px system-ui, sans-serif`;
+    const textW = ctx.measureText(WATERMARK_TEXT).width;
+    const lineH = fontSize * 1.2;
+
+    const boxW = innerPad + logoW + logoGap + textW + innerPad;
+    const boxH = Math.max(logoH, lineH) + 2 * innerPad;
+    const radius = Math.max(2, WATERMARK_RADIUS * s);
+
+    let boxX;
+    let boxY;
+    if (pos === 'top-right' || pos === 'bottom-right') {
+        boxX = canvasWidth - pad - boxW;
+    } else {
+        boxX = pad;
+    }
+    if (pos === 'top-left' || pos === 'top-right') {
+        boxY = pad;
+    } else {
+        boxY = canvasHeight - pad - boxH;
+    }
+
+    roundRect(ctx, boxX, boxY, boxW, boxH, radius);
+    ctx.fillStyle = WATERMARK_BG;
+    ctx.fill();
+    ctx.strokeStyle = WATERMARK_BORDER;
+    ctx.lineWidth = WATERMARK_BORDER_WIDTH;
+    ctx.stroke();
+
+    const logoBlockW = Math.ceil(logoW);
+    const logoBlockH = Math.ceil(logoH);
+    const off = document.createElement('canvas');
+    off.width = logoBlockW;
+    off.height = logoBlockH;
+    const offCtx = off.getContext('2d');
+    if (offCtx) {
+        offCtx.fillStyle = '#374151';
+        const path = new Path2D(SITE_LOGO_PATH);
+        offCtx.scale(logoBlockW / SITE_LOGO_VIEWBOX.w, logoBlockH / SITE_LOGO_VIEWBOX.h);
+        offCtx.fill(path);
+        const logoY = boxY + (boxH - logoH) / 2;
+        ctx.drawImage(off, boxX + innerPad, logoY, logoBlockW, logoBlockH);
+    }
+
+    const textX = boxX + innerPad + logoW + logoGap;
+    ctx.fillStyle = '#374151';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(WATERMARK_TEXT, textX, boxY + boxH / 2);
+}
+
 function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -797,7 +879,7 @@ function redrawOnCaptionOptionsChange() {
     renderToCanvas(geoJsonData).catch((e) => console.warn(e));
 }
 
-['share-aspect-ratio', 'share-resolution', 'share-background', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight', 'caption-background'].forEach((name) => {
+['share-aspect-ratio', 'share-resolution', 'share-background', 'share-watermark', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight', 'caption-background'].forEach((name) => {
     document.querySelectorAll(`input[name="${name}"]`).forEach((el) => {
         el.addEventListener('change', redrawOnCaptionOptionsChange);
     });

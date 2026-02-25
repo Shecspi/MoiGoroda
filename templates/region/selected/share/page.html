@@ -162,6 +162,128 @@
                         Жирный
                     </label>
                 </fieldset>
+                <fieldset class="flex flex-wrap gap-2">
+                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Фон подписи</legend>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-background" value="none" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        Без фона
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-background" value="outline" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        Обводка букв
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-background" value="box" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                        Бокс за текстом
+                    </label>
+                </fieldset>
+                <fieldset class="flex flex-wrap items-end gap-4">
+                    <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Параметры фона</legend>
+                    <label for="caption-bg-color" class="block mb-2 text-sm font-medium text-foreground">Цвет</label>
+                    <input type="color" id="caption-bg-color" name="caption-bg-color" value="#ef4444" title="Выберите цвет фона" class="p-1 h-10 w-14 block bg-layer border border-layer-line cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none">
+                    <div class="flex flex-col gap-1 min-w-[8rem]">
+                        <span class="text-xs text-gray-500 dark:text-neutral-400">Размер <span id="caption-bg-size-value">1</span></span>
+                        <div class="w-full">
+                            <label for="caption-bg-size" class="sr-only">Размер</label>
+                            <input type="range" id="caption-bg-size" name="caption-bg-size" min="50" max="300" step="5" value="100" aria-orientation="horizontal" class="w-full bg-transparent cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus:outline-none
+                                [&::-webkit-slider-thumb]:w-2.5
+                                [&::-webkit-slider-thumb]:h-2.5
+                                [&::-webkit-slider-thumb]:-mt-0.5
+                                [&::-webkit-slider-thumb]:bg-layer
+                                [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_var(--color-primary)]
+                                [&::-webkit-slider-thumb]:rounded-full
+                                [&::-webkit-slider-thumb]:transition-all
+                                [&::-webkit-slider-thumb]:duration-150
+                                [&::-webkit-slider-thumb]:ease-in-out
+                                [&::-moz-range-thumb]:w-2.5
+                                [&::-moz-range-thumb]:h-2.5
+                                [&::-webkit-slider-thumb]:appearance-none
+                                [&::-moz-range-thumb]:bg-layer
+                                [&::-moz-range-thumb]:border-4
+                                [&::-moz-range-thumb]:border-primary
+                                [&::-moz-range-thumb]:rounded-full
+                                [&::-moz-range-thumb]:transition-all
+                                [&::-moz-range-thumb]:duration-150
+                                [&::-moz-range-thumb]:ease-in-out
+                                [&::-webkit-slider-runnable-track]:w-full
+                                [&::-webkit-slider-runnable-track]:h-2
+                                [&::-webkit-slider-runnable-track]:bg-surface
+                                [&::-webkit-slider-runnable-track]:rounded-full
+                                [&::-moz-range-track]:w-full
+                                [&::-moz-range-track]:h-2
+                                [&::-moz-range-track]:bg-surface
+                                [&::-moz-range-track]:rounded-full">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1 min-w-[8rem]">
+                        <span class="text-xs text-gray-500 dark:text-neutral-400">Прозрачность <span id="caption-bg-opacity-value">50</span>%</span>
+                        <div class="w-full">
+                            <label for="caption-bg-opacity" class="sr-only">Прозрачность фона</label>
+                            <input type="range" id="caption-bg-opacity" name="caption-bg-opacity" min="0" max="100" value="50" aria-orientation="horizontal" class="w-full bg-transparent cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus:outline-none
+                                [&::-webkit-slider-thumb]:w-2.5
+                                [&::-webkit-slider-thumb]:h-2.5
+                                [&::-webkit-slider-thumb]:-mt-0.5
+                                [&::-webkit-slider-thumb]:bg-layer
+                                [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_var(--color-primary)]
+                                [&::-webkit-slider-thumb]:rounded-full
+                                [&::-webkit-slider-thumb]:transition-all
+                                [&::-webkit-slider-thumb]:duration-150
+                                [&::-webkit-slider-thumb]:ease-in-out
+                                [&::-moz-range-thumb]:w-2.5
+                                [&::-moz-range-thumb]:h-2.5
+                                [&::-webkit-slider-thumb]:appearance-none
+                                [&::-moz-range-thumb]:bg-layer
+                                [&::-moz-range-thumb]:border-4
+                                [&::-moz-range-thumb]:border-primary
+                                [&::-moz-range-thumb]:rounded-full
+                                [&::-moz-range-thumb]:transition-all
+                                [&::-moz-range-thumb]:duration-150
+                                [&::-moz-range-thumb]:ease-in-out
+                                [&::-webkit-slider-runnable-track]:w-full
+                                [&::-webkit-slider-runnable-track]:h-2
+                                [&::-webkit-slider-runnable-track]:bg-surface
+                                [&::-webkit-slider-runnable-track]:rounded-full
+                                [&::-moz-range-track]:w-full
+                                [&::-moz-range-track]:h-2
+                                [&::-moz-range-track]:bg-surface
+                                [&::-moz-range-track]:rounded-full">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1 min-w-[8rem]">
+                        <span class="text-xs text-gray-500 dark:text-neutral-400">Размытие <span id="caption-bg-blur-value">10</span>px</span>
+                        <div class="w-full">
+                            <label for="caption-bg-blur" class="sr-only">Размытие фона</label>
+                            <input type="range" id="caption-bg-blur" name="caption-bg-blur" min="0" max="20" value="10" aria-orientation="horizontal" class="w-full bg-transparent cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus:outline-none
+                                [&::-webkit-slider-thumb]:w-2.5
+                                [&::-webkit-slider-thumb]:h-2.5
+                                [&::-webkit-slider-thumb]:-mt-0.5
+                                [&::-webkit-slider-thumb]:bg-layer
+                                [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_var(--color-primary)]
+                                [&::-webkit-slider-thumb]:rounded-full
+                                [&::-webkit-slider-thumb]:transition-all
+                                [&::-webkit-slider-thumb]:duration-150
+                                [&::-webkit-slider-thumb]:ease-in-out
+                                [&::-moz-range-thumb]:w-2.5
+                                [&::-moz-range-thumb]:h-2.5
+                                [&::-webkit-slider-thumb]:appearance-none
+                                [&::-moz-range-thumb]:bg-layer
+                                [&::-moz-range-thumb]:border-4
+                                [&::-moz-range-thumb]:border-primary
+                                [&::-moz-range-thumb]:rounded-full
+                                [&::-moz-range-thumb]:transition-all
+                                [&::-moz-range-thumb]:duration-150
+                                [&::-moz-range-thumb]:ease-in-out
+                                [&::-webkit-slider-runnable-track]:w-full
+                                [&::-webkit-slider-runnable-track]:h-2
+                                [&::-webkit-slider-runnable-track]:bg-surface
+                                [&::-webkit-slider-runnable-track]:rounded-full
+                                [&::-moz-range-track]:w-full
+                                [&::-moz-range-track]:h-2
+                                [&::-moz-range-track]:bg-surface
+                                [&::-moz-range-track]:rounded-full">
+                        </div>
+                    </div>
+                </fieldset>
             </div>
         </div>
 

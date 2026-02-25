@@ -32,8 +32,42 @@ const STROKE_COLOR = 'rgba(0, 51, 255, 0.4)';
 const STROKE_WIDTH = 2;
 const VISITED_COLOR = 'rgb(66, 178, 66)';
 const NOT_VISITED_COLOR = 'rgb(210, 90, 90)';
-const MARKER_RADIUS = 5;
 const TILE_SIZE = 256;
+
+/** Размер маркера-пина на холсте (якорь внизу по центру). */
+const PIN_WIDTH = 16;
+const PIN_HEIGHT = 22;
+const PIN_ANCHOR_X = 8;
+const PIN_ANCHOR_Y = 22;
+
+/** SVG пина локации (тот же путь, что в icons.js — locationPinSvg), без тени. */
+function locationPinSvgDataUrl(color) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="${PIN_WIDTH}" height="${PIN_HEIGHT}"><path fill="${color}" stroke="rgba(0, 0, 0, 0.45)" stroke-width="1" stroke-linejoin="round" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>`;
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+let pinVisitedImg = null;
+let pinNotVisitedImg = null;
+let pinImagesReady = null;
+
+function ensurePinImages() {
+    if (pinImagesReady) return pinImagesReady;
+    pinImagesReady = Promise.all([
+        new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => { pinVisitedImg = img; resolve(); };
+            img.onerror = () => resolve();
+            img.src = locationPinSvgDataUrl(VISITED_COLOR);
+        }),
+        new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => { pinNotVisitedImg = img; resolve(); };
+            img.onerror = () => resolve();
+            img.src = locationPinSvgDataUrl(NOT_VISITED_COLOR);
+        }),
+    ]);
+    return pinImagesReady;
+}
 
 const DEFAULT_TILE_LAYER = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
@@ -335,16 +369,14 @@ async function renderToCanvas(geoJson) {
     }
 
     drawGeoJSONMercator(ctx, geoJson, mercatorState);
+    await ensurePinImages();
     for (let i = 0; i < all_cities.length; i++) {
         const c = all_cities[i];
         const p = mercatorToCanvas(c.lon, c.lat, mercatorState.zoom, mercatorState.scale, mercatorState.offsetX, mercatorState.offsetY);
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, MARKER_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = c.isVisited ? VISITED_COLOR : NOT_VISITED_COLOR;
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(0,0,0,0.25)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        const pinImg = c.isVisited ? pinVisitedImg : pinNotVisitedImg;
+        if (pinImg && pinImg.complete && pinImg.naturalWidth) {
+            ctx.drawImage(pinImg, p.x - PIN_ANCHOR_X, p.y - PIN_ANCHOR_Y, PIN_WIDTH, PIN_HEIGHT);
+        }
     }
 
     const caption = `Поздравляем! Вы посетили ${numVisited} из ${numCities} городов региона ${regionName}`;

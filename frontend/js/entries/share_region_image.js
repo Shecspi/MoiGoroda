@@ -481,7 +481,7 @@ async function renderToCanvas(geoJson, exportDimensions) {
         }
     }
 
-    const caption = `Поздравляем! Вы посетили ${numVisited} из ${numCities} городов региона ${regionName}`;
+    const caption = getCaptionText();
     const captionOptions = getCaptionOptions();
     drawCaption(ctx, caption, captionOptions, w, h, markerScale);
 
@@ -493,6 +493,95 @@ async function renderToCanvas(geoJson, exportDimensions) {
 function hexToRgb(hex) {
     const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : { r: 255, g: 255, b: 255 };
+}
+
+/** Шаблоны подписи для соцсетей (достижение цели). Плейсхолдеры: {numVisited}, {numCities}, {cityWord}, {regionName}, {regionNameIn} (в Калужской области). */
+const CAPTION_PRESETS = [
+    'Я посетил {numVisited} {cityWord} из {numCities} в {regionNameIn}',
+    'Цель достигнута: {numVisited} {cityWord} из {numCities} в {regionNameIn}',
+    '{regionName} ({numVisited} {cityWord} из {numCities})',
+];
+
+/** Склонение слова «город» по числу: 1 город, 2/3/4 города, 5–20 городов, 21 город, … */
+function pluralFormCity(n) {
+    const num = Math.abs(Number(n));
+    const mod10 = num % 10;
+    const mod100 = num % 100;
+    if (mod100 >= 11 && mod100 <= 14) return 'городов';
+    if (mod10 === 1) return 'город';
+    if (mod10 >= 2 && mod10 <= 4) return 'города';
+    return 'городов';
+}
+
+/** Название региона в предложном падеже (для «в …»: в Калужской области, в Москве). */
+function regionNameToPrepositional(name) {
+    if (!name || typeof name !== 'string') return name || '';
+    const s = name.trim();
+    if (!s) return s;
+    if (/\s*область\s*$/i.test(s)) {
+        return s.replace(/(\w*)(ская)\s+область\s*$/i, '$1ской области').replace(/(\w*)(кая)\s+область\s*$/i, '$1кой области');
+    }
+    if (/\s*край\s*$/i.test(s)) {
+        return s.replace(/(\w*)(ский)\s+край\s*$/i, '$1ском крае').replace(/(\w*)(ий)\s+край\s*$/i, '$1ом крае');
+    }
+    if (/^Республика\s+/i.test(s)) {
+        return s.replace(/^Республика\s+/i, 'Республике ');
+    }
+    if (/^Москва\s*$/i.test(s)) return 'Москве';
+    if (/^Санкт-Петербург\s*$/i.test(s)) return 'Санкт-Петербурге';
+    if (/^Севастополь\s*$/i.test(s)) return 'Севастополе';
+    return s;
+}
+
+/** Название региона в родительном падеже (для «региона …»). */
+function regionNameToGenitive(name) {
+    if (!name || typeof name !== 'string') return name || '';
+    const s = name.trim();
+    if (!s) return s;
+    // ХХХская область → ХХХской области
+    if (/\s*область\s*$/i.test(s)) {
+        return s.replace(/(\w*)(ская)\s+область\s*$/i, '$1ской области').replace(/(\w*)(кая)\s+область\s*$/i, '$1кой области');
+    }
+    // ХХХский край → ХХХского края, ХХХий край → ХХХого края
+    if (/\s*край\s*$/i.test(s)) {
+        return s.replace(/(\w*)(ский)\s+край\s*$/i, '$1ского края').replace(/(\w*)(ий)\s+край\s*$/i, '$1ого края');
+    }
+    // Республика ХХХ — в родительном «Республики ХХХ»
+    if (/^Республика\s+/i.test(s)) {
+        return s.replace(/^Республика\s+/i, 'Республики ');
+    }
+    // Города: Москва → Москвы, Санкт-Петербург → Санкт-Петербурга (упрощённо)
+    if (/^Москва\s*$/i.test(s)) return 'Москвы';
+    if (/^Санкт-Петербург\s*$/i.test(s)) return 'Санкт-Петербурга';
+    if (/^Севастополь\s*$/i.test(s)) return 'Севастополя';
+    // По умолчанию — как есть (избегаем неверного склонения)
+    return s;
+}
+
+function applyCaptionPlaceholders(text) {
+    const cityWord = pluralFormCity(numVisited);
+    const regionIn = regionNameToPrepositional(regionName);
+    return text
+        .replace(/\{numVisited\}/g, String(numVisited))
+        .replace(/\{numCities\}/g, String(numCities))
+        .replace(/\{cityWord\}/g, cityWord)
+        .replace(/\{regionNameIn\}/g, regionIn)
+        .replace(/\{regionNameGenitive\}/g, regionNameToGenitive(regionName))
+        .replace(/\{regionName\}/g, regionName);
+}
+
+function getCaptionText() {
+    const presetEl = document.querySelector('input[name="caption-text-preset"]:checked');
+    const value = presetEl ? presetEl.value : '0';
+    if (value === 'custom') {
+        const customEl = document.getElementById('caption-text-custom');
+        const raw = customEl && customEl.value ? customEl.value.trim() : '';
+        if (raw) return raw;
+        return applyCaptionPlaceholders(CAPTION_PRESETS[0]);
+    }
+    const index = parseInt(value, 10);
+    const template = (index >= 0 && index < CAPTION_PRESETS.length) ? CAPTION_PRESETS[index] : CAPTION_PRESETS[0];
+    return applyCaptionPlaceholders(template);
 }
 
 function getCaptionOptions() {
@@ -879,11 +968,22 @@ function redrawOnCaptionOptionsChange() {
     renderToCanvas(geoJsonData).catch((e) => console.warn(e));
 }
 
-['share-aspect-ratio', 'share-resolution', 'share-background', 'share-watermark', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight', 'caption-background'].forEach((name) => {
+['share-aspect-ratio', 'share-resolution', 'share-background', 'share-watermark', 'caption-text-preset', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight', 'caption-background'].forEach((name) => {
     document.querySelectorAll(`input[name="${name}"]`).forEach((el) => {
         el.addEventListener('change', redrawOnCaptionOptionsChange);
     });
 });
+const captionTextCustomWrap = document.getElementById('caption-text-custom-wrap');
+const captionTextCustomEl = document.getElementById('caption-text-custom');
+function updateCaptionTextCustomVisibility() {
+    const presetEl = document.querySelector('input[name="caption-text-preset"]:checked');
+    if (captionTextCustomWrap) captionTextCustomWrap.style.display = (presetEl && presetEl.value === 'custom') ? 'block' : 'none';
+}
+document.querySelectorAll('input[name="caption-text-preset"]').forEach((el) => {
+    el.addEventListener('change', updateCaptionTextCustomVisibility);
+});
+if (captionTextCustomEl) captionTextCustomEl.addEventListener('input', redrawOnCaptionOptionsChange);
+updateCaptionTextCustomVisibility();
 const captionBgOpacityEl = document.getElementById('caption-bg-opacity');
 const captionBgOpacityValue = document.getElementById('caption-bg-opacity-value');
 const captionBgBlurEl = document.getElementById('caption-bg-blur');

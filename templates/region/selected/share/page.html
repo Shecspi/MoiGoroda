@@ -117,6 +117,30 @@
             </div>
             <h3 class="mb-3 mt-4 text-sm font-semibold text-gray-700 dark:text-neutral-300">Текст на изображении</h3>
             <div class="flex flex-wrap gap-6">
+                <fieldset class="flex flex-wrap gap-2 w-full" id="caption-text-fieldset">
+                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Вариант подписи</legend>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-text-preset" value="0" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                        Я посетил N из M городов региона
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-text-preset" value="1" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        Цель достигнута: N из M городов региона
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-text-preset" value="2" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        Регион (N из M)
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                        <input type="radio" name="caption-text-preset" value="custom" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                        Свой текст
+                    </label>
+                    <div class="w-full mt-2" id="caption-text-custom-wrap" style="display: none;">
+                        <label for="caption-text-custom" class="sr-only">Свой текст подписи</label>
+                        <input type="text" id="caption-text-custom" name="caption-text-custom" placeholder="Введите свой текст подписи"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-800 dark:text-white">
+                    </div>
+                </fieldset>
                 <fieldset class="flex flex-wrap gap-2">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Положение</legend>
                     <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">

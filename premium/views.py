@@ -18,13 +18,12 @@ def promo(request: HttpRequest) -> HttpResponse:
     """
     return render(
         request,
-        "premium/promo.html",
+        'premium/promo.html',
         context={
-            "page_title": "Премиум-подписка на сервис «Мои города»",
-            "page_description": (
-                "Выберите бесплатный или премиум-тариф на сервис «Мои города» "
-                "и поддержите развитие проекта"
+            'page_title': 'Премиум-подписка на сервис «Мои города»',
+            'page_description': (
+                'Выберите бесплатный или премиум-тариф на сервис «Мои города» '
+                'и поддержите развитие проекта'
             ),
         },
     )
-

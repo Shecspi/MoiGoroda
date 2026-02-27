@@ -68,7 +68,9 @@ INSTALLED_APPS = [
     'place',
     'advertisement',
     'admin_auto_filters',
+    'premium',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -188,6 +190,9 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 ADMINS = [
     (os.getenv('ADMIN_NAME'), os.getenv('ADMIN_EMAIL')),
 ]
+
+YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID')
+YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY')
 
 LOG_FIlE_PATH = os.path.join(BASE_DIR, 'logs/log.log')
 if not os.path.exists(os.path.dirname(LOG_FIlE_PATH)):

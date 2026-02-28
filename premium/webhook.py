@@ -5,35 +5,28 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Literal
 
+import msgspec
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from premium.models import PremiumPayment, PremiumPaymentWebhookLog
 
-ALLOWED_EVENTS: tuple[str, ...] = (
-    'payment.waiting_for_capture',
-    'payment.succeeded',
-    'payment.canceled',
-)
 FINAL_STATUSES: frozenset[str] = frozenset({
     PremiumPayment.Status.SUCCEEDED,
     PremiumPayment.Status.CANCELED,
 })
 
 
-@dataclass(frozen=True)
-class PaymentObject:
+class PaymentObject(msgspec.Struct, frozen=True):
     """Объект платежа из тела уведомления YooKassa."""
     id: str
     status: str
 
 
-@dataclass(frozen=True)
-class WebhookPayload:
+class WebhookPayload(msgspec.Struct, frozen=True):
     """
     Валидированное тело вебхука.
     type — строго "notification", event — один из разрешённых событий.
@@ -45,26 +38,6 @@ class WebhookPayload:
         'payment.canceled',
     ]
     object: PaymentObject
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> WebhookPayload:
-        if data.get('type') != 'notification':
-            raise ValueError('type must be "notification"')
-        event = data.get('event')
-        if event not in ALLOWED_EVENTS:
-            raise ValueError(f'event must be one of {ALLOWED_EVENTS}')
-        obj = data.get('object')
-        if not isinstance(obj, dict):
-            raise ValueError('object must be a dict')
-        payment_id = obj.get('id')
-        status = obj.get('status')
-        if not payment_id or not status:
-            raise ValueError('object must have id and status')
-        return cls(
-            type='notification',
-            event=event,
-            object=PaymentObject(id=str(payment_id), status=str(status)),
-        )
 
 
 def can_transition(current_status: str, new_status: str) -> bool:
@@ -90,8 +63,8 @@ def yookassa_webhook(request: HttpRequest) -> HttpResponse:
         return HttpResponse(status=200)
 
     try:
-        payload = WebhookPayload.from_dict(data)
-    except (ValueError, KeyError, TypeError):
+        payload = msgspec.convert(data, WebhookPayload)
+    except msgspec.ValidationError:
         return HttpResponse(status=200)
 
     try:

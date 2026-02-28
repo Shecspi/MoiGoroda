@@ -123,8 +123,8 @@ class PremiumSubscription(models.Model):
     """
 
     class BillingPeriod(models.TextChoices):
-        MONTHLY = 'monthly', 'Месячная'
-        YEARLY = 'yearly', 'Годовая'
+        MONTHLY = 'monthly', '1 месяц'
+        YEARLY = 'yearly', '1 год'
 
     class Status(models.TextChoices):
         PENDING = 'pending', 'Ожидает активации'

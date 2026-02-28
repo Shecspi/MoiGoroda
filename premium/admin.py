@@ -24,7 +24,15 @@ class PremiumPlanFeatureInline(admin.TabularInline):
 
 @admin.register(PremiumPlan)
 class PremiumPlanAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'price_month', 'price_year', 'currency', 'is_active', 'sort_order')
+    list_display = (
+        'name',
+        'slug',
+        'price_month',
+        'price_year',
+        'currency',
+        'is_active',
+        'sort_order',
+    )
     list_filter = ('is_active', 'currency')
     search_fields = ('name', 'slug')
     ordering = ('sort_order', 'name')
@@ -91,4 +99,3 @@ class PremiumPaymentAdmin(admin.ModelAdmin):
     autocomplete_fields = ('subscription', 'plan')
     ordering = ('-created_at',)
     inlines = [PremiumPaymentWebhookLogInline]
-

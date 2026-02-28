@@ -190,10 +190,13 @@ YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID')
 YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY')
 
 LOG_FIlE_PATH = os.path.join(BASE_DIR, 'logs/log.log')
+LOG_PREMIUM_PAYMENTS_PATH = os.path.join(BASE_DIR, 'logs/premium_payments.log')
 if not os.path.exists(os.path.dirname(LOG_FIlE_PATH)):
     os.mkdir(os.path.dirname(LOG_FIlE_PATH))
 if not os.path.exists(LOG_FIlE_PATH):
     open(LOG_FIlE_PATH, 'a').close()
+if not os.path.exists(LOG_PREMIUM_PAYMENTS_PATH):
+    open(LOG_PREMIUM_PAYMENTS_PATH, 'a').close()
 
 LOGGING = {
     'version': 1,
@@ -215,6 +218,10 @@ LOGGING = {
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
         'simple': {'format': '%(levelname)-8s %(message)s'},
+        'premium_payments': {
+            'format': '%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)-s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
     },
     'handlers': {
         # Запись в файл логов приложения
@@ -269,6 +276,22 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'detail_django',
         },
+        # Файл только с информацией о платежах (вебхук YooKassa)
+        'to_file_premium_payments': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'premium_payments',
+            'filename': LOG_PREMIUM_PAYMENTS_PATH,
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 3,
+        },
+        # Платежи в консоль — только при DEBUG=True
+        'to_console_premium_payments': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'premium_payments',
+        },
     },
     'loggers': {
         # Базовый логгер. Используется для логирования действий внутри приложения
@@ -288,6 +311,12 @@ LOGGING = {
             'level': 'INFO',
             'propogate': True,
             'handlers': ['to_console_django', 'to_file_django'],
+        },
+        # Только платежи (вебхук YooKassa) — файл и в консоль при DEBUG
+        'premium.webhook': {
+            'level': 'INFO',
+            'propagate': False,
+            'handlers': ['to_file_premium_payments', 'to_console_premium_payments'],
         },
     },
 }

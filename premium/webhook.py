@@ -13,6 +13,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from premium.models import PremiumPayment, PremiumPaymentWebhookLog
+from premium.webhook_logging import (
+    log_invalid_json,
+    log_invalid_payload,
+    log_payment_not_found,
+    log_status_updated,
+    log_transition_denied,
+)
 
 FINAL_STATUSES: frozenset[str] = frozenset({
     PremiumPayment.Status.SUCCEEDED,
@@ -59,30 +66,38 @@ def yookassa_webhook(request: HttpRequest) -> HttpResponse:
     """
     try:
         data = json.loads(request.body)
-    except (json.JSONDecodeError, TypeError):
+    except (json.JSONDecodeError, TypeError) as e:
+        log_invalid_json(request, e)
         return HttpResponse(status=200)
 
     try:
         payload = msgspec.convert(data, WebhookPayload)
-    except msgspec.ValidationError:
+    except msgspec.ValidationError as e:
+        log_invalid_payload(request, data, e)
         return HttpResponse(status=200)
 
+    payment_id = payload.object.id
+    new_status = payload.object.status
+
     try:
-        payment = PremiumPayment.objects.get(yookassa_payment_id=payload.object.id)
+        payment = PremiumPayment.objects.get(yookassa_payment_id=payment_id)
     except PremiumPayment.DoesNotExist:
+        log_payment_not_found(request, payment_id)
         return HttpResponse(status=200)
 
     PremiumPaymentWebhookLog.objects.create(
         payment=payment,
-        status=payload.object.status,
+        status=new_status,
         raw_payload=data,
     )
 
-    if not can_transition(payment.status, payload.object.status):
+    if not can_transition(payment.status, new_status):
+        log_transition_denied(request, payment_id, payment.status, new_status)
         return HttpResponse(status=200)
 
-    payment.status = payload.object.status
+    payment.status = new_status
     payment.save()
+    log_status_updated(request, payment_id, new_status)
     return HttpResponse(status=200)
 
 

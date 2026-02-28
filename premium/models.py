@@ -312,3 +312,36 @@ class PremiumPayment(models.Model):
     def amount(self) -> Decimal:
         return self.amount_value
 
+
+class PremiumPaymentWebhookLog(models.Model):
+    """
+    Лог входящих уведомлений вебхука YooKassa по платежу.
+    Для одного платежа может быть несколько записей (по мере смены статуса).
+    """
+
+    payment = models.ForeignKey(
+        PremiumPayment,
+        on_delete=models.CASCADE,
+        related_name='webhook_logs',
+        verbose_name='Платёж',
+    )
+    status = models.CharField(
+        max_length=20,
+        verbose_name='Статус в уведомлении',
+    )
+    raw_payload: JSONField = JSONField(
+        verbose_name='Входящий JSON',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата получения',
+    )
+
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = 'Лог вебхука платежа'
+        verbose_name_plural = 'Логи вебхуков платежей'
+
+    def __str__(self) -> str:
+        return f'{self.payment.yookassa_payment_id} — {self.status} ({self.created_at})'
+

@@ -59,8 +59,8 @@ class PremiumSubscriptionAdmin(admin.ModelAdmin):
 class PremiumPaymentWebhookLogInline(admin.TabularInline):
     model = PremiumPaymentWebhookLog
     extra = 0
-    fields = ('status', 'created_at')
-    readonly_fields = ('status', 'created_at')
+    fields = ('status', 'created_at', 'raw_payload')
+    readonly_fields = ('status', 'created_at', 'raw_payload')
     ordering = ('-created_at',)
     show_change_link = True
     can_delete = True

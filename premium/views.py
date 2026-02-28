@@ -9,6 +9,7 @@ Licensed under the Apache License, Version 2.0
 
 from __future__ import annotations
 
+import json
 import uuid
 
 from django.conf import settings
@@ -18,7 +19,13 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from yookassa import Configuration, Payment  # type: ignore[import-untyped]
 
-from premium.models import PremiumPayment, PremiumPlan, PremiumSubscription
+from premium.models import (
+    PremiumPayment,
+    PremiumPaymentWebhookLog,
+    PremiumPlan,
+    PremiumSubscription,
+)
+from premium.webhook_logging import log_yookassa_create_response
 
 
 def promo(request: HttpRequest) -> HttpResponse:
@@ -101,6 +108,12 @@ def checkout(request: HttpRequest) -> HttpResponse:
         uuid.uuid4(),
     )
 
+    try:
+        response_data = json.loads(payment.json())
+    except (TypeError, ValueError):
+        response_data = {}
+    log_yookassa_create_response(request, payment.id, payment.status, response_data)
+
     subscription = PremiumSubscription.objects.create(
         user=request.user,
         plan=plan,
@@ -109,7 +122,7 @@ def checkout(request: HttpRequest) -> HttpResponse:
         provider_payment_id=payment.id,
     )
 
-    PremiumPayment.objects.create(
+    premium_payment = PremiumPayment.objects.create(
         user=request.user,
         subscription=subscription,
         plan=plan,
@@ -119,7 +132,12 @@ def checkout(request: HttpRequest) -> HttpResponse:
         billing_period=billing_period,
         description=description,
         status=PremiumPayment.Status(payment.status),
-        raw_response=payment.json(),
+    )
+
+    PremiumPaymentWebhookLog.objects.create(
+        payment=premium_payment,
+        status=payment.status,
+        raw_payload=response_data,
     )
 
     confirmation_url = payment.confirmation.confirmation_url

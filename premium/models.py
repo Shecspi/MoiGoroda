@@ -282,11 +282,6 @@ class PremiumPayment(models.Model):
         default=Status.PENDING,
         verbose_name='Статус платежа',
     )
-    raw_response: JSONField = JSONField(
-        default=dict,
-        blank=True,
-        verbose_name='Сырые данные ответа YooKassa',
-    )
 
     created_at = models.DateTimeField(
         auto_now_add=True,

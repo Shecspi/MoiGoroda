@@ -23,9 +23,28 @@ class Command(BaseCommand):
             expires_at__lt=now,
         )
         ids = list(qs.values_list('pk', flat=True))
+        expired_user_ids = list(qs.values_list('user_id', flat=True).distinct())
         count = qs.update(status=PremiumSubscription.Status.EXPIRED)
 
         if count:
             logger.info(f'Истекло подписок: {count}, ID: {[str(pk) for pk in ids]}')
-        else:
+
+        # Для каждого пользователя, у которого истекла подписка, активировать приостановленную
+        # с ближайшим сроком истечения (если есть и срок ещё не истёк)
+        for user_id in expired_user_ids:
+            next_paused = (
+                PremiumSubscription.objects.filter(
+                    user_id=user_id,
+                    status=PremiumSubscription.Status.PAUSED,
+                    expires_at__gt=now,
+                )
+                .order_by('expires_at')
+                .first()
+            )
+            if next_paused is not None:
+                next_paused.status = PremiumSubscription.Status.ACTIVE
+                next_paused.save()
+                logger.info(f'Активирована приостановленная подписка: {next_paused.pk}')
+
+        if not count:
             logger.info('Нет подписок для перевода в «Истекла».')

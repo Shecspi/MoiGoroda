@@ -129,6 +129,7 @@ class PremiumSubscription(models.Model):
     class Status(models.TextChoices):
         PENDING = 'pending', 'Ожидает активации'
         ACTIVE = 'active', 'Активна'
+        PAUSED = 'paused', 'Приостановлена'
         CANCELED = 'canceled', 'Отменена'
         EXPIRED = 'expired', 'Истекла'
 

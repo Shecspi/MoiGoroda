@@ -78,6 +78,20 @@ class PremiumPlan(models.Model):
         verbose_name = 'Тариф премиум-подписки'
         verbose_name_plural = 'Тарифы премиум-подписки'
 
+    @property
+    def yearly_discount_percent(self) -> int:
+        """
+        Скидка в процентах при оплате за год относительно 12 месяцев по месячному тарифу.
+        Округление до целых. Возвращает 0, если расчёт невозможен (цена за месяц 0).
+        """
+        if self.price_month <= 0:
+            return 0
+        full_year = self.price_month * 12
+        if full_year <= 0:
+            return 0
+        discount = (1 - self.price_year / full_year) * 100
+        return round(discount)
+
     def __str__(self) -> str:
         return self.name
 

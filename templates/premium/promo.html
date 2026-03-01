@@ -144,7 +144,7 @@
               <span data-billing-price="yearly" class="hidden">{{ plan.price_year|floatformat:0 }} ₽</span>
               <span class="ml-1 text-sm font-normal text-gray-500 dark:text-neutral-400">
                 <span data-billing-period="monthly">в месяц</span>
-                <span data-billing-period="yearly" class="hidden">в год (примерно −20%)</span>
+                <span data-billing-period="yearly" class="hidden">в год {% if plan.yearly_discount_percent %}(примерно −{{ plan.yearly_discount_percent }}%){% endif %}</span>
               </span>
             </p>
           </div>

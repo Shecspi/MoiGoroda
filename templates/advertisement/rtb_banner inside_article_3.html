@@ -1,8 +1,9 @@
-{% load excluded_users %}
+{% load excluded_users premium_ad %}
 
 {% get_excluded_users as excluded_users %}
+{% get_has_active_premium request as has_active_premium %}
 
-{% if user.id not in excluded_users %}
+{% if user.id not in excluded_users and not has_active_premium %}
     <!-- Yandex.RTB R-A-8433502-12 -->
     <div id="yandex_rtb_R-A-8433502-12"></div>
     <script>

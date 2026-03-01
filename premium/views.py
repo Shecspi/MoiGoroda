@@ -13,6 +13,7 @@ import json
 import uuid
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -154,5 +155,37 @@ def success(request: HttpRequest) -> HttpResponse:
         context={
             'page_title': 'Премиум-подписка оформлена',
             'page_description': 'Вы успешно оформили премиум-подписку на сервис «Мои города»',
+        },
+    )
+
+
+@login_required
+def my_subscription(request: HttpRequest) -> HttpResponse:
+    """
+    Страница с текущим тарифом подписки, датой окончания и списком платежей пользователя.
+    """
+    active_subscription = (
+        PremiumSubscription.objects.filter(
+            user=request.user,
+            status=PremiumSubscription.Status.ACTIVE,
+        )
+        .select_related('plan')
+        .first()
+    )
+    payments = (
+        PremiumPayment.objects.filter(user=request.user)
+        .select_related('plan')
+        .order_by('-created_at')
+    )
+
+    return render(
+        request,
+        'premium/my_subscription.html',
+        context={
+            'page_title': 'Моя подписка',
+            'page_description': 'Текущий тариф и история платежей',
+            'active_page': 'premium_my_subscription',
+            'active_subscription': active_subscription,
+            'payments': payments,
         },
     )

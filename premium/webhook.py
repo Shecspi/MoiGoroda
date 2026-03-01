@@ -110,16 +110,35 @@ def yookassa_webhook(request: HttpRequest) -> HttpResponse:
         # В момент создания платежа была создана и подписка со статусом PENDING
         if subscription is not None and subscription.status == PremiumSubscription.Status.PENDING:
             now = timezone.now()
-            subscription.started_at = now
-
             if subscription.billing_period == PremiumSubscription.BillingPeriod.YEARLY:
                 end_date = now + timedelta(days=365)
             else:
                 end_date = now + timedelta(days=30)
-
-            subscription.expires_at = end_date.replace(
+            new_expires_at = end_date.replace(
                 hour=23, minute=59, second=59, microsecond=999999
             )
+
+            # Если у пользователя уже есть активная подписка — переводим её в приостановленную
+            # и переносим дату истечения на «конец новой подписки» + оставшиеся дни
+            old_active = (
+                PremiumSubscription.objects.filter(
+                    user=subscription.user,
+                    status=PremiumSubscription.Status.ACTIVE,
+                )
+                .exclude(pk=subscription.pk)
+                .first()
+            )
+            if old_active is not None and old_active.expires_at is not None:
+                remaining_days = max(
+                    0,
+                    (old_active.expires_at - now).days,
+                )
+                old_active.expires_at = new_expires_at + timedelta(days=remaining_days)
+                old_active.status = PremiumSubscription.Status.PAUSED
+                old_active.save()
+
+            subscription.started_at = now
+            subscription.expires_at = new_expires_at
             subscription.status = PremiumSubscription.Status.ACTIVE
             subscription.save()
 

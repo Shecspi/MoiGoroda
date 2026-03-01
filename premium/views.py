@@ -36,6 +36,7 @@ def promo(request: HttpRequest) -> HttpResponse:
     """
     plans = (
         PremiumPlan.objects.filter(is_active=True)
+        .exclude(price_month=0)
         .prefetch_related('features')
         .order_by('sort_order', 'pk')
     )
@@ -84,9 +85,7 @@ def checkout(request: HttpRequest) -> HttpResponse:
         period_label = 'на месяц'
 
     user_label = request.user.username if request.user.is_authenticated else 'гость'
-    description = (
-        f'Тариф «{plan.name}» для пользователя {user_label} {period_label}'
-    )
+    description = f'Тариф «{plan.name}» для пользователя {user_label} {period_label}'
 
     Configuration.account_id = settings.YOOKASSA_SHOP_ID
     Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
@@ -164,14 +163,6 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
     """
     Страница с текущим тарифом подписки, датой окончания и списком платежей пользователя.
     """
-    active_subscription = (
-        PremiumSubscription.objects.filter(
-            user=request.user,
-            status=PremiumSubscription.Status.ACTIVE,
-        )
-        .select_related('plan')
-        .first()
-    )
     payments = (
         PremiumPayment.objects.filter(user=request.user)
         .select_related('plan')
@@ -185,7 +176,6 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
             'page_title': 'Моя подписка',
             'page_description': 'Текущий тариф и история платежей',
             'active_page': 'premium_my_subscription',
-            'active_subscription': active_subscription,
             'payments': payments,
         },
     )

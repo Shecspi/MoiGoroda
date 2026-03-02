@@ -90,7 +90,9 @@ def checkout(request: HttpRequest) -> HttpResponse:
     Configuration.account_id = settings.YOOKASSA_SHOP_ID
     Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 
-    return_url = request.build_absolute_uri(reverse('premium_success'))
+    return_url = request.build_absolute_uri(
+        reverse('premium_my_subscription') + '?succeed_payment=1'
+    )
 
     try:
         payment = Payment.create(
@@ -171,6 +173,7 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
         .select_related('plan')
         .order_by('-created_at')
     )
+    show_thank_you_banner = request.GET.get('succeed_payment') == '1'
 
     return render(
         request,
@@ -180,5 +183,6 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
             'page_description': 'Текущий тариф и история платежей',
             'active_page': 'premium_my_subscription',
             'payments': payments,
+            'show_thank_you_banner': show_thank_you_banner,
         },
     )

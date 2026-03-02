@@ -16,6 +16,29 @@
       <p class="mt-2 text-gray-600 dark:text-neutral-300">
         Текущий тариф и история платежей
       </p>
+      {% if show_thank_you_banner %}
+      <div class="mt-6 mx-auto w-full max-w-3xl rounded-2xl border border-green-300 bg-green-50 px-5 py-4 text-left text-sm text-green-900 shadow-sm dark:border-green-500/60 dark:bg-green-900/40 dark:text-green-50">
+        <div class="flex items-start gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-green-300 bg-green-100 text-green-700 dark:border-green-500 dark:bg-green-500/20 dark:text-green-300">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+            </svg>
+          </div>
+          <div class="text-sm sm:text-base">
+            <p class="font-semibold">
+              Спасибо за оформление премиум-подписки!
+            </p>
+            <p class="mt-1">
+              Мы получили запрос на оплату. Ниже в списке платежей указан текущий статус.
+              Как только статус платежа станет <strong>«Успешно оплачен»</strong>, подписка автоматически активируется.
+              Обычно это происходит практически моментально или в течение нескольких секунд после успешной оплаты.<br>
+              Обновите страницу, чтобы проверить статус платежа.
+            </p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
       <a href="{% url 'premium_promo' %}"
          class="mt-4 inline-flex items-center justify-center rounded-xl border border-blue-600 px-4 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-500/10">
         Выбрать другой тариф
@@ -122,7 +145,7 @@
               </ul>
               <div class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
                 <p class="text-sm text-red-800 dark:text-red-200">
-                  <span class="font-medium">Здесь показывается реклама.</span> Если Вы хотите убрать её — оформляйте премиум-подписку.
+                  <span class="font-medium">В бесплатном тарифе показывается реклама.</span> Оформите премиум-подписку, чтобы пользоваться сайтом без рекламы.
                 </p>
               </div>
               <a href="{% url 'premium_promo' %}" class="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900">

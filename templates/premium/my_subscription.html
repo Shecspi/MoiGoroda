@@ -30,7 +30,7 @@
               Спасибо за оформление премиум-подписки!
             </p>
             <p class="mt-1">
-              Мы получили запрос на оплату. Ниже в списке платежей указан текущий статус.
+              Мы получили запрос на оплату. Ниже в списке платежей указан его текущий статус.
               Как только статус платежа станет <strong>«Успешно оплачен»</strong>, подписка автоматически активируется.
               Обычно это происходит практически моментально или в течение нескольких секунд после успешной оплаты.<br>
               Обновите страницу, чтобы проверить статус платежа.
@@ -168,7 +168,30 @@
             <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
               <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <span class="text-sm font-medium text-gray-900 dark:text-white">{{ payment.created_at|date:"d.m.Y H:i" }}</span>
-                <span class="text-sm text-gray-600 dark:text-neutral-400">{{ payment.get_status_display }}</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium
+                             {% if payment.status == 'succeeded' %}
+                               border border-green-500 bg-green-50 text-green-700 dark:border-green-500/50 dark:bg-green-500/10 dark:text-green-100
+                             {% elif payment.status == 'canceled' %}
+                               border border-red-500 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-500/10 dark:text-red-100
+                             {% else %}
+                               border border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-100
+                             {% endif %}">
+                  {% if payment.status == 'succeeded' %}
+                    <svg class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.707a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293A1 1 0 0 0 6.293 10.707l2 2a1 1 0 0 0 1.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                  {% elif payment.status == 'canceled' %}
+                    <svg class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM8.293 7.293a1 1 0 0 1 1.414 0L10 7.586l.293-.293a1 1 0 1 1 1.414 1.414L11.414 9l.293.293a1 1 0 0 1-1.414 1.414L10 10.414l-.293.293a1 1 0 0 1-1.414-1.414L8.586 9l-.293-.293a1 1 0 0 1 0-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  {% else %}
+                    <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 6v6l4 2"/>
+                    </svg>
+                  {% endif %}
+                  {{ payment.get_status_display }}
+                </span>
               </div>
               <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
                 <dt class="text-gray-500 dark:text-neutral-400">Тариф</dt>
@@ -200,7 +223,32 @@
                   <td class="py-3 px-4 text-sm text-gray-700 dark:text-neutral-300">{% if payment.plan %}{{ payment.plan.name }}{% else %}—{% endif %}</td>
                   <td class="py-3 px-4 text-sm text-gray-700 dark:text-neutral-300">{{ payment.amount_value }} {{ payment.currency }}</td>
                   <td class="py-3 px-4 text-sm text-gray-700 dark:text-neutral-300">{{ payment.get_billing_period_display }}</td>
-                  <td class="py-3 px-4 text-sm">{{ payment.get_status_display }}</td>
+                  <td class="py-3 px-4 text-sm">
+                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium
+                             {% if payment.status == 'succeeded' %}
+                               border border-green-500 bg-green-50 text-green-700 dark:border-green-500/50 dark:bg-green-500/10 dark:text-green-100
+                             {% elif payment.status == 'canceled' %}
+                               border border-red-500 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-500/10 dark:text-red-100
+                             {% else %}
+                               border border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-100
+                             {% endif %}">
+                  {% if payment.status == 'succeeded' %}
+                    <svg class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.707a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293A1 1 0 1 0 6.293 10.707l2 2a1 1 0 0 0 1.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                  {% elif payment.status == 'canceled' %}
+                    <svg class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM8.293 7.293a1 1 0 0 1 1.414 0L10 7.586l.293-.293a1 1 0 1 1 1.414 1.414L11.414 9l.293.293a1 1 0 0 1-1.414 1.414L10 10.414l-.293.293a1 1 0 0 1-1.414-1.414L8.586 9l-.293-.293a1 1 0 0 1 0-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  {% else %}
+                    <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 6v6l4 2"/>
+                    </svg>
+                  {% endif %}
+                      {{ payment.get_status_display }}
+                    </span>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>

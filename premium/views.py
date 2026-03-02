@@ -19,6 +19,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from yookassa import Configuration, Payment  # type: ignore[import-untyped]
+from yookassa.domain.exceptions import ApiError  # type: ignore[import-untyped]
 
 from premium.models import (
     PremiumPayment,
@@ -84,29 +85,31 @@ def checkout(request: HttpRequest) -> HttpResponse:
         amount_value = plan.price_month
         period_label = 'на месяц'
 
-    user_label = request.user.username if request.user.is_authenticated else 'гость'
-    description = f'Тариф «{plan.name}» для пользователя {user_label} {period_label}'
+    description = f'Тариф «{plan.name}» для пользователя {request.user.username} {period_label}'
 
     Configuration.account_id = settings.YOOKASSA_SHOP_ID
     Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 
     return_url = request.build_absolute_uri(reverse('premium_success'))
 
-    payment = Payment.create(
-        {
-            'amount': {
-                'value': f'{amount_value:.2f}',
-                'currency': plan.currency,
+    try:
+        payment = Payment.create(
+            {
+                'amount': {
+                    'value': f'{amount_value:.2f}',
+                    'currency': plan.currency,
+                },
+                'confirmation': {
+                    'type': 'redirect',
+                    'return_url': return_url,
+                },
+                'capture': True,
+                'description': description,
             },
-            'confirmation': {
-                'type': 'redirect',
-                'return_url': return_url,
-            },
-            'capture': True,
-            'description': description,
-        },
-        uuid.uuid4(),
-    )
+            uuid.uuid4(),
+        )
+    except ApiError:
+        return redirect('premium_promo')
 
     try:
         response_data = json.loads(payment.json())

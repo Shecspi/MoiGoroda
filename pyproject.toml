@@ -22,7 +22,6 @@ django-markdownify = "^0.9.6"
 django-tinymce = "^5.0.0"
 django-ckeditor-5 = "^0.2.19"
 yookassa = "^3.10.0"
-msgspec = "^0.20.0"
 
 
 [tool.poetry.group.dev.dependencies]

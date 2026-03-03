@@ -293,6 +293,11 @@ class PremiumPayment(models.Model):
         max_length=255,
         verbose_name='Описание',
     )
+    confirmation_url = models.URLField(
+        max_length=500,
+        blank=True,
+        verbose_name='URL для оплаты (confirmation_url из YooKassa)',
+    )
     status = models.CharField(
         max_length=20,
         choices=Status.choices,

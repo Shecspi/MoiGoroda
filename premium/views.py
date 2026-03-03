@@ -128,6 +128,10 @@ def checkout(request: HttpRequest) -> HttpResponse:
         provider_payment_id=payment.id,
     )
 
+    confirmation_url = getattr(
+        payment.confirmation, 'confirmation_url', ''
+    ) if payment.confirmation else ''
+
     premium_payment = PremiumPayment.objects.create(
         user=request.user,
         subscription=subscription,
@@ -137,6 +141,7 @@ def checkout(request: HttpRequest) -> HttpResponse:
         currency=plan.currency,
         billing_period=billing_period,
         description=description,
+        confirmation_url=confirmation_url,
         status=PremiumPayment.Status(payment.status),
     )
 
@@ -149,8 +154,9 @@ def checkout(request: HttpRequest) -> HttpResponse:
     request.session['premium_payment_return_id'] = str(premium_payment.pk)
     request.session['premium_payment_return_at'] = timezone.now().isoformat()
 
-    confirmation_url = payment.confirmation.confirmation_url
-    return redirect(confirmation_url)
+    if confirmation_url:
+        return redirect(confirmation_url)
+    return redirect('premium_my_subscription')
 
 
 def success(request: HttpRequest) -> HttpResponse:

@@ -52,6 +52,7 @@ def general_settings(request: HttpRequest) -> dict[str, Any]:
                 status=PremiumSubscription.Status.ACTIVE,
             )
             .select_related('plan')
+            .prefetch_related('plan__features')
             .first()
         )
 

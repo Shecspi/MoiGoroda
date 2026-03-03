@@ -78,7 +78,9 @@ def yookassa_webhook(request: HttpRequest) -> HttpResponse:
     new_status = notification.object.status
 
     try:
-        payment = PremiumPayment.objects.get(yookassa_payment_id=payment_id)
+        payment = PremiumPayment.objects.select_related(
+            'subscription', 'subscription__plan'
+        ).get(yookassa_payment_id=payment_id)
     except PremiumPayment.DoesNotExist:
         log_payment_not_found(request, payment_id)
         return HttpResponse(status=200)
@@ -98,44 +100,80 @@ def yookassa_webhook(request: HttpRequest) -> HttpResponse:
     payment.save()
     log_status_updated(request, payment_id, new_status)
 
-    # А для статуса SUCCEEDED также указываем дату начала и окончания подписки,
-    # а также делаем текущую активную подписку неактивной
+    # А для статуса SUCCEEDED обрабатываем подписку в зависимости от контекста:
+    # новая, апгрейд (дороже), продление (тот же план), даунгрейд (дешевле)
     if (
         notification.event == WebhookNotificationEventType.PAYMENT_SUCCEEDED
         and new_status == PremiumPayment.Status.SUCCEEDED
     ):
         subscription = payment.subscription
-        # В момент создания платежа была создана и подписка со статусом PENDING
         if subscription is not None and subscription.status == PremiumSubscription.Status.PENDING:
             now = timezone.now()
             if subscription.billing_period == PremiumSubscription.BillingPeriod.YEARLY:
-                end_date = now + timedelta(days=365)
+                period_days = 365
             else:
-                end_date = now + timedelta(days=30)
-            new_expires_at = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+                period_days = 30
+            new_expires_at = (now + timedelta(days=period_days)).replace(
+                hour=23, minute=59, second=59, microsecond=999999
+            )
 
-            # Если у пользователя уже есть активная подписка — переводим её в приостановленную
-            # и переносим дату истечения на «конец новой подписки» + оставшиеся дни
             old_active = (
                 PremiumSubscription.objects.filter(
                     user=subscription.user,
                     status=PremiumSubscription.Status.ACTIVE,
                 )
                 .exclude(pk=subscription.pk)
+                .select_related('plan')
                 .first()
             )
-            if old_active is not None and old_active.expires_at is not None:
-                remaining_days = max(
-                    0,
-                    (old_active.expires_at - now).days,
-                )
-                old_active.expires_at = new_expires_at + timedelta(days=remaining_days)
-                old_active.status = PremiumSubscription.Status.PAUSED
-                old_active.save()
 
-            subscription.started_at = now
-            subscription.expires_at = new_expires_at
-            subscription.status = PremiumSubscription.Status.ACTIVE
-            subscription.save()
+            if old_active is None:
+                # Новая подписка (у пользователя не было активной)
+                subscription.started_at = now
+                subscription.expires_at = new_expires_at
+                subscription.status = PremiumSubscription.Status.ACTIVE
+                subscription.save()
+            else:
+                new_plan = subscription.plan
+                old_plan = old_active.plan
+                new_price = new_plan.price_month
+                old_price = old_plan.price_month
+
+                if new_price > old_price:
+                    # Апгрейд: сразу активируем новую, старую приостанавливаем
+                    remaining_days = max(
+                        0,
+                        (old_active.expires_at - now).days if old_active.expires_at else 0,
+                    )
+                    old_active.expires_at = new_expires_at + timedelta(days=remaining_days)
+                    old_active.status = PremiumSubscription.Status.PAUSED
+                    old_active.save()
+
+                    subscription.started_at = now
+                    subscription.expires_at = new_expires_at
+                    subscription.status = PremiumSubscription.Status.ACTIVE
+                    subscription.save()
+                elif new_price == old_price:
+                    # Продление: продлеваем текущую подписку, новую отменяем
+                    if old_active.expires_at is not None and old_active.expires_at > now:
+                        base_date = old_active.expires_at
+                    else:
+                        base_date = now
+                    old_active.expires_at = (base_date + timedelta(days=period_days)).replace(
+                        hour=23, minute=59, second=59, microsecond=999999
+                    )
+                    old_active.save()
+
+                    subscription.status = PremiumSubscription.Status.CANCELED
+                    subscription.save()
+                else:
+                    # Даунгрейд: новая подписка активируется после окончания текущей
+                    old_expires = old_active.expires_at or now
+                    subscription.started_at = old_expires
+                    subscription.expires_at = (old_expires + timedelta(days=period_days)).replace(
+                        hour=23, minute=59, second=59, microsecond=999999
+                    )
+                    subscription.status = PremiumSubscription.Status.SCHEDULED
+                    subscription.save()
 
     return HttpResponse(status=200)

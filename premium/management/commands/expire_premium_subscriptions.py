@@ -29,22 +29,37 @@ class Command(BaseCommand):
         if count:
             logger.info(f'Истекло подписок: {count}, ID: {[str(pk) for pk in ids]}')
 
-        # Для каждого пользователя, у которого истекла подписка, активировать приостановленную
-        # с ближайшим сроком истечения (если есть и срок ещё не истёк)
+        # Для каждого пользователя, у которого истекла подписка:
+        # 1) активировать запланированную (SCHEDULED), если пришло время;
+        # 2) иначе — приостановленную (PAUSED) с ближайшим сроком истечения.
         for user_id in expired_user_ids:
-            next_paused = (
+            next_scheduled = (
                 PremiumSubscription.objects.filter(
                     user_id=user_id,
-                    status=PremiumSubscription.Status.PAUSED,
-                    expires_at__gt=now,
+                    status=PremiumSubscription.Status.SCHEDULED,
+                    started_at__lte=now,
                 )
-                .order_by('expires_at')
+                .order_by('started_at')
                 .first()
             )
-            if next_paused is not None:
-                next_paused.status = PremiumSubscription.Status.ACTIVE
-                next_paused.save()
-                logger.info(f'Активирована приостановленная подписка: {next_paused.pk}')
+            if next_scheduled is not None:
+                next_scheduled.status = PremiumSubscription.Status.ACTIVE
+                next_scheduled.save()
+                logger.info(f'Активирована запланированная подписка: {next_scheduled.pk}')
+            else:
+                next_paused = (
+                    PremiumSubscription.objects.filter(
+                        user_id=user_id,
+                        status=PremiumSubscription.Status.PAUSED,
+                        expires_at__gt=now,
+                    )
+                    .order_by('expires_at')
+                    .first()
+                )
+                if next_paused is not None:
+                    next_paused.status = PremiumSubscription.Status.ACTIVE
+                    next_paused.save()
+                    logger.info(f'Активирована приостановленная подписка: {next_paused.pk}')
 
         if not count:
             logger.info('Нет подписок для перевода в «Истекла».')

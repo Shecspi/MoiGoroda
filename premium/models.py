@@ -145,6 +145,7 @@ class PremiumSubscription(models.Model):
         ACTIVE = 'active', 'Активна'
         PAUSED = 'paused', 'Приостановлена'
         SCHEDULED = 'scheduled', 'Запланирована (после окончания текущей)'
+        INTERRUPTED = 'interrupted', 'Прерванная'
         CANCELED = 'canceled', 'Отменена'
         EXPIRED = 'expired', 'Истекла'
 
@@ -172,7 +173,7 @@ class PremiumSubscription(models.Model):
         verbose_name='Период оплаты',
     )
     status = models.CharField(
-        max_length=10,
+        max_length=12,
         choices=Status.choices,
         default=Status.PENDING,
         verbose_name='Статус подписки',

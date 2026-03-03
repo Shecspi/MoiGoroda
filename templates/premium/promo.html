@@ -191,14 +191,14 @@
             </form>
           {% elif active_subscription and plan.price_month < active_subscription.plan.price_month %}
             <p class="mb-3 text-center text-xs text-gray-500 dark:text-neutral-400">
-              Переход будет осуществлён после окончания текущей подписки.
+              Подписка активируется после окончания текущей.
             </p>
             <form method="post" action="{% url 'premium_checkout' %}">
               {% csrf_token %}
               <input type="hidden" name="plan_id" value="{{ plan.id }}">
               <input type="hidden" name="billing_period" class="billing-period-input" value="monthly">
               <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-neutral-900">
-                Перейти на эту подписку
+                Оформить подписку
               </button>
             </form>
           {% elif user.is_authenticated %}

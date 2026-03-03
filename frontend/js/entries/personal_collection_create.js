@@ -8,6 +8,22 @@ import {getCookie} from '../components/get_cookie.js';
 import {searchCities} from './city_search.js';
 import {pluralize} from '../components/search_services.js';
 
+/**
+ * Экранирует строку для безопасной вставки в HTML (защита от XSS).
+ * @param {string|number|null|undefined} text - значение для экранирования
+ * @returns {string}
+ */
+function escapeHtml(text) {
+    if (text == null || text === undefined) return '';
+    const s = String(text);
+    return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 window.addEventListener('load', () => requestAnimationFrame(async () => {
     (function() {
         // Проверяем, находимся ли мы в режиме редактирования
@@ -500,6 +516,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
             const isAuthenticated = typeof window.IS_AUTHENTICATED !== 'undefined' && window.IS_AUTHENTICATED === true;
 
             const addCityFromSearch = async (cityId) => {
+                if (typeof cityId !== 'number' || !Number.isInteger(cityId)) return;
                 if (selectedCities.some(c => c.id === cityId)) {
                     showDangerToast('Информация', 'Этот город уже добавлен в коллекцию');
                     return;
@@ -514,7 +531,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 }
 
                 try {
-                    const response = await fetch(`/api/city/list_by_ids?city_ids=${cityId}`);
+                    const response = await fetch(`/api/city/list_by_ids?city_ids=${encodeURIComponent(cityId)}`);
                     if (!response.ok) {
                         throw new Error('Ошибка загрузки данных города');
                     }
@@ -616,9 +633,9 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                         info.className = 'px-3 py-2 text-xs text-gray-500 dark:text-neutral-400';
                         if (data.results.length) {
                             const word = pluralize(data.results.length, 'совпадение', 'совпадения', 'совпадений');
-                            info.innerHTML = `Найдено <strong>${data.results.length}</strong> ${word} для <strong>«${data.query}»</strong>`;
+                            info.innerHTML = `Найдено <strong>${data.results.length}</strong> ${word} для <strong>«${escapeHtml(data.query)}»</strong>`;
                         } else {
-                            info.innerHTML = `Нет совпадений для <strong>«${data.query}»</strong>`;
+                            info.innerHTML = `Нет совпадений для <strong>«${escapeHtml(data.query)}»</strong>`;
                         }
                         list.prepend(info);
                     },
@@ -633,7 +650,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                         item.style.cssText = 'display: flex !important; flex-direction: column !important; align-items: flex-start !important; justify-content: flex-start !important; text-align: left !important; width: 100%;';
                         const cityName = document.createElement('span');
                         cityName.style.cssText = 'font-weight: 500;';
-                        cityName.innerHTML = data.match;
+                        cityName.textContent = data.value?.value ?? '';
                         const locationParts = [];
                         if (data.value.region) locationParts.push(data.value.region);
                         if (data.value.country) locationParts.push(data.value.country);
@@ -649,7 +666,9 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                     input: {
                         selection: (event) => {
                             const selection = event.detail.selection.value;
-                            addCityFromSearch(selection.id);
+                            const cityId = selection?.id;
+                            if (typeof cityId !== 'number' || !Number.isInteger(cityId)) return;
+                            addCityFromSearch(cityId);
                         }
                     }
                 }

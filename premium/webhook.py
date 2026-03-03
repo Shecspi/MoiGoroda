@@ -6,13 +6,15 @@ from __future__ import annotations
 
 import json
 from datetime import timedelta
-from typing import Literal
 
-import msgspec
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from yookassa.domain.notification import (
+    WebhookNotificationEventType,
+    WebhookNotificationFactory,
+)
 
 from premium.models import PremiumPayment, PremiumPaymentWebhookLog, PremiumSubscription
 from premium.webhook_logging import (
@@ -30,27 +32,13 @@ FINAL_STATUSES: frozenset[str] = frozenset(
     }
 )
 
-
-class PaymentObject(msgspec.Struct, frozen=True):
-    """Объект платежа из тела уведомления YooKassa."""
-
-    id: str
-    status: str
-
-
-class WebhookPayload(msgspec.Struct, frozen=True):
-    """
-    Валидированное тело вебхука.
-    type — строго "notification", event — один из разрешённых событий.
-    """
-
-    type: Literal['notification']
-    event: Literal[
-        'payment.waiting_for_capture',
-        'payment.succeeded',
-        'payment.canceled',
-    ]
-    object: PaymentObject
+PAYMENT_EVENTS: frozenset[str] = frozenset(
+    {
+        WebhookNotificationEventType.PAYMENT_WAITING_FOR_CAPTURE,
+        WebhookNotificationEventType.PAYMENT_SUCCEEDED,
+        WebhookNotificationEventType.PAYMENT_CANCELED,
+    }
+)
 
 
 def can_transition(current_status: str, new_status: str) -> bool:
@@ -66,8 +54,9 @@ def can_transition(current_status: str, new_status: str) -> bool:
 @require_POST
 def yookassa_webhook(request: HttpRequest) -> HttpResponse:
     """
-    Принимает POST с JSON-телом уведомления YooKassa, валидирует его,
-    находит платёж по object.id и обновляет статус с учётом допустимых переходов.
+    Принимает POST с JSON-телом уведомления YooKassa, валидирует его
+    через библиотеку yookassa, находит платёж по object.id и обновляет
+    статус с учётом допустимых переходов.
     Всегда возвращает 200, чтобы YooKassa не повторял запрос.
     """
     try:
@@ -77,13 +66,16 @@ def yookassa_webhook(request: HttpRequest) -> HttpResponse:
         return HttpResponse(status=200)
 
     try:
-        payload = msgspec.convert(data, WebhookPayload)
-    except msgspec.ValidationError as e:
+        notification = WebhookNotificationFactory().create(data)
+    except (ValueError, TypeError) as e:
         log_invalid_payload(request, data, e)
         return HttpResponse(status=200)
 
-    payment_id = payload.object.id
-    new_status = payload.object.status
+    if notification.event not in PAYMENT_EVENTS:
+        return HttpResponse(status=200)
+
+    payment_id = notification.object.id
+    new_status = notification.object.status
 
     try:
         payment = PremiumPayment.objects.get(yookassa_payment_id=payment_id)
@@ -97,6 +89,7 @@ def yookassa_webhook(request: HttpRequest) -> HttpResponse:
         raw_payload=data,
     )
 
+    # Для всех статусов обновляем его в базе данных
     if not can_transition(payment.status, new_status):
         log_transition_denied(request, payment_id, payment.status, new_status)
         return HttpResponse(status=200)
@@ -105,7 +98,12 @@ def yookassa_webhook(request: HttpRequest) -> HttpResponse:
     payment.save()
     log_status_updated(request, payment_id, new_status)
 
-    if payload.event == 'payment.succeeded' and new_status == PremiumPayment.Status.SUCCEEDED:
+    # А для статуса SUCCEEDED также указываем дату начала и окончания подписки,
+    # а также делаем текущую активную подписку неактивной
+    if (
+        notification.event == WebhookNotificationEventType.PAYMENT_SUCCEEDED
+        and new_status == PremiumPayment.Status.SUCCEEDED
+    ):
         subscription = payment.subscription
         # В момент создания платежа была создана и подписка со статусом PENDING
         if subscription is not None and subscription.status == PremiumSubscription.Status.PENDING:
@@ -114,9 +112,7 @@ def yookassa_webhook(request: HttpRequest) -> HttpResponse:
                 end_date = now + timedelta(days=365)
             else:
                 end_date = now + timedelta(days=30)
-            new_expires_at = end_date.replace(
-                hour=23, minute=59, second=59, microsecond=999999
-            )
+            new_expires_at = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
 
             # Если у пользователя уже есть активная подписка — переводим её в приостановленную
             # и переносим дату истечения на «конец новой подписки» + оставшиеся дни

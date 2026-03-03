@@ -158,39 +158,76 @@
       </div>
     </section>
 
-    <!-- Приостановленные и запланированные подписки -->
-    {% if paused_subscriptions %}
+    <!-- Последовательность подписок (Timeline) -->
+    {% if active_subscription or paused_subscriptions %}
     <section class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 overflow-hidden mb-10">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white p-6 pb-4">Приостановленные и запланированные подписки</h2>
-      <p class="px-6 pb-4 text-sm text-gray-600 dark:text-neutral-400">
-        Эти подписки будут автоматически активированы после окончания текущей.
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white p-6 pb-4">Последовательность подписок</h2>
+      <p class="px-6 pb-6 text-sm text-gray-600 dark:text-neutral-400">
+        {% if paused_subscriptions %}Подписки в очереди будут автоматически активированы после окончания текущей.{% else %}Текущая подписка.{% endif %}
       </p>
-      <ul class="divide-y divide-gray-200 dark:divide-neutral-700">
-        {% for sub, start_date, end_date in paused_subscriptions %}
-        <li class="p-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h3 class="font-medium text-gray-900 dark:text-white">{{ sub.plan.name }}</h3>
-            <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
-              Будет активна с {{ start_date|date:"d.m.Y" }} по {{ end_date|date:"d.m.Y" }}
-            </p>
+      <div class="w-full px-6 pb-6">
+        <!-- Timeline -->
+        {% if active_subscription %}
+        <div class="flex gap-x-3">
+          <div class="min-w-14 text-end">
+            <span class="text-xs text-gray-500 dark:text-neutral-400">{% if active_subscription.started_at %}{{ active_subscription.started_at|date:"d.m.Y" }}{% else %}—{% endif %}</span>
           </div>
-          <span class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium
-            {% if sub.status == 'paused' %}border-gray-500 bg-gray-100 text-gray-700 dark:border-neutral-500 dark:bg-neutral-700/50 dark:text-neutral-200{% else %}border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-500/50 dark:bg-blue-500/10 dark:text-blue-200{% endif %}">
-            {% if sub.status == 'paused' %}
-            <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5"/>
-            </svg>
-            Приостановлена
-            {% else %}
-            <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
-            </svg>
-            Запланирована
-            {% endif %}
-          </span>
-        </li>
+          <div class="relative {% if not paused_subscriptions %}after:hidden{% endif %} after:absolute after:top-7 after:bottom-0 after:start-3.5 after:-translate-x-[0.5px] after:border-s after:border-gray-200 dark:after:border-neutral-700">
+            <div class="relative z-10 size-7 flex justify-center items-center">
+              <div class="size-2 rounded-full bg-blue-500"></div>
+            </div>
+          </div>
+          <div class="grow pt-0.5 pb-8">
+            <h3 class="font-medium text-gray-900 dark:text-white">
+              {{ active_subscription.plan.name }}
+            </h3>
+            <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+              {% if active_subscription.expires_at %}До {{ active_subscription.expires_at|date:"d.m.Y" }}{% else %}Активна{% endif %}
+            </p>
+            <span class="mt-1 inline-flex items-center gap-1.5 rounded-full border border-green-500 bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:border-green-500/50 dark:bg-green-500/10 dark:text-green-100">
+              <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/>
+              </svg>
+              Активна
+            </span>
+          </div>
+        </div>
+        {% endif %}
+        {% for sub, start_date, end_date in paused_subscriptions %}
+        <div class="flex gap-x-3">
+          <div class="min-w-14 text-end">
+            <span class="text-xs text-gray-500 dark:text-neutral-400">{{ start_date|date:"d.m.Y" }}</span>
+          </div>
+          <div class="relative {% if forloop.last %}after:hidden{% endif %} after:absolute after:top-7 after:bottom-0 after:start-3.5 after:-translate-x-[0.5px] after:border-s after:border-gray-200 dark:after:border-neutral-700">
+            <div class="relative z-10 size-7 flex justify-center items-center">
+              <div class="size-2 rounded-full bg-gray-300 dark:bg-neutral-600"></div>
+            </div>
+          </div>
+          <div class="grow pt-0.5 pb-8">
+            <h3 class="font-medium text-gray-900 dark:text-white">
+              {{ sub.plan.name }}
+            </h3>
+            <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+              С {{ start_date|date:"d.m.Y" }} по {{ end_date|date:"d.m.Y" }}
+            </p>
+            <span class="mt-1 inline-flex items-center gap-1.5 rounded-full border border-gray-500 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:border-neutral-500 dark:bg-neutral-700/50 dark:text-neutral-200">
+              {% if sub.status == 'paused' %}
+              <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5"/>
+              </svg>
+              Приостановлена
+              {% else %}
+              <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+              Запланирована
+              {% endif %}
+            </span>
+          </div>
+        </div>
         {% endfor %}
-      </ul>
+      </div>
     </section>
     {% endif %}
 

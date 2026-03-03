@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -29,6 +29,7 @@ from premium.models import (
     PremiumPlan,
     PremiumSubscription,
 )
+from premium.webhook import activate_subscription_on_payment_success
 from premium.webhook_logging import log_yookassa_create_response
 
 
@@ -165,17 +166,55 @@ def success(request: HttpRequest) -> HttpResponse:
     )
 
 
+def _sync_pending_payments(user) -> None:
+    """
+    Проверяет статус ожидающих платежей в YooKassa и активирует подписки при успешной оплате.
+    Вызывается при возврате пользователя с страницы оплаты (вебхук может не дойти в локальной разработке).
+    """
+    Configuration.account_id = settings.YOOKASSA_SHOP_ID
+    Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
+
+    pending_payments = (
+        PremiumPayment.objects.filter(
+            user=user,
+            subscription__status=PremiumSubscription.Status.PENDING,
+        )
+        .exclude(status__in=(PremiumPayment.Status.SUCCEEDED, PremiumPayment.Status.CANCELED))
+        .select_related('subscription', 'subscription__plan')
+        .order_by('-created_at')
+    )
+    for premium_payment in pending_payments:
+        try:
+            yookassa_payment = Payment.find(premium_payment.yookassa_payment_id)
+        except ApiError:
+            continue
+        new_status = yookassa_payment.status
+        if new_status == PremiumPayment.Status.SUCCEEDED:
+            premium_payment.status = PremiumPayment.Status.SUCCEEDED
+            premium_payment.save()
+            if premium_payment.subscription is not None:
+                activate_subscription_on_payment_success(premium_payment.subscription)
+            break  # Обработали один платёж — достаточно
+        if new_status == PremiumPayment.Status.CANCELED:
+            premium_payment.status = PremiumPayment.Status.CANCELED
+            premium_payment.save()
+            break
+
+
 @login_required
 def my_subscription(request: HttpRequest) -> HttpResponse:
     """
     Страница с текущим тарифом подписки, датой окончания и списком платежей пользователя.
     """
+    show_thank_you_banner = request.GET.get('succeed_payment') == '1'
+    if show_thank_you_banner:
+        _sync_pending_payments(request.user)
+
     payments = (
         PremiumPayment.objects.filter(user=request.user)
         .select_related('plan')
         .order_by('-created_at')
     )
-    show_thank_you_banner = request.GET.get('succeed_payment') == '1'
 
     # Приостановленные и запланированные подписки с датами активации (с какого по какое число будут активны)
     paused_subscriptions: list[tuple[PremiumSubscription, datetime, datetime]] = []
@@ -189,36 +228,24 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
     )
     now = timezone.now()
     if active_sub is not None and active_sub.expires_at is not None:
-        # PAUSED: приостановлены при апгрейде, активируются после текущей
-        paused_subs = (
+        # SCHEDULED и PAUSED: подписки в очереди после текущей
+        future_subs = (
             PremiumSubscription.objects.filter(
                 user=request.user,
-                status=PremiumSubscription.Status.PAUSED,
+                status__in=(
+                    PremiumSubscription.Status.SCHEDULED,
+                    PremiumSubscription.Status.PAUSED,
+                ),
                 expires_at__gt=now,
             )
             .select_related('plan')
             .order_by('expires_at')
         )
-        next_start = active_sub.expires_at
-        for sub in paused_subs:
+        next_start = active_sub.expires_at + timedelta(days=1)
+        for sub in future_subs:
             if sub.expires_at is not None:
                 paused_subscriptions.append((sub, next_start, sub.expires_at))
-                next_start = sub.expires_at
-    # SCHEDULED: запланированы при даунгрейде, активируются после текущей
-    scheduled_subs = (
-        PremiumSubscription.objects.filter(
-            user=request.user,
-            status=PremiumSubscription.Status.SCHEDULED,
-            started_at__gt=now,
-            expires_at__gt=now,
-        )
-        .select_related('plan')
-        .order_by('started_at')
-    )
-    for sub in scheduled_subs:
-        if sub.started_at is not None and sub.expires_at is not None:
-            paused_subscriptions.append((sub, sub.started_at, sub.expires_at))
-    paused_subscriptions.sort(key=lambda x: x[1])
+                next_start = sub.expires_at + timedelta(days=1)
 
     return render(
         request,

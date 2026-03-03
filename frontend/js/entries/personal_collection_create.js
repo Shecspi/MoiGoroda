@@ -1,9 +1,12 @@
 import L from 'leaflet';
+import autoComplete from '@tarekraafat/autocomplete.js';
 import {create_map} from '../components/map.js';
 import {icon_visited_pin, icon_not_visited_pin, icon_blue_pin} from '../components/icons.js';
 import {buildPopupContent} from '../components/city_popup.js';
 import {showDangerToast, showSuccessToast} from "../components/toast";
 import {getCookie} from '../components/get_cookie.js';
+import {searchCities} from './city_search.js';
+import {pluralize} from '../components/search_services.js';
 
 window.addEventListener('load', () => requestAnimationFrame(async () => {
     (function() {
@@ -489,7 +492,171 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
                 }
             }
         });
-        
+
+        // Инициализация поиска города по названию с автодополнением
+        const citySearchInput = document.getElementById('city_search_input');
+        if (citySearchInput) {
+            const countryCitiesBaseUrl = window.COUNTRY_CITIES_BASE_URL || '';
+            const isAuthenticated = typeof window.IS_AUTHENTICATED !== 'undefined' && window.IS_AUTHENTICATED === true;
+
+            const addCityFromSearch = async (cityId) => {
+                if (selectedCities.some(c => c.id === cityId)) {
+                    showDangerToast('Информация', 'Этот город уже добавлен в коллекцию');
+                    return;
+                }
+
+                const existingMarker = allMarkers.find(m => m._cityId === cityId);
+                if (existingMarker) {
+                    selectedCities.push({ id: cityId, name: existingMarker._cityData.name });
+                    updateMarkerIcon(existingMarker, existingMarker._cityData);
+                    citySearchInput.value = '';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/city/list_by_ids?city_ids=${cityId}`);
+                    if (!response.ok) {
+                        throw new Error('Ошибка загрузки данных города');
+                    }
+                    const cities = await response.json();
+                    const city = cities[0];
+                    if (!city || !city.lat || !city.lon) {
+                        throw new Error('Нет координат для отображения на карте');
+                    }
+
+                    selectedCities.push({ id: city.id, name: city.title });
+
+                    const lat = parseFloat(city.lat.toString().replace(',', '.'));
+                    const lon = parseFloat(city.lon.toString().replace(',', '.'));
+                    if (isNaN(lat) || isNaN(lon)) return;
+
+                    const cityData = {
+                        id: city.id,
+                        name: city.title,
+                        isVisited: city.isVisited || false,
+                        firstVisitDate: city.firstVisitDate || null,
+                        lastVisitDate: city.lastVisitDate || null,
+                        numberOfVisits: city.numberOfVisits || 0,
+                        numberOfUsersWhoVisitCity: null,
+                        numberOfVisitsAllUsers: null
+                    };
+
+                    const regionLink = city.regionId ? `/region/${city.regionId}/list` : null;
+                    const countryLink = city.countryCode ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(city.countryCode)}` : null;
+
+                    const basePopupOptions = {
+                        regionName: city.region || null,
+                        countryName: city.country || null,
+                        regionLink: regionLink,
+                        countryLink: countryLink,
+                        isAuthenticated: isAuthenticated,
+                        isCollectionOwner: true
+                    };
+
+                    const updatePopupContent = () => {
+                        const isInCollection = selectedCities.some(c => c.id === city.id);
+                        return buildPopupContent(cityData, {
+                            ...basePopupOptions,
+                            addButtonText: isInCollection ? 'Удалить из коллекции' : 'Добавить в коллекцию'
+                        });
+                    };
+
+                    const marker = L.marker([lat, lon], { icon: icon_blue_pin });
+                    marker._cityId = city.id;
+                    marker._cityData = cityData;
+                    marker._updatePopupContent = updatePopupContent;
+                    marker.bindPopup(updatePopupContent, { maxWidth: 400, minWidth: 280 });
+                    marker.on('popupopen', () => {
+                        marker.setPopupContent(updatePopupContent());
+                        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+                            window.HSStaticMethods.autoInit();
+                        }
+                    });
+                    marker.bindTooltip(cityData.name, { direction: 'top' });
+                    marker.on('mouseover', function () {
+                        const tooltip = this.getTooltip();
+                        if (this.isPopupOpen()) {
+                            tooltip.setOpacity(0.0);
+                        } else {
+                            tooltip.setOpacity(0.9);
+                        }
+                    });
+                    marker.on('click', function () {
+                        this.getTooltip().setOpacity(0.0);
+                    });
+                    marker.addTo(map);
+                    allMarkers.push(marker);
+
+                    const group = new L.featureGroup([...allMarkers]);
+                    map.fitBounds(group.getBounds(), { padding: [50, 50], maxZoom: 10 });
+
+                    citySearchInput.value = '';
+                } catch (error) {
+                    console.error('Ошибка при добавлении города:', error);
+                    showDangerToast('Ошибка', error.message || 'Не удалось добавить город');
+                }
+            };
+
+            const citySearchConfig = {
+                selector: () => citySearchInput,
+                debounce: 300,
+                data: {
+                    src: async () => {
+                        const query = citySearchInput.value;
+                        if (!query || query.length < 2) return [];
+                        return await searchCities(query);
+                    },
+                    keys: ['value']
+                },
+                resultsList: {
+                    render: true,
+                    element: (list, data) => {
+                        list.classList.add('city-search-dropdown');
+                        const info = document.createElement('p');
+                        info.className = 'px-3 py-2 text-xs text-gray-500 dark:text-neutral-400';
+                        if (data.results.length) {
+                            const word = pluralize(data.results.length, 'совпадение', 'совпадения', 'совпадений');
+                            info.innerHTML = `Найдено <strong>${data.results.length}</strong> ${word} для <strong>«${data.query}»</strong>`;
+                        } else {
+                            info.innerHTML = `Нет совпадений для <strong>«${data.query}»</strong>`;
+                        }
+                        list.prepend(info);
+                    },
+                    maxResults: 15,
+                    noResults: true,
+                    destination: () => citySearchInput,
+                    position: 'afterend'
+                },
+                resultItem: {
+                    highlight: true,
+                    element: (item, data) => {
+                        item.style.cssText = 'display: flex !important; flex-direction: column !important; align-items: flex-start !important; justify-content: flex-start !important; text-align: left !important; width: 100%;';
+                        const cityName = document.createElement('span');
+                        cityName.style.cssText = 'font-weight: 500;';
+                        cityName.innerHTML = data.match;
+                        const locationParts = [];
+                        if (data.value.region) locationParts.push(data.value.region);
+                        if (data.value.country) locationParts.push(data.value.country);
+                        const locationInfo = document.createElement('span');
+                        locationInfo.style.cssText = 'font-size: 0.85em; color: #6c757d; margin-top: 2px;';
+                        locationInfo.textContent = locationParts.join(', ');
+                        item.innerHTML = '';
+                        item.appendChild(cityName);
+                        if (locationParts.length) item.appendChild(locationInfo);
+                    }
+                },
+                events: {
+                    input: {
+                        selection: (event) => {
+                            const selection = event.detail.selection.value;
+                            addCityFromSearch(selection.id);
+                        }
+                    }
+                }
+            };
+            new autoComplete(citySearchConfig);
+        }
+
         // Обработчик клика на кнопку "Загрузить города"
         loadCitiesButton.addEventListener('click', async () => {
             // Получаем выбранные регионы напрямую из DOM перед загрузкой

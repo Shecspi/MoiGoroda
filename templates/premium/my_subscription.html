@@ -309,6 +309,12 @@
                 <dt class="text-gray-500 dark:text-neutral-400">Период</dt>
                 <dd class="text-gray-900 dark:text-neutral-200">{{ payment.get_billing_period_display }}</dd>
               </dl>
+              {% if payment.status == 'pending' and payment.confirmation_url %}
+              <a href="{{ payment.confirmation_url }}" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                Завершить оплату
+                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              {% endif %}
             </div>
           {% endfor %}
         </div>
@@ -332,30 +338,38 @@
                   <td class="py-3 px-4 text-sm text-gray-700 dark:text-neutral-300">{{ payment.amount_value }} {{ payment.currency }}</td>
                   <td class="py-3 px-4 text-sm text-gray-700 dark:text-neutral-300">{{ payment.get_billing_period_display }}</td>
                   <td class="py-3 px-4 text-sm">
-                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium
-                             {% if payment.status == 'succeeded' %}
-                               border border-green-500 bg-green-50 text-green-700 dark:border-green-500/50 dark:bg-green-500/10 dark:text-green-100
-                             {% elif payment.status == 'canceled' %}
-                               border border-red-500 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-500/10 dark:text-red-100
-                             {% else %}
-                               border border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-100
-                             {% endif %}">
-                  {% if payment.status == 'succeeded' %}
+                <div class="flex flex-col items-center gap-1">
+                  <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium w-fit
+                               {% if payment.status == 'succeeded' %}
+                                 border border-green-500 bg-green-50 text-green-700 dark:border-green-500/50 dark:bg-green-500/10 dark:text-green-100
+                               {% elif payment.status == 'canceled' %}
+                                 border border-red-500 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-500/10 dark:text-red-100
+                               {% else %}
+                                 border border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-100
+                               {% endif %}">
+                    {% if payment.status == 'succeeded' %}
                     <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/>
                     </svg>
-                  {% elif payment.status == 'canceled' %}
+                    {% elif payment.status == 'canceled' %}
                     <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
                     </svg>
-                  {% else %}
+                    {% else %}
                     <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <circle cx="12" cy="12" r="10"/>
                       <path d="M12 6v6l4 2"/>
                     </svg>
+                    {% endif %}
+                    {{ payment.get_status_display }}
+                  </span>
+                  {% if payment.status == 'pending' and payment.confirmation_url %}
+                  <a href="{{ payment.confirmation_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 w-fit text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                    Завершить оплату
+                    <svg class="size-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  </a>
                   {% endif %}
-                      {{ payment.get_status_display }}
-                    </span>
+                </div>
                   </td>
                 </tr>
               {% endfor %}

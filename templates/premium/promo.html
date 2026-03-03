@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="w-full">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
     <div class="max-w-3xl mx-auto text-center">
       <h1 class="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-white">
         Премиум-подписка на «Мои города»
@@ -28,7 +28,7 @@
     </div>
     {% endif %}
 
-    <div class="mt-6 grid gap-6 lg:gap-8 md:grid-cols-2 items-stretch">
+    <div class="mt-6 grid gap-6 lg:gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
       <!-- Бесплатная подписка -->
       <div
         class="relative flex flex-col rounded-2xl border {% if not active_subscription %}border-blue-500 ring-2 ring-blue-500 dark:border-blue-500/60 dark:ring-blue-500/80{% else %}border-gray-200 dark:border-neutral-700{% endif %} bg-white shadow-sm dark:bg-neutral-900">
@@ -194,7 +194,7 @@
         </div>
       </div>
       {% empty %}
-      <p class="text-sm text-gray-500 dark:text-neutral-400 md:col-span-2">
+      <p class="text-sm text-gray-500 dark:text-neutral-400 col-span-full">
         Премиум-тарифы скоро появятся.
       </p>
       {% endfor %}

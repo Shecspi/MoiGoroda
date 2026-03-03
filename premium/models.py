@@ -144,6 +144,7 @@ class PremiumSubscription(models.Model):
         PENDING = 'pending', 'Ожидает активации'
         ACTIVE = 'active', 'Активна'
         PAUSED = 'paused', 'Приостановлена'
+        SCHEDULED = 'scheduled', 'Запланирована (после окончания текущей)'
         CANCELED = 'canceled', 'Отменена'
         EXPIRED = 'expired', 'Истекла'
 

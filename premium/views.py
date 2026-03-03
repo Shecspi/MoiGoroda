@@ -11,9 +11,11 @@ from __future__ import annotations
 
 import json
 import uuid
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -175,6 +177,49 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
     )
     show_thank_you_banner = request.GET.get('succeed_payment') == '1'
 
+    # Приостановленные и запланированные подписки с датами активации (с какого по какое число будут активны)
+    paused_subscriptions: list[tuple[PremiumSubscription, datetime, datetime]] = []
+    active_sub = (
+        PremiumSubscription.objects.filter(
+            user=request.user,
+            status=PremiumSubscription.Status.ACTIVE,
+        )
+        .select_related('plan')
+        .first()
+    )
+    now = timezone.now()
+    if active_sub is not None and active_sub.expires_at is not None:
+        # PAUSED: приостановлены при апгрейде, активируются после текущей
+        paused_subs = (
+            PremiumSubscription.objects.filter(
+                user=request.user,
+                status=PremiumSubscription.Status.PAUSED,
+                expires_at__gt=now,
+            )
+            .select_related('plan')
+            .order_by('expires_at')
+        )
+        next_start = active_sub.expires_at
+        for sub in paused_subs:
+            if sub.expires_at is not None:
+                paused_subscriptions.append((sub, next_start, sub.expires_at))
+                next_start = sub.expires_at
+    # SCHEDULED: запланированы при даунгрейде, активируются после текущей
+    scheduled_subs = (
+        PremiumSubscription.objects.filter(
+            user=request.user,
+            status=PremiumSubscription.Status.SCHEDULED,
+            started_at__gt=now,
+            expires_at__gt=now,
+        )
+        .select_related('plan')
+        .order_by('started_at')
+    )
+    for sub in scheduled_subs:
+        if sub.started_at is not None and sub.expires_at is not None:
+            paused_subscriptions.append((sub, sub.started_at, sub.expires_at))
+    paused_subscriptions.sort(key=lambda x: x[1])
+
     return render(
         request,
         'premium/my_subscription.html',
@@ -184,5 +229,6 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
             'active_page': 'premium_my_subscription',
             'payments': payments,
             'show_thank_you_banner': show_thank_you_banner,
+            'paused_subscriptions': paused_subscriptions,
         },
     )

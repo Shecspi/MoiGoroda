@@ -28,6 +28,8 @@
 
 - Добавлено кеширование файлов S3 на 1 год ([8b858f8](https://github.com/Shecspi/MoiGoroda/commit/8b858f8276e6f44d4256a37ebb23d2047996ba72))
 
+- *(collection)* Добавлен поиск города по названию на странице создания коллекции ([d394041](https://github.com/Shecspi/MoiGoroda/commit/d39404149b20f1fd5fbb483bae3997ef284966aa))
+
 
 #### 🐛 Исправление ошибок
 

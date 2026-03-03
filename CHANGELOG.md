@@ -28,6 +28,8 @@
 
 - Добавлено кеширование файлов S3 на 1 год ([8b858f8](https://github.com/Shecspi/MoiGoroda/commit/8b858f8276e6f44d4256a37ebb23d2047996ba72))
 
+- *(collection)* Добавлен поиск города по названию на странице создания коллекции ([d394041](https://github.com/Shecspi/MoiGoroda/commit/d39404149b20f1fd5fbb483bae3997ef284966aa))
+
 
 #### 🐛 Исправление ошибок
 
@@ -54,6 +56,8 @@
 - *(city)* Улучшена вёрстка модальных окон карты и статистики города ([b9c8f3d](https://github.com/Shecspi/MoiGoroda/commit/b9c8f3dbae4bbd823f3c067b75d122832560b596))
 
 - Удалена неиспользуемая страница signup_success ([be81e50](https://github.com/Shecspi/MoiGoroda/commit/be81e50797419cfb7ad9e1f64e8ed76d233e2953))
+
+- *(city)* Исправлена XSS в city_search.js ([16c0363](https://github.com/Shecspi/MoiGoroda/commit/16c0363baa4bfb19461a958b2b9ccfaa121630b5))
 
 
 #### Изменено

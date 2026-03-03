@@ -7,6 +7,7 @@
     {% vite_css 'css/tailwind' %}
     {% vite_css 'css/select-field' %}
     {% vite_css 'css/leaflet-controls' %}
+    {% vite_css 'css/autoComplete' %}
 {% endblock %}
 
 {% block content %}
@@ -19,20 +20,42 @@
         </p>
     </header>
 
-    <!-- Форма выбора страны, региона и города -->
-    <div class="mx-3 mb-8 flex justify-center">
-        <div class="w-full">
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
-                <div class="space-y-6" id="personal-collection-create-form">
-                    <!-- Страна, Регион, Город -->
-                    <div class="grid grid-cols-1 gap-x-4 gap-y-10 md:grid-cols-2 lg:grid-cols-3 md:gap-y-4">
-                        <!-- Страна -->
-                        <div class="col-span-1">
-                            <label for="country_select" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
-                                Страна
-                            </label>
-                            <select
-                                id="country_select"
+    <style>
+        /* Выравнивание выпадающего списка поиска городов по левому краю */
+        .city-search-dropdown,
+        .city-search-dropdown ul,
+        #personal-collection-create-form .autoComplete_wrapper > ul,
+        #personal-collection-create-form #autoComplete_list_1,
+        #city_search_wrapper .autoComplete_wrapper > ul,
+        #city_search_wrapper #autoComplete_list_1 {
+            text-align: left !important;
+        }
+        .city-search-dropdown li,
+        .city-search-dropdown .autoComplete_result,
+        #personal-collection-create-form .autoComplete_wrapper > ul > li,
+        #personal-collection-create-form #autoComplete_list_1 .autoComplete_result,
+        #city_search_wrapper .autoComplete_wrapper > ul > li,
+        #city_search_wrapper #autoComplete_list_1 .autoComplete_result {
+            justify-content: flex-start !important;
+            align-items: flex-start !important;
+            text-align: left !important;
+        }
+    </style>
+
+    <!-- Форма создания коллекции -->
+    <div class="mx-3 mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3" id="personal-collection-create-form">
+        <!-- Карточка 1: Загрузка городов по регионам -->
+        <div class="flex flex-col bg-white border border-gray-200 border-t-4 border-t-blue-500 shadow-sm rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:border-t-blue-500">
+            <div class="p-4 md:p-5">
+                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Загрузка городов по регионам</h2>
+            <div class="flex flex-col gap-4">
+                <!-- Страна -->
+                <div>
+                    <label for="country_select" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
+                        Страна
+                    </label>
+                    <select
+                        id="country_select"
                                 multiple
                                 data-hs-select='{
                                     "placeholder": "Выберите страны...",
@@ -43,23 +66,23 @@
                                     "optionTemplate": "<div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div><div class=\"text-sm text-gray-800 dark:text-neutral-200\" data-title></div></div><div class=\"ms-auto\"><span class=\"hidden\"><svg class=\"shrink-0 size-4 text-blue-600 dark:text-blue-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\"><path d=\"M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z\"/></svg></span></div></div>",
                                     "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-neutral-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
                                 }'
-                                class="hidden">
-                                <option value="">Выберите страны</option>
-                            </select>
-                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Выберите страны для фильтрации регионов</p>
-                        </div>
+                        class="hidden">
+                        <option value="">Выберите страны</option>
+                    </select>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Выберите страны для фильтрации регионов</p>
+                </div>
 
-                        <!-- Регион -->
-                        <div class="col-span-1">
-                            <label for="region_select" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
+                <!-- Регион -->
+                <div>
+                    <label for="region_select" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
                                 Регион
-                            </label>
-                            <select
-                                id="region_select"
-                                name="region"
-                                multiple
-                                disabled
-                                data-hs-select='{
+                    </label>
+                    <select
+                        id="region_select"
+                        name="region"
+                        multiple
+                        disabled
+                        data-hs-select='{
                                     "placeholder": "Выберите регионы...",
                                     "toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
                                     "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:outline-hidden dark:focus:ring-1 dark:focus:ring-neutral-600",
@@ -67,48 +90,73 @@
                                     "optionClasses": "py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:text-neutral-200 dark:focus:bg-neutral-800",
                                     "optionTemplate": "<div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div><div class=\"text-sm text-gray-800 dark:text-neutral-200\"><span data-title></span><span class=\"text-xs text-gray-500 dark:text-neutral-400\"></span></div></div><div class=\"ms-auto\"><span class=\"hidden\"><svg class=\"shrink-0 size-4 text-blue-600 dark:text-blue-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\"><path d=\"M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z\"/></svg></span></div></div>",
                                     "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-neutral-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
-                                }'
-                                class="hidden">
-                                <option value="">Выберите регионы</option>
-                            </select>
-                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Выберите регионы для фильтрации городов</p>
-                        </div>
+                        }'
+                        class="hidden">
+                        <option value="">Выберите регионы</option>
+                    </select>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Выберите регионы для фильтрации городов</p>
+                </div>
 
-                        <!-- Кнопка загрузки городов -->
-                        <div class="col-span-1">
-                            <label class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200 invisible">
-                                Загрузка
-                            </label>
-                            <button
-                                id="load_cities_button"
-                                type="button"
-                                disabled
-                                class="w-full inline-flex items-center justify-center gap-x-2 px-4 py-3 text-sm font-semibold rounded-xl border border-blue-500 text-blue-600 shadow-sm transition hover:bg-blue-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-500/10 dark:focus:ring-offset-neutral-800">
+                <!-- Кнопка загрузки городов -->
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200 invisible">
+                        Загрузка
+                    </label>
+                    <button
+                        id="load_cities_button"
+                        type="button"
+                        disabled
+                        class="w-full inline-flex items-center justify-center gap-x-2 px-4 py-3 text-sm font-semibold rounded-xl border border-blue-500 text-blue-600 shadow-sm transition hover:bg-blue-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-500/10 dark:focus:ring-offset-neutral-800">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 512 512" fill="currentColor">
                                     <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/>
                                 </svg>
-                                Загрузить города
-                            </button>
-                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500 invisible">Загрузка городов</p>
-                        </div>
-                    </div>
+                        Загрузить города
+                    </button>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500 invisible">Загрузка городов</p>
+                </div>
+            </div>
+            </div>
+        </div>
 
-                    <!-- Название коллекции, тип коллекции и кнопка сохранения -->
-                    <div class="grid grid-cols-1 gap-y-10 gap-x-4 md:grid-cols-[1fr_auto_auto] md:gap-y-4 items-start">
-                        <div>
-                            <label for="collection_name" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
-                                Название коллекции
-                                <span class="text-red-600 dark:text-red-500">*</span>
-                            </label>
+        <!-- Карточка 2: Поиск города по названию -->
+        <div class="flex flex-col bg-white border border-gray-200 border-t-4 border-t-emerald-500 shadow-sm rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:border-t-emerald-500">
+            <div class="p-4 md:p-5">
+                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Поиск города по названию</h2>
+            <div class="flex flex-col gap-4">
+                <label for="city_search_input" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
+                    Название города
+                </label>
+                <div id="city_search_wrapper" class="city-search-autocomplete">
                             <input type="text"
+                                   id="city_search_input"
+                                   autocomplete="off"
+                                   class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg bg-white sm:text-sm focus:z-10 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-neutral-600"
+                                   placeholder="Начните вводить название города...">
+                </div>
+                <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Выберите город из подсказок — маркер появится на карте и город будет добавлен в коллекцию</p>
+            </div>
+            </div>
+        </div>
+
+        <!-- Карточка 3: Настройки коллекции -->
+        <div class="flex flex-col bg-white border border-gray-200 border-t-4 border-t-amber-500 shadow-sm rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:border-t-amber-500">
+            <div class="p-4 md:p-5">
+                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Настройки коллекции</h2>
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label for="collection_name" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
+                        Название коллекции
+                        <span class="text-red-600 dark:text-red-500">*</span>
+                    </label>
+                    <input type="text"
                                    id="collection_name"
                                    name="collection_name"
                                    class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg bg-white sm:text-sm focus:z-10 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-neutral-600"
                                    placeholder="Введите название коллекции"
                                    required>
-                            <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Укажите название для вашей персональной коллекции</p>
-                        </div>
-                        <div class="col-span-1">
+                    <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Укажите название для вашей персональной коллекции</p>
+                </div>
+                        <div>
                             <label for="is_public_switch" class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200">
                                 Публичная коллекция
                             </label>
@@ -139,7 +187,7 @@
                             </div>
                             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">Публичные коллекции доступны всем пользователям</p>
                         </div>
-                        <div class="col-span-1 self-end">
+                        <div>
                             <label class="mb-2 block text-sm font-semibold text-gray-800 dark:text-neutral-200 invisible">
                                 Сохранить
                             </label>
@@ -154,16 +202,15 @@
                             </button>
                             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500 invisible">Сохранение коллекции</p>
                         </div>
-                    </div>
+            </div>
 
-                    <!-- Ссылка на помощь -->
-                    <div class="flex justify-end">
-                        <button type="button"
-                                class="text-xs text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 px-2 py-1 rounded transition dark:text-neutral-300 dark:hover:text-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 dark:hover:border-neutral-600"
-                                data-hs-overlay="#collection-help-modal">
-                            Помощь по созданию коллекции
-                        </button>
-                    </div>
+                <!-- Ссылка на помощь -->
+                <div class="mt-6 flex justify-end">
+                <button type="button"
+                        class="text-xs text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 px-2 py-1 rounded transition dark:text-neutral-300 dark:hover:text-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 dark:hover:border-neutral-600"
+                        data-hs-overlay="#collection-help-modal">
+                    Помощь по созданию коллекции
+                </button>
                 </div>
             </div>
         </div>

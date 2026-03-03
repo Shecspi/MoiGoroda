@@ -1,6 +1,35 @@
 import autoComplete from "@tarekraafat/autocomplete.js";
 import { pluralize } from "../components/search_services.js";
 
+/**
+ * Экранирует строку для безопасной вставки в HTML (защита от XSS).
+ * @param {string|number|null|undefined} text - значение для экранирования
+ * @returns {string}
+ */
+function escapeHtml(text) {
+    if (text == null || text === undefined) return '';
+    const s = String(text);
+    return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
+ * Санитизирует HTML с подсветкой: экранирует всё, кроме тегов <mark> (защита от XSS).
+ * @param {string} html - строка с возможными тегами <mark> от autocomplete
+ * @returns {string}
+ */
+function sanitizeMatchHtml(html) {
+    if (html == null || html === undefined) return '';
+    const s = String(html);
+    return escapeHtml(s)
+        .replace(/&lt;mark&gt;/g, '<mark>')
+        .replace(/&lt;\/mark&gt;/g, '</mark>');
+}
+
 export async function searchCities(query, country = null) {
     if (!query) return [];
 
@@ -41,7 +70,7 @@ export function createResultsListElement(data) {
 
     const count = data.results.length;
     const word = pluralize(count, "совпадение", "совпадения", "совпадений");
-    info.innerHTML = `Найдено <strong>${count}</strong> ${word} для <strong>"${data.query}"</strong>`;
+    info.innerHTML = `Найдено <strong>${count}</strong> ${word} для <strong>"${escapeHtml(data.query)}"</strong>`;
     
     return info;
 }
@@ -53,7 +82,7 @@ export function createResultItemElement(data) {
     // Основная строка с названием города (сохраняем подсветку)
     const cityName = document.createElement("span");
     cityName.style.cssText = "display: block; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-weight: 500; width: 100%;";
-    cityName.innerHTML = data.match; // Используем innerHTML для сохранения <mark> тегов
+    cityName.innerHTML = sanitizeMatchHtml(data.match); // Экранируем, сохраняя только <mark> для подсветки
     
     // Вторая строка с регионом и страной
     const locationInfo = document.createElement("span");

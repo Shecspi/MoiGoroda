@@ -57,6 +57,8 @@
 
 - Удалена неиспользуемая страница signup_success ([be81e50](https://github.com/Shecspi/MoiGoroda/commit/be81e50797419cfb7ad9e1f64e8ed76d233e2953))
 
+- *(city)* Исправлена XSS в city_search.js ([16c0363](https://github.com/Shecspi/MoiGoroda/commit/16c0363baa4bfb19461a958b2b9ccfaa121630b5))
+
 
 #### Изменено
 

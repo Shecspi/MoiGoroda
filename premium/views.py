@@ -93,9 +93,7 @@ def checkout(request: HttpRequest) -> HttpResponse:
     Configuration.account_id = settings.YOOKASSA_SHOP_ID
     Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 
-    return_url = request.build_absolute_uri(
-        reverse('premium_my_subscription') + '?succeed_payment=1'
-    )
+    return_url = request.build_absolute_uri(reverse('premium_my_subscription'))
 
     try:
         payment = Payment.create(
@@ -148,6 +146,9 @@ def checkout(request: HttpRequest) -> HttpResponse:
         raw_payload=response_data,
     )
 
+    request.session['premium_payment_return_id'] = str(premium_payment.pk)
+    request.session['premium_payment_return_at'] = timezone.now().isoformat()
+
     confirmation_url = payment.confirmation.confirmation_url
     return redirect(confirmation_url)
 
@@ -185,7 +186,7 @@ def _sync_pending_payments(user) -> None:
     )
     for premium_payment in pending_payments:
         try:
-            yookassa_payment = Payment.find(premium_payment.yookassa_payment_id)
+            yookassa_payment = Payment.find_one(premium_payment.yookassa_payment_id)
         except ApiError:
             continue
         new_status = yookassa_payment.status
@@ -206,9 +207,29 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
     """
     Страница с текущим тарифом подписки, датой окончания и списком платежей пользователя.
     """
-    show_thank_you_banner = request.GET.get('succeed_payment') == '1'
-    if show_thank_you_banner:
-        _sync_pending_payments(request.user)
+    payment_result: str | None = None
+
+    payment_id = request.session.pop('premium_payment_return_id', None)
+    returned_at_str = request.session.pop('premium_payment_return_at', None)
+
+    if payment_id and returned_at_str:
+        try:
+            returned_at = datetime.fromisoformat(returned_at_str)
+            if (timezone.now() - returned_at).total_seconds() < 3600:
+                _sync_pending_payments(request.user)
+                premium_payment = PremiumPayment.objects.filter(
+                    pk=payment_id,
+                    user=request.user,
+                ).first()
+                if premium_payment:
+                    if premium_payment.status == PremiumPayment.Status.SUCCEEDED:
+                        payment_result = 'succeeded'
+                    elif premium_payment.status == PremiumPayment.Status.CANCELED:
+                        payment_result = 'canceled'
+                    else:
+                        payment_result = 'pending'
+        except (ValueError, TypeError):
+            pass
 
     payments = (
         PremiumPayment.objects.filter(user=request.user)
@@ -255,7 +276,7 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
             'page_description': 'Текущий тариф и история платежей',
             'active_page': 'premium_my_subscription',
             'payments': payments,
-            'show_thank_you_banner': show_thank_you_banner,
+            'payment_result': payment_result,
             'paused_subscriptions': paused_subscriptions,
         },
     )

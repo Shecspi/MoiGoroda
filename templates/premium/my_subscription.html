@@ -16,7 +16,7 @@
       <p class="mt-2 text-gray-600 dark:text-neutral-300">
         Текущий тариф и история платежей
       </p>
-      {% if show_thank_you_banner %}
+      {% if payment_result == 'succeeded' %}
       <div class="mt-6 mx-auto w-full max-w-3xl rounded-2xl border border-green-300 bg-green-50 px-5 py-4 text-left text-sm text-green-900 shadow-sm dark:border-green-500/60 dark:bg-green-900/40 dark:text-green-50">
         <div class="flex items-start gap-3">
           <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-green-300 bg-green-100 text-green-700 dark:border-green-500 dark:bg-green-500/20 dark:text-green-300">
@@ -26,14 +26,49 @@
             </svg>
           </div>
           <div class="text-sm sm:text-base">
-            <p class="font-semibold">
-              Спасибо за оформление премиум-подписки!
+            <p class="font-semibold">Спасибо за оформление премиум-подписки!</p>
+            {% if active_subscription and active_subscription.expires_at %}
+            <p class="mt-1">Подписка действует до {{ active_subscription.expires_at|date:"d.m.Y" }}.</p>
+            {% endif %}
+            {% if paused_subscriptions %}
+            <p class="mt-1">Если есть другие запланированные подписки, которые будут активны после окончания текущей, посмотреть их можно в разделе «Последовательность подписок» ниже.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% elif payment_result == 'pending' %}
+      <div class="mt-6 mx-auto w-full max-w-3xl rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-left text-sm text-amber-900 shadow-sm dark:border-amber-500/60 dark:bg-amber-900/40 dark:text-amber-50">
+        <div class="flex items-start gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-amber-300 bg-amber-100 text-amber-700 dark:border-amber-500 dark:bg-amber-500/20 dark:text-amber-300">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="text-sm sm:text-base">
+            <p class="font-semibold">Ожидание оплаты</p>
+            <p class="mt-1">
+              Если вы произвели оплату, то в редких случаях может потребоваться незначительное время на её обработку.
+              Обновить статус платежа можно, обновив страницу.
             </p>
             <p class="mt-1">
-              Мы получили запрос на оплату. Ниже в списке платежей указан его текущий статус.
-              Как только статус платежа станет <strong>«Успешно оплачен»</strong>, подписка автоматически активируется.
-              Обычно это происходит практически моментально или в течение нескольких секунд после успешной оплаты.<br>
-              Обновите страницу, чтобы проверить статус платежа.
+              Если оплата была прервана, возобновить её можно будет по ссылке (в разработке). Пока что обновите страницу или проверьте раздел «Платежи» ниже.
+            </p>
+          </div>
+        </div>
+      </div>
+      {% elif payment_result == 'canceled' %}
+      <div class="mt-6 mx-auto w-full max-w-3xl rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4 text-left text-sm text-gray-700 shadow-sm dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+        <div class="flex items-start gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-gray-100 text-gray-600 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+            </svg>
+          </div>
+          <div class="text-sm sm:text-base">
+            <p class="font-semibold">Платёж отменён</p>
+            <p class="mt-1">
+              Возобновить оплату можно будет по ссылке (в разработке). Пока что просмотрите раздел «Платежи» ниже.
             </p>
           </div>
         </div>

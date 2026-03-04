@@ -161,7 +161,7 @@
               {% csrf_token %}
               <input type="hidden" name="plan_id" value="{{ plan.id }}">
               <input type="hidden" name="billing_period" class="billing-period-input" value="monthly">
-              <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-neutral-900">
+              <button type="submit" class="btn btn-primary btn-default btn-block">
                 Продлить подписку
               </button>
             </form>
@@ -173,7 +173,7 @@
               {% csrf_token %}
               <input type="hidden" name="plan_id" value="{{ plan.id }}">
               <input type="hidden" name="billing_period" class="billing-period-input" value="monthly">
-              <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-neutral-900">
+              <button type="submit" class="btn btn-primary btn-default btn-block">
                 Улучшить подписку
               </button>
             </form>
@@ -185,7 +185,7 @@
               {% csrf_token %}
               <input type="hidden" name="plan_id" value="{{ plan.id }}">
               <input type="hidden" name="billing_period" class="billing-period-input" value="monthly">
-              <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-neutral-900">
+              <button type="submit" class="btn btn-primary btn-default btn-block">
                 Оформить подписку
               </button>
             </form>
@@ -194,7 +194,7 @@
               {% csrf_token %}
               <input type="hidden" name="plan_id" value="{{ plan.id }}">
               <input type="hidden" name="billing_period" class="billing-period-input" value="monthly">
-              <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-neutral-900">
+              <button type="submit" class="btn btn-primary btn-default btn-block">
                 Оформить подписку
               </button>
             </form>
@@ -203,8 +203,8 @@
               Войдите в аккаунт, чтобы оформить подписку.
             </p>
             <div class="mt-2 flex flex-col gap-2">
-              <a href="{% url 'signin' %}" class="inline-flex w-full items-center justify-center rounded-xl border border-blue-600 px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-500/10">Войти</a>
-              <a href="{% url 'signup' %}" class="inline-flex w-full items-center justify-center rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:text-neutral-200 dark:border-neutral-600 dark:hover:bg-neutral-800">Зарегистрироваться</a>
+              <a href="{% url 'signin' %}" class="btn btn-primary btn-sm btn-block">Войти</a>
+              <a href="{% url 'signup' %}" class="btn btn-red btn-sm btn-block">Зарегистрироваться</a>
             </div>
           {% endif %}
           </div>

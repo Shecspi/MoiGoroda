@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
-from yookassa.domain.notification import (
+from typing import Any
+
+from yookassa.domain.notification import (  # type: ignore[import-untyped]
     WebhookNotificationEventType,
     WebhookNotificationFactory,
 )
@@ -50,7 +52,7 @@ class WebhookService:
     ) -> None:
         self._repository = repository or WebhookRepository()
 
-    def process(self, data: dict) -> WebhookProcessResult:
+    def process(self, data: dict[str, Any]) -> WebhookProcessResult:
         """
         Обрабатывает уведомление вебхука.
         Возвращает результат для логирования в view.

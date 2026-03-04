@@ -5,19 +5,20 @@ DTO (Data Transfer Objects) для premium-приложения.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from premium.models import PremiumSubscription
+    from premium.models import PremiumPayment, PremiumSubscription
 
 
 @dataclass
 class SubscriptionPageData:
     """Данные для страницы «Моя подписка»."""
 
-    payments: list
+    payments: list[PremiumPayment]
     active_subscription: PremiumSubscription | None
-    paused_subscriptions: list[tuple]
+    paused_subscriptions: list[tuple[PremiumSubscription, datetime, datetime]]
     payment_result: str | None
 
 
@@ -29,7 +30,7 @@ class WebhookProcessResult:
     payment_id: str = ''
     current_status: str = ''
     new_status: str = ''
-    data: dict | None = None  # для log_invalid_payload
+    data: dict[str, Any] | None = None  # для log_invalid_payload
     error: BaseException | None = None  # для log_invalid_payload
 
 
@@ -43,5 +44,5 @@ class CheckoutResult:
     """ID PremiumPayment для сохранения в сессию (при успехе)."""
     yookassa_payment_id: str = ''
     yookassa_status: str = ''
-    raw_response: dict | None = None
+    raw_response: dict[str, Any] | None = None
     """Данные для логирования ответа провайдера."""

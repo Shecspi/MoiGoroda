@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 
 @dataclass
@@ -16,7 +16,7 @@ class CreatePaymentResult:
     payment_id: str
     status: str
     confirmation_url: str
-    raw_response: dict
+    raw_response: dict[str, Any]
 
 
 class PaymentProvider(Protocol):

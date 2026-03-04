@@ -22,6 +22,18 @@ class SubscriptionPageData:
 
 
 @dataclass
+class WebhookProcessResult:
+    """Результат обработки вебхука YooKassa."""
+
+    status: str  # 'ok' | 'invalid_payload' | 'payment_not_found' | 'transition_denied' | 'ignored'
+    payment_id: str = ''
+    current_status: str = ''
+    new_status: str = ''
+    data: dict | None = None  # для log_invalid_payload
+    error: BaseException | None = None  # для log_invalid_payload
+
+
+@dataclass
 class CheckoutResult:
     """Результат операции checkout."""
 

@@ -12,6 +12,7 @@ import json
 import pytest
 from django.test import Client, override_settings
 
+from premium.models import PremiumPayment
 from premium.tests.conftest import make_webhook_payload
 
 
@@ -42,7 +43,7 @@ class TestYookassaWebhookHandler:
 
     def test_webhook_valid_payload_succeeded(
         self,
-        premium_payment,
+        premium_payment: PremiumPayment,
     ) -> None:
         payload = make_webhook_payload(
             payment_id=premium_payment.yookassa_payment_id,

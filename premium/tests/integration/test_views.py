@@ -53,7 +53,8 @@ class TestCheckoutView:
             {'plan_id': 'x', 'billing_period': 'monthly'},
         )
         assert response.status_code == 302
-        assert 'signin' in response.url or 'login' in response.url
+        redirect_url = response.get('Location', '')
+        assert 'signin' in redirect_url or 'login' in redirect_url
 
     def test_checkout_requires_post(self, user: User) -> None:
         client = Client()
@@ -91,7 +92,7 @@ class TestCheckoutView:
         )
 
         assert response.status_code == 302
-        assert response.url == 'https://yookassa.ru/pay'
+        assert response.get('Location') == 'https://yookassa.ru/pay'
 
     @patch('premium.views.CheckoutService')
     def test_checkout_invalid_billing_period_redirects_to_promo(
@@ -110,7 +111,7 @@ class TestCheckoutView:
             },
         )
         assert response.status_code == 302
-        assert reverse('premium_promo') in response.url
+        assert reverse('premium_promo') in (response.get('Location') or '')
 
 
 @pytest.mark.integration

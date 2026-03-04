@@ -18,7 +18,10 @@ from premium.models import PremiumPlan, PremiumSubscription
 
 
 @pytest.fixture
-def subscription(user, premium_plan):
+def subscription(
+    user: User,
+    premium_plan: PremiumPlan,
+) -> PremiumSubscription:
     """Подписка в статусе PENDING."""
     return PremiumSubscription.objects.create(
         user=user,

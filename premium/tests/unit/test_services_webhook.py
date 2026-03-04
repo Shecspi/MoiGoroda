@@ -56,6 +56,7 @@ class TestWebhookService:
         premium_payment.refresh_from_db()
         assert premium_payment.status == PremiumPayment.Status.SUCCEEDED
 
+        assert premium_payment.subscription is not None
         premium_payment.subscription.refresh_from_db()
         assert premium_payment.subscription.status == 'active'
 

@@ -10,9 +10,7 @@ from premium.models import PremiumPayment, PremiumPaymentWebhookLog
 class WebhookRepository:
     """Репозиторий данных для обработки вебхука YooKassa."""
 
-    def get_payment_by_yookassa_id(
-        self, yookassa_payment_id: str
-    ) -> PremiumPayment | None:
+    def get_payment_by_yookassa_id(self, yookassa_payment_id: str) -> PremiumPayment | None:
         """Возвращает платёж по ID в YooKassa или None."""
         return (
             PremiumPayment.objects.filter(

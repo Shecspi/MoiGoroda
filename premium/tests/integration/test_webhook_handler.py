@@ -10,13 +10,14 @@ Licensed under the Apache License, Version 2.0
 import json
 
 import pytest
-from django.test import Client
+from django.test import Client, override_settings
 
 from premium.tests.conftest import make_webhook_payload
 
 
 @pytest.mark.integration
 @pytest.mark.django_db
+@override_settings(YOOKASSA_WEBHOOK_IP_VERIFICATION=False)
 class TestYookassaWebhookHandler:
     """Тесты обработчика вебхука YooKassa."""
 

@@ -193,6 +193,8 @@ ADMINS = [
 
 YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID')
 YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY')
+# Проверка IP для вебхука (False — отключить, например для локальной разработки)
+YOOKASSA_WEBHOOK_IP_VERIFICATION = os.getenv('YOOKASSA_WEBHOOK_IP_VERIFICATION', 'True') == 'True'
 
 LOG_FIlE_PATH = os.path.join(BASE_DIR, 'logs/log.log')
 LOG_PREMIUM_PAYMENTS_PATH = os.path.join(BASE_DIR, 'logs/premium_payments.log')

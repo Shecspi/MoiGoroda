@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 import pytest
 from django.contrib.auth.models import User
@@ -58,7 +58,7 @@ class TestSubscriptionPageService:
                 user,
                 payment_return_id=str(premium_payment.pk),
             )
-            mock_sync.assert_called_once_with(user)
+            mock_sync.assert_called_once_with(user, ANY)
             assert data.payment_result == 'succeeded'
 
     def test_get_page_data_with_payment_return_canceled(
@@ -71,12 +71,13 @@ class TestSubscriptionPageService:
 
         with patch(
             'premium.services.subscription_page._sync_pending_payments',
-        ):
+        ) as mock_sync:
             service = SubscriptionPageService()
             data = service.get_page_data(
                 user,
                 payment_return_id=str(premium_payment.pk),
             )
+            mock_sync.assert_called_once_with(user, ANY)
             assert data.payment_result == 'canceled'
 
     def test_get_page_data_with_payment_return_pending(
@@ -86,10 +87,11 @@ class TestSubscriptionPageService:
     ) -> None:
         with patch(
             'premium.services.subscription_page._sync_pending_payments',
-        ):
+        ) as mock_sync:
             service = SubscriptionPageService()
             data = service.get_page_data(
                 user,
                 payment_return_id=str(premium_payment.pk),
             )
+            mock_sync.assert_called_once_with(user, ANY)
             assert data.payment_result == 'pending'

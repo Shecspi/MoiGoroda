@@ -32,3 +32,10 @@ class PaymentProvider(Protocol):
     ) -> CreatePaymentResult:
         """Создаёт платёж и возвращает данные для редиректа пользователя."""
         ...
+
+    def get_payment_status(self, payment_id: str) -> str | None:
+        """
+        Получает текущий статус платежа у провайдера.
+        Возвращает статус (succeeded, canceled, pending и т.д.) или None при ошибке.
+        """
+        ...

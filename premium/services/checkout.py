@@ -8,6 +8,7 @@ from __future__ import annotations
 import uuid
 
 from django.contrib.auth.models import User
+from django.db import transaction
 
 from premium.adapters.payment_provider import PaymentProvider
 from premium.adapters.yookassa_adapter import YooKassaPaymentAdapter
@@ -74,36 +75,35 @@ class CheckoutService:
                 redirect_url=promo_url,
             )
 
-        subscription = self._repository.create_subscription(
-            user=user,
-            plan=plan,
-            billing_period=period,
-            provider_payment_id=payment_result.payment_id,
-        )
+        with transaction.atomic():
+            subscription = self._repository.create_subscription(
+                user=user,
+                plan=plan,
+                billing_period=period,
+                provider_payment_id=payment_result.payment_id,
+            )
 
-        premium_payment = self._repository.create_payment(
-            user=user,
-            subscription=subscription,
-            plan=plan,
-            amount_value=amount_value,
-            currency=plan.currency,
-            billing_period=period,
-            description=description,
-            yookassa_payment_id=payment_result.payment_id,
-            confirmation_url=payment_result.confirmation_url,
-            status=payment_result.status,
-        )
+            premium_payment = self._repository.create_payment(
+                user=user,
+                subscription=subscription,
+                plan=plan,
+                amount_value=amount_value,
+                currency=plan.currency,
+                billing_period=period,
+                description=description,
+                yookassa_payment_id=payment_result.payment_id,
+                confirmation_url=payment_result.confirmation_url,
+                status=payment_result.status,
+            )
 
-        self._repository.create_webhook_log(
-            payment=premium_payment,
-            status=payment_result.status,
-            raw_payload=payment_result.raw_response,
-        )
+            self._repository.create_webhook_log(
+                payment=premium_payment,
+                status=payment_result.status,
+                raw_payload=payment_result.raw_response,
+            )
 
         redirect_url_final = (
-            payment_result.confirmation_url
-            if payment_result.confirmation_url
-            else return_url
+            payment_result.confirmation_url if payment_result.confirmation_url else return_url
         )
 
         return CheckoutResult(

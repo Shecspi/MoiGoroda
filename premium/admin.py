@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from django.contrib import admin
+from django.http import HttpRequest
 
 from premium.models import (
     PremiumPayment,
@@ -15,7 +16,7 @@ from premium.models import (
 )
 
 
-class PremiumPlanFeatureInline(admin.TabularInline):
+class PremiumPlanFeatureInline(admin.TabularInline):  # type: ignore[type-arg]
     model = PremiumPlanFeature
     extra = 1
     fields = ('text', 'sort_order')
@@ -23,7 +24,7 @@ class PremiumPlanFeatureInline(admin.TabularInline):
 
 
 @admin.register(PremiumPlan)
-class PremiumPlanAdmin(admin.ModelAdmin):
+class PremiumPlanAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = (
         'name',
         'slug',
@@ -40,7 +41,7 @@ class PremiumPlanAdmin(admin.ModelAdmin):
 
 
 @admin.register(PremiumSubscription)
-class PremiumSubscriptionAdmin(admin.ModelAdmin):
+class PremiumSubscriptionAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = (
         'user',
         'plan',
@@ -56,7 +57,7 @@ class PremiumSubscriptionAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
-class PremiumPaymentWebhookLogInline(admin.TabularInline):
+class PremiumPaymentWebhookLogInline(admin.TabularInline):  # type: ignore[type-arg]
     model = PremiumPaymentWebhookLog
     extra = 0
     fields = ('status', 'created_at', 'raw_payload')
@@ -66,24 +67,28 @@ class PremiumPaymentWebhookLogInline(admin.TabularInline):
     can_delete = True
     max_num = 0
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(
+        self,
+        request: HttpRequest,
+        obj: PremiumPayment | None = None,
+    ) -> bool:
         return False
 
 
 @admin.register(PremiumPaymentWebhookLog)
-class PremiumPaymentWebhookLogAdmin(admin.ModelAdmin):
+class PremiumPaymentWebhookLogAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = ('id', 'payment', 'status', 'created_at')
     list_filter = ('status',)
     search_fields = ('payment__yookassa_payment_id',)
     readonly_fields = ('payment', 'status', 'raw_payload', 'created_at')
     ordering = ('-created_at',)
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request: HttpRequest) -> bool:
         return False
 
 
 @admin.register(PremiumPayment)
-class PremiumPaymentAdmin(admin.ModelAdmin):
+class PremiumPaymentAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = (
         'yookassa_payment_id',
         'user',

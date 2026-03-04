@@ -6,9 +6,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils import timezone
 
@@ -21,7 +22,7 @@ def _period_days(billing_period: str) -> int:
     return 30
 
 
-def _end_of_day(dt) -> "timezone.datetime":
+def _end_of_day(dt: datetime) -> datetime:
     return dt.replace(hour=23, minute=59, second=59, microsecond=999999)
 
 
@@ -37,9 +38,9 @@ class _ChainItem:
 
 
 def _build_and_save_chain(
-    user,
+    user: User,
     chain_items: list[_ChainItem],
-    chain_start,
+    chain_start: datetime,
 ) -> None:
     """
     Сохраняет цепочку подписок с непрерывными датами.
@@ -69,7 +70,7 @@ def _build_and_save_chain(
         cursor = end + timedelta(days=1)
 
 
-def _shift_chain_after_renewal(user, new_active_expires_at) -> None:
+def _shift_chain_after_renewal(user: User, new_active_expires_at: datetime) -> None:
     """
     Сдвигает цепочку SCHEDULED/PAUSED после продления активной подписки.
     Сохраняет длительности, меняет даты начала/окончания для непрерывности.
@@ -186,7 +187,7 @@ def activate_subscription_on_payment_success(subscription: PremiumSubscription) 
 def _handle_downgrade(
     subscription: PremiumSubscription,
     old_active: PremiumSubscription,
-    now,
+    now: datetime,
     period_days: int,
 ) -> None:
     """
@@ -253,8 +254,8 @@ def _handle_downgrade(
 def _handle_upgrade(
     subscription: PremiumSubscription,
     old_active: PremiumSubscription,
-    now,
-    new_expires_at,
+    now: datetime,
+    new_expires_at: datetime,
     period_days: int,
 ) -> None:
     """

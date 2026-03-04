@@ -10,15 +10,20 @@ Licensed under the Apache License, Version 2.0
 import json
 
 import pytest
-from django.test import Client, override_settings
+from django.test import Client
 
 from premium.models import PremiumPayment
 from premium.tests.conftest import make_webhook_payload
 
 
+@pytest.fixture(autouse=True)
+def disable_webhook_ip_verification(settings: object) -> None:
+    """Отключает проверку IP вебхука для тестов."""
+    settings.YOOKASSA_WEBHOOK_IP_VERIFICATION = False
+
+
 @pytest.mark.integration
 @pytest.mark.django_db
-@override_settings(YOOKASSA_WEBHOOK_IP_VERIFICATION=False)
 class TestYookassaWebhookHandler:
     """Тесты обработчика вебхука YooKassa."""
 

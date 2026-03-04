@@ -19,7 +19,6 @@ from django.contrib.auth.models import User
 from premium.adapters.payment_provider import CreatePaymentResult
 from premium.models import (
     PremiumPayment,
-    PremiumPaymentWebhookLog,
     PremiumPlan,
     PremiumPlanFeature,
     PremiumSubscription,

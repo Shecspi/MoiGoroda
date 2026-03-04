@@ -7,8 +7,6 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from unittest.mock import patch
-
 import pytest
 
 from premium.models import PremiumPayment

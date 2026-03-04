@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from unittest.mock import ANY, MagicMock, patch
+from unittest.mock import ANY, patch
 
 import pytest
 from django.contrib.auth.models import User

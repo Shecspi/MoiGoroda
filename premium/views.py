@@ -38,9 +38,7 @@ def promo(request: HttpRequest) -> HttpResponse:
     )
     active_subscription = None
     if request.user.is_authenticated:
-        active_subscription = SubscriptionPageRepository().get_active_subscription(
-            request.user
-        )
+        active_subscription = SubscriptionPageRepository().get_active_subscription(request.user)
 
     return render(
         request,

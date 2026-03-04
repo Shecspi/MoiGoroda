@@ -125,7 +125,7 @@ class TestActivateSubscriptionOnPaymentSuccess:
         premium_plan_cheap: PremiumPlan,
     ) -> None:
         now = timezone.now()
-        old_active = PremiumSubscription.objects.create(
+        PremiumSubscription.objects.create(
             user=user,
             plan=premium_plan,
             billing_period=PremiumSubscription.BillingPeriod.MONTHLY,

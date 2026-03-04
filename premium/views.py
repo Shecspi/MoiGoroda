@@ -20,9 +20,9 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.models import User
 
 from premium.models import PremiumPlan, PremiumSubscription
-from premium.service import CheckoutService
-from premium.subscription_page_service import SubscriptionPageService
-from premium.webhook_logging import log_yookassa_create_response
+from premium.services.checkout import CheckoutService
+from premium.services.subscription_page import SubscriptionPageService
+from premium.webhook.logging import log_yookassa_create_response
 
 
 def promo(request: HttpRequest) -> HttpResponse:
@@ -80,7 +80,6 @@ def checkout(request: HttpRequest) -> HttpResponse:
             request,
             result.yookassa_payment_id,
             result.yookassa_status,
-            result.raw_response,
         )
 
     if result.success:

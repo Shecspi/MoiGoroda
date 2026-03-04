@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 from typing import Any
 
@@ -100,15 +99,13 @@ def log_yookassa_create_response(
     request: HttpRequest,
     payment_id: str,
     status: str,
-    response_data: dict[str, Any],
 ) -> None:
     """Ответ YooKassa на создание платежа (checkout)."""
     user = request.user.username if getattr(request.user, 'is_authenticated', False) else 'WEBHOOK'
     logger.info(
-        '(Premium checkout) YooKassa создан платёж: id=%s status=%s   %s   response=%s',
+        '(Premium checkout) YooKassa создан платёж: id=%s status=%s   %s',
         payment_id,
         status,
         request.get_full_path(),
-        json.dumps(response_data, ensure_ascii=False),
         extra=_extra(request, user=user),
     )

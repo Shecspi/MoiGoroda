@@ -12,8 +12,8 @@ from yookassa.domain.notification import (
 
 from premium.dto import WebhookProcessResult
 from premium.models import PremiumPayment
-from premium.repository import WebhookRepository
-from premium.subscription_activation import activate_subscription_on_payment_success
+from premium.repositories.webhook import WebhookRepository
+from premium.domain.subscription_activation import activate_subscription_on_payment_success
 
 
 PAYMENT_EVENTS: frozenset[str] = frozenset(

@@ -10,14 +10,14 @@ from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from premium.webhook_logging import (
+from premium.services.webhook import WebhookService
+from premium.webhook.logging import (
     log_invalid_json,
     log_invalid_payload,
     log_payment_not_found,
     log_status_updated,
     log_transition_denied,
 )
-from premium.webhook_service import WebhookService
 
 
 @csrf_exempt

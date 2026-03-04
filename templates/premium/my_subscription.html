@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+    <header class="mb-8 text-center">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+        Моя подписка
+      </h1>
+      <p class="mt-2 text-gray-600 dark:text-neutral-300">
+        Текущий тариф и история платежей
+      </p>
+      {% if payment_result == 'succeeded' %}
+      <div class="mt-6 mx-auto w-full max-w-3xl rounded-2xl border border-green-300 bg-green-50 px-5 py-4 text-left text-sm text-green-900 shadow-sm dark:border-green-500/60 dark:bg-green-900/40 dark:text-green-50">
+        <div class="flex items-start gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-green-300 bg-green-100 text-green-700 dark:border-green-500 dark:bg-green-500/20 dark:text-green-300">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+            </svg>
+          </div>
+          <div class="text-sm sm:text-base">
+            <p class="font-semibold">Спасибо за оформление премиум-подписки!</p>
+            {% if active_subscription and active_subscription.expires_at %}
+            <p class="mt-1">Подписка действует до {{ active_subscription.expires_at|date:"d.m.Y" }}.</p>
+            {% endif %}
+            {% if paused_subscriptions %}
+            <p class="mt-1">Если есть другие запланированные подписки, которые будут активны после окончания текущей, посмотреть их можно в разделе «Последовательность подписок» ниже.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% elif payment_result == 'pending' %}
+      <div class="mt-6 mx-auto w-full max-w-3xl rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-left text-sm text-amber-900 shadow-sm dark:border-amber-500/60 dark:bg-amber-900/40 dark:text-amber-50">
+        <div class="flex items-start gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-amber-300 bg-amber-100 text-amber-700 dark:border-amber-500 dark:bg-amber-500/20 dark:text-amber-300">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="text-sm sm:text-base">
+            <p class="font-semibold">Ожидание оплаты</p>
+            <p class="mt-1">
+              Если Вы произвели оплату, то в редких случаях может потребоваться незначительное время на её обработку.
+              Обновить статус платежа можно, обновив страницу.
+            </p>
+            <p class="mt-1">
+              Если оплата была прервана, возобновить её можно будет по ссылке в разделе «Платежи» ниже.
+              Эта ссылка будет доступна примерно 1 час, после чего платёж перейдёт в статус «Отменён».
+            </p>
+          </div>
+        </div>
+      </div>
+      {% elif payment_result == 'canceled' %}
+      <div class="mt-6 mx-auto w-full max-w-3xl rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4 text-left text-sm text-gray-700 shadow-sm dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+        <div class="flex items-start gap-3">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-gray-100 text-gray-600 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+            </svg>
+          </div>
+          <div class="text-sm sm:text-base">
+            <p class="font-semibold">Платёж отменён</p>
+            <p class="mt-1">
+              Возобновить оплату можно будет по ссылке (в разработке). Пока что просмотрите раздел «Платежи» ниже.
+            </p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </header>
+
+    <!-- Текущий тариф (оформление как карточка «Текущий план» на /premium/plans/) -->
+    <section class="relative flex flex-col rounded-2xl border border-blue-500 bg-white shadow-sm ring-2 ring-blue-500 dark:bg-neutral-900 dark:border-blue-500/60 dark:ring-blue-500/80 mb-10">
+      {% if active_subscription %}
+        <div class="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
+          <span class="inline-flex size-3 items-center justify-center rounded-full bg-white">
+            <svg class="size-2.5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l-7.25 7.25a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L8.5 11.586l6.543-6.293a1 1 0 0 1 1.664.0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span>Текущий план</span>
+        </div>
+      {% else %}
+        <div class="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
+          <span class="inline-flex size-3 items-center justify-center rounded-full bg-white">
+            <svg class="size-2.5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l-7.25 7.25a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L8.5 11.586l6.543-6.293a1 1 0 0 1 1.664.0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span>Текущий план</span>
+        </div>
+      {% endif %}
+
+      <div class="p-6 sm:p-7 lg:p-8">
+        {% if active_subscription %}
+          <div class="flex flex-wrap items-start gap-4 sm:gap-6">
+            <div class="flex size-14 shrink-0 items-center justify-center rounded-2xl border border-blue-300 bg-blue-100 dark:border-blue-500 dark:bg-blue-500/20">
+              <svg class="size-8 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.93s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
+              </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">{{ active_subscription.plan.name }}</h2>
+              <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-neutral-400">
+                <span class="inline-flex items-center gap-1.5">
+                  <svg class="size-4 shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  {{ active_subscription.get_billing_period_display }}
+                </span>
+                {% if active_subscription.expires_at %}
+                  <span class="inline-flex items-center gap-1.5 font-medium text-gray-900 dark:text-white">
+                    <svg class="size-4 shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Истекает {{ active_subscription.expires_at|date:"d.m.Y" }}
+                  </span>
+                {% endif %}
+              </div>
+              {% if active_subscription.plan.features.all %}
+              <ul class="mt-4 space-y-2 text-sm text-gray-700 dark:text-neutral-200">
+                {% for feature in active_subscription.plan.features.all %}
+                <li class="flex items-start gap-2">
+                  <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span>{{ feature.text }}</span>
+                </li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+              <a href="{% url 'premium_promo' %}" class="btn btn-primary btn-default mt-5">
+                Продлить подписку
+                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <div class="flex flex-wrap items-start gap-4 sm:gap-6">
+            <div class="flex size-14 shrink-0 items-center justify-center rounded-2xl border border-gray-300 bg-gray-100 dark:border-neutral-600 dark:bg-neutral-700">
+              <svg class="size-8 text-gray-500 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">Бесплатная подписка</h2>
+              <p class="mt-2 text-sm text-gray-600 dark:text-neutral-300">
+                Доступно в бесплатном тарифе:
+              </p>
+              <ul class="mt-3 space-y-1 text-sm text-gray-700 dark:text-neutral-200">
+                <li class="flex items-start gap-2">
+                  <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Добавление городов как посещённых без ограничений</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Просмотр карты городов, регионов, интересных мест</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Просмотр коллекций городов и создание своих коллекций городов и мест</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Добавление посещённых стран</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Карта районов городов</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Персональная статистика</span>
+                </li>
+              </ul>
+              <div class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
+                <p class="text-sm text-red-800 dark:text-red-200">
+                  <span class="font-medium">В бесплатном тарифе показывается реклама.</span> Оформите премиум-подписку, чтобы пользоваться сайтом без рекламы.
+                </p>
+              </div>
+              <a href="{% url 'premium_promo' %}" class="btn btn-primary btn-default mt-5">
+                Оформить премиум-подписку
+                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Последовательность подписок (Timeline) -->
+    {% if active_subscription or paused_subscriptions %}
+    <section class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 overflow-hidden mb-10">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white p-6 pb-4">Последовательность подписок</h2>
+      <p class="px-6 pb-6 text-sm text-gray-600 dark:text-neutral-400">
+        {% if paused_subscriptions %}Подписки в очереди будут автоматически активированы после окончания текущей.{% else %}Текущая подписка.{% endif %}
+      </p>
+      <div class="w-full px-6 pb-6">
+        <!-- Timeline -->
+        {% if active_subscription %}
+        <div class="flex gap-x-3">
+          <div class="min-w-14 text-end">
+            <span class="text-xs text-gray-500 dark:text-neutral-400">{% if active_subscription.started_at %}{{ active_subscription.started_at|date:"d.m.Y" }}{% else %}—{% endif %}</span>
+          </div>
+          <div class="relative {% if not paused_subscriptions %}after:hidden{% endif %} after:absolute after:top-7 after:bottom-0 after:start-3.5 after:-translate-x-[0.5px] after:border-s after:border-gray-200 dark:after:border-neutral-700">
+            <div class="relative z-10 size-7 flex justify-center items-center">
+              <div class="size-2 rounded-full bg-blue-500"></div>
+            </div>
+          </div>
+          <div class="grow pt-0.5 pb-8">
+            <h3 class="font-medium text-gray-900 dark:text-white">
+              {{ active_subscription.plan.name }}
+            </h3>
+            <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+              {% if active_subscription.expires_at %}До {{ active_subscription.expires_at|date:"d.m.Y" }}{% else %}Активна{% endif %}
+            </p>
+            <span class="mt-1 inline-flex items-center gap-1.5 rounded-full border border-green-500 bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:border-green-500/50 dark:bg-green-500/10 dark:text-green-100">
+              <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/>
+              </svg>
+              Активна
+            </span>
+          </div>
+        </div>
+        {% endif %}
+        {% for sub, start_date, end_date in paused_subscriptions %}
+        <div class="flex gap-x-3">
+          <div class="min-w-14 text-end">
+            <span class="text-xs text-gray-500 dark:text-neutral-400">{{ start_date|date:"d.m.Y" }}</span>
+          </div>
+          <div class="relative {% if forloop.last %}after:hidden{% endif %} after:absolute after:top-7 after:bottom-0 after:start-3.5 after:-translate-x-[0.5px] after:border-s after:border-gray-200 dark:after:border-neutral-700">
+            <div class="relative z-10 size-7 flex justify-center items-center">
+              <div class="size-2 rounded-full bg-gray-300 dark:bg-neutral-600"></div>
+            </div>
+          </div>
+          <div class="grow pt-0.5 pb-8">
+            <h3 class="font-medium text-gray-900 dark:text-white">
+              {{ sub.plan.name }}
+            </h3>
+            <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+              С {{ start_date|date:"d.m.Y" }} по {{ end_date|date:"d.m.Y" }}
+            </p>
+            <span class="mt-1 inline-flex items-center gap-1.5 rounded-full border border-gray-500 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:border-neutral-500 dark:bg-neutral-700/50 dark:text-neutral-200">
+              {% if sub.status == 'paused' %}
+              <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5"/>
+              </svg>
+              Приостановлена
+              {% else %}
+              <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+              Запланирована
+              {% endif %}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- Список платежей -->
+    <section class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 overflow-hidden">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white p-6 pb-4">Платежи</h2>
+      {% if payments %}
+        <!-- Карточки на мобильных -->
+        <div class="md:hidden space-y-3 px-4 pb-4">
+          {% for payment in payments %}
+            <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ payment.created_at|date:"d.m.Y H:i" }}</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium
+                             {% if payment.status == 'succeeded' %}
+                               border border-green-500 bg-green-50 text-green-700 dark:border-green-500/50 dark:bg-green-500/10 dark:text-green-100
+                             {% elif payment.status == 'canceled' %}
+                               border border-red-500 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-500/10 dark:text-red-100
+                             {% else %}
+                               border border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-100
+                             {% endif %}">
+                  {% if payment.status == 'succeeded' %}
+                    <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/>
+                    </svg>
+                  {% elif payment.status == 'canceled' %}
+                    <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                    </svg>
+                  {% else %}
+                    <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 6v6l4 2"/>
+                    </svg>
+                  {% endif %}
+                  {{ payment.get_status_display }}
+                </span>
+              </div>
+              <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+                <dt class="text-gray-500 dark:text-neutral-400">Тариф</dt>
+                <dd class="text-gray-900 dark:text-neutral-200">{% if payment.plan %}{{ payment.plan.name }}{% else %}—{% endif %}</dd>
+                <dt class="text-gray-500 dark:text-neutral-400">Сумма</dt>
+                <dd class="text-gray-900 dark:text-neutral-200">{{ payment.amount_value }} {{ payment.currency }}</dd>
+                <dt class="text-gray-500 dark:text-neutral-400">Период</dt>
+                <dd class="text-gray-900 dark:text-neutral-200">{{ payment.get_billing_period_display }}</dd>
+              </dl>
+              {% if payment.status == 'pending' and payment.confirmation_url %}
+              <a href="{{ payment.confirmation_url }}" rel="noopener noreferrer" class="btn btn-link-primary mt-3">
+                Завершить оплату
+                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+        <!-- Таблица на планшетах и десктопе -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+            <thead class="bg-gray-50 dark:bg-neutral-800">
+              <tr>
+                <th scope="col" class="py-3 px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-neutral-400">Дата</th>
+                <th scope="col" class="py-3 px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-neutral-400">Тариф</th>
+                <th scope="col" class="py-3 px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-neutral-400">Сумма</th>
+                <th scope="col" class="py-3 px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-neutral-400">Период</th>
+                <th scope="col" class="py-3 px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-neutral-400">Статус</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+              {% for payment in payments %}
+                <tr class="bg-white dark:bg-neutral-900 hover:bg-gray-50 dark:hover:bg-neutral-800">
+                  <td class="py-3 px-4 text-sm text-gray-900 dark:text-neutral-200 whitespace-nowrap">{{ payment.created_at|date:"d.m.Y H:i" }}</td>
+                  <td class="py-3 px-4 text-sm text-gray-700 dark:text-neutral-300">{% if payment.plan %}{{ payment.plan.name }}{% else %}—{% endif %}</td>
+                  <td class="py-3 px-4 text-sm text-gray-700 dark:text-neutral-300">{{ payment.amount_value }} {{ payment.currency }}</td>
+                  <td class="py-3 px-4 text-sm text-gray-700 dark:text-neutral-300">{{ payment.get_billing_period_display }}</td>
+                  <td class="py-3 px-4 text-sm">
+                <div class="flex flex-col items-center gap-1">
+                  <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium w-fit
+                               {% if payment.status == 'succeeded' %}
+                                 border border-green-500 bg-green-50 text-green-700 dark:border-green-500/50 dark:bg-green-500/10 dark:text-green-100
+                               {% elif payment.status == 'canceled' %}
+                                 border border-red-500 bg-red-50 text-red-700 dark:border-red-500/50 dark:bg-red-500/10 dark:text-red-100
+                               {% else %}
+                                 border border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-100
+                               {% endif %}">
+                    {% if payment.status == 'succeeded' %}
+                    <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/>
+                    </svg>
+                    {% elif payment.status == 'canceled' %}
+                    <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                    </svg>
+                    {% else %}
+                    <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 6v6l4 2"/>
+                    </svg>
+                    {% endif %}
+                    {{ payment.get_status_display }}
+                  </span>
+                  {% if payment.status == 'pending' and payment.confirmation_url %}
+                  <a href="{{ payment.confirmation_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-link-primary text-xs w-fit">
+                    Завершить оплату
+                    <svg class="size-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  </a>
+                  {% endif %}
+                </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="p-6 text-gray-600 dark:text-neutral-400 text-sm">Платежей пока нет.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

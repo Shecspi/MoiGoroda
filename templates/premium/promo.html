@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="w-full">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
     <div class="max-w-3xl mx-auto text-center">
       <h1 class="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-white">
         Премиум-подписка на «Мои города»
@@ -13,13 +13,29 @@
       </p>
     </div>
 
-    <div class="mt-8 grid gap-6 lg:gap-8 md:grid-cols-2 items-stretch">
-      <!-- Бесплатная подписка (активный план по умолчанию) -->
+    <!-- Общий переключатель периода оплаты для платных тарифов -->
+    {% if plans %}
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <span class="text-sm text-gray-600 dark:text-neutral-400">Период оплаты:</span>
       <div
-        class="relative flex flex-col rounded-2xl border border-blue-500 bg-white shadow-sm ring-2 ring-blue-500 dark:bg-neutral-900 dark:border-blue-500/60 dark:ring-blue-500/80">
+        class="inline-flex items-center rounded-full border border-blue-500 bg-gray-50 p-1 text-xs font-medium text-gray-600 dark:border-blue-500 dark:bg-neutral-800 dark:text-neutral-300"
+        role="group"
+        aria-label="Выбор периода оплаты"
+      >
+        <button type="button" class="billing-toggle relative inline-flex items-center rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-900 shadow-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-white" data-billing-toggle="monthly" aria-pressed="true">Месяц</button>
+        <button type="button" class="billing-toggle ml-1 inline-flex items-center rounded-full border border-transparent px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 dark:border-transparent dark:text-neutral-300 dark:hover:text-white" data-billing-toggle="yearly" aria-pressed="false">Год</button>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="mt-6 grid gap-6 lg:gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+      <!-- Бесплатная подписка -->
+      <div
+        class="relative flex flex-col rounded-2xl border {% if not has_active_subscription %}border-blue-500 ring-2 ring-blue-500 dark:border-blue-500/60 dark:ring-blue-500/80{% else %}border-gray-200 dark:border-neutral-700{% endif %} bg-white shadow-sm dark:bg-neutral-900">
+        {% if not has_active_subscription %}
         <div class="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
-          <span class="inline-flex size-3 items-center justify-center rounded-full bg-white/20">
-            <svg class="size-2.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <span class="inline-flex size-3 items-center justify-center rounded-full bg-white">
+            <svg class="size-2.5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd"
                     d="M16.707 5.293a1 1 0 0 1 0 1.414l-7.25 7.25a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L8.5 11.586l6.543-6.293a1 1 0 0 1 1.664.0z"
                     clip-rule="evenodd" />
@@ -27,6 +43,7 @@
           </span>
           <span>Текущий план</span>
         </div>
+        {% endif %}
 
         <div class="p-6 sm:p-7 lg:p-8">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
@@ -45,118 +62,159 @@
 
           <ul class="mt-5 space-y-2 text-sm text-gray-700 dark:text-neutral-200">
             <li class="flex items-start gap-2">
-              <svg class="mt-0.5 size-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.707a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293A1 1 0 0 0 6.293 10.707l2 2a1 1 0 0 0 1.414 0l4-4z"
-                      clip-rule="evenodd" />
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
               </svg>
-              <span>Учёт посещённых городов и стран.</span>
+              <span>Добавление городов как посещённых без ограничений</span>
             </li>
             <li class="flex items-start gap-2">
-              <svg class="mt-0.5 size-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.707a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293A1 1 0 0 0 6.293 10.707l2 2a1 1 0 0 0 1.414 0l4-4z"
-                      clip-rule="evenodd" />
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
               </svg>
-              <span>Карты городов, регионов и стран.</span>
+              <span>Просмотр карты городов, регионов, интересных мест</span>
             </li>
             <li class="flex items-start gap-2">
-              <svg class="mt-0.5 size-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.707a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293A1 1 0 0 0 6.293 10.707l2 2a1 1 0 0 0 1.414 0l4-4z"
-                      clip-rule="evenodd" />
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
               </svg>
-              <span>Блог, новости и базовая статистика.</span>
+              <span>Просмотр коллекций городов и создание своих коллекций городов и мест</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Добавление посещённых стран</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Карта районов городов</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Персональная статистика</span>
             </li>
           </ul>
         </div>
       </div>
 
-      <!-- Премиум-подписка -->
+      <!-- Платные тарифы — отдельная карточка на каждый -->
+      {% for plan in plans %}
       <div
-        class="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm hover:border-blue-500 hover:shadow-md dark:bg-neutral-900 dark:border-neutral-700 dark:hover:border-blue-500/70">
+        class="relative flex flex-col rounded-2xl border {% if has_active_subscription and active_subscription_level == plan.slug %}border-blue-500 bg-white shadow-sm ring-2 ring-blue-500 dark:bg-neutral-900 dark:border-blue-500/60 dark:ring-blue-500/80{% else %}border-gray-200 bg-white shadow-sm hover:border-blue-500 hover:shadow-md dark:bg-neutral-900 dark:border-neutral-700 dark:hover:border-blue-500/70{% endif %}">
+        {% if has_active_subscription and active_subscription_level == plan.slug %}
+        <div class="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
+          <span class="inline-flex size-3 items-center justify-center rounded-full bg-white">
+            <svg class="size-2.5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l-7.25 7.25a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L8.5 11.586l6.543-6.293a1 1 0 0 1 1.664.0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span>Текущий план</span>
+        </div>
+        {% endif %}
+
         <div class="p-6 sm:p-7 lg:p-8 flex flex-col h-full">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Премиум-подписка
+            {{ plan.name }}
           </h2>
-          <p class="mt-2 text-sm text-gray-600 dark:text-neutral-300">
-            Поддержите развитие сервиса и пользуйтесь «Моими городами» без рекламы.
-            В будущем в премиум-подписке могут появляться дополнительные расширенные возможности.
+          {% if plan.description %}
+          <p class="mt-1 text-sm text-gray-600 dark:text-neutral-300">
+            {{ plan.description }}
           </p>
+          {% endif %}
 
-          <!-- Переключатель месяц / год -->
-          <div class="mt-5">
-            <div
-              class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 p-1 text-xs font-medium text-gray-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
-              role="group"
-              aria-label="Выбор периода оплаты"
-            >
-              <button
-                type="button"
-                class="billing-toggle relative inline-flex items-center rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-black/5 dark:bg-neutral-900 dark:text-white"
-                data-billing-toggle="monthly"
-                aria-pressed="true"
-              >
-                Месяц
-              </button>
-              <button
-                type="button"
-                class="billing-toggle ml-1 inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 dark:text-neutral-300 dark:hover:text-white"
-                data-billing-toggle="yearly"
-                aria-pressed="false"
-              >
-                Год
-              </button>
-            </div>
-
-            <div class="mt-4">
-              <p class="text-3xl font-semibold text-gray-900 dark:text-white">
-                <span data-billing-price="monthly">199 ₽</span>
-                <span data-billing-price="yearly" class="hidden">1900 ₽</span>
-                <span class="ml-1 text-base font-normal text-gray-500 dark:text-neutral-400">
-                  <span data-billing-period="monthly">в месяц</span>
-                  <span data-billing-period="yearly" class="hidden">в год (примерно −20%)</span>
-                </span>
-              </p>
-            </div>
+          <div class="mt-4">
+            <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+              <span data-billing-price="monthly">{{ plan.price_month|floatformat:0 }} ₽</span>
+              <span data-billing-price="yearly" class="hidden">{{ plan.price_year|floatformat:0 }} ₽</span>
+              <span class="ml-1 text-sm font-normal text-gray-500 dark:text-neutral-400">
+                <span data-billing-period="monthly">в месяц</span>
+                <span data-billing-period="yearly" class="hidden">в год {% if plan.yearly_discount_percent %}(примерно −{{ plan.yearly_discount_percent }}%){% endif %}</span>
+              </span>
+            </p>
           </div>
 
           <ul class="mt-5 space-y-2 text-sm text-gray-700 dark:text-neutral-200">
+            {% for feature in plan.features.all %}
             <li class="flex items-start gap-2">
-              <svg class="mt-0.5 size-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.707a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293A1 1 0 0 0 6.293 10.707l2 2a1 1 0 0 0 1.414 0l4-4z"
-                      clip-rule="evenodd" />
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
               </svg>
-              <span>Все базовые возможности сервиса, как в бесплатном тарифе.</span>
+              <span>{{ feature.text }}</span>
             </li>
-            <li class="flex items-start gap-2">
-              <svg class="mt-0.5 size-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.707a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293A1 1 0 0 0 6.293 10.707l2 2a1 1 0 0 0 1.414 0l4-4z"
-                      clip-rule="evenodd" />
-              </svg>
-              <span>Отсутствие рекламы на сайте.</span>
+            {% empty %}
+            <li class="text-xs text-gray-500 dark:text-neutral-400">
+              Описание преимуществ тарифа будет добавлено позже.
             </li>
-            <li class="flex items-start gap-2">
-              <svg class="mt-0.5 size-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.707a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293A1 1 0 0 0 6.293 10.707l2 2a1 1 0 0 0 1.414 0l4-4z"
-                      clip-rule="evenodd" />
-              </svg>
-              <span>Поддержка разработки и развитие новых функций сервиса (включая будущие расширенные возможности платного тарифа).</span>
-            </li>
+            {% endfor %}
           </ul>
 
-          <div class="mt-6 flex-1 flex items-end">
-            <button
-              type="button"
-              class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-neutral-900">
-              Оформить подписку
-            </button>
+          <div class="mt-auto pt-6">
+          {% if has_active_subscription and active_subscription_level == plan.slug %}
+            <p class="text-center text-sm font-medium text-gray-900 dark:text-white">
+              Действует до {{ active_subscription.expires_at|date:"d.m.Y" }}
+            </p>
+            <form method="post" action="{% url 'premium_checkout' %}" class="mt-3">
+              {% csrf_token %}
+              <input type="hidden" name="plan_id" value="{{ plan.id }}">
+              <input type="hidden" name="billing_period" class="billing-period-input" value="monthly">
+              <button type="submit" class="btn btn-primary btn-default btn-block">
+                Продлить подписку
+              </button>
+            </form>
+          {% elif active_subscription and plan.price_month > active_subscription.plan.price_month %}
+            <p class="mb-3 text-center text-xs text-gray-500 dark:text-neutral-400">
+              Улучшение произойдёт сразу же с сегодняшнего дня. Текущая подписка будет приостановлена и возобновлена после окончания новой.
+            </p>
+            <form method="post" action="{% url 'premium_checkout' %}">
+              {% csrf_token %}
+              <input type="hidden" name="plan_id" value="{{ plan.id }}">
+              <input type="hidden" name="billing_period" class="billing-period-input" value="monthly">
+              <button type="submit" class="btn btn-primary btn-default btn-block">
+                Улучшить подписку
+              </button>
+            </form>
+          {% elif active_subscription and plan.price_month < active_subscription.plan.price_month %}
+            <p class="mb-3 text-center text-xs text-gray-500 dark:text-neutral-400">
+              Подписка активируется после окончания текущей
+            </p>
+            <form method="post" action="{% url 'premium_checkout' %}">
+              {% csrf_token %}
+              <input type="hidden" name="plan_id" value="{{ plan.id }}">
+              <input type="hidden" name="billing_period" class="billing-period-input" value="monthly">
+              <button type="submit" class="btn btn-primary btn-default btn-block">
+                Оформить подписку
+              </button>
+            </form>
+          {% elif user.is_authenticated %}
+            <form method="post" action="{% url 'premium_checkout' %}">
+              {% csrf_token %}
+              <input type="hidden" name="plan_id" value="{{ plan.id }}">
+              <input type="hidden" name="billing_period" class="billing-period-input" value="monthly">
+              <button type="submit" class="btn btn-primary btn-default btn-block">
+                Оформить подписку
+              </button>
+            </form>
+          {% else %}
+            <p class="text-center text-sm text-gray-500 dark:text-neutral-400">
+              Войдите в аккаунт, чтобы оформить подписку.
+            </p>
+            <div class="mt-2 flex flex-col gap-2">
+              <a href="{% url 'signin' %}" class="btn btn-primary btn-sm btn-block">Войти</a>
+              <a href="{% url 'signup' %}" class="btn btn-red btn-sm btn-block">Зарегистрироваться</a>
+            </div>
+          {% endif %}
           </div>
         </div>
       </div>
+      {% empty %}
+      <p class="text-sm text-gray-500 dark:text-neutral-400 col-span-full">
+        Премиум-тарифы скоро появятся.
+      </p>
+      {% endfor %}
     </div>
   </div>
 </div>
@@ -168,42 +226,58 @@
     document.addEventListener('DOMContentLoaded', function () {
       const monthlyBtn = document.querySelector('[data-billing-toggle="monthly"]');
       const yearlyBtn = document.querySelector('[data-billing-toggle="yearly"]');
-      if (!monthlyBtn || !yearlyBtn) return;
+      const billingInputs = document.querySelectorAll('.billing-period-input');
+      if (!monthlyBtn || !yearlyBtn || billingInputs.length === 0) return;
 
       const prices = {
-        monthly: document.querySelector('[data-billing-price="monthly"]'),
-        yearly: document.querySelector('[data-billing-price="yearly"]'),
+        monthly: document.querySelectorAll('[data-billing-price="monthly"]'),
+        yearly: document.querySelectorAll('[data-billing-price="yearly"]'),
       };
       const periods = {
-        monthly: document.querySelector('[data-billing-period="monthly"]'),
-        yearly: document.querySelector('[data-billing-period="yearly"]'),
+        monthly: document.querySelectorAll('[data-billing-period="monthly"]'),
+        yearly: document.querySelectorAll('[data-billing-period="yearly"]'),
       };
 
       function setBilling(mode) {
         const isMonthly = mode === 'monthly';
 
+        monthlyBtn.classList.toggle('border-gray-300', isMonthly);
+        monthlyBtn.classList.toggle('border-transparent', !isMonthly);
         monthlyBtn.classList.toggle('bg-white', isMonthly);
         monthlyBtn.classList.toggle('text-gray-900', isMonthly);
         monthlyBtn.classList.toggle('shadow-sm', isMonthly);
-        monthlyBtn.classList.toggle('ring-1', isMonthly);
-        monthlyBtn.classList.toggle('ring-black/5', isMonthly);
+        monthlyBtn.classList.toggle('dark:bg-neutral-900', isMonthly);
+        monthlyBtn.classList.toggle('dark:border-neutral-600', isMonthly);
+        monthlyBtn.classList.toggle('dark:border-transparent', !isMonthly);
         monthlyBtn.setAttribute('aria-pressed', String(isMonthly));
 
+        yearlyBtn.classList.toggle('border-gray-300', !isMonthly);
+        yearlyBtn.classList.toggle('border-transparent', isMonthly);
         yearlyBtn.classList.toggle('bg-white', !isMonthly);
         yearlyBtn.classList.toggle('text-gray-900', !isMonthly);
         yearlyBtn.classList.toggle('shadow-sm', !isMonthly);
-        yearlyBtn.classList.toggle('ring-1', !isMonthly);
-        yearlyBtn.classList.toggle('ring-black/5', !isMonthly);
+        yearlyBtn.classList.toggle('dark:bg-neutral-900', !isMonthly);
+        yearlyBtn.classList.toggle('dark:border-neutral-600', !isMonthly);
+        yearlyBtn.classList.toggle('dark:border-transparent', isMonthly);
         yearlyBtn.setAttribute('aria-pressed', String(!isMonthly));
 
-        if (prices.monthly && prices.yearly) {
-          prices.monthly.classList.toggle('hidden', !isMonthly);
-          prices.yearly.classList.toggle('hidden', isMonthly);
-        }
-        if (periods.monthly && periods.yearly) {
-          periods.monthly.classList.toggle('hidden', !isMonthly);
-          periods.yearly.classList.toggle('hidden', isMonthly);
-        }
+        prices.monthly.forEach(function (el) {
+          el.classList.toggle('hidden', !isMonthly);
+        });
+        prices.yearly.forEach(function (el) {
+          el.classList.toggle('hidden', isMonthly);
+        });
+
+        periods.monthly.forEach(function (el) {
+          el.classList.toggle('hidden', !isMonthly);
+        });
+        periods.yearly.forEach(function (el) {
+          el.classList.toggle('hidden', isMonthly);
+        });
+
+        billingInputs.forEach(function (input) {
+          input.value = isMonthly ? 'monthly' : 'yearly';
+        });
       }
 
       monthlyBtn.addEventListener('click', function () {

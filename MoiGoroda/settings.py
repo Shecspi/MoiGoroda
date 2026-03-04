@@ -63,7 +63,9 @@ INSTALLED_APPS = [
     'place',
     'advertisement',
     'admin_auto_filters',
+    'premium',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -184,11 +186,22 @@ ADMINS = [
     (os.getenv('ADMIN_NAME'), os.getenv('ADMIN_EMAIL')),
 ]
 
+YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID')
+YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY')
+# Проверка IP для вебхука (False — отключить, например для локальной разработки)
+YOOKASSA_WEBHOOK_IP_VERIFICATION = os.getenv('YOOKASSA_WEBHOOK_IP_VERIFICATION', 'True') == 'True'
+
 LOG_FIlE_PATH = os.path.join(BASE_DIR, 'logs/log.log')
+LOG_PREMIUM_PAYMENTS_PATH = os.path.join(BASE_DIR, 'logs/premium_payments.log')
+LOG_CRON_PATH = os.path.join(BASE_DIR, 'logs/cron.log')
 if not os.path.exists(os.path.dirname(LOG_FIlE_PATH)):
     os.mkdir(os.path.dirname(LOG_FIlE_PATH))
 if not os.path.exists(LOG_FIlE_PATH):
     open(LOG_FIlE_PATH, 'a').close()
+if not os.path.exists(LOG_PREMIUM_PAYMENTS_PATH):
+    open(LOG_PREMIUM_PAYMENTS_PATH, 'a').close()
+if not os.path.exists(LOG_CRON_PATH):
+    open(LOG_CRON_PATH, 'a').close()
 
 LOGGING = {
     'version': 1,
@@ -209,7 +222,11 @@ LOGGING = {
             'format': '%(levelname)-8s %(asctime)-22s INTERNAL           DJANGO     %(message)-s',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
-        'simple': {'format': '%(levelname)-8s %(message)s'},
+        'simple': {'format': '%(levelname)-8s %(asctime)-25s %(message)s'},
+        'premium_payments': {
+            'format': '%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)-s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
     },
     'handlers': {
         # Запись в файл логов приложения
@@ -264,6 +281,38 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'detail_django',
         },
+        # Файл только с информацией о платежах (вебхук YooKassa)
+        'to_file_premium_payments': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'premium_payments',
+            'filename': LOG_PREMIUM_PAYMENTS_PATH,
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 3,
+        },
+        # Платежи в консоль — только при DEBUG=True
+        'to_console_premium_payments': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'premium_payments',
+        },
+        # Файл только с логами периодических задач (cron)
+        'to_file_cron': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'simple',
+            'filename': LOG_CRON_PATH,
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 3,
+        },
+        # Консоль для логов cron — только при DEBUG=True
+        'to_console_cron': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
     },
     'loggers': {
         # Базовый логгер. Используется для логирования действий внутри приложения
@@ -283,6 +332,18 @@ LOGGING = {
             'level': 'INFO',
             'propogate': True,
             'handlers': ['to_console_django', 'to_file_django'],
+        },
+        # Только платежи (вебхук YooKassa) — файл и в консоль при DEBUG
+        'premium.webhook': {
+            'level': 'INFO',
+            'propagate': False,
+            'handlers': ['to_file_premium_payments', 'to_console_premium_payments'],
+        },
+        # Периодические задания (cron): истечение подписок и т.п.
+        'premium.cron': {
+            'level': 'INFO',
+            'propagate': False,
+            'handlers': ['to_file_cron', 'to_console_cron'],
         },
     },
 }

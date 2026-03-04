@@ -2,7 +2,7 @@
 
 {% get_excluded_users as excluded_users %}
 
-{% if user.id not in excluded_users %}
+{% if user.id not in excluded_users and not has_active_subscription %}
     <!-- Yandex.RTB R-A-8433502-2 -->
     <script>
     window.yaContextCb.push(() => {

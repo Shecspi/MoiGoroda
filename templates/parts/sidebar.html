@@ -54,17 +54,19 @@ Licensed under the Apache License, Version 2.0
                 <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
             {% endif %}
 
+            {% if not has_active_subscription %}
             <li>
-                <a href="{{ DONATE_LINK }}"
+                <a href="{% url 'premium_promo' %}"
                    class="flex items-center gap-x-2 py-2 pl-4 pr-2 text-start text-sm text-red-700 rounded-md bg-red-50 border border-red-200 hover:bg-red-100 hover:text-red-800 hover:border-red-300 focus:outline-none focus:bg-red-100 focus:border-red-300 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 dark:hover:bg-red-500/20 dark:hover:border-red-500/30 dark:focus:bg-red-500/20 dark:focus:border-red-500/30">
                     <svg class="shrink-0 size-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.93s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
                     </svg>
-                    Поддержать разработчика
+                    Премиум-подписка
                 </a>
             </li>
 
             <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
+            {% endif %}
 
             <li>
                 <span class="flex items-center gap-3 px-3 py-2 mt-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
@@ -282,6 +284,12 @@ Licensed under the Apache License, Version 2.0
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                         Профиль
+                    </a>
+                    <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700{% if active_page == 'premium_my_subscription' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}" href="{% url 'premium_my_subscription' %}">
+                        <svg class="shrink-0 size-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.93s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
+                        </svg>
+                        Моя подписка
                     </a>
                     <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700" href="{% url 'logout' %}">
                         <svg class="shrink-0 size-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">

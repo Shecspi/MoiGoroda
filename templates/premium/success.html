@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="w-full">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16 text-center">
+    <h1 class="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-white">
+      Спасибо за оформление премиум-подписки!
+    </h1>
+    <p class="mt-4 text-base text-gray-600 dark:text-neutral-300">
+      Ваша поддержка помогает развивать «Мои города».
+      <br>
+      Реклама на сайте для вас больше не будет отображаться после активации подписки.
+    </p>
+
+    <div class="mt-8">
+      <a href="{% url 'main_page' %}"
+         class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-neutral-900">
+        Вернуться на главную
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

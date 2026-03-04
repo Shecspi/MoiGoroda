@@ -66,11 +66,14 @@ class YooKassaPaymentAdapter:
 
         confirmation_url = ''
         if payment.confirmation:
-            confirmation_url = getattr(
-                payment.confirmation,
-                'confirmation_url',
-                '',
-            ) or ''
+            confirmation_url = (
+                getattr(
+                    payment.confirmation,
+                    'confirmation_url',
+                    '',
+                )
+                or ''
+            )
 
         return CreatePaymentResult(
             payment_id=payment.id,
@@ -78,3 +81,18 @@ class YooKassaPaymentAdapter:
             confirmation_url=confirmation_url,
             raw_response=response_data,
         )
+
+    def get_payment_status(self, payment_id: str) -> str | None:
+        """
+        Получает текущий статус платежа в YooKassa.
+        Возвращает статус или None при ошибке API.
+        """
+
+        Configuration.account_id = self._shop_id
+        Configuration.secret_key = self._secret_key
+
+        try:
+            payment = Payment.find_one(payment_id)
+            return str(payment.status)
+        except ApiError:
+            return None

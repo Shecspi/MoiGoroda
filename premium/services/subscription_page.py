@@ -6,11 +6,9 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Protocol
 
-from django.conf import settings
 from django.contrib.auth.models import User
-from yookassa import Configuration, Payment  # type: ignore[import-untyped]
-from yookassa.domain.exceptions import ApiError  # type: ignore[import-untyped]
 
 from premium.dto import SubscriptionPageData
 from premium.models import PremiumPayment, PremiumSubscription
@@ -18,14 +16,22 @@ from premium.repositories.subscription_page import SubscriptionPageRepository
 from premium.domain.subscription_activation import activate_subscription_on_payment_success
 
 
-def _sync_pending_payments(user: User) -> None:
+class PaymentStatusSync(Protocol):
+    """Протокол для получения статуса платежа у провайдера."""
+
+    def get_payment_status(self, payment_id: str) -> str | None:
+        """Возвращает статус платежа или None при ошибке."""
+        ...
+
+
+def _sync_pending_payments(
+    user: User,
+    payment_provider: PaymentStatusSync,
+) -> None:
     """
-    Проверяет статус ожидающих платежей в YooKassa и активирует подписки при успешной оплате.
+    Проверяет статус ожидающих платежей у провайдера и активирует подписки при успешной оплате.
     Вызывается при возврате пользователя с страницы оплаты (вебхук может не дойти в локальной разработке).
     """
-    Configuration.account_id = settings.YOOKASSA_SHOP_ID
-    Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
-
     pending_payments = (
         PremiumPayment.objects.filter(
             user=user,
@@ -36,12 +42,9 @@ def _sync_pending_payments(user: User) -> None:
         .order_by('-created_at')
     )
     for premium_payment in pending_payments:
-        try:
-            yookassa_payment = Payment.find_one(premium_payment.yookassa_payment_id)
-        except ApiError:
+        new_status = payment_provider.get_payment_status(premium_payment.yookassa_payment_id)
+        if new_status is None:
             continue
-
-        new_status = yookassa_payment.status
 
         if new_status == PremiumPayment.Status.SUCCEEDED:
             premium_payment.status = PremiumPayment.Status.SUCCEEDED
@@ -60,15 +63,16 @@ def _get_payment_result(
     payment_id: str | None,
     user: User,
     repository: SubscriptionPageRepository,
+    payment_provider: PaymentStatusSync,
 ) -> str | None:
     """
     Определяет результат возврата с оплаты: succeeded, canceled, pending или None.
-    При наличии payment_id синхронизирует статусы с YooKassa.
+    При наличии payment_id синхронизирует статусы с провайдером.
     """
     if not payment_id:
         return None
 
-    _sync_pending_payments(user)
+    _sync_pending_payments(user, payment_provider)
     premium_payment = repository.get_payment_by_id_and_user(payment_id, user)
 
     if premium_payment is None:
@@ -86,8 +90,12 @@ class SubscriptionPageService:
     def __init__(
         self,
         repository: SubscriptionPageRepository | None = None,
+        payment_provider: PaymentStatusSync | None = None,
     ) -> None:
+        from premium.adapters.yookassa_adapter import YooKassaPaymentAdapter
+
         self._repository = repository or SubscriptionPageRepository()
+        self._payment_provider = payment_provider or YooKassaPaymentAdapter()
 
     def get_page_data(
         self,
@@ -99,6 +107,7 @@ class SubscriptionPageService:
             payment_return_id,
             user,
             self._repository,
+            self._payment_provider,
         )
         payments = self._repository.get_payments_for_user(user)
         active_subscription = self._repository.get_active_subscription(user)

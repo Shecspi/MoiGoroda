@@ -122,37 +122,45 @@ def activate_subscription_on_payment_success(subscription: PremiumSubscription) 
       Ожидающие (SCHEDULED, PAUSED) перераспределяются по стоимости.
     - Если новая дешевле или равна: продление (равная) или отмена (дешевле, блокируется в checkout).
     """
-    if subscription.status != PremiumSubscription.Status.PENDING:
-        return False
-
-    now = timezone.now()
-    period_days = _period_days(subscription.billing_period)
-    new_expires_at = _end_of_day(now + timedelta(days=period_days))
-
-    old_active = (
-        PremiumSubscription.objects.filter(
-            user=subscription.user,
-            status=PremiumSubscription.Status.ACTIVE,
+    with transaction.atomic():
+        sub = (
+            PremiumSubscription.objects.select_for_update()
+            .select_related('plan')
+            .filter(pk=subscription.pk)
+            .first()
         )
-        .exclude(pk=subscription.pk)
-        .select_related('plan')
-        .first()
-    )
+        if sub is None or sub.status != PremiumSubscription.Status.PENDING:
+            return False
 
-    if old_active is None:
-        subscription.started_at = now
-        subscription.expires_at = new_expires_at
-        subscription.status = PremiumSubscription.Status.ACTIVE
-        subscription.save()
-        return True
+        subscription = sub
+        now = timezone.now()
+        period_days = _period_days(subscription.billing_period)
+        new_expires_at = _end_of_day(now + timedelta(days=period_days))
 
-    new_plan = subscription.plan
-    old_plan = old_active.plan
-    new_price: Decimal = new_plan.price_month
-    old_price: Decimal = old_plan.price_month
+        old_active = (
+            PremiumSubscription.objects.filter(
+                user=subscription.user,
+                status=PremiumSubscription.Status.ACTIVE,
+            )
+            .exclude(pk=subscription.pk)
+            .select_related('plan')
+            .select_for_update()
+            .first()
+        )
 
-    if new_price > old_price:
-        with transaction.atomic():
+        if old_active is None:
+            subscription.started_at = now
+            subscription.expires_at = new_expires_at
+            subscription.status = PremiumSubscription.Status.ACTIVE
+            subscription.save()
+            return True
+
+        new_plan = subscription.plan
+        old_plan = old_active.plan
+        new_price: Decimal = new_plan.price_month
+        old_price: Decimal = old_plan.price_month
+
+        if new_price > old_price:
             _handle_upgrade(
                 subscription=subscription,
                 old_active=old_active,
@@ -160,20 +168,19 @@ def activate_subscription_on_payment_success(subscription: PremiumSubscription) 
                 new_expires_at=new_expires_at,
                 period_days=period_days,
             )
-    elif new_price == old_price:
-        if old_active.expires_at is not None and old_active.expires_at > now:
-            base_date = old_active.expires_at
+        elif new_price == old_price:
+            if old_active.expires_at is not None and old_active.expires_at > now:
+                base_date = old_active.expires_at
+            else:
+                base_date = now
+            old_active.expires_at = _end_of_day(base_date + timedelta(days=period_days))
+            old_active.save()
+
+            _shift_chain_after_renewal(subscription.user, old_active.expires_at)
+
+            subscription.status = PremiumSubscription.Status.CANCELED
+            subscription.save()
         else:
-            base_date = now
-        old_active.expires_at = _end_of_day(base_date + timedelta(days=period_days))
-        old_active.save()
-
-        _shift_chain_after_renewal(subscription.user, old_active.expires_at)
-
-        subscription.status = PremiumSubscription.Status.CANCELED
-        subscription.save()
-    else:
-        with transaction.atomic():
             _handle_downgrade(
                 subscription=subscription,
                 old_active=old_active,
@@ -181,7 +188,7 @@ def activate_subscription_on_payment_success(subscription: PremiumSubscription) 
                 period_days=period_days,
             )
 
-    return True
+        return True
 
 
 def _handle_downgrade(

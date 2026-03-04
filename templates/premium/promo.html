@@ -18,12 +18,12 @@
     <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
       <span class="text-sm text-gray-600 dark:text-neutral-400">Период оплаты:</span>
       <div
-        class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 p-1 text-xs font-medium text-gray-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+        class="inline-flex items-center rounded-full border border-blue-500 bg-gray-50 p-1 text-xs font-medium text-gray-600 dark:border-blue-500 dark:bg-neutral-800 dark:text-neutral-300"
         role="group"
         aria-label="Выбор периода оплаты"
       >
-        <button type="button" class="billing-toggle relative inline-flex items-center rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-black/5 dark:bg-neutral-900 dark:text-white" data-billing-toggle="monthly" aria-pressed="true">Месяц</button>
-        <button type="button" class="billing-toggle ml-1 inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 dark:text-neutral-300 dark:hover:text-white" data-billing-toggle="yearly" aria-pressed="false">Год</button>
+        <button type="button" class="billing-toggle relative inline-flex items-center rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-900 shadow-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-white" data-billing-toggle="monthly" aria-pressed="true">Месяц</button>
+        <button type="button" class="billing-toggle ml-1 inline-flex items-center rounded-full border border-transparent px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 dark:border-transparent dark:text-neutral-300 dark:hover:text-white" data-billing-toggle="yearly" aria-pressed="false">Год</button>
       </div>
     </div>
     {% endif %}
@@ -202,9 +202,9 @@
             <p class="text-center text-sm text-gray-500 dark:text-neutral-400">
               Войдите в аккаунт, чтобы оформить подписку.
             </p>
-            <div class="mt-2 flex flex-wrap gap-2">
-              <a href="{% url 'signin' %}" class="inline-flex items-center justify-center rounded-lg border border-blue-600 px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-500/10">Войти</a>
-              <a href="{% url 'signup' %}" class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:text-neutral-200 dark:border-neutral-600 dark:hover:bg-neutral-800">Зарегистрироваться</a>
+            <div class="mt-2 flex flex-col gap-2">
+              <a href="{% url 'signin' %}" class="inline-flex w-full items-center justify-center rounded-xl border border-blue-600 px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-500/10">Войти</a>
+              <a href="{% url 'signup' %}" class="inline-flex w-full items-center justify-center rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:text-neutral-200 dark:border-neutral-600 dark:hover:bg-neutral-800">Зарегистрироваться</a>
             </div>
           {% endif %}
           </div>
@@ -241,18 +241,24 @@
       function setBilling(mode) {
         const isMonthly = mode === 'monthly';
 
+        monthlyBtn.classList.toggle('border-gray-300', isMonthly);
+        monthlyBtn.classList.toggle('border-transparent', !isMonthly);
         monthlyBtn.classList.toggle('bg-white', isMonthly);
         monthlyBtn.classList.toggle('text-gray-900', isMonthly);
         monthlyBtn.classList.toggle('shadow-sm', isMonthly);
-        monthlyBtn.classList.toggle('ring-1', isMonthly);
-        monthlyBtn.classList.toggle('ring-black/5', isMonthly);
+        monthlyBtn.classList.toggle('dark:bg-neutral-900', isMonthly);
+        monthlyBtn.classList.toggle('dark:border-neutral-600', isMonthly);
+        monthlyBtn.classList.toggle('dark:border-transparent', !isMonthly);
         monthlyBtn.setAttribute('aria-pressed', String(isMonthly));
 
+        yearlyBtn.classList.toggle('border-gray-300', !isMonthly);
+        yearlyBtn.classList.toggle('border-transparent', isMonthly);
         yearlyBtn.classList.toggle('bg-white', !isMonthly);
         yearlyBtn.classList.toggle('text-gray-900', !isMonthly);
         yearlyBtn.classList.toggle('shadow-sm', !isMonthly);
-        yearlyBtn.classList.toggle('ring-1', !isMonthly);
-        yearlyBtn.classList.toggle('ring-black/5', !isMonthly);
+        yearlyBtn.classList.toggle('dark:bg-neutral-900', !isMonthly);
+        yearlyBtn.classList.toggle('dark:border-neutral-600', !isMonthly);
+        yearlyBtn.classList.toggle('dark:border-transparent', isMonthly);
         yearlyBtn.setAttribute('aria-pressed', String(!isMonthly));
 
         prices.monthly.forEach(function (el) {

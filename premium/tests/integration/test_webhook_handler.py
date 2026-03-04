@@ -10,6 +10,7 @@ Licensed under the Apache License, Version 2.0
 import json
 
 import pytest
+from django.conf import LazySettings
 from django.test import Client
 
 from premium.models import PremiumPayment
@@ -17,7 +18,7 @@ from premium.tests.conftest import make_webhook_payload
 
 
 @pytest.fixture(autouse=True)
-def disable_webhook_ip_verification(settings: object) -> None:
+def disable_webhook_ip_verification(settings: LazySettings) -> None:
     """Отключает проверку IP вебхука для тестов."""
     settings.YOOKASSA_WEBHOOK_IP_VERIFICATION = False
 

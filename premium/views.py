@@ -9,28 +9,19 @@ Licensed under the Apache License, Version 2.0
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 from typing import cast
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-from yookassa import Configuration, Payment  # type: ignore[import-untyped]
-from yookassa.domain.exceptions import ApiError  # type: ignore[import-untyped]
 
 from django.contrib.auth.models import User
 
-from premium.models import (
-    PremiumPayment,
-    PremiumPlan,
-    PremiumSubscription,
-)
+from premium.models import PremiumPlan, PremiumSubscription
 from premium.service import CheckoutService
-from premium.webhook import activate_subscription_on_payment_success
+from premium.subscription_page_service import SubscriptionPageService
 from premium.webhook_logging import log_yookassa_create_response
 
 
@@ -94,7 +85,6 @@ def checkout(request: HttpRequest) -> HttpResponse:
 
     if result.success:
         request.session['premium_payment_return_id'] = result.payment_id
-        request.session['premium_payment_return_at'] = timezone.now().isoformat()
 
     return redirect(result.redirect_url)
 
@@ -113,106 +103,16 @@ def success(request: HttpRequest) -> HttpResponse:
     )
 
 
-def _sync_pending_payments(user) -> None:
-    """
-    Проверяет статус ожидающих платежей в YooKassa и активирует подписки при успешной оплате.
-    Вызывается при возврате пользователя с страницы оплаты (вебхук может не дойти в локальной разработке).
-    """
-    Configuration.account_id = settings.YOOKASSA_SHOP_ID
-    Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
-
-    pending_payments = (
-        PremiumPayment.objects.filter(
-            user=user,
-            subscription__status=PremiumSubscription.Status.PENDING,
-        )
-        .exclude(status__in=(PremiumPayment.Status.SUCCEEDED, PremiumPayment.Status.CANCELED))
-        .select_related('subscription', 'subscription__plan')
-        .order_by('-created_at')
-    )
-    for premium_payment in pending_payments:
-        try:
-            yookassa_payment = Payment.find_one(premium_payment.yookassa_payment_id)
-        except ApiError:
-            continue
-        new_status = yookassa_payment.status
-        if new_status == PremiumPayment.Status.SUCCEEDED:
-            premium_payment.status = PremiumPayment.Status.SUCCEEDED
-            premium_payment.save()
-            if premium_payment.subscription is not None:
-                activate_subscription_on_payment_success(premium_payment.subscription)
-            break  # Обработали один платёж — достаточно
-        if new_status == PremiumPayment.Status.CANCELED:
-            premium_payment.status = PremiumPayment.Status.CANCELED
-            premium_payment.save()
-            break
-
-
 @login_required
 def my_subscription(request: HttpRequest) -> HttpResponse:
     """
     Страница с текущим тарифом подписки, датой окончания и списком платежей пользователя.
     """
-    payment_result: str | None = None
-
-    payment_id = request.session.pop('premium_payment_return_id', None)
-    returned_at_str = request.session.pop('premium_payment_return_at', None)
-
-    if payment_id and returned_at_str:
-        try:
-            returned_at = datetime.fromisoformat(returned_at_str)
-            if (timezone.now() - returned_at).total_seconds() < 3600:
-                _sync_pending_payments(request.user)
-                premium_payment = PremiumPayment.objects.filter(
-                    pk=payment_id,
-                    user=request.user,
-                ).first()
-                if premium_payment:
-                    if premium_payment.status == PremiumPayment.Status.SUCCEEDED:
-                        payment_result = 'succeeded'
-                    elif premium_payment.status == PremiumPayment.Status.CANCELED:
-                        payment_result = 'canceled'
-                    else:
-                        payment_result = 'pending'
-        except (ValueError, TypeError):
-            pass
-
-    payments = (
-        PremiumPayment.objects.filter(user=request.user)
-        .select_related('plan')
-        .order_by('-created_at')
+    payment_return_id = request.session.pop('premium_payment_return_id', None)
+    page_data = SubscriptionPageService().get_page_data(
+        user=cast(User, request.user),
+        payment_return_id=payment_return_id,
     )
-
-    # Приостановленные и запланированные подписки с датами активации (с какого по какое число будут активны)
-    paused_subscriptions: list[tuple[PremiumSubscription, datetime, datetime]] = []
-    active_sub = (
-        PremiumSubscription.objects.filter(
-            user=request.user,
-            status=PremiumSubscription.Status.ACTIVE,
-        )
-        .select_related('plan')
-        .first()
-    )
-    now = timezone.now()
-    if active_sub is not None and active_sub.expires_at is not None:
-        # SCHEDULED и PAUSED: подписки в очереди после текущей
-        future_subs = (
-            PremiumSubscription.objects.filter(
-                user=request.user,
-                status__in=(
-                    PremiumSubscription.Status.SCHEDULED,
-                    PremiumSubscription.Status.PAUSED,
-                ),
-                expires_at__gt=now,
-            )
-            .select_related('plan')
-            .order_by('expires_at')
-        )
-        next_start = active_sub.expires_at + timedelta(days=1)
-        for sub in future_subs:
-            if sub.expires_at is not None:
-                paused_subscriptions.append((sub, next_start, sub.expires_at))
-                next_start = sub.expires_at + timedelta(days=1)
 
     return render(
         request,
@@ -221,8 +121,9 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
             'page_title': 'Моя подписка',
             'page_description': 'Текущий тариф и история платежей',
             'active_page': 'premium_my_subscription',
-            'payments': payments,
-            'payment_result': payment_result,
-            'paused_subscriptions': paused_subscriptions,
+            'payments': page_data.payments,
+            'active_subscription': page_data.active_subscription,
+            'paused_subscriptions': page_data.paused_subscriptions,
+            'payment_result': page_data.payment_result,
         },
     )

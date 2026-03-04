@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from yookassa import Configuration, Payment  # type: ignore[import-untyped]
@@ -12,8 +14,8 @@ from yookassa.domain.exceptions import ApiError  # type: ignore[import-untyped]
 
 from premium.dto import SubscriptionPageData
 from premium.models import PremiumPayment, PremiumSubscription
-from premium.repository import SubscriptionPageRepository
-from premium.subscription_activation import activate_subscription_on_payment_success
+from premium.repositories.subscription_page import SubscriptionPageRepository
+from premium.domain.subscription_activation import activate_subscription_on_payment_success
 
 
 def _sync_pending_payments(user: User) -> None:

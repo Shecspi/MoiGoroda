@@ -13,7 +13,7 @@ from premium.adapters.payment_provider import PaymentProvider
 from premium.adapters.yookassa_adapter import YooKassaPaymentAdapter
 from premium.dto import CheckoutResult
 from premium.models import PremiumSubscription
-from premium.repository import CheckoutRepository
+from premium.repositories.checkout import CheckoutRepository
 
 
 class CheckoutService:

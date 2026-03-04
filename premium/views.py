@@ -20,6 +20,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.models import User
 
 from premium.models import PremiumPlan, PremiumSubscription
+from premium.repositories.subscription_page import SubscriptionPageRepository
 from premium.services.checkout import CheckoutService
 from premium.services.subscription_page import SubscriptionPageService
 from premium.webhook.logging import log_yookassa_create_response
@@ -35,6 +36,11 @@ def promo(request: HttpRequest) -> HttpResponse:
         .prefetch_related('features')
         .order_by('sort_order', 'pk')
     )
+    active_subscription = None
+    if request.user.is_authenticated:
+        active_subscription = SubscriptionPageRepository().get_active_subscription(
+            cast(User, request.user)
+        )
 
     return render(
         request,
@@ -46,6 +52,7 @@ def promo(request: HttpRequest) -> HttpResponse:
                 'и поддержите развитие проекта'
             ),
             'plans': plans,
+            'active_subscription': active_subscription,
         },
     )
 

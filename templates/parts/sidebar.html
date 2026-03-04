@@ -54,7 +54,7 @@ Licensed under the Apache License, Version 2.0
                 <li><hr class="my-2 border-gray-200 dark:border-neutral-700"></li>
             {% endif %}
 
-            {% if not active_subscription %}
+            {% if not has_active_subscription %}
             <li>
                 <a href="{% url 'premium_promo' %}"
                    class="flex items-center gap-x-2 py-2 pl-4 pr-2 text-start text-sm text-red-700 rounded-md bg-red-50 border border-red-200 hover:bg-red-100 hover:text-red-800 hover:border-red-300 focus:outline-none focus:bg-red-100 focus:border-red-300 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 dark:hover:bg-red-500/20 dark:hover:border-red-500/30 dark:focus:bg-red-500/20 dark:focus:border-red-500/30">

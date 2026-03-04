@@ -37,7 +37,8 @@ def general_settings(request: HttpRequest) -> dict[str, Any]:
         dict: Словарь с настройками приложения и данными для шаблонов.
     """
     has_unread_news = False
-    active_subscription = None
+    has_active_subscription = False
+    active_subscription_level: str | None = None
     if request.user.is_authenticated:
         # Список ID новостей, которые пользователь уже прочитал
         users_read_news = News.users_read.through.objects.filter(
@@ -45,16 +46,17 @@ def general_settings(request: HttpRequest) -> dict[str, Any]:
         ).values_list('news_id', flat=True)
         # True, если есть хотя бы одна новость, ID которой нет в user_read_news
         has_unread_news = News.objects.filter(~Q(id__in=users_read_news)).exists()
-        # Активная премиум-подписка (для проверки доступа к функциям)
-        active_subscription = (
+        # Активная премиум-подписка: наличие и уровень (plan.slug)
+        active_sub = (
             PremiumSubscription.objects.filter(
                 user=request.user,
                 status=PremiumSubscription.Status.ACTIVE,
             )
-            .select_related('plan')
-            .prefetch_related('plan__features')
+            .values('plan__slug')
             .first()
         )
+        has_active_subscription = active_sub is not None
+        active_subscription_level = active_sub['plan__slug'] if active_sub else None
 
     context: dict[str, Any] = {
         'SITE_NAME': os.getenv('SITE_NAME'),
@@ -64,7 +66,8 @@ def general_settings(request: HttpRequest) -> dict[str, Any]:
         'YANDEX_METRIKA': os.getenv('YANDEX_METRIKA'),
         'SUPPORT_EMAIL': os.getenv('DEFAULT_FROM_EMAIL'),
         'has_unread_news': has_unread_news,
-        'active_subscription': active_subscription,
+        'has_active_subscription': has_active_subscription,
+        'active_subscription_level': active_subscription_level,
         'DONATE_LINK': os.getenv('DONATE_LINK'),
         'URL_GEO_POLYGONS': os.getenv('URL_GEO_POLYGONS'),
         'TILE_LAYER': os.getenv('TILE_LAYER'),

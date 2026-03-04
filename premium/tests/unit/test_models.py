@@ -104,13 +104,13 @@ class TestPremiumSubscription:
         assert '1 месяц' in str(sub)
 
     def test_billing_period_choices(self) -> None:
-        assert PremiumSubscription.BillingPeriod.MONTHLY == 'monthly'
-        assert PremiumSubscription.BillingPeriod.YEARLY == 'yearly'
+        assert PremiumSubscription.BillingPeriod.MONTHLY.value == 'monthly'
+        assert PremiumSubscription.BillingPeriod.YEARLY.value == 'yearly'
 
     def test_status_choices(self) -> None:
-        assert PremiumSubscription.Status.PENDING == 'pending'
-        assert PremiumSubscription.Status.ACTIVE == 'active'
-        assert PremiumSubscription.Status.EXPIRED == 'expired'
+        assert PremiumSubscription.Status.PENDING.value == 'pending'
+        assert PremiumSubscription.Status.ACTIVE.value == 'active'
+        assert PremiumSubscription.Status.EXPIRED.value == 'expired'
 
 
 @pytest.mark.unit

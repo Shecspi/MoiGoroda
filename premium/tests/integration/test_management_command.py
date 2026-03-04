@@ -50,11 +50,7 @@ class TestExpirePremiumSubscriptionsCommand:
         from django.conf import settings
 
         now = timezone.now()
-        today = (
-            timezone.localtime(now).date()
-            if getattr(settings, 'USE_TZ', False)
-            else now.date()
-        )
+        today = timezone.localtime(now).date() if getattr(settings, 'USE_TZ', False) else now.date()
         active = PremiumSubscription.objects.create(
             user=user,
             plan=premium_plan,

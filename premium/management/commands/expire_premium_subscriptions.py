@@ -19,6 +19,7 @@ def _today() -> date:
         return timezone.localtime(timezone.now()).date()
     return timezone.now().date()
 
+
 logger = logging.getLogger('premium.cron')
 
 

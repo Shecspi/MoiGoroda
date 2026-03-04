@@ -2,8 +2,6 @@
 Тесты проверки IP для вебхука YooKassa.
 """
 
-from unittest.mock import patch
-
 import pytest
 from django.test import RequestFactory, override_settings
 

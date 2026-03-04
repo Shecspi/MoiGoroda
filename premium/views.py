@@ -9,9 +9,8 @@ Licensed under the Apache License, Version 2.0
 
 from __future__ import annotations
 
-import json
-import uuid
 from datetime import datetime, timedelta
+from typing import cast
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -23,12 +22,14 @@ from django.views.decorators.http import require_POST
 from yookassa import Configuration, Payment  # type: ignore[import-untyped]
 from yookassa.domain.exceptions import ApiError  # type: ignore[import-untyped]
 
+from django.contrib.auth.models import User
+
 from premium.models import (
     PremiumPayment,
-    PremiumPaymentWebhookLog,
     PremiumPlan,
     PremiumSubscription,
 )
+from premium.service import CheckoutService
 from premium.webhook import activate_subscription_on_payment_success
 from premium.webhook_logging import log_yookassa_create_response
 
@@ -40,7 +41,6 @@ def promo(request: HttpRequest) -> HttpResponse:
     """
     plans = (
         PremiumPlan.objects.filter(is_active=True)
-        .exclude(price_month=0)
         .prefetch_related('features')
         .order_by('sort_order', 'pk')
     )
@@ -59,104 +59,44 @@ def promo(request: HttpRequest) -> HttpResponse:
     )
 
 
+@login_required
 @require_POST
 def checkout(request: HttpRequest) -> HttpResponse:
     """
     Создаёт платёж в YooKassa и перенаправляет пользователя на страницу оплаты.
     """
-    if not request.user.is_authenticated:
-        return redirect(settings.LOGIN_URL)
-
     billing_period = request.POST.get('billing_period', PremiumSubscription.BillingPeriod.MONTHLY)
-    plan_id = request.POST.get('plan_id')
+    if billing_period not in (
+        PremiumSubscription.BillingPeriod.MONTHLY,
+        PremiumSubscription.BillingPeriod.YEARLY,
+    ):
+        return redirect(request.build_absolute_uri(reverse('premium_promo')))
 
-    plan = None
-    if plan_id is not None:
-        try:
-            plan = PremiumPlan.objects.get(pk=plan_id, is_active=True)
-        except PremiumPlan.DoesNotExist:
-            plan = None
-
-    if plan is None:
-        return redirect('premium_promo')
-
-    if billing_period == PremiumSubscription.BillingPeriod.YEARLY:
-        amount_value = plan.price_year
-        period_label = 'на год'
-    else:
-        billing_period = PremiumSubscription.BillingPeriod.MONTHLY
-        amount_value = plan.price_month
-        period_label = 'на месяц'
-
-    description = f'Тариф «{plan.name}» для пользователя {request.user.username} {period_label}'
-
-    Configuration.account_id = settings.YOOKASSA_SHOP_ID
-    Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
-
+    plan_id = request.POST.get('plan_id') or ''
     return_url = request.build_absolute_uri(reverse('premium_my_subscription'))
+    promo_url = request.build_absolute_uri(reverse('premium_promo'))
 
-    try:
-        payment = Payment.create(
-            {
-                'amount': {
-                    'value': f'{amount_value:.2f}',
-                    'currency': plan.currency,
-                },
-                'confirmation': {
-                    'type': 'redirect',
-                    'return_url': return_url,
-                },
-                'capture': True,
-                'description': description,
-            },
-            uuid.uuid4(),
+    result = CheckoutService().create_checkout(
+        user=cast(User, request.user),
+        plan_id=plan_id,
+        billing_period=billing_period,
+        return_url=return_url,
+        promo_url=promo_url,
+    )
+
+    if result.success and result.raw_response is not None:
+        log_yookassa_create_response(
+            request,
+            result.yookassa_payment_id,
+            result.yookassa_status,
+            result.raw_response,
         )
-    except ApiError:
-        return redirect('premium_promo')
 
-    try:
-        response_data = json.loads(payment.json())
-    except (TypeError, ValueError):
-        response_data = {}
-    log_yookassa_create_response(request, payment.id, payment.status, response_data)
+    if result.success:
+        request.session['premium_payment_return_id'] = result.payment_id
+        request.session['premium_payment_return_at'] = timezone.now().isoformat()
 
-    subscription = PremiumSubscription.objects.create(
-        user=request.user,
-        plan=plan,
-        billing_period=billing_period,
-        status=PremiumSubscription.Status.PENDING,
-        provider_payment_id=payment.id,
-    )
-
-    confirmation_url = getattr(
-        payment.confirmation, 'confirmation_url', ''
-    ) if payment.confirmation else ''
-
-    premium_payment = PremiumPayment.objects.create(
-        user=request.user,
-        subscription=subscription,
-        plan=plan,
-        yookassa_payment_id=payment.id,
-        amount_value=amount_value,
-        currency=plan.currency,
-        billing_period=billing_period,
-        description=description,
-        confirmation_url=confirmation_url,
-        status=PremiumPayment.Status(payment.status),
-    )
-
-    PremiumPaymentWebhookLog.objects.create(
-        payment=premium_payment,
-        status=payment.status,
-        raw_payload=response_data,
-    )
-
-    request.session['premium_payment_return_id'] = str(premium_payment.pk)
-    request.session['premium_payment_return_at'] = timezone.now().isoformat()
-
-    if confirmation_url:
-        return redirect(confirmation_url)
-    return redirect('premium_my_subscription')
+    return redirect(result.redirect_url)
 
 
 def success(request: HttpRequest) -> HttpResponse:

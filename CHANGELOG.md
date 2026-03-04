@@ -30,6 +30,8 @@
 
 - *(collection)* Добавлен поиск города по названию на странице создания коллекции ([d394041](https://github.com/Shecspi/MoiGoroda/commit/d39404149b20f1fd5fbb483bae3997ef284966aa))
 
+- *(premium)* Добавлена возможность оплачивать премиум-подписку ([a891bfd](https://github.com/Shecspi/MoiGoroda/commit/a891bfd5dddf3a63060c12dc71aba7cac65b0168))
+
 
 #### 🐛 Исправление ошибок
 

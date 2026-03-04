@@ -6,6 +6,7 @@ from decimal import Decimal
 from typing import Any
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 from premium.models import (
     PremiumPayment,
@@ -22,7 +23,7 @@ class CheckoutRepository:
         """Возвращает активный план по ID или None."""
         try:
             return PremiumPlan.objects.get(pk=plan_id, is_active=True)
-        except (PremiumPlan.DoesNotExist, ValueError):
+        except (PremiumPlan.DoesNotExist, ValueError, ValidationError):
             return None
 
     def create_subscription(

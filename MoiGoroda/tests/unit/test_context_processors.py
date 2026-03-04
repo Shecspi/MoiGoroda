@@ -72,6 +72,8 @@ def test_general_settings_contains_all_required_keys(request_factory: RequestFac
         'YANDEX_METRIKA',
         'SUPPORT_EMAIL',
         'has_unread_news',
+        'has_active_subscription',
+        'active_subscription_level',
         'DONATE_LINK',
         'URL_GEO_POLYGONS',
         'TILE_LAYER',
@@ -97,6 +99,20 @@ def test_general_settings_has_unread_news_false_for_anonymous(
     context = general_settings(request)
 
     assert context['has_unread_news'] is False
+
+
+@pytest.mark.unit
+def test_general_settings_subscription_false_for_anonymous(
+    request_factory: RequestFactory,
+) -> None:
+    """Тест что has_active_subscription=False и active_subscription_level=None для анонимного пользователя."""
+    request = request_factory.get('/')
+    request.user = AnonymousUser()
+
+    context = general_settings(request)
+
+    assert context['has_active_subscription'] is False
+    assert context['active_subscription_level'] is None
 
 
 @pytest.mark.unit
@@ -243,6 +259,41 @@ def test_general_settings_handles_none_env_vars(request_factory: RequestFactory)
         assert context['SITE_NAME'] is None
         assert context['SITE_URL'] is None
         assert context['API_YANDEX_MAP'] is None
+
+
+@pytest.mark.unit
+@pytest.mark.django_db
+def test_general_settings_subscription_true_for_authenticated_with_active_subscription(
+    request_factory: RequestFactory,
+    django_user_model: Any,
+) -> None:
+    """Тест что has_active_subscription=True и active_subscription_level установлен для пользователя с активной подпиской."""
+    from premium.models import PremiumPlan, PremiumSubscription
+
+    user = django_user_model.objects.create_user(username='premiumuser', password='testpass')
+    from decimal import Decimal
+
+    plan = PremiumPlan.objects.create(
+        slug='basic',
+        name='Базовый',
+        price_month=Decimal('100'),
+        price_year=Decimal('1000'),
+        currency='RUB',
+    )
+    PremiumSubscription.objects.create(
+        user=user,
+        plan=plan,
+        billing_period=PremiumSubscription.BillingPeriod.MONTHLY,
+        status=PremiumSubscription.Status.ACTIVE,
+    )
+
+    request = request_factory.get('/')
+    request.user = user
+
+    context = general_settings(request)
+
+    assert context['has_active_subscription'] is True
+    assert context['active_subscription_level'] == 'basic'
 
 
 @pytest.mark.unit

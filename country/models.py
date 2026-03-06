@@ -55,6 +55,7 @@ class Country(models.Model):
     owner = models.ForeignKey('self', blank=True, null=True, on_delete=models.PROTECT)
 
     class Meta:
+        ordering = ['name']
         verbose_name = 'Страна'
         verbose_name_plural = 'Страны'
 

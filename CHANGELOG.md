@@ -63,6 +63,8 @@
 
 - *(region)* Отсортирован выпадающий список стран в админке по алфавиту ([09b41c6](https://github.com/Shecspi/MoiGoroda/commit/09b41c6f824efbdadde88155cbe7fc6eb9900bf0))
 
+- *(city)* Отсортирован выпадающий список стран на странице добавления города ([c91635e](https://github.com/Shecspi/MoiGoroda/commit/c91635e526633e6e61eec01688a497571bc59706))
+
 
 #### Изменено
 

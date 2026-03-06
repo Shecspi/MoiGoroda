@@ -61,6 +61,8 @@
 
 - *(city)* Исправлена XSS в city_search.js ([16c0363](https://github.com/Shecspi/MoiGoroda/commit/16c0363baa4bfb19461a958b2b9ccfaa121630b5))
 
+- *(region)* Отсортирован выпадающий список стран в админке по алфавиту ([09b41c6](https://github.com/Shecspi/MoiGoroda/commit/09b41c6f824efbdadde88155cbe7fc6eb9900bf0))
+
 
 #### Изменено
 

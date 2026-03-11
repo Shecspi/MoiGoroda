@@ -1,10 +1,11 @@
 {% extends 'head.html' %}
 {% load vite %}
 {% load static %}
+{% load excluded_users %}
 
 {% block base %}
     {% include 'parts/js_isAuthenticated.html' %}
-
+    
 
     <div class="flex">
         {% include 'parts/sidebar.html' %}
@@ -60,7 +61,7 @@
 
             <!-- Отступ для фиксированного навбара на мобильных устройствах -->
             <div class="xl:hidden h-16"></div>
-
+            
             {% block content %}
             {% endblock %}
 
@@ -79,6 +80,13 @@
     {% endif %}
 
     {% vite_asset 'js/entries/sidebar.js' %}
+
+    {% get_excluded_users as excluded_users %}
+    
+    {% if user.is_authenticated and not has_active_subscription and user.id not in excluded_users %}
+        <button type="button" id="premium-promo-modal-trigger" class="hidden" data-hs-overlay="#premium-promo-modal"></button>
+        {% include 'parts/premium_promo_modal.html' %}
+    {% endif %}
 
     {% block modals %}{% endblock %}
 {% endblock %}

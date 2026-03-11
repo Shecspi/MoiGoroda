@@ -32,6 +32,8 @@
 
 - *(premium)* Добавлена возможность оплачивать премиум-подписку ([a891bfd](https://github.com/Shecspi/MoiGoroda/commit/a891bfd5dddf3a63060c12dc71aba7cac65b0168))
 
+- *(premium)* Баннер премиум-подписки ([ec8a820](https://github.com/Shecspi/MoiGoroda/commit/ec8a8205d09f58c1323c2b9a2d1418bbc63e3a06))
+
 
 #### 🐛 Исправление ошибок
 

@@ -63,6 +63,7 @@ export default defineConfig({
         public_collections_statistics: path.resolve(entriesDir, 'public_collections_statistics.js'),
         city_search: path.resolve(entriesDir, 'city_search.js'),
         preline: path.resolve(entriesDir, 'preline.js'),
+        premium_promo_modal: path.resolve(entriesDir, 'premium_promo_modal.js'),
         
         // CSS entries
         'css/tailwind': path.resolve(__dirname, 'css/tailwind.css'),

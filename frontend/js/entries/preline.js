@@ -8,12 +8,20 @@ document.addEventListener('DOMContentLoaded', () => {
     window.HSStaticMethods.autoInit();
   }
 
-  // Открытие модалки премиум-промо при загрузке (если есть на странице)
+  // Открытие модалки премиум-промо при загрузке (если есть на странице и пользователь ещё не скрыл её)
   const promoModal = document.getElementById('premium-promo-modal');
-  if (promoModal) {
+  if (promoModal && !localStorage.getItem('premium_promo_dismissed')) {
     setTimeout(() => {
       HSOverlay.open('#premium-promo-modal');
     }, 100);
+  }
+
+  // Сохранение выбора «Больше не показывать»
+  const dismissBtn = document.getElementById('premium-promo-dismiss');
+  if (dismissBtn) {
+    dismissBtn.addEventListener('click', () => {
+      localStorage.setItem('premium_promo_dismissed', 'true');
+    });
   }
 });
 

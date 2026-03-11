@@ -1,6 +1,6 @@
 {% comment %}
 Модальное окно с информацией о премиум-подписке для авторизованных пользователей без подписки.
-Показывается при каждом заходе на любую страницу.
+Показывается один раз при первом заходе; при нажатии «Больше не показывать» больше не отображается.
 {% endcomment %}
 <div id="premium-promo-modal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center" role="dialog" tabindex="-1" aria-labelledby="premium-promo-modal-label">
     <div class="hs-overlay-animation-target hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 h-[calc(100%-56px)] sm:mx-auto">
@@ -56,8 +56,8 @@
                 <a href="{% url 'premium_promo' %}" class="btn btn-primary btn-default btn-block">
                     Подробнее о премиум-подписке
                 </a>
-                <button type="button" class="btn btn-secondary btn-default btn-block" data-hs-overlay="#premium-promo-modal">
-                    Понятно
+                <button type="button" id="premium-promo-dismiss" class="btn btn-secondary btn-default btn-block" data-hs-overlay="#premium-promo-modal">
+                    Больше не показывать
                 </button>
             </div>
             <!-- End Footer -->

@@ -606,7 +606,7 @@ function getCaptionOptions() {
     const positionEl = document.querySelector('input[name="caption-position"]:checked');
     const alignEl = document.querySelector('input[name="caption-align"]:checked');
     const sizeEl = document.querySelector('input[name="caption-font-size"]:checked');
-    const familyEl = document.querySelector('input[name="caption-font-family"]:checked');
+    const familyEl = document.getElementById('caption-font-family');
     const weightEl = document.querySelector('input[name="caption-font-weight"]:checked');
     const bgEl = document.querySelector('input[name="caption-background"]:checked');
     const bgColorEl = document.getElementById('caption-bg-color');
@@ -624,7 +624,7 @@ function getCaptionOptions() {
         position: (positionEl && positionEl.value) || 'bottom',
         alignment: (alignEl && alignEl.value) || 'center',
         fontSize: sizeEl ? parseInt(sizeEl.value, 10) : 20,
-        fontFamily: (familyEl && familyEl.value) || 'sans',
+        fontFamily: (familyEl && familyEl.value) || 'roboto',
         fontWeight: (weightEl && weightEl.value) || 'bold',
         background: (bgEl && bgEl.value) || 'box',
         bgColor,
@@ -677,9 +677,28 @@ function measureWrappedLines(ctx, text, maxWidth) {
 }
 
 const FONT_FAMILIES = {
-    sans: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-    serif: 'Georgia, "Times New Roman", serif',
-    mono: '"ui-monospace", "Cascadia Code", "Source Code Pro", monospace',
+    roboto: '"Roboto", system-ui, -apple-system, "Segoe UI", sans-serif',
+    montserrat: '"Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif',
+    open_sans: '"Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif',
+    rubik: '"Rubik", system-ui, -apple-system, "Segoe UI", sans-serif',
+    sofia_sans: '"Sofia Sans", system-ui, -apple-system, "Segoe UI", sans-serif',
+
+    eb_garamond: '"EB Garamond", "Georgia", "Times New Roman", serif',
+    playfair: '"Playfair Display", "Georgia", "Times New Roman", serif',
+    oswald: '"Oswald", system-ui, -apple-system, "Segoe UI", sans-serif',
+    comfortaa: '"Comfortaa", system-ui, -apple-system, "Segoe UI", sans-serif',
+
+    bad_script: '"Bad Script", "Comic Sans MS", system-ui, cursive',
+    caveat: '"Caveat", "Comic Sans MS", system-ui, cursive',
+    pacifico: '"Pacifico", "Comic Sans MS", system-ui, cursive',
+    lobster: '"Lobster", "Comic Sans MS", system-ui, cursive',
+    great_vibes: '"Great Vibes", "Comic Sans MS", system-ui, cursive',
+
+    press_start_2p: '"Press Start 2P", "Courier New", ui-monospace, monospace',
+    rubik_marker_hatch: '"Rubik Marker Hatch", system-ui, -apple-system, "Segoe UI", sans-serif',
+    rubik_wet_paint: '"Rubik Wet Paint", system-ui, -apple-system, "Segoe UI", sans-serif',
+
+    line_seed_jp: '"LINE Seed JP", system-ui, -apple-system, "Segoe UI", sans-serif',
 };
 
 function drawCaption(ctx, caption, options, canvasWidth, canvasHeight, scale) {
@@ -1032,6 +1051,11 @@ if (captionBgSizeEl) {
         if (captionBgSizeValue) captionBgSizeValue.textContent = (parseInt(captionBgSizeEl.value, 10) / 100).toString();
         redrawOnCaptionOptionsChange();
     });
+}
+
+const captionFontFamilyEl = document.getElementById('caption-font-family');
+if (captionFontFamilyEl) {
+    captionFontFamilyEl.addEventListener('change', redrawOnCaptionOptionsChange);
 }
 
 const shareBackgroundColorEl = document.getElementById('share-background-color');

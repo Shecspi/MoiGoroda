@@ -297,6 +297,74 @@
 >>>>>>> f051caa (Стили слайдеров вынесены в компонент range-slider (Preline UI), fallback-цвета для видимости)
     }
 
+    /* Унифицированный стиль select в духе Preline */
+    .form-select {
+        @apply py-3 px-4 pe-9 block w-full rounded-lg text-sm bg-white border border-gray-200 text-gray-800 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1rem 1rem;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 16 16'%3e%3cpath fill='%239CA3AF' d='M4.646 10.854a.5.5 0 0 1 .708 0L8 13.5l2.646-2.646a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708Z'/%3e%3cpath fill='%239CA3AF' d='M4.646 5.146a.5.5 0 0 0 .708 0L8 2.5l2.646 2.646a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 0 0 0 .708Z'/%3e%3c/svg%3e");
+    }
+
+    /* Отрисовываем каждый вариант списка его реальным шрифтом */
+    #caption-font-family option[data-font="roboto"] {
+        font-family: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #caption-font-family option[data-font="montserrat"] {
+        font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #caption-font-family option[data-font="open_sans"] {
+        font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #caption-font-family option[data-font="rubik"] {
+        font-family: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #caption-font-family option[data-font="sofia_sans"] {
+        font-family: "Sofia Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #caption-font-family option[data-font="eb_garamond"] {
+        font-family: "EB Garamond", "Georgia", "Times New Roman", serif;
+    }
+    #caption-font-family option[data-font="playfair"] {
+        font-family: "Playfair Display", "Georgia", "Times New Roman", serif;
+    }
+    #caption-font-family option[data-font="oswald"] {
+        font-family: "Oswald", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #caption-font-family option[data-font="comfortaa"] {
+        font-family: "Comfortaa", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #caption-font-family option[data-font="bad_script"] {
+        font-family: "Bad Script", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="caveat"] {
+        font-family: "Caveat", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="pacifico"] {
+        font-family: "Pacifico", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="lobster"] {
+        font-family: "Lobster", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="great_vibes"] {
+        font-family: "Great Vibes", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="press_start_2p"] {
+        font-family: "Press Start 2P", "Courier New", ui-monospace, monospace;
+    }
+    #caption-font-family option[data-font="rubik_marker_hatch"] {
+        font-family: "Rubik Marker Hatch", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #caption-font-family option[data-font="rubik_wet_paint"] {
+        font-family: "Rubik Wet Paint", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #caption-font-family option[data-font="line_seed_jp"] {
+        font-family: "LINE Seed JP", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
     /* Унифицированный стиль color picker'ов */
     .color-picker {
         @apply p-1 h-10 w-14 block bg-white border border-gray-300 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none;

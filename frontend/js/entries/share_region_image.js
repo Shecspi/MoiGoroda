@@ -736,7 +736,6 @@ function drawCaption(ctx, caption, options, canvasWidth, canvasHeight, scale) {
         const desiredH = textBlockHeight + 2 * padBox;
         boxW = desiredW;
         boxH = desiredH;
-
         if (alignment === 'center') {
             boxX = canvasWidth / 2 - boxW / 2;
         } else if (alignment === 'right') {
@@ -746,6 +745,17 @@ function drawCaption(ctx, caption, options, canvasWidth, canvasHeight, scale) {
         }
         boxY = anchorBox.y + (anchorBox.h - boxH) / 2;
     }
+
+    // Гарантируем, что подпись и её фон не выходят за пределы изображения
+    const outerPad = CAPTION_PADDING * s;
+    const maxBoxW = Math.max(0, canvasWidth - 2 * outerPad);
+    const maxBoxH = Math.max(0, canvasHeight - 2 * outerPad);
+    if (boxW > maxBoxW) boxW = maxBoxW;
+    if (boxH > maxBoxH) boxH = maxBoxH;
+    if (boxX < outerPad) boxX = outerPad;
+    if (boxY < outerPad) boxY = outerPad;
+    if (boxX + boxW > canvasWidth - outerPad) boxX = canvasWidth - outerPad - boxW;
+    if (boxY + boxH > canvasHeight - outerPad) boxY = canvasHeight - outerPad - boxH;
 
     const startY = boxY + (boxH - textBlockHeight) / 2 + lineHeight / 2;
 

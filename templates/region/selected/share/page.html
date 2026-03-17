@@ -5,6 +5,10 @@
 {% block extra_css %}
     {{ block.super }}
     {% vite_css 'css/tailwind' %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Caveat:wght@400..700&family=Comfortaa:wght@300..700&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=LINE+Seed+JP&family=Lobster&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@200..700&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Press+Start+2P&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik+Marker+Hatch&family=Rubik+Wet+Paint&family=Rubik:ital,wght@0,300..900;1,300..900&family=Sofia+Sans:ital,wght@0,1..1000;1,1..1000&display=swap"
+          rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -198,20 +202,34 @@
                         Большой
                     </label>
                 </fieldset>
-                <fieldset class="flex flex-wrap gap-2">
-                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Шрифт</legend>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-font-family" value="sans" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                        Без засечек
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-font-family" value="serif" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        С засечками
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-font-family" value="mono" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Моноширинный
-                    </label>
+                <fieldset class="flex flex-wrap gap-2 items-end">
+                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400 w-full">Шрифт</legend>
+                    <div class="w-full sm:w-auto">
+                        <label for="caption-font-family" class="sr-only">Шрифт подписи</label>
+                        <select id="caption-font-family"
+                                name="caption-font-family"
+                                class="form-select">
+                            <option value="roboto" data-font="roboto" selected>Roboto</option>
+                            <option value="montserrat" data-font="montserrat">Montserrat</option>
+                            <option value="open_sans" data-font="open_sans">Open Sans</option>
+                            <option value="rubik" data-font="rubik">Rubik</option>
+                            <option value="sofia_sans" data-font="sofia_sans">Sofia Sans</option>
+                            <option disabled>────────</option>
+                            <option value="eb_garamond" data-font="eb_garamond">EB Garamond</option>
+                            <option value="playfair" data-font="playfair">Playfair Display</option>
+                            <option value="oswald" data-font="oswald">Oswald</option>
+                            <option value="comfortaa" data-font="comfortaa">Comfortaa</option>
+                            <option value="bad_script" data-font="bad_script">Bad Script</option>
+                            <option value="caveat" data-font="caveat">Caveat</option>
+                            <option value="pacifico" data-font="pacifico">Pacifico</option>
+                            <option value="lobster" data-font="lobster">Lobster</option>
+                            <option value="great_vibes" data-font="great_vibes">Great Vibes</option>
+                            <option value="press_start_2p" data-font="press_start_2p">Press Start 2P</option>
+                            <option value="rubik_marker_hatch" data-font="rubik_marker_hatch">Rubik Marker Hatch</option>
+                            <option value="rubik_wet_paint" data-font="rubik_wet_paint">Rubik Wet Paint</option>
+                            <option value="line_seed_jp" data-font="line_seed_jp">LINE Seed JP</option>
+                        </select>
+                    </div>
                 </fieldset>
                 <fieldset class="flex flex-wrap gap-2">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Начертание</legend>

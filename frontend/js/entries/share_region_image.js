@@ -429,21 +429,18 @@ function drawGeoJSONMercator(ctx, geoJson, mercatorState, scale) {
  */
 async function renderToCanvas(geoJson, exportDimensions) {
     const forExport = exportDimensions && exportDimensions.width > 0 && exportDimensions.height > 0;
-    const canvas = forExport
-        ? document.createElement('canvas')
-        : document.getElementById('share-image-canvas');
-    if (!canvas) return null;
+    const visibleCanvas = document.getElementById('share-image-canvas');
+    if (!visibleCanvas) return null;
+
+    // Рисуем всегда на offscreen-холсте, а затем одним вызовом переносим результат
+    // в видимый canvas, чтобы избежать моргания при обновлениях превью.
+    const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
     const { width: w, height: h } = forExport ? exportDimensions : getExportDimensions();
     canvas.width = w;
     canvas.height = h;
-    if (!forExport) {
-        const display = getDisplayDimensions();
-        canvas.style.width = display.width + 'px';
-        canvas.style.height = display.height + 'px';
-    }
 
     const mapWidth = w;
     const mapHeight = h;
@@ -492,7 +489,23 @@ async function renderToCanvas(geoJson, exportDimensions) {
 
     drawWatermark(ctx, w, h, markerScale);
 
-    return canvas;
+    if (forExport) {
+        // Для экспорта возвращаем offscreen-холст как есть
+        return canvas;
+    }
+
+    // Для превью — копируем результат в видимый canvas одним кадром
+    const display = getDisplayDimensions();
+    visibleCanvas.width = w;
+    visibleCanvas.height = h;
+    visibleCanvas.style.width = display.width + 'px';
+    visibleCanvas.style.height = display.height + 'px';
+    const visibleCtx = visibleCanvas.getContext('2d');
+    if (!visibleCtx) return null;
+    visibleCtx.clearRect(0, 0, w, h);
+    visibleCtx.drawImage(canvas, 0, 0, w, h);
+
+    return visibleCanvas;
 }
 
 function hexToRgb(hex) {

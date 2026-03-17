@@ -452,9 +452,14 @@ async function renderToCanvas(geoJson, exportDimensions) {
     const polygonCoords = collectCoordsFromGeoJSON(geoJson);
     const bbox = computeBbox(polygonCoords, all_cities);
     const background = getBackgroundOption();
+    const bgColorInput = document.getElementById('share-background-color');
     const mercatorState = computeMercatorView(bbox, mapWidth, mapHeight, pad);
 
-    ctx.fillStyle = '#f8fafc';
+    let baseBgColor = '#f8fafc';
+    if (background === 'none' && bgColorInput && bgColorInput.value) {
+        baseBgColor = bgColorInput.value;
+    }
+    ctx.fillStyle = baseBgColor;
     ctx.fillRect(0, 0, w, h);
 
     if (background === 'osm') {
@@ -1015,6 +1020,23 @@ if (captionBgSizeEl) {
         redrawOnCaptionOptionsChange();
     });
 }
+
+const shareBackgroundColorEl = document.getElementById('share-background-color');
+function updateShareBackgroundColorState() {
+    if (!shareBackgroundColorEl) return;
+    const bg = getBackgroundOption();
+    shareBackgroundColorEl.disabled = bg !== 'none';
+}
+document.querySelectorAll('input[name="share-background"]').forEach((el) => {
+    el.addEventListener('change', () => {
+        updateShareBackgroundColorState();
+        redrawOnCaptionOptionsChange();
+    });
+});
+if (shareBackgroundColorEl) {
+    shareBackgroundColorEl.addEventListener('input', redrawOnCaptionOptionsChange);
+}
+updateShareBackgroundColorState();
 
 // При изменении ширины контейнера обновляем отображаемый размер canvas (сохраняя соотношение сторон)
 (function () {

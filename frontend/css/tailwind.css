@@ -296,6 +296,11 @@
         background: var(--color-surface, #525252);
 >>>>>>> f051caa (Стили слайдеров вынесены в компонент range-slider (Preline UI), fallback-цвета для видимости)
     }
+
+    /* Унифицированный стиль color picker'ов */
+    .color-picker {
+        @apply p-1 h-10 w-14 block bg-white border border-gray-300 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none;
+    }
 }
 
 @layer utilities {

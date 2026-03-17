@@ -80,16 +80,28 @@
                         2K
                     </label>
                 </fieldset>
-                <fieldset class="flex flex-wrap gap-2">
-                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Подложка</legend>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-background" value="none" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                        Без подложки
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-background" value="osm" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Карта OpenStreetMap
-                    </label>
+                <fieldset class="flex flex-wrap gap-3 items-end">
+                    <div class="flex flex-wrap gap-2">
+                        <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Подложка</legend>
+                        <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-background" value="none" class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                            Без подложки
+                        </label>
+                        <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-background" value="osm" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                            Карта OpenStreetMap
+                        </label>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="share-background-color" class="block text-xs font-medium text-gray-500 dark:text-neutral-400">Цвет подложки</label>
+                        <input type="color"
+                               id="share-background-color"
+                               name="share-background-color"
+                               value="#f8fafc"
+                               title="Выберите цвет подложки"
+                               class="color-picker"
+                               disabled>
+                    </div>
                 </fieldset>
                 <fieldset class="flex flex-wrap gap-2">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Копирайт</legend>
@@ -230,13 +242,13 @@
                 <div class="flex flex-wrap items-end gap-4">
                     <div>
                         <label for="caption-text-color" class="block mb-2 text-sm font-medium text-foreground">Цвет текста</label>
-                        <input type="color" id="caption-text-color" name="caption-text-color" value="#111827" title="Выберите цвет текста" class="p-1 h-10 w-14 block bg-layer border border-layer-line cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none">
+                        <input type="color" id="caption-text-color" name="caption-text-color" value="#111827" title="Выберите цвет текста" class="color-picker">
                     </div>
                 </div>
                 <fieldset class="flex flex-wrap items-end gap-4">
                     <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Параметры фона</legend>
                     <label for="caption-bg-color" class="block mb-2 text-sm font-medium text-foreground">Цвет</label>
-                    <input type="color" id="caption-bg-color" name="caption-bg-color" value="#ef4444" title="Выберите цвет фона" class="p-1 h-10 w-14 block bg-layer border border-layer-line cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none">
+                    <input type="color" id="caption-bg-color" name="caption-bg-color" value="#ef4444" title="Выберите цвет фона" class="color-picker">
                     <div class="flex flex-col gap-1 min-w-[8rem]">
                         <span class="text-xs text-gray-500 dark:text-neutral-400">Размер <span id="caption-bg-size-value">1</span></span>
                         <div class="w-full">

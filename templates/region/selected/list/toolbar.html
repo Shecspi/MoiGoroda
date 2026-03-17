@@ -28,9 +28,10 @@
 
     <!-- Кнопки действий -->
     <div class="toolbar-actions ml-auto flex flex-wrap items-center justify-end gap-3 self-center">
+        <!-- Посмотреть на карте -->
         <div class="hs-tooltip [--placement:top] relative inline-block self-center">
             <a href="{% url 'region-selected-map' region_id %}" 
-               class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
+               class="hs-tooltip-toggle btn btn-outline-teal btn-sm">
                 <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
                     <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
                 </svg>
@@ -40,15 +41,17 @@
                 Посмотреть города региона на карте
             </span>
         </div>
+        <!-- ^^^ Посмотреть на карте -->
 
         {% if user.is_authenticated %}
+            <!-- Поделиться -->
             <div class="hs-tooltip [--placement:top] relative inline-block self-center">
                 <a href="{% url 'region-share' pk=region_id %}"
-                   class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-500/10"
+                   class="hs-tooltip-toggle btn btn-outline-primary btn-sm"
                    target="_blank"
                    rel="noopener noreferrer">
-                    <svg class="size-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                    <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M371.8 82.4C359.8 87.4 352 99 352 112L352 192L240 192C142.8 192 64 270.8 64 368C64 481.3 145.5 531.9 164.2 542.1C166.7 543.5 169.5 544 172.3 544C183.2 544 192 535.1 192 524.3C192 516.8 187.7 509.9 182.2 504.8C172.8 496 160 478.4 160 448.1C160 395.1 203 352.1 256 352.1L352 352.1L352 432.1C352 445 359.8 456.7 371.8 461.7C383.8 466.7 397.5 463.9 406.7 454.8L566.7 294.8C579.2 282.3 579.2 262 566.7 249.5L406.7 89.5C397.5 80.3 383.8 77.6 371.8 82.6z"/>
                     </svg>
                     <span>Поделиться</span>
                 </a>
@@ -56,11 +59,12 @@
                     Создать изображение с картой региона и прогрессом для соцсетей
                 </span>
             </div>
-        {% endif %}
 
-        {% if user.is_authenticated %}
+            <!-- ^^^ Поделиться -->
+
+            <!-- Фильтры и сортировка -->
             <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-                <button class="hs-tooltip-toggle relative inline-flex items-center gap-x-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition dark:focus:ring-offset-neutral-900 {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}border border-transparent bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400{% else %}border border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-500/10{% endif %}"
+                <button class="hs-tooltip-toggle relative btn btn-sm {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}btn-outline-red{% else %}btn-outline-muted{% endif %}"
                         type="button"
                         id="btnOpenFilterSortPanel">
                     <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
@@ -77,6 +81,7 @@
                     Открыть панель фильтрации и сортировки городов
                 </span>
             </div>
+            <!-- ^^^ Фильтры и сортировка -->
         {% endif %}
     </div>
 </div>

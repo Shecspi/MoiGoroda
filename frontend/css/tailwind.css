@@ -59,6 +59,58 @@
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    /* Стилизованный range slider (совпадает с Preline UI). Класс range-slider для input[type="range"]. */
+    .range-slider {
+        @apply w-full bg-transparent cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus:outline-none;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+    .range-slider::-webkit-slider-thumb {
+        width: 0.625rem;
+        height: 0.625rem;
+        margin-top: -0.125rem;
+        appearance: none;
+        -webkit-appearance: none;
+        background: var(--color-layer, #fff);
+        box-shadow: 0 0 0 4px var(--color-primary, #3b82f6);
+        border-radius: 9999px;
+        transition: all 0.15s ease-in-out;
+    }
+    .range-slider::-moz-range-thumb {
+        width: 0.625rem;
+        height: 0.625rem;
+        appearance: none;
+        background: var(--color-layer, #fff);
+        border: 4px solid var(--color-primary, #3b82f6);
+        border-radius: 9999px;
+        transition: all 0.15s ease-in-out;
+    }
+    .range-slider::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 0.5rem;
+        background: var(--color-surface, #e5e7eb);
+        border-radius: 9999px;
+    }
+    .range-slider::-moz-range-track {
+        width: 100%;
+        height: 0.5rem;
+        background: var(--color-surface, #e5e7eb);
+        border-radius: 9999px;
+    }
+    .dark .range-slider::-webkit-slider-thumb {
+        background: var(--color-layer, #404040);
+    }
+    .dark .range-slider::-moz-range-thumb {
+        background: var(--color-layer, #404040);
+    }
+    .dark .range-slider::-webkit-slider-runnable-track,
+    .dark .range-slider::-moz-range-track {
+        background: var(--color-surface, #525252);
+    }
+
+>>>>>>> 2bdc97c (Обновлена иконка кнопки Поделиться)
     /*
      * Button pack:
      * .btn + размер + вариант + опции
@@ -102,7 +154,7 @@
         @apply bg-gray-200 border-gray-200 text-gray-800 hover:bg-gray-300 focus:bg-gray-300 dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600 dark:focus:bg-neutral-600;
     }
     .btn-teal {
-        @apply bg-teal-500 border-teal-500 text-white hover:bg-teal-600 focus:bg-teal-600 dark:bg-teal-500 dark:border-teal-500 dark:hover:bg-teal-600 dark:focus:bg-teal-600;
+        @apply bg-teal-600 border-teal-600 text-white hover:bg-teal-700 focus:bg-teal-700 dark:bg-teal-500 dark:border-teal-500 dark:hover:bg-teal-600 dark:focus:bg-teal-600;
     }
     .btn-red {
         @apply bg-red-500 border-red-500 text-white hover:bg-red-600 focus:bg-red-600 dark:bg-red-500 dark:border-red-500 dark:hover:bg-red-600 dark:focus:bg-red-600;
@@ -122,7 +174,7 @@
         @apply border border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-900 focus:border-gray-400 focus:text-gray-900 dark:border-neutral-600 dark:text-neutral-200 dark:hover:border-neutral-500 dark:hover:text-white dark:focus:border-neutral-500 dark:focus:text-white;
     }
     .btn-outline-teal {
-        @apply border border-teal-500 text-teal-500 hover:border-teal-400 hover:text-teal-400 focus:border-teal-400 focus:text-teal-400 dark:border-teal-500 dark:text-teal-500 dark:hover:border-teal-400 dark:focus:border-teal-400;
+        @apply border border-teal-600 text-teal-600 hover:border-teal-700 hover:text-teal-700 focus:border-teal-700 focus:text-teal-700 dark:border-teal-500 dark:text-teal-500 dark:hover:border-teal-400 dark:focus:border-teal-400;
     }
     .btn-outline-red {
         @apply border border-red-500 text-red-500 hover:border-red-400 hover:text-red-400 focus:border-red-400 focus:text-red-400 dark:border-red-500 dark:text-red-500 dark:hover:border-red-400 dark:focus:border-red-400;
@@ -145,7 +197,7 @@
         @apply border-transparent text-blue-600 hover:bg-blue-100 focus:bg-blue-100 hover:text-blue-800 focus:text-blue-800 dark:text-blue-500 dark:hover:bg-blue-500/20 dark:hover:text-blue-400 dark:focus:bg-blue-500/20 dark:focus:text-blue-400;
     }
     .btn-ghost-teal {
-        @apply border-transparent text-teal-500 hover:bg-teal-100 focus:bg-teal-100 hover:text-teal-800 dark:hover:bg-teal-500/20 dark:hover:text-teal-400 dark:focus:bg-teal-500/20 dark:focus:text-teal-400;
+        @apply border-transparent text-teal-600 hover:bg-teal-100 focus:bg-teal-100 hover:text-teal-900 focus:text-teal-900 dark:text-teal-400 dark:hover:bg-teal-500/25 dark:hover:text-teal-300 dark:focus:bg-teal-500/25 dark:focus:text-teal-300;
     }
     .btn-ghost-red {
         @apply border-transparent text-red-500 hover:bg-red-100 focus:bg-red-100 hover:text-red-800 dark:hover:bg-red-500/20 dark:hover:text-red-400 dark:focus:bg-red-500/20 dark:focus:text-red-400;
@@ -162,7 +214,7 @@
         @apply border-transparent bg-blue-100 text-blue-800 hover:bg-blue-200 focus:bg-blue-200 dark:bg-blue-800/30 dark:text-blue-400 dark:hover:bg-blue-500/20 dark:focus:bg-blue-500/20;
     }
     .btn-soft-teal {
-        @apply border-transparent bg-teal-100 text-teal-800 hover:bg-teal-200 focus:bg-teal-200 dark:bg-teal-800/30 dark:text-teal-500 dark:hover:bg-teal-500/20 dark:focus:bg-teal-500/20;
+        @apply border-transparent bg-teal-100 text-teal-800 hover:bg-teal-200 focus:bg-teal-200 dark:bg-teal-800/40 dark:text-teal-400 dark:hover:bg-teal-500/25 dark:focus:bg-teal-500/25;
     }
     .btn-soft-red {
         @apply border-transparent bg-red-100 text-red-800 hover:bg-red-200 focus:bg-red-200 dark:bg-red-800/30 dark:text-red-500 dark:hover:bg-red-500/20 dark:focus:bg-red-500/20;

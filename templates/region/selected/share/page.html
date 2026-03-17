@@ -187,20 +187,25 @@
                         По правому краю
                     </label>
                 </fieldset>
-                <fieldset class="flex flex-wrap gap-2">
-                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Размер</legend>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-font-size" value="16" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Маленький
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-font-size" value="20" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                        Средний
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-font-size" value="24" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Большой
-                    </label>
+                <fieldset class="flex flex-wrap gap-3 items-end">
+                    <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Размер шрифта</legend>
+                    <div class="flex flex-col gap-1 min-w-[10rem] flex-1">
+                        <span class="text-xs text-gray-500 dark:text-neutral-400">
+                            Размер <span id="caption-font-size-value">20</span> px
+                        </span>
+                        <div class="w-full">
+                            <label for="caption-font-size" class="sr-only">Размер шрифта подписи</label>
+                            <input type="range"
+                                   id="caption-font-size"
+                                   name="caption-font-size"
+                                   min="14"
+                                   max="50"
+                                   step="1"
+                                   value="20"
+                                   aria-orientation="horizontal"
+                                   class="range-slider">
+                        </div>
+                    </div>
                 </fieldset>
                 <fieldset class="flex flex-wrap gap-2 items-end">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400 w-full">Шрифт</legend>

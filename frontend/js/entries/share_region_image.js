@@ -605,7 +605,7 @@ function getCaptionText() {
 function getCaptionOptions() {
     const positionEl = document.querySelector('input[name="caption-position"]:checked');
     const alignEl = document.querySelector('input[name="caption-align"]:checked');
-    const sizeEl = document.querySelector('input[name="caption-font-size"]:checked');
+    const sizeEl = document.getElementById('caption-font-size');
     const familyEl = document.getElementById('caption-font-family');
     const weightEl = document.querySelector('input[name="caption-font-weight"]:checked');
     const bgEl = document.querySelector('input[name="caption-background"]:checked');
@@ -1049,7 +1049,14 @@ const captionBgSizeValue = document.getElementById('caption-bg-size-value');
 if (captionBgSizeEl) {
     captionBgSizeEl.addEventListener('input', () => {
         if (captionBgSizeValue) captionBgSizeValue.textContent = (parseInt(captionBgSizeEl.value, 10) / 100).toString();
-        redrawOnCaptionOptionsChange();
+    });
+}
+
+const captionFontSizeEl = document.getElementById('caption-font-size');
+const captionFontSizeValue = document.getElementById('caption-font-size-value');
+if (captionFontSizeEl) {
+    captionFontSizeEl.addEventListener('input', () => {
+        if (captionFontSizeValue) captionFontSizeValue.textContent = captionFontSizeEl.value;
     });
 }
 

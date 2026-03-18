@@ -69,6 +69,8 @@
 
 - Кнопка вызова окна уведомлений на мобильных устройствах привязана к модальному окну ([91d7eae](https://github.com/Shecspi/MoiGoroda/commit/91d7eae608842a73809446268678d7effc7a303e))
 
+- *(city)* Исправлена svg иконка на карточке города ([403a3c9](https://github.com/Shecspi/MoiGoroda/commit/403a3c939e676f9903dca661b19bf92c198e8e64))
+
 
 #### Изменено
 

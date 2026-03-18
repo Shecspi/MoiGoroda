@@ -397,6 +397,13 @@ MARKDOWNIFY = {
     },
 }
 
+# Тайловые серверы (например OpenStreetMap) могут требовать Referer.
+# `same-origin` скрывает referer на cross-origin запросах и приводит к блокировке тайлов.
+SECURE_REFERRER_POLICY = os.getenv(
+    'SECURE_REFERRER_POLICY',
+    'strict-origin-when-cross-origin',
+)
+
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'unsafe-none'
 
 URL_GEO_POLYGONS = os.getenv('URL_GEO_POLYGONS')

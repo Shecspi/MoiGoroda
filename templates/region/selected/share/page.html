@@ -21,6 +21,22 @@
         </p>
     </header>
 
+    {% if not has_active_subscription %}
+        <div class="mx-3 mb-4 flex justify-center">
+            <div class="w-full max-w-2xl rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+                <p class="font-medium">
+                    Часть функций доступна только по премиум-подписке.
+                </p>
+                <p class="mt-1">
+                    Например, вы можете использовать свой текст подписи и другие расширенные настройки.
+                    <a href="{% url 'premium_promo' %}" class="font-semibold text-amber-900 underline decoration-amber-500/70 hover:text-amber-800 dark:text-amber-100 dark:hover:text-amber-50">
+                        Подробнее о подписке
+                    </a>
+                </p>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="mx-3 mb-6 flex flex-wrap items-center justify-center gap-3">
         <a href="{% url 'region-selected-list' pk=region_id %}" class="text-sm text-blue-600 hover:underline dark:text-blue-400">
             ← Вернуться к списку городов
@@ -50,10 +66,21 @@
                         <fieldset class="flex flex-wrap gap-2">
                             <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Соотношение сторон</legend>
                             <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
-                                <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                                    <input type="radio" name="share-aspect-ratio" value="16:9" class="sr-only">
-                                    16∶9
-                                </label>
+                                {% if has_active_subscription %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-aspect-ratio" value="16:9" class="sr-only">
+                                        16∶9
+                                    </label>
+                                {% else %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                           title="Формат 16∶9 доступен только в премиум-подписке">
+                                        <input type="radio" name="share-aspect-ratio" value="16:9" class="sr-only" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>16∶9</span>
+                                    </label>
+                                {% endif %}
                                 <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                     <input type="radio" name="share-aspect-ratio" value="4:3" class="sr-only" checked>
                                     4∶3
@@ -66,27 +93,57 @@
                                     <input type="radio" name="share-aspect-ratio" value="3:4" class="sr-only">
                                     3∶4
                                 </label>
-                                <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                                    <input type="radio" name="share-aspect-ratio" value="9:16" class="sr-only">
-                                    9∶16
-                                </label>
+                                {% if has_active_subscription %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-aspect-ratio" value="9:16" class="sr-only">
+                                        9∶16
+                                    </label>
+                                {% else %}
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                           title="Формат 9∶16 доступен только в премиум-подписке">
+                                        <input type="radio" name="share-aspect-ratio" value="9:16" class="sr-only" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>9∶16</span>
+                                    </label>
+                                {% endif %}
                             </div>
                         </fieldset>
                         <fieldset class="flex flex-wrap gap-2">
                             <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Разрешение</legend>
                             <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
-                                <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                                    <input type="radio" name="share-resolution" value="720" class="sr-only">
+                                <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                    <input type="radio" name="share-resolution" value="720" class="sr-only" checked>
                                     720p
                                 </label>
-                                <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                                    <input type="radio" name="share-resolution" value="1080" class="sr-only" checked>
-                                    1080p
-                                </label>
-                                <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                                    <input type="radio" name="share-resolution" value="1440" class="sr-only">
-                                    1440p
-                                </label>
+                                {% if has_active_subscription %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-resolution" value="1080" class="sr-only">
+                                        1080p
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-resolution" value="1440" class="sr-only">
+                                        1440p
+                                    </label>
+                                {% else %}
+                                    <label class="py-2 px-3 -ms-px inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                           title="Разрешение 1080p доступно только в премиум-подписке">
+                                        <input type="radio" name="share-resolution" value="1080" class="sr-only" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>1080p</span>
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                           title="Разрешение 1440p доступно только в премиум-подписке">
+                                        <input type="radio" name="share-resolution" value="1440" class="sr-only" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>1440p</span>
+                                    </label>
+                                {% endif %}
                             </div>
                         </fieldset>
                         <fieldset class="flex flex-wrap gap-3 items-end">
@@ -133,10 +190,21 @@
                                     <input type="radio" name="share-watermark" value="bottom-right" class="sr-only">
                                     Снизу справа
                                 </label>
-                                <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                                    <input type="radio" name="share-watermark" value="off" class="sr-only">
-                                    Выключен
-                                </label>
+                                {% if has_active_subscription %}
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-watermark" value="off" class="sr-only">
+                                        Выключен
+                                    </label>
+                                {% else %}
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                           title="Отключение копирайта доступно только в премиум-подписке">
+                                        <input type="radio" name="share-watermark" value="off" class="sr-only" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>Выключен</span>
+                                    </label>
+                                {% endif %}
                             </div>
                         </fieldset>
                     </div>
@@ -154,10 +222,21 @@
                                     <input type="radio" name="caption-text-mode" value="preset" class="sr-only" checked>
                                     Шаблон
                                 </label>
-                                <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                                    <input type="radio" name="caption-text-mode" value="custom" class="sr-only">
-                                    Свой текст
-                                </label>
+                                {% if has_active_subscription %}
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="caption-text-mode" value="custom" class="sr-only">
+                                        Свой текст
+                                    </label>
+                                {% else %}
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1.5 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                           title="Свой текст подписи доступен только в премиум-подписке">
+                                        <input type="radio" name="caption-text-mode" value="custom" class="sr-only" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>Свой текст</span>
+                                    </label>
+                                {% endif %}
                             </div>
                             <div class="flex-1 min-w-[8rem]">
                                 <div id="caption-text-preset-wrap">
@@ -357,7 +436,7 @@
                 Скачать изображение
             </button>
             <button type="button" id="btn-share-image" disabled
-                    class="btn btn-outline-muted btn-default disabled:opacity-50">
+                    class="btn btn-default btn-outline-layer btn-disabled">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
                 </svg>

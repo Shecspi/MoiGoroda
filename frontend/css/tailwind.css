@@ -58,9 +58,6 @@
         @apply font-semibold text-amber-700 dark:text-amber-200;
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
     /* Стилизованный range slider (совпадает с Preline UI). Класс range-slider для input[type="range"]. */
     .range-slider {
         @apply w-full bg-transparent cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus:outline-none;
@@ -110,7 +107,6 @@
         background: var(--color-surface, #525252);
     }
 
->>>>>>> 2bdc97c (Обновлена иконка кнопки Поделиться)
     /*
      * Button pack:
      * .btn + размер + вариант + опции
@@ -246,7 +242,7 @@
     }
     .btn-link-inverse {
         @apply border-transparent py-0 px-0 rounded-none font-semibold text-white hover:text-white/80 focus:text-white/80 dark:text-white dark:hover:text-white/80 dark:focus:text-white/80;
-=======
+
     /* Стилизованный range slider (совпадает с Preline UI). Класс range-slider для input[type="range"]. */
     .range-slider {
         @apply w-full bg-transparent cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus:outline-none;
@@ -294,7 +290,6 @@
     .dark .range-slider::-webkit-slider-runnable-track,
     .dark .range-slider::-moz-range-track {
         background: var(--color-surface, #525252);
->>>>>>> f051caa (Стили слайдеров вынесены в компонент range-slider (Preline UI), fallback-цвета для видимости)
     }
 
     /* Унифицированный стиль select в духе Preline */

@@ -242,6 +242,7 @@
     }
     .btn-link-inverse {
         @apply border-transparent py-0 px-0 rounded-none font-semibold text-white hover:text-white/80 focus:text-white/80 dark:text-white dark:hover:text-white/80 dark:focus:text-white/80;
+    }
 
     /* Стилизованный range slider (совпадает с Preline UI). Класс range-slider для input[type="range"]. */
     .range-slider {
@@ -306,19 +307,44 @@
 
     /* Отрисовываем каждый вариант списка его реальным шрифтом */
     #caption-font-family option[data-font="roboto"] {
-        font-family: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "Roboto",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
     #caption-font-family option[data-font="montserrat"] {
-        font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "Montserrat",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
     #caption-font-family option[data-font="open_sans"] {
-        font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "Open Sans",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
     #caption-font-family option[data-font="rubik"] {
-        font-family: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "Rubik",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
     #caption-font-family option[data-font="sofia_sans"] {
-        font-family: "Sofia Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "Sofia Sans",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
     #caption-font-family option[data-font="eb_garamond"] {
         font-family: "EB Garamond", "Georgia", "Times New Roman", serif;
@@ -327,10 +353,20 @@
         font-family: "Playfair Display", "Georgia", "Times New Roman", serif;
     }
     #caption-font-family option[data-font="oswald"] {
-        font-family: "Oswald", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "Oswald",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
     #caption-font-family option[data-font="comfortaa"] {
-        font-family: "Comfortaa", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "Comfortaa",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
     #caption-font-family option[data-font="bad_script"] {
         font-family: "Bad Script", "Comic Sans MS", system-ui, cursive;
@@ -351,13 +387,28 @@
         font-family: "Press Start 2P", "Courier New", ui-monospace, monospace;
     }
     #caption-font-family option[data-font="rubik_marker_hatch"] {
-        font-family: "Rubik Marker Hatch", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "Rubik Marker Hatch",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
     #caption-font-family option[data-font="rubik_wet_paint"] {
-        font-family: "Rubik Wet Paint", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "Rubik Wet Paint",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
     #caption-font-family option[data-font="line_seed_jp"] {
-        font-family: "LINE Seed JP", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            "LINE Seed JP",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
     }
 
     /* Унифицированный стиль color picker'ов */

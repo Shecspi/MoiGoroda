@@ -820,27 +820,27 @@ function drawCaption(ctx, caption, options, canvasWidth, canvasHeight, scale) {
         if (w > actualMaxLineWidth) actualMaxLineWidth = w;
     }
 
-    // Базовый бокс: либо якорный (для old full box), либо «по тексту»
+    // Базовый бокс: прямоугольник, в который должен поместиться весь текст
     let boxX = anchorBox.x;
     let boxY = anchorBox.y;
     let boxW = anchorBox.w;
     let boxH = anchorBox.h;
 
     const boxBg = background || 'box';
-    if (boxBg === 'box') {
-        const desiredW = Math.min(anchorBox.w, actualMaxLineWidth + 2 * padBox);
-        const desiredH = textBlockHeight + 2 * padBox;
-        boxW = desiredW;
-        boxH = desiredH;
-        if (alignment === 'center') {
-            boxX = canvasWidth / 2 - boxW / 2;
-        } else if (alignment === 'right') {
-            boxX = anchorBox.x + anchorBox.w - boxW;
-        } else {
-            boxX = anchorBox.x;
-        }
-        boxY = anchorBox.y + (anchorBox.h - boxH) / 2;
+    // Всегда рассчитываем размеры бокса по фактическому тексту, чтобы текст не выходил за экран
+    const padForBox = boxBg === 'box' ? padBox : padWrap;
+    const desiredW = Math.min(anchorBox.w, actualMaxLineWidth + 2 * padForBox);
+    const desiredH = textBlockHeight + 2 * padForBox;
+    boxW = desiredW;
+    boxH = desiredH;
+    if (alignment === 'center') {
+        boxX = canvasWidth / 2 - boxW / 2;
+    } else if (alignment === 'right') {
+        boxX = anchorBox.x + anchorBox.w - boxW;
+    } else {
+        boxX = anchorBox.x;
     }
+    boxY = anchorBox.y + (anchorBox.h - boxH) / 2;
 
     // Гарантируем, что подпись и её фон не выходят за пределы изображения
     const outerPad = CAPTION_PADDING * s;

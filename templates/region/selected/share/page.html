@@ -48,53 +48,59 @@
             <div class="flex flex-wrap gap-6">
                 <fieldset class="flex flex-wrap gap-2">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Соотношение сторон</legend>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-aspect-ratio" value="16:9" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        16∶9
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-aspect-ratio" value="4:3" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                        4∶3
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-aspect-ratio" value="1:1" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        1∶1
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-aspect-ratio" value="3:4" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        3∶4
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-aspect-ratio" value="9:16" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        9∶16
-                    </label>
+                    <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                        <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-aspect-ratio" value="16:9" class="sr-only">
+                            16∶9
+                        </label>
+                        <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-aspect-ratio" value="4:3" class="sr-only" checked>
+                            4∶3
+                        </label>
+                        <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-aspect-ratio" value="1:1" class="sr-only">
+                            1∶1
+                        </label>
+                        <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-aspect-ratio" value="3:4" class="sr-only">
+                            3∶4
+                        </label>
+                        <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-aspect-ratio" value="9:16" class="sr-only">
+                            9∶16
+                        </label>
+                    </div>
                 </fieldset>
                 <fieldset class="flex flex-wrap gap-2">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Разрешение</legend>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-resolution" value="720" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        720p
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-resolution" value="1080" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                        1080p
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-resolution" value="1440" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        2K
-                    </label>
+                    <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                        <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-resolution" value="720" class="sr-only">
+                            720p
+                        </label>
+                        <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-resolution" value="1080" class="sr-only" checked>
+                            1080p
+                        </label>
+                        <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-resolution" value="1440" class="sr-only">
+                            1440p
+                        </label>
+                    </div>
                 </fieldset>
                 <fieldset class="flex flex-wrap gap-3 items-end">
                     <div class="flex flex-wrap gap-2">
                         <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Подложка</legend>
-                        <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                            <input type="radio" name="share-background" value="none" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                            Без подложки
-                        </label>
-                        <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                            <input type="radio" name="share-background" value="osm" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                            Карта OpenStreetMap
-                        </label>
+                        <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                            <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                <input type="radio" name="share-background" value="none" class="sr-only">
+                                Без подложки
+                            </label>
+                            <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                <input type="radio" name="share-background" value="osm" class="sr-only" checked>
+                                Карта OpenStreetMap
+                            </label>
+                        </div>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label for="share-background-color" class="block text-xs font-medium text-gray-500 dark:text-neutral-400">Цвет подложки</label>
@@ -109,52 +115,67 @@
                 </fieldset>
                 <fieldset class="flex flex-wrap gap-2">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Копирайт</legend>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-watermark" value="top-right" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                        Сверху справа
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-watermark" value="top-left" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Сверху слева
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-watermark" value="bottom-right" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Снизу справа
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-watermark" value="bottom-left" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Снизу слева
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="share-watermark" value="off" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Выключен
-                    </label>
+                    <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                        <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-watermark" value="top-left" class="sr-only">
+                            Сверху слева
+                        </label>
+                        <label class="py-2 px-3 -ms-px inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-watermark" value="top-right" class="sr-only" checked>
+                            Сверху справа
+                        </label>
+                        <label class="py-2 px-3 -ms-px inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-watermark" value="bottom-left" class="sr-only">
+                            Снизу слева
+                        </label>
+                        <label class="py-2 px-3 -ms-px inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-watermark" value="bottom-right" class="sr-only">
+                            Снизу справа
+                        </label>
+                        <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                            <input type="radio" name="share-watermark" value="off" class="sr-only">
+                            Выключен
+                        </label>
+                    </div>
                 </fieldset>
             </div>
             <h3 class="mb-3 mt-4 text-sm font-semibold text-gray-700 dark:text-neutral-300">Текст на изображении</h3>
             <div class="flex flex-wrap gap-6">
                 <fieldset class="flex flex-wrap gap-2 w-full" id="caption-text-fieldset">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Вариант подписи</legend>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-text-preset" value="0" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                        Я посетил N из M городов региона
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-text-preset" value="1" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Цель достигнута: N из M городов региона
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-text-preset" value="2" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Регион (N из M)
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-text-preset" value="custom" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Свой текст
-                    </label>
-                    <div class="w-full mt-2" id="caption-text-custom-wrap" style="display: none;">
-                        <label for="caption-text-custom" class="sr-only">Свой текст подписи</label>
-                        <input type="text" id="caption-text-custom" name="caption-text-custom" placeholder="Введите свой текст подписи"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-800 dark:text-white">
+                    <div class="w-full flex flex-col gap-2">
+                        <div class="inline-flex items-center gap-2 w-full">
+                            <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                                <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                    <input type="radio" name="caption-text-mode" value="preset" class="sr-only" checked>
+                                    Шаблон
+                                </label>
+                                <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                    <input type="radio" name="caption-text-mode" value="custom" class="sr-only">
+                                    Свой текст
+                                </label>
+                            </div>
+                            <div class="flex-1 min-w-[8rem]">
+                                <div id="caption-text-preset-wrap">
+                                    <label for="caption-text-preset" class="sr-only">Шаблон подписи</label>
+                                    <select id="caption-text-preset"
+                                            name="caption-text-preset"
+                                            class="form-select w-full">
+                                        <option value="0">Я посетил N из M городов региона</option>
+                                        <option value="1">Цель достигнута: N из M городов региона</option>
+                                        <option value="2">Регион (N из M)</option>
+                                    </select>
+                                </div>
+                                <div id="caption-text-custom-wrap" style="display: none;">
+                                    <label for="caption-text-custom" class="sr-only">Свой текст подписи</label>
+                                    <input type="text"
+                                           id="caption-text-custom"
+                                           name="caption-text-custom"
+                                           placeholder="Введите свой текст подписи"
+                                           class="form-input">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </fieldset>
                 <fieldset class="flex flex-wrap gap-2">

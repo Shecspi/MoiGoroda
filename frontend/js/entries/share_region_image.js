@@ -451,44 +451,75 @@ async function renderToCanvas(geoJson, exportDimensions) {
     const bbox = computeBbox(polygonCoords, all_cities);
     const background = getBackgroundOption();
     const bgColorInput = document.getElementById('share-background-color');
+    const bgColor = bgColorInput && bgColorInput.value ? bgColorInput.value : '';
     const mercatorState = computeMercatorView(bbox, mapWidth, mapHeight, pad);
 
-    let baseBgColor = '#f8fafc';
-    if (background === 'none' && bgColorInput && bgColorInput.value) {
-        baseBgColor = bgColorInput.value;
-    }
-    ctx.fillStyle = baseBgColor;
-    ctx.fillRect(0, 0, w, h);
+    const baseKey = forExport ? null : JSON.stringify({
+        w,
+        h,
+        background,
+        bgColor: background === 'none' ? bgColor : '',
+    });
 
-    if (background === 'osm') {
-        try {
-            await drawOsmTiles(ctx, bbox, mercatorState);
-        } catch (e) {
-            console.warn('Не удалось загрузить тайлы карты:', e);
+    // Для превью кешируем базовый слой (фон/карта/полигоны/пины),
+    // чтобы изменения подписи и водяного знака перерисовывались мгновенно.
+    let usedBaseCache = false;
+    if (!forExport && baseKey && baseLayerCache && baseLayerCache.key === baseKey && baseLayerCache.canvas) {
+        ctx.drawImage(baseLayerCache.canvas, 0, 0, w, h);
+        usedBaseCache = true;
+    } else {
+        let baseBgColor = '#f8fafc';
+        if (background === 'none' && bgColor) {
+            baseBgColor = bgColor;
+        }
+        ctx.fillStyle = baseBgColor;
+        ctx.fillRect(0, 0, w, h);
+
+        if (background === 'osm') {
+            try {
+                await drawOsmTiles(ctx, bbox, mercatorState);
+            } catch (e) {
+                console.warn('Не удалось загрузить тайлы карты:', e);
+            }
+        }
+        if (!forExport && previewRenderSeq !== renderSeq) return null;
+
+        const markerScale = Math.max(w, h) / BASE_LONG_SIDE;
+        const pinW = PIN_WIDTH * markerScale;
+        const pinH = PIN_HEIGHT * markerScale;
+        const pinAnchorX = PIN_ANCHOR_X * markerScale;
+        const pinAnchorY = PIN_ANCHOR_Y * markerScale;
+        drawGeoJSONMercator(ctx, geoJson, mercatorState, markerScale);
+        await ensurePinImages();
+        if (!forExport && previewRenderSeq !== renderSeq) return null;
+        for (let i = 0; i < all_cities.length; i++) {
+            const c = all_cities[i];
+            const p = mercatorToCanvas(c.lon, c.lat, mercatorState.zoom, mercatorState.scaleX, mercatorState.scaleY, mercatorState.offsetX, mercatorState.offsetY);
+            const pinImg = c.isVisited ? pinVisitedImg : pinNotVisitedImg;
+            if (pinImg && pinImg.complete && pinImg.naturalWidth) {
+                ctx.drawImage(pinImg, p.x - pinAnchorX, p.y - pinAnchorY, pinW, pinH);
+            }
+        }
+
+        if (!forExport && baseKey) {
+            const baseCanvas = document.createElement('canvas');
+            baseCanvas.width = w;
+            baseCanvas.height = h;
+            const baseCtx = baseCanvas.getContext('2d');
+            if (baseCtx) {
+                baseCtx.drawImage(canvas, 0, 0, w, h);
+                baseLayerCache = { key: baseKey, canvas: baseCanvas };
+            }
         }
     }
-    if (!forExport && previewRenderSeq !== renderSeq) return null;
 
     const markerScale = Math.max(w, h) / BASE_LONG_SIDE;
-    const pinW = PIN_WIDTH * markerScale;
-    const pinH = PIN_HEIGHT * markerScale;
-    const pinAnchorX = PIN_ANCHOR_X * markerScale;
-    const pinAnchorY = PIN_ANCHOR_Y * markerScale;
-    drawGeoJSONMercator(ctx, geoJson, mercatorState, markerScale);
-    await ensurePinImages();
-    if (!forExport && previewRenderSeq !== renderSeq) return null;
-    for (let i = 0; i < all_cities.length; i++) {
-        const c = all_cities[i];
-        const p = mercatorToCanvas(c.lon, c.lat, mercatorState.zoom, mercatorState.scaleX, mercatorState.scaleY, mercatorState.offsetX, mercatorState.offsetY);
-        const pinImg = c.isVisited ? pinVisitedImg : pinNotVisitedImg;
-        if (pinImg && pinImg.complete && pinImg.naturalWidth) {
-            ctx.drawImage(pinImg, p.x - pinAnchorX, p.y - pinAnchorY, pinW, pinH);
-        }
-    }
 
     const caption = getCaptionText();
     const captionOptions = getCaptionOptions();
-    await ensureCaptionFontLoaded(captionOptions);
+    // Для превью не ждём загрузку шрифта, чтобы убрать визуальную задержку.
+    // Шрифт загружается асинхронно и кешируется, а при следующем рендере уже применяется.
+    ensureCaptionFontLoaded(captionOptions);
     if (!forExport && previewRenderSeq !== renderSeq) return null;
     drawCaption(ctx, caption, captionOptions, w, h, markerScale);
 
@@ -514,6 +545,24 @@ async function renderToCanvas(geoJson, exportDimensions) {
 }
 
 let renderSeq = 0;
+let baseLayerCache = null;
+
+let rafPreviewScheduled = false;
+let rafPreviewPending = false;
+
+function schedulePreviewRender() {
+    // Схлопываем серию input-событий в один рендер на кадр.
+    rafPreviewPending = true;
+    if (rafPreviewScheduled) return;
+    rafPreviewScheduled = true;
+    requestAnimationFrame(() => {
+        rafPreviewScheduled = false;
+        if (!rafPreviewPending) return;
+        rafPreviewPending = false;
+        if (!geoJsonData) return;
+        renderToCanvas(geoJsonData).catch((e) => console.warn(e));
+    });
+}
 
 function getPrimaryFontName(fontStack) {
     if (!fontStack || typeof fontStack !== 'string') return null;
@@ -521,7 +570,18 @@ function getPrimaryFontName(fontStack) {
     return m ? m[1] : null;
 }
 
-async function ensureCaptionFontLoaded(options) {
+const captionFontLoadCache = new Map();
+
+function getCaptionFontCacheKey(options) {
+    const familyStack = FONT_FAMILIES[options.fontFamily] || FONT_FAMILIES.roboto;
+    const primary = getPrimaryFontName(familyStack);
+    if (!primary) return null;
+    const weight = options.fontWeight || 'normal';
+    const size = Number(options.fontSize) || 20;
+    return `${primary}::${weight}::${size}`;
+}
+
+function ensureCaptionFontLoaded(options) {
     try {
         if (!document.fonts || !document.fonts.load) return;
         const familyStack = FONT_FAMILIES[options.fontFamily] || FONT_FAMILIES.roboto;
@@ -530,10 +590,15 @@ async function ensureCaptionFontLoaded(options) {
         const weight = options.fontWeight || 'normal';
         // На всякий случай грузим и размер по умолчанию, и текущий
         const size = Number(options.fontSize) || 20;
-        await document.fonts.load(`${weight} ${size}px "${primary}"`);
+        const key = `${primary}::${weight}::${size}`;
+        if (captionFontLoadCache.has(key)) return captionFontLoadCache.get(key);
+        const p = document.fonts.load(`${weight} ${size}px "${primary}"`);
+        captionFontLoadCache.set(key, p);
+        return p;
     } catch (e) {
         // Не блокируем рендер, если Fonts API недоступен/ошибка
         console.warn('Не удалось дождаться загрузки шрифта:', e);
+        return;
     }
 }
 
@@ -1045,8 +1110,7 @@ if (btnShare) {
 }
 
 function redrawOnCaptionOptionsChange() {
-    if (!geoJsonData) return;
-    renderToCanvas(geoJsonData).catch((e) => console.warn(e));
+    schedulePreviewRender();
 }
 
 ['share-aspect-ratio', 'share-resolution', 'share-background', 'share-watermark', 'caption-text-preset', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight', 'caption-background'].forEach((name) => {

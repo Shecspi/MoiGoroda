@@ -273,31 +273,39 @@
                         </select>
                     </div>
                 </fieldset>
-                <fieldset class="flex flex-wrap gap-2">
-                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Начертание</legend>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-font-weight" value="normal" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Обычный
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-font-weight" value="bold" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                        Жирный
-                    </label>
+                <fieldset class="flex flex-wrap gap-3 items-end">
+                    <div class="flex flex-wrap gap-2">
+                        <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Начертание</legend>
+                        <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                            <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                <input type="radio" name="caption-font-weight" value="normal" class="sr-only">
+                                Обычный
+                            </label>
+                            <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                <input type="radio" name="caption-font-weight" value="bold" class="sr-only" checked>
+                                Жирный
+                            </label>
+                        </div>
+                    </div>
                 </fieldset>
-                <fieldset class="flex flex-wrap gap-2">
-                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Фон подписи</legend>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-background" value="none" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Без фона
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-background" value="outline" class="border-gray-300 text-blue-600 focus:ring-blue-500">
-                        Обводка букв
-                    </label>
-                    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:border-blue-400 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
-                        <input type="radio" name="caption-background" value="box" class="border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                        Бокс за текстом
-                    </label>
+                <fieldset class="flex flex-wrap gap-3 items-end">
+                    <div class="flex flex-wrap gap-2">
+                        <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Фон подписи</legend>
+                        <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                            <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                <input type="radio" name="caption-background" value="none" class="sr-only">
+                                Без фона
+                            </label>
+                            <label class="py-2 px-3 -ms-px inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                <input type="radio" name="caption-background" value="outline" class="sr-only">
+                                Обводка букв
+                            </label>
+                            <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                <input type="radio" name="caption-background" value="box" class="sr-only" checked>
+                                Бокс за текстом
+                            </label>
+                        </div>
+                    </div>
                 </fieldset>
                 <div class="flex flex-wrap items-end gap-4">
                     <div>

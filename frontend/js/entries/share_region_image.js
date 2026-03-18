@@ -589,14 +589,16 @@ function applyCaptionPlaceholders(text) {
 }
 
 function getCaptionText() {
-    const presetEl = document.querySelector('input[name="caption-text-preset"]:checked');
-    const value = presetEl ? presetEl.value : '0';
-    if (value === 'custom') {
+    const modeEl = document.querySelector('input[name="caption-text-mode"]:checked');
+    const mode = modeEl ? modeEl.value : 'preset';
+    if (mode === 'custom') {
         const customEl = document.getElementById('caption-text-custom');
         const raw = customEl && customEl.value ? customEl.value.trim() : '';
         if (raw) return raw;
         return applyCaptionPlaceholders(CAPTION_PRESETS[0]);
     }
+    const selectEl = document.getElementById('caption-text-preset');
+    const value = selectEl ? selectEl.value : '0';
     const index = parseInt(value, 10);
     const template = (index >= 0 && index < CAPTION_PRESETS.length) ? CAPTION_PRESETS[index] : CAPTION_PRESETS[0];
     return applyCaptionPlaceholders(template);
@@ -1023,17 +1025,29 @@ function redrawOnCaptionOptionsChange() {
         el.addEventListener('change', redrawOnCaptionOptionsChange);
     });
 });
+const captionTextPresetWrap = document.getElementById('caption-text-preset-wrap');
 const captionTextCustomWrap = document.getElementById('caption-text-custom-wrap');
+const captionTextPresetSelect = document.getElementById('caption-text-preset');
 const captionTextCustomEl = document.getElementById('caption-text-custom');
-function updateCaptionTextCustomVisibility() {
-    const presetEl = document.querySelector('input[name="caption-text-preset"]:checked');
-    if (captionTextCustomWrap) captionTextCustomWrap.style.display = (presetEl && presetEl.value === 'custom') ? 'block' : 'none';
+function updateCaptionTextControlsVisibility() {
+    const modeEl = document.querySelector('input[name="caption-text-mode"]:checked');
+    const mode = modeEl ? modeEl.value : 'preset';
+    if (captionTextPresetWrap) captionTextPresetWrap.style.display = mode === 'preset' ? 'block' : 'none';
+    if (captionTextCustomWrap) captionTextCustomWrap.style.display = mode === 'custom' ? 'block' : 'none';
 }
-document.querySelectorAll('input[name="caption-text-preset"]').forEach((el) => {
-    el.addEventListener('change', updateCaptionTextCustomVisibility);
+document.querySelectorAll('input[name="caption-text-mode"]').forEach((el) => {
+    el.addEventListener('change', () => {
+        updateCaptionTextControlsVisibility();
+        redrawOnCaptionOptionsChange();
+    });
 });
-if (captionTextCustomEl) captionTextCustomEl.addEventListener('input', redrawOnCaptionOptionsChange);
-updateCaptionTextCustomVisibility();
+if (captionTextPresetSelect) {
+    captionTextPresetSelect.addEventListener('change', redrawOnCaptionOptionsChange);
+}
+if (captionTextCustomEl) {
+    captionTextCustomEl.addEventListener('input', redrawOnCaptionOptionsChange);
+}
+updateCaptionTextControlsVisibility();
 const captionBgOpacityEl = document.getElementById('caption-bg-opacity');
 const captionBgOpacityValue = document.getElementById('caption-bg-opacity-value');
 const captionBgBlurEl = document.getElementById('caption-bg-blur');

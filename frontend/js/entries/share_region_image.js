@@ -517,9 +517,14 @@ async function renderToCanvas(geoJson, exportDimensions) {
 
     const caption = getCaptionText();
     const captionOptions = getCaptionOptions();
-    // Для превью не ждём загрузку шрифта, чтобы убрать визуальную задержку.
-    // Шрифт загружается асинхронно и кешируется, а при следующем рендере уже применяется.
-    ensureCaptionFontLoaded(captionOptions);
+    if (forExport) {
+        // Для экспорта дожидаемся загрузки шрифта, чтобы получить корректный результат.
+        await ensureCaptionFontLoaded(captionOptions);
+    } else {
+        // Для превью не ждём загрузку шрифта, чтобы убрать визуальную задержку.
+        // Шрифт загружается асинхронно, и после загрузки мы триггерим дополнительный рендер.
+        ensureCaptionFontLoaded(captionOptions);
+    }
     if (!forExport && previewRenderSeq !== renderSeq) return null;
     drawCaption(ctx, caption, captionOptions, w, h, markerScale);
 
@@ -591,9 +596,20 @@ function ensureCaptionFontLoaded(options) {
         // На всякий случай грузим и размер по умолчанию, и текущий
         const size = Number(options.fontSize) || 20;
         const key = `${primary}::${weight}::${size}`;
-        if (captionFontLoadCache.has(key)) return captionFontLoadCache.get(key);
-        const p = document.fonts.load(`${weight} ${size}px "${primary}"`);
-        captionFontLoadCache.set(key, p);
+        let p = captionFontLoadCache.get(key);
+        if (!p) {
+            p = document.fonts
+                .load(`${weight} ${size}px "${primary}"`)
+                .then(() => {
+                    // После загрузки шрифта принудительно перерисовываем превью,
+                    // чтобы весь текст отрисовался уже новым шрифтом.
+                    if (geoJsonData) schedulePreviewRender();
+                })
+                .catch((e) => {
+                    console.warn('Не удалось загрузить шрифт подписи:', e);
+                });
+            captionFontLoadCache.set(key, p);
+        }
         return p;
     } catch (e) {
         // Не блокируем рендер, если Fonts API недоступен/ошибка

@@ -429,6 +429,7 @@ function drawGeoJSONMercator(ctx, geoJson, mercatorState, scale) {
  */
 async function renderToCanvas(geoJson, exportDimensions) {
     const forExport = exportDimensions && exportDimensions.width > 0 && exportDimensions.height > 0;
+    const previewRenderSeq = forExport ? null : ++renderSeq;
     const visibleCanvas = document.getElementById('share-image-canvas');
     if (!visibleCanvas) return null;
 
@@ -466,6 +467,7 @@ async function renderToCanvas(geoJson, exportDimensions) {
             console.warn('Не удалось загрузить тайлы карты:', e);
         }
     }
+    if (!forExport && previewRenderSeq !== renderSeq) return null;
 
     const markerScale = Math.max(w, h) / BASE_LONG_SIDE;
     const pinW = PIN_WIDTH * markerScale;
@@ -474,6 +476,7 @@ async function renderToCanvas(geoJson, exportDimensions) {
     const pinAnchorY = PIN_ANCHOR_Y * markerScale;
     drawGeoJSONMercator(ctx, geoJson, mercatorState, markerScale);
     await ensurePinImages();
+    if (!forExport && previewRenderSeq !== renderSeq) return null;
     for (let i = 0; i < all_cities.length; i++) {
         const c = all_cities[i];
         const p = mercatorToCanvas(c.lon, c.lat, mercatorState.zoom, mercatorState.scaleX, mercatorState.scaleY, mercatorState.offsetX, mercatorState.offsetY);
@@ -485,6 +488,8 @@ async function renderToCanvas(geoJson, exportDimensions) {
 
     const caption = getCaptionText();
     const captionOptions = getCaptionOptions();
+    await ensureCaptionFontLoaded(captionOptions);
+    if (!forExport && previewRenderSeq !== renderSeq) return null;
     drawCaption(ctx, caption, captionOptions, w, h, markerScale);
 
     drawWatermark(ctx, w, h, markerScale);
@@ -506,6 +511,30 @@ async function renderToCanvas(geoJson, exportDimensions) {
     visibleCtx.drawImage(canvas, 0, 0, w, h);
 
     return visibleCanvas;
+}
+
+let renderSeq = 0;
+
+function getPrimaryFontName(fontStack) {
+    if (!fontStack || typeof fontStack !== 'string') return null;
+    const m = fontStack.match(/"([^"]+)"/);
+    return m ? m[1] : null;
+}
+
+async function ensureCaptionFontLoaded(options) {
+    try {
+        if (!document.fonts || !document.fonts.load) return;
+        const familyStack = FONT_FAMILIES[options.fontFamily] || FONT_FAMILIES.roboto;
+        const primary = getPrimaryFontName(familyStack);
+        if (!primary) return;
+        const weight = options.fontWeight || 'normal';
+        // На всякий случай грузим и размер по умолчанию, и текущий
+        const size = Number(options.fontSize) || 20;
+        await document.fonts.load(`${weight} ${size}px "${primary}"`);
+    } catch (e) {
+        // Не блокируем рендер, если Fonts API недоступен/ошибка
+        console.warn('Не удалось дождаться загрузки шрифта:', e);
+    }
 }
 
 function hexToRgb(hex) {
@@ -1073,6 +1102,7 @@ const captionBgSizeValue = document.getElementById('caption-bg-size-value');
 if (captionBgSizeEl) {
     captionBgSizeEl.addEventListener('input', () => {
         if (captionBgSizeValue) captionBgSizeValue.textContent = (parseInt(captionBgSizeEl.value, 10) / 100).toString();
+        redrawOnCaptionOptionsChange();
     });
 }
 
@@ -1081,6 +1111,7 @@ const captionFontSizeValue = document.getElementById('caption-font-size-value');
 if (captionFontSizeEl) {
     captionFontSizeEl.addEventListener('input', () => {
         if (captionFontSizeValue) captionFontSizeValue.textContent = captionFontSizeEl.value;
+        redrawOnCaptionOptionsChange();
     });
 }
 

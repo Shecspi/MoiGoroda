@@ -437,6 +437,8 @@ class RegionShareView(LoginRequiredMixin, View):
             'all_cities': all_cities,
             'number_of_cities': number_of_cities,
             'number_of_visited_cities': number_of_visited_cities,
+            'page_title': f'Создание изображения региона {region}',
+            'page_description': f'Создайте изображение с прогрессом посещённых городов региона {region}: настройте формат, стиль и поделитесь результатом.',
         }
         return render(request, 'region/selected/share/page.html', context)
 

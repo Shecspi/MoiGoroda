@@ -1800,3 +1800,73 @@ updateShareBackgroundColorState();
     });
     ro.observe(container);
 })();
+
+(function setupMobileStickyPreviewScale() {
+    const stickyWrap = document.getElementById('share-image-sticky');
+    const imageWrap = document.getElementById('share-image-wrapper');
+    if (!stickyWrap || !imageWrap || typeof window === 'undefined') return;
+
+    const mobileMedia = window.matchMedia('(max-width: 1023px)');
+    const MIN_SCALE = 0.5;
+    const SHRINK_SCROLL_RANGE = 280;
+
+    let ticking = false;
+
+    function resetDesktopState() {
+        stickyWrap.style.height = '';
+        stickyWrap.style.overflow = '';
+        stickyWrap.classList.remove('mobile-sticky-underlap-active');
+        imageWrap.style.transform = '';
+        imageWrap.style.transformOrigin = '';
+        imageWrap.style.willChange = '';
+    }
+
+    function applyScale() {
+        ticking = false;
+        if (!mobileMedia.matches) {
+            resetDesktopState();
+            return;
+        }
+
+        const scrollDelta = Math.max(0, window.scrollY);
+        const progress = Math.min(1, scrollDelta / SHRINK_SCROLL_RANGE);
+        const scale = 1 - (1 - MIN_SCALE) * progress;
+        const baseHeight = imageWrap.offsetHeight || imageWrap.getBoundingClientRect().height;
+        const wrapStyles = window.getComputedStyle(stickyWrap);
+        const paddingTop = parseFloat(wrapStyles.paddingTop) || 0;
+        const paddingBottom = parseFloat(wrapStyles.paddingBottom) || 0;
+        const borderTop = parseFloat(wrapStyles.borderTopWidth) || 0;
+        const borderBottom = parseFloat(wrapStyles.borderBottomWidth) || 0;
+        const scaledHeight = Math.max(1, Math.round(baseHeight * scale));
+        stickyWrap.style.height = `${Math.round(scaledHeight + paddingTop + paddingBottom + borderTop + borderBottom)}px`;
+        stickyWrap.style.overflow = 'hidden';
+        stickyWrap.classList.toggle('mobile-sticky-underlap-active', scrollDelta > 0);
+        imageWrap.style.transformOrigin = 'top center';
+        imageWrap.style.transform = `scale(${scale})`;
+        imageWrap.style.willChange = 'transform';
+    }
+
+    function requestApplyScale() {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(applyScale);
+    }
+
+    window.addEventListener('scroll', requestApplyScale, { passive: true });
+    window.addEventListener('resize', requestApplyScale);
+
+    if (typeof mobileMedia.addEventListener === 'function') {
+        mobileMedia.addEventListener('change', requestApplyScale);
+    } else if (typeof mobileMedia.addListener === 'function') {
+        mobileMedia.addListener(requestApplyScale);
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+        const sizeObserver = new ResizeObserver(() => {
+            requestApplyScale();
+        });
+        sizeObserver.observe(imageWrap);
+    }
+
+    requestApplyScale();
+})();

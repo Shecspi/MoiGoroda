@@ -20,6 +20,16 @@
                 border-radius: 0.5rem !important;
             }
         }
+
+        .mobile-sticky-underlap-active {
+            border-bottom-color: rgb(229 231 235);
+            box-shadow: 0 10px 14px -12px rgba(15, 23, 42, 0.35);
+        }
+
+        .dark .mobile-sticky-underlap-active {
+            border-bottom-color: rgb(64 64 64);
+            box-shadow: 0 10px 14px -12px rgba(0, 0, 0, 0.55);
+        }
     </style>
 {% endblock %}
 
@@ -67,7 +77,7 @@
     <!-- Изображение и настройки: на больших экранах в один ряд (настройки справа) -->
     <div class="mb-6 w-full px-4 sm:px-6">
         <div class="flex flex-col lg:flex-row lg:items-start lg:gap-6">
-            <div class="min-w-0 lg:flex-1">
+            <div id="share-image-sticky" class="min-w-0 sticky top-16 z-20 border-b border-transparent bg-white pt-2 pb-2 dark:border-transparent dark:bg-neutral-900 lg:static lg:flex-1 lg:border-b-0 lg:pt-0 lg:pb-0 lg:shadow-none">
                 <div id="share-image-wrapper" class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                     <div id="iso3166_code" data-iso3166_code="{{ iso3166_code }}" hidden></div>
                     <div id="share-image-container" class="relative flex items-center justify-center bg-gray-100 dark:bg-neutral-800">

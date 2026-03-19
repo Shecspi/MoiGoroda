@@ -22,7 +22,7 @@ from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import ListView, View
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet, Subquery, IntegerField, OuterRef, Count
+from django.db.models import QuerySet, Subquery, IntegerField, OuterRef, Count, Exists
 
 from MoiGoroda import settings
 from MoiGoroda.settings import ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS
@@ -413,17 +413,12 @@ class RegionShareView(LoginRequiredMixin, View):
             logger.warning(request, f'(Region) Share: non-existent region #{pk}')
             raise Http404 from None
 
-        queryset = get_all_cities_in_region(request.user, pk).values(
-            'id',
-            'title',
+        queryset = City.objects.filter(region_id=pk).annotate(
+            is_visited=Exists(VisitedCity.objects.filter(city_id=OuterRef('pk'), user=request.user))
+        ).values(
             'coordinate_width',
             'coordinate_longitude',
             'is_visited',
-            'number_of_visits',
-            'first_visit_date',
-            'last_visit_date',
-            'number_of_users_who_visit_city',
-            'number_of_visits_all_users',
         )
         all_cities = list(queryset)
         number_of_cities = len(all_cities)

@@ -21,16 +21,17 @@
         </p>
     </header>
 
-    {% if not has_active_subscription %}
+    {% if active_subscription_level != 'advanced' %}
         <div class="mx-3 mb-4 flex justify-center">
             <div class="w-full max-w-2xl rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
-                <p class="font-medium">
-                    Часть функций доступна только по премиум-подписке.
-                </p>
-                <p class="mt-1">
-                    Например, вы можете использовать свой текст подписи и другие расширенные настройки.
+                <p>
+                    Часть функций доступна только по расширенной премиум-подписке.
                     <a href="{% url 'premium_promo' %}" class="font-semibold text-amber-900 underline decoration-amber-500/70 hover:text-amber-800 dark:text-amber-100 dark:hover:text-amber-50">
-                        Подробнее о подписке
+                        {% if not has_active_subscription %}
+                            Оформить подписку
+                        {% else %}
+                            Улучшить подписку
+                        {% endif %}
                     </a>
                 </p>
             </div>
@@ -60,19 +61,19 @@
 
             <!-- Панель редактирования -->
             <div id="share-caption-panel" class="mt-4 lg:mt-0 min-w-0 flex-1 flex flex-col gap-4">
-                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
+                <div id="caption-text-card" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
                     <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-neutral-300">Изображение</h3>
                     <div class="flex flex-wrap gap-6">
                         <fieldset class="flex flex-wrap gap-2">
                             <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Соотношение сторон</legend>
                             <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
-                                {% if has_active_subscription %}
+                                {% if active_subscription_level == 'advanced' %}
                                     <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                         <input type="radio" name="share-aspect-ratio" value="16:9" class="sr-only">
                                         16∶9
                                     </label>
                                 {% else %}
-                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
                                            title="Формат 16∶9 доступен только в премиум-подписке">
                                         <input type="radio" name="share-aspect-ratio" value="16:9" class="sr-only" disabled>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
@@ -93,13 +94,13 @@
                                     <input type="radio" name="share-aspect-ratio" value="3:4" class="sr-only">
                                     3∶4
                                 </label>
-                                {% if has_active_subscription %}
+                                {% if active_subscription_level == 'advanced' %}
                                     <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                         <input type="radio" name="share-aspect-ratio" value="9:16" class="sr-only">
                                         9∶16
                                     </label>
                                 {% else %}
-                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
                                            title="Формат 9∶16 доступен только в премиум-подписке">
                                         <input type="radio" name="share-aspect-ratio" value="9:16" class="sr-only" disabled>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
@@ -117,7 +118,7 @@
                                     <input type="radio" name="share-resolution" value="720" class="sr-only" checked>
                                     720p
                                 </label>
-                                {% if has_active_subscription %}
+                                {% if active_subscription_level == 'advanced' %}
                                     <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                         <input type="radio" name="share-resolution" value="1080" class="sr-only">
                                         1080p
@@ -127,7 +128,7 @@
                                         1440p
                                     </label>
                                 {% else %}
-                                    <label class="py-2 px-3 -ms-px inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                    <label class="py-2 px-3 -ms-px inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
                                            title="Разрешение 1080p доступно только в премиум-подписке">
                                         <input type="radio" name="share-resolution" value="1080" class="sr-only" disabled>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
@@ -135,7 +136,7 @@
                                         </svg>
                                         <span>1080p</span>
                                     </label>
-                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
                                            title="Разрешение 1440p доступно только в премиум-подписке">
                                         <input type="radio" name="share-resolution" value="1440" class="sr-only" disabled>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
@@ -190,13 +191,13 @@
                                     <input type="radio" name="share-watermark" value="bottom-right" class="sr-only">
                                     Снизу справа
                                 </label>
-                                {% if has_active_subscription %}
+                                {% if active_subscription_level == 'advanced' %}
                                     <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                         <input type="radio" name="share-watermark" value="off" class="sr-only">
                                         Выключен
                                     </label>
                                 {% else %}
-                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
                                            title="Отключение копирайта доступно только в премиум-подписке">
                                         <input type="radio" name="share-watermark" value="off" class="sr-only" disabled>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
@@ -219,16 +220,20 @@
                         <div class="inline-flex items-center gap-2 w-full">
                             <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
                                 <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                    <input type="radio" name="caption-text-mode" value="none" class="sr-only">
+                                    Без подписи
+                                </label>
+                                <label class="py-2 px-3 -ms-px inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                     <input type="radio" name="caption-text-mode" value="preset" class="sr-only" checked>
                                     Шаблон
                                 </label>
-                                {% if has_active_subscription %}
+                                {% if active_subscription_level == 'advanced' %}
                                     <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                         <input type="radio" name="caption-text-mode" value="custom" class="sr-only">
                                         Свой текст
                                     </label>
                                 {% else %}
-                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1.5 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs cursor-not-allowed opacity-70"
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1.5 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
                                            title="Свой текст подписи доступен только в премиум-подписке">
                                         <input type="radio" name="caption-text-mode" value="custom" class="sr-only" disabled>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
@@ -392,13 +397,13 @@
                 </fieldset>
                 <div class="flex flex-wrap items-end gap-4">
                     <div>
-                        <label for="caption-text-color" class="block mb-2 text-sm font-medium text-foreground">Цвет текста</label>
+                        <label for="caption-text-color" class="block mb-2 text-xs font-medium text-gray-500 dark:text-neutral-400">Цвет текста</label>
                         <input type="color" id="caption-text-color" name="caption-text-color" value="#111827" title="Выберите цвет текста" class="color-picker">
                     </div>
                 </div>
                 <fieldset class="flex flex-wrap items-end gap-4">
                     <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Параметры фона</legend>
-                    <label for="caption-bg-color" class="block mb-2 text-sm font-medium text-foreground">Цвет</label>
+                    <label for="caption-bg-color" class="block mb-2 text-xs font-medium text-gray-500 dark:text-neutral-400">Цвет</label>
                     <input type="color" id="caption-bg-color" name="caption-bg-color" value="#ef4444" title="Выберите цвет фона" class="color-picker">
                     <div class="flex flex-col gap-1 min-w-[8rem]">
                         <span class="text-xs text-gray-500 dark:text-neutral-400">Размер <span id="caption-bg-size-value">1</span></span>

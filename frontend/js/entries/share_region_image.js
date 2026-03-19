@@ -517,16 +517,20 @@ async function renderToCanvas(geoJson, exportDimensions) {
 
     const caption = getCaptionText();
     const captionOptions = getCaptionOptions();
-    if (forExport) {
-        // Для экспорта дожидаемся загрузки шрифта, чтобы получить корректный результат.
-        await ensureCaptionFontLoaded(captionOptions);
-    } else {
-        // Для превью не ждём загрузку шрифта, чтобы убрать визуальную задержку.
-        // Шрифт загружается асинхронно, и после загрузки мы триггерим дополнительный рендер.
-        ensureCaptionFontLoaded(captionOptions);
+    if (caption) {
+        if (forExport) {
+            // Для экспорта дожидаемся загрузки шрифта, чтобы получить корректный результат.
+            await ensureCaptionFontLoaded(captionOptions);
+        } else {
+            // Для превью не ждём загрузку шрифта, чтобы убрать визуальную задержку.
+            // Шрифт загружается асинхронно, и после загрузки мы триггерим дополнительный рендер.
+            ensureCaptionFontLoaded(captionOptions);
+        }
     }
     if (!forExport && previewRenderSeq !== renderSeq) return null;
-    drawCaption(ctx, caption, captionOptions, w, h, markerScale);
+    if (caption) {
+        drawCaption(ctx, caption, captionOptions, w, h, markerScale);
+    }
 
     drawWatermark(ctx, w, h, markerScale);
 
@@ -701,6 +705,9 @@ function applyCaptionPlaceholders(text) {
 function getCaptionText() {
     const modeEl = document.querySelector('input[name="caption-text-mode"]:checked');
     const mode = modeEl ? modeEl.value : 'preset';
+    if (mode === 'none') {
+        return '';
+    }
     if (mode === 'custom') {
         const customEl = document.getElementById('caption-text-custom');
         const raw = customEl && customEl.value ? customEl.value.trim() : '';
@@ -1143,6 +1150,59 @@ function updateCaptionTextControlsVisibility() {
     const mode = modeEl ? modeEl.value : 'preset';
     if (captionTextPresetWrap) captionTextPresetWrap.style.display = mode === 'preset' ? 'block' : 'none';
     if (captionTextCustomWrap) captionTextCustomWrap.style.display = mode === 'custom' ? 'block' : 'none';
+
+    const disableTextControls = mode === 'none';
+    const textControlSelectors = [
+        'input[name="caption-position"]',
+        'input[name="caption-align"]',
+        '#caption-font-size',
+        '#caption-font-family',
+        'input[name="caption-font-weight"]',
+        'input[name="caption-background"]',
+        '#caption-bg-opacity',
+        '#caption-bg-blur',
+        '#caption-bg-color',
+        '#caption-text-color',
+        '#caption-bg-size',
+    ];
+    textControlSelectors.forEach((sel) => {
+        document.querySelectorAll(sel).forEach((el) => {
+            el.disabled = disableTextControls;
+
+            const label = el.closest && el.closest('label');
+            if (label) {
+                label.classList.toggle('btn-disabled', disableTextControls);
+
+                // Делаем вид "заблокированной" опции таким же, как и в блоке
+                // соотношений сторон: штриховая граница и приглушенный цвет текста.
+                if (disableTextControls) {
+                    label.classList.add('border-dashed', 'border-layer-line/70', 'text-layer-foreground/70');
+                    label.classList.remove('border-layer-line', 'text-layer-foreground');
+                } else {
+                    label.classList.remove('border-dashed', 'border-layer-line/70', 'text-layer-foreground/70');
+                    // Возвращаем базовые цвета (если они присутствовали в исходной разметке).
+                    label.classList.add('border-layer-line', 'text-layer-foreground');
+                }
+            }
+        });
+    });
+
+    // Подписи к цветам тоже нужно приглушать — иначе они остаются "жирными"
+    // даже когда соответствующие input уже disabled.
+    const captionTextColorLabel = document.querySelector('label[for="caption-text-color"]');
+    const captionBgColorLabel = document.querySelector('label[for="caption-bg-color"]');
+
+    const mutedLabelClasses = ['text-layer-foreground/70', 'font-normal'];
+    const resetLabelClasses = ['text-layer-foreground/70', 'font-normal'];
+
+    [captionTextColorLabel, captionBgColorLabel].forEach((lbl) => {
+        if (!lbl) return;
+        if (disableTextControls) {
+            lbl.classList.add(...mutedLabelClasses);
+        } else {
+            lbl.classList.remove(...resetLabelClasses);
+        }
+    });
 }
 document.querySelectorAll('input[name="caption-text-mode"]').forEach((el) => {
     el.addEventListener('change', () => {

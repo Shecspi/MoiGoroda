@@ -124,7 +124,7 @@
     }
 
     .btn-disabled {
-        @apply disabled:opacity-50 disabled:pointer-events-none;
+        @apply opacity-50 pointer-events-none cursor-not-allowed;
     }
 
     /* Размеры */
@@ -432,6 +432,12 @@
 }
 
 @layer utilities {
+    /* Совместимость с class `outline-hidden` из Tailwind v4/Preline примеров */
+    .outline-hidden {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+    }
+
     /* Стили для Chart.js tooltip */
     .chartjs-tooltip {
         box-shadow:

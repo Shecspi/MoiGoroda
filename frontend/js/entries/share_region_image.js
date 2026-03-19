@@ -1414,16 +1414,31 @@ function shareImage(blob) {
     }
 }
 
+function browserSupportsImageShare() {
+    if (!navigator.share || !navigator.canShare || typeof File === 'undefined') return false;
+    try {
+        const probeFile = new File(['x'], 'probe.png', { type: 'image/png' });
+        return navigator.canShare({ files: [probeFile] });
+    } catch (_error) {
+        return false;
+    }
+}
+
+function updateShareButtonState() {
+    const btnShare = document.getElementById('btn-share-image');
+    if (!btnShare) return { supportsImageShare: false };
+
+    const supportsImageShare = browserSupportsImageShare();
+    btnShare.disabled = !supportsImageShare;
+    btnShare.classList.toggle('hidden', !supportsImageShare);
+
+    return { supportsImageShare };
+}
+
 function setButtonsReady() {
     const btnDownload = document.getElementById('btn-download-share-image');
-    const btnShare = document.getElementById('btn-share-image');
     if (btnDownload) btnDownload.disabled = false;
-    if (btnShare && navigator.share && navigator.canShare) {
-        btnShare.disabled = false;
-        btnShare.classList.remove('disabled:opacity-50');
-        btnShare.classList.add('border-blue-500', 'text-blue-600', 'hover:bg-blue-50');
-        btnShare.classList.remove('border-gray-300', 'text-gray-700');
-    }
+    updateShareButtonState();
 }
 
 function setLoading(loading) {
@@ -1493,15 +1508,14 @@ if (btnDownload) {
 }
 
 if (btnShare) {
-    if (navigator.share && navigator.canShare) {
-        btnShare.addEventListener('click', () => {
-            if (!geoJsonData) return;
-            const exportSize = getExportDimensions();
-            renderToCanvas(geoJsonData, exportSize).then((canvas) => {
-                if (canvas) canvasToBlob(canvas).then(shareImage).catch((e) => console.error(e));
-            }).catch((e) => console.error(e));
-        });
-    }
+    btnShare.addEventListener('click', () => {
+        const { supportsImageShare } = updateShareButtonState();
+        if (!supportsImageShare || !geoJsonData) return;
+        const exportSize = getExportDimensions();
+        renderToCanvas(geoJsonData, exportSize).then((canvas) => {
+            if (canvas) canvasToBlob(canvas).then(shareImage).catch((e) => console.error(e));
+        }).catch((e) => console.error(e));
+    });
 }
 
 function redrawOnCaptionOptionsChange() {

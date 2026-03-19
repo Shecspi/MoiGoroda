@@ -710,7 +710,7 @@ function hexToRgb(hex) {
     return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : { r: 255, g: 255, b: 255 };
 }
 
-/** Шаблоны подписи для соцсетей (достижение цели). Плейсхолдеры: {numVisited}, {numCities}, {cityWord}, {regionName}, {regionNameIn} (в Калужской области). */
+/** Шаблоны подписи для соцсетей (достижение цели). Плейсхолдеры: {numVisited}, {numCities}, {cityWord}, {regionName}, {regionNameIn} (в Калужской области), {regionNameGenitive} (Калужской области). */
 const CAPTION_PRESETS = [
     'Уже {numVisited} {cityWord} из {numCities} в {regionNameIn}!',
     'Мой прогресс в {regionNameIn}: {numVisited} из {numCities}',
@@ -722,6 +722,8 @@ const CAPTION_PRESETS = [
     '{regionName} — посещено {numVisited} из {numCities}',
     'Мой результат: {numVisited} {cityWord} из {numCities} в {regionNameIn}',
     'Продолжаю маршрут по {regionNameIn}: {numVisited} из {numCities}',
+    'Потихоньку закрываю {regionNameGenitive}: {numVisited} {cityWord} из {numCities}',
+    'Кто со мной в {regionNameIn}? {numVisited} {cityWord} из {numCities} уже в копилке',
 ];
 
 /** Склонение слова «город» по числу: 1 город, 2/3/4 города, 5–20 городов, 21 город, … */

@@ -366,25 +366,44 @@
                         <select id="caption-font-family"
                                 name="caption-font-family"
                                 class="form-select">
+                            <!-- Бесплатные шрифты (ровно 5, но максимально разнообразные) -->
                             <option value="roboto" data-font="roboto" selected>Roboto</option>
                             <option value="montserrat" data-font="montserrat">Montserrat</option>
-                            <option value="open_sans" data-font="open_sans">Open Sans</option>
-                            <option value="rubik" data-font="rubik">Rubik</option>
-                            <option value="sofia_sans" data-font="sofia_sans">Sofia Sans</option>
-                            <option disabled>────────</option>
-                            <option value="eb_garamond" data-font="eb_garamond">EB Garamond</option>
                             <option value="playfair" data-font="playfair">Playfair Display</option>
-                            <option value="oswald" data-font="oswald">Oswald</option>
-                            <option value="comfortaa" data-font="comfortaa">Comfortaa</option>
-                            <option value="bad_script" data-font="bad_script">Bad Script</option>
                             <option value="caveat" data-font="caveat">Caveat</option>
-                            <option value="pacifico" data-font="pacifico">Pacifico</option>
-                            <option value="lobster" data-font="lobster">Lobster</option>
-                            <option value="great_vibes" data-font="great_vibes">Great Vibes</option>
                             <option value="press_start_2p" data-font="press_start_2p">Press Start 2P</option>
-                            <option value="rubik_marker_hatch" data-font="rubik_marker_hatch">Rubik Marker Hatch</option>
-                            <option value="rubik_wet_paint" data-font="rubik_wet_paint">Rubik Wet Paint</option>
-                            <option value="line_seed_jp" data-font="line_seed_jp">LINE Seed JP</option>
+                            <option disabled>────────</option>
+
+                            {% if active_subscription_level == 'advanced' %}
+                                <!-- Премиум-шрифты: расширенный набор на разные случаи -->
+                                <option value="open_sans" data-font="open_sans">Open Sans</option>
+                                <option value="rubik" data-font="rubik">Rubik</option>
+                                <option value="sofia_sans" data-font="sofia_sans">Sofia Sans</option>
+                                <option value="eb_garamond" data-font="eb_garamond">EB Garamond</option>
+                                <option value="oswald" data-font="oswald">Oswald</option>
+                                <option value="comfortaa" data-font="comfortaa">Comfortaa</option>
+                                <option value="bad_script" data-font="bad_script">Bad Script</option>
+                                <option value="pacifico" data-font="pacifico">Pacifico</option>
+                                <option value="lobster" data-font="lobster">Lobster</option>
+                                <option value="great_vibes" data-font="great_vibes">Great Vibes</option>
+                                <option value="rubik_marker_hatch" data-font="rubik_marker_hatch">Rubik Marker Hatch</option>
+                                <option value="rubik_wet_paint" data-font="rubik_wet_paint">Rubik Wet Paint</option>
+                                <option value="line_seed_jp" data-font="line_seed_jp">LINE Seed JP</option>
+                            {% else %}
+                                <option value="open_sans" data-font="open_sans" disabled>Open Sans (премиум)</option>
+                                <option value="rubik" data-font="rubik" disabled>Rubik (премиум)</option>
+                                <option value="sofia_sans" data-font="sofia_sans" disabled>Sofia Sans (премиум)</option>
+                                <option value="eb_garamond" data-font="eb_garamond" disabled>EB Garamond (премиум)</option>
+                                <option value="oswald" data-font="oswald" disabled>Oswald (премиум)</option>
+                                <option value="comfortaa" data-font="comfortaa" disabled>Comfortaa (премиум)</option>
+                                <option value="bad_script" data-font="bad_script" disabled>Bad Script (премиум)</option>
+                                <option value="pacifico" data-font="pacifico" disabled>Pacifico (премиум)</option>
+                                <option value="lobster" data-font="lobster" disabled>Lobster (премиум)</option>
+                                <option value="great_vibes" data-font="great_vibes" disabled>Great Vibes (премиум)</option>
+                                <option value="rubik_marker_hatch" data-font="rubik_marker_hatch" disabled>Rubik Marker Hatch (премиум)</option>
+                                <option value="rubik_wet_paint" data-font="rubik_wet_paint" disabled>Rubik Wet Paint (премиум)</option>
+                                <option value="line_seed_jp" data-font="line_seed_jp" disabled>LINE Seed JP (премиум)</option>
+                            {% endif %}
                         </select>
                     </div>
                 </fieldset>

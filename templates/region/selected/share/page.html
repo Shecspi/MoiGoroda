@@ -269,9 +269,16 @@
                                     <select id="caption-text-preset"
                                             name="caption-text-preset"
                                             class="form-select w-full">
-                                        <option value="0">Я посетил N из M городов региона</option>
-                                        <option value="1">Цель достигнута: N из M городов региона</option>
-                                        <option value="2">Регион (N из M)</option>
+                                        <option value="0">Уже {{ number_of_visited_cities }} из {{ number_of_cities }} в регионе!</option>
+                                        <option value="1">Мой прогресс по региону: {{ number_of_visited_cities }} из {{ number_of_cities }}</option>
+                                        <option value="2">{{ region_name }}: {{ number_of_visited_cities }} из {{ number_of_cities }}</option>
+                                        <option value="3">Путешествую по региону: {{ number_of_visited_cities }} из {{ number_of_cities }}</option>
+                                        <option value="4">В моей копилке уже {{ number_of_visited_cities }} из {{ number_of_cities }} городов региона</option>
+                                        <option value="5">Отмечено {{ number_of_visited_cities }} из {{ number_of_cities }} городов региона</option>
+                                        <option value="6">Иду к цели: {{ number_of_visited_cities }} из {{ number_of_cities }}</option>
+                                        <option value="7">{{ region_name }} — посещено {{ number_of_visited_cities }} из {{ number_of_cities }}</option>
+                                        <option value="8">Мой результат: {{ number_of_visited_cities }} из {{ number_of_cities }} городов</option>
+                                        <option value="9">Продолжаю маршрут: {{ number_of_visited_cities }} из {{ number_of_cities }}</option>
                                     </select>
                                 </div>
                                 <div id="caption-text-custom-wrap" style="display: none;">

@@ -683,9 +683,16 @@ function hexToRgb(hex) {
 
 /** Шаблоны подписи для соцсетей (достижение цели). Плейсхолдеры: {numVisited}, {numCities}, {cityWord}, {regionName}, {regionNameIn} (в Калужской области). */
 const CAPTION_PRESETS = [
-    'Я посетил {numVisited} {cityWord} из {numCities} в {regionNameIn}',
-    'Цель достигнута: {numVisited} {cityWord} из {numCities} в {regionNameIn}',
-    '{regionName} ({numVisited} {cityWord} из {numCities})',
+    'Уже {numVisited} {cityWord} из {numCities} в {regionNameIn}!',
+    'Мой прогресс в {regionNameIn}: {numVisited} из {numCities}',
+    '{regionName}: {numVisited} из {numCities}',
+    'Путешествую по {regionNameIn}: {numVisited} {cityWord} из {numCities}',
+    'В моей копилке уже {numVisited} {cityWord} из {numCities} в {regionNameIn}',
+    'Отмечено {numVisited} {cityWord} из {numCities} в {regionNameIn}',
+    'Иду к цели в {regionNameIn}: {numVisited} из {numCities}',
+    '{regionName} — посещено {numVisited} из {numCities}',
+    'Мой результат: {numVisited} {cityWord} из {numCities} в {regionNameIn}',
+    'Продолжаю маршрут по {regionNameIn}: {numVisited} из {numCities}',
 ];
 
 /** Склонение слова «город» по числу: 1 город, 2/3/4 города, 5–20 городов, 21 город, … */
@@ -713,6 +720,13 @@ function regionNameToPrepositional(name) {
     if (/^Республика\s+/i.test(s)) {
         return s.replace(/^Республика\s+/i, 'Республике ');
     }
+    // ХХХская республика / ХХХая республика → ХХХской/ХХХой республике
+    if (/\s*республика\s*$/i.test(s)) {
+        return s
+            .replace(/(\S+?)(ая)\s+республика\s*$/i, '$1ой республике')
+            .replace(/(\S+?)(яя)\s+республика\s*$/i, '$1ей республике')
+            .replace(/\s+республика\s*$/i, ' республике');
+    }
     if (/^Москва\s*$/i.test(s)) return 'Москве';
     if (/^Санкт-Петербург\s*$/i.test(s)) return 'Санкт-Петербурге';
     if (/^Севастополь\s*$/i.test(s)) return 'Севастополе';
@@ -735,6 +749,13 @@ function regionNameToGenitive(name) {
     // Республика ХХХ — в родительном «Республики ХХХ»
     if (/^Республика\s+/i.test(s)) {
         return s.replace(/^Республика\s+/i, 'Республики ');
+    }
+    // ХХХская республика / ХХХая республика → ХХХской/ХХХой республики
+    if (/\s*республика\s*$/i.test(s)) {
+        return s
+            .replace(/(\S+?)(ая)\s+республика\s*$/i, '$1ой республики')
+            .replace(/(\S+?)(яя)\s+республика\s*$/i, '$1ей республики')
+            .replace(/\s+республика\s*$/i, ' республики');
     }
     // Города: Москва → Москвы, Санкт-Петербург → Санкт-Петербурга (упрощённо)
     if (/^Москва\s*$/i.test(s)) return 'Москвы';

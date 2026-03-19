@@ -19,6 +19,7 @@ const all_cities = window.ALL_CITIES || [];
 const regionName = window.REGION_NAME || '';
 const numVisited = window.SHARE_NUMBER_OF_VISITED ?? 0;
 const numCities = window.SHARE_NUMBER_OF_CITIES ?? 0;
+const yandexMetrikaId = window.YANDEX_METRIKA_ID || '';
 
 const PADDING = 48;
 const CAPTION_HEIGHT = 56;
@@ -35,6 +36,45 @@ const ASPECT_PRESETS = {
 
 const DEFAULT_ASPECT = '4:3';
 const BASE_LONG_SIDE = 800;
+const shareAnalyticsState = {
+    openTracked: false,
+    firstRenderTracked: false,
+    shareUnavailableTracked: false,
+};
+
+function getAspectRatioKey() {
+    const aspectEl = document.querySelector('input[name="share-aspect-ratio"]:checked');
+    return (aspectEl && aspectEl.value && ASPECT_PRESETS[aspectEl.value]) ? aspectEl.value : DEFAULT_ASPECT;
+}
+
+function getResolutionKey() {
+    const resEl = document.querySelector('input[name="share-resolution"]:checked');
+    return (resEl && resEl.value && RESOLUTION_LONG_SIDE[resEl.value]) ? resEl.value : DEFAULT_RESOLUTION;
+}
+
+function getShareAnalyticsPayload(extraPayload) {
+    return {
+        region_code: region_code || '',
+        visited_count: Number(numVisited) || 0,
+        cities_count: Number(numCities) || 0,
+        aspect_ratio: getAspectRatioKey(),
+        resolution: getResolutionKey(),
+        ...extraPayload,
+    };
+}
+
+function trackYmGoal(goalName, payload) {
+    if (!goalName || !yandexMetrikaId || typeof window.ym !== 'function') return;
+    try {
+        if (payload && typeof payload === 'object') {
+            window.ym(yandexMetrikaId, 'reachGoal', goalName, payload);
+        } else {
+            window.ym(yandexMetrikaId, 'reachGoal', goalName);
+        }
+    } catch (error) {
+        console.warn('Не удалось отправить событие Я.Метрики:', goalName, error);
+    }
+}
 
 /** Разрешение: длинная сторона в пикселях (720p, 1080p, 2K=1440p). Влияет только на скачиваемый/шаримый файл. */
 const RESOLUTION_LONG_SIDE = { '720': 720, '1080': 1080, '1440': 1440 };
@@ -42,8 +82,7 @@ const DEFAULT_RESOLUTION = '1080';
 
 /** Текущее соотношение сторон (пресет) — для расчёта экспорта и отображения. */
 function getAspectPreset() {
-    const aspectEl = document.querySelector('input[name="share-aspect-ratio"]:checked');
-    const aspectKey = (aspectEl && aspectEl.value && ASPECT_PRESETS[aspectEl.value]) ? aspectEl.value : DEFAULT_ASPECT;
+    const aspectKey = getAspectRatioKey();
     return ASPECT_PRESETS[aspectKey];
 }
 
@@ -63,8 +102,7 @@ function getDisplayDimensions() {
 /** Размеры для экспорта (скачать / поделиться) — с учётом выбранного разрешения. */
 function getExportDimensions() {
     const base = getAspectPreset();
-    const resEl = document.querySelector('input[name="share-resolution"]:checked');
-    const resKey = (resEl && resEl.value && RESOLUTION_LONG_SIDE[resEl.value]) ? resEl.value : DEFAULT_RESOLUTION;
+    const resKey = getResolutionKey();
     const longSide = RESOLUTION_LONG_SIDE[resKey];
     const scale = longSide / BASE_LONG_SIDE;
     return {
@@ -1404,14 +1442,20 @@ function downloadImage(blob) {
 function shareImage(blob) {
     const file = new File([blob], getRegionFileName(), { type: 'image/png' });
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator
+        return navigator
             .share({
                 title: `Мои города — ${regionName}`,
                 text: `Я посетил(а) ${numVisited} из ${numCities} городов региона ${regionName}`,
                 files: [file],
             })
-            .catch((err) => console.warn('Поделиться не удалось:', err));
+            .then(() => ({ status: 'success' }))
+            .catch((err) => {
+                if (err && err.name === 'AbortError') return { status: 'cancelled' };
+                console.warn('Поделиться не удалось:', err);
+                return { status: 'failed', error: err };
+            });
     }
+    return Promise.resolve({ status: 'unavailable' });
 }
 
 function browserSupportsImageShare() {
@@ -1431,6 +1475,12 @@ function updateShareButtonState() {
     const supportsImageShare = browserSupportsImageShare();
     btnShare.disabled = !supportsImageShare;
     btnShare.classList.toggle('hidden', !supportsImageShare);
+    if (!supportsImageShare && !shareAnalyticsState.shareUnavailableTracked) {
+        trackYmGoal('share_region_native_share_unavailable', getShareAnalyticsPayload({
+            is_mobile_share_supported: false,
+        }));
+        shareAnalyticsState.shareUnavailableTracked = true;
+    }
 
     return { supportsImageShare };
 }
@@ -1465,9 +1515,18 @@ fetch(polygonUrl, { signal: polygonController.signal })
         setLoading(true);
         renderToCanvas(geoJson).then(() => {
             setLoading(false);
+            if (!shareAnalyticsState.firstRenderTracked) {
+                trackYmGoal('share_region_render_success', getShareAnalyticsPayload());
+                shareAnalyticsState.firstRenderTracked = true;
+            }
             setButtonsReady();
-        }).catch(() => {
+        }).catch((error) => {
+            console.warn('Ошибка первичного рендера изображения:', error);
             setLoading(false);
+            if (!shareAnalyticsState.firstRenderTracked) {
+                trackYmGoal('share_region_render_failed', getShareAnalyticsPayload());
+                shareAnalyticsState.firstRenderTracked = true;
+            }
             setButtonsReady();
         });
     })
@@ -1500,10 +1559,24 @@ const btnShare = document.getElementById('btn-share-image');
 if (btnDownload) {
     btnDownload.addEventListener('click', () => {
         if (!geoJsonData) return;
+        trackYmGoal('share_region_download_click', getShareAnalyticsPayload());
         const exportSize = getExportDimensions();
         renderToCanvas(geoJsonData, exportSize).then((canvas) => {
-            if (canvas) canvasToBlob(canvas).then(downloadImage).catch((e) => console.error(e));
-        }).catch((e) => console.error(e));
+            if (!canvas) {
+                trackYmGoal('share_region_download_failed', getShareAnalyticsPayload());
+                return;
+            }
+            canvasToBlob(canvas).then((blob) => {
+                downloadImage(blob);
+                trackYmGoal('share_region_download_success', getShareAnalyticsPayload());
+            }).catch((e) => {
+                console.error(e);
+                trackYmGoal('share_region_download_failed', getShareAnalyticsPayload());
+            });
+        }).catch((e) => {
+            console.error(e);
+            trackYmGoal('share_region_download_failed', getShareAnalyticsPayload());
+        });
     });
 }
 
@@ -1511,11 +1584,53 @@ if (btnShare) {
     btnShare.addEventListener('click', () => {
         const { supportsImageShare } = updateShareButtonState();
         if (!supportsImageShare || !geoJsonData) return;
+        trackYmGoal('share_region_native_share_click', getShareAnalyticsPayload({
+            is_mobile_share_supported: true,
+        }));
         const exportSize = getExportDimensions();
         renderToCanvas(geoJsonData, exportSize).then((canvas) => {
-            if (canvas) canvasToBlob(canvas).then(shareImage).catch((e) => console.error(e));
-        }).catch((e) => console.error(e));
+            if (!canvas) {
+                trackYmGoal('share_region_native_share_failed', getShareAnalyticsPayload({
+                    is_mobile_share_supported: true,
+                }));
+                return;
+            }
+            canvasToBlob(canvas).then(shareImage).then((result) => {
+                if (!result || result.status === 'failed' || result.status === 'unavailable') {
+                    trackYmGoal('share_region_native_share_failed', getShareAnalyticsPayload({
+                        is_mobile_share_supported: true,
+                    }));
+                    return;
+                }
+                if (result.status === 'cancelled') {
+                    trackYmGoal('share_region_native_share_cancel', getShareAnalyticsPayload({
+                        is_mobile_share_supported: true,
+                    }));
+                    return;
+                }
+                trackYmGoal('share_region_native_share_success', getShareAnalyticsPayload({
+                    is_mobile_share_supported: true,
+                }));
+            }).catch((e) => {
+                console.error(e);
+                trackYmGoal('share_region_native_share_failed', getShareAnalyticsPayload({
+                    is_mobile_share_supported: true,
+                }));
+            });
+        }).catch((e) => {
+            console.error(e);
+            trackYmGoal('share_region_native_share_failed', getShareAnalyticsPayload({
+                is_mobile_share_supported: true,
+            }));
+        });
     });
+}
+
+if (!shareAnalyticsState.openTracked) {
+    trackYmGoal('share_region_open', getShareAnalyticsPayload({
+        is_mobile_share_supported: browserSupportsImageShare(),
+    }));
+    shareAnalyticsState.openTracked = true;
 }
 
 function redrawOnCaptionOptionsChange() {

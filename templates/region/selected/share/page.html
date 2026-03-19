@@ -228,6 +228,102 @@
                                 {% endif %}
                             </div>
                         </fieldset>
+                        <fieldset class="flex flex-wrap gap-2">
+                            <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Прогресс-бейдж</legend>
+                            <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
+                                {% if active_subscription_level == 'advanced' %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-enabled" value="on" class="sr-only" checked>
+                                        Включен
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-enabled" value="off" class="sr-only">
+                                        Выключен
+                                    </label>
+                                {% else %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
+                                           title="Прогресс-бейдж доступен только в премиум-подписке">
+                                        <input type="radio" name="share-progress-badge-enabled" value="on" class="sr-only" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>Включен</span>
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
+                                           title="Прогресс-бейдж доступен только в премиум-подписке">
+                                        <input type="radio" name="share-progress-badge-enabled" value="off" class="sr-only" checked disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>Выключен</span>
+                                    </label>
+                                {% endif %}
+                            </div>
+                        </fieldset>
+                        <fieldset class="flex flex-wrap gap-2">
+                            <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Стиль бейджа</legend>
+                            <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
+                                {% if active_subscription_level == 'advanced' %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-style" value="circle" class="sr-only" checked>
+                                        Круглый
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-style" value="ribbon" class="sr-only">
+                                        Ленточный
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-style" value="glass" class="sr-only">
+                                        Стеклянный
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-style" value="minimal" class="sr-only">
+                                        Минимал
+                                    </label>
+                                {% else %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
+                                           title="Выбор стиля бейджа доступен только в премиум-подписке">
+                                        <input type="radio" name="share-progress-badge-style" value="circle" class="sr-only" checked disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>Премиум</span>
+                                    </label>
+                                {% endif %}
+                            </div>
+                        </fieldset>
+                        <fieldset class="flex flex-wrap gap-2">
+                            <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Позиция бейджа</legend>
+                            <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
+                                {% if active_subscription_level == 'advanced' %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-position" value="top-left" class="sr-only" checked>
+                                        Сверху слева
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-position" value="top-right" class="sr-only">
+                                        Сверху справа
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-position" value="bottom-left" class="sr-only">
+                                        Снизу слева
+                                    </label>
+                                    <label class="py-2 px-3 -ms-px last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
+                                        <input type="radio" name="share-progress-badge-position" value="bottom-right" class="sr-only">
+                                        Снизу справа
+                                    </label>
+                                {% else %}
+                                    <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex items-center gap-x-1 text-xs sm:text-sm font-medium bg-layer border border-dashed border-layer-line/70 text-layer-foreground/70 shadow-2xs btn-disabled"
+                                           title="Выбор позиции бейджа доступен только в премиум-подписке">
+                                        <input type="radio" name="share-progress-badge-position" value="top-left" class="sr-only" checked disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500 dark:text-red-300" viewBox="0 0 640 640" aria-hidden="true">
+                                            <path d="M256 160L256 224L384 224L384 160C384 124.7 355.3 96 320 96C284.7 96 256 124.7 256 160zM192 224L192 160C192 89.3 249.3 32 320 32C390.7 32 448 89.3 448 160L448 224C483.3 224 512 252.7 512 288L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 288C128 252.7 156.7 224 192 224z"/>
+                                        </svg>
+                                        <span>Премиум</span>
+                                    </label>
+                                {% endif %}
+                            </div>
+                        </fieldset>
                     </div>
                 </div>
 

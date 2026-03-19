@@ -631,6 +631,7 @@ function getPrimaryFontName(fontStack) {
 }
 
 const captionFontLoadCache = new Map();
+const FONT_LOAD_SAMPLE_TEXT = 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ абвгдежзийклмнопрстуфхцчшщъыьэюя 0123456789';
 
 function getCaptionFontCacheKey(options) {
     const familyStack = FONT_FAMILIES[options.fontFamily] || FONT_FAMILIES.roboto;
@@ -653,8 +654,10 @@ function ensureCaptionFontLoaded(options) {
         const key = `${primary}::${weight}::${size}`;
         let p = captionFontLoadCache.get(key);
         if (!p) {
+            // Явно указываем sample text с кириллицей и цифрами, чтобы браузер
+            // загрузил нужные глифы сразу, а не только latin subset.
             p = document.fonts
-                .load(`${weight} ${size}px "${primary}"`)
+                .load(`${weight} ${size}px "${primary}"`, FONT_LOAD_SAMPLE_TEXT)
                 .then(() => {
                     // После загрузки шрифта принудительно перерисовываем превью,
                     // чтобы весь текст отрисовался уже новым шрифтом.

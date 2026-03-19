@@ -769,9 +769,7 @@ function getCaptionAnchorBox(position, canvasWidth, canvasHeight, scale) {
         return { x: pad, y: canvasHeight - pad - capHeight, w: canvasWidth - 2 * pad, h: capHeight };
     }
     if (position === 'center') {
-        const boxW = Math.min(0.85 * canvasWidth, 620 * scale);
-        const boxH = capHeight + 16 * scale;
-        return { x: (canvasWidth - boxW) / 2, y: (canvasHeight - boxH) / 2, w: boxW, h: boxH };
+        return { x: pad, y: (canvasHeight - capHeight) / 2, w: canvasWidth - 2 * pad, h: capHeight };
     }
     return { x: pad, y: canvasHeight - pad - capHeight, w: canvasWidth - 2 * pad, h: capHeight };
 }

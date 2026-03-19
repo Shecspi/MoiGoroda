@@ -58,6 +58,55 @@
         @apply font-semibold text-amber-700 dark:text-amber-200;
     }
 
+    /* Стилизованный range slider (совпадает с Preline UI). Класс range-slider для input[type="range"]. */
+    .range-slider {
+        @apply w-full bg-transparent cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus:outline-none;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+    .range-slider::-webkit-slider-thumb {
+        width: 0.625rem;
+        height: 0.625rem;
+        margin-top: -0.125rem;
+        appearance: none;
+        -webkit-appearance: none;
+        background: var(--color-layer, #fff);
+        box-shadow: 0 0 0 4px var(--color-primary, #3b82f6);
+        border-radius: 9999px;
+        transition: all 0.15s ease-in-out;
+    }
+    .range-slider::-moz-range-thumb {
+        width: 0.625rem;
+        height: 0.625rem;
+        appearance: none;
+        background: var(--color-layer, #fff);
+        border: 4px solid var(--color-primary, #3b82f6);
+        border-radius: 9999px;
+        transition: all 0.15s ease-in-out;
+    }
+    .range-slider::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 0.5rem;
+        background: var(--color-surface, #e5e7eb);
+        border-radius: 9999px;
+    }
+    .range-slider::-moz-range-track {
+        width: 100%;
+        height: 0.5rem;
+        background: var(--color-surface, #e5e7eb);
+        border-radius: 9999px;
+    }
+    .dark .range-slider::-webkit-slider-thumb {
+        background: var(--color-layer, #404040);
+    }
+    .dark .range-slider::-moz-range-thumb {
+        background: var(--color-layer, #404040);
+    }
+    .dark .range-slider::-webkit-slider-runnable-track,
+    .dark .range-slider::-moz-range-track {
+        background: var(--color-surface, #525252);
+    }
+
     /*
      * Button pack:
      * .btn + размер + вариант + опции
@@ -71,7 +120,11 @@
      *   btn btn-ghost-primary btn-lg btn-pilled
      */
     .btn {
-        @apply inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-transparent focus:outline-none disabled:opacity-50 disabled:pointer-events-none transition;
+        @apply inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-transparent focus:outline-none transition;
+    }
+
+    .btn-disabled {
+        @apply opacity-50 pointer-events-none cursor-not-allowed;
     }
 
     /* Размеры */
@@ -101,7 +154,7 @@
         @apply bg-gray-200 border-gray-200 text-gray-800 hover:bg-gray-300 focus:bg-gray-300 dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600 dark:focus:bg-neutral-600;
     }
     .btn-teal {
-        @apply bg-teal-500 border-teal-500 text-white hover:bg-teal-600 focus:bg-teal-600 dark:bg-teal-500 dark:border-teal-500 dark:hover:bg-teal-600 dark:focus:bg-teal-600;
+        @apply bg-teal-600 border-teal-600 text-white hover:bg-teal-700 focus:bg-teal-700 dark:bg-teal-500 dark:border-teal-500 dark:hover:bg-teal-600 dark:focus:bg-teal-600;
     }
     .btn-red {
         @apply bg-red-500 border-red-500 text-white hover:bg-red-600 focus:bg-red-600 dark:bg-red-500 dark:border-red-500 dark:hover:bg-red-600 dark:focus:bg-red-600;
@@ -120,8 +173,13 @@
     .btn-outline-muted {
         @apply border border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-900 focus:border-gray-400 focus:text-gray-900 dark:border-neutral-600 dark:text-neutral-200 dark:hover:border-neutral-500 dark:hover:text-white dark:focus:border-neutral-500 dark:focus:text-white;
     }
+    /* Вариант outline-кнопки для layout-кнопок (по мотивам примера с layer-токенами),
+       но на базе реально существующих utility-классов Tailwind. */
+    .btn-outline-layer {
+        @apply border border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-600 focus:border-blue-600 focus:text-blue-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-blue-400 dark:hover:text-blue-300 dark:focus:border-blue-400 dark:focus:text-blue-200;
+    }
     .btn-outline-teal {
-        @apply border border-teal-500 text-teal-500 hover:border-teal-400 hover:text-teal-400 focus:border-teal-400 focus:text-teal-400 dark:border-teal-500 dark:text-teal-500 dark:hover:border-teal-400 dark:focus:border-teal-400;
+        @apply border border-teal-600 text-teal-600 hover:border-teal-700 hover:text-teal-700 focus:border-teal-700 focus:text-teal-700 dark:border-teal-500 dark:text-teal-500 dark:hover:border-teal-400 dark:focus:border-teal-400;
     }
     .btn-outline-red {
         @apply border border-red-500 text-red-500 hover:border-red-400 hover:text-red-400 focus:border-red-400 focus:text-red-400 dark:border-red-500 dark:text-red-500 dark:hover:border-red-400 dark:focus:border-red-400;
@@ -144,7 +202,7 @@
         @apply border-transparent text-blue-600 hover:bg-blue-100 focus:bg-blue-100 hover:text-blue-800 focus:text-blue-800 dark:text-blue-500 dark:hover:bg-blue-500/20 dark:hover:text-blue-400 dark:focus:bg-blue-500/20 dark:focus:text-blue-400;
     }
     .btn-ghost-teal {
-        @apply border-transparent text-teal-500 hover:bg-teal-100 focus:bg-teal-100 hover:text-teal-800 dark:hover:bg-teal-500/20 dark:hover:text-teal-400 dark:focus:bg-teal-500/20 dark:focus:text-teal-400;
+        @apply border-transparent text-teal-600 hover:bg-teal-100 focus:bg-teal-100 hover:text-teal-900 focus:text-teal-900 dark:text-teal-400 dark:hover:bg-teal-500/25 dark:hover:text-teal-300 dark:focus:bg-teal-500/25 dark:focus:text-teal-300;
     }
     .btn-ghost-red {
         @apply border-transparent text-red-500 hover:bg-red-100 focus:bg-red-100 hover:text-red-800 dark:hover:bg-red-500/20 dark:hover:text-red-400 dark:focus:bg-red-500/20 dark:focus:text-red-400;
@@ -161,7 +219,7 @@
         @apply border-transparent bg-blue-100 text-blue-800 hover:bg-blue-200 focus:bg-blue-200 dark:bg-blue-800/30 dark:text-blue-400 dark:hover:bg-blue-500/20 dark:focus:bg-blue-500/20;
     }
     .btn-soft-teal {
-        @apply border-transparent bg-teal-100 text-teal-800 hover:bg-teal-200 focus:bg-teal-200 dark:bg-teal-800/30 dark:text-teal-500 dark:hover:bg-teal-500/20 dark:focus:bg-teal-500/20;
+        @apply border-transparent bg-teal-100 text-teal-800 hover:bg-teal-200 focus:bg-teal-200 dark:bg-teal-800/40 dark:text-teal-400 dark:hover:bg-teal-500/25 dark:focus:bg-teal-500/25;
     }
     .btn-soft-red {
         @apply border-transparent bg-red-100 text-red-800 hover:bg-red-200 focus:bg-red-200 dark:bg-red-800/30 dark:text-red-500 dark:hover:bg-red-500/20 dark:focus:bg-red-500/20;
@@ -194,9 +252,192 @@
     .btn-link-inverse {
         @apply border-transparent py-0 px-0 rounded-none font-semibold text-white hover:text-white/80 focus:text-white/80 dark:text-white dark:hover:text-white/80 dark:focus:text-white/80;
     }
+
+    /* Стилизованный range slider (совпадает с Preline UI). Класс range-slider для input[type="range"]. */
+    .range-slider {
+        @apply w-full bg-transparent cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus:outline-none;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+    .range-slider::-webkit-slider-thumb {
+        width: 0.625rem;
+        height: 0.625rem;
+        margin-top: -0.125rem;
+        appearance: none;
+        -webkit-appearance: none;
+        background: var(--color-layer, #fff);
+        box-shadow: 0 0 0 4px var(--color-primary, #3b82f6);
+        border-radius: 9999px;
+        transition: all 0.15s ease-in-out;
+    }
+    .range-slider::-moz-range-thumb {
+        width: 0.625rem;
+        height: 0.625rem;
+        appearance: none;
+        background: var(--color-layer, #fff);
+        border: 4px solid var(--color-primary, #3b82f6);
+        border-radius: 9999px;
+        transition: all 0.15s ease-in-out;
+    }
+    .range-slider::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 0.5rem;
+        background: var(--color-surface, #e5e7eb);
+        border-radius: 9999px;
+    }
+    .range-slider::-moz-range-track {
+        width: 100%;
+        height: 0.5rem;
+        background: var(--color-surface, #e5e7eb);
+        border-radius: 9999px;
+    }
+    .dark .range-slider::-webkit-slider-thumb {
+        background: var(--color-layer, #404040);
+    }
+    .dark .range-slider::-moz-range-thumb {
+        background: var(--color-layer, #404040);
+    }
+    .dark .range-slider::-webkit-slider-runnable-track,
+    .dark .range-slider::-moz-range-track {
+        background: var(--color-surface, #525252);
+    }
+
+    /* Унифицированный стиль select в духе Preline */
+    .form-select {
+        @apply py-3 px-4 pe-9 block w-full rounded-lg text-sm bg-white border border-gray-200 text-gray-800 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1rem 1rem;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 16 16'%3e%3cpath fill='%239CA3AF' d='M4.646 10.854a.5.5 0 0 1 .708 0L8 13.5l2.646-2.646a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708Z'/%3e%3cpath fill='%239CA3AF' d='M4.646 5.146a.5.5 0 0 0 .708 0L8 2.5l2.646 2.646a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 0 0 0 .708Z'/%3e%3c/svg%3e");
+    }
+
+    /* Отрисовываем каждый вариант списка его реальным шрифтом */
+    #caption-font-family option[data-font="roboto"] {
+        font-family:
+            "Roboto",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+    #caption-font-family option[data-font="montserrat"] {
+        font-family:
+            "Montserrat",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+    #caption-font-family option[data-font="open_sans"] {
+        font-family:
+            "Open Sans",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+    #caption-font-family option[data-font="rubik"] {
+        font-family:
+            "Rubik",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+    #caption-font-family option[data-font="sofia_sans"] {
+        font-family:
+            "Sofia Sans",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+    #caption-font-family option[data-font="eb_garamond"] {
+        font-family: "EB Garamond", "Georgia", "Times New Roman", serif;
+    }
+    #caption-font-family option[data-font="playfair"] {
+        font-family: "Playfair Display", "Georgia", "Times New Roman", serif;
+    }
+    #caption-font-family option[data-font="oswald"] {
+        font-family:
+            "Oswald",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+    #caption-font-family option[data-font="comfortaa"] {
+        font-family:
+            "Comfortaa",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+    #caption-font-family option[data-font="bad_script"] {
+        font-family: "Bad Script", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="caveat"] {
+        font-family: "Caveat", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="pacifico"] {
+        font-family: "Pacifico", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="lobster"] {
+        font-family: "Lobster", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="great_vibes"] {
+        font-family: "Great Vibes", "Comic Sans MS", system-ui, cursive;
+    }
+    #caption-font-family option[data-font="press_start_2p"] {
+        font-family: "Press Start 2P", "Courier New", ui-monospace, monospace;
+    }
+    #caption-font-family option[data-font="rubik_marker_hatch"] {
+        font-family:
+            "Rubik Marker Hatch",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+    #caption-font-family option[data-font="rubik_wet_paint"] {
+        font-family:
+            "Rubik Wet Paint",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+    #caption-font-family option[data-font="line_seed_jp"] {
+        font-family:
+            "LINE Seed JP",
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
+    }
+
+    /* Унифицированный стиль color picker'ов */
+    .color-picker {
+        @apply p-1 h-10 w-14 block bg-white border border-gray-300 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none;
+    }
+
+    /* Унифицированный стиль текстового поля (в духе Preline) */
+    .form-input {
+        @apply py-2.5 sm:py-3 px-4 block w-full rounded-lg bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder:text-neutral-500;
+    }
 }
 
 @layer utilities {
+    /* Совместимость с class `outline-hidden` из Tailwind v4/Preline примеров */
+    .outline-hidden {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+    }
+
     /* Стили для Chart.js tooltip */
     .chartjs-tooltip {
         box-shadow:

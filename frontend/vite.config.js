@@ -44,6 +44,7 @@ export default defineConfig({
         map_region: path.resolve(entriesDir, 'map_region.js'),
         map_region_selected: path.resolve(entriesDir, 'map_region_selected.js'),
         map_share: path.resolve(entriesDir, 'map_share.js'),
+        share_region_image: path.resolve(entriesDir, 'share_region_image.js'),
         region_all: path.resolve(entriesDir, 'region_all.js'),
         share_modal: path.resolve(entriesDir, 'share_modal.js'),
         sidebar: path.resolve(entriesDir, 'sidebar.js'),

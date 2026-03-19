@@ -100,6 +100,12 @@ const WATERMARK_BG = '#f3f4f6';
 const WATERMARK_BORDER = '#9ca3af';
 const WATERMARK_BORDER_WIDTH = 1;
 const WATERMARK_RADIUS = 6;
+const PROGRESS_BADGE_PAD = 14;
+const PROGRESS_BADGE_CIRCLE_SIZE = 118;
+const PROGRESS_BADGE_RIBBON_WIDTH = 188;
+const PROGRESS_BADGE_RIBBON_HEIGHT = 64;
+const PROGRESS_BADGE_MINIMAL_WIDTH = 154;
+const PROGRESS_BADGE_MINIMAL_HEIGHT = 44;
 
 /** Логотип сайта (глобус из шапки сайдбара), viewBox 0 0 576 512. */
 const SITE_LOGO_PATH = 'M408 120c0 54.6-73.1 151.9-105.2 192c-7.7 9.6-22 9.6-29.6 0C241.1 271.9 168 174.6 168 120C168 53.7 221.7 0 288 0s120 53.7 120 120zm8 80.4c3.5-6.9 6.7-13.8 9.6-20.6c.5-1.2 1-2.5 1.5-3.7l116-46.4C558.9 123.4 576 135 576 152V422.8c0 9.8-6 18.6-15.1 22.3L416 503V200.4zM137.6 138.3c2.4 14.1 7.2 28.3 12.8 41.5c2.9 6.8 6.1 13.7 9.6 20.6V451.8L32.9 502.7C17.1 509 0 497.4 0 480.4V209.6c0-9.8 6-18.6 15.1-22.3l122.6-49zM327.8 332c13.9-17.4 35.7-45.7 56.2-77V504.3L192 449.4V255c20.5 31.3 42.3 59.6 56.2 77c20.5 25.6 59.1 25.6 79.6 0zM288 152a40 40 0 1 0 0-80 40 40 0 1 0 0 80z';
@@ -583,7 +589,30 @@ async function renderToCanvas(geoJson, exportDimensions) {
         drawCaption(ctx, caption, captionOptions, w, h, markerScale);
     }
 
-    drawWatermark(ctx, w, h, markerScale);
+    if (lastPositionChangeSource === 'watermark') {
+        drawWatermark(ctx, w, h, markerScale, []);
+        const watermarkPos = getWatermarkPosition();
+        const s = markerScale || 1;
+        const wmBadge = getWatermarkBadge(s);
+        let watermarkRect = null;
+        if (wmBadge && watermarkPos !== 'off') {
+            const wmPad = WATERMARK_PAD * s;
+            const wmW = wmBadge.width;
+            const wmH = wmBadge.height;
+            watermarkRect = {
+                x: (watermarkPos === 'top-right' || watermarkPos === 'bottom-right') ? w - wmPad - wmW : wmPad,
+                y: (watermarkPos === 'top-left' || watermarkPos === 'top-right') ? wmPad : h - wmPad - wmH,
+                w: wmW,
+                h: wmH,
+            };
+        }
+        const blocked = watermarkRect ? [watermarkRect] : [];
+        drawProgressBadge(ctx, w, h, markerScale, blocked);
+    } else {
+        const badgeRect = drawProgressBadge(ctx, w, h, markerScale, []);
+        const occupiedRects = badgeRect ? [badgeRect] : [];
+        drawWatermark(ctx, w, h, markerScale, occupiedRects);
+    }
 
     if (forExport) {
         // Для экспорта возвращаем offscreen-холст как есть
@@ -1013,6 +1042,31 @@ function getWatermarkPosition() {
     return (el && el.value && el.value !== 'off') ? el.value : 'off';
 }
 
+let suppressPositionSourceTracking = false;
+let lastPositionChangeSource = 'badge';
+
+function setWatermarkPositionControl(position, options) {
+    if (!position || position === 'off') return;
+    const target = document.querySelector(`input[name="share-watermark"][value="${position}"]`);
+    if (!target || target.disabled || target.checked) return;
+    const silent = options && options.silent;
+    if (silent) suppressPositionSourceTracking = true;
+    target.checked = true;
+    target.dispatchEvent(new Event('change', { bubbles: true }));
+    if (silent) suppressPositionSourceTracking = false;
+}
+
+function setProgressBadgePositionControl(position, options) {
+    if (!position || position === 'off') return;
+    const target = document.querySelector(`input[name="share-progress-badge-position"][value="${position}"]`);
+    if (!target || target.disabled || target.checked) return;
+    const silent = options && options.silent;
+    if (silent) suppressPositionSourceTracking = true;
+    target.checked = true;
+    target.dispatchEvent(new Event('change', { bubbles: true }));
+    if (silent) suppressPositionSourceTracking = false;
+}
+
 const watermarkBadgeCache = new Map();
 
 function getWatermarkBadge(scale) {
@@ -1077,7 +1131,7 @@ function getWatermarkBadge(scale) {
     return off;
 }
 
-function drawWatermark(ctx, canvasWidth, canvasHeight, scale) {
+function drawWatermark(ctx, canvasWidth, canvasHeight, scale, occupiedRects) {
     const pos = getWatermarkPosition();
     if (pos === 'off') return;
     const s = scale || 1;
@@ -1087,20 +1141,41 @@ function drawWatermark(ctx, canvasWidth, canvasHeight, scale) {
     const boxW = badge.width;
     const boxH = badge.height;
 
-    let boxX;
-    let boxY;
-    if (pos === 'top-right' || pos === 'bottom-right') {
-        boxX = canvasWidth - pad - boxW;
-    } else {
-        boxX = pad;
-    }
-    if (pos === 'top-left' || pos === 'top-right') {
-        boxY = pad;
-    } else {
-        boxY = canvasHeight - pad - boxH;
+    function positionToRect(position) {
+        let x;
+        let y;
+        if (position === 'top-right' || position === 'bottom-right') x = canvasWidth - pad - boxW;
+        else x = pad;
+        if (position === 'top-left' || position === 'top-right') y = pad;
+        else y = canvasHeight - pad - boxH;
+        return { x, y, w: boxW, h: boxH };
     }
 
-    ctx.drawImage(badge, boxX, boxY, boxW, boxH);
+    function rectsOverlap(a, b) {
+        if (!a || !b) return false;
+        return !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y);
+    }
+
+    const blockedRects = Array.isArray(occupiedRects) ? occupiedRects : [];
+    const candidates = [pos, 'top-right', 'top-left', 'bottom-right', 'bottom-left'];
+    let chosen = positionToRect(pos);
+    let chosenPosition = pos;
+    for (let i = 0; i < candidates.length; i++) {
+        const candidatePosition = candidates[i];
+        const candidateRect = positionToRect(candidatePosition);
+        const hasCollision = blockedRects.some((r) => rectsOverlap(candidateRect, r));
+        if (!hasCollision) {
+            chosen = candidateRect;
+            chosenPosition = candidatePosition;
+            break;
+        }
+    }
+
+    if (chosenPosition !== pos) {
+        setWatermarkPositionControl(chosenPosition, { silent: true });
+    }
+
+    ctx.drawImage(badge, chosen.x, chosen.y, boxW, boxH);
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -1115,6 +1190,194 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.lineTo(x, y + r);
     ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
+}
+
+function getProgressBadgeOptions() {
+    const enabledEl = document.querySelector('input[name="share-progress-badge-enabled"]:checked');
+    const styleEl = document.querySelector('input[name="share-progress-badge-style"]:checked');
+    const positionEl = document.querySelector('input[name="share-progress-badge-position"]:checked');
+    const percentRaw = numCities > 0 ? Math.round((numVisited / numCities) * 100) : 0;
+    return {
+        enabled: !!enabledEl && enabledEl.value !== 'off',
+        style: (styleEl && styleEl.value) || 'circle',
+        position: (positionEl && positionEl.value) || 'top-left',
+        percent: Math.max(0, Math.min(100, percentRaw)),
+        ratioText: `${numVisited} / ${numCities}`,
+    };
+}
+
+function drawProgressBadge(ctx, canvasWidth, canvasHeight, scale, occupiedRects) {
+    const options = getProgressBadgeOptions();
+    if (!options.enabled) return null;
+
+    const s = scale || 1;
+    const pad = PROGRESS_BADGE_PAD * s;
+    const pos = options.position;
+    const isRight = pos === 'top-right' || pos === 'bottom-right';
+    const isTop = pos === 'top-left' || pos === 'top-right';
+
+    function startRect(width, height) {
+        const x = isRight ? canvasWidth - pad - width : pad;
+        const y = isTop ? pad : canvasHeight - pad - height;
+        return { x, y, w: width, h: height };
+    }
+
+    function rectsOverlap(a, b) {
+        if (!a || !b) return false;
+        return !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y);
+    }
+
+    function resolveRect(width, height) {
+        const blockedRects = Array.isArray(occupiedRects) ? occupiedRects : [];
+        const candidates = [options.position, 'top-right', 'top-left', 'bottom-right', 'bottom-left'];
+        let chosenPosition = options.position;
+        let chosenRect = startRect(width, height);
+        for (let i = 0; i < candidates.length; i++) {
+            const candidatePosition = candidates[i];
+            const candidateIsRight = candidatePosition === 'top-right' || candidatePosition === 'bottom-right';
+            const candidateIsTop = candidatePosition === 'top-left' || candidatePosition === 'top-right';
+            const candidateRect = {
+                x: candidateIsRight ? canvasWidth - pad - width : pad,
+                y: candidateIsTop ? pad : canvasHeight - pad - height,
+                w: width,
+                h: height,
+            };
+            const hasCollision = blockedRects.some((r) => rectsOverlap(candidateRect, r));
+            if (!hasCollision) {
+                chosenPosition = candidatePosition;
+                chosenRect = candidateRect;
+                break;
+            }
+        }
+        if (chosenPosition !== options.position) {
+            setProgressBadgePositionControl(chosenPosition, { silent: true });
+        }
+        return chosenRect;
+    }
+
+    if (options.style === 'ribbon') {
+        const rect = resolveRect(PROGRESS_BADGE_RIBBON_WIDTH * s, PROGRESS_BADGE_RIBBON_HEIGHT * s);
+        const w = rect.w;
+        const h = rect.h;
+        const x = rect.x;
+        const y = rect.y;
+
+        roundRect(ctx, x, y, w, h, 12 * s);
+        ctx.fillStyle = 'rgba(17, 24, 39, 0.84)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.lineWidth = Math.max(1, 1.25 * s);
+        ctx.stroke();
+
+        const textX = x + w / 2;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        ctx.fillStyle = '#f9fafb';
+        ctx.font = `700 ${Math.round(22 * s)}px system-ui, sans-serif`;
+        ctx.fillText(`${options.percent}%`, textX, y + h * 0.4);
+
+        ctx.fillStyle = 'rgba(249, 250, 251, 0.9)';
+        ctx.font = `600 ${Math.round(14 * s)}px system-ui, sans-serif`;
+        ctx.fillText(options.ratioText, textX, y + h * 0.72);
+        return { x, y, w, h };
+    }
+
+    if (options.style === 'glass') {
+        const rect = resolveRect(PROGRESS_BADGE_RIBBON_WIDTH * s, PROGRESS_BADGE_RIBBON_HEIGHT * s);
+        const w = rect.w;
+        const h = rect.h;
+        const x = rect.x;
+        const y = rect.y;
+
+        roundRect(ctx, x, y, w, h, 14 * s);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.62)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.lineWidth = Math.max(1, 1.5 * s);
+        ctx.stroke();
+
+        roundRect(ctx, x + 2 * s, y + 2 * s, w - 4 * s, h * 0.42, 12 * s);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.fill();
+
+        const textX = x + w / 2;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = `800 ${Math.round(24 * s)}px system-ui, sans-serif`;
+        ctx.fillText(`${options.percent}%`, textX, y + h * 0.42);
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+        ctx.font = `700 ${Math.round(13 * s)}px system-ui, sans-serif`;
+        ctx.fillText(`${options.ratioText} городов`, textX, y + h * 0.74);
+        return { x, y, w, h };
+    }
+
+    if (options.style === 'minimal') {
+        const rect = resolveRect(PROGRESS_BADGE_MINIMAL_WIDTH * s, PROGRESS_BADGE_MINIMAL_HEIGHT * s);
+        const w = rect.w;
+        const h = rect.h;
+        const x = rect.x;
+        const y = rect.y;
+        const progressW = (w - 4 * s) * (options.percent / 100);
+
+        roundRect(ctx, x, y, w, h, 10 * s);
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.72)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
+        ctx.lineWidth = Math.max(1, 1.1 * s);
+        ctx.stroke();
+
+        roundRect(ctx, x + 2 * s, y + h - 10 * s, w - 4 * s, 7 * s, 4 * s);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.fill();
+        roundRect(ctx, x + 2 * s, y + h - 10 * s, progressW, 7 * s, 4 * s);
+        ctx.fillStyle = '#22c55e';
+        ctx.fill();
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = `700 ${Math.round(14 * s)}px system-ui, sans-serif`;
+        ctx.fillText(`${options.ratioText} · ${options.percent}%`, x + w / 2, y + h * 0.42);
+        return { x, y, w, h };
+    }
+
+    const size = PROGRESS_BADGE_CIRCLE_SIZE * s;
+    const radius = size / 2;
+    const rect = resolveRect(size, size);
+    const x = rect.x;
+    const y = rect.y;
+    const cx = x + radius;
+    const cy = y + radius;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(17, 24, 39, 0.84)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.lineWidth = Math.max(1, 1.25 * s);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * 0.76, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (options.percent / 100), false);
+    ctx.strokeStyle = '#22c55e';
+    ctx.lineWidth = Math.max(2, 6 * s);
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#f9fafb';
+    ctx.font = `700 ${Math.round(24 * s)}px system-ui, sans-serif`;
+    ctx.fillText(`${options.percent}%`, cx, cy - 9 * s);
+
+    ctx.fillStyle = 'rgba(249, 250, 251, 0.9)';
+    ctx.font = `600 ${Math.round(13 * s)}px system-ui, sans-serif`;
+    ctx.fillText(options.ratioText, cx, cy + 16 * s);
+    return { x, y, w: size, h: size };
 }
 
 function getRegionFileName() {
@@ -1243,9 +1506,19 @@ function redrawOnCaptionOptionsChange() {
     schedulePreviewRender();
 }
 
-['share-aspect-ratio', 'share-resolution', 'share-background', 'share-watermark', 'caption-text-preset', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight', 'caption-background'].forEach((name) => {
+['share-aspect-ratio', 'share-resolution', 'share-background', 'share-watermark', 'share-progress-badge-enabled', 'share-progress-badge-style', 'share-progress-badge-position', 'caption-text-preset', 'caption-position', 'caption-align', 'caption-font-size', 'caption-font-family', 'caption-font-weight', 'caption-background'].forEach((name) => {
     document.querySelectorAll(`input[name="${name}"]`).forEach((el) => {
         el.addEventListener('change', redrawOnCaptionOptionsChange);
+    });
+});
+document.querySelectorAll('input[name="share-watermark"]').forEach((el) => {
+    el.addEventListener('change', () => {
+        if (!suppressPositionSourceTracking) lastPositionChangeSource = 'watermark';
+    });
+});
+document.querySelectorAll('input[name="share-progress-badge-position"]').forEach((el) => {
+    el.addEventListener('change', () => {
+        if (!suppressPositionSourceTracking) lastPositionChangeSource = 'badge';
     });
 });
 const captionTextPresetWrap = document.getElementById('caption-text-preset-wrap');

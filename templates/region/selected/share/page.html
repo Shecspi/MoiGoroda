@@ -44,9 +44,7 @@
     </header>
 
     {% if not DEBUG %}
-        {% if not user.is_authenticated %}
-            {% include 'advertisement/rtb_floor_fullscreen_mobile.html' %}
-        {% endif %}
+        {% include 'advertisement/rtb_banner.html' %}
     {% endif %}
 
     {% if active_subscription_level != 'advanced' %}

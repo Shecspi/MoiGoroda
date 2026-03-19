@@ -34,6 +34,8 @@
 
 - *(premium)* Баннер премиум-подписки ([ec8a820](https://github.com/Shecspi/MoiGoroda/commit/ec8a8205d09f58c1323c2b9a2d1418bbc63e3a06))
 
+- *(region)* Добавлена возможность скачивать и делиться изображениями с посещёнными городами ([ff77b95](https://github.com/Shecspi/MoiGoroda/commit/ff77b9549a5307cce494455a14423236f2713df1))
+
 
 #### 🐛 Исправление ошибок
 

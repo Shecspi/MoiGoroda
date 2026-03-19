@@ -415,12 +415,18 @@ class RegionShareView(LoginRequiredMixin, View):
             logger.warning(request, f'(Region) Share: non-existent region #{pk}')
             raise Http404 from None
 
-        queryset = City.objects.filter(region_id=pk).annotate(
-            is_visited=Exists(VisitedCity.objects.filter(city_id=OuterRef('pk'), user=request.user))
-        ).values(
-            'coordinate_width',
-            'coordinate_longitude',
-            'is_visited',
+        queryset = (
+            City.objects.filter(region_id=pk)
+            .annotate(
+                is_visited=Exists(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=request.user)
+                )
+            )
+            .values(
+                'coordinate_width',
+                'coordinate_longitude',
+                'is_visited',
+            )
         )
         all_cities = list(queryset)
         number_of_cities = len(all_cities)

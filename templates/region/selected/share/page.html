@@ -9,6 +9,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Caveat:wght@400..700&family=Comfortaa:wght@300..700&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=LINE+Seed+JP&family=Lobster&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@200..700&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Press+Start+2P&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik+Marker+Hatch&family=Rubik+Wet+Paint&family=Rubik:ital,wght@0,300..900;1,300..900&family=Sofia+Sans:ital,wght@0,1..1000;1,1..1000&display=swap"
           rel="stylesheet">
+    <style>
+        @media (max-width: 639px) {
+            .btn-group-wrap {
+                gap: 0.5rem;
+            }
+
+            .btn-group-wrap > label {
+                margin-left: 0 !important;
+                border-radius: 0.5rem !important;
+            }
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -74,7 +86,7 @@
                     <div class="flex flex-wrap gap-6">
                         <fieldset class="flex flex-wrap gap-2">
                             <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Соотношение сторон</legend>
-                            <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                            <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
                                 {% if active_subscription_level == 'advanced' %}
                                     <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                         <input type="radio" name="share-aspect-ratio" value="16:9" class="sr-only">
@@ -121,7 +133,7 @@
                         </fieldset>
                         <fieldset class="flex flex-wrap gap-2">
                             <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Разрешение</legend>
-                            <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                            <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
                                 <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                     <input type="radio" name="share-resolution" value="720" class="sr-only" checked>
                                     720p
@@ -158,7 +170,7 @@
                         <fieldset class="flex flex-wrap gap-3 items-end">
                             <div class="flex flex-wrap gap-2">
                                 <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Подложка</legend>
-                                <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                                <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
                                     <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                         <input type="radio" name="share-background" value="none" class="sr-only">
                                         Без подложки
@@ -182,7 +194,7 @@
                         </fieldset>
                         <fieldset class="flex flex-wrap gap-2">
                             <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Копирайт</legend>
-                            <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                            <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
                                 <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                     <input type="radio" name="share-watermark" value="top-left" class="sr-only">
                                     Сверху слева
@@ -225,8 +237,8 @@
                 <fieldset class="flex flex-wrap gap-2 w-full" id="caption-text-fieldset">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Вариант подписи</legend>
                     <div class="w-full flex flex-col gap-2">
-                        <div class="inline-flex items-center gap-2 w-full">
-                            <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                        <div class="flex w-full flex-wrap items-center gap-2 sm:flex-nowrap">
+                            <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
                                 <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                     <input type="radio" name="caption-text-mode" value="none" class="sr-only">
                                     Без подписи
@@ -251,7 +263,7 @@
                                     </label>
                                 {% endif %}
                             </div>
-                            <div class="flex-1 min-w-[8rem]">
+                            <div class="w-full sm:min-w-[8rem] sm:flex-1">
                                 <div id="caption-text-preset-wrap">
                                     <label for="caption-text-preset" class="sr-only">Шаблон подписи</label>
                                     <select id="caption-text-preset"
@@ -276,7 +288,7 @@
                 </fieldset>
                 <fieldset class="flex flex-wrap gap-2">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Положение</legend>
-                    <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                    <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
                         <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                             <input type="radio" name="caption-position" value="top" class="sr-only" aria-label="Сверху">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" class="h-4 w-4 -rotate-90" aria-hidden="true">
@@ -299,7 +311,7 @@
                 </fieldset>
                 <fieldset class="flex flex-wrap gap-2">
                     <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400">Выравнивание текста</legend>
-                    <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                    <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
                         <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg inline-flex cursor-pointer items-center gap-x-1.5 text-xs font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                             <input type="radio" name="caption-align" value="left" class="sr-only" aria-label="По левому краю">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" class="h-4 w-4" aria-hidden="true">
@@ -372,7 +384,7 @@
                 <fieldset class="flex flex-wrap gap-3 items-end">
                     <div class="flex flex-wrap gap-2">
                         <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Начертание</legend>
-                        <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                        <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
                             <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                 <input type="radio" name="caption-font-weight" value="normal" class="sr-only">
                                 Обычный
@@ -384,10 +396,14 @@
                         </div>
                     </div>
                 </fieldset>
+                <fieldset class="flex flex-wrap gap-2 items-end">
+                    <legend class="mb-1 text-xs font-medium text-gray-500 dark:text-neutral-400 w-full">Цвет текста</legend>
+                    <input type="color" id="caption-text-color" name="caption-text-color" value="#111827" title="Выберите цвет текста" class="color-picker">
+                </fieldset>
                 <fieldset class="flex flex-wrap gap-3 items-end">
                     <div class="flex flex-wrap gap-2">
                         <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Фон подписи</legend>
-                        <div class="inline-flex rounded-lg shadow-2xs overflow-hidden">
+                        <div class="btn-group-wrap inline-flex flex-wrap rounded-lg shadow-2xs">
                             <label class="py-2 px-3 -ms-px first:rounded-s-lg first:ms-0 inline-flex cursor-pointer items-center gap-x-1.5 text-xs sm:text-sm font-medium focus:z-10 bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus has-[:checked]:bg-blue-50 has-[:checked]:text-blue-700 dark:has-[:checked]:bg-blue-500/10 dark:has-[:checked]:text-blue-300">
                                 <input type="radio" name="caption-background" value="none" class="sr-only">
                                 Без фона
@@ -403,12 +419,6 @@
                         </div>
                     </div>
                 </fieldset>
-                <div class="flex flex-wrap items-end gap-4">
-                    <div>
-                        <label for="caption-text-color" class="block mb-2 text-xs font-medium text-gray-500 dark:text-neutral-400">Цвет текста</label>
-                        <input type="color" id="caption-text-color" name="caption-text-color" value="#111827" title="Выберите цвет текста" class="color-picker">
-                    </div>
-                </div>
                 <fieldset class="flex flex-wrap items-end gap-4">
                     <legend class="mb-1 w-full text-xs font-medium text-gray-500 dark:text-neutral-400">Параметры фона</legend>
                     <label for="caption-bg-color" class="block mb-2 text-xs font-medium text-gray-500 dark:text-neutral-400">Цвет</label>

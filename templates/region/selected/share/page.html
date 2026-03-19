@@ -451,24 +451,17 @@
     </div>
 
     <script>
-        window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
-        window.TILE_LAYER = "{{ TILE_LAYER }}";
+        window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS|escapejs }}";
+        window.TILE_LAYER = "{{ TILE_LAYER|escapejs }}";
         window.REGION_NAME = "{{ region_name|escapejs }}";
         window.SHARE_NUMBER_OF_VISITED = {{ number_of_visited_cities }};
         window.SHARE_NUMBER_OF_CITIES = {{ number_of_cities }};
         window.ALL_CITIES = [];
         {% for city in all_cities %}
             window.ALL_CITIES.push({
-                id: {{ city.id }},
-                name: "{{ city.title|escapejs }}",
                 lat: parseFloat('{{ city.coordinate_width }}'.replace(/,/, '.')),
                 lon: parseFloat('{{ city.coordinate_longitude }}'.replace(/,/, '.')),
-                isVisited: {{ city.is_visited|yesno:"true,false" }},
-                numberOfVisits: {{ city.number_of_visits|default:'null' }},
-                firstVisitDate: "{{ city.first_visit_date|date:'Y-m-d'|default_if_none:'' }}",
-                lastVisitDate: "{{ city.last_visit_date|date:'Y-m-d'|default_if_none:'' }}",
-                numberOfUsersWhoVisitCity: {{ city.number_of_users_who_visit_city|default:'null' }},
-                numberOfVisitsAllUsers: {{ city.number_of_visits_all_users|default:'null' }}
+                isVisited: {{ city.is_visited|yesno:"true,false" }}
             });
         {% endfor %}
     </script>

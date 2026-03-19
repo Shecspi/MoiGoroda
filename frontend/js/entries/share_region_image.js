@@ -80,6 +80,9 @@ const STROKE_WIDTH = 2;
 const VISITED_COLOR = 'rgb(66, 178, 66)';
 const NOT_VISITED_COLOR = 'rgb(210, 90, 90)';
 const TILE_SIZE = 256;
+const TILE_LOAD_CONCURRENCY = 8;
+const TILE_CACHE_MAX_ENTRIES = 300;
+const POLYGON_FETCH_TIMEOUT_MS = 12000;
 
 /** Размер маркера-пина на холсте (якорь внизу по центру). */
 const PIN_WIDTH = 16;
@@ -101,6 +104,7 @@ const WATERMARK_RADIUS = 6;
 /** Логотип сайта (глобус из шапки сайдбара), viewBox 0 0 576 512. */
 const SITE_LOGO_PATH = 'M408 120c0 54.6-73.1 151.9-105.2 192c-7.7 9.6-22 9.6-29.6 0C241.1 271.9 168 174.6 168 120C168 53.7 221.7 0 288 0s120 53.7 120 120zm8 80.4c3.5-6.9 6.7-13.8 9.6-20.6c.5-1.2 1-2.5 1.5-3.7l116-46.4C558.9 123.4 576 135 576 152V422.8c0 9.8-6 18.6-15.1 22.3L416 503V200.4zM137.6 138.3c2.4 14.1 7.2 28.3 12.8 41.5c2.9 6.8 6.1 13.7 9.6 20.6V451.8L32.9 502.7C17.1 509 0 497.4 0 480.4V209.6c0-9.8 6-18.6 15.1-22.3l122.6-49zM327.8 332c13.9-17.4 35.7-45.7 56.2-77V504.3L192 449.4V255c20.5 31.3 42.3 59.6 56.2 77c20.5 25.6 59.1 25.6 79.6 0zM288 152a40 40 0 1 0 0-80 40 40 0 1 0 0 80z';
 const SITE_LOGO_VIEWBOX = { w: 576, h: 512 };
+const SITE_LOGO_PATH2D = new Path2D(SITE_LOGO_PATH);
 
 /** SVG пина локации (тот же путь, что в icons.js — locationPinSvg), без тени. */
 function locationPinSvgDataUrl(color) {
@@ -132,6 +136,7 @@ function ensurePinImages() {
 }
 
 const DEFAULT_TILE_LAYER = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const tileImageCache = new Map();
 
 /**
  * Возвращает массив геометрий для отрисовки (поддержка Feature, FeatureCollection, Geometry).
@@ -301,13 +306,56 @@ function getZoomForBbox(bbox, mapWidth, mapHeight, pad) {
  * Загружает один тайл как Image. Для CORS используйте прокси или тайл-сервер с заголовком Access-Control-Allow-Origin.
  */
 function loadTile(url) {
-    return new Promise((resolve, reject) => {
+    const cached = tileImageCache.get(url);
+    if (cached) return cached;
+
+    const loadingPromise = new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error(`Tile load failed: ${url}`));
+        img.onerror = () => {
+            tileImageCache.delete(url);
+            reject(new Error(`Tile load failed: ${url}`));
+        };
         img.src = url;
+    }).then((img) => {
+        tileImageCache.set(url, Promise.resolve(img));
+        // Простой LRU по порядку вставки: ограничиваем рост кэша.
+        if (tileImageCache.size > TILE_CACHE_MAX_ENTRIES) {
+            const oldestKey = tileImageCache.keys().next().value;
+            if (oldestKey) tileImageCache.delete(oldestKey);
+        }
+        return img;
     });
+    tileImageCache.set(url, loadingPromise);
+    return loadingPromise;
+}
+
+/**
+ * Ограничивает параллелизм асинхронных задач (для загрузки тайлов).
+ */
+async function mapWithConcurrency(items, limit, mapper) {
+    if (!Array.isArray(items) || !items.length) return [];
+    const safeLimit = Math.max(1, limit | 0);
+    const results = new Array(items.length);
+    let cursor = 0;
+
+    async function worker() {
+        while (cursor < items.length) {
+            const idx = cursor++;
+            try {
+                results[idx] = await mapper(items[idx], idx);
+            } catch (_) {
+                results[idx] = null;
+            }
+        }
+    }
+
+    const workers = [];
+    const workerCount = Math.min(safeLimit, items.length);
+    for (let i = 0; i < workerCount; i++) workers.push(worker());
+    await Promise.all(workers);
+    return results;
 }
 
 /**
@@ -362,15 +410,18 @@ async function drawOsmTiles(ctx, bbox, mercatorState) {
     const tileLayer = (typeof window !== 'undefined' && window.TILE_LAYER && String(window.TILE_LAYER) !== 'None') ? window.TILE_LAYER : DEFAULT_TILE_LAYER;
     const urlTemplate = tileLayer.replace('{s}', 'a').replace('{z}', String(zoom));
 
-    const promises = [];
+    const tileJobs = [];
     const tiles = [];
     for (let ty = minTileY; ty < maxTileY; ty++) {
         for (let tx = minTileX; tx < maxTileX; tx++) {
             const url = urlTemplate.replace('{x}', String(tx)).replace('{y}', String(ty));
-            promises.push(loadTile(url).then((img) => ({ img, tx, ty })));
+            tileJobs.push({ url, tx, ty });
         }
     }
-    const results = await Promise.all(promises.map((p) => p.catch(() => null)));
+    const results = await mapWithConcurrency(tileJobs, TILE_LOAD_CONCURRENCY, async (job) => {
+        const img = await loadTile(job.url);
+        return { img, tx: job.tx, ty: job.ty };
+    });
     results.forEach((t) => {
         if (t) tiles.push(t);
     });
@@ -938,23 +989,79 @@ function getWatermarkPosition() {
     return (el && el.value && el.value !== 'off') ? el.value : 'off';
 }
 
-function drawWatermark(ctx, canvasWidth, canvasHeight, scale) {
-    const pos = getWatermarkPosition();
-    if (pos === 'off') return;
+const watermarkBadgeCache = new Map();
+
+function getWatermarkBadge(scale) {
     const s = scale || 1;
-    const pad = WATERMARK_PAD * s;
+    const key = `${Math.round(s * 100) / 100}`;
+    const cached = watermarkBadgeCache.get(key);
+    if (cached) return cached;
+
     const innerPad = WATERMARK_INNER_PAD * s;
     const logoGap = WATERMARK_LOGO_GAP * s;
     const logoH = WATERMARK_LOGO_HEIGHT * s;
     const logoW = (SITE_LOGO_VIEWBOX.w / SITE_LOGO_VIEWBOX.h) * logoH;
     const fontSize = Math.round(WATERMARK_FONT_SIZE * s);
-    ctx.font = `${fontSize}px system-ui, sans-serif`;
-    const textW = ctx.measureText(WATERMARK_TEXT).width;
-    const lineH = fontSize * 1.2;
 
-    const boxW = innerPad + logoW + logoGap + textW + innerPad;
-    const boxH = Math.max(logoH, lineH) + 2 * innerPad;
+    const off = document.createElement('canvas');
+    const offCtx = off.getContext('2d');
+    if (!offCtx) return null;
+
+    offCtx.font = `${fontSize}px system-ui, sans-serif`;
+    const textW = offCtx.measureText(WATERMARK_TEXT).width;
+    const lineH = fontSize * 1.2;
+    const boxW = Math.ceil(innerPad + logoW + logoGap + textW + innerPad);
+    const boxH = Math.ceil(Math.max(logoH, lineH) + 2 * innerPad);
     const radius = Math.max(2, WATERMARK_RADIUS * s);
+
+    off.width = boxW;
+    off.height = boxH;
+    offCtx.font = `${fontSize}px system-ui, sans-serif`;
+
+    roundRect(offCtx, 0, 0, boxW, boxH, radius);
+    offCtx.fillStyle = WATERMARK_BG;
+    offCtx.fill();
+    offCtx.strokeStyle = WATERMARK_BORDER;
+    offCtx.lineWidth = WATERMARK_BORDER_WIDTH;
+    offCtx.stroke();
+
+    const logoBlockW = Math.ceil(logoW);
+    const logoBlockH = Math.ceil(logoH);
+    const logoCanvas = document.createElement('canvas');
+    logoCanvas.width = logoBlockW;
+    logoCanvas.height = logoBlockH;
+    const logoCtx = logoCanvas.getContext('2d');
+    if (logoCtx) {
+        logoCtx.fillStyle = '#374151';
+        logoCtx.scale(logoBlockW / SITE_LOGO_VIEWBOX.w, logoBlockH / SITE_LOGO_VIEWBOX.h);
+        logoCtx.fill(SITE_LOGO_PATH2D);
+        const logoY = (boxH - logoH) / 2;
+        offCtx.drawImage(logoCanvas, innerPad, logoY, logoBlockW, logoBlockH);
+    }
+
+    const textX = innerPad + logoW + logoGap;
+    offCtx.fillStyle = '#374151';
+    offCtx.textAlign = 'left';
+    offCtx.textBaseline = 'middle';
+    offCtx.fillText(WATERMARK_TEXT, textX, boxH / 2);
+
+    watermarkBadgeCache.set(key, off);
+    if (watermarkBadgeCache.size > 10) {
+        const oldestKey = watermarkBadgeCache.keys().next().value;
+        if (oldestKey) watermarkBadgeCache.delete(oldestKey);
+    }
+    return off;
+}
+
+function drawWatermark(ctx, canvasWidth, canvasHeight, scale) {
+    const pos = getWatermarkPosition();
+    if (pos === 'off') return;
+    const s = scale || 1;
+    const pad = WATERMARK_PAD * s;
+    const badge = getWatermarkBadge(s);
+    if (!badge) return;
+    const boxW = badge.width;
+    const boxH = badge.height;
 
     let boxX;
     let boxY;
@@ -969,33 +1076,7 @@ function drawWatermark(ctx, canvasWidth, canvasHeight, scale) {
         boxY = canvasHeight - pad - boxH;
     }
 
-    roundRect(ctx, boxX, boxY, boxW, boxH, radius);
-    ctx.fillStyle = WATERMARK_BG;
-    ctx.fill();
-    ctx.strokeStyle = WATERMARK_BORDER;
-    ctx.lineWidth = WATERMARK_BORDER_WIDTH;
-    ctx.stroke();
-
-    const logoBlockW = Math.ceil(logoW);
-    const logoBlockH = Math.ceil(logoH);
-    const off = document.createElement('canvas');
-    off.width = logoBlockW;
-    off.height = logoBlockH;
-    const offCtx = off.getContext('2d');
-    if (offCtx) {
-        offCtx.fillStyle = '#374151';
-        const path = new Path2D(SITE_LOGO_PATH);
-        offCtx.scale(logoBlockW / SITE_LOGO_VIEWBOX.w, logoBlockH / SITE_LOGO_VIEWBOX.h);
-        offCtx.fill(path);
-        const logoY = boxY + (boxH - logoH) / 2;
-        ctx.drawImage(off, boxX + innerPad, logoY, logoBlockW, logoBlockH);
-    }
-
-    const textX = boxX + innerPad + logoW + logoGap;
-    ctx.fillStyle = '#374151';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(WATERMARK_TEXT, textX, boxY + boxH / 2);
+    ctx.drawImage(badge, boxX, boxY, boxW, boxH);
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -1066,9 +1147,12 @@ function setLoading(loading) {
 
 const polygonUrl = `${window.URL_GEO_POLYGONS}/region/hq/${country_code}/${region_code}`;
 let geoJsonData = null;
+const polygonController = new AbortController();
+const polygonTimeoutId = setTimeout(() => polygonController.abort(), POLYGON_FETCH_TIMEOUT_MS);
 
-fetch(polygonUrl)
+fetch(polygonUrl, { signal: polygonController.signal })
     .then((response) => {
+        clearTimeout(polygonTimeoutId);
         if (!response.ok) throw new Error(response.statusText);
         return response.json();
     })
@@ -1084,6 +1168,7 @@ fetch(polygonUrl)
         });
     })
     .catch((err) => {
+        clearTimeout(polygonTimeoutId);
         console.warn('Ошибка загрузки границ региона:', err);
         const canvas = document.getElementById('share-image-canvas');
         if (canvas) {

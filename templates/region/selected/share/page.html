@@ -596,6 +596,7 @@
         window.REGION_NAME = "{{ region_name|escapejs }}";
         window.SHARE_NUMBER_OF_VISITED = {{ number_of_visited_cities }};
         window.SHARE_NUMBER_OF_CITIES = {{ number_of_cities }};
+        window.YANDEX_METRIKA_ID = "{{ YANDEX_METRIKA|default:''|escapejs }}";
         window.ALL_CITIES = [];
         {% for city in all_cities %}
             window.ALL_CITIES.push({

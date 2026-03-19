@@ -22,9 +22,17 @@
     </header>
 
     {% if active_subscription_level != 'advanced' %}
-        <div class="mx-3 mb-4 flex justify-center">
-            <div class="w-full max-w-2xl rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
-                <p>
+        <div id="premium-info-banner-wrapper" class="mx-3 mb-4 flex justify-center">
+            <div id="premium-info-banner" class="relative w-full max-w-2xl rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+                <button type="button"
+                        id="premium-info-banner-close"
+                        class="absolute right-2 top-2 inline-flex size-7 items-center justify-center rounded-md text-amber-900/80 hover:bg-amber-200/60 hover:text-amber-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:text-amber-100/80 dark:hover:bg-amber-500/20 dark:hover:text-amber-50"
+                        aria-label="Скрыть информационный блок">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 384 512" aria-hidden="true">
+                        <path fill="currentColor" d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3l105.4 105.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
+                    </svg>
+                </button>
+                <p class="pr-8">
                     Часть функций доступна только по расширенной премиум-подписке.
                     <a href="{% url 'premium_promo' %}" class="font-semibold text-amber-900 underline decoration-amber-500/70 hover:text-amber-800 dark:text-amber-100 dark:hover:text-amber-50">
                         {% if not has_active_subscription %}
@@ -464,6 +472,37 @@
                 isVisited: {{ city.is_visited|yesno:"true,false" }}
             });
         {% endfor %}
+
+        (function setupPremiumInfoBanner() {
+            const bannerWrapper = document.getElementById('premium-info-banner-wrapper');
+            const closeButton = document.getElementById('premium-info-banner-close');
+
+            if (!bannerWrapper || !closeButton) {
+                return;
+            }
+
+            const storageKey = 'shareRegionPremiumInfoBannerDismissed';
+            const dismissedValue = '1';
+
+            try {
+                if (window.localStorage.getItem(storageKey) === dismissedValue) {
+                    bannerWrapper.style.display = 'none';
+                    return;
+                }
+            } catch (error) {
+                // Ignore localStorage issues (e.g. blocked in private mode)
+            }
+
+            closeButton.addEventListener('click', function () {
+                bannerWrapper.style.display = 'none';
+
+                try {
+                    window.localStorage.setItem(storageKey, dismissedValue);
+                } catch (error) {
+                    // Ignore localStorage issues (e.g. blocked in private mode)
+                }
+            });
+        })();
     </script>
     {% vite_asset 'js/entries/share_region_image.js' %}
 {% endblock %}

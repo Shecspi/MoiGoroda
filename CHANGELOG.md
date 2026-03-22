@@ -73,6 +73,8 @@
 
 - *(city)* Исправлена svg иконка на карточке города ([403a3c9](https://github.com/Shecspi/MoiGoroda/commit/403a3c939e676f9903dca661b19bf92c198e8e64))
 
+- *(city)* Обновлена форма добавления города — Preline-селекты, z-index выпадающих списков и правки UX ([17a3354](https://github.com/Shecspi/MoiGoroda/commit/17a3354aa563c75dbbe480432c63f31e97424a38))
+
 
 #### 🧪 Тестирование
 

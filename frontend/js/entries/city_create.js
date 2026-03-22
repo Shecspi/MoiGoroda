@@ -150,9 +150,22 @@ function initCityCreateForm() {
         citySelect.setAttribute('required', 'required');
     }
 
+    let countryFetchController = null;
+    let regionFetchController = null;
+
     // При изменении страны делаем запрос и обновляем регионы
     countrySelect.addEventListener('change', async (event) => {
         const countryId = event.target.value;
+
+        if (countryFetchController) {
+            countryFetchController.abort();
+        }
+        countryFetchController = null;
+
+        if (regionFetchController) {
+            regionFetchController.abort();
+        }
+        regionFetchController = null;
 
         if (!countryId) {
             setRegionSelectOptions([], { disabled: true });
@@ -162,21 +175,36 @@ function initCityCreateForm() {
             return;
         }
 
+        countryFetchController = new AbortController();
+        const { signal } = countryFetchController;
+
         setRegionSelectLoading();
 
         try {
-            const response = await fetch(`/api/region/list?country_id=${countryId}`);
+            const response = await fetch(`/api/region/list?country_id=${countryId}`, { signal });
+            if (countrySelect.value !== countryId) {
+                return;
+            }
             if (!response.ok) throw new Error('Ошибка загрузки регионов');
 
             const regions = await response.json();
+            if (countrySelect.value !== countryId) {
+                return;
+            }
 
             if (regions.length === 0) {
                 setRegionSelectOptions([], { disabled: true });
                 setCitySelectLoading();
-                const cityResponse = await fetch(`/api/city/list_by_country?country_id=${countryId}`);
+                const cityResponse = await fetch(`/api/city/list_by_country?country_id=${countryId}`, { signal });
+                if (countrySelect.value !== countryId) {
+                    return;
+                }
                 if (!cityResponse.ok) throw new Error('Ошибка загрузки городов');
 
                 const cities = await cityResponse.json();
+                if (countrySelect.value !== countryId) {
+                    return;
+                }
 
                 if (cities.length === 0) {
                     setCitySelectOptions([], { disabled: true });
@@ -196,6 +224,9 @@ function initCityCreateForm() {
                 validateForm();
             }
         } catch (error) {
+            if (error.name === 'AbortError') {
+                return;
+            }
             console.error('Ошибка при загрузке регионов:', error);
             setRegionSelectOptions([], { disabled: true });
             setCitySelectOptions([], { disabled: true });
@@ -207,6 +238,11 @@ function initCityCreateForm() {
     regionSelect.addEventListener('change', async (event) => {
         const regionId = event.target.value;
 
+        if (regionFetchController) {
+            regionFetchController.abort();
+        }
+        regionFetchController = null;
+
         if (!regionId) {
             setCitySelectOptions([], { disabled: true });
             citySelect.removeAttribute('required');
@@ -214,14 +250,23 @@ function initCityCreateForm() {
             return;
         }
 
+        regionFetchController = new AbortController();
+        const { signal } = regionFetchController;
+
         setCitySelectLoading();
         citySelect.setAttribute('required', 'required');
 
         try {
-            const cityResponse = await fetch(`/api/city/list_by_region?region_id=${regionId}`);
+            const cityResponse = await fetch(`/api/city/list_by_region?region_id=${regionId}`, { signal });
+            if (regionSelect.value !== regionId) {
+                return;
+            }
             if (!cityResponse.ok) throw new Error('Ошибка загрузки городов');
 
             const cities = await cityResponse.json();
+            if (regionSelect.value !== regionId) {
+                return;
+            }
 
             if (cities.length === 0) {
                 setCitySelectOptions([], { disabled: true });
@@ -234,6 +279,9 @@ function initCityCreateForm() {
             setCitySelectOptions(cities, { disabled: false, selectFirst: true });
             validateForm();
         } catch (error) {
+            if (error.name === 'AbortError') {
+                return;
+            }
             console.error('Ошибка при загрузке городов:', error);
             setCitySelectOptions([], { disabled: true });
             citySelect.removeAttribute('required');
@@ -383,8 +431,7 @@ function initCityCreateForm() {
         }
     }
     
-    // Добавляем обработчики событий для проверки формы
-    countrySelect.addEventListener('change', validateForm);
+    // validateForm для страны вызывается из обработчика смены страны (после обновления DOM).
     regionSelect.addEventListener('change', validateForm);
     citySelect.addEventListener('change', validateForm);
     

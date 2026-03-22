@@ -60,8 +60,8 @@ class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
         super().__init__(*args, **kwargs)
 
         self.fields['impression'].required = False
-        # Применяем стили к textarea
-        base_classes = 'block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-500 dark:focus:ring-neutral-600'
+        # Стили textarea — как у .form-input в tailwind.css (в духе Preline)
+        base_classes = 'form-input resize-y'
         if self.errors and 'impression' in self.errors:
             base_classes += ' border-red-500 dark:border-red-500'
         self.fields['impression'].widget.attrs.update(

@@ -74,6 +74,11 @@
 - *(city)* Исправлена svg иконка на карточке города ([403a3c9](https://github.com/Shecspi/MoiGoroda/commit/403a3c939e676f9903dca661b19bf92c198e8e64))
 
 
+#### 🧪 Тестирование
+
+- *(region)* Добавлены тесты генератора изображений карты городов региона ([13fd6ab](https://github.com/Shecspi/MoiGoroda/commit/13fd6abdac08c30626a74e4cd422e003428d85f6))
+
+
 #### Изменено
 
 - Цветовые настройки карты районов — панель на карте (кнопка-шестерёнка), сброс цветов, выравнивание и размер текста ([ba21e12](https://github.com/Shecspi/MoiGoroda/commit/ba21e12f788077a0d8de5278b4e77bdc65f0cbcd))

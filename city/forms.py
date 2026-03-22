@@ -143,6 +143,32 @@ class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
                 }
             )
 
+        region_field = self.fields['region']
+        if isinstance(region_field, forms.ModelChoiceField):
+            region_placeholder = str(region_field.empty_label or 'Выберите регион')
+            region_field.widget.attrs.update(
+                {
+                    'class': 'hidden',
+                    'data-hs-select': json.dumps(
+                        hs_select_search_single_config(placeholder=region_placeholder),
+                        ensure_ascii=False,
+                    ),
+                }
+            )
+
+        city_field = self.fields['city']
+        if isinstance(city_field, forms.ModelChoiceField):
+            city_placeholder = str(city_field.empty_label or 'Выберите город')
+            city_field.widget.attrs.update(
+                {
+                    'class': 'hidden',
+                    'data-hs-select': json.dumps(
+                        hs_select_search_single_config(placeholder=city_placeholder),
+                        ensure_ascii=False,
+                    ),
+                }
+            )
+
     def clean_city(self) -> City:
         """
         Проверка корректности заполнения поля 'City'.

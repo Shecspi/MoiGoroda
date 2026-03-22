@@ -7,6 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import json
 from typing import Any
 
 from django import forms
@@ -16,6 +17,7 @@ from django.forms import ModelForm
 from city.models import VisitedCity, City
 from country.models import Country
 from region.models import Region
+from utils.preline_select import hs_select_search_single_config
 
 
 class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
@@ -127,6 +129,19 @@ class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
 
         self.fields['region'].empty_label = 'Выберите регион'  # type: ignore[attr-defined]
         self.fields['city'].empty_label = 'Выберите город'  # type: ignore[attr-defined]
+
+        country_field = self.fields['country']
+        if isinstance(country_field, forms.ModelChoiceField):
+            country_placeholder = str(country_field.empty_label or 'Выберите страну')
+            country_field.widget.attrs.update(
+                {
+                    'class': 'hidden',
+                    'data-hs-select': json.dumps(
+                        hs_select_search_single_config(placeholder=country_placeholder),
+                        ensure_ascii=False,
+                    ),
+                }
+            )
 
     def clean_city(self) -> City:
         """

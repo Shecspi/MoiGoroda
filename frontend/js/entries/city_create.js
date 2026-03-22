@@ -27,6 +27,22 @@ function reinitHsSelectSync(selectId) {
     }
 }
 
+/**
+ * Серый «пустой» вид для type=date: класс синхронизируется с input.value.
+ */
+function bindDateInputEmptyAppearance(input) {
+    if (!input) {
+        return () => {};
+    }
+    const sync = () => {
+        input.classList.toggle('form-input-date-empty', !input.value);
+    };
+    sync();
+    input.addEventListener('input', sync);
+    input.addEventListener('change', sync);
+    return sync;
+}
+
 /** Пока ждём API регионов — одна опция, поле неактивно (не показываем список прошлой страны). */
 function setRegionSelectLoading() {
     const sel = document.getElementById('id_region');
@@ -136,6 +152,9 @@ function initCityCreateForm() {
     if (!countrySelect || !regionSelect || !citySelect) {
         return;
     }
+
+    const dateOfVisitInput = document.getElementById('id_date_of_visit');
+    const syncDateInputAppearance = bindDateInputEmptyAppearance(dateOfVisitInput);
 
     // Проверяем начальные значения для определения состояния поля города
     const initialRegionValue = regionSelect.value;
@@ -291,31 +310,35 @@ function initCityCreateForm() {
     });
 
     function setTodayDate() {
-            const today = new Date();
-            const day = String(today.getDate()).padStart(2, '0');
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const year = today.getFullYear();
-            const formattedDate = `${year}-${month}-${day}`;
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const formattedDate = `${year}-${month}-${day}`;
 
-            // Устанавливаем текущую дату в поле ввода
-            document.getElementById('id_date_of_visit').value = formattedDate;
+        if (dateOfVisitInput) {
+            dateOfVisitInput.value = formattedDate;
+            syncDateInputAppearance();
         }
+    }
 
-        function setYesterdayDate() {
-            const today = new Date();
-            today.setDate(today.getDate() - 1);  // Уменьшаем на 1 день, чтобы получить вчерашнюю дату
+    function setYesterdayDate() {
+        const today = new Date();
+        today.setDate(today.getDate() - 1); // Уменьшаем на 1 день, чтобы получить вчерашнюю дату
 
-            const day = String(today.getDate()).padStart(2, '0');
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const year = today.getFullYear();
-            const formattedDate = `${year}-${month}-${day}`;
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const formattedDate = `${year}-${month}-${day}`;
 
-            // Устанавливаем вчерашнюю дату в поле ввода
-            document.getElementById('id_date_of_visit').value = formattedDate;
+        if (dateOfVisitInput) {
+            dateOfVisitInput.value = formattedDate;
+            syncDateInputAppearance();
         }
+    }
 
-        document.getElementById('today-button').addEventListener('click', setTodayDate);
-        document.getElementById('yesterday-button').addEventListener('click', setYesterdayDate);
+    document.getElementById('today-button')?.addEventListener('click', setTodayDate);
+    document.getElementById('yesterday-button')?.addEventListener('click', setYesterdayDate);
 
     // Функция проверки обязательных полей и управления кнопкой
     function validateForm() {

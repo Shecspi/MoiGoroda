@@ -429,6 +429,38 @@
     .form-input {
         @apply py-2.5 sm:py-3 px-4 block w-full rounded-lg bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder:text-neutral-500;
     }
+
+    /*
+     * type=date: пустой вид как у placeholder. Класс вешает JS по input.value.
+     * Серый только вне фокуса: при фокусе и ручном вводе Chromium раскрашивает сегменты сам
+     * (иначе text-gray-400 на всём поле оставляет серым цифры до полной даты).
+     */
+    .form-input[type="date"].form-input-date-empty:not(:focus) {
+        @apply text-gray-400 dark:text-neutral-500;
+    }
+
+    .form-input[type="date"].form-input-date-empty:focus {
+        color: revert;
+    }
+
+    /*
+     * Иконка календаря у нативного type=date рисует браузер (Chromium/WebKit: ::-webkit-calendar-picker-indicator).
+     * По умолчанию она справа и прижимается к кнопкам; переносим в начало поля (как в примерах Preline).
+     * Firefox псевдоэлемент не поддерживает — остаётся нативное расположение.
+     */
+    .form-input.form-input-date {
+        @apply relative ps-11;
+    }
+
+    .form-input.form-input-date::-webkit-calendar-picker-indicator {
+        position: absolute;
+        inset-inline-start: 1rem;
+        inset-inline-end: auto;
+        inset-block-start: 50%;
+        margin: 0;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
 }
 
 @layer utilities {

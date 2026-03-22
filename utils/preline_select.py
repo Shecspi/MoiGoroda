@@ -28,10 +28,11 @@ def hs_select_search_single_config(
         'hasSearch': True,
         'searchPlaceholder': search_placeholder,
         'searchClasses': (
-            'block w-full sm:text-sm bg-transparent border border-gray-200 dark:border-neutral-600 '
+            'block w-full text-sm bg-transparent border border-gray-200 dark:border-neutral-600 '
             'rounded-lg text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 '
-            'dark:placeholder:text-neutral-500 focus:border-blue-500 focus:ring-blue-500 '
-            'py-1.5 sm:py-2 px-3'
+            'placeholder:text-sm dark:placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none '
+            'focus:ring-1 focus:ring-blue-500 focus:ring-offset-0 dark:focus:ring-1 dark:focus:ring-blue-500 '
+            'py-2 px-3 [-webkit-tap-highlight-color:transparent]'
         ),
         'searchWrapperClasses': (
             'bg-white dark:bg-neutral-900 p-2 -mx-1 sticky top-0 '

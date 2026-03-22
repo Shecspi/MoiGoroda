@@ -3,21 +3,22 @@ import Choices from 'choices.js';
 import {showDangerToast} from "../components/toast";
 
 document.addEventListener('DOMContentLoaded', () => {
+    // После city_create.js подключается preline.js (autoInit HSSelect). Откладываем инициализацию Choices.
+    setTimeout(() => {
+        initCityCreateForm();
+    }, 0);
+});
+
+function initCityCreateForm() {
     const countrySelect = document.getElementById('id_country');
     const regionSelect = document.getElementById('id_region');
     const citySelect = document.getElementById('id_city');
     const submitButton = document.getElementById('submit-button');
     const ratingInput = document.querySelector('input[name="rating"]');
 
-    const choicesCountry = new Choices(countrySelect, {
-        searchEnabled: true,
-        shouldSort: false,
-        placeholderValue: 'Выберите страну',
-        noResultsText: 'Ничего не найдено',
-        noChoicesText: 'Нет доступных вариантов',
-        itemSelectText: 'Нажмите для выбора',
-        loadingText: 'Загрузка...',
-    });
+    if (!countrySelect || !regionSelect || !citySelect) {
+        return;
+    }
     // Удаляем пустую опцию из regionSelect, чтобы Choices.js использовал placeholder
     const regionEmptyOption = regionSelect.querySelector('option[value=""]');
     if (regionEmptyOption) {
@@ -368,12 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Добавляем обработчики событий для проверки формы
-    // Используем события Choices.js для более надежной работы
-    if (choicesCountry) {
-        countrySelect.addEventListener('change', validateForm);
-        // Также слушаем события Choices.js
-        countrySelect.addEventListener('choice', validateForm);
-    }
+    countrySelect.addEventListener('change', validateForm);
     if (choicesRegion) {
         regionSelect.addEventListener('change', validateForm);
         regionSelect.addEventListener('choice', validateForm);
@@ -384,8 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Проверяем форму при загрузке страницы с небольшой задержкой
-    // для инициализации всех Choices.js элементов
+    // для инициализации Choices (регион, город) и Preline (страна)
     setTimeout(() => {
         validateForm();
     }, 200);
-});
+}

@@ -1,9 +1,126 @@
-import Choices from 'choices.js';
-
 import {showDangerToast} from "../components/toast";
 
+/**
+ * Переинициализация Preline HSSelect после изменения опций в нативном select.
+ * @param {string} selectId — атрибут id без #
+ */
+function destroyHsSelect(selectId) {
+    const inst = window.HSSelect?.getInstance?.(`#${selectId}`);
+    if (inst && typeof inst.destroy === 'function') {
+        inst.destroy();
+    }
+}
+
+/**
+ * Сразу после обновления DOM опций — без отложенных кадров, иначе после destroy()
+ * на долю секунды виден «пустой» интерфейс или нативный select (моргание).
+ */
+function reinitHsSelectSync(selectId) {
+    try {
+        if (window.HSSelect) {
+            new window.HSSelect(`#${selectId}`);
+        }
+    } catch (e) {
+        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+            window.HSStaticMethods.autoInit();
+        }
+    }
+}
+
+/** Пока ждём API регионов — одна опция, поле неактивно (не показываем список прошлой страны). */
+function setRegionSelectLoading() {
+    const sel = document.getElementById('id_region');
+    if (!sel) {
+        return;
+    }
+    destroyHsSelect('id_region');
+    sel.innerHTML = '';
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'Загрузка...';
+    sel.appendChild(opt);
+    sel.value = '';
+    sel.disabled = true;
+    reinitHsSelectSync('id_region');
+}
+
+/**
+ * @param {Array<{ id: number|string, title: string }>} regions
+ * @param {{ disabled: boolean, emptyLabel?: string }} options
+ */
+function setRegionSelectOptions(regions, { disabled, emptyLabel = 'Выберите регион' }) {
+    const sel = document.getElementById('id_region');
+    if (!sel) {
+        return;
+    }
+    destroyHsSelect('id_region');
+    sel.innerHTML = '';
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = emptyLabel;
+    sel.appendChild(empty);
+    regions.forEach((r) => {
+        const o = document.createElement('option');
+        o.value = String(r.id);
+        o.textContent = r.title;
+        sel.appendChild(o);
+    });
+    sel.value = '';
+    sel.disabled = disabled;
+    reinitHsSelectSync('id_region');
+}
+
+function setCitySelectLoading() {
+    const sel = document.getElementById('id_city');
+    if (!sel) {
+        return;
+    }
+    destroyHsSelect('id_city');
+    sel.innerHTML = '';
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'Загрузка...';
+    sel.appendChild(opt);
+    sel.value = '';
+    sel.disabled = true;
+    reinitHsSelectSync('id_city');
+}
+
+/**
+ * @param {Array<{ id: number|string, title: string }>} cities
+ * @param {{ disabled: boolean, emptyLabel?: string, selectFirst?: boolean }} options
+ */
+function setCitySelectOptions(cities, { disabled, emptyLabel = 'Выберите город', selectFirst = false }) {
+    const sel = document.getElementById('id_city');
+    if (!sel) {
+        return;
+    }
+    destroyHsSelect('id_city');
+    sel.innerHTML = '';
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = emptyLabel;
+    sel.appendChild(empty);
+    cities.forEach((c) => {
+        const o = document.createElement('option');
+        o.value = String(c.id);
+        o.textContent = c.title;
+        sel.appendChild(o);
+    });
+    if (selectFirst && cities.length > 0) {
+        sel.value = String(cities[0].id);
+    } else {
+        sel.value = '';
+    }
+    sel.disabled = disabled;
+    reinitHsSelectSync('id_city');
+    if (selectFirst && cities.length > 0) {
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // После city_create.js подключается preline.js (autoInit HSSelect). Откладываем инициализацию Choices.
+    // После city_create.js подключается preline.js (autoInit HSSelect). Откладываем привязку обработчиков формы.
     setTimeout(() => {
         initCityCreateForm();
     }, 0);
@@ -19,150 +136,71 @@ function initCityCreateForm() {
     if (!countrySelect || !regionSelect || !citySelect) {
         return;
     }
-    // Удаляем пустую опцию из regionSelect, чтобы Choices.js использовал placeholder
-    const regionEmptyOption = regionSelect.querySelector('option[value=""]');
-    if (regionEmptyOption) {
-        regionEmptyOption.remove();
-    }
-    
-    const choicesRegion = new Choices(regionSelect, {
-        searchEnabled: true,
-        shouldSort: false,
-        placeholderValue: 'Выберите регион',
-        noResultsText: 'Ничего не найдено',
-        noChoicesText: 'Нет доступных вариантов',
-        itemSelectText: 'Нажмите для выбора',
-        loadingText: 'Загрузка...',
-    });
-    // Удаляем пустую опцию из citySelect, чтобы Choices.js использовал placeholder
-    const cityEmptyOption = citySelect.querySelector('option[value=""]');
-    if (cityEmptyOption) {
-        cityEmptyOption.remove();
-    }
-    
-    const choicesCity = new Choices(citySelect, {
-        searchEnabled: true,
-        shouldSort: false,
-        placeholderValue: 'Выберите город',
-        noResultsText: 'Ничего не найдено',
-        noChoicesText: 'Нет доступных вариантов',
-        itemSelectText: 'Нажмите для выбора',
-        loadingText: 'Загрузка...',
-    });
-    
+
     // Проверяем начальные значения для определения состояния поля города
     const initialRegionValue = regionSelect.value;
-    const initialCountryValue = countrySelect.value;
     const initialCityValue = citySelect.value;
-    
-    // Если город уже выбран (режим редактирования) - поле должно быть активным
+
     if (initialCityValue) {
-        // Город уже выбран, поле активно и обязательно
         citySelect.setAttribute('required', 'required');
-    } else if (initialCountryValue && !initialRegionValue) {
-        // Если страна выбрана, но регион нет - проверяем, есть ли у страны регионы
-        // Это будет обработано при загрузке регионов
-        choicesCity.disable();
-        citySelect.removeAttribute('required');
     } else if (!initialRegionValue) {
-        // Если регион не выбран вообще - отключаем поле города
-        choicesCity.disable();
+        setCitySelectOptions([], { disabled: true });
         citySelect.removeAttribute('required');
     } else {
-        // Если регион выбран - поле города активно и обязательно
         citySelect.setAttribute('required', 'required');
     }
 
     // При изменении страны делаем запрос и обновляем регионы
     countrySelect.addEventListener('change', async (event) => {
-        choicesRegion.enable();
-        choicesCity.enable();
-
         const countryId = event.target.value;
 
         if (!countryId) {
-            // Очистить регионы и города, если страна не выбрана
-            choicesRegion.clearStore();
-            choicesRegion.disable();
-            choicesCity.clearStore();
-            choicesCity.disable();
+            setRegionSelectOptions([], { disabled: true });
+            setCitySelectOptions([], { disabled: true });
             citySelect.removeAttribute('required');
             validateForm();
             return;
         }
 
+        setRegionSelectLoading();
+
         try {
-            // Загрузка регионов страны
             const response = await fetch(`/api/region/list?country_id=${countryId}`);
             if (!response.ok) throw new Error('Ошибка загрузки регионов');
 
             const regions = await response.json();
 
-            // Очистить старые опции
-            choicesRegion.clearStore();
-            choicesCity.clearStore();
-
-            // В ситуации, когда у страны нет региона - загружаем все города
             if (regions.length === 0) {
-                choicesRegion.disable();
+                setRegionSelectOptions([], { disabled: true });
+                setCitySelectLoading();
                 const cityResponse = await fetch(`/api/city/list_by_country?country_id=${countryId}`);
                 if (!cityResponse.ok) throw new Error('Ошибка загрузки городов');
 
                 const cities = await cityResponse.json();
 
                 if (cities.length === 0) {
-                    choicesCity.disable();
+                    setCitySelectOptions([], { disabled: true });
                     citySelect.removeAttribute('required');
                     showDangerToast('Ошибка', 'Для выбранной страны нет городов');
                     validateForm();
                     return;
                 }
 
-                choicesCity.setChoices(
-                    cities.map((city, index) => ({
-                        value: city.id,
-                        label: city.title,
-                        selected: index === 0, // Делаем первый город выбранным
-                        disabled: false,
-                    })),
-                    'value',
-                    'label',
-                    true
-                );
-                choicesCity.enable();
+                setCitySelectOptions(cities, { disabled: false, selectFirst: true });
                 citySelect.setAttribute('required', 'required');
-                // Небольшая задержка для обновления значения после setChoices
-                setTimeout(() => {
-                    // Убеждаемся, что значение установлено
-                    if (cities.length > 0 && !citySelect.value) {
-                        citySelect.value = cities[0].id;
-                        citySelect.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                    validateForm();
-                }, 100);
+                validateForm();
             } else {
-                // Добавить новые опции без автоматического выбора первого региона
-                choicesRegion.setChoices(
-                    regions.map((region) => ({
-                        value: region.id,
-                        label: region.title,
-                        selected: false, // Не выбираем регион автоматически
-                        disabled: false,
-                    })),
-                    'value',
-                    'label',
-                    true,
-                );
-
-                // Отключаем поле города, пока регион не выбран явно
-                choicesCity.disable();
-                choicesCity.clearStore();
+                setRegionSelectOptions(regions, { disabled: false });
+                setCitySelectOptions([], { disabled: true });
                 citySelect.removeAttribute('required');
                 validateForm();
             }
         } catch (error) {
             console.error('Ошибка при загрузке регионов:', error);
-            showDangerToast('Ошибка', 'Произошла ошибка при загрузке списка регионов. Пожалуйста, перезагрузите страницу и попробуйте ещё раз.')
+            setRegionSelectOptions([], { disabled: true });
+            setCitySelectOptions([], { disabled: true });
+            showDangerToast('Ошибка', 'Произошла ошибка при загрузке списка регионов. Пожалуйста, перезагрузите страницу и попробуйте ещё раз.');
+            validateForm();
         }
     });
 
@@ -170,16 +208,13 @@ function initCityCreateForm() {
         const regionId = event.target.value;
 
         if (!regionId) {
-            // Если регион не выбран, отключаем поле города
-            choicesCity.disable();
-            choicesCity.clearStore();
+            setCitySelectOptions([], { disabled: true });
             citySelect.removeAttribute('required');
             validateForm();
             return;
         }
 
-        choicesCity.enable();
-        choicesCity.clearStore();
+        setCitySelectLoading();
         citySelect.setAttribute('required', 'required');
 
         try {
@@ -189,35 +224,18 @@ function initCityCreateForm() {
             const cities = await cityResponse.json();
 
             if (cities.length === 0) {
-                choicesCity.disable();
+                setCitySelectOptions([], { disabled: true });
                 citySelect.removeAttribute('required');
                 showDangerToast('Ошибка', 'Для выбранного региона нет городов');
+                validateForm();
                 return;
             }
 
-            choicesCity.setChoices(
-                cities.map((city, index) => ({
-                    value: city.id,
-                    label: city.title,
-                    selected: index === 0, // Делаем первый город выбранным
-                    disabled: false,
-                })),
-                'value',
-                'label',
-                true
-            );
-            // Небольшая задержка для обновления значения после setChoices
-            setTimeout(() => {
-                // Убеждаемся, что значение установлено
-                if (cities.length > 0 && !citySelect.value) {
-                    citySelect.value = cities[0].id;
-                    citySelect.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-                validateForm();
-            }, 100);
+            setCitySelectOptions(cities, { disabled: false, selectFirst: true });
+            validateForm();
         } catch (error) {
             console.error('Ошибка при загрузке городов:', error);
-            choicesCity.disable();
+            setCitySelectOptions([], { disabled: true });
             citySelect.removeAttribute('required');
             showDangerToast('Ошибка', 'Произошла ошибка при загрузке списка городов. Пожалуйста, попробуйте ещё раз.');
             validateForm();
@@ -255,19 +273,16 @@ function initCityCreateForm() {
     function validateForm() {
         if (!submitButton) return;
         
-        // Получаем значения напрямую из select элементов (Choices.js обновляет их)
+        // Получаем значения напрямую из select (Preline синхронизирует native select)
         const countryValue = countrySelect?.value || '';
         const cityValue = citySelect?.value || '';
         const ratingValue = ratingInput?.value || '';
         
-        // Проверяем, отключено ли поле города через Choices.js
-        const cityChoicesElement = citySelect?.closest('.choices');
-        const isCityDisabled = cityChoicesElement?.classList.contains('is-disabled') || false;
+        const isCityDisabled = citySelect?.disabled ?? false;
         
         // Проверяем, есть ли у страны регионы
         const regionValue = regionSelect?.value || '';
-        const regionChoicesElement = regionSelect?.closest('.choices');
-        const isRegionDisabled = regionChoicesElement?.classList.contains('is-disabled') || false;
+        const isRegionDisabled = regionSelect?.disabled ?? false;
         
         // Если регион отключен, значит у страны нет регионов
         // Проверяем количество опций в регионе (больше 1, т.к. есть пустая опция)
@@ -370,17 +385,11 @@ function initCityCreateForm() {
     
     // Добавляем обработчики событий для проверки формы
     countrySelect.addEventListener('change', validateForm);
-    if (choicesRegion) {
-        regionSelect.addEventListener('change', validateForm);
-        regionSelect.addEventListener('choice', validateForm);
-    }
-    if (choicesCity) {
-        citySelect.addEventListener('change', validateForm);
-        citySelect.addEventListener('choice', validateForm);
-    }
+    regionSelect.addEventListener('change', validateForm);
+    citySelect.addEventListener('change', validateForm);
     
     // Проверяем форму при загрузке страницы с небольшой задержкой
-    // для инициализации Choices (регион, город) и Preline (страна)
+    // для инициализации Preline (страна, регион, город)
     setTimeout(() => {
         validateForm();
     }, 200);

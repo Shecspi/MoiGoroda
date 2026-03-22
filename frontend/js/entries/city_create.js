@@ -367,15 +367,15 @@ function initCityCreateForm() {
             isFormValid = false;
         }
         
-        // Город обязателен, если:
-        // 1. У страны есть регионы И регион выбран И город не выбран И поле города не отключено
-        // 2. У страны нет регионов И поле города активно (не отключено) И город не выбран
+        // У страны есть регионы: нужны регион, затем город (пока города грузятся — поле города disabled).
         if (countryHasRegions) {
-            if (regionValue && !isCityDisabled && !cityValue) {
+            if (!regionValue) {
+                isFormValid = false;
+            } else if (!isCityDisabled && !cityValue) {
                 isFormValid = false;
             }
         } else if (countryValue && !isCityDisabled && !cityValue) {
-            // Если у страны нет регионов, но поле города активно и пустое
+            // У страны нет регионов: город обязателен, когда селект города активен
             isFormValid = false;
         }
         
@@ -394,61 +394,56 @@ function initCityCreateForm() {
         const ratingStars = ratingContainer.querySelectorAll('.rating-star');
 
         if (ratingStars && ratingStars.length > 0) {
+            const updateRatingStars = (rating) => {
+                ratingStars.forEach((star) => {
+                    const starRating = parseInt(star.dataset.rating);
+                    if (starRating <= rating && rating > 0) {
+                        star.classList.remove('text-gray-300', 'dark:text-neutral-600');
+                        star.classList.add('text-yellow-400', 'dark:text-yellow-500');
+                    } else {
+                        star.classList.remove('text-yellow-400', 'dark:text-yellow-500');
+                        star.classList.add('text-gray-300', 'dark:text-neutral-600');
+                    }
+                });
+            };
 
-    // Define functions first
-    const updateRatingStars = (rating) => {
-        ratingStars.forEach((star) => {
-            const starRating = parseInt(star.dataset.rating);
-            if (starRating <= rating && rating > 0) {
-                star.classList.remove('text-gray-300', 'dark:text-neutral-600');
-                star.classList.add('text-yellow-400', 'dark:text-yellow-500');
-            } else {
-                star.classList.remove('text-yellow-400', 'dark:text-yellow-500');
-                star.classList.add('text-gray-300', 'dark:text-neutral-600');
-            }
-        });
-    };
+            const highlightStars = (rating) => {
+                ratingStars.forEach((star) => {
+                    const starRating = parseInt(star.dataset.rating);
+                    if (starRating <= rating) {
+                        star.classList.remove('text-gray-300', 'dark:text-neutral-600');
+                        star.classList.add('text-yellow-400', 'dark:text-yellow-500');
+                    } else {
+                        star.classList.remove('text-yellow-400', 'dark:text-yellow-500');
+                        star.classList.add('text-gray-300', 'dark:text-neutral-600');
+                    }
+                });
+            };
 
-    const highlightStars = (rating) => {
-        ratingStars.forEach((star) => {
-            const starRating = parseInt(star.dataset.rating);
-            if (starRating <= rating) {
-                star.classList.remove('text-gray-300', 'dark:text-neutral-600');
-                star.classList.add('text-yellow-400', 'dark:text-yellow-500');
-            } else {
-                star.classList.remove('text-yellow-400', 'dark:text-yellow-500');
-                star.classList.add('text-gray-300', 'dark:text-neutral-600');
-            }
-        });
-    };
+            const currentRating = parseInt(ratingInput.value) || 0;
+            updateRatingStars(currentRating);
 
-    // Initialize rating from form value
-    const currentRating = parseInt(ratingInput.value) || 0;
-    updateRatingStars(currentRating);
+            ratingStars.forEach((star) => {
+                star.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const rating = parseInt(star.dataset.rating);
+                    ratingInput.value = rating;
+                    updateRatingStars(rating);
+                    validateForm();
+                });
 
-    // Add event listeners
-    ratingStars.forEach((star) => {
-        star.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const rating = parseInt(star.dataset.rating);
-            ratingInput.value = rating;
-            updateRatingStars(rating);
-            validateForm();
-        });
-
-        star.addEventListener('mouseenter', () => {
-            const hoverRating = parseInt(star.dataset.rating);
-            highlightStars(hoverRating);
-        });
-    });
+                star.addEventListener('mouseenter', () => {
+                    const hoverRating = parseInt(star.dataset.rating);
+                    highlightStars(hoverRating);
+                });
+            });
 
             ratingContainer.addEventListener('mouseleave', () => {
-                const currentRating = parseInt(ratingInput.value) || 0;
-                updateRatingStars(currentRating);
+                const current = parseInt(ratingInput.value) || 0;
+                updateRatingStars(current);
             });
-            
-            // Обновляем состояние кнопки при изменении рейтинга
+
             ratingInput.addEventListener('change', validateForm);
             ratingInput.addEventListener('input', validateForm);
         }

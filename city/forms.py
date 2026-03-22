@@ -7,6 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import json
 from typing import Any
 
 from django import forms
@@ -16,6 +17,7 @@ from django.forms import ModelForm
 from city.models import VisitedCity, City
 from country.models import Country
 from region.models import Region
+from utils.preline_select import hs_select_search_single_config
 
 
 class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
@@ -58,8 +60,8 @@ class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
         super().__init__(*args, **kwargs)
 
         self.fields['impression'].required = False
-        # Применяем стили к textarea
-        base_classes = 'block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-500 dark:focus:ring-neutral-600'
+        # Стили textarea — как у .form-input в tailwind.css (в духе Preline)
+        base_classes = 'form-input resize-y'
         if self.errors and 'impression' in self.errors:
             base_classes += ' border-red-500 dark:border-red-500'
         self.fields['impression'].widget.attrs.update(
@@ -127,6 +129,45 @@ class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
 
         self.fields['region'].empty_label = 'Выберите регион'  # type: ignore[attr-defined]
         self.fields['city'].empty_label = 'Выберите город'  # type: ignore[attr-defined]
+
+        country_field = self.fields['country']
+        if isinstance(country_field, forms.ModelChoiceField):
+            country_placeholder = str(country_field.empty_label or 'Выберите страну')
+            country_field.widget.attrs.update(
+                {
+                    'class': 'hidden',
+                    'data-hs-select': json.dumps(
+                        hs_select_search_single_config(placeholder=country_placeholder),
+                        ensure_ascii=False,
+                    ),
+                }
+            )
+
+        region_field = self.fields['region']
+        if isinstance(region_field, forms.ModelChoiceField):
+            region_placeholder = str(region_field.empty_label or 'Выберите регион')
+            region_field.widget.attrs.update(
+                {
+                    'class': 'hidden',
+                    'data-hs-select': json.dumps(
+                        hs_select_search_single_config(placeholder=region_placeholder),
+                        ensure_ascii=False,
+                    ),
+                }
+            )
+
+        city_field = self.fields['city']
+        if isinstance(city_field, forms.ModelChoiceField):
+            city_placeholder = str(city_field.empty_label or 'Выберите город')
+            city_field.widget.attrs.update(
+                {
+                    'class': 'hidden',
+                    'data-hs-select': json.dumps(
+                        hs_select_search_single_config(placeholder=city_placeholder),
+                        ensure_ascii=False,
+                    ),
+                }
+            )
 
     def clean_city(self) -> City:
         """

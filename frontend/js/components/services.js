@@ -34,6 +34,7 @@ export function open_modal_for_add_city(city, city_id, region_title) {
     const dateInput = document.getElementById('date-of-visit');
     if (dateInput) {
         dateInput.value = '';
+        dateInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
     
     // Сбрасываем наличие сувенира (чекбокс)

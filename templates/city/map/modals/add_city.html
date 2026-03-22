@@ -50,17 +50,17 @@ Licensed under the Apache License, Version 2.0
                             <div class="relative">
                                 <input type="date"
                                        name="date_of_visit"
-                                       class="block w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 pe-36 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-500 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                                       class="form-input form-input-date pe-36 form-input-date-empty"
                                        placeholder="ДД.ММ.ГГГГ"
                                        id="date-of-visit"
                                        aria-describedby="date-of-visit-help">
                                 <div class="absolute inset-y-0 end-0 flex items-center gap-1.5 pe-2">
-                                    <button class="inline-flex items-center gap-x-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-700 shadow-sm transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:border-amber-600 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20 dark:focus:ring-offset-neutral-800"
+                                    <button class="btn btn-sm text-xs font-semibold btn-outline-primary"
                                             id="yesterday-button"
                                             type="button">
                                         Вчера
                                     </button>
-                                    <button class="inline-flex items-center gap-x-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 dark:focus:ring-offset-neutral-800"
+                                    <button class="btn btn-sm text-xs font-semibold btn-outline-teal"
                                             id="today-button"
                                             type="button">
                                         Сегодня
@@ -218,6 +218,22 @@ Licensed under the Apache License, Version 2.0
 </div>
 
 <script>
+    function bindDateInputEmptyAppearance(input) {
+        if (!input) {
+            return function () {};
+        }
+        const sync = function () {
+            input.classList.toggle('form-input-date-empty', !input.value);
+        };
+        sync();
+        input.addEventListener('input', sync);
+        input.addEventListener('change', sync);
+        return sync;
+    }
+
+    const dateOfVisitInputModal = document.getElementById('date-of-visit');
+    const syncDateModalAppearance = bindDateInputEmptyAppearance(dateOfVisitInputModal);
+
     function setTodayDate() {
         const today = new Date();
         const day = String(today.getDate()).padStart(2, '0');
@@ -225,8 +241,10 @@ Licensed under the Apache License, Version 2.0
         const year = today.getFullYear();
         const formattedDate = `${year}-${month}-${day}`;
 
-        // Устанавливаем текущую дату в поле ввода
-        document.getElementById('date-of-visit').value = formattedDate;
+        if (dateOfVisitInputModal) {
+            dateOfVisitInputModal.value = formattedDate;
+            syncDateModalAppearance();
+        }
     }
 
     function setYesterdayDate() {
@@ -238,8 +256,10 @@ Licensed under the Apache License, Version 2.0
         const year = today.getFullYear();
         const formattedDate = `${year}-${month}-${day}`;
 
-        // Устанавливаем вчерашнюю дату в поле ввода
-        document.getElementById('date-of-visit').value = formattedDate;
+        if (dateOfVisitInputModal) {
+            dateOfVisitInputModal.value = formattedDate;
+            syncDateModalAppearance();
+        }
     }
 
     // Инициализация кнопок даты только если они существуют
@@ -342,6 +362,7 @@ Licensed under the Apache License, Version 2.0
                         const dateInput = document.getElementById('date-of-visit');
                         if (dateInput) {
                             dateInput.value = '';
+                            dateInput.dispatchEvent(new Event('input', { bubbles: true }));
                         }
                         
                         // Сбрасываем наличие сувенира (чекбокс)

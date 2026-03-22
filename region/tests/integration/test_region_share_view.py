@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 from urllib.parse import parse_qs, urlparse
 
@@ -29,7 +29,7 @@ from region.models import Region
 
 def _context_from_render(mock_render: MagicMock) -> dict[str, Any]:
     _request, _template, context = mock_render.call_args[0]
-    return context
+    return cast(dict[str, Any], context)
 
 
 def _patch_render_ok(mock_render: MagicMock) -> None:

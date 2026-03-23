@@ -1,4 +1,5 @@
 import {showDangerToast} from "../components/toast";
+import {initVisitDatePickers, setVisitDateInputValue} from "../components/visit_date_picker.js";
 
 /**
  * Переинициализация Preline HSSelect после изменения опций в нативном select.
@@ -152,6 +153,8 @@ function initCityCreateForm() {
     if (!countrySelect || !regionSelect || !citySelect) {
         return;
     }
+
+    initVisitDatePickers();
 
     const dateOfVisitInput = document.getElementById('id_date_of_visit');
     const syncDateInputAppearance = bindDateInputEmptyAppearance(dateOfVisitInput);
@@ -317,7 +320,7 @@ function initCityCreateForm() {
         const formattedDate = `${year}-${month}-${day}`;
 
         if (dateOfVisitInput) {
-            dateOfVisitInput.value = formattedDate;
+            setVisitDateInputValue('#id_date_of_visit', formattedDate);
             syncDateInputAppearance();
         }
     }
@@ -332,7 +335,7 @@ function initCityCreateForm() {
         const formattedDate = `${year}-${month}-${day}`;
 
         if (dateOfVisitInput) {
-            dateOfVisitInput.value = formattedDate;
+            setVisitDateInputValue('#id_date_of_visit', formattedDate);
             syncDateInputAppearance();
         }
     }

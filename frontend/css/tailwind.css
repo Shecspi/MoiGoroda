@@ -1,4 +1,5 @@
 @import "preline/variants.css";
+@import "./preline-datepicker-vc.css" layer(components);
 
 @tailwind base;
 @tailwind components;
@@ -111,7 +112,7 @@
      * Button pack:
      * .btn + размер + вариант + опции
      *
-     * Размеры: btn-sm | btn-default | btn-lg
+     * Размеры: btn-xs | btn-sm | btn-default | btn-lg
      * Опции: btn-block (full width) | btn-pilled (rounded-full)
      *
      * Примеры:
@@ -128,6 +129,9 @@
     }
 
     /* Размеры */
+    .btn-xs {
+        @apply py-1.5 px-2.5 text-xs font-semibold;
+    }
     .btn-sm {
         @apply py-2 px-3;
     }
@@ -427,39 +431,28 @@
 
     /* Унифицированный стиль текстового поля (в духе Preline) */
     .form-input {
-        @apply py-2.5 sm:py-3 px-4 block w-full rounded-lg bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder:text-neutral-500;
+        @apply py-2.5 sm:py-3 px-4 block w-full rounded-lg bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-0 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-blue-500 dark:focus:ring-blue-500;
+        -webkit-tap-highlight-color: transparent;
     }
 
     /*
-     * type=date: пустой вид как у placeholder. Класс вешает JS по input.value.
-     * Серый только вне фокуса: при фокусе и ручном вводе Chromium раскрашивает сегменты сам
-     * (иначе text-gray-400 на всём поле оставляет серым цифры до полной даты).
+     * Поле даты (Preline HSDatepicker + text input): пустой вид как у placeholder. Класс вешает JS по input.value.
      */
-    .form-input[type="date"].form-input-date-empty:not(:focus) {
+    .form-input.form-input-date.form-input-date-empty:not(:focus) {
         @apply text-gray-400 dark:text-neutral-500;
     }
 
-    .form-input[type="date"].form-input-date-empty:focus {
-        color: revert;
+    .form-input.form-input-date.form-input-date-empty:focus {
+        @apply text-gray-900 dark:text-neutral-100;
     }
 
-    /*
-     * Иконка календаря у нативного type=date рисует браузер (Chromium/WebKit: ::-webkit-calendar-picker-indicator).
-     * По умолчанию она справа и прижимается к кнопкам; переносим в начало поля (как в примерах Preline).
-     * Firefox псевдоэлемент не поддерживает — остаётся нативное расположение.
-     */
     .form-input.form-input-date {
-        @apply relative ps-11;
+        @apply relative ps-11 cursor-pointer;
     }
 
-    .form-input.form-input-date::-webkit-calendar-picker-indicator {
-        position: absolute;
-        inset-inline-start: 1rem;
-        inset-inline-end: auto;
-        inset-block-start: 50%;
-        margin: 0;
-        transform: translateY(-50%);
-        cursor: pointer;
+    /* Кнопки «Вчера»/«Сегодня» внутри поля справа */
+    .form-input.form-input-date.form-input-date--with-shortcuts {
+        @apply pe-[10.5rem] sm:pe-[11.5rem];
     }
 }
 

@@ -15,6 +15,45 @@ import {
 } from "./services.js";
 import {showDangerToast, showSuccessToast} from "./toast.js";
 import {getCookie} from "./get_cookie.js";
+import {clearVisitDateInput, initVisitDatePickers, isoFromParts, setVisitDateInputValue} from "./visit_date_picker.js";
+
+function bindDateInputEmptyAppearance(input) {
+    if (!input) {
+        return () => {};
+    }
+    const sync = () => {
+        input.classList.toggle('form-input-date-empty', !input.value);
+    };
+    sync();
+    input.addEventListener('input', sync);
+    input.addEventListener('change', sync);
+    return sync;
+}
+
+function setupAddCityVisitDateField() {
+    const dateOfVisitInput = document.getElementById('date-of-visit');
+    if (!dateOfVisitInput) {
+        return;
+    }
+    bindDateInputEmptyAppearance(dateOfVisitInput);
+    initVisitDatePickers();
+
+    document.getElementById('today-button')?.addEventListener('click', () => {
+        const t = new Date();
+        setVisitDateInputValue('#date-of-visit', isoFromParts(t.getFullYear(), t.getMonth(), t.getDate()));
+    });
+    document.getElementById('yesterday-button')?.addEventListener('click', () => {
+        const t = new Date();
+        t.setDate(t.getDate() - 1);
+        setVisitDateInputValue('#date-of-visit', isoFromParts(t.getFullYear(), t.getMonth(), t.getDate()));
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupAddCityVisitDateField);
+} else {
+    setupAddCityVisitDateField();
+}
 
 // Делаем функции открытия/закрытия модалки глобальными,
 // чтобы их мог вызывать шаблон модального окна через data-hs-overlay
@@ -66,6 +105,7 @@ export function initAddCityForm(actions, onSuccess) {
                 button.innerHTML = '<span>Добавить</span>';
 
                 form.reset();
+                clearVisitDateInput('#date-of-visit');
 
                 showSuccessToast('Успешно', `Город ${data.city.city_title} успешно добавлен как посещённый`);
 
@@ -106,5 +146,3 @@ export function initAddCityForm(actions, onSuccess) {
             });
     });
 }
-
-

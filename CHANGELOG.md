@@ -75,6 +75,8 @@
 
 - *(city)* Обновлена форма добавления города — Preline-селекты, z-index выпадающих списков и правки UX ([17a3354](https://github.com/Shecspi/MoiGoroda/commit/17a3354aa563c75dbbe480432c63f31e97424a38))
 
+- *(city)* Заменён виджет поля «Дата посещения» на кастомный ([938ec71](https://github.com/Shecspi/MoiGoroda/commit/938ec71773a6a528ff2ee9bc5374c231f3563bde))
+
 
 #### 🧪 Тестирование
 

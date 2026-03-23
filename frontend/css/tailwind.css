@@ -431,7 +431,8 @@
 
     /* Унифицированный стиль текстового поля (в духе Preline) */
     .form-input {
-        @apply py-2.5 sm:py-3 px-4 block w-full rounded-lg bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder:text-neutral-500;
+        @apply py-2.5 sm:py-3 px-4 block w-full rounded-lg bg-white border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-0 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-blue-500 dark:focus:ring-blue-500;
+        -webkit-tap-highlight-color: transparent;
     }
 
     /*

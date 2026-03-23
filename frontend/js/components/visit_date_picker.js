@@ -164,6 +164,10 @@ class VisitDatePickerController {
         this._docCapture = null;
         this._onKey = null;
 
+        this._onPanelMouseDown = (e) => {
+            e.stopPropagation();
+        };
+
         this._onInputFocus = () => {
             if (!this.panel || this.panel.hasAttribute('data-vc-calendar-hidden')) {
                 this.open();
@@ -212,6 +216,7 @@ class VisitDatePickerController {
             this.panel.setAttribute('role', 'dialog');
             this.panel.setAttribute('aria-modal', 'true');
             document.body.appendChild(this.panel);
+            this.panel.addEventListener('mousedown', this._onPanelMouseDown, true);
         }
         this.panel.removeAttribute('data-vc-calendar-hidden');
         if (this.selectedIso) {
@@ -401,8 +406,6 @@ class VisitDatePickerController {
                 this.close();
             });
         });
-
-        this.panel.addEventListener('mousedown', (e) => e.stopPropagation());
     }
 
     destroy() {
@@ -410,7 +413,10 @@ class VisitDatePickerController {
         this.input.removeEventListener('click', this._onInputClick);
         this.input.removeEventListener('focus', this._onInputFocus);
         this.input.removeEventListener('input', this._onInputValue);
-        this.panel?.remove();
+        if (this.panel) {
+            this.panel.removeEventListener('mousedown', this._onPanelMouseDown, true);
+            this.panel.remove();
+        }
         this.panel = null;
         pickerRegistry.delete(this.input);
     }

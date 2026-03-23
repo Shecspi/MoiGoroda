@@ -39,10 +39,6 @@ function setupAddCityVisitDateField() {
     const modalRoot = document.getElementById('addCityModal');
     initVisitDatePickers(modalRoot || document);
 
-    modalRoot?.addEventListener('open.hs.overlay', () => {
-        clearVisitDateInput('#date-of-visit');
-    });
-
     document.getElementById('today-button')?.addEventListener('click', () => {
         const t = new Date();
         setVisitDateInputValue('#date-of-visit', isoFromParts(t.getFullYear(), t.getMonth(), t.getDate()));

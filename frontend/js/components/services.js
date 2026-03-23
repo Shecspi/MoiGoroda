@@ -1,3 +1,5 @@
+import {clearVisitDateInput} from "./visit_date_picker.js";
+
 /**
  * Открывает модальное окно добавления города (Preline UI)
  */
@@ -31,12 +33,8 @@ export function open_modal_for_add_city(city, city_id, region_title) {
     }
     
     // Сбрасываем дату посещения
-    const dateInput = document.getElementById('date-of-visit');
-    if (dateInput) {
-        dateInput.value = '';
-        dateInput.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    
+    clearVisitDateInput('#date-of-visit');
+
     // Сбрасываем наличие сувенира (чекбокс)
     const magnetCheckbox = document.getElementById('magnet-checkbox');
     if (magnetCheckbox) {

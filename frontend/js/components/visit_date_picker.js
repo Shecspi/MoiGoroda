@@ -59,6 +59,21 @@ function parseIsoLocal(iso) {
     return new Date(y, m - 1, d);
 }
 
+/** Выравнивает отображаемый месяц календаря под датой (или текущий месяц, если даты нет). */
+function syncPickerViewToIso(inst, iso) {
+    if (!iso) {
+        const now = new Date();
+        inst.viewYear = now.getFullYear();
+        inst.viewMonth = now.getMonth();
+        return;
+    }
+    const p = parseIsoLocal(iso);
+    if (p) {
+        inst.viewYear = p.getFullYear();
+        inst.viewMonth = p.getMonth();
+    }
+}
+
 function todayIsoLocal() {
     const t = new Date();
     return isoFromParts(t.getFullYear(), t.getMonth(), t.getDate());
@@ -99,6 +114,7 @@ export function setVisitDateInputValue(inputOrSelector, iso) {
     const inst = pickerRegistry.get(input);
     if (inst) {
         inst.selectedIso = normalizedIso || null;
+        syncPickerViewToIso(inst, normalizedIso);
         if (inst.panel && !inst.panel.hasAttribute('data-vc-calendar-hidden')) {
             inst.render();
         }
@@ -164,6 +180,9 @@ class VisitDatePickerController {
         };
         this._onInputValue = () => {
             this.selectedIso = valueFromInputToIso(this.input.value);
+            if (this.selectedIso) {
+                syncPickerViewToIso(this, this.selectedIso);
+            }
             if (this.panel && !this.panel.hasAttribute('data-vc-calendar-hidden')) {
                 this.render();
             }
@@ -195,6 +214,9 @@ class VisitDatePickerController {
             document.body.appendChild(this.panel);
         }
         this.panel.removeAttribute('data-vc-calendar-hidden');
+        if (this.selectedIso) {
+            syncPickerViewToIso(this, this.selectedIso);
+        }
         this.render();
         this.place();
         this.attachGlobalClose();

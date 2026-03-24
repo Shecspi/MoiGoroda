@@ -434,108 +434,6 @@ function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricL
         });
 }
 
-function loadTotalUsersComparisonChart() {
-    const chartContainer = document.getElementById('total-users-compare-chart');
-    if (!chartContainer) {
-        return;
-    }
-
-    Promise.all([
-        fetchQuantity(DASHBOARD_ROUTES.getNumberOfUsers),
-        fetchQuantity(DASHBOARD_ROUTES.getNumberOfUsersWithoutVisitedCities),
-    ])
-        .then(([totalUsersQty, inactiveUsersQty]) => {
-            const activeUsersQty = Math.max(totalUsersQty - inactiveUsersQty, 0);
-            chartContainer.innerHTML = '';
-
-            const chart = new ApexCharts(chartContainer, {
-                series: [
-                    {
-                        name: 'Активные',
-                        data: [activeUsersQty],
-                    },
-                    {
-                        name: 'Неактивные',
-                        data: [inactiveUsersQty],
-                    },
-                ],
-                chart: {
-                    type: 'bar',
-                    height: '100%',
-                    stacked: true,
-                    toolbar: {
-                        show: false,
-                    },
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: true,
-                        barHeight: '45%',
-                        borderRadius: 8,
-                    },
-                },
-                colors: ['#3b82f6', '#7c3aed'],
-                dataLabels: {
-                    enabled: false,
-                },
-                xaxis: {
-                    categories: ['Пользователи'],
-                    labels: {
-                        show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
-                    axisTicks: {
-                        show: false,
-                    },
-                },
-                yaxis: {
-                    labels: {
-                        show: false,
-                    },
-                },
-                grid: {
-                    show: false,
-                    padding: {
-                        left: -6,
-                        right: -6,
-                        top: -8,
-                        bottom: -8,
-                    },
-                },
-                legend: {
-                    position: 'bottom',
-                    horizontalAlign: 'left',
-                    fontSize: '11px',
-                },
-                tooltip: {
-                    y: {
-                        formatter(value, {seriesIndex}) {
-                            const label = seriesIndex === 0 ? 'Активные' : 'Неактивные';
-                            return `${label}: ${value}`;
-                        },
-                    },
-                    custom({series}) {
-                        const activeQty = series[0][0];
-                        const inactiveQty = series[1][0];
-                        return `
-                            <div class="px-2 py-1 text-sm">
-                                <div>Активные: ${activeQty}</div>
-                                <div>Неактивные: ${inactiveQty}</div>
-                                <div>Всего пользователей: ${totalUsersQty}</div>
-                            </div>
-                        `;
-                    },
-                },
-            });
-            chart.render();
-        })
-        .catch((error) => {
-            console.error('Failed to fetch total users comparison chart', error);
-        });
-}
-
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         loadVisitedCountriesChart();
@@ -565,7 +463,6 @@ if (document.readyState === 'loading') {
             'За месяц',
             '#f59e0b'
         );
-        loadTotalUsersComparisonChart();
     });
 } else {
     loadVisitedCountriesChart();
@@ -595,7 +492,6 @@ if (document.readyState === 'loading') {
         'За месяц',
         '#f59e0b'
     );
-    loadTotalUsersComparisonChart();
 }
 
 function updateNumberOnCard(element_id, newNumber) {
@@ -603,7 +499,14 @@ function updateNumberOnCard(element_id, newNumber) {
     if (!el) {
         return;
     }
-    el.innerHTML = `<span class="dashboard-metric-number text-2xl font-bold text-gray-900 dark:text-white">${newNumber}</span>`;
+    const halfUserCardsIds = new Set([
+        'number-total_users',
+        'number-number_of_users_without_visited_cities',
+    ]);
+    const numberClass = halfUserCardsIds.has(element_id)
+        ? 'dashboard-metric-number text-4xl font-bold leading-none text-gray-900 dark:text-white'
+        : 'dashboard-metric-number text-2xl font-bold text-gray-900 dark:text-white';
+    el.innerHTML = `<span class="${numberClass}">${newNumber}</span>`;
 }
 
 export async function fetchQuantity(url) {

@@ -1,8 +1,6 @@
 import {getCookie} from '../components/get_cookie.js';
 
 const notifications = [];
-const POLL_INTERVAL = 10000;
-
 // Находим кнопку уведомлений (может быть в мобильной версии или в версии для больших экранов)
 // Ищем все кнопки уведомлений с data-hs-overlay="#notificationModal"
 function getVisibleNotificationButton() {
@@ -20,19 +18,11 @@ const notificationButton = getVisibleNotificationButton();
 const notificationsList = document.getElementById('notifications-list');
 
 document.addEventListener("DOMContentLoaded", async function () {
-    const fetchNotifications = async () => {
-        try {
-            await get_notifications();
-        } catch (err) {
-            console.error("Ошибка при получении уведомлений:", err);
-        } finally {
-            // Запускаем следующий вызов через 5 секунд после завершения текущего
-            setTimeout(fetchNotifications, POLL_INTERVAL);
-        }
-    };
-
-    // Вызов сразу при загрузке страницы
-    await fetchNotifications();
+    try {
+        await get_notifications();
+    } catch (err) {
+        console.error("Ошибка при получении уведомлений:", err);
+    }
 });
 
 async function get_notifications() {

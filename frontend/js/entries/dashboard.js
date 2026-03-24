@@ -191,27 +191,191 @@ function loadVisitedCountriesChart() {
 }
 
 function loadVisitedCitiesByUserChart() {
-    loadChart(
-        'chart_qty_visited_cities',
-        'chart_qty_visited_citiesLoading',
-        DASHBOARD_ROUTES.getVisitedCitiesByUserChart,
-        'Общее количество посещений городов',
-        'rgba(52,0,0,0.2)',
-        'rgba(255,115,115,0.2)',
-        2
-    );
+    const chartContainer = document.getElementById('chart_qty_visited_cities');
+    const loadingElement = document.getElementById('chart_qty_visited_citiesLoading');
+
+    if (!chartContainer || !loadingElement) {
+        return;
+    }
+
+    fetchChartData(DASHBOARD_ROUTES.getVisitedCitiesByUserChart)
+        .then((data) => {
+            const labels = data.map((item) => item.label);
+            const values = data.map((item) => item.count);
+            const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
+            const chartValues = values.length === 1 ? [values[0], values[0]] : values;
+
+            loadingElement.classList.add('hidden');
+            chartContainer.classList.remove('hidden');
+            chartContainer.innerHTML = '';
+
+            const chart = new ApexCharts(chartContainer, {
+                series: [
+                    {
+                        name: 'Посещения',
+                        data: chartValues,
+                    },
+                ],
+                chart: {
+                    type: 'area',
+                    height: '100%',
+                    toolbar: {
+                        show: false,
+                    },
+                    sparkline: {
+                        enabled: true,
+                    },
+                },
+                stroke: {
+                    curve: 'straight',
+                    width: 2,
+                    colors: ['#16a34a'],
+                },
+                colors: ['#16a34a'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'dark',
+                        gradientToColors: ['#16a34a'],
+                        shadeIntensity: 1,
+                        opacityFrom: 0.6,
+                        opacityTo: 0,
+                        stops: [0, 100],
+                    },
+                },
+                states: {
+                    normal: {
+                        filter: {
+                            type: 'none',
+                        },
+                    },
+                    hover: {
+                        filter: {
+                            type: 'none',
+                        },
+                    },
+                    active: {
+                        filter: {
+                            type: 'none',
+                        },
+                    },
+                },
+                xaxis: {
+                    categories: chartLabels,
+                },
+                tooltip: {
+                    custom({series, seriesIndex, dataPointIndex}) {
+                        const userLabel = chartLabels[dataPointIndex] || 'Пользователь';
+                        const value = series[seriesIndex][dataPointIndex];
+                        return `
+                            <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
+                                ${userLabel}: <span class="font-semibold">${value}</span>
+                            </div>
+                        `;
+                    },
+                },
+            });
+            chart.render();
+        })
+        .catch((error) => {
+            console.error('Failed to fetch visited cities by user chart', error);
+            loadingElement.innerHTML =
+                '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
+        });
 }
 
 function loadUniqueVisitedCitiesByUserChart() {
-    loadChart(
-        'chart_unique_visited_cities',
-        'chart_unique_visited_citiesLoading',
-        DASHBOARD_ROUTES.getUniqueVisitedCitiesByUserChart,
-        'Количество уникальных городов',
-        'rgba(0,52,104,0.2)',
-        'rgba(115,184,255,0.2)',
-        2
-    );
+    const chartContainer = document.getElementById('chart_unique_visited_cities');
+    const loadingElement = document.getElementById('chart_unique_visited_citiesLoading');
+
+    if (!chartContainer || !loadingElement) {
+        return;
+    }
+
+    fetchChartData(DASHBOARD_ROUTES.getUniqueVisitedCitiesByUserChart)
+        .then((data) => {
+            const labels = data.map((item) => item.label);
+            const values = data.map((item) => item.count);
+            const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
+            const chartValues = values.length === 1 ? [values[0], values[0]] : values;
+
+            loadingElement.classList.add('hidden');
+            chartContainer.classList.remove('hidden');
+            chartContainer.innerHTML = '';
+
+            const chart = new ApexCharts(chartContainer, {
+                series: [
+                    {
+                        name: 'Уникальные города',
+                        data: chartValues,
+                    },
+                ],
+                chart: {
+                    type: 'area',
+                    height: '100%',
+                    toolbar: {
+                        show: false,
+                    },
+                    sparkline: {
+                        enabled: true,
+                    },
+                },
+                stroke: {
+                    curve: 'straight',
+                    width: 2,
+                    colors: ['#f59e0b'],
+                },
+                colors: ['#f59e0b'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'dark',
+                        gradientToColors: ['#f59e0b'],
+                        shadeIntensity: 1,
+                        opacityFrom: 0.6,
+                        opacityTo: 0,
+                        stops: [0, 100],
+                    },
+                },
+                states: {
+                    normal: {
+                        filter: {
+                            type: 'none',
+                        },
+                    },
+                    hover: {
+                        filter: {
+                            type: 'none',
+                        },
+                    },
+                    active: {
+                        filter: {
+                            type: 'none',
+                        },
+                    },
+                },
+                xaxis: {
+                    categories: chartLabels,
+                },
+                tooltip: {
+                    custom({series, seriesIndex, dataPointIndex}) {
+                        const userLabel = chartLabels[dataPointIndex] || 'Пользователь';
+                        const value = series[seriesIndex][dataPointIndex];
+                        return `
+                            <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
+                                ${userLabel}: <span class="font-semibold">${value}</span>
+                            </div>
+                        `;
+                    },
+                },
+            });
+            chart.render();
+        })
+        .catch((error) => {
+            console.error('Failed to fetch unique visited cities by user chart', error);
+            loadingElement.innerHTML =
+                '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
+        });
 }
 
 function updateCompareCardValue(elementId, value, isDelta = false, deltaNumber = 0) {
@@ -502,6 +666,8 @@ function updateNumberOnCard(element_id, newNumber) {
     const halfUserCardsIds = new Set([
         'number-total_users',
         'number-number_of_users_without_visited_cities',
+        'number-total_visited_cities_visits',
+        'number-unique_visited_cities',
     ]);
     const numberClass = halfUserCardsIds.has(element_id)
         ? 'dashboard-metric-number text-4xl font-bold leading-none text-gray-900 dark:text-white'

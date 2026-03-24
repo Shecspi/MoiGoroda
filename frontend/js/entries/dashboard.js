@@ -219,17 +219,36 @@ function updateCompareCardValue(elementId, value, isDelta = false, deltaNumber =
     if (!element) {
         return;
     }
+    const isCurrentMetric = elementId.endsWith('-current');
+    const baseMetricClass = isCurrentMetric
+        ? 'dashboard-metric-number text-5xl font-extrabold leading-none text-gray-900 dark:text-white'
+        : 'dashboard-metric-number text-base font-semibold text-gray-900 dark:text-white';
 
     if (!isDelta) {
-        element.innerHTML = `<span class="dashboard-metric-number text-2xl font-bold text-gray-900 dark:text-white">${value}</span>`;
+        element.innerHTML = `<span class="${baseMetricClass}">${value}</span>`;
         return;
     }
 
     const deltaClass = deltaNumber >= 0
         ? 'text-emerald-600 dark:text-emerald-400'
         : 'text-red-600 dark:text-red-400';
-    const sign = deltaNumber > 0 ? '+' : '';
-    element.innerHTML = `<span class="dashboard-metric-number text-2xl font-bold ${deltaClass}">${sign}${value}</span>`;
+    const trendIcon = deltaNumber >= 0
+        ? `
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H9M17 7v8"/>
+            </svg>
+        `
+        : `
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7l10 10M17 17H9M17 17V9"/>
+            </svg>
+        `;
+    element.innerHTML = `
+        <span class="dashboard-metric-number inline-flex items-center gap-1 text-base font-semibold ${deltaClass}">
+            ${trendIcon}
+            <span>${value}</span>
+        </span>
+    `;
 }
 
 function loadRegistrationsComparisonCards(days, idPrefix) {
@@ -241,11 +260,13 @@ function loadRegistrationsComparisonCards(days, idPrefix) {
 
     fetchComparisonData(url)
         .then((data) => {
+            const absDelta = Math.abs(data.delta);
+            const absPercent = Math.abs(data.delta_percent);
             updateCompareCardValue(`${idPrefix}-current`, data.current_count);
             updateCompareCardValue(`${idPrefix}-previous`, data.previous_count);
             updateCompareCardValue(
                 `${idPrefix}-delta`,
-                `${data.delta} (${data.delta_percent}%)`,
+                `${absDelta} (${absPercent}%)`,
                 true,
                 data.delta,
             );

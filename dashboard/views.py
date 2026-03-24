@@ -7,29 +7,23 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from __future__ import annotations
-
-from typing import Any
-
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.views.generic import TemplateView
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
 
 
-class Dashboard(UserPassesTestMixin, TemplateView):
-    template_name = 'dashboard/dashboard.html'
-
-    def test_func(self) -> bool:
-        """Проверка что пользователь является суперпользователем."""
-        return self.request.user.is_superuser
-
-    def handle_no_permission(self) -> Any:
+@login_required
+def dashboard(request: HttpRequest) -> HttpResponse:
+    """Страница dashboard только для суперпользователей."""
+    if not request.user.is_superuser:
         raise PermissionDenied()
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-
-        context['page_title'] = 'Dashboard'
-        context['page_description'] = ''
-
-        return context
+    return render(
+        request,
+        'dashboard/dashboard.html',
+        {
+            'page_title': 'Dashboard',
+            'page_description': '',
+        },
+    )

@@ -7,8 +7,8 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from django.urls import include, path
-from django_modern_rest.routing import Router
+from django.urls import include
+from dmr.routing import Router, path
 from dashboard.api import (
     GetNumberOfUsersController,
     GetNumberOfRegistrationsYesterdayController,
@@ -34,6 +34,7 @@ from dashboard.api import (
 )
 
 router = Router(
+    'api/dashboard',
     [
         path(
             'users/',

@@ -3,9 +3,10 @@ from http import HTTPStatus
 from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpResponse
 
-from django_modern_rest.decorators import wrap_middleware
-from django_modern_rest.plugins.msgspec import MsgspecSerializer
-from django_modern_rest.response import ResponseSpec, build_response
+from dmr import ResponseSpec
+from dmr.decorators import wrap_middleware
+from dmr.plugins.msgspec import MsgspecSerializer
+from dmr.response import build_response
 
 
 @wrap_middleware(

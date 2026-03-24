@@ -17,8 +17,8 @@ from django.db.models.functions.datetime import TruncDate, TruncDay, TruncMonth
 from city.models import VisitedCity
 from country.models import VisitedCountry
 from dashboard.schemas import DailyStatistics, DaysPath, Quantity, UserStatistics
-from django_modern_rest import Controller, Path
-from django_modern_rest.plugins.msgspec import MsgspecSerializer
+from dmr import Controller, Path
+from dmr.plugins.msgspec import MsgspecSerializer
 from utils.decorators import is_superuser_json
 
 

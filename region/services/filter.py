@@ -120,7 +120,7 @@ def filter_by_year(
                 'visitedcity__date_of_visit',
                 filter=Q(visitedcity__user=user, visitedcity__date_of_visit__year=year),
                 distinct=True,
-                ordering='visitedcity__date_of_visit',
+                order_by='visitedcity__date_of_visit',
             ),
             first_visit_date=Min(
                 'visitedcity__date_of_visit',

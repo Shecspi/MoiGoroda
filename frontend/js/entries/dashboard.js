@@ -221,7 +221,7 @@ function updateCompareCardValue(elementId, value, isDelta = false, deltaNumber =
     }
 
     if (!isDelta) {
-        element.innerHTML = `<span class="text-2xl font-bold text-gray-900 dark:text-white">${value}</span>`;
+        element.innerHTML = `<span class="dashboard-metric-number text-2xl font-bold text-gray-900 dark:text-white">${value}</span>`;
         return;
     }
 
@@ -229,7 +229,7 @@ function updateCompareCardValue(elementId, value, isDelta = false, deltaNumber =
         ? 'text-emerald-600 dark:text-emerald-400'
         : 'text-red-600 dark:text-red-400';
     const sign = deltaNumber > 0 ? '+' : '';
-    element.innerHTML = `<span class="text-2xl font-bold ${deltaClass}">${sign}${value}</span>`;
+    element.innerHTML = `<span class="dashboard-metric-number text-2xl font-bold ${deltaClass}">${sign}${value}</span>`;
 }
 
 function loadRegistrationsComparisonCards(days, idPrefix) {
@@ -582,7 +582,7 @@ function updateNumberOnCard(element_id, newNumber) {
     if (!el) {
         return;
     }
-    el.innerHTML = `<span class="text-2xl font-bold text-gray-900 dark:text-white">${newNumber}</span>`;
+    el.innerHTML = `<span class="dashboard-metric-number text-2xl font-bold text-gray-900 dark:text-white">${newNumber}</span>`;
 }
 
 export async function fetchQuantity(url) {

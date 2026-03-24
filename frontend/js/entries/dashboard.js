@@ -12,6 +12,8 @@ const DASHBOARD_ROUTES = Object.freeze({
     getMaxQtyVisitedCities: '/api/dashboard/visited_cities/max/',
     getAverageQtyVisitedCities: '/api/dashboard/visited_cities/average/',
     getAverageQtyUniqueVisitedCities: '/api/dashboard/visited_cities/average_unique/',
+    getAddedVisitedCitiesByRange: '/api/dashboard/visited_cities/added/range/',
+    getAddedVisitedCitiesCompare: '/api/dashboard/visited_cities/added/compare/',
     // Страны
     getTotalVisitedCountries: '/api/dashboard/visited_countries/total/',
     getUsersWithVisitedCountries: '/api/dashboard/visited_countries/users/',
@@ -443,6 +445,34 @@ function loadRegistrationsComparisonCards(days, idPrefix) {
         });
 }
 
+function loadAddedVisitedCitiesComparisonCards(days, idPrefix) {
+    const {dateFrom, dateTo} = getLastDaysRange(days);
+    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getAddedVisitedCitiesCompare, {
+        date_from: dateFrom,
+        date_to: dateTo,
+    });
+
+    fetchComparisonData(url)
+        .then((data) => {
+            const absDelta = Math.abs(data.delta);
+            const absPercent = Math.abs(data.delta_percent);
+            updateCompareCardValue(`${idPrefix}-current`, data.current_count);
+            updateCompareCardValue(`${idPrefix}-previous`, data.previous_count);
+            updateCompareCardValue(
+                `${idPrefix}-delta`,
+                `${absDelta} (${absPercent}%)`,
+                true,
+                data.delta,
+            );
+        })
+        .catch((error) => {
+            console.error('Failed to fetch added visited cities comparison', error);
+            showCardFallback(`${idPrefix}-current`);
+            showCardFallback(`${idPrefix}-previous`);
+            showCardFallback(`${idPrefix}-delta`);
+        });
+}
+
 function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel, color) {
     const chartContainer = document.getElementById(canvasId);
     if (!chartContainer) {
@@ -598,6 +628,161 @@ function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricL
         });
 }
 
+function loadAddedVisitedCitiesTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel, color) {
+    const chartContainer = document.getElementById(canvasId);
+    if (!chartContainer) {
+        return;
+    }
+    const dayMonthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
+    const monthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
+
+    function parseIsoWeekStart(week, year) {
+        const jan4 = new Date(Date.UTC(year, 0, 4));
+        const jan4Day = jan4.getUTCDay() || 7;
+        const mondayOfWeekOne = new Date(jan4);
+        mondayOfWeekOne.setUTCDate(jan4.getUTCDate() - (jan4Day - 1));
+        const target = new Date(mondayOfWeekOne);
+        target.setUTCDate(mondayOfWeekOne.getUTCDate() + (week - 1) * 7);
+        return target;
+    }
+
+    function formatPeriodValue(rawValue) {
+        const value = String(rawValue ?? '').trim();
+        if (!value) {
+            return '—';
+        }
+
+        if (groupBy === 'day') {
+            const dayMatch = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
+            if (!dayMatch) {
+                return value;
+            }
+            const [, day, month, year] = dayMatch;
+            const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+            return dayMonthYearFormatter.format(date);
+        }
+
+        if (groupBy === 'week') {
+            const weekMatch = /^(\d{2})\.(\d{4})$/.exec(value);
+            if (!weekMatch) {
+                return value;
+            }
+            const [, week, year] = weekMatch;
+            const weekStart = parseIsoWeekStart(Number(week), Number(year));
+            return `неделя с ${dayMonthYearFormatter.format(weekStart)}`;
+        }
+
+        if (groupBy === 'month') {
+            const monthMatch = /^(\d{2})\.(\d{4})$/.exec(value);
+            if (!monthMatch) {
+                return value;
+            }
+            const [, month, year] = monthMatch;
+            const date = new Date(Date.UTC(Number(year), Number(month) - 1, 1));
+            return monthYearFormatter.format(date);
+        }
+
+        return value;
+    }
+
+    const {dateFrom, dateTo} = getLastDaysRange(days);
+    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getAddedVisitedCitiesByRange, {
+        date_from: dateFrom,
+        date_to: dateTo,
+        group_by: groupBy,
+    });
+
+    fetchChartData(url)
+        .then((data) => {
+            const labels = data.map((item) => item.label);
+            const values = data.map((item) => item.count);
+            const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
+            const chartValues = values.length === 1 ? [values[0], values[0]] : values;
+            chartContainer.innerHTML = '';
+
+            const chart = new ApexCharts(chartContainer, {
+                series: [
+                    {
+                        name: tooltipMetricLabel,
+                        data: chartValues,
+                    },
+                ],
+                chart: {
+                    type: 'area',
+                    height: '100%',
+                    toolbar: {
+                        show: false,
+                    },
+                    sparkline: {
+                        enabled: true,
+                    },
+                },
+                stroke: {
+                    curve: 'straight',
+                    width: 2,
+                    colors: [color],
+                },
+                colors: [color],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'dark',
+                        gradientToColors: [color],
+                        shadeIntensity: 1,
+                        opacityFrom: 0.6,
+                        opacityTo: 0,
+                        stops: [0, 100],
+                    },
+                },
+                states: {
+                    normal: {
+                        filter: {
+                            type: 'none',
+                        },
+                    },
+                    hover: {
+                        filter: {
+                            type: 'none',
+                        },
+                    },
+                    active: {
+                        filter: {
+                            type: 'none',
+                        },
+                    },
+                },
+                xaxis: {
+                    categories: chartLabels,
+                },
+                tooltip: {
+                    custom({series, seriesIndex, dataPointIndex}) {
+                        const rawLabel = chartLabels[dataPointIndex] || '';
+                        const formattedDate = formatPeriodValue(rawLabel);
+                        const value = series[seriesIndex][dataPointIndex];
+                        return `
+                            <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
+                                ${formattedDate}: <span class="font-semibold">${value}</span>
+                            </div>
+                        `;
+                    },
+                },
+            });
+            chart.render();
+        })
+        .catch((error) => {
+            console.error('Failed to fetch added visited cities trend chart', error);
+        });
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         loadVisitedCountriesChart();
@@ -606,6 +791,9 @@ if (document.readyState === 'loading') {
         loadRegistrationsComparisonCards(30, 'registrations-30');
         loadRegistrationsComparisonCards(183, 'registrations-6m');
         loadRegistrationsComparisonCards(365, 'registrations-1y');
+        loadAddedVisitedCitiesComparisonCards(30, 'added-cities-30');
+        loadAddedVisitedCitiesComparisonCards(183, 'added-cities-6m');
+        loadAddedVisitedCitiesComparisonCards(365, 'added-cities-1y');
         loadRegistrationsTrendCardChart(
             'registrations-30-trend-chart',
             30,
@@ -627,6 +815,27 @@ if (document.readyState === 'loading') {
             'За месяц',
             '#f59e0b'
         );
+        loadAddedVisitedCitiesTrendCardChart(
+            'added-cities-30-trend-chart',
+            30,
+            'day',
+            'За день',
+            '#0ea5e9'
+        );
+        loadAddedVisitedCitiesTrendCardChart(
+            'added-cities-6m-trend-chart',
+            183,
+            'week',
+            'За неделю',
+            '#10b981'
+        );
+        loadAddedVisitedCitiesTrendCardChart(
+            'added-cities-1y-trend-chart',
+            365,
+            'month',
+            'За месяц',
+            '#f97316'
+        );
     });
 } else {
     loadVisitedCountriesChart();
@@ -635,6 +844,9 @@ if (document.readyState === 'loading') {
     loadRegistrationsComparisonCards(30, 'registrations-30');
     loadRegistrationsComparisonCards(183, 'registrations-6m');
     loadRegistrationsComparisonCards(365, 'registrations-1y');
+    loadAddedVisitedCitiesComparisonCards(30, 'added-cities-30');
+    loadAddedVisitedCitiesComparisonCards(183, 'added-cities-6m');
+    loadAddedVisitedCitiesComparisonCards(365, 'added-cities-1y');
     loadRegistrationsTrendCardChart(
         'registrations-30-trend-chart',
         30,
@@ -655,6 +867,27 @@ if (document.readyState === 'loading') {
         'month',
         'За месяц',
         '#f59e0b'
+    );
+    loadAddedVisitedCitiesTrendCardChart(
+        'added-cities-30-trend-chart',
+        30,
+        'day',
+        'За день',
+        '#0ea5e9'
+    );
+    loadAddedVisitedCitiesTrendCardChart(
+        'added-cities-6m-trend-chart',
+        183,
+        'week',
+        'За неделю',
+        '#10b981'
+    );
+    loadAddedVisitedCitiesTrendCardChart(
+        'added-cities-1y-trend-chart',
+        365,
+        'month',
+        'За месяц',
+        '#f97316'
     );
 }
 

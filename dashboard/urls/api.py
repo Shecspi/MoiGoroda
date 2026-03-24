@@ -10,6 +10,8 @@ Licensed under the Apache License, Version 2.0
 from django.urls import include
 from dmr.routing import Router, path
 from dashboard.api import (
+    GetAddedVisitedCitiesByRangeController,
+    GetAddedVisitedCitiesComparisonController,
     GetNumberOfUsersController,
     GetRegistrationsByRangeController,
     GetRegistrationsComparisonController,
@@ -73,6 +75,14 @@ router = Router(
         path(
             'visited_cities/average_unique/',
             GetAverageQtyUniqueVisitedCitiesController.as_view(),
+        ),
+        path(
+            'visited_cities/added/range/',
+            GetAddedVisitedCitiesByRangeController.as_view(),
+        ),
+        path(
+            'visited_cities/added/compare/',
+            GetAddedVisitedCitiesComparisonController.as_view(),
         ),
         # Страны
         path(

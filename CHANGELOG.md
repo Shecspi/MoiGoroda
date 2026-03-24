@@ -79,6 +79,8 @@
 
 - *(city)* Заменён виджет поля «Дата посещения» на кастомный ([938ec71](https://github.com/Shecspi/MoiGoroda/commit/938ec71773a6a528ff2ee9bc5374c231f3563bde))
 
+- *(notification)* Отключен периодический опрос уведомлений ([5be1fe1](https://github.com/Shecspi/MoiGoroda/commit/5be1fe122b15848ede10395e5e2008689689b92f))
+
 
 #### 🧪 Тестирование
 

@@ -40,7 +40,7 @@
                     </svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-600 dark:text-neutral-400">Регистраций за вчера</p>
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">Регистраций за сегодня</p>
                     <div id="number-registrations_yesterday" class="text-2xl font-bold text-gray-900 dark:text-white">
                         <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-emerald-600 dark:text-emerald-400" role="status" aria-label="loading">
                             <span class="sr-only">Loading...</span>
@@ -123,6 +123,54 @@
                 </div>
             </div>
             <canvas id="myChartMonth" class="hidden" height="400"></canvas>
+        </div>
+    </div>
+
+    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <p class="text-sm text-gray-600 dark:text-neutral-400">Регистрации за 30 дней</p>
+            <div id="registrations-compare-current" class="text-2xl font-bold text-gray-900 dark:text-white">
+                <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <p class="text-sm text-gray-600 dark:text-neutral-400">Предыдущие 30 дней</p>
+            <div id="registrations-compare-previous" class="text-2xl font-bold text-gray-900 dark:text-white">
+                <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <p class="text-sm text-gray-600 dark:text-neutral-400">Дельта к предыдущему периоду</p>
+            <div id="registrations-compare-delta" class="text-2xl font-bold text-gray-900 dark:text-white">
+                <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Регистрации по неделям (последние 12 недель)</h2>
+            <div id="registrationsRangeChartLoading" class="flex items-center justify-center min-h-[400px]">
+                <div class="animate-spin inline-block h-8 w-8 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            <canvas id="registrationsRangeChart" class="hidden" height="400"></canvas>
+        </div>
+        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Накопительный график регистраций (90 дней)</h2>
+            <div id="registrationsCumulativeChartLoading" class="flex items-center justify-center min-h-[400px]">
+                <div class="animate-spin inline-block h-8 w-8 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            <canvas id="registrationsCumulativeChart" class="hidden" height="400"></canvas>
         </div>
     </div>
 

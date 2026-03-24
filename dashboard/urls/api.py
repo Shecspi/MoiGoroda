@@ -11,9 +11,9 @@ from django.urls import include
 from dmr.routing import Router, path
 from dashboard.api import (
     GetNumberOfUsersController,
-    GetNumberOfRegistrationsYesterdayController,
-    GetNumberOfRegistrationsWeekController,
-    GetNumberOfRegistrationsMonthController,
+    GetRegistrationsByRangeController,
+    GetRegistrationsComparisonController,
+    GetRegistrationsCumulativeChartController,
     GetTotalVisitedCitiesVisitsController,
     GetUniqueVisitedCitiesController,
     GetMaxQtyUniqueVisitedCitiesController,
@@ -27,8 +27,6 @@ from dashboard.api import (
     GetAddedVisitedCountryController,
     GetMaxQtyVisitedCountriesController,
     GetAddedVisitedCountriesChartController,
-    GetRegistrationsChartController,
-    GetRegistrationsByMonthChartController,
     GetVisitedCitiesByUserChartController,
     GetUniqueVisitedCitiesByUserChartController,
 )
@@ -41,16 +39,12 @@ router = Router(
             GetNumberOfUsersController.as_view(),
         ),
         path(
-            'users/registrations/yesterday/',
-            GetNumberOfRegistrationsYesterdayController.as_view(),
+            'users/registrations/range/',
+            GetRegistrationsByRangeController.as_view(),
         ),
         path(
-            'users/registrations/week/',
-            GetNumberOfRegistrationsWeekController.as_view(),
-        ),
-        path(
-            'users/registrations/month/',
-            GetNumberOfRegistrationsMonthController.as_view(),
+            'users/registrations/compare/',
+            GetRegistrationsComparisonController.as_view(),
         ),
         path(
             'users/without_visited_cities/',
@@ -107,12 +101,8 @@ router = Router(
         ),
         # Графики
         path(
-            'users/registrations/chart/',
-            GetRegistrationsChartController.as_view(),
-        ),
-        path(
-            'users/registrations/chart/month/',
-            GetRegistrationsByMonthChartController.as_view(),
+            'users/registrations/chart/cumulative/',
+            GetRegistrationsCumulativeChartController.as_view(),
         ),
         path(
             'visited_cities/by_user/chart/',

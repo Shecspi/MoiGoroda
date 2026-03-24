@@ -12,14 +12,91 @@ from datetime import date, datetime, timedelta, timezone
 from django.contrib.auth.models import User
 from django.db.models import Count, F, Func, Max, OuterRef, Subquery, Sum, Value
 from django.db.models.fields import CharField
-from django.db.models.functions.datetime import TruncDate, TruncDay, TruncMonth
+from django.db.models.functions.datetime import TruncDate, TruncDay, TruncMonth, TruncWeek
 
 from city.models import VisitedCity
 from country.models import VisitedCountry
-from dashboard.schemas import DailyStatistics, DaysPath, Quantity, UserStatistics
-from dmr import Controller, Path
+from dashboard.schemas import (
+    DailyStatistics,
+    DaysPath,
+    PeriodComparisonStatistics,
+    Quantity,
+    RegistrationsComparisonQuery,
+    RegistrationsRangeQuery,
+    UserStatistics,
+)
+from dmr import Controller, Path, Query
 from dmr.plugins.msgspec import MsgspecSerializer
 from utils.decorators import is_superuser_json
+
+
+def _get_group_trunc_function(group_by: str):
+    if group_by == 'day':
+        return TruncDay
+    if group_by == 'week':
+        return TruncWeek
+    if group_by == 'month':
+        return TruncMonth
+    raise ValueError('group_by must be one of: day, week, month')
+
+
+def _format_group_label(group_date: date, group_by: str) -> str:
+    if group_by == 'day':
+        return group_date.strftime('%d.%m.%Y')
+    if group_by == 'week':
+        iso_year, iso_week, _ = group_date.isocalendar()
+        return f'{iso_week:02d}.{iso_year}'
+    return group_date.strftime('%m.%Y')
+
+
+def _next_group_date(group_date: date, group_by: str) -> date:
+    if group_by == 'day':
+        return group_date + timedelta(days=1)
+    if group_by == 'week':
+        return group_date + timedelta(weeks=1)
+
+    # Переход на первый день следующего месяца
+    if group_date.month == 12:
+        return date(group_date.year + 1, 1, 1)
+    return date(group_date.year, group_date.month + 1, 1)
+
+
+def _collect_registrations_by_group(
+    date_from: date,
+    date_to: date,
+    group_by: str,
+) -> list[DailyStatistics]:
+    trunc_fn = _get_group_trunc_function(group_by)
+    queryset = (
+        User.objects.filter(
+            date_joined__date__range=[date_from, date_to],
+        )
+        .annotate(group_date=TruncDate(trunc_fn('date_joined', tzinfo=timezone.utc)))
+        .values('group_date')
+        .annotate(count=Count('id'))
+        .order_by('group_date')
+    )
+
+    grouped_data = {item['group_date']: item['count'] for item in queryset}
+
+    if not grouped_data:
+        return []
+
+    first_date = min(grouped_data.keys())
+    last_date = max(grouped_data.keys())
+
+    result: list[DailyStatistics] = []
+    current_date = first_date
+    while current_date <= last_date:
+        result.append(
+            DailyStatistics(
+                label=_format_group_label(current_date, group_by),
+                count=grouped_data.get(current_date, 0),
+            )
+        )
+        current_date = _next_group_date(current_date, group_by)
+
+    return result
 
 
 @is_superuser_json
@@ -34,46 +111,90 @@ class GetNumberOfUsersController(Controller[MsgspecSerializer]):
 
 
 @is_superuser_json
-class GetNumberOfRegistrationsYesterdayController(Controller[MsgspecSerializer]):
+class GetRegistrationsByRangeController(
+    Query[RegistrationsRangeQuery], Controller[MsgspecSerializer]
+):
     """
-    Количество регистраций за вчера
+    Количество регистраций по заданному диапазону и группировке
     """
 
-    def get(self) -> Quantity:
-        qty = User.objects.filter(date_joined__date=date.today() - timedelta(days=1)).count()
-        return Quantity(count=qty)
+    def get(self) -> list[DailyStatistics]:
+        group_by = self.parsed_query.group_by
+        if group_by not in {'day', 'week', 'month'}:
+            raise ValueError('group_by must be one of: day, week, month')
+
+        if self.parsed_query.date_from > self.parsed_query.date_to:
+            raise ValueError('date_from must be less than or equal to date_to')
+
+        return _collect_registrations_by_group(
+            date_from=self.parsed_query.date_from,
+            date_to=self.parsed_query.date_to,
+            group_by=group_by,
+        )
 
 
 @is_superuser_json
-class GetNumberOfRegistrationsWeekController(Controller[MsgspecSerializer]):
+class GetRegistrationsComparisonController(
+    Query[RegistrationsComparisonQuery], Controller[MsgspecSerializer]
+):
     """
-    Количество регистраций за неделю
+    Сравнение регистраций с предыдущим равным периодом
     """
 
-    def get(self) -> Quantity:
-        qty = (
-            User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
-            .filter(day__range=[date.today() - timedelta(days=7), date.today() - timedelta(days=1)])
-            .count()
+    def get(self) -> PeriodComparisonStatistics:
+        date_from = self.parsed_query.date_from
+        date_to = self.parsed_query.date_to
+
+        if date_from > date_to:
+            raise ValueError('date_from must be less than or equal to date_to')
+
+        current_count = User.objects.filter(date_joined__date__range=[date_from, date_to]).count()
+
+        period_days = (date_to - date_from).days + 1
+        previous_date_to = date_from - timedelta(days=1)
+        previous_date_from = previous_date_to - timedelta(days=period_days - 1)
+        previous_count = User.objects.filter(
+            date_joined__date__range=[previous_date_from, previous_date_to]
+        ).count()
+
+        delta = current_count - previous_count
+        delta_percent = 0.0 if previous_count == 0 else round((delta / previous_count) * 100, 2)
+        return PeriodComparisonStatistics(
+            current_count=current_count,
+            previous_count=previous_count,
+            delta=delta,
+            delta_percent=delta_percent,
         )
-        return Quantity(count=qty)
 
 
 @is_superuser_json
-class GetNumberOfRegistrationsMonthController(Controller[MsgspecSerializer]):
+class GetRegistrationsCumulativeChartController(
+    Query[RegistrationsRangeQuery], Controller[MsgspecSerializer]
+):
     """
-    Количество регистраций за месяц
+    Накопительный график регистраций по диапазону
     """
 
-    def get(self) -> Quantity:
-        qty = (
-            User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
-            .filter(
-                day__range=[date.today() - timedelta(days=30), date.today() - timedelta(days=1)]
-            )
-            .count()
+    def get(self) -> list[DailyStatistics]:
+        group_by = self.parsed_query.group_by
+        if group_by not in {'day', 'week', 'month'}:
+            raise ValueError('group_by must be one of: day, week, month')
+
+        if self.parsed_query.date_from > self.parsed_query.date_to:
+            raise ValueError('date_from must be less than or equal to date_to')
+
+        grouped = _collect_registrations_by_group(
+            date_from=self.parsed_query.date_from,
+            date_to=self.parsed_query.date_to,
+            group_by=group_by,
         )
-        return Quantity(count=qty)
+
+        cumulative = 0
+        result: list[DailyStatistics] = []
+        for item in grouped:
+            cumulative += item.count
+            result.append(DailyStatistics(label=item.label, count=cumulative))
+        return result
 
 
 @is_superuser_json
@@ -260,56 +381,6 @@ class GetAddedVisitedCountriesChartController(Controller[MsgspecSerializer]):
         )
 
         return [DailyStatistics(label=item['date'], count=item['count']) for item in queryset]
-
-
-@is_superuser_json
-class GetRegistrationsChartController(Controller[MsgspecSerializer]):
-    """
-    Данные для графика регистраций по дням
-    """
-
-    def get(self) -> list[DailyStatistics]:
-        queryset = (
-            User.objects.annotate(day=TruncDay('date_joined', tzinfo=timezone.utc))
-            .annotate(date=TruncDate('day'))
-            .values('date')
-            .annotate(count=Count('id'))
-            .order_by('-date')[:35]
-        )
-
-        result = [
-            DailyStatistics(
-                label=item['date'].strftime('%d.%m.%Y'),
-                count=item['count'],
-            )
-            for item in queryset
-        ]
-        return list(reversed(result))
-
-
-@is_superuser_json
-class GetRegistrationsByMonthChartController(Controller[MsgspecSerializer]):
-    """
-    Данные для графика регистраций по месяцам
-    """
-
-    def get(self) -> list[DailyStatistics]:
-        queryset = (
-            User.objects.annotate(month=TruncMonth('date_joined', tzinfo=timezone.utc))
-            .annotate(date=TruncDate('month'))
-            .values('date')
-            .annotate(count=Count('id'))
-            .order_by('-date')[:24]
-        )
-
-        result = [
-            DailyStatistics(
-                label=item['date'].strftime('%m.%Y'),
-                count=item['count'],
-            )
-            for item in queryset
-        ]
-        return list(reversed(result))
 
 
 @is_superuser_json

@@ -3,9 +3,6 @@ import {getCookie} from '../components/get_cookie.js';
 const DASHBOARD_ROUTES = Object.freeze({
     // Пользователи
     getNumberOfUsers: '/api/dashboard/users/',
-    getRegistrationsYesterday: '/api/dashboard/users/registrations/yesterday/',
-    getRegistrationsWeek: '/api/dashboard/users/registrations/week/',
-    getRegistrationsMonth: '/api/dashboard/users/registrations/month/',
     getNumberOfUsersWithoutVisitedCities: '/api/dashboard/users/without_visited_cities/',
     // Города
     getTotalVisitedCitiesVisits: '/api/dashboard/visited_cities/total/',
@@ -26,17 +23,34 @@ const DASHBOARD_ROUTES = Object.freeze({
     getAddedVisitedCountriesByYear: '/api/dashboard/visited_countries/added/365/',
     getAddedVisitedCountriesChart: '/api/dashboard/visited_countries/added/chart/',
     // Графики
-    getRegistrationsChart: '/api/dashboard/users/registrations/chart/',
-    getRegistrationsByMonthChart: '/api/dashboard/users/registrations/chart/month/',
+    getRegistrationsByRange: '/api/dashboard/users/registrations/range/',
+    getRegistrationsCompare: '/api/dashboard/users/registrations/compare/',
+    getRegistrationsCumulativeChart: '/api/dashboard/users/registrations/chart/cumulative/',
     getVisitedCitiesByUserChart: '/api/dashboard/visited_cities/by_user/chart/',
     getUniqueVisitedCitiesByUserChart: '/api/dashboard/visited_cities/unique_by_user/chart/',
 });
 
+function formatDate(date) {
+    return date.toISOString().slice(0, 10);
+}
+
+function getLastDaysRange(days) {
+    const dateTo = new Date();
+    const dateFrom = new Date();
+    dateFrom.setDate(dateTo.getDate() - (days - 1));
+    return {
+        dateFrom: formatDate(dateFrom),
+        dateTo: formatDate(dateTo),
+    };
+}
+
+function buildRegistrationsQueryUrl(baseUrl, params) {
+    const searchParams = new URLSearchParams(params);
+    return `${baseUrl}?${searchParams.toString()}`;
+}
+
 // Пользователи
 loadQuantityCard('number-total_users', DASHBOARD_ROUTES.getNumberOfUsers);
-loadQuantityCard('number-registrations_yesterday', DASHBOARD_ROUTES.getRegistrationsYesterday);
-loadQuantityCard('number-registrations_week', DASHBOARD_ROUTES.getRegistrationsWeek);
-loadQuantityCard('number-registrations_month', DASHBOARD_ROUTES.getRegistrationsMonth);
 loadQuantityCard('number-number_of_users_without_visited_cities', DASHBOARD_ROUTES.getNumberOfUsersWithoutVisitedCities);
 // Города
 loadQuantityCard('number-total_visited_cities_visits', DASHBOARD_ROUTES.getTotalVisitedCitiesVisits);
@@ -79,6 +93,32 @@ async function fetchChartData(url) {
         throw new Error('Unexpected response structure: expected array');
     }
 
+    return data;
+}
+
+async function fetchComparisonData(url) {
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            Accept: 'application/json',
+        },
+        credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (
+        typeof data.current_count !== 'number' ||
+        typeof data.previous_count !== 'number' ||
+        typeof data.delta !== 'number' ||
+        typeof data.delta_percent !== 'number'
+    ) {
+        throw new Error('Unexpected response structure');
+    }
     return data;
 }
 
@@ -150,10 +190,17 @@ function loadVisitedCountriesChart() {
 }
 
 function loadRegistrationsChart() {
+    const {dateFrom, dateTo} = getLastDaysRange(35);
+    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsByRange, {
+        date_from: dateFrom,
+        date_to: dateTo,
+        group_by: 'day',
+    });
+
     loadChart(
         'myChart',
         'myChartLoading',
-        DASHBOARD_ROUTES.getRegistrationsChart,
+        url,
         'Количество регистраций',
         'rgba(51,171,255,0.5)',
         'rgba(51,171,255,0.2)',
@@ -162,10 +209,17 @@ function loadRegistrationsChart() {
 }
 
 function loadRegistrationsByMonthChart() {
+    const {dateFrom, dateTo} = getLastDaysRange(730);
+    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsByRange, {
+        date_from: dateFrom,
+        date_to: dateTo,
+        group_by: 'month',
+    });
+
     loadChart(
         'myChartMonth',
         'myChartMonthLoading',
-        DASHBOARD_ROUTES.getRegistrationsByMonthChart,
+        url,
         'Количество регистраций',
         'rgba(139,92,246,0.5)',
         'rgba(139,92,246,0.2)',
@@ -197,6 +251,119 @@ function loadUniqueVisitedCitiesByUserChart() {
     );
 }
 
+function updateCompareCardValue(elementId, value, isDelta = false, deltaNumber = 0) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+        return;
+    }
+
+    if (!isDelta) {
+        element.innerHTML = `<span class="text-2xl font-bold text-gray-900 dark:text-white">${value}</span>`;
+        return;
+    }
+
+    const deltaClass = deltaNumber >= 0
+        ? 'text-emerald-600 dark:text-emerald-400'
+        : 'text-red-600 dark:text-red-400';
+    const sign = deltaNumber > 0 ? '+' : '';
+    element.innerHTML = `<span class="text-2xl font-bold ${deltaClass}">${sign}${value}</span>`;
+}
+
+function loadRegistrationsComparisonCards() {
+    const {dateFrom, dateTo} = getLastDaysRange(30);
+    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsCompare, {
+        date_from: dateFrom,
+        date_to: dateTo,
+    });
+
+    fetchComparisonData(url)
+        .then((data) => {
+            updateCompareCardValue('registrations-compare-current', data.current_count);
+            updateCompareCardValue('registrations-compare-previous', data.previous_count);
+            updateCompareCardValue(
+                'registrations-compare-delta',
+                `${data.delta} (${data.delta_percent}%)`,
+                true,
+                data.delta,
+            );
+        })
+        .catch((error) => {
+            console.error('Failed to fetch registrations comparison', error);
+            showCardFallback('registrations-compare-current');
+            showCardFallback('registrations-compare-previous');
+            showCardFallback('registrations-compare-delta');
+        });
+}
+
+function loadRegistrationsRangeChart() {
+    const {dateFrom, dateTo} = getLastDaysRange(84);
+    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsByRange, {
+        date_from: dateFrom,
+        date_to: dateTo,
+        group_by: 'week',
+    });
+
+    loadChart(
+        'registrationsRangeChart',
+        'registrationsRangeChartLoading',
+        url,
+        'Регистрации по неделям',
+        'rgba(14,165,233,0.5)',
+        'rgba(14,165,233,0.2)',
+        2
+    );
+}
+
+function loadRegistrationsCumulativeChart() {
+    const {dateFrom, dateTo} = getLastDaysRange(90);
+    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsCumulativeChart, {
+        date_from: dateFrom,
+        date_to: dateTo,
+        group_by: 'day',
+    });
+
+    loadChart(
+        'registrationsCumulativeChart',
+        'registrationsCumulativeChartLoading',
+        url,
+        'Накопительное количество регистраций',
+        'rgba(139,92,246,0.5)',
+        'rgba(139,92,246,0.2)',
+        2
+    );
+}
+
+async function fetchRegistrationsByRangeTotal(days) {
+    const {dateFrom, dateTo} = getLastDaysRange(days);
+    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsByRange, {
+        date_from: dateFrom,
+        date_to: dateTo,
+        group_by: 'day',
+    });
+
+    const data = await fetchChartData(url);
+    return data.reduce((total, item) => total + item.count, 0);
+}
+
+function loadRegistrationRangeCards() {
+    Promise.all([
+        fetchRegistrationsByRangeTotal(1),
+        fetchRegistrationsByRangeTotal(7),
+        fetchRegistrationsByRangeTotal(30),
+    ])
+        .then(([todayQty, weekQty, monthQty]) => {
+            updateNumberOnCard('number-registrations_yesterday', todayQty);
+            updateNumberOnCard('number-registrations_week', weekQty);
+            updateNumberOnCard('number-registrations_month', monthQty);
+        })
+        .catch((error) => {
+            console.error('Failed to fetch registrations cards by range', error);
+            showCardFallback('number-registrations_yesterday');
+            showCardFallback('number-registrations_week');
+            showCardFallback('number-registrations_month');
+        });
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         loadVisitedCountriesChart();
@@ -204,6 +371,10 @@ if (document.readyState === 'loading') {
         loadRegistrationsByMonthChart();
         loadVisitedCitiesByUserChart();
         loadUniqueVisitedCitiesByUserChart();
+        loadRegistrationsComparisonCards();
+        loadRegistrationsRangeChart();
+        loadRegistrationsCumulativeChart();
+        loadRegistrationRangeCards();
     });
 } else {
     loadVisitedCountriesChart();
@@ -211,6 +382,10 @@ if (document.readyState === 'loading') {
     loadRegistrationsByMonthChart();
     loadVisitedCitiesByUserChart();
     loadUniqueVisitedCitiesByUserChart();
+    loadRegistrationsComparisonCards();
+    loadRegistrationsRangeChart();
+    loadRegistrationsCumulativeChart();
+    loadRegistrationRangeCards();
 }
 
 function updateNumberOnCard(element_id, newNumber) {

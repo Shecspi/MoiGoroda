@@ -189,44 +189,6 @@ function loadVisitedCountriesChart() {
     );
 }
 
-function loadRegistrationsChart() {
-    const {dateFrom, dateTo} = getLastDaysRange(35);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsByRange, {
-        date_from: dateFrom,
-        date_to: dateTo,
-        group_by: 'day',
-    });
-
-    loadChart(
-        'myChart',
-        'myChartLoading',
-        url,
-        'Количество регистраций',
-        'rgba(51,171,255,0.5)',
-        'rgba(51,171,255,0.2)',
-        2
-    );
-}
-
-function loadRegistrationsByMonthChart() {
-    const {dateFrom, dateTo} = getLastDaysRange(730);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsByRange, {
-        date_from: dateFrom,
-        date_to: dateTo,
-        group_by: 'month',
-    });
-
-    loadChart(
-        'myChartMonth',
-        'myChartMonthLoading',
-        url,
-        'Количество регистраций',
-        'rgba(139,92,246,0.5)',
-        'rgba(139,92,246,0.2)',
-        2.5
-    );
-}
-
 function loadVisitedCitiesByUserChart() {
     loadChart(
         'chart_qty_visited_cities',
@@ -269,8 +231,8 @@ function updateCompareCardValue(elementId, value, isDelta = false, deltaNumber =
     element.innerHTML = `<span class="text-2xl font-bold ${deltaClass}">${sign}${value}</span>`;
 }
 
-function loadRegistrationsComparisonCards() {
-    const {dateFrom, dateTo} = getLastDaysRange(30);
+function loadRegistrationsComparisonCards(days, idPrefix) {
+    const {dateFrom, dateTo} = getLastDaysRange(days);
     const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsCompare, {
         date_from: dateFrom,
         date_to: dateTo,
@@ -278,10 +240,10 @@ function loadRegistrationsComparisonCards() {
 
     fetchComparisonData(url)
         .then((data) => {
-            updateCompareCardValue('registrations-compare-current', data.current_count);
-            updateCompareCardValue('registrations-compare-previous', data.previous_count);
+            updateCompareCardValue(`${idPrefix}-current`, data.current_count);
+            updateCompareCardValue(`${idPrefix}-previous`, data.previous_count);
             updateCompareCardValue(
-                'registrations-compare-delta',
+                `${idPrefix}-delta`,
                 `${data.delta} (${data.delta_percent}%)`,
                 true,
                 data.delta,
@@ -289,103 +251,250 @@ function loadRegistrationsComparisonCards() {
         })
         .catch((error) => {
             console.error('Failed to fetch registrations comparison', error);
-            showCardFallback('registrations-compare-current');
-            showCardFallback('registrations-compare-previous');
-            showCardFallback('registrations-compare-delta');
+            showCardFallback(`${idPrefix}-current`);
+            showCardFallback(`${idPrefix}-previous`);
+            showCardFallback(`${idPrefix}-delta`);
         });
 }
 
-function loadRegistrationsRangeChart() {
-    const {dateFrom, dateTo} = getLastDaysRange(84);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsByRange, {
-        date_from: dateFrom,
-        date_to: dateTo,
-        group_by: 'week',
-    });
+function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        return;
+    }
 
-    loadChart(
-        'registrationsRangeChart',
-        'registrationsRangeChartLoading',
-        url,
-        'Регистрации по неделям',
-        'rgba(14,165,233,0.5)',
-        'rgba(14,165,233,0.2)',
-        2
-    );
-}
-
-function loadRegistrationsCumulativeChart() {
-    const {dateFrom, dateTo} = getLastDaysRange(90);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsCumulativeChart, {
-        date_from: dateFrom,
-        date_to: dateTo,
-        group_by: 'day',
-    });
-
-    loadChart(
-        'registrationsCumulativeChart',
-        'registrationsCumulativeChartLoading',
-        url,
-        'Накопительное количество регистраций',
-        'rgba(139,92,246,0.5)',
-        'rgba(139,92,246,0.2)',
-        2
-    );
-}
-
-async function fetchRegistrationsByRangeTotal(days) {
     const {dateFrom, dateTo} = getLastDaysRange(days);
     const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsByRange, {
         date_from: dateFrom,
         date_to: dateTo,
-        group_by: 'day',
+        group_by: groupBy,
     });
 
-    const data = await fetchChartData(url);
-    return data.reduce((total, item) => total + item.count, 0);
-}
+    fetchChartData(url)
+        .then((data) => {
+            const labels = data.map((item) => item.label);
+            const values = data.map((item) => item.count);
+            const context = canvas.getContext('2d');
+            if (!context) {
+                return;
+            }
 
-function loadRegistrationRangeCards() {
-    Promise.all([
-        fetchRegistrationsByRangeTotal(1),
-        fetchRegistrationsByRangeTotal(7),
-        fetchRegistrationsByRangeTotal(30),
-    ])
-        .then(([todayQty, weekQty, monthQty]) => {
-            updateNumberOnCard('number-registrations_yesterday', todayQty);
-            updateNumberOnCard('number-registrations_week', weekQty);
-            updateNumberOnCard('number-registrations_month', monthQty);
+            new Chart(context, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            data: values,
+                            borderColor: 'rgba(37,99,235,0.9)',
+                            backgroundColor: 'rgba(37,99,235,0.15)',
+                            fill: true,
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 3,
+                            tension: 0.35,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label(context) {
+                                    return `${tooltipMetricLabel}: ${context.parsed.y}`;
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            display: false,
+                            grid: {
+                                display: false,
+                            },
+                        },
+                        y: {
+                            display: false,
+                            grid: {
+                                display: false,
+                            },
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
         })
         .catch((error) => {
-            console.error('Failed to fetch registrations cards by range', error);
-            showCardFallback('number-registrations_yesterday');
-            showCardFallback('number-registrations_week');
-            showCardFallback('number-registrations_month');
+            console.error('Failed to fetch registrations trend chart', error);
+        });
+}
+
+function loadTotalUsersComparisonChart() {
+    const canvas = document.getElementById('total-users-compare-chart');
+    if (!canvas) {
+        return;
+    }
+
+    Promise.all([
+        fetchQuantity(DASHBOARD_ROUTES.getNumberOfUsers),
+        fetchQuantity(DASHBOARD_ROUTES.getNumberOfUsersWithoutVisitedCities),
+    ])
+        .then(([totalUsersQty, inactiveUsersQty]) => {
+            const context = canvas.getContext('2d');
+            if (!context) {
+                return;
+            }
+            const activeUsersQty = Math.max(totalUsersQty - inactiveUsersQty, 0);
+
+            new Chart(context, {
+                type: 'bar',
+                data: {
+                    labels: ['Пользователи'],
+                    datasets: [
+                        {
+                            label: 'Активные',
+                            data: [activeUsersQty],
+                            borderColor: 'rgba(59,130,246,1)',
+                            backgroundColor: 'rgba(59,130,246,0.75)',
+                            borderWidth: 0,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                            barThickness: 22,
+                            stack: 'users',
+                        },
+                        {
+                            label: 'Неактивные',
+                            data: [inactiveUsersQty],
+                            borderColor: 'rgba(124,58,237,1)',
+                            backgroundColor: 'rgba(124,58,237,0.85)',
+                            borderWidth: 0,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                            barThickness: 22,
+                            stack: 'users',
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                            },
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label(context) {
+                                    return `${context.dataset.label}: ${context.parsed.x}`;
+                                },
+                                afterBody() {
+                                    return `Всего пользователей: ${totalUsersQty}`;
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            display: false,
+                            beginAtZero: true,
+                            grid: {
+                                display: false,
+                            },
+                        },
+                        y: {
+                            stacked: true,
+                            grid: {
+                                display: false,
+                            },
+                            ticks: {
+                                display: false,
+                            },
+                        },
+                    },
+                },
+            });
+        })
+        .catch((error) => {
+            console.error('Failed to fetch total users comparison chart', error);
         });
 }
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         loadVisitedCountriesChart();
-        loadRegistrationsChart();
-        loadRegistrationsByMonthChart();
         loadVisitedCitiesByUserChart();
         loadUniqueVisitedCitiesByUserChart();
-        loadRegistrationsComparisonCards();
-        loadRegistrationsRangeChart();
-        loadRegistrationsCumulativeChart();
-        loadRegistrationRangeCards();
+        loadRegistrationsComparisonCards(30, 'registrations-30');
+        loadRegistrationsComparisonCards(183, 'registrations-6m');
+        loadRegistrationsComparisonCards(365, 'registrations-1y');
+        loadRegistrationsTrendCardChart(
+            'registrations-30-trend-chart',
+            30,
+            'day',
+            'Регистраций за день'
+        );
+        loadRegistrationsTrendCardChart(
+            'registrations-6m-trend-chart',
+            183,
+            'week',
+            'Регистраций за неделю'
+        );
+        loadRegistrationsTrendCardChart(
+            'registrations-1y-trend-chart',
+            365,
+            'month',
+            'Регистраций за месяц'
+        );
+        loadTotalUsersComparisonChart();
     });
 } else {
     loadVisitedCountriesChart();
-    loadRegistrationsChart();
-    loadRegistrationsByMonthChart();
     loadVisitedCitiesByUserChart();
     loadUniqueVisitedCitiesByUserChart();
-    loadRegistrationsComparisonCards();
-    loadRegistrationsRangeChart();
-    loadRegistrationsCumulativeChart();
-    loadRegistrationRangeCards();
+    loadRegistrationsComparisonCards(30, 'registrations-30');
+    loadRegistrationsComparisonCards(183, 'registrations-6m');
+    loadRegistrationsComparisonCards(365, 'registrations-1y');
+    loadRegistrationsTrendCardChart(
+        'registrations-30-trend-chart',
+        30,
+        'day',
+        'Регистраций за день'
+    );
+    loadRegistrationsTrendCardChart(
+        'registrations-6m-trend-chart',
+        183,
+        'week',
+        'Регистраций за неделю'
+    );
+    loadRegistrationsTrendCardChart(
+        'registrations-1y-trend-chart',
+        365,
+        'month',
+        'Регистраций за месяц'
+    );
+    loadTotalUsersComparisonChart();
 }
 
 function updateNumberOnCard(element_id, newNumber) {

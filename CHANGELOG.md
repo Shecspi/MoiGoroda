@@ -36,6 +36,8 @@
 
 - *(region)* Добавлена возможность скачивать и делиться изображениями с посещёнными городами ([ff77b95](https://github.com/Shecspi/MoiGoroda/commit/ff77b9549a5307cce494455a14423236f2713df1))
 
+- *(django)* Обновлена версия Django до 5.2 ([336916b](https://github.com/Shecspi/MoiGoroda/commit/336916bfc3069d60a611a4f63b431efe9470bdd1))
+
 
 #### 🐛 Исправление ошибок
 

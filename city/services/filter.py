@@ -75,7 +75,7 @@ def filter_by_year(
                 'date_of_visit',
                 filter=Q(date_of_visit__year=year),
                 distinct=True,
-                ordering='date_of_visit',
+                order_by='date_of_visit',
             )
         )
         .values('visit_dates')

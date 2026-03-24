@@ -339,8 +339,8 @@ def test_signal_is_connected_to_visited_city_post_save() -> None:
 
     receivers = post_save._live_receivers(VisitedCity)
 
-    handler_names = [getattr(receiver, '__name__', str(receiver)) for receiver in receivers]
-    assert 'notify_subscribers_on_city_add' in handler_names
+    # Django 5.2+ может отдавать вложенные структуры; достаточно убедиться, что функция в цепочке есть.
+    assert 'notify_subscribers_on_city_add' in repr(receivers)
 
 
 @pytest.mark.django_db

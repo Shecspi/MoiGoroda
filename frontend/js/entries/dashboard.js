@@ -1,4 +1,5 @@
 import {getCookie} from '../components/get_cookie.js';
+import ApexCharts from 'apexcharts';
 
 const DASHBOARD_ROUTES = Object.freeze({
     // Пользователи
@@ -257,10 +258,70 @@ function loadRegistrationsComparisonCards(days, idPrefix) {
         });
 }
 
-function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) {
+function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel, color) {
+    const chartContainer = document.getElementById(canvasId);
+    if (!chartContainer) {
         return;
+    }
+    const dayMonthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
+    const monthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
+
+    function parseIsoWeekStart(week, year) {
+        const jan4 = new Date(Date.UTC(year, 0, 4));
+        const jan4Day = jan4.getUTCDay() || 7;
+        const mondayOfWeekOne = new Date(jan4);
+        mondayOfWeekOne.setUTCDate(jan4.getUTCDate() - (jan4Day - 1));
+        const target = new Date(mondayOfWeekOne);
+        target.setUTCDate(mondayOfWeekOne.getUTCDate() + (week - 1) * 7);
+        return target;
+    }
+
+    function formatPeriodValue(rawValue) {
+        const value = String(rawValue ?? '').trim();
+        if (!value) {
+            return '—';
+        }
+
+        if (groupBy === 'day') {
+            const dayMatch = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
+            if (!dayMatch) {
+                return value;
+            }
+            const [, day, month, year] = dayMatch;
+            const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+            return dayMonthYearFormatter.format(date);
+        }
+
+        if (groupBy === 'week') {
+            const weekMatch = /^(\d{2})\.(\d{4})$/.exec(value);
+            if (!weekMatch) {
+                return value;
+            }
+            const [, week, year] = weekMatch;
+            const weekStart = parseIsoWeekStart(Number(week), Number(year));
+            return `неделя с ${dayMonthYearFormatter.format(weekStart)}`;
+        }
+
+        if (groupBy === 'month') {
+            const monthMatch = /^(\d{2})\.(\d{4})$/.exec(value);
+            if (!monthMatch) {
+                return value;
+            }
+            const [, month, year] = monthMatch;
+            const date = new Date(Date.UTC(Number(year), Number(month) - 1, 1));
+            return monthYearFormatter.format(date);
+        }
+
+        return value;
     }
 
     const {dateFrom, dateTo} = getLastDaysRange(days);
@@ -274,66 +335,78 @@ function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricL
         .then((data) => {
             const labels = data.map((item) => item.label);
             const values = data.map((item) => item.count);
-            const context = canvas.getContext('2d');
-            if (!context) {
-                return;
-            }
+            const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
+            const chartValues = values.length === 1 ? [values[0], values[0]] : values;
+            chartContainer.innerHTML = '';
 
-            new Chart(context, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            data: values,
-                            borderColor: 'rgba(37,99,235,0.9)',
-                            backgroundColor: 'rgba(37,99,235,0.15)',
-                            fill: true,
-                            borderWidth: 2,
-                            pointRadius: 0,
-                            pointHoverRadius: 3,
-                            tension: 0.35,
-                        },
-                    ],
+            const chart = new ApexCharts(chartContainer, {
+                series: [
+                    {
+                        name: tooltipMetricLabel,
+                        data: chartValues,
+                    },
+                ],
+                chart: {
+                    type: 'area',
+                    height: '100%',
+                    toolbar: {
+                        show: false,
+                    },
+                    sparkline: {
+                        enabled: true,
+                    },
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
+                stroke: {
+                    curve: 'straight',
+                    width: 2,
+                    colors: [color],
+                },
+                colors: [color],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'dark',
+                        gradientToColors: [color],
+                        shadeIntensity: 1,
+                        opacityFrom: 0.6,
+                        opacityTo: 0,
+                        stops: [0, 100],
                     },
-                    plugins: {
-                        legend: {
-                            display: false,
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label(context) {
-                                    return `${tooltipMetricLabel}: ${context.parsed.y}`;
-                                },
-                            },
+                },
+                states: {
+                    normal: {
+                        filter: {
+                            type: 'none',
                         },
                     },
-                    scales: {
-                        x: {
-                            display: false,
-                            grid: {
-                                display: false,
-                            },
+                    hover: {
+                        filter: {
+                            type: 'none',
                         },
-                        y: {
-                            display: false,
-                            grid: {
-                                display: false,
-                            },
-                            beginAtZero: true,
+                    },
+                    active: {
+                        filter: {
+                            type: 'none',
                         },
+                    },
+                },
+                xaxis: {
+                    categories: chartLabels,
+                },
+                tooltip: {
+                    custom({series, seriesIndex, dataPointIndex}) {
+                        const rawLabel = chartLabels[dataPointIndex] || '';
+                        const formattedDate = formatPeriodValue(rawLabel);
+                        const value = series[seriesIndex][dataPointIndex];
+                        return `
+                            <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
+                                ${formattedDate}: <span class="font-semibold">${value}</span>
+                            </div>
+                        `;
                     },
                 },
             });
+            chart.render();
         })
         .catch((error) => {
             console.error('Failed to fetch registrations trend chart', error);
@@ -341,8 +414,8 @@ function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricL
 }
 
 function loadTotalUsersComparisonChart() {
-    const canvas = document.getElementById('total-users-compare-chart');
-    if (!canvas) {
+    const chartContainer = document.getElementById('total-users-compare-chart');
+    if (!chartContainer) {
         return;
     }
 
@@ -351,90 +424,91 @@ function loadTotalUsersComparisonChart() {
         fetchQuantity(DASHBOARD_ROUTES.getNumberOfUsersWithoutVisitedCities),
     ])
         .then(([totalUsersQty, inactiveUsersQty]) => {
-            const context = canvas.getContext('2d');
-            if (!context) {
-                return;
-            }
             const activeUsersQty = Math.max(totalUsersQty - inactiveUsersQty, 0);
+            chartContainer.innerHTML = '';
 
-            new Chart(context, {
-                type: 'bar',
-                data: {
-                    labels: ['Пользователи'],
-                    datasets: [
-                        {
-                            label: 'Активные',
-                            data: [activeUsersQty],
-                            borderColor: 'rgba(59,130,246,1)',
-                            backgroundColor: 'rgba(59,130,246,0.75)',
-                            borderWidth: 0,
-                            borderRadius: 8,
-                            borderSkipped: false,
-                            barThickness: 22,
-                            stack: 'users',
-                        },
-                        {
-                            label: 'Неактивные',
-                            data: [inactiveUsersQty],
-                            borderColor: 'rgba(124,58,237,1)',
-                            backgroundColor: 'rgba(124,58,237,0.85)',
-                            borderWidth: 0,
-                            borderRadius: 8,
-                            borderSkipped: false,
-                            barThickness: 22,
-                            stack: 'users',
-                        },
-                    ],
+            const chart = new ApexCharts(chartContainer, {
+                series: [
+                    {
+                        name: 'Активные',
+                        data: [activeUsersQty],
+                    },
+                    {
+                        name: 'Неактивные',
+                        data: [inactiveUsersQty],
+                    },
+                ],
+                chart: {
+                    type: 'bar',
+                    height: '100%',
+                    stacked: true,
+                    toolbar: {
+                        show: false,
+                    },
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                boxWidth: 10,
-                                boxHeight: 10,
-                                usePointStyle: true,
-                                pointStyle: 'circle',
-                            },
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label(context) {
-                                    return `${context.dataset.label}: ${context.parsed.x}`;
-                                },
-                                afterBody() {
-                                    return `Всего пользователей: ${totalUsersQty}`;
-                                },
-                            },
+                plotOptions: {
+                    bar: {
+                        horizontal: true,
+                        barHeight: '45%',
+                        borderRadius: 8,
+                    },
+                },
+                colors: ['#3b82f6', '#7c3aed'],
+                dataLabels: {
+                    enabled: false,
+                },
+                xaxis: {
+                    categories: ['Пользователи'],
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                    axisTicks: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                grid: {
+                    show: false,
+                    padding: {
+                        left: -6,
+                        right: -6,
+                        top: -8,
+                        bottom: -8,
+                    },
+                },
+                legend: {
+                    position: 'bottom',
+                    horizontalAlign: 'left',
+                    fontSize: '11px',
+                },
+                tooltip: {
+                    y: {
+                        formatter(value, {seriesIndex}) {
+                            const label = seriesIndex === 0 ? 'Активные' : 'Неактивные';
+                            return `${label}: ${value}`;
                         },
                     },
-                    scales: {
-                        x: {
-                            stacked: true,
-                            display: false,
-                            beginAtZero: true,
-                            grid: {
-                                display: false,
-                            },
-                        },
-                        y: {
-                            stacked: true,
-                            grid: {
-                                display: false,
-                            },
-                            ticks: {
-                                display: false,
-                            },
-                        },
+                    custom({series}) {
+                        const activeQty = series[0][0];
+                        const inactiveQty = series[1][0];
+                        return `
+                            <div class="px-2 py-1 text-sm">
+                                <div>Активные: ${activeQty}</div>
+                                <div>Неактивные: ${inactiveQty}</div>
+                                <div>Всего пользователей: ${totalUsersQty}</div>
+                            </div>
+                        `;
                     },
                 },
             });
+            chart.render();
         })
         .catch((error) => {
             console.error('Failed to fetch total users comparison chart', error);
@@ -453,19 +527,22 @@ if (document.readyState === 'loading') {
             'registrations-30-trend-chart',
             30,
             'day',
-            'Регистраций за день'
+            'За день',
+            '#2563eb'
         );
         loadRegistrationsTrendCardChart(
             'registrations-6m-trend-chart',
             183,
             'week',
-            'Регистраций за неделю'
+            'За неделю',
+            '#8b5cf6'
         );
         loadRegistrationsTrendCardChart(
             'registrations-1y-trend-chart',
             365,
             'month',
-            'Регистраций за месяц'
+            'За месяц',
+            '#f59e0b'
         );
         loadTotalUsersComparisonChart();
     });
@@ -480,19 +557,22 @@ if (document.readyState === 'loading') {
         'registrations-30-trend-chart',
         30,
         'day',
-        'Регистраций за день'
+        'За день',
+        '#2563eb'
     );
     loadRegistrationsTrendCardChart(
         'registrations-6m-trend-chart',
         183,
         'week',
-        'Регистраций за неделю'
+        'За неделю',
+        '#8b5cf6'
     );
     loadRegistrationsTrendCardChart(
         'registrations-1y-trend-chart',
         365,
         'month',
-        'Регистраций за месяц'
+        'За месяц',
+        '#f59e0b'
     );
     loadTotalUsersComparisonChart();
 }

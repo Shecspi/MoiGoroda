@@ -2145,7 +2145,7 @@ function updateNumberOnCard(element_id, newNumber) {
         'number-total_public_personal_collections',
     ]);
     const numberClass = halfUserCardsIds.has(element_id)
-        ? 'dashboard-metric-number text-4xl font-bold leading-none text-gray-900 dark:text-white'
+        ? 'dashboard-metric-number text-5xl font-extrabold leading-none text-gray-900 dark:text-white'
         : 'dashboard-metric-number text-2xl font-bold text-gray-900 dark:text-white';
     el.innerHTML = `<span class="${numberClass}">${newNumber}</span>`;
 }

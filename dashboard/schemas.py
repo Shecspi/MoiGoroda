@@ -36,3 +36,25 @@ class PeriodComparisonStatistics(msgspec.Struct):
     previous_count: int
     delta: int
     delta_percent: float
+
+
+class BlogArticlesPageQuery(msgspec.Struct):
+    page: int = 1
+    per_page: int = 10
+
+
+class BlogArticleTableRow(msgspec.Struct):
+    id: int
+    title: str
+    slug: str
+    published_date: str
+    view_count_total: int
+    detail_url: str
+
+
+class BlogArticlesPageResponse(msgspec.Struct):
+    page: int
+    total_pages: int
+    per_page: int
+    total_count: int
+    items: list[BlogArticleTableRow]

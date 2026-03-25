@@ -10,6 +10,14 @@ Licensed under the Apache License, Version 2.0
 from django.urls import include
 from dmr.routing import Router, path
 from dashboard.api import (
+    GetBlogArticlesByPageController,
+    GetBlogArticlesAddedByRangeController,
+    GetBlogArticlesAddedComparisonController,
+    GetBlogArticlesViewsByRangeController,
+    GetBlogArticlesViewsComparisonController,
+    GetBlogArticlesViewsTotalController,
+    GetBlogLastAddedArticlesController,
+    GetBlogTopViewedArticlesController,
     GetPersonalCollectionsByRangeController,
     GetPersonalCollectionsComparisonController,
     GetPersonalCollectionsTotalController,
@@ -159,6 +167,39 @@ router = Router(
         path(
             'places/personal_collections/compare/',
             GetPersonalCollectionsComparisonController.as_view(),
+        ),
+        # Блог
+        path(
+            'blog/articles/',
+            GetBlogArticlesByPageController.as_view(),
+        ),
+        path(
+            'blog/articles/last_added/',
+            GetBlogLastAddedArticlesController.as_view(),
+        ),
+        path(
+            'blog/articles/top_views/',
+            GetBlogTopViewedArticlesController.as_view(),
+        ),
+        path(
+            'blog/articles/added/range/',
+            GetBlogArticlesAddedByRangeController.as_view(),
+        ),
+        path(
+            'blog/articles/added/compare/',
+            GetBlogArticlesAddedComparisonController.as_view(),
+        ),
+        path(
+            'blog/articles/views/total/',
+            GetBlogArticlesViewsTotalController.as_view(),
+        ),
+        path(
+            'blog/articles/views/range/',
+            GetBlogArticlesViewsByRangeController.as_view(),
+        ),
+        path(
+            'blog/articles/views/compare/',
+            GetBlogArticlesViewsComparisonController.as_view(),
         ),
         # Графики
         path(

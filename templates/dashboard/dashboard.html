@@ -295,167 +295,237 @@
         Посещённые страны
     </h1>
 
-    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" id="dashboard-country">
-        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-total_visited_countries">
-            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-blue-200 bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                    </svg>
+    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 lg:grid-cols-4" id="dashboard-country">
+        <div class="grid grid-rows-2 gap-4">
+            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                <div class="mb-4">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Общее количество посещённых стран</h2>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-600 dark:text-neutral-400">Общее количество посещенных стран</p>
-                    <div id="number-total_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
-                            <span class="sr-only">Loading...</span>
-                        </div>
+                <div id="number-total_visited_countries" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                <div class="mb-4">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Пользователей с посещёнными странами</h2>
+                </div>
+                <div id="number-user_with_visited_countries" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-emerald-600 dark:text-emerald-400" role="status" aria-label="loading">
+                        <span class="sr-only">Loading...</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="section-qty_user_with_visited_countries">
-            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-emerald-200 bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                    </svg>
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-5">
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Добавлено стран за 30 дней</h2>
+            </div>
+            <div id="added-countries-30-current" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-600 dark:text-neutral-400">Пользователей с посещёнными странами</p>
-                    <div id="number-user_with_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-emerald-600 dark:text-emerald-400" role="status" aria-label="loading">
+            </div>
+            <ul class="mt-5 space-y-2">
+                <li class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600 dark:text-neutral-400">Предыдущие 30 дней</span>
+                    <div id="added-countries-30-previous" class="font-semibold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
                             <span class="sr-only">Loading...</span>
                         </div>
                     </div>
-                </div>
+                </li>
+                <li class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600 dark:text-neutral-400">Сравнение</span>
+                    <div id="added-countries-30-delta" class="font-semibold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="mt-5 h-20">
+                <div id="added-countries-30-trend-chart" class="h-full w-full"></div>
             </div>
         </div>
 
-        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="section-average_qty_visited_countries">
-            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-sky-200 bg-sky-100 dark:border-sky-500/40 dark:bg-sky-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-5">
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Добавлено стран за 6 месяцев</h2>
+            </div>
+            <div id="added-countries-6m-current" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-violet-600 dark:text-violet-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-600 dark:text-neutral-400">В среднем посещённых стран у 1 пользователя</p>
-                    <div id="number-average_qty_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
+            </div>
+            <ul class="mt-5 space-y-2">
+                <li class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600 dark:text-neutral-400">Предыдущие 6 месяцев</span>
+                    <div id="added-countries-6m-previous" class="font-semibold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-violet-600 dark:text-violet-400" role="status" aria-label="loading">
                             <span class="sr-only">Loading...</span>
                         </div>
                     </div>
-                </div>
+                </li>
+                <li class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600 dark:text-neutral-400">Сравнение</span>
+                    <div id="added-countries-6m-delta" class="font-semibold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-violet-600 dark:text-violet-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="mt-5 h-20">
+                <div id="added-countries-6m-trend-chart" class="h-full w-full"></div>
             </div>
         </div>
 
-        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="section-xxx">
-            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-purple-200 bg-purple-100 dark:border-purple-500/40 dark:bg-purple-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                    </svg>
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-5">
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Добавлено стран за 1 год</h2>
+            </div>
+            <div id="added-countries-1y-current" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-600 dark:text-neutral-400">Максимум стран у 1 пользователя</p>
-                    <div id="number-max_qty_visited_countries" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-purple-600 dark:text-purple-400" role="status" aria-label="loading">
+            </div>
+            <ul class="mt-5 space-y-2">
+                <li class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600 dark:text-neutral-400">Предыдущий год</span>
+                    <div id="added-countries-1y-previous" class="font-semibold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading">
                             <span class="sr-only">Loading...</span>
                         </div>
                     </div>
-                </div>
+                </li>
+                <li class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600 dark:text-neutral-400">Сравнение</span>
+                    <div id="added-countries-1y-delta" class="font-semibold text-gray-900 dark:text-white">
+                        <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="mt-5 h-20">
+                <div id="added-countries-1y-trend-chart" class="h-full w-full"></div>
             </div>
         </div>
     </div>
 
     <h1 class="text-center text-2xl font-bold mt-12 mb-6 text-gray-900 dark:text-white">
-        Количество добавленных стран
+        Места
     </h1>
 
-    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" id="dashboard-qty_added_countries">
-        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-qty_added_countries_yesterday">
-            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-amber-200 bg-amber-100 dark:border-amber-500/40 dark:bg-amber-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
+    <div class="mx-3 mb-6 grid grid-cols-1 gap-6 lg:grid-cols-4" id="dashboard-places">
+        <div class="grid grid-rows-2 gap-4">
+            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                <div class="mb-4">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Количество отмеченных мест</h2>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-600 dark:text-neutral-400">За вчера</p>
-                    <div id="number-qty_of_added_visited_countries_yesterday" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading">
-                            <span class="sr-only">Loading...</span>
-                        </div>
+                <div id="number-total_visited_places" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-cyan-600 dark:text-cyan-400" role="status" aria-label="loading">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                <div class="mb-4">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Количество посещённых мест</h2>
+                </div>
+                <div id="number-total_visited_only_places" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-emerald-600 dark:text-emerald-400" role="status" aria-label="loading">
+                        <span class="sr-only">Loading...</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-qty_added_countries_week">
-            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-blue-200 bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-600 dark:text-neutral-400">За неделю</p>
-                    <div id="number-qty_of_added_visited_countries_week" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-5">
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Отмеченные места за 30 дней</h2>
             </div>
+            <div id="places-30-current" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-cyan-600 dark:text-cyan-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div>
+            </div>
+            <ul class="mt-5 space-y-2">
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Предыдущие 30 дней</span><div id="places-30-previous" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-cyan-600 dark:text-cyan-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Сравнение</span><div id="places-30-delta" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-cyan-600 dark:text-cyan-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+            </ul>
+            <div class="mt-5 h-20"><div id="places-30-trend-chart" class="h-full w-full"></div></div>
         </div>
-
-        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-qty_added_countries_month">
-            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-sky-200 bg-sky-100 dark:border-sky-500/40 dark:bg-sky-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-600 dark:text-neutral-400">За месяц</p>
-                    <div id="number-qty_of_added_visited_countries_month" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-5"><h2 class="text-base font-semibold text-gray-900 dark:text-white">Отмеченные места за 6 месяцев</h2></div>
+            <div id="places-6m-current" class="text-4xl font-bold leading-none text-gray-900 dark:text-white"><div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-green-600 dark:text-green-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div>
+            <ul class="mt-5 space-y-2">
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Предыдущие 6 месяцев</span><div id="places-6m-previous" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-green-600 dark:text-green-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Сравнение</span><div id="places-6m-delta" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-green-600 dark:text-green-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+            </ul>
+            <div class="mt-5 h-20"><div id="places-6m-trend-chart" class="h-full w-full"></div></div>
         </div>
-
-        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900" id="card-qty_added_countries_year">
-            <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-purple-200 bg-purple-100 dark:border-purple-500/40 dark:bg-purple-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm text-gray-600 dark:text-neutral-400">За год</p>
-                    <div id="number-qty_of_added_visited_countries_year" class="text-2xl font-bold text-gray-900 dark:text-white">
-                        <div class="animate-spin inline-block h-6 w-6 rounded-full border-[3px] border-current border-t-transparent text-purple-600 dark:text-purple-400" role="status" aria-label="loading">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-5"><h2 class="text-base font-semibold text-gray-900 dark:text-white">Отмеченные места за 1 год</h2></div>
+            <div id="places-1y-current" class="text-4xl font-bold leading-none text-gray-900 dark:text-white"><div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-orange-600 dark:text-orange-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div>
+            <ul class="mt-5 space-y-2">
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Предыдущий год</span><div id="places-1y-previous" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-orange-600 dark:text-orange-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Сравнение</span><div id="places-1y-delta" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-orange-600 dark:text-orange-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+            </ul>
+            <div class="mt-5 h-20"><div id="places-1y-trend-chart" class="h-full w-full"></div></div>
         </div>
     </div>
 
-    <div class="mx-3 mb-12">
-        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">График добавления посещённых стран</h2>
-            <div id="visitedCountriesChartLoading" class="flex items-center justify-center min-h-[400px]">
-                <div class="animate-spin inline-block h-8 w-8 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
-                    <span class="sr-only">Loading...</span>
+    <div class="mx-3 mb-12 grid grid-cols-1 gap-6 lg:grid-cols-4" id="dashboard-personal-collections-trends">
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-5"><h2 class="text-base font-semibold text-gray-900 dark:text-white">Коллекции за 30 дней</h2></div>
+            <div id="collections-30-current" class="text-4xl font-bold leading-none text-gray-900 dark:text-white"><div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div>
+            <ul class="mt-5 space-y-2">
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Предыдущие 30 дней</span><div id="collections-30-previous" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Сравнение</span><div id="collections-30-delta" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+            </ul>
+            <div class="mt-5 h-20"><div id="collections-30-trend-chart" class="h-full w-full"></div></div>
+        </div>
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-5"><h2 class="text-base font-semibold text-gray-900 dark:text-white">Коллекции за 6 месяцев</h2></div>
+            <div id="collections-6m-current" class="text-4xl font-bold leading-none text-gray-900 dark:text-white"><div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-violet-600 dark:text-violet-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div>
+            <ul class="mt-5 space-y-2">
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Предыдущие 6 месяцев</span><div id="collections-6m-previous" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-violet-600 dark:text-violet-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Сравнение</span><div id="collections-6m-delta" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-violet-600 dark:text-violet-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+            </ul>
+            <div class="mt-5 h-20"><div id="collections-6m-trend-chart" class="h-full w-full"></div></div>
+        </div>
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-5"><h2 class="text-base font-semibold text-gray-900 dark:text-white">Коллекции за 1 год</h2></div>
+            <div id="collections-1y-current" class="text-4xl font-bold leading-none text-gray-900 dark:text-white"><div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div>
+            <ul class="mt-5 space-y-2">
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Предыдущий год</span><div id="collections-1y-previous" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+                <li class="flex items-center justify-between text-sm"><span class="text-gray-600 dark:text-neutral-400">Сравнение</span><div id="collections-1y-delta" class="font-semibold text-gray-900 dark:text-white"><div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading"><span class="sr-only">Loading...</span></div></div></li>
+            </ul>
+            <div class="mt-5 h-20"><div id="collections-1y-trend-chart" class="h-full w-full"></div></div>
+        </div>
+        <div class="grid grid-rows-2 gap-4">
+            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                <div class="mb-4">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Персональных коллекций</h2>
+                </div>
+                <div id="number-total_personal_collections" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
             </div>
-            <canvas id="visitedCountriesChart" class="hidden" height="400"></canvas>
+            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                <div class="mb-4">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Публичных персональных коллекций</h2>
+                </div>
+                <div id="number-total_public_personal_collections" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-indigo-600 dark:text-indigo-400" role="status" aria-label="loading">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     

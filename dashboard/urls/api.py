@@ -10,6 +10,16 @@ Licensed under the Apache License, Version 2.0
 from django.urls import include
 from dmr.routing import Router, path
 from dashboard.api import (
+    GetPersonalCollectionsByRangeController,
+    GetPersonalCollectionsComparisonController,
+    GetPersonalCollectionsTotalController,
+    GetPlacesByRangeController,
+    GetPlacesComparisonController,
+    GetPublicPersonalCollectionsTotalController,
+    GetTotalVisitedPlacesController,
+    GetTotalVisitedOnlyPlacesController,
+    GetAddedVisitedCountriesByRangeController,
+    GetAddedVisitedCountriesComparisonController,
     GetAddedVisitedCitiesByRangeController,
     GetAddedVisitedCitiesComparisonController,
     GetNumberOfUsersController,
@@ -108,6 +118,47 @@ router = Router(
         path(
             'visited_countries/added/chart/',
             GetAddedVisitedCountriesChartController.as_view(),
+        ),
+        path(
+            'visited_countries/added/range/',
+            GetAddedVisitedCountriesByRangeController.as_view(),
+        ),
+        path(
+            'visited_countries/added/compare/',
+            GetAddedVisitedCountriesComparisonController.as_view(),
+        ),
+        # Места
+        path(
+            'places/visited/total/',
+            GetTotalVisitedPlacesController.as_view(),
+        ),
+        path(
+            'places/visited/visited_only_total/',
+            GetTotalVisitedOnlyPlacesController.as_view(),
+        ),
+        path(
+            'places/visited/range/',
+            GetPlacesByRangeController.as_view(),
+        ),
+        path(
+            'places/visited/compare/',
+            GetPlacesComparisonController.as_view(),
+        ),
+        path(
+            'places/personal_collections/total/',
+            GetPersonalCollectionsTotalController.as_view(),
+        ),
+        path(
+            'places/personal_collections/public_total/',
+            GetPublicPersonalCollectionsTotalController.as_view(),
+        ),
+        path(
+            'places/personal_collections/range/',
+            GetPersonalCollectionsByRangeController.as_view(),
+        ),
+        path(
+            'places/personal_collections/compare/',
+            GetPersonalCollectionsComparisonController.as_view(),
         ),
         # Графики
         path(

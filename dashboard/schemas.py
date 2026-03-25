@@ -58,3 +58,14 @@ class BlogArticlesPageResponse(msgspec.Struct):
     per_page: int
     total_count: int
     items: list[BlogArticleTableRow]
+
+
+class BlogArticlesCardOverview(msgspec.Struct):
+    items: list[BlogArticleTableRow]
+    comparison: PeriodComparisonStatistics
+    chart: list[DailyStatistics]
+
+
+class BlogArticlesOverviewResponse(msgspec.Struct):
+    added_last_30d: BlogArticlesCardOverview
+    top_views_60d: BlogArticlesCardOverview

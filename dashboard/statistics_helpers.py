@@ -11,12 +11,18 @@ from datetime import date, timedelta, timezone
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from django.db.models.functions.datetime import TruncDate, TruncDay, TruncMonth, TruncWeek
+from django.urls import reverse
 
 from blog.models import BlogArticle, BlogArticleView
 from city.models import VisitedCity
 from collection.models import PersonalCollection
 from country.models import VisitedCountry
-from dashboard.schemas import DailyStatistics
+from dashboard.schemas import (
+    BlogArticleTableRow,
+    BlogArticlesCardOverview,
+    DailyStatistics,
+    PeriodComparisonStatistics,
+)
 from place.models import Place
 
 
@@ -302,4 +308,119 @@ def _collect_blog_articles_added_by_group(
         current_date = _next_group_date(current_date, group_by)
 
     return result
+
+
+def build_blog_overview_period(now_date: date, days: int) -> tuple[date, date, date, date]:
+    """
+    Возвращает границы для:
+    - текущего периода: [date_from, date_to] (включительно)
+    - предыдущего периода: [previous_date_from, previous_date_to] (равной длины)
+    """
+    date_to = now_date
+    date_from = date_to - timedelta(days=days - 1)
+    previous_date_to = date_from - timedelta(days=1)
+    previous_date_from = previous_date_to - timedelta(days=days - 1)
+    return date_from, date_to, previous_date_from, previous_date_to
+
+
+def collect_blog_last_added_articles_items(limit: int = 10) -> list[BlogArticleTableRow]:
+    """Возвращает 10 последних добавленных статей с количеством просмотров."""
+    exclude_views_article = Q(views__user__isnull=True) | Q(views__user__is_superuser=False)
+
+    qs = (
+        BlogArticle.objects.all()
+        .annotate(view_count_total=Count('views', filter=exclude_views_article))
+        .order_by('-created_at')[:limit]
+    )
+
+    items: list[BlogArticleTableRow] = []
+    for article in qs:
+        items.append(
+            BlogArticleTableRow(
+                id=article.id,
+                title=article.title,
+                slug=article.slug,
+                published_date=article.created_at.strftime('%d.%m.%Y'),
+                view_count_total=int(article.view_count_total or 0),
+                detail_url=reverse('blog-article-detail', kwargs={'slug': article.slug}),
+            ),
+        )
+    return items
+
+
+def collect_blog_top_viewed_articles_items(limit: int = 10) -> list[BlogArticleTableRow]:
+    """Возвращает 10 самых просматриваемых статей с количеством просмотров."""
+    exclude_views_article = Q(views__user__isnull=True) | Q(views__user__is_superuser=False)
+
+    qs = (
+        BlogArticle.objects.all()
+        .annotate(view_count_total=Count('views', filter=exclude_views_article))
+        .order_by('-view_count_total', '-created_at')[:limit]
+    )
+
+    items: list[BlogArticleTableRow] = []
+    for article in qs:
+        items.append(
+            BlogArticleTableRow(
+                id=article.id,
+                title=article.title,
+                slug=article.slug,
+                published_date=article.created_at.strftime('%d.%m.%Y'),
+                view_count_total=int(article.view_count_total or 0),
+                detail_url=reverse('blog-article-detail', kwargs={'slug': article.slug}),
+            ),
+        )
+    return items
+
+
+def count_blog_articles_added_in_range(date_from: date, date_to: date) -> int:
+    return BlogArticle.objects.filter(created_at__date__range=[date_from, date_to]).count()
+
+
+def count_blog_article_views_in_range(date_from: date, date_to: date) -> int:
+    exclude_views_view = Q(user__isnull=True) | Q(user__is_superuser=False)
+    return (
+        BlogArticleView.objects.filter(viewed_at__date__range=[date_from, date_to])
+        .filter(exclude_views_view)
+        .count()
+    )
+
+
+def build_period_comparison_stats(current_count: int, previous_count: int) -> PeriodComparisonStatistics:
+    delta = current_count - previous_count
+    delta_percent = 0.0 if previous_count == 0 else round((delta / previous_count) * 100, 2)
+    return PeriodComparisonStatistics(
+        current_count=current_count,
+        previous_count=previous_count,
+        delta=delta,
+        delta_percent=delta_percent,
+    )
+
+
+def collect_blog_last_added_card_overview(now_date: date, days: int = 30) -> BlogArticlesCardOverview:
+    """Карточка 'Последние добавленные статьи'."""
+    period_from, period_to, prev_from, prev_to = build_blog_overview_period(now_date, days)
+
+    items = collect_blog_last_added_articles_items(limit=10)
+    current_count = count_blog_articles_added_in_range(period_from, period_to)
+    previous_count = count_blog_articles_added_in_range(prev_from, prev_to)
+
+    comparison = build_period_comparison_stats(current_count, previous_count)
+    chart = _collect_blog_articles_added_by_group(date_from=period_from, date_to=period_to, group_by='day')
+
+    return BlogArticlesCardOverview(items=items, comparison=comparison, chart=chart)
+
+
+def collect_blog_top_viewed_card_overview(now_date: date, days: int = 60) -> BlogArticlesCardOverview:
+    """Карточка 'Самые просматриваемые статьи'."""
+    period_from, period_to, prev_from, prev_to = build_blog_overview_period(now_date, days)
+
+    items = collect_blog_top_viewed_articles_items(limit=10)
+    current_count = count_blog_article_views_in_range(period_from, period_to)
+    previous_count = count_blog_article_views_in_range(prev_from, prev_to)
+
+    comparison = build_period_comparison_stats(current_count, previous_count)
+    chart = _collect_blog_article_views_by_group(date_from=period_from, date_to=period_to, group_by='day')
+
+    return BlogArticlesCardOverview(items=items, comparison=comparison, chart=chart)
 

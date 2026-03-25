@@ -8,14 +8,7 @@
 from __future__ import annotations
 
 from .blog import (  # noqa: F401
-    GetBlogArticlesAddedByRangeController,
-    GetBlogArticlesAddedComparisonController,
-    GetBlogArticlesByPageController,
-    GetBlogArticlesViewsByRangeController,
-    GetBlogArticlesViewsComparisonController,
-    GetBlogArticlesViewsTotalController,
-    GetBlogLastAddedArticlesController,
-    GetBlogTopViewedArticlesController,
+    GetBlogArticlesOverviewController,
 )
 from .places import (  # noqa: F401
     GetPersonalCollectionsByRangeController,
@@ -59,14 +52,7 @@ from .visited_countries import (  # noqa: F401
 
 __all__ = [
     # Blog
-    'GetBlogArticlesByPageController',
-    'GetBlogArticlesViewsTotalController',
-    'GetBlogArticlesViewsByRangeController',
-    'GetBlogArticlesViewsComparisonController',
-    'GetBlogArticlesAddedByRangeController',
-    'GetBlogArticlesAddedComparisonController',
-    'GetBlogLastAddedArticlesController',
-    'GetBlogTopViewedArticlesController',
+    'GetBlogArticlesOverviewController',
     # Users/Registrations
     'GetNumberOfUsersController',
     'GetRegistrationsByRangeController',

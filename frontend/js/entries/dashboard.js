@@ -35,6 +35,7 @@ const DASHBOARD_ROUTES = Object.freeze({
     getBlogAddedCompare: '/api/dashboard/blog/articles/added/compare/',
     getBlogViewsByRange: '/api/dashboard/blog/articles/views/range/',
     getBlogViewsCompare: '/api/dashboard/blog/articles/views/compare/',
+    getBlogArticlesOverview: '/api/dashboard/blog/articles/overview/',
     // Графики
     getRegistrationsByRange: '/api/dashboard/users/registrations/range/',
     getRegistrationsCompare: '/api/dashboard/users/registrations/compare/',
@@ -1605,6 +1606,203 @@ function renderBlogArticlesTableBody(tbodyId, items) {
         .join('');
 }
 
+async function fetchBlogArticlesOverview() {
+    const response = await fetch(DASHBOARD_ROUTES.getBlogArticlesOverview, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            Accept: 'application/json',
+        },
+        credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data || !data.added_last_30d || !data.top_views_60d) {
+        throw new Error('Unexpected response structure for blog overview');
+    }
+    return data;
+}
+
+function renderBlogTrendChart(chartContainerId, chartData, color, seriesName) {
+    const chartContainer = document.getElementById(chartContainerId);
+    if (!chartContainer) {
+        return;
+    }
+
+    if (!Array.isArray(chartData) || chartData.length === 0) {
+        chartContainer.innerHTML =
+            '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
+        return;
+    }
+
+    const dayMonthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
+
+    function formatDayLabel(rawValue) {
+        const value = String(rawValue ?? '').trim();
+        if (!value) {
+            return '—';
+        }
+        const dayMatch = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
+        if (!dayMatch) {
+            return value;
+        }
+        const [, day, month, year] = dayMatch;
+        const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+        return dayMonthYearFormatter.format(date);
+    }
+
+    const labels = chartData.map((item) => item.label);
+    const values = chartData.map((item) => item.count);
+
+    const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
+    const chartValues = values.length === 1 ? [values[0], values[0]] : values;
+
+    chartContainer.innerHTML = '';
+
+    const chart = new ApexCharts(chartContainer, {
+        series: [
+            {
+                name: seriesName,
+                data: chartValues,
+            },
+        ],
+        chart: {
+            type: 'area',
+            height: '100%',
+            toolbar: {
+                show: false,
+            },
+            sparkline: {
+                enabled: true,
+            },
+        },
+        stroke: {
+            curve: 'straight',
+            width: 2,
+            colors: [color],
+        },
+        colors: [color],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'dark',
+                gradientToColors: [color],
+                shadeIntensity: 1,
+                opacityFrom: 0.6,
+                opacityTo: 0,
+                stops: [0, 100],
+            },
+        },
+        states: {
+            normal: {
+                filter: {
+                    type: 'none',
+                },
+            },
+            hover: {
+                filter: {
+                    type: 'none',
+                },
+            },
+            active: {
+                filter: {
+                    type: 'none',
+                },
+            },
+        },
+        xaxis: {
+            categories: chartLabels,
+        },
+        tooltip: {
+            custom({series, seriesIndex, dataPointIndex}) {
+                const rawLabel = chartLabels[dataPointIndex] || '';
+                const formattedDate = formatDayLabel(rawLabel);
+                const value = series[seriesIndex][dataPointIndex];
+                return `
+                    <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
+                        ${formattedDate}: <span class="font-semibold">${value}</span>
+                    </div>
+                `;
+            },
+        },
+    });
+
+    chart.render();
+}
+
+function applyBlogComparisonCard(idPrefix, comparison) {
+    if (!comparison) {
+        return;
+    }
+    updateCompareCardValue(`${idPrefix}-current`, comparison.current_count);
+    updateCompareCardValue(`${idPrefix}-previous`, comparison.previous_count);
+
+    const absDelta = Math.abs(comparison.delta);
+    const absPercent = Math.abs(comparison.delta_percent);
+    updateCompareCardValue(
+        `${idPrefix}-delta`,
+        `${absDelta} (${absPercent}%)`,
+        true,
+        comparison.delta
+    );
+}
+
+function initBlogArticlesOverview() {
+    const addedTable = document.getElementById('blog-added-articles-table-body');
+    const topTable = document.getElementById('blog-top-views-table-body');
+    const addedChart = document.getElementById('blog-added-articles-30-trend-chart');
+    const topChart = document.getElementById('blog-top-views-60-trend-chart');
+
+    if (!addedTable || !topTable || !addedChart || !topChart) {
+        return;
+    }
+
+    fetchBlogArticlesOverview()
+        .then((data) => {
+            const added = data.added_last_30d;
+            const top = data.top_views_60d;
+
+            renderBlogArticlesTableBody('blog-added-articles-table-body', added.items);
+            renderBlogArticlesTableBody('blog-top-views-table-body', top.items);
+
+            applyBlogComparisonCard('blog-added-30', added.comparison);
+            applyBlogComparisonCard('blog-top-views-60', top.comparison);
+
+            renderBlogTrendChart(
+                'blog-added-articles-30-trend-chart',
+                added.chart,
+                '#06b6d4',
+                'Добавления'
+            );
+            renderBlogTrendChart(
+                'blog-top-views-60-trend-chart',
+                top.chart,
+                '#2563eb',
+                'Просмотры'
+            );
+        })
+        .catch((error) => {
+            console.error('Failed to fetch blog overview', error);
+            renderBlogArticlesTableBody('blog-added-articles-table-body', []);
+            renderBlogArticlesTableBody('blog-top-views-table-body', []);
+            showCardFallback('blog-added-30-current');
+            showCardFallback('blog-added-30-previous');
+            showCardFallback('blog-added-30-delta');
+            showCardFallback('blog-top-views-60-current');
+            showCardFallback('blog-top-views-60-previous');
+            showCardFallback('blog-top-views-60-delta');
+        });
+}
+
 async function loadBlogAddedCard(days) {
     const idPrefix = `blog-added-${days}`;
     const currentChartId = `blog-added-articles-${days}-trend-chart`;
@@ -2015,8 +2213,7 @@ if (document.readyState === 'loading') {
             'За месяц',
             '#f59e0b'
         );
-        loadBlogAddedCard(30);
-        loadBlogTopViewsCard(60);
+        initBlogArticlesOverview();
     });
 } else {
     loadVisitedCitiesByUserChart();
@@ -2123,8 +2320,7 @@ if (document.readyState === 'loading') {
         'За месяц',
         '#f59e0b'
     );
-    loadBlogAddedCard(30);
-    loadBlogTopViewsCard(60);
+    initBlogArticlesOverview();
 }
 
 function updateNumberOnCard(element_id, newNumber) {

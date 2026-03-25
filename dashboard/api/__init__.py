@@ -11,14 +11,8 @@ from .blog import (  # noqa: F401
     GetBlogArticlesOverviewController,
 )
 from .places import (  # noqa: F401
-    GetPersonalCollectionsByRangeController,
-    GetPersonalCollectionsComparisonController,
-    GetPersonalCollectionsTotalController,
-    GetPublicPersonalCollectionsTotalController,
-    GetPlacesByRangeController,
-    GetPlacesComparisonController,
-    GetTotalVisitedOnlyPlacesController,
-    GetTotalVisitedPlacesController,
+    GetPersonalCollectionsOverviewController,
+    GetPlacesOverviewController,
 )
 from .users import (  # noqa: F401
     GetNumberOfUsersController,
@@ -60,14 +54,8 @@ __all__ = [
     'GetRegistrationsCumulativeChartController',
     'GetNumberOfUsersWithoutVisitedCitiesController',
     # Places/Collections
-    'GetTotalVisitedPlacesController',
-    'GetTotalVisitedOnlyPlacesController',
-    'GetPersonalCollectionsTotalController',
-    'GetPublicPersonalCollectionsTotalController',
-    'GetPersonalCollectionsByRangeController',
-    'GetPersonalCollectionsComparisonController',
-    'GetPlacesByRangeController',
-    'GetPlacesComparisonController',
+    'GetPlacesOverviewController',
+    'GetPersonalCollectionsOverviewController',
     # Visited cities
     'GetAddedVisitedCitiesByRangeController',
     'GetAddedVisitedCitiesComparisonController',

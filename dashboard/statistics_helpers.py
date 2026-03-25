@@ -22,6 +22,8 @@ from dashboard.schemas import (
     BlogArticlesCardOverview,
     DailyStatistics,
     PeriodComparisonStatistics,
+    Quantity,
+    TrendCardOverview,
 )
 from place.models import Place
 
@@ -423,4 +425,58 @@ def collect_blog_top_viewed_card_overview(now_date: date, days: int = 60) -> Blo
     chart = _collect_blog_article_views_by_group(date_from=period_from, date_to=period_to, group_by='day')
 
     return BlogArticlesCardOverview(items=items, comparison=comparison, chart=chart)
+
+
+def collect_places_total() -> Quantity:
+    return Quantity(count=Place.objects.count())
+
+
+def collect_places_visited_only_total() -> Quantity:
+    return Quantity(count=Place.objects.filter(is_visited=True).count())
+
+
+def count_places_created_in_range(date_from: date, date_to: date) -> int:
+    return Place.objects.filter(created_at__date__range=[date_from, date_to]).count()
+
+
+def collect_places_trend_card_overview(
+    now_date: date,
+    days: int,
+    group_by: str,
+) -> TrendCardOverview:
+    period_from, period_to, prev_from, prev_to = build_blog_overview_period(now_date, days)
+    current_count = count_places_created_in_range(period_from, period_to)
+    previous_count = count_places_created_in_range(prev_from, prev_to)
+    comparison = build_period_comparison_stats(current_count, previous_count)
+    chart = _collect_places_by_group(date_from=period_from, date_to=period_to, group_by=group_by)
+    return TrendCardOverview(comparison=comparison, chart=chart)
+
+
+def collect_personal_collections_total() -> Quantity:
+    return Quantity(count=PersonalCollection.objects.count())
+
+
+def collect_public_personal_collections_total() -> Quantity:
+    return Quantity(count=PersonalCollection.objects.filter(is_public=True).count())
+
+
+def count_personal_collections_created_in_range(date_from: date, date_to: date) -> int:
+    return PersonalCollection.objects.filter(created_at__date__range=[date_from, date_to]).count()
+
+
+def collect_personal_collections_trend_card_overview(
+    now_date: date,
+    days: int,
+    group_by: str,
+) -> TrendCardOverview:
+    period_from, period_to, prev_from, prev_to = build_blog_overview_period(now_date, days)
+    current_count = count_personal_collections_created_in_range(period_from, period_to)
+    previous_count = count_personal_collections_created_in_range(prev_from, prev_to)
+    comparison = build_period_comparison_stats(current_count, previous_count)
+    chart = _collect_personal_collections_by_group(
+        date_from=period_from,
+        date_to=period_to,
+        group_by=group_by,
+    )
+    return TrendCardOverview(comparison=comparison, chart=chart)
 

@@ -7,157 +7,60 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
-from django.contrib.auth.models import User
-from django.core.paginator import Paginator
-from django.db.models import Count, F, Func, Max, OuterRef, Q, Subquery, Sum, Value
-from django.db.models.fields import CharField
-from django.db.models.functions.datetime import TruncDate, TruncDay
-from django.urls import reverse
-
-from blog.models import BlogArticle, BlogArticleView
-from city.models import VisitedCity
-from collection.models import PersonalCollection
-from country.models import VisitedCountry
 from dashboard.schemas import (
-    BlogArticleTableRow,
-    BlogArticlesPageQuery,
-    BlogArticlesPageResponse,
-    DailyStatistics,
-    DaysPath,
-    PeriodComparisonStatistics,
-    Quantity,
-    RegistrationsComparisonQuery,
-    RegistrationsRangeQuery,
-    UserStatistics,
+    PersonalCollectionsOverviewResponse,
+    PlacesOverviewResponse,
 )
-from dmr import Controller, Path, Query
+from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
 from utils.decorators import is_superuser_json
-from place.models import Place
 
 
 from dashboard.statistics_helpers import (
-    _collect_added_visited_cities_by_group,
-    _collect_added_visited_countries_by_group,
-    _collect_blog_article_views_by_group,
-    _collect_blog_articles_added_by_group,
-    _collect_personal_collections_by_group,
-    _collect_places_by_group,
-    _collect_registrations_by_group,
+    collect_personal_collections_total,
+    collect_personal_collections_trend_card_overview,
+    collect_places_total,
+    collect_places_trend_card_overview,
+    collect_places_visited_only_total,
+    collect_public_personal_collections_total,
 )
 
 
 @is_superuser_json
-class GetPersonalCollectionsByRangeController(
-    Query[RegistrationsRangeQuery], Controller[MsgspecSerializer]
-):
-    def get(self) -> list[DailyStatistics]:
-        group_by = self.parsed_query.group_by
-        if group_by not in {'day', 'week', 'month'}:
-            raise ValueError('group_by must be one of: day, week, month')
-        if self.parsed_query.date_from > self.parsed_query.date_to:
-            raise ValueError('date_from must be less than or equal to date_to')
+class GetPlacesOverviewController(Controller[MsgspecSerializer]):
+    def get(self) -> PlacesOverviewResponse:
+        now_date = datetime.now(timezone.utc).date()
 
-        return _collect_personal_collections_by_group(
-            date_from=self.parsed_query.date_from,
-            date_to=self.parsed_query.date_to,
-            group_by=group_by,
+        return PlacesOverviewResponse(
+            total_visited_places=collect_places_total(),
+            total_visited_only_places=collect_places_visited_only_total(),
+            last_30d=collect_places_trend_card_overview(now_date=now_date, days=30, group_by='day'),
+            last_6m=collect_places_trend_card_overview(
+                now_date=now_date, days=183, group_by='week'
+            ),
+            last_1y=collect_places_trend_card_overview(
+                now_date=now_date, days=365, group_by='month'
+            ),
         )
 
+
 @is_superuser_json
-class GetPersonalCollectionsComparisonController(
-    Query[RegistrationsComparisonQuery], Controller[MsgspecSerializer]
-):
-    def get(self) -> PeriodComparisonStatistics:
-        date_from = self.parsed_query.date_from
-        date_to = self.parsed_query.date_to
-        if date_from > date_to:
-            raise ValueError('date_from must be less than or equal to date_to')
+class GetPersonalCollectionsOverviewController(Controller[MsgspecSerializer]):
+    def get(self) -> PersonalCollectionsOverviewResponse:
+        now_date = datetime.now(timezone.utc).date()
 
-        current_count = PersonalCollection.objects.filter(
-            created_at__date__range=[date_from, date_to]
-        ).count()
-
-        period_days = (date_to - date_from).days + 1
-        previous_date_to = date_from - timedelta(days=1)
-        previous_date_from = previous_date_to - timedelta(days=period_days - 1)
-        previous_count = PersonalCollection.objects.filter(
-            created_at__date__range=[previous_date_from, previous_date_to]
-        ).count()
-
-        delta = current_count - previous_count
-        delta_percent = 0.0 if previous_count == 0 else round((delta / previous_count) * 100, 2)
-        return PeriodComparisonStatistics(
-            current_count=current_count,
-            previous_count=previous_count,
-            delta=delta,
-            delta_percent=delta_percent,
+        return PersonalCollectionsOverviewResponse(
+            total_personal_collections=collect_personal_collections_total(),
+            total_public_personal_collections=collect_public_personal_collections_total(),
+            last_30d=collect_personal_collections_trend_card_overview(
+                now_date=now_date, days=30, group_by='day'
+            ),
+            last_6m=collect_personal_collections_trend_card_overview(
+                now_date=now_date, days=183, group_by='week'
+            ),
+            last_1y=collect_personal_collections_trend_card_overview(
+                now_date=now_date, days=365, group_by='month'
+            ),
         )
-
-@is_superuser_json
-class GetPersonalCollectionsTotalController(Controller[MsgspecSerializer]):
-    def get(self) -> Quantity:
-        qty = PersonalCollection.objects.count()
-        return Quantity(count=qty)
-
-@is_superuser_json
-class GetPlacesByRangeController(Query[RegistrationsRangeQuery], Controller[MsgspecSerializer]):
-    def get(self) -> list[DailyStatistics]:
-        group_by = self.parsed_query.group_by
-        if group_by not in {'day', 'week', 'month'}:
-            raise ValueError('group_by must be one of: day, week, month')
-        if self.parsed_query.date_from > self.parsed_query.date_to:
-            raise ValueError('date_from must be less than or equal to date_to')
-
-        return _collect_places_by_group(
-            date_from=self.parsed_query.date_from,
-            date_to=self.parsed_query.date_to,
-            group_by=group_by,
-        )
-
-@is_superuser_json
-class GetPlacesComparisonController(Query[RegistrationsComparisonQuery], Controller[MsgspecSerializer]):
-    def get(self) -> PeriodComparisonStatistics:
-        date_from = self.parsed_query.date_from
-        date_to = self.parsed_query.date_to
-        if date_from > date_to:
-            raise ValueError('date_from must be less than or equal to date_to')
-
-        current_count = Place.objects.filter(created_at__date__range=[date_from, date_to]).count()
-
-        period_days = (date_to - date_from).days + 1
-        previous_date_to = date_from - timedelta(days=1)
-        previous_date_from = previous_date_to - timedelta(days=period_days - 1)
-        previous_count = Place.objects.filter(
-            created_at__date__range=[previous_date_from, previous_date_to]
-        ).count()
-
-        delta = current_count - previous_count
-        delta_percent = 0.0 if previous_count == 0 else round((delta / previous_count) * 100, 2)
-        return PeriodComparisonStatistics(
-            current_count=current_count,
-            previous_count=previous_count,
-            delta=delta,
-            delta_percent=delta_percent,
-        )
-
-@is_superuser_json
-class GetPublicPersonalCollectionsTotalController(Controller[MsgspecSerializer]):
-    def get(self) -> Quantity:
-        qty = PersonalCollection.objects.filter(is_public=True).count()
-        return Quantity(count=qty)
-
-@is_superuser_json
-class GetTotalVisitedOnlyPlacesController(Controller[MsgspecSerializer]):
-    def get(self) -> Quantity:
-        qty = Place.objects.filter(is_visited=True).count()
-        return Quantity(count=qty)
-
-@is_superuser_json
-class GetTotalVisitedPlacesController(Controller[MsgspecSerializer]):
-    def get(self) -> Quantity:
-        qty = Place.objects.count()
-        return Quantity(count=qty)
-

@@ -38,6 +38,27 @@ class PeriodComparisonStatistics(msgspec.Struct):
     delta_percent: float
 
 
+class TrendCardOverview(msgspec.Struct):
+    comparison: PeriodComparisonStatistics
+    chart: list[DailyStatistics]
+
+
+class PlacesOverviewResponse(msgspec.Struct):
+    total_visited_places: Quantity
+    total_visited_only_places: Quantity
+    last_30d: TrendCardOverview
+    last_6m: TrendCardOverview
+    last_1y: TrendCardOverview
+
+
+class PersonalCollectionsOverviewResponse(msgspec.Struct):
+    total_personal_collections: Quantity
+    total_public_personal_collections: Quantity
+    last_30d: TrendCardOverview
+    last_6m: TrendCardOverview
+    last_1y: TrendCardOverview
+
+
 class BlogArticlesPageQuery(msgspec.Struct):
     page: int = 1
     per_page: int = 10

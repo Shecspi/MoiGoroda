@@ -11,14 +11,8 @@ from django.urls import include
 from dmr.routing import Router, path
 from dashboard.api import (
     GetBlogArticlesOverviewController,
-    GetPersonalCollectionsByRangeController,
-    GetPersonalCollectionsComparisonController,
-    GetPersonalCollectionsTotalController,
-    GetPlacesByRangeController,
-    GetPlacesComparisonController,
-    GetPublicPersonalCollectionsTotalController,
-    GetTotalVisitedPlacesController,
-    GetTotalVisitedOnlyPlacesController,
+    GetPersonalCollectionsOverviewController,
+    GetPlacesOverviewController,
     GetAddedVisitedCountriesByRangeController,
     GetAddedVisitedCountriesComparisonController,
     GetAddedVisitedCitiesByRangeController,
@@ -130,36 +124,12 @@ router = Router(
         ),
         # Места
         path(
-            'places/visited/total/',
-            GetTotalVisitedPlacesController.as_view(),
+            'places/overview/',
+            GetPlacesOverviewController.as_view(),
         ),
         path(
-            'places/visited/visited_only_total/',
-            GetTotalVisitedOnlyPlacesController.as_view(),
-        ),
-        path(
-            'places/visited/range/',
-            GetPlacesByRangeController.as_view(),
-        ),
-        path(
-            'places/visited/compare/',
-            GetPlacesComparisonController.as_view(),
-        ),
-        path(
-            'places/personal_collections/total/',
-            GetPersonalCollectionsTotalController.as_view(),
-        ),
-        path(
-            'places/personal_collections/public_total/',
-            GetPublicPersonalCollectionsTotalController.as_view(),
-        ),
-        path(
-            'places/personal_collections/range/',
-            GetPersonalCollectionsByRangeController.as_view(),
-        ),
-        path(
-            'places/personal_collections/compare/',
-            GetPersonalCollectionsComparisonController.as_view(),
+            'places/personal_collections/overview/',
+            GetPersonalCollectionsOverviewController.as_view(),
         ),
         # Блог
         path(

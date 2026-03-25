@@ -20,14 +20,8 @@ const DASHBOARD_ROUTES = Object.freeze({
     getAddedVisitedCountriesByRange: '/api/dashboard/visited_countries/added/range/',
     getAddedVisitedCountriesCompare: '/api/dashboard/visited_countries/added/compare/',
     // Места
-    getTotalVisitedPlaces: '/api/dashboard/places/visited/total/',
-    getTotalVisitedOnlyPlaces: '/api/dashboard/places/visited/visited_only_total/',
-    getPlacesByRange: '/api/dashboard/places/visited/range/',
-    getPlacesCompare: '/api/dashboard/places/visited/compare/',
-    getTotalPersonalCollections: '/api/dashboard/places/personal_collections/total/',
-    getTotalPublicPersonalCollections: '/api/dashboard/places/personal_collections/public_total/',
-    getPersonalCollectionsByRange: '/api/dashboard/places/personal_collections/range/',
-    getPersonalCollectionsCompare: '/api/dashboard/places/personal_collections/compare/',
+    getPlacesOverview: '/api/dashboard/places/overview/',
+    getPersonalCollectionsOverview: '/api/dashboard/places/personal_collections/overview/',
     // Блог
     getBlogLastAddedArticles: '/api/dashboard/blog/articles/last_added/',
     getBlogTopViewedArticles: '/api/dashboard/blog/articles/top_views/',
@@ -73,13 +67,7 @@ loadQuantityCard('number-unique_visited_cities', DASHBOARD_ROUTES.getUniqueVisit
 loadQuantityCard('number-total_visited_countries', DASHBOARD_ROUTES.getTotalVisitedCountries);
 loadQuantityCard('number-user_with_visited_countries', DASHBOARD_ROUTES.getUsersWithVisitedCountries);
 // Места
-loadQuantityCard('number-total_visited_places', DASHBOARD_ROUTES.getTotalVisitedPlaces);
-loadQuantityCard('number-total_visited_only_places', DASHBOARD_ROUTES.getTotalVisitedOnlyPlaces);
-loadQuantityCard('number-total_personal_collections', DASHBOARD_ROUTES.getTotalPersonalCollections);
-loadQuantityCard(
-    'number-total_public_personal_collections',
-    DASHBOARD_ROUTES.getTotalPublicPersonalCollections
-);
+// Totals/сравнения/графики по местам и коллекциям теперь загружаются агрегированными overview-запросами.
 
 async function fetchChartData(url) {
     const response = await fetch(url, {
@@ -441,58 +429,20 @@ function loadAddedVisitedCountriesComparisonCards(days, idPrefix) {
 
 function loadPlacesComparisonCards(days, idPrefix) {
     const {dateFrom, dateTo} = getLastDaysRange(days);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getPlacesCompare, {
-        date_from: dateFrom,
-        date_to: dateTo,
-    });
-
-    fetchComparisonData(url)
-        .then((data) => {
-            const absDelta = Math.abs(data.delta);
-            const absPercent = Math.abs(data.delta_percent);
-            updateCompareCardValue(`${idPrefix}-current`, data.current_count);
-            updateCompareCardValue(`${idPrefix}-previous`, data.previous_count);
-            updateCompareCardValue(
-                `${idPrefix}-delta`,
-                `${absDelta} (${absPercent}%)`,
-                true,
-                data.delta,
-            );
-        })
-        .catch((error) => {
-            console.error('Failed to fetch places comparison', error);
-            showCardFallback(`${idPrefix}-current`);
-            showCardFallback(`${idPrefix}-previous`);
-            showCardFallback(`${idPrefix}-delta`);
-        });
+    // Deprecated: остаётся для совместимости, но не используется.
+    void dateFrom;
+    void dateTo;
+    void idPrefix;
+    void days;
 }
 
 function loadPersonalCollectionsComparisonCards(days, idPrefix) {
     const {dateFrom, dateTo} = getLastDaysRange(days);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getPersonalCollectionsCompare, {
-        date_from: dateFrom,
-        date_to: dateTo,
-    });
-
-    fetchComparisonData(url)
-        .then((data) => {
-            const absDelta = Math.abs(data.delta);
-            const absPercent = Math.abs(data.delta_percent);
-            updateCompareCardValue(`${idPrefix}-current`, data.current_count);
-            updateCompareCardValue(`${idPrefix}-previous`, data.previous_count);
-            updateCompareCardValue(
-                `${idPrefix}-delta`,
-                `${absDelta} (${absPercent}%)`,
-                true,
-                data.delta,
-            );
-        })
-        .catch((error) => {
-            console.error('Failed to fetch personal collections comparison', error);
-            showCardFallback(`${idPrefix}-current`);
-            showCardFallback(`${idPrefix}-previous`);
-            showCardFallback(`${idPrefix}-delta`);
-        });
+    // Deprecated: остаётся для совместимости, но не используется.
+    void dateFrom;
+    void dateTo;
+    void idPrefix;
+    void days;
 }
 
 function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel, color) {
@@ -961,165 +911,87 @@ function loadAddedVisitedCountriesTrendCardChart(canvasId, days, groupBy, toolti
 }
 
 function loadPlacesTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel, color) {
-    const chartContainer = document.getElementById(canvasId);
-    if (!chartContainer) {
-        return;
-    }
-    const dayMonthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
-    const monthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
-
-    function parseIsoWeekStart(week, year) {
-        const jan4 = new Date(Date.UTC(year, 0, 4));
-        const jan4Day = jan4.getUTCDay() || 7;
-        const mondayOfWeekOne = new Date(jan4);
-        mondayOfWeekOne.setUTCDate(jan4.getUTCDate() - (jan4Day - 1));
-        const target = new Date(mondayOfWeekOne);
-        target.setUTCDate(mondayOfWeekOne.getUTCDate() + (week - 1) * 7);
-        return target;
-    }
-
-    function formatPeriodValue(rawValue) {
-        const value = String(rawValue ?? '').trim();
-        if (!value) {
-            return '—';
-        }
-
-        if (groupBy === 'day') {
-            const dayMatch = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
-            if (!dayMatch) {
-                return value;
-            }
-            const [, day, month, year] = dayMatch;
-            const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
-            return dayMonthYearFormatter.format(date);
-        }
-
-        if (groupBy === 'week') {
-            const weekMatch = /^(\d{2})\.(\d{4})$/.exec(value);
-            if (!weekMatch) {
-                return value;
-            }
-            const [, week, year] = weekMatch;
-            const weekStart = parseIsoWeekStart(Number(week), Number(year));
-            return `неделя с ${dayMonthYearFormatter.format(weekStart)}`;
-        }
-
-        if (groupBy === 'month') {
-            const monthMatch = /^(\d{2})\.(\d{4})$/.exec(value);
-            if (!monthMatch) {
-                return value;
-            }
-            const [, month, year] = monthMatch;
-            const date = new Date(Date.UTC(Number(year), Number(month) - 1, 1));
-            return monthYearFormatter.format(date);
-        }
-
-        return value;
-    }
-
-    const {dateFrom, dateTo} = getLastDaysRange(days);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getPlacesByRange, {
-        date_from: dateFrom,
-        date_to: dateTo,
-        group_by: groupBy,
-    });
-
-    fetchChartData(url)
-        .then((data) => {
-            const labels = data.map((item) => item.label);
-            const values = data.map((item) => item.count);
-            const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
-            const chartValues = values.length === 1 ? [values[0], values[0]] : values;
-            chartContainer.innerHTML = '';
-
-            const chart = new ApexCharts(chartContainer, {
-                series: [
-                    {
-                        name: tooltipMetricLabel,
-                        data: chartValues,
-                    },
-                ],
-                chart: {
-                    type: 'area',
-                    height: '100%',
-                    toolbar: {
-                        show: false,
-                    },
-                    sparkline: {
-                        enabled: true,
-                    },
-                },
-                stroke: {
-                    curve: 'straight',
-                    width: 2,
-                    colors: [color],
-                },
-                colors: [color],
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shade: 'dark',
-                        gradientToColors: [color],
-                        shadeIntensity: 1,
-                        opacityFrom: 0.6,
-                        opacityTo: 0,
-                        stops: [0, 100],
-                    },
-                },
-                states: {
-                    normal: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                    hover: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                    active: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                },
-                xaxis: {
-                    categories: chartLabels,
-                },
-                tooltip: {
-                    custom({series, seriesIndex, dataPointIndex}) {
-                        const rawLabel = chartLabels[dataPointIndex] || '';
-                        const formattedDate = formatPeriodValue(rawLabel);
-                        const value = series[seriesIndex][dataPointIndex];
-                        return `
-                            <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
-                                ${formattedDate}: <span class="font-semibold">${value}</span>
-                            </div>
-                        `;
-                    },
-                },
-            });
-            chart.render();
-        })
-        .catch((error) => {
-            console.error('Failed to fetch places trend chart', error);
-        });
+    // Deprecated: остаётся для совместимости, но не используется.
+    void canvasId;
+    void days;
+    void groupBy;
+    void tooltipMetricLabel;
+    void color;
 }
 
 function loadPersonalCollectionsTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel, color) {
+    // Deprecated: остаётся для совместимости, но не используется.
+    void canvasId;
+    void days;
+    void groupBy;
+    void tooltipMetricLabel;
+    void color;
+}
+
+async function fetchPlacesOverview() {
+    const response = await fetch(DASHBOARD_ROUTES.getPlacesOverview, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            Accept: 'application/json',
+        },
+        credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+async function fetchPersonalCollectionsOverview() {
+    const response = await fetch(DASHBOARD_ROUTES.getPersonalCollectionsOverview, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            Accept: 'application/json',
+        },
+        credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+function applyPeriodComparison(idPrefix, comparison) {
+    if (!comparison) {
+        return;
+    }
+
+    updateCompareCardValue(`${idPrefix}-current`, comparison.current_count);
+    updateCompareCardValue(`${idPrefix}-previous`, comparison.previous_count);
+
+    const absDelta = Math.abs(comparison.delta);
+    const absPercent = Math.abs(comparison.delta_percent);
+    updateCompareCardValue(
+        `${idPrefix}-delta`,
+        `${absDelta} (${absPercent}%)`,
+        true,
+        comparison.delta
+    );
+}
+
+function renderDashboardTrendChartFromData(canvasId, chartData, groupBy, tooltipMetricLabel, color) {
     const chartContainer = document.getElementById(canvasId);
     if (!chartContainer) {
         return;
     }
+
+    if (!Array.isArray(chartData) || chartData.length === 0) {
+        chartContainer.innerHTML =
+            '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
+        return;
+    }
+
     const dayMonthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
         day: 'numeric',
         month: 'long',
@@ -1181,92 +1053,192 @@ function loadPersonalCollectionsTrendCardChart(canvasId, days, groupBy, tooltipM
         return value;
     }
 
-    const {dateFrom, dateTo} = getLastDaysRange(days);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getPersonalCollectionsByRange, {
-        date_from: dateFrom,
-        date_to: dateTo,
-        group_by: groupBy,
+    const labels = chartData.map((item) => item.label);
+    const values = chartData.map((item) => item.count);
+    const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
+    const chartValues = values.length === 1 ? [values[0], values[0]] : values;
+
+    chartContainer.innerHTML = '';
+
+    const chart = new ApexCharts(chartContainer, {
+        series: [
+            {
+                name: tooltipMetricLabel,
+                data: chartValues,
+            },
+        ],
+        chart: {
+            type: 'area',
+            height: '100%',
+            toolbar: {
+                show: false,
+            },
+            sparkline: {
+                enabled: true,
+            },
+        },
+        stroke: {
+            curve: 'straight',
+            width: 2,
+            colors: [color],
+        },
+        colors: [color],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'dark',
+                gradientToColors: [color],
+                shadeIntensity: 1,
+                opacityFrom: 0.6,
+                opacityTo: 0,
+                stops: [0, 100],
+            },
+        },
+        states: {
+            normal: {
+                filter: {
+                    type: 'none',
+                },
+            },
+            hover: {
+                filter: {
+                    type: 'none',
+                },
+            },
+            active: {
+                filter: {
+                    type: 'none',
+                },
+            },
+        },
+        xaxis: {
+            categories: chartLabels,
+        },
+        tooltip: {
+            custom({series, seriesIndex, dataPointIndex}) {
+                const rawLabel = chartLabels[dataPointIndex] || '';
+                const formattedDate = formatPeriodValue(rawLabel);
+                const value = series[seriesIndex][dataPointIndex];
+                return `
+                    <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
+                        ${formattedDate}: <span class="font-semibold">${value}</span>
+                    </div>
+                `;
+            },
+        },
     });
 
-    fetchChartData(url)
-        .then((data) => {
-            const labels = data.map((item) => item.label);
-            const values = data.map((item) => item.count);
-            const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
-            const chartValues = values.length === 1 ? [values[0], values[0]] : values;
-            chartContainer.innerHTML = '';
+    chart.render();
+}
 
-            const chart = new ApexCharts(chartContainer, {
-                series: [
-                    {
-                        name: tooltipMetricLabel,
-                        data: chartValues,
-                    },
-                ],
-                chart: {
-                    type: 'area',
-                    height: '100%',
-                    toolbar: {
-                        show: false,
-                    },
-                    sparkline: {
-                        enabled: true,
-                    },
-                },
-                stroke: {
-                    curve: 'straight',
-                    width: 2,
-                    colors: [color],
-                },
-                colors: [color],
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shade: 'dark',
-                        gradientToColors: [color],
-                        shadeIntensity: 1,
-                        opacityFrom: 0.6,
-                        opacityTo: 0,
-                        stops: [0, 100],
-                    },
-                },
-                states: {
-                    normal: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                    hover: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                    active: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                },
-                xaxis: {
-                    categories: chartLabels,
-                },
-                tooltip: {
-                    custom({series, seriesIndex, dataPointIndex}) {
-                        const rawLabel = chartLabels[dataPointIndex] || '';
-                        const formattedDate = formatPeriodValue(rawLabel);
-                        const value = series[seriesIndex][dataPointIndex];
-                        return `
-                            <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
-                                ${formattedDate}: <span class="font-semibold">${value}</span>
-                            </div>
-                        `;
-                    },
-                },
-            });
-            chart.render();
+function initPlacesOverview() {
+    const requiredElements = [
+        document.getElementById('number-total_visited_places'),
+        document.getElementById('number-total_visited_only_places'),
+        document.getElementById('places-30-trend-chart'),
+        document.getElementById('places-6m-trend-chart'),
+        document.getElementById('places-1y-trend-chart'),
+    ];
+
+    if (requiredElements.some((el) => !el)) {
+        return;
+    }
+
+    fetchPlacesOverview()
+        .then((data) => {
+            updateNumberOnCard('number-total_visited_places', formatRuNumber(data.total_visited_places?.count));
+            updateNumberOnCard(
+                'number-total_visited_only_places',
+                formatRuNumber(data.total_visited_only_places?.count)
+            );
+
+            applyPeriodComparison('places-30', data.last_30d?.comparison);
+            applyPeriodComparison('places-6m', data.last_6m?.comparison);
+            applyPeriodComparison('places-1y', data.last_1y?.comparison);
+
+            renderDashboardTrendChartFromData('places-30-trend-chart', data.last_30d?.chart, 'day', 'За день', '#06b6d4');
+            renderDashboardTrendChartFromData('places-6m-trend-chart', data.last_6m?.chart, 'week', 'За неделю', '#22c55e');
+            renderDashboardTrendChartFromData('places-1y-trend-chart', data.last_1y?.chart, 'month', 'За месяц', '#f97316');
         })
         .catch((error) => {
-            console.error('Failed to fetch personal collections trend chart', error);
+            console.error('Failed to fetch places overview', error);
+            showCardFallback('number-total_visited_places');
+            showCardFallback('number-total_visited_only_places');
+            showCardFallback('places-30-current');
+            showCardFallback('places-30-previous');
+            showCardFallback('places-30-delta');
+            showCardFallback('places-6m-current');
+            showCardFallback('places-6m-previous');
+            showCardFallback('places-6m-delta');
+            showCardFallback('places-1y-current');
+            showCardFallback('places-1y-previous');
+            showCardFallback('places-1y-delta');
+        });
+}
+
+function initPersonalCollectionsOverview() {
+    const requiredElements = [
+        document.getElementById('number-total_personal_collections'),
+        document.getElementById('number-total_public_personal_collections'),
+        document.getElementById('collections-30-trend-chart'),
+        document.getElementById('collections-6m-trend-chart'),
+        document.getElementById('collections-1y-trend-chart'),
+    ];
+
+    if (requiredElements.some((el) => !el)) {
+        return;
+    }
+
+    fetchPersonalCollectionsOverview()
+        .then((data) => {
+            updateNumberOnCard(
+                'number-total_personal_collections',
+                formatRuNumber(data.total_personal_collections?.count)
+            );
+            updateNumberOnCard(
+                'number-total_public_personal_collections',
+                formatRuNumber(data.total_public_personal_collections?.count)
+            );
+
+            applyPeriodComparison('collections-30', data.last_30d?.comparison);
+            applyPeriodComparison('collections-6m', data.last_6m?.comparison);
+            applyPeriodComparison('collections-1y', data.last_1y?.comparison);
+
+            renderDashboardTrendChartFromData(
+                'collections-30-trend-chart',
+                data.last_30d?.chart,
+                'day',
+                'За день',
+                '#2563eb'
+            );
+            renderDashboardTrendChartFromData(
+                'collections-6m-trend-chart',
+                data.last_6m?.chart,
+                'week',
+                'За неделю',
+                '#8b5cf6'
+            );
+            renderDashboardTrendChartFromData(
+                'collections-1y-trend-chart',
+                data.last_1y?.chart,
+                'month',
+                'За месяц',
+                '#f59e0b'
+            );
+        })
+        .catch((error) => {
+            console.error('Failed to fetch personal collections overview', error);
+            showCardFallback('number-total_personal_collections');
+            showCardFallback('number-total_public_personal_collections');
+            showCardFallback('collections-30-current');
+            showCardFallback('collections-30-previous');
+            showCardFallback('collections-30-delta');
+            showCardFallback('collections-6m-current');
+            showCardFallback('collections-6m-previous');
+            showCardFallback('collections-6m-delta');
+            showCardFallback('collections-1y-current');
+            showCardFallback('collections-1y-previous');
+            showCardFallback('collections-1y-delta');
         });
 }
 
@@ -2120,12 +2092,7 @@ if (document.readyState === 'loading') {
         loadAddedVisitedCountriesComparisonCards(30, 'added-countries-30');
         loadAddedVisitedCountriesComparisonCards(183, 'added-countries-6m');
         loadAddedVisitedCountriesComparisonCards(365, 'added-countries-1y');
-        loadPlacesComparisonCards(30, 'places-30');
-        loadPlacesComparisonCards(183, 'places-6m');
-        loadPlacesComparisonCards(365, 'places-1y');
-        loadPersonalCollectionsComparisonCards(30, 'collections-30');
-        loadPersonalCollectionsComparisonCards(183, 'collections-6m');
-        loadPersonalCollectionsComparisonCards(365, 'collections-1y');
+        // Сравнения мест/коллекций теперь приходят агрегировано (overview).
         loadRegistrationsTrendCardChart(
             'registrations-30-trend-chart',
             30,
@@ -2189,30 +2156,8 @@ if (document.readyState === 'loading') {
             'За месяц',
             '#f59e0b'
         );
-        loadPlacesTrendCardChart('places-30-trend-chart', 30, 'day', 'За день', '#06b6d4');
-        loadPlacesTrendCardChart('places-6m-trend-chart', 183, 'week', 'За неделю', '#22c55e');
-        loadPlacesTrendCardChart('places-1y-trend-chart', 365, 'month', 'За месяц', '#f97316');
-        loadPersonalCollectionsTrendCardChart(
-            'collections-30-trend-chart',
-            30,
-            'day',
-            'За день',
-            '#2563eb'
-        );
-        loadPersonalCollectionsTrendCardChart(
-            'collections-6m-trend-chart',
-            183,
-            'week',
-            'За неделю',
-            '#8b5cf6'
-        );
-        loadPersonalCollectionsTrendCardChart(
-            'collections-1y-trend-chart',
-            365,
-            'month',
-            'За месяц',
-            '#f59e0b'
-        );
+        initPlacesOverview();
+        initPersonalCollectionsOverview();
         initBlogArticlesOverview();
     });
 } else {
@@ -2227,19 +2172,7 @@ if (document.readyState === 'loading') {
     loadAddedVisitedCountriesComparisonCards(30, 'added-countries-30');
     loadAddedVisitedCountriesComparisonCards(183, 'added-countries-6m');
     loadAddedVisitedCountriesComparisonCards(365, 'added-countries-1y');
-    loadPlacesComparisonCards(30, 'places-30');
-    loadPlacesComparisonCards(183, 'places-6m');
-    loadPlacesComparisonCards(365, 'places-1y');
-    loadPersonalCollectionsComparisonCards(30, 'collections-30');
-    loadPersonalCollectionsComparisonCards(183, 'collections-6m');
-    loadPersonalCollectionsComparisonCards(365, 'collections-1y');
-    loadRegistrationsTrendCardChart(
-        'registrations-30-trend-chart',
-        30,
-        'day',
-        'За день',
-        '#2563eb'
-    );
+    // Сравнения/графики мест и коллекций теперь приходят агрегировано.
     loadRegistrationsTrendCardChart(
         'registrations-6m-trend-chart',
         183,
@@ -2296,30 +2229,8 @@ if (document.readyState === 'loading') {
         'За месяц',
         '#f59e0b'
     );
-    loadPlacesTrendCardChart('places-30-trend-chart', 30, 'day', 'За день', '#06b6d4');
-    loadPlacesTrendCardChart('places-6m-trend-chart', 183, 'week', 'За неделю', '#22c55e');
-    loadPlacesTrendCardChart('places-1y-trend-chart', 365, 'month', 'За месяц', '#f97316');
-    loadPersonalCollectionsTrendCardChart(
-        'collections-30-trend-chart',
-        30,
-        'day',
-        'За день',
-        '#2563eb'
-    );
-    loadPersonalCollectionsTrendCardChart(
-        'collections-6m-trend-chart',
-        183,
-        'week',
-        'За неделю',
-        '#8b5cf6'
-    );
-    loadPersonalCollectionsTrendCardChart(
-        'collections-1y-trend-chart',
-        365,
-        'month',
-        'За месяц',
-        '#f59e0b'
-    );
+    initPlacesOverview();
+    initPersonalCollectionsOverview();
     initBlogArticlesOverview();
 }
 

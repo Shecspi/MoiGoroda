@@ -14,11 +14,7 @@ from dashboard.api import (
     GetPersonalCollectionsOverviewController,
     GetPlacesOverviewController,
     GetVisitedCitiesOverviewController,
-    GetNumberOfUsersController,
-    GetRegistrationsByRangeController,
-    GetRegistrationsComparisonController,
-    GetRegistrationsCumulativeChartController,
-    GetNumberOfUsersWithoutVisitedCitiesController,
+    GetUsersOverviewController,
     GetVisitedCountriesOverviewController,
 )
 
@@ -26,20 +22,8 @@ router = Router(
     'api/dashboard',
     [
         path(
-            'users/',
-            GetNumberOfUsersController.as_view(),
-        ),
-        path(
-            'users/registrations/range/',
-            GetRegistrationsByRangeController.as_view(),
-        ),
-        path(
-            'users/registrations/compare/',
-            GetRegistrationsComparisonController.as_view(),
-        ),
-        path(
-            'users/without_visited_cities/',
-            GetNumberOfUsersWithoutVisitedCitiesController.as_view(),
+            'users/overview/',
+            GetUsersOverviewController.as_view(),
         ),
         path(
             'visited_cities/overview/',
@@ -63,11 +47,6 @@ router = Router(
         path(
             'blog/articles/overview/',
             GetBlogArticlesOverviewController.as_view(),
-        ),
-        # Графики
-        path(
-            'users/registrations/chart/cumulative/',
-            GetRegistrationsCumulativeChartController.as_view(),
         ),
     ],
 )

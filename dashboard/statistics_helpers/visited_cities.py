@@ -73,6 +73,7 @@ def collect_unique_visited_cities() -> Quantity:
         .get('total', 0)
         or 0
     )
+
     return Quantity(count=qty)
 
 
@@ -94,6 +95,7 @@ def collect_added_visited_cities_trend_card_overview(
         date_to=period_to,
         group_by=group_by,
     )
+
     return TrendCardOverview(comparison=comparison, chart=chart)
 
 
@@ -111,7 +113,11 @@ def collect_visited_cities_by_user_chart(limit: int = 50) -> list[UserStatistics
         .exclude(qty_visited_cities=None)
         .order_by('-qty_visited_cities')[:limit]
     )
-    result = [UserStatistics(label=item['username'], count=item['qty_visited_cities']) for item in queryset]
+    result = [
+        UserStatistics(label=item['username'], count=item['qty_visited_cities'])
+        for item in queryset
+    ]
+
     return list(reversed(result))
 
 
@@ -133,6 +139,7 @@ def collect_unique_visited_cities_by_user_chart(limit: int = 50) -> list[UserSta
         UserStatistics(label=item['username'], count=item['qty_unique_visited_cities'])
         for item in queryset
     ]
+
     return list(reversed(result))
 
 
@@ -145,4 +152,3 @@ __all__ = [
     'collect_visited_cities_by_user_chart',
     'collect_unique_visited_cities_by_user_chart',
 ]
-

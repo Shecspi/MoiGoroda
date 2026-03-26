@@ -3,8 +3,7 @@ import ApexCharts from 'apexcharts';
 
 const DASHBOARD_ROUTES = Object.freeze({
     // Пользователи
-    getNumberOfUsers: '/api/dashboard/users/',
-    getNumberOfUsersWithoutVisitedCities: '/api/dashboard/users/without_visited_cities/',
+    getUsersOverview: '/api/dashboard/users/overview/',
     // Города
     getVisitedCitiesOverview: '/api/dashboard/visited_cities/overview/',
     // Страны
@@ -21,9 +20,6 @@ const DASHBOARD_ROUTES = Object.freeze({
     getBlogViewsCompare: '/api/dashboard/blog/articles/views/compare/',
     getBlogArticlesOverview: '/api/dashboard/blog/articles/overview/',
     // Графики
-    getRegistrationsByRange: '/api/dashboard/users/registrations/range/',
-    getRegistrationsCompare: '/api/dashboard/users/registrations/compare/',
-    getRegistrationsCumulativeChart: '/api/dashboard/users/registrations/chart/cumulative/',
 });
 
 function formatDate(date) {
@@ -46,8 +42,7 @@ function buildRegistrationsQueryUrl(baseUrl, params) {
 }
 
 // Пользователи
-loadQuantityCard('number-total_users', DASHBOARD_ROUTES.getNumberOfUsers);
-loadQuantityCard('number-number_of_users_without_visited_cities', DASHBOARD_ROUTES.getNumberOfUsersWithoutVisitedCities);
+// Пользовательские карточки/тренды теперь загружаются агрегировано (overview).
 // Города
 // Города (карточки и тренды) теперь загружаются агрегировано (overview).
 // Страны теперь загружаются агрегировано (overview).
@@ -227,30 +222,11 @@ function updateCompareCardValue(elementId, value, isDelta = false, deltaNumber =
 
 function loadRegistrationsComparisonCards(days, idPrefix) {
     const {dateFrom, dateTo} = getLastDaysRange(days);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsCompare, {
-        date_from: dateFrom,
-        date_to: dateTo,
-    });
-
-    fetchComparisonData(url)
-        .then((data) => {
-            const absDelta = Math.abs(data.delta);
-            const absPercent = Math.abs(data.delta_percent);
-            updateCompareCardValue(`${idPrefix}-current`, data.current_count);
-            updateCompareCardValue(`${idPrefix}-previous`, data.previous_count);
-            updateCompareCardValue(
-                `${idPrefix}-delta`,
-                `${absDelta} (${absPercent}%)`,
-                true,
-                data.delta,
-            );
-        })
-        .catch((error) => {
-            console.error('Failed to fetch registrations comparison', error);
-            showCardFallback(`${idPrefix}-current`);
-            showCardFallback(`${idPrefix}-previous`);
-            showCardFallback(`${idPrefix}-delta`);
-        });
+    // Deprecated: остаётся для совместимости, но не используется.
+    void dateFrom;
+    void dateTo;
+    void idPrefix;
+    void days;
 }
 
 function loadAddedVisitedCitiesComparisonCards(days, idPrefix) {
@@ -290,157 +266,89 @@ function loadPersonalCollectionsComparisonCards(days, idPrefix) {
 }
 
 function loadRegistrationsTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel, color) {
-    const chartContainer = document.getElementById(canvasId);
-    if (!chartContainer) {
+    // Deprecated: остаётся для совместимости, но не используется.
+    void canvasId;
+    void days;
+    void groupBy;
+    void tooltipMetricLabel;
+    void color;
+}
+
+async function fetchUsersOverview() {
+    const response = await fetch(DASHBOARD_ROUTES.getUsersOverview, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            Accept: 'application/json',
+        },
+        credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+    }
+    return await response.json();
+}
+
+function initUsersOverview() {
+    const requiredElements = [
+        document.getElementById('number-total_users'),
+        document.getElementById('number-number_of_users_without_visited_cities'),
+        document.getElementById('registrations-30-trend-chart'),
+        document.getElementById('registrations-6m-trend-chart'),
+        document.getElementById('registrations-1y-trend-chart'),
+    ];
+    if (requiredElements.some((el) => !el)) {
         return;
     }
-    const dayMonthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
-    const monthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
 
-    function parseIsoWeekStart(week, year) {
-        const jan4 = new Date(Date.UTC(year, 0, 4));
-        const jan4Day = jan4.getUTCDay() || 7;
-        const mondayOfWeekOne = new Date(jan4);
-        mondayOfWeekOne.setUTCDate(jan4.getUTCDate() - (jan4Day - 1));
-        const target = new Date(mondayOfWeekOne);
-        target.setUTCDate(mondayOfWeekOne.getUTCDate() + (week - 1) * 7);
-        return target;
-    }
-
-    function formatPeriodValue(rawValue) {
-        const value = String(rawValue ?? '').trim();
-        if (!value) {
-            return '—';
-        }
-
-        if (groupBy === 'day') {
-            const dayMatch = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
-            if (!dayMatch) {
-                return value;
-            }
-            const [, day, month, year] = dayMatch;
-            const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
-            return dayMonthYearFormatter.format(date);
-        }
-
-        if (groupBy === 'week') {
-            const weekMatch = /^(\d{2})\.(\d{4})$/.exec(value);
-            if (!weekMatch) {
-                return value;
-            }
-            const [, week, year] = weekMatch;
-            const weekStart = parseIsoWeekStart(Number(week), Number(year));
-            return `неделя с ${dayMonthYearFormatter.format(weekStart)}`;
-        }
-
-        if (groupBy === 'month') {
-            const monthMatch = /^(\d{2})\.(\d{4})$/.exec(value);
-            if (!monthMatch) {
-                return value;
-            }
-            const [, month, year] = monthMatch;
-            const date = new Date(Date.UTC(Number(year), Number(month) - 1, 1));
-            return monthYearFormatter.format(date);
-        }
-
-        return value;
-    }
-
-    const {dateFrom, dateTo} = getLastDaysRange(days);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getRegistrationsByRange, {
-        date_from: dateFrom,
-        date_to: dateTo,
-        group_by: groupBy,
-    });
-
-    fetchChartData(url)
+    fetchUsersOverview()
         .then((data) => {
-            const labels = data.map((item) => item.label);
-            const values = data.map((item) => item.count);
-            const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
-            const chartValues = values.length === 1 ? [values[0], values[0]] : values;
-            chartContainer.innerHTML = '';
+            updateNumberOnCard('number-total_users', formatRuNumber(data.total_users?.count));
+            updateNumberOnCard(
+                'number-number_of_users_without_visited_cities',
+                formatRuNumber(data.users_without_visited_cities?.count)
+            );
 
-            const chart = new ApexCharts(chartContainer, {
-                series: [
-                    {
-                        name: tooltipMetricLabel,
-                        data: chartValues,
-                    },
-                ],
-                chart: {
-                    type: 'area',
-                    height: '100%',
-                    toolbar: {
-                        show: false,
-                    },
-                    sparkline: {
-                        enabled: true,
-                    },
-                },
-                stroke: {
-                    curve: 'straight',
-                    width: 2,
-                    colors: [color],
-                },
-                colors: [color],
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shade: 'dark',
-                        gradientToColors: [color],
-                        shadeIntensity: 1,
-                        opacityFrom: 0.6,
-                        opacityTo: 0,
-                        stops: [0, 100],
-                    },
-                },
-                states: {
-                    normal: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                    hover: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                    active: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                },
-                xaxis: {
-                    categories: chartLabels,
-                },
-                tooltip: {
-                    custom({series, seriesIndex, dataPointIndex}) {
-                        const rawLabel = chartLabels[dataPointIndex] || '';
-                        const formattedDate = formatPeriodValue(rawLabel);
-                        const value = series[seriesIndex][dataPointIndex];
-                        return `
-                            <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
-                                ${formattedDate}: <span class="font-semibold">${value}</span>
-                            </div>
-                        `;
-                    },
-                },
-            });
-            chart.render();
+            applyPeriodComparison('registrations-30', data.registrations_last_30d?.comparison);
+            applyPeriodComparison('registrations-6m', data.registrations_last_6m?.comparison);
+            applyPeriodComparison('registrations-1y', data.registrations_last_1y?.comparison);
+
+            renderDashboardTrendChartFromData(
+                'registrations-30-trend-chart',
+                data.registrations_last_30d?.chart,
+                'day',
+                'За день',
+                '#2563eb'
+            );
+            renderDashboardTrendChartFromData(
+                'registrations-6m-trend-chart',
+                data.registrations_last_6m?.chart,
+                'week',
+                'За неделю',
+                '#8b5cf6'
+            );
+            renderDashboardTrendChartFromData(
+                'registrations-1y-trend-chart',
+                data.registrations_last_1y?.chart,
+                'month',
+                'За месяц',
+                '#f59e0b'
+            );
         })
         .catch((error) => {
-            console.error('Failed to fetch registrations trend chart', error);
+            console.error('Failed to fetch users overview', error);
+            showCardFallback('number-total_users');
+            showCardFallback('number-number_of_users_without_visited_cities');
+            showCardFallback('registrations-30-current');
+            showCardFallback('registrations-30-previous');
+            showCardFallback('registrations-30-delta');
+            showCardFallback('registrations-6m-current');
+            showCardFallback('registrations-6m-previous');
+            showCardFallback('registrations-6m-delta');
+            showCardFallback('registrations-1y-current');
+            showCardFallback('registrations-1y-previous');
+            showCardFallback('registrations-1y-delta');
         });
 }
 
@@ -1825,33 +1733,11 @@ async function loadBlogTopViewsCard(days) {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         // Графики по пользователям теперь приходят в visited_cities/overview.
-        loadRegistrationsComparisonCards(30, 'registrations-30');
-        loadRegistrationsComparisonCards(183, 'registrations-6m');
-        loadRegistrationsComparisonCards(365, 'registrations-1y');
+        initUsersOverview();
         initVisitedCitiesOverview();
         initVisitedCountriesOverview();
         // Сравнения мест/коллекций теперь приходят агрегировано (overview).
-        loadRegistrationsTrendCardChart(
-            'registrations-30-trend-chart',
-            30,
-            'day',
-            'За день',
-            '#2563eb'
-        );
-        loadRegistrationsTrendCardChart(
-            'registrations-6m-trend-chart',
-            183,
-            'week',
-            'За неделю',
-            '#8b5cf6'
-        );
-        loadRegistrationsTrendCardChart(
-            'registrations-1y-trend-chart',
-            365,
-            'month',
-            'За месяц',
-            '#f59e0b'
-        );
+        // Тренды регистраций теперь приходят агрегировано (users/overview).
         // Графики городов теперь приходят агрегировано (overview).
         // Графики стран теперь приходят агрегировано (overview).
         initPlacesOverview();
@@ -1860,26 +1746,11 @@ if (document.readyState === 'loading') {
     });
 } else {
     // Графики по пользователям теперь приходят в visited_cities/overview.
-    loadRegistrationsComparisonCards(30, 'registrations-30');
-    loadRegistrationsComparisonCards(183, 'registrations-6m');
-    loadRegistrationsComparisonCards(365, 'registrations-1y');
+    initUsersOverview();
     initVisitedCitiesOverview();
     initVisitedCountriesOverview();
     // Сравнения/графики мест и коллекций теперь приходят агрегировано.
-    loadRegistrationsTrendCardChart(
-        'registrations-6m-trend-chart',
-        183,
-        'week',
-        'За неделю',
-        '#8b5cf6'
-    );
-    loadRegistrationsTrendCardChart(
-        'registrations-1y-trend-chart',
-        365,
-        'month',
-        'За месяц',
-        '#f59e0b'
-    );
+    // Тренды регистраций теперь приходят агрегировано (users/overview).
     // Графики городов теперь приходят агрегировано (overview).
     // Графики стран теперь приходят агрегировано (overview).
     initPlacesOverview();

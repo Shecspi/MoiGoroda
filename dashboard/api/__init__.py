@@ -15,11 +15,7 @@ from .places import (  # noqa: F401
     GetPlacesOverviewController,
 )
 from .users import (  # noqa: F401
-    GetNumberOfUsersController,
-    GetRegistrationsByRangeController,
-    GetRegistrationsComparisonController,
-    GetRegistrationsCumulativeChartController,
-    GetNumberOfUsersWithoutVisitedCitiesController,
+    GetUsersOverviewController,
 )
 from .visited_cities import (  # noqa: F401
     GetVisitedCitiesOverviewController,
@@ -32,11 +28,7 @@ __all__ = [
     # Blog
     'GetBlogArticlesOverviewController',
     # Users/Registrations
-    'GetNumberOfUsersController',
-    'GetRegistrationsByRangeController',
-    'GetRegistrationsComparisonController',
-    'GetRegistrationsCumulativeChartController',
-    'GetNumberOfUsersWithoutVisitedCitiesController',
+    'GetUsersOverviewController',
     # Places/Collections
     'GetPlacesOverviewController',
     'GetPersonalCollectionsOverviewController',

@@ -38,7 +38,13 @@ from .places import (  # noqa: F401
     collect_places_visited_only_total,
     count_places_created_in_range,
 )
-from .users import _collect_registrations_by_group  # noqa: F401
+from .users import (  # noqa: F401
+    _collect_registrations_by_group,
+    collect_number_of_users_without_visited_cities,
+    collect_registrations_trend_card_overview,
+    collect_total_users,
+    count_registrations_in_range,
+)
 from .visited_cities import (  # noqa: F401
     _collect_added_visited_cities_by_group,
     collect_added_visited_cities_trend_card_overview,
@@ -65,6 +71,10 @@ __all__ = [
     'build_period_comparison_stats',
     # users
     '_collect_registrations_by_group',
+    'collect_total_users',
+    'collect_number_of_users_without_visited_cities',
+    'count_registrations_in_range',
+    'collect_registrations_trend_card_overview',
     # visited cities/countries
     '_collect_added_visited_cities_by_group',
     'collect_total_visited_cities_visits',

@@ -77,6 +77,14 @@ class VisitedCitiesOverviewResponse(msgspec.Struct):
     unique_visited_by_user_chart: list[UserStatistics]
 
 
+class UsersOverviewResponse(msgspec.Struct):
+    total_users: Quantity
+    users_without_visited_cities: Quantity
+    registrations_last_30d: TrendCardOverview
+    registrations_last_6m: TrendCardOverview
+    registrations_last_1y: TrendCardOverview
+
+
 class BlogArticlesPageQuery(msgspec.Struct):
     page: int = 1
     per_page: int = 10

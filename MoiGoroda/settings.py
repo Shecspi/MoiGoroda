@@ -495,6 +495,7 @@ AWS_QUERYSTRING_AUTH = False
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=31536000',  # 1 год
 }
+<<<<<<< HEAD
 
 # Настройки Django Modern Rest
 
@@ -511,3 +512,5 @@ DMR_SETTINGS = {
         ),
     ],
 }
+=======
+>>>>>>> origin/master

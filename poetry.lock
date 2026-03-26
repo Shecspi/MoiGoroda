@@ -538,6 +538,7 @@ files = [
 ]
 
 [[package]]
+<<<<<<< HEAD
 name = "django-modern-rest"
 version = "0.3.0"
 description = "Modern REST framework for Django with types and async support"
@@ -561,6 +562,8 @@ openapi = ["openapi-spec-validator (>=0.8,<0.9)", "polyfactory (>=3.2,<4.0)"]
 pydantic = ["pydantic[email] (>=2.12,<3.0)"]
 
 [[package]]
+=======
+>>>>>>> origin/master
 name = "django-storages"
 version = "1.14.6"
 description = "Support for many storage backends in Django"
@@ -874,6 +877,7 @@ files = [
 ]
 
 [[package]]
+<<<<<<< HEAD
 name = "msgspec"
 version = "0.20.0"
 description = "A fast serialization and validation library, with builtin support for JSON, MessagePack, YAML, and TOML."
@@ -945,6 +949,8 @@ toml = ["tomli ; python_version < \"3.11\"", "tomli_w"]
 yaml = ["pyyaml"]
 
 [[package]]
+=======
+>>>>>>> origin/master
 name = "mypy"
 version = "1.18.1"
 description = "Optional static typing for Python"
@@ -2101,4 +2107,8 @@ urllib3 = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
+<<<<<<< HEAD
 content-hash = "5ff317b81de15774a60d4b4559a92a25971f22202fbfe0a521e4e5a14954e779"
+=======
+content-hash = "828de1ccf5d6f76d99b7628269684199b68420603b8b468ad498d4307352e3a0"
+>>>>>>> origin/master

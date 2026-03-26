@@ -16,14 +16,13 @@ django-admin-autocomplete-filter = "^0.7.1"
 setuptools = "^80.9.0"
 petrovich = "^2.0.1"
 pymorphy3 = "^2.0.4"
-msgspec = "^0.20.0"
-django-ckeditor-5 = "^0.2.19"
 django-storages = "^1.14.6"
 boto3 = "^1.42.44"
 django-markdownify = "^0.9.6"
 django-tinymce = "^5.0.0"
+django-ckeditor-5 = "^0.2.19"
 yookassa = "^3.10.0"
-django-modern-rest = { extras = ["msgspec"], version = "^0.3.0" }
+msgspec = "^0.20.0"
 
 
 [tool.poetry.group.dev.dependencies]

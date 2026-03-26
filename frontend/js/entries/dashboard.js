@@ -15,10 +15,7 @@ const DASHBOARD_ROUTES = Object.freeze({
     getAddedVisitedCitiesByRange: '/api/dashboard/visited_cities/added/range/',
     getAddedVisitedCitiesCompare: '/api/dashboard/visited_cities/added/compare/',
     // Страны
-    getTotalVisitedCountries: '/api/dashboard/visited_countries/total/',
-    getUsersWithVisitedCountries: '/api/dashboard/visited_countries/users/',
-    getAddedVisitedCountriesByRange: '/api/dashboard/visited_countries/added/range/',
-    getAddedVisitedCountriesCompare: '/api/dashboard/visited_countries/added/compare/',
+    getVisitedCountriesOverview: '/api/dashboard/visited_countries/overview/',
     // Места
     getPlacesOverview: '/api/dashboard/places/overview/',
     getPersonalCollectionsOverview: '/api/dashboard/places/personal_collections/overview/',
@@ -63,9 +60,7 @@ loadQuantityCard('number-number_of_users_without_visited_cities', DASHBOARD_ROUT
 // Города
 loadQuantityCard('number-total_visited_cities_visits', DASHBOARD_ROUTES.getTotalVisitedCitiesVisits);
 loadQuantityCard('number-unique_visited_cities', DASHBOARD_ROUTES.getUniqueVisitedCities);
-// Страны
-loadQuantityCard('number-total_visited_countries', DASHBOARD_ROUTES.getTotalVisitedCountries);
-loadQuantityCard('number-user_with_visited_countries', DASHBOARD_ROUTES.getUsersWithVisitedCountries);
+// Страны теперь загружаются агрегировано (overview).
 // Места
 // Totals/сравнения/графики по местам и коллекциям теперь загружаются агрегированными overview-запросами.
 
@@ -401,30 +396,11 @@ function loadAddedVisitedCitiesComparisonCards(days, idPrefix) {
 
 function loadAddedVisitedCountriesComparisonCards(days, idPrefix) {
     const {dateFrom, dateTo} = getLastDaysRange(days);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getAddedVisitedCountriesCompare, {
-        date_from: dateFrom,
-        date_to: dateTo,
-    });
-
-    fetchComparisonData(url)
-        .then((data) => {
-            const absDelta = Math.abs(data.delta);
-            const absPercent = Math.abs(data.delta_percent);
-            updateCompareCardValue(`${idPrefix}-current`, data.current_count);
-            updateCompareCardValue(`${idPrefix}-previous`, data.previous_count);
-            updateCompareCardValue(
-                `${idPrefix}-delta`,
-                `${absDelta} (${absPercent}%)`,
-                true,
-                data.delta,
-            );
-        })
-        .catch((error) => {
-            console.error('Failed to fetch added visited countries comparison', error);
-            showCardFallback(`${idPrefix}-current`);
-            showCardFallback(`${idPrefix}-previous`);
-            showCardFallback(`${idPrefix}-delta`);
-        });
+    // Deprecated: остаётся для совместимости, но не используется.
+    void dateFrom;
+    void dateTo;
+    void idPrefix;
+    void days;
 }
 
 function loadPlacesComparisonCards(days, idPrefix) {
@@ -756,157 +732,94 @@ function loadAddedVisitedCitiesTrendCardChart(canvasId, days, groupBy, tooltipMe
 }
 
 function loadAddedVisitedCountriesTrendCardChart(canvasId, days, groupBy, tooltipMetricLabel, color) {
-    const chartContainer = document.getElementById(canvasId);
-    if (!chartContainer) {
+    // Deprecated: остаётся для совместимости, но не используется.
+    void canvasId;
+    void days;
+    void groupBy;
+    void tooltipMetricLabel;
+    void color;
+}
+
+async function fetchVisitedCountriesOverview() {
+    const response = await fetch(DASHBOARD_ROUTES.getVisitedCountriesOverview, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            Accept: 'application/json',
+        },
+        credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+function initVisitedCountriesOverview() {
+    const requiredElements = [
+        document.getElementById('number-total_visited_countries'),
+        document.getElementById('number-user_with_visited_countries'),
+        document.getElementById('added-countries-30-trend-chart'),
+        document.getElementById('added-countries-6m-trend-chart'),
+        document.getElementById('added-countries-1y-trend-chart'),
+    ];
+
+    if (requiredElements.some((el) => !el)) {
         return;
     }
-    const dayMonthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
-    const monthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
 
-    function parseIsoWeekStart(week, year) {
-        const jan4 = new Date(Date.UTC(year, 0, 4));
-        const jan4Day = jan4.getUTCDay() || 7;
-        const mondayOfWeekOne = new Date(jan4);
-        mondayOfWeekOne.setUTCDate(jan4.getUTCDate() - (jan4Day - 1));
-        const target = new Date(mondayOfWeekOne);
-        target.setUTCDate(mondayOfWeekOne.getUTCDate() + (week - 1) * 7);
-        return target;
-    }
-
-    function formatPeriodValue(rawValue) {
-        const value = String(rawValue ?? '').trim();
-        if (!value) {
-            return '—';
-        }
-
-        if (groupBy === 'day') {
-            const dayMatch = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
-            if (!dayMatch) {
-                return value;
-            }
-            const [, day, month, year] = dayMatch;
-            const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
-            return dayMonthYearFormatter.format(date);
-        }
-
-        if (groupBy === 'week') {
-            const weekMatch = /^(\d{2})\.(\d{4})$/.exec(value);
-            if (!weekMatch) {
-                return value;
-            }
-            const [, week, year] = weekMatch;
-            const weekStart = parseIsoWeekStart(Number(week), Number(year));
-            return `неделя с ${dayMonthYearFormatter.format(weekStart)}`;
-        }
-
-        if (groupBy === 'month') {
-            const monthMatch = /^(\d{2})\.(\d{4})$/.exec(value);
-            if (!monthMatch) {
-                return value;
-            }
-            const [, month, year] = monthMatch;
-            const date = new Date(Date.UTC(Number(year), Number(month) - 1, 1));
-            return monthYearFormatter.format(date);
-        }
-
-        return value;
-    }
-
-    const {dateFrom, dateTo} = getLastDaysRange(days);
-    const url = buildRegistrationsQueryUrl(DASHBOARD_ROUTES.getAddedVisitedCountriesByRange, {
-        date_from: dateFrom,
-        date_to: dateTo,
-        group_by: groupBy,
-    });
-
-    fetchChartData(url)
+    fetchVisitedCountriesOverview()
         .then((data) => {
-            const labels = data.map((item) => item.label);
-            const values = data.map((item) => item.count);
-            const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
-            const chartValues = values.length === 1 ? [values[0], values[0]] : values;
-            chartContainer.innerHTML = '';
+            updateNumberOnCard(
+                'number-total_visited_countries',
+                formatRuNumber(data.total_visited_countries?.count)
+            );
+            updateNumberOnCard(
+                'number-user_with_visited_countries',
+                formatRuNumber(data.users_with_visited_countries?.count)
+            );
 
-            const chart = new ApexCharts(chartContainer, {
-                series: [
-                    {
-                        name: tooltipMetricLabel,
-                        data: chartValues,
-                    },
-                ],
-                chart: {
-                    type: 'area',
-                    height: '100%',
-                    toolbar: {
-                        show: false,
-                    },
-                    sparkline: {
-                        enabled: true,
-                    },
-                },
-                stroke: {
-                    curve: 'straight',
-                    width: 2,
-                    colors: [color],
-                },
-                colors: [color],
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shade: 'dark',
-                        gradientToColors: [color],
-                        shadeIntensity: 1,
-                        opacityFrom: 0.6,
-                        opacityTo: 0,
-                        stops: [0, 100],
-                    },
-                },
-                states: {
-                    normal: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                    hover: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                    active: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                },
-                xaxis: {
-                    categories: chartLabels,
-                },
-                tooltip: {
-                    custom({series, seriesIndex, dataPointIndex}) {
-                        const rawLabel = chartLabels[dataPointIndex] || '';
-                        const formattedDate = formatPeriodValue(rawLabel);
-                        const value = series[seriesIndex][dataPointIndex];
-                        return `
-                            <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
-                                ${formattedDate}: <span class="font-semibold">${value}</span>
-                            </div>
-                        `;
-                    },
-                },
-            });
-            chart.render();
+            applyPeriodComparison('added-countries-30', data.added_last_30d?.comparison);
+            applyPeriodComparison('added-countries-6m', data.added_last_6m?.comparison);
+            applyPeriodComparison('added-countries-1y', data.added_last_1y?.comparison);
+
+            renderDashboardTrendChartFromData(
+                'added-countries-30-trend-chart',
+                data.added_last_30d?.chart,
+                'day',
+                'За день',
+                '#2563eb'
+            );
+            renderDashboardTrendChartFromData(
+                'added-countries-6m-trend-chart',
+                data.added_last_6m?.chart,
+                'week',
+                'За неделю',
+                '#8b5cf6'
+            );
+            renderDashboardTrendChartFromData(
+                'added-countries-1y-trend-chart',
+                data.added_last_1y?.chart,
+                'month',
+                'За месяц',
+                '#f59e0b'
+            );
         })
         .catch((error) => {
-            console.error('Failed to fetch added visited countries trend chart', error);
+            console.error('Failed to fetch visited countries overview', error);
+            showCardFallback('number-total_visited_countries');
+            showCardFallback('number-user_with_visited_countries');
+            showCardFallback('added-countries-30-current');
+            showCardFallback('added-countries-30-previous');
+            showCardFallback('added-countries-30-delta');
+            showCardFallback('added-countries-6m-current');
+            showCardFallback('added-countries-6m-previous');
+            showCardFallback('added-countries-6m-delta');
+            showCardFallback('added-countries-1y-current');
+            showCardFallback('added-countries-1y-previous');
+            showCardFallback('added-countries-1y-delta');
         });
 }
 
@@ -2089,9 +2002,7 @@ if (document.readyState === 'loading') {
         loadAddedVisitedCitiesComparisonCards(30, 'added-cities-30');
         loadAddedVisitedCitiesComparisonCards(183, 'added-cities-6m');
         loadAddedVisitedCitiesComparisonCards(365, 'added-cities-1y');
-        loadAddedVisitedCountriesComparisonCards(30, 'added-countries-30');
-        loadAddedVisitedCountriesComparisonCards(183, 'added-countries-6m');
-        loadAddedVisitedCountriesComparisonCards(365, 'added-countries-1y');
+        initVisitedCountriesOverview();
         // Сравнения мест/коллекций теперь приходят агрегировано (overview).
         loadRegistrationsTrendCardChart(
             'registrations-30-trend-chart',
@@ -2135,27 +2046,7 @@ if (document.readyState === 'loading') {
             'За месяц',
             '#f97316'
         );
-        loadAddedVisitedCountriesTrendCardChart(
-            'added-countries-30-trend-chart',
-            30,
-            'day',
-            'За день',
-            '#2563eb'
-        );
-        loadAddedVisitedCountriesTrendCardChart(
-            'added-countries-6m-trend-chart',
-            183,
-            'week',
-            'За неделю',
-            '#8b5cf6'
-        );
-        loadAddedVisitedCountriesTrendCardChart(
-            'added-countries-1y-trend-chart',
-            365,
-            'month',
-            'За месяц',
-            '#f59e0b'
-        );
+        // Графики стран теперь приходят агрегировано (overview).
         initPlacesOverview();
         initPersonalCollectionsOverview();
         initBlogArticlesOverview();
@@ -2169,9 +2060,7 @@ if (document.readyState === 'loading') {
     loadAddedVisitedCitiesComparisonCards(30, 'added-cities-30');
     loadAddedVisitedCitiesComparisonCards(183, 'added-cities-6m');
     loadAddedVisitedCitiesComparisonCards(365, 'added-cities-1y');
-    loadAddedVisitedCountriesComparisonCards(30, 'added-countries-30');
-    loadAddedVisitedCountriesComparisonCards(183, 'added-countries-6m');
-    loadAddedVisitedCountriesComparisonCards(365, 'added-countries-1y');
+    initVisitedCountriesOverview();
     // Сравнения/графики мест и коллекций теперь приходят агрегировано.
     loadRegistrationsTrendCardChart(
         'registrations-6m-trend-chart',
@@ -2208,27 +2097,7 @@ if (document.readyState === 'loading') {
         'За месяц',
         '#f97316'
     );
-    loadAddedVisitedCountriesTrendCardChart(
-        'added-countries-30-trend-chart',
-        30,
-        'day',
-        'За день',
-        '#2563eb'
-    );
-    loadAddedVisitedCountriesTrendCardChart(
-        'added-countries-6m-trend-chart',
-        183,
-        'week',
-        'За неделю',
-        '#8b5cf6'
-    );
-    loadAddedVisitedCountriesTrendCardChart(
-        'added-countries-1y-trend-chart',
-        365,
-        'month',
-        'За месяц',
-        '#f59e0b'
-    );
+    // Графики стран теперь приходят агрегировано (overview).
     initPlacesOverview();
     initPersonalCollectionsOverview();
     initBlogArticlesOverview();

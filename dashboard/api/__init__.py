@@ -34,14 +34,7 @@ from .visited_cities import (  # noqa: F401
     GetUniqueVisitedCitiesByUserChartController,
 )
 from .visited_countries import (  # noqa: F401
-    GetAddedVisitedCountryController,
-    GetAddedVisitedCountriesByRangeController,
-    GetAddedVisitedCountriesComparisonController,
-    GetAddedVisitedCountriesChartController,
-    GetAverageQtyVisitedCountriesController,
-    GetMaxQtyVisitedCountriesController,
-    GetTotalVisitedCountriesController,
-    GetUsersWithVisitedCountriesController,
+    GetVisitedCountriesOverviewController,
 )
 
 __all__ = [
@@ -68,12 +61,5 @@ __all__ = [
     'GetVisitedCitiesByUserChartController',
     'GetUniqueVisitedCitiesByUserChartController',
     # Visited countries
-    'GetTotalVisitedCountriesController',
-    'GetUsersWithVisitedCountriesController',
-    'GetAverageQtyVisitedCountriesController',
-    'GetMaxQtyVisitedCountriesController',
-    'GetAddedVisitedCountryController',
-    'GetAddedVisitedCountriesByRangeController',
-    'GetAddedVisitedCountriesComparisonController',
-    'GetAddedVisitedCountriesChartController',
+    'GetVisitedCountriesOverviewController',
 ]

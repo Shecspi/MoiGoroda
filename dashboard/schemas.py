@@ -59,6 +59,14 @@ class PersonalCollectionsOverviewResponse(msgspec.Struct):
     last_1y: TrendCardOverview
 
 
+class VisitedCountriesOverviewResponse(msgspec.Struct):
+    total_visited_countries: Quantity
+    users_with_visited_countries: Quantity
+    added_last_30d: TrendCardOverview
+    added_last_6m: TrendCardOverview
+    added_last_1y: TrendCardOverview
+
+
 class BlogArticlesPageQuery(msgspec.Struct):
     page: int = 1
     per_page: int = 10

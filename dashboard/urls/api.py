@@ -13,8 +13,6 @@ from dashboard.api import (
     GetBlogArticlesOverviewController,
     GetPersonalCollectionsOverviewController,
     GetPlacesOverviewController,
-    GetAddedVisitedCountriesByRangeController,
-    GetAddedVisitedCountriesComparisonController,
     GetAddedVisitedCitiesByRangeController,
     GetAddedVisitedCitiesComparisonController,
     GetNumberOfUsersController,
@@ -28,12 +26,7 @@ from dashboard.api import (
     GetNumberOfUsersWithoutVisitedCitiesController,
     GetAverageQtyVisitedCitiesController,
     GetAverageQtyUniqueVisitedCitiesController,
-    GetTotalVisitedCountriesController,
-    GetUsersWithVisitedCountriesController,
-    GetAverageQtyVisitedCountriesController,
-    GetAddedVisitedCountryController,
-    GetMaxQtyVisitedCountriesController,
-    GetAddedVisitedCountriesChartController,
+    GetVisitedCountriesOverviewController,
     GetVisitedCitiesByUserChartController,
     GetUniqueVisitedCitiesByUserChartController,
 )
@@ -91,36 +84,8 @@ router = Router(
         ),
         # Страны
         path(
-            'visited_countries/total/',
-            GetTotalVisitedCountriesController.as_view(),
-        ),
-        path(
-            'visited_countries/users/',
-            GetUsersWithVisitedCountriesController.as_view(),
-        ),
-        path(
-            'visited_countries/average/',
-            GetAverageQtyVisitedCountriesController.as_view(),
-        ),
-        path(
-            'visited_countries/max/',
-            GetMaxQtyVisitedCountriesController.as_view(),
-        ),
-        path(
-            'visited_countries/added/<int:days>/',
-            GetAddedVisitedCountryController.as_view(),
-        ),
-        path(
-            'visited_countries/added/chart/',
-            GetAddedVisitedCountriesChartController.as_view(),
-        ),
-        path(
-            'visited_countries/added/range/',
-            GetAddedVisitedCountriesByRangeController.as_view(),
-        ),
-        path(
-            'visited_countries/added/compare/',
-            GetAddedVisitedCountriesComparisonController.as_view(),
+            'visited_countries/overview/',
+            GetVisitedCountriesOverviewController.as_view(),
         ),
         # Места
         path(

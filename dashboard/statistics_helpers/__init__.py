@@ -40,7 +40,13 @@ from .places import (  # noqa: F401
 )
 from .users import _collect_registrations_by_group  # noqa: F401
 from .visited_cities import _collect_added_visited_cities_by_group  # noqa: F401
-from .visited_countries import _collect_added_visited_countries_by_group  # noqa: F401
+from .visited_countries import (  # noqa: F401
+    _collect_added_visited_countries_by_group,
+    collect_added_visited_countries_trend_card_overview,
+    collect_users_with_visited_countries,
+    collect_visited_countries_total,
+    count_added_visited_countries_in_range,
+)
 
 __all__ = [
     # common
@@ -54,6 +60,10 @@ __all__ = [
     # visited cities/countries
     '_collect_added_visited_cities_by_group',
     '_collect_added_visited_countries_by_group',
+    'collect_visited_countries_total',
+    'collect_users_with_visited_countries',
+    'count_added_visited_countries_in_range',
+    'collect_added_visited_countries_trend_card_overview',
     # places
     '_collect_places_by_group',
     'collect_places_total',

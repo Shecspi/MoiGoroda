@@ -12,9 +12,14 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 import sys
+from http import HTTPStatus
 from pathlib import Path
 
 from dotenv import load_dotenv
+from typing_extensions import TypedDict
+
+from dmr import ResponseSpec
+from dmr.settings import Settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -129,7 +134,10 @@ if TESTING:
         not os.getenv('DATABASE_ENGINE')
         or os.getenv('DATABASE_ENGINE') == 'django.db.backends.sqlite3'
     ):
-        DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3', 'NAME': 'mydatabase'}
+        DATABASES['default'] = {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'mydatabase',
+        }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -470,4 +478,20 @@ AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=31536000',  # 1 год
+}
+
+# Настройки Django Modern Rest
+
+
+class Error(TypedDict):
+    detail: str
+
+
+DMR_SETTINGS = {
+    Settings.responses: [
+        ResponseSpec(
+            Error,
+            status_code=HTTPStatus.UNAUTHORIZED,
+        ),
+    ],
 }

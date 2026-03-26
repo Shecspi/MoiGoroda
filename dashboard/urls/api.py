@@ -7,45 +7,50 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from django.urls import path
+from django.urls import include
+from dmr.routing import Router, path
 from dashboard.api import (
-    GetTotalVisitedCountries,
-    GetUsersWithVisitedCountries,
-    GetAverageQtyVisitedCountries,
-    GetAddedVisitedCountryYeterday,
-    GetMaxQtyVisitedCountries,
-    GetAddedVisitedCountriesByDay,
+    GetBlogArticlesOverviewController,
+    GetPersonalCollectionsOverviewController,
+    GetPlacesOverviewController,
+    GetVisitedCitiesOverviewController,
+    GetUsersOverviewController,
+    GetVisitedCountriesOverviewController,
+)
+
+router = Router(
+    'api/dashboard',
+    [
+        path(
+            'users/overview/',
+            GetUsersOverviewController.as_view(),
+        ),
+        path(
+            'visited_cities/overview/',
+            GetVisitedCitiesOverviewController.as_view(),
+        ),
+        # Страны
+        path(
+            'visited_countries/overview/',
+            GetVisitedCountriesOverviewController.as_view(),
+        ),
+        # Места
+        path(
+            'places/overview/',
+            GetPlacesOverviewController.as_view(),
+        ),
+        path(
+            'places/personal_collections/overview/',
+            GetPersonalCollectionsOverviewController.as_view(),
+        ),
+        # Блог
+        path(
+            'blog/articles/overview/',
+            GetBlogArticlesOverviewController.as_view(),
+        ),
+    ],
 )
 
 urlpatterns = [
-    path(
-        'get_total_visited_countries',
-        GetTotalVisitedCountries.as_view(),
-        name='api__get_total_visited_countries',
-    ),
-    path(
-        'get_qty_users_with_visited_countries',
-        GetUsersWithVisitedCountries.as_view(),
-        name='api__get_qty_users_with_visited_countries',
-    ),
-    path(
-        'get_average_qty_visited_countries',
-        GetAverageQtyVisitedCountries.as_view(),
-        name='api__get_average_qty_visited_countries',
-    ),
-    path(
-        'get_max_qty_visited_countries',
-        GetMaxQtyVisitedCountries.as_view(),
-        name='api__max_qty_visited_countries',
-    ),
-    path(
-        'get_qty_of_added_visited_countries_yesterday/<int:days>',
-        GetAddedVisitedCountryYeterday.as_view(),
-        name='api__get_qty_of_added_visited_countries',
-    ),
-    path(
-        'get_added_visited_countries_by_day',
-        GetAddedVisitedCountriesByDay.as_view(),
-        name='api__get_added_visited_countries_by_day',
-    ),
+    path('', include(router.urls)),
 ]

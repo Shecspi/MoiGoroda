@@ -22,16 +22,7 @@ from .users import (  # noqa: F401
     GetNumberOfUsersWithoutVisitedCitiesController,
 )
 from .visited_cities import (  # noqa: F401
-    GetAddedVisitedCitiesByRangeController,
-    GetAddedVisitedCitiesComparisonController,
-    GetTotalVisitedCitiesVisitsController,
-    GetUniqueVisitedCitiesController,
-    GetMaxQtyUniqueVisitedCitiesController,
-    GetMaxQtyVisitedCitiesController,
-    GetAverageQtyVisitedCitiesController,
-    GetAverageQtyUniqueVisitedCitiesController,
-    GetVisitedCitiesByUserChartController,
-    GetUniqueVisitedCitiesByUserChartController,
+    GetVisitedCitiesOverviewController,
 )
 from .visited_countries import (  # noqa: F401
     GetVisitedCountriesOverviewController,
@@ -50,16 +41,7 @@ __all__ = [
     'GetPlacesOverviewController',
     'GetPersonalCollectionsOverviewController',
     # Visited cities
-    'GetAddedVisitedCitiesByRangeController',
-    'GetAddedVisitedCitiesComparisonController',
-    'GetTotalVisitedCitiesVisitsController',
-    'GetUniqueVisitedCitiesController',
-    'GetMaxQtyUniqueVisitedCitiesController',
-    'GetMaxQtyVisitedCitiesController',
-    'GetAverageQtyVisitedCitiesController',
-    'GetAverageQtyUniqueVisitedCitiesController',
-    'GetVisitedCitiesByUserChartController',
-    'GetUniqueVisitedCitiesByUserChartController',
+    'GetVisitedCitiesOverviewController',
     # Visited countries
     'GetVisitedCountriesOverviewController',
 ]

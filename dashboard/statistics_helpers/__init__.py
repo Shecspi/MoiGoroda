@@ -39,7 +39,15 @@ from .places import (  # noqa: F401
     count_places_created_in_range,
 )
 from .users import _collect_registrations_by_group  # noqa: F401
-from .visited_cities import _collect_added_visited_cities_by_group  # noqa: F401
+from .visited_cities import (  # noqa: F401
+    _collect_added_visited_cities_by_group,
+    collect_added_visited_cities_trend_card_overview,
+    collect_total_visited_cities_visits,
+    collect_unique_visited_cities_by_user_chart,
+    collect_unique_visited_cities,
+    collect_visited_cities_by_user_chart,
+    count_added_visited_cities_in_range,
+)
 from .visited_countries import (  # noqa: F401
     _collect_added_visited_countries_by_group,
     collect_added_visited_countries_trend_card_overview,
@@ -59,6 +67,12 @@ __all__ = [
     '_collect_registrations_by_group',
     # visited cities/countries
     '_collect_added_visited_cities_by_group',
+    'collect_total_visited_cities_visits',
+    'collect_unique_visited_cities',
+    'count_added_visited_cities_in_range',
+    'collect_added_visited_cities_trend_card_overview',
+    'collect_visited_cities_by_user_chart',
+    'collect_unique_visited_cities_by_user_chart',
     '_collect_added_visited_countries_by_group',
     'collect_visited_countries_total',
     'collect_users_with_visited_countries',

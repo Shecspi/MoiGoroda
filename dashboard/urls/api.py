@@ -13,22 +13,13 @@ from dashboard.api import (
     GetBlogArticlesOverviewController,
     GetPersonalCollectionsOverviewController,
     GetPlacesOverviewController,
-    GetAddedVisitedCitiesByRangeController,
-    GetAddedVisitedCitiesComparisonController,
+    GetVisitedCitiesOverviewController,
     GetNumberOfUsersController,
     GetRegistrationsByRangeController,
     GetRegistrationsComparisonController,
     GetRegistrationsCumulativeChartController,
-    GetTotalVisitedCitiesVisitsController,
-    GetUniqueVisitedCitiesController,
-    GetMaxQtyUniqueVisitedCitiesController,
-    GetMaxQtyVisitedCitiesController,
     GetNumberOfUsersWithoutVisitedCitiesController,
-    GetAverageQtyVisitedCitiesController,
-    GetAverageQtyUniqueVisitedCitiesController,
     GetVisitedCountriesOverviewController,
-    GetVisitedCitiesByUserChartController,
-    GetUniqueVisitedCitiesByUserChartController,
 )
 
 router = Router(
@@ -51,36 +42,8 @@ router = Router(
             GetNumberOfUsersWithoutVisitedCitiesController.as_view(),
         ),
         path(
-            'visited_cities/total/',
-            GetTotalVisitedCitiesVisitsController.as_view(),
-        ),
-        path(
-            'visited_cities/unique/',
-            GetUniqueVisitedCitiesController.as_view(),
-        ),
-        path(
-            'visited_cities/max_unique/',
-            GetMaxQtyUniqueVisitedCitiesController.as_view(),
-        ),
-        path(
-            'visited_cities/max/',
-            GetMaxQtyVisitedCitiesController.as_view(),
-        ),
-        path(
-            'visited_cities/average/',
-            GetAverageQtyVisitedCitiesController.as_view(),
-        ),
-        path(
-            'visited_cities/average_unique/',
-            GetAverageQtyUniqueVisitedCitiesController.as_view(),
-        ),
-        path(
-            'visited_cities/added/range/',
-            GetAddedVisitedCitiesByRangeController.as_view(),
-        ),
-        path(
-            'visited_cities/added/compare/',
-            GetAddedVisitedCitiesComparisonController.as_view(),
+            'visited_cities/overview/',
+            GetVisitedCitiesOverviewController.as_view(),
         ),
         # Страны
         path(
@@ -105,14 +68,6 @@ router = Router(
         path(
             'users/registrations/chart/cumulative/',
             GetRegistrationsCumulativeChartController.as_view(),
-        ),
-        path(
-            'visited_cities/by_user/chart/',
-            GetVisitedCitiesByUserChartController.as_view(),
-        ),
-        path(
-            'visited_cities/unique_by_user/chart/',
-            GetUniqueVisitedCitiesByUserChartController.as_view(),
         ),
     ],
 )

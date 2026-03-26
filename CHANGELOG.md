@@ -38,8 +38,20 @@
 
 - *(django)* Обновлена версия Django до 5.2 ([336916b](https://github.com/Shecspi/MoiGoroda/commit/336916bfc3069d60a611a4f63b431efe9470bdd1))
 
+- *(dashboard)* Перевод дашборда с DRF на django-modern-rest ([b81a45c](https://github.com/Shecspi/MoiGoroda/commit/b81a45c69f631644067813db73ff5a79ce4f1510))
+
 
 #### 🐛 Исправление ошибок
+
+- Исправлено редактирование сохранённого места ([377687e](https://github.com/Shecspi/MoiGoroda/commit/377687edd57939c9062c40abbc64bc449b9ec547))
+
+- *(sidebar)* Удалён вывод отладочной информации в консоль при работет сайдбара ([8ed0145](https://github.com/Shecspi/MoiGoroda/commit/8ed01451b2ddb49a3f94c6cd6b31ae5177e9516f))
+
+- Исправлена ошибка в Github Actions workflow, из-за которой доставка на сервер не осуществлялась ([3a6398b](https://github.com/Shecspi/MoiGoroda/commit/3a6398b83148f34c902b5e794fe3536581a90d82))
+
+- *(place-collection)* Исправлена ошибка, из-за которой при перетаскивании маркера места по карте не подгружались новые координаты и не заполнялся popup. ([7003e09](https://github.com/Shecspi/MoiGoroda/commit/7003e09a024b4afe0280ea6f260efe7ec98bef68))
+
+- *(place-collection)* Исправлено вылезание выпадающего списка за пределы экрана на маленьких устройствах ([9368c02](https://github.com/Shecspi/MoiGoroda/commit/9368c024ddf5742c32d05249d9dd735724436d3c))
 
 - Исправлено редактирование сохранённого места ([2d9aef2](https://github.com/Shecspi/MoiGoroda/commit/2d9aef26c18c37cce1841097d8e624f5dc9aa825))
 
@@ -89,6 +101,10 @@
 
 #### Изменено
 
+- Цветовые настройки карты районов — панель на карте (кнопка-шестерёнка), сброс цветов, выравнивание и размер текста ([f4967e1](https://github.com/Shecspi/MoiGoroda/commit/f4967e1625bb637335554bb04b070eae46958426))
+
+- Кнопка «Сбросить» в настройках цветов карты районов — стили Preline, уменьшенные отступы, явный hover/focus ([52d0505](https://github.com/Shecspi/MoiGoroda/commit/52d0505e0a7c0d1a738dd5ba39480ee1b064548b))
+
 - Цветовые настройки карты районов — панель на карте (кнопка-шестерёнка), сброс цветов, выравнивание и размер текста ([ba21e12](https://github.com/Shecspi/MoiGoroda/commit/ba21e12f788077a0d8de5278b4e77bdc65f0cbcd))
 
 - Кнопка «Сбросить» в настройках цветов карты районов — стили Preline, уменьшенные отступы, явный hover/focus ([16986b1](https://github.com/Shecspi/MoiGoroda/commit/16986b13fda468aeb5981c3f66aaec196dd3da86))
@@ -96,10 +112,16 @@
 
 #### Коллекции
 
+- Редактирование названия, блок контекста, переключатель красный/зелёный ([11f7d07](https://github.com/Shecspi/MoiGoroda/commit/11f7d077696000ccfa1fc8ccce2f50d456aafcb0))
+
 - Редактирование названия, блок контекста, переключатель красный/зелёный ([880db07](https://github.com/Shecspi/MoiGoroda/commit/880db07ebdc594341e3151b7c4dc8e65805351ef))
 
 
 #### Сделано
+
+- Цветовые пикеры для заливки полигонов посещённых и непосещённых районов с throttle перерисовки ([67868d5](https://github.com/Shecspi/MoiGoroda/commit/67868d58ca234d3bac190f9b9d8d73baf42e9bb2))
+
+- Сохранение цветов карты районов в БД (модель DistrictMapColorSettings, API, загрузка/сохранение на фронте) ([b93baf3](https://github.com/Shecspi/MoiGoroda/commit/b93baf3886f87d5f76eabfe0e44ba9c916fb47e9))
 
 - Цветовые пикеры для заливки полигонов посещённых и непосещённых районов с throttle перерисовки ([dafaacf](https://github.com/Shecspi/MoiGoroda/commit/dafaacfb594f89ed6c076963b7fd5277127d42f2))
 

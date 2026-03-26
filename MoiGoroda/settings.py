@@ -423,22 +423,6 @@ ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS = (
     else ''
 )
 
-# Настройки Django Modern Rest
-
-
-class Error(TypedDict):
-    detail: str
-
-
-DMR_SETTINGS = {
-    Settings.responses: [
-        ResponseSpec(
-            Error,
-            status_code=HTTPStatus.UNAUTHORIZED,
-        ),
-    ],
-}
-
 # TinyMCE
 
 TINYMCE_FILEBROWSER = False
@@ -495,7 +479,6 @@ AWS_QUERYSTRING_AUTH = False
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=31536000',  # 1 год
 }
-<<<<<<< HEAD
 
 # Настройки Django Modern Rest
 
@@ -512,5 +495,3 @@ DMR_SETTINGS = {
         ),
     ],
 }
-=======
->>>>>>> origin/master

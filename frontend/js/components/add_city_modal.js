@@ -15,7 +15,13 @@ import {
 } from "./services.js";
 import {showDangerToast, showSuccessToast} from "./toast.js";
 import {getCookie} from "./get_cookie.js";
-import {clearVisitDateInput, initVisitDatePickers, isoFromParts, setVisitDateInputValue} from "./visit_date_picker.js";
+import {
+    clearVisitDateInput,
+    initVisitDatePickers,
+    isoFromParts,
+    setVisitDateInputValue,
+    valueFromInputToIso
+} from "./visit_date_picker.js";
 
 function bindDateInputEmptyAppearance(input) {
     if (!input) {
@@ -73,6 +79,15 @@ export function initAddCityForm(actions, onSuccess) {
 
         const formData = new FormData(form);
         formData.set('has_magnet', formData.has('has_magnet') ? '1' : '0');
+        const rawVisitDate = formData.get('date_of_visit');
+        if (typeof rawVisitDate === 'string' && rawVisitDate.trim()) {
+            const normalizedVisitDate = valueFromInputToIso(rawVisitDate);
+            if (!normalizedVisitDate) {
+                showDangerToast('Ошибка', 'Укажите корректную дату посещения в формате дд.мм.гггг');
+                return;
+            }
+            formData.set('date_of_visit', normalizedVisitDate);
+        }
 
         const button = document.getElementById('btn_add-visited-city');
         if (!button) {

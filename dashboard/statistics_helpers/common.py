@@ -5,10 +5,13 @@
 from __future__ import annotations
 
 from datetime import date, datetime, time, timedelta, timezone
+from typing import Any
 
+from django.db.models import Count, QuerySet
+from django.db.models.functions.datetime import TruncDate
 from django.db.models.functions.datetime import TruncDay, TruncMonth, TruncWeek
 
-from dashboard.schemas import PeriodComparisonStatistics
+from dashboard.schemas import DailyStatistics, PeriodComparisonStatistics
 
 
 def _get_group_trunc_function(group_by: str) -> type[TruncDay] | type[TruncWeek] | type[TruncMonth]:
@@ -42,6 +45,14 @@ def _next_group_date(group_date: date, group_by: str) -> date:
     return date(group_date.year, group_date.month + 1, 1)
 
 
+def _normalize_group_start(group_date: date, group_by: str) -> date:
+    if group_by == 'day':
+        return group_date
+    if group_by == 'week':
+        return group_date - timedelta(days=group_date.weekday())
+    return date(group_date.year, group_date.month, 1)
+
+
 def build_blog_overview_period(now_date: date, days: int) -> tuple[date, date, date, date]:
     """
     Возвращает границы для:
@@ -64,6 +75,40 @@ def build_datetime_range(date_from: date, date_to: date) -> tuple[datetime, date
     return start, end
 
 
+def build_grouped_daily_statistics(
+    *,
+    base_queryset: QuerySet[Any],
+    datetime_field: str,
+    date_from: date,
+    date_to: date,
+    group_by: str,
+    count_field: str = 'id',
+) -> list[DailyStatistics]:
+    trunc_fn = _get_group_trunc_function(group_by)
+    dt_from, dt_to = build_datetime_range(date_from, date_to)
+    queryset = (
+        base_queryset.filter(**{f'{datetime_field}__gte': dt_from, f'{datetime_field}__lt': dt_to})
+        .annotate(group_date=TruncDate(trunc_fn(datetime_field, tzinfo=timezone.utc)))
+        .values('group_date')
+        .annotate(count=Count(count_field))
+        .order_by('group_date')
+    )
+    grouped_data = {item['group_date']: item['count'] for item in queryset}
+
+    result: list[DailyStatistics] = []
+    current_date = _normalize_group_start(date_from, group_by)
+    while current_date <= date_to:
+        result.append(
+            DailyStatistics(
+                label=_format_group_label(current_date, group_by),
+                count=grouped_data.get(current_date, 0),
+            )
+        )
+        current_date = _next_group_date(current_date, group_by)
+
+    return result
+
+
 def build_period_comparison_stats(current_count: int, previous_count: int) -> PeriodComparisonStatistics:
     delta = current_count - previous_count
     delta_percent = 0.0 if previous_count == 0 else round((delta / previous_count) * 100, 2)
@@ -81,6 +126,7 @@ __all__ = [
     '_next_group_date',
     'build_blog_overview_period',
     'build_datetime_range',
+    'build_grouped_daily_statistics',
     'build_period_comparison_stats',
     'timezone',
 ]

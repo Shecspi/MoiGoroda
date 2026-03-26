@@ -7,18 +7,14 @@ from __future__ import annotations
 from datetime import date
 
 from django.db.models import Count, Sum
-from django.db.models.functions.datetime import TruncDate
 
 from city.models import VisitedCity
 from dashboard.schemas import DailyStatistics, Quantity, TrendCardOverview, UserStatistics
 from dashboard.statistics_helpers.common import (
-    _format_group_label,
-    _get_group_trunc_function,
-    _next_group_date,
     build_blog_overview_period,
     build_datetime_range,
+    build_grouped_daily_statistics,
     build_period_comparison_stats,
-    timezone,
 )
 
 
@@ -27,33 +23,13 @@ def _collect_added_visited_cities_by_group(
     date_to: date,
     group_by: str,
 ) -> list[DailyStatistics]:
-    trunc_fn = _get_group_trunc_function(group_by)
-    dt_from, dt_to = build_datetime_range(date_from, date_to)
-    queryset = (
-        VisitedCity.objects.filter(
-            created_at__gte=dt_from,
-            created_at__lt=dt_to,
-        )
-        .annotate(group_date=TruncDate(trunc_fn('created_at', tzinfo=timezone.utc)))
-        .values('group_date')
-        .annotate(count=Count('id'))
-        .order_by('group_date')
+    return build_grouped_daily_statistics(
+        base_queryset=VisitedCity.objects.all(),
+        datetime_field='created_at',
+        date_from=date_from,
+        date_to=date_to,
+        group_by=group_by,
     )
-
-    grouped_data = {item['group_date']: item['count'] for item in queryset}
-
-    result: list[DailyStatistics] = []
-    current_date = date_from
-    while current_date <= date_to:
-        result.append(
-            DailyStatistics(
-                label=_format_group_label(current_date, group_by),
-                count=grouped_data.get(current_date, 0),
-            )
-        )
-        current_date = _next_group_date(current_date, group_by)
-
-    return result
 
 
 def collect_total_visited_cities_visits() -> Quantity:

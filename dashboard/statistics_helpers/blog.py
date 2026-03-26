@@ -7,19 +7,15 @@ from __future__ import annotations
 from datetime import date
 
 from django.db.models import Count, Q
-from django.db.models.functions.datetime import TruncDate
 from django.urls import reverse
 
 from blog.models import BlogArticle, BlogArticleView
 from dashboard.schemas import BlogArticleTableRow, BlogArticlesCardOverview, DailyStatistics
 from dashboard.statistics_helpers.common import (
-    _format_group_label,
-    _get_group_trunc_function,
-    _next_group_date,
     build_blog_overview_period,
     build_datetime_range,
+    build_grouped_daily_statistics,
     build_period_comparison_stats,
-    timezone,
 )
 
 
@@ -28,34 +24,14 @@ def _collect_blog_article_views_by_group(
     date_to: date,
     group_by: str,
 ) -> list[DailyStatistics]:
-    trunc_fn = _get_group_trunc_function(group_by)
     exclude_views_q = Q(user__isnull=True) | Q(user__is_superuser=False)
-    dt_from, dt_to = build_datetime_range(date_from, date_to)
-
-    queryset = (
-        BlogArticleView.objects.filter(viewed_at__gte=dt_from, viewed_at__lt=dt_to)
-        .filter(exclude_views_q)
-        .annotate(group_date=TruncDate(trunc_fn('viewed_at', tzinfo=timezone.utc)))
-        .values('group_date')
-        .annotate(count=Count('id'))
-        .order_by('group_date')
+    return build_grouped_daily_statistics(
+        base_queryset=BlogArticleView.objects.filter(exclude_views_q),
+        datetime_field='viewed_at',
+        date_from=date_from,
+        date_to=date_to,
+        group_by=group_by,
     )
-
-    grouped_data = {item['group_date']: item['count'] for item in queryset}
-
-    # В графике хотим всегда видеть весь диапазон (включая нули).
-    result: list[DailyStatistics] = []
-    current_date = date_from
-    while current_date <= date_to:
-        result.append(
-            DailyStatistics(
-                label=_format_group_label(current_date, group_by),
-                count=grouped_data.get(current_date, 0),
-            )
-        )
-        current_date = _next_group_date(current_date, group_by)
-
-    return result
 
 
 def _collect_blog_articles_added_by_group(
@@ -63,31 +39,13 @@ def _collect_blog_articles_added_by_group(
     date_to: date,
     group_by: str,
 ) -> list[DailyStatistics]:
-    trunc_fn = _get_group_trunc_function(group_by)
-    dt_from, dt_to = build_datetime_range(date_from, date_to)
-
-    queryset = (
-        BlogArticle.objects.filter(created_at__gte=dt_from, created_at__lt=dt_to)
-        .annotate(group_date=TruncDate(trunc_fn('created_at', tzinfo=timezone.utc)))
-        .values('group_date')
-        .annotate(count=Count('id'))
-        .order_by('group_date')
+    return build_grouped_daily_statistics(
+        base_queryset=BlogArticle.objects.all(),
+        datetime_field='created_at',
+        date_from=date_from,
+        date_to=date_to,
+        group_by=group_by,
     )
-
-    grouped_data = {item['group_date']: item['count'] for item in queryset}
-
-    result: list[DailyStatistics] = []
-    current_date = date_from
-    while current_date <= date_to:
-        result.append(
-            DailyStatistics(
-                label=_format_group_label(current_date, group_by),
-                count=grouped_data.get(current_date, 0),
-            )
-        )
-        current_date = _next_group_date(current_date, group_by)
-
-    return result
 
 
 def collect_blog_last_added_articles_items(limit: int = 10) -> list[BlogArticleTableRow]:

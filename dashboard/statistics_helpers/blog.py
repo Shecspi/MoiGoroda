@@ -17,6 +17,7 @@ from dashboard.statistics_helpers.common import (
     _get_group_trunc_function,
     _next_group_date,
     build_blog_overview_period,
+    build_datetime_range,
     build_period_comparison_stats,
     timezone,
 )
@@ -29,9 +30,10 @@ def _collect_blog_article_views_by_group(
 ) -> list[DailyStatistics]:
     trunc_fn = _get_group_trunc_function(group_by)
     exclude_views_q = Q(user__isnull=True) | Q(user__is_superuser=False)
+    dt_from, dt_to = build_datetime_range(date_from, date_to)
 
     queryset = (
-        BlogArticleView.objects.filter(viewed_at__date__range=[date_from, date_to])
+        BlogArticleView.objects.filter(viewed_at__gte=dt_from, viewed_at__lt=dt_to)
         .filter(exclude_views_q)
         .annotate(group_date=TruncDate(trunc_fn('viewed_at', tzinfo=timezone.utc)))
         .values('group_date')
@@ -62,9 +64,10 @@ def _collect_blog_articles_added_by_group(
     group_by: str,
 ) -> list[DailyStatistics]:
     trunc_fn = _get_group_trunc_function(group_by)
+    dt_from, dt_to = build_datetime_range(date_from, date_to)
 
     queryset = (
-        BlogArticle.objects.filter(created_at__date__range=[date_from, date_to])
+        BlogArticle.objects.filter(created_at__gte=dt_from, created_at__lt=dt_to)
         .annotate(group_date=TruncDate(trunc_fn('created_at', tzinfo=timezone.utc)))
         .values('group_date')
         .annotate(count=Count('id'))
@@ -138,13 +141,15 @@ def collect_blog_top_viewed_articles_items(limit: int = 10) -> list[BlogArticleT
 
 
 def count_blog_articles_added_in_range(date_from: date, date_to: date) -> int:
-    return BlogArticle.objects.filter(created_at__date__range=[date_from, date_to]).count()
+    dt_from, dt_to = build_datetime_range(date_from, date_to)
+    return BlogArticle.objects.filter(created_at__gte=dt_from, created_at__lt=dt_to).count()
 
 
 def count_blog_article_views_in_range(date_from: date, date_to: date) -> int:
     exclude_views_view = Q(user__isnull=True) | Q(user__is_superuser=False)
+    dt_from, dt_to = build_datetime_range(date_from, date_to)
     return (
-        BlogArticleView.objects.filter(viewed_at__date__range=[date_from, date_to])
+        BlogArticleView.objects.filter(viewed_at__gte=dt_from, viewed_at__lt=dt_to)
         .filter(exclude_views_view)
         .count()
     )

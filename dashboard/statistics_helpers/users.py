@@ -18,6 +18,7 @@ from dashboard.statistics_helpers.common import (
     _get_group_trunc_function,
     _next_group_date,
     build_blog_overview_period,
+    build_datetime_range,
     build_period_comparison_stats,
     timezone,
 )
@@ -29,9 +30,11 @@ def _collect_registrations_by_group(
     group_by: str,
 ) -> list[DailyStatistics]:
     trunc_fn = _get_group_trunc_function(group_by)
+    dt_from, dt_to = build_datetime_range(date_from, date_to)
     queryset = (
         User.objects.filter(
-            date_joined__date__range=[date_from, date_to],
+            date_joined__gte=dt_from,
+            date_joined__lt=dt_to,
         )
         .annotate(group_date=TruncDate(trunc_fn('date_joined', tzinfo=timezone.utc)))
         .values('group_date')
@@ -41,15 +44,9 @@ def _collect_registrations_by_group(
 
     grouped_data = {item['group_date']: item['count'] for item in queryset}
 
-    if not grouped_data:
-        return []
-
-    first_date = min(grouped_data.keys())
-    last_date = max(grouped_data.keys())
-
     result: list[DailyStatistics] = []
-    current_date = first_date
-    while current_date <= last_date:
+    current_date = date_from
+    while current_date <= date_to:
         result.append(
             DailyStatistics(
                 label=_format_group_label(current_date, group_by),
@@ -84,7 +81,8 @@ def collect_number_of_users_without_visited_cities() -> Quantity:
 
 
 def count_registrations_in_range(date_from: date, date_to: date) -> int:
-    return User.objects.filter(date_joined__date__range=[date_from, date_to]).count()
+    dt_from, dt_to = build_datetime_range(date_from, date_to)
+    return User.objects.filter(date_joined__gte=dt_from, date_joined__lt=dt_to).count()
 
 
 def collect_registrations_trend_card_overview(

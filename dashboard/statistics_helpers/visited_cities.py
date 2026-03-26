@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from django.contrib.auth.models import User
 from django.db.models import Count, Sum
-from django.db.models import OuterRef, Subquery
 from django.db.models.functions.datetime import TruncDate
 
 from city.models import VisitedCity
@@ -18,6 +16,7 @@ from dashboard.statistics_helpers.common import (
     _get_group_trunc_function,
     _next_group_date,
     build_blog_overview_period,
+    build_datetime_range,
     build_period_comparison_stats,
     timezone,
 )
@@ -29,9 +28,11 @@ def _collect_added_visited_cities_by_group(
     group_by: str,
 ) -> list[DailyStatistics]:
     trunc_fn = _get_group_trunc_function(group_by)
+    dt_from, dt_to = build_datetime_range(date_from, date_to)
     queryset = (
         VisitedCity.objects.filter(
-            created_at__date__range=[date_from, date_to],
+            created_at__gte=dt_from,
+            created_at__lt=dt_to,
         )
         .annotate(group_date=TruncDate(trunc_fn('created_at', tzinfo=timezone.utc)))
         .values('group_date')
@@ -41,15 +42,9 @@ def _collect_added_visited_cities_by_group(
 
     grouped_data = {item['group_date']: item['count'] for item in queryset}
 
-    if not grouped_data:
-        return []
-
-    first_date = min(grouped_data.keys())
-    last_date = max(grouped_data.keys())
-
     result: list[DailyStatistics] = []
-    current_date = first_date
-    while current_date <= last_date:
+    current_date = date_from
+    while current_date <= date_to:
         result.append(
             DailyStatistics(
                 label=_format_group_label(current_date, group_by),
@@ -78,7 +73,8 @@ def collect_unique_visited_cities() -> Quantity:
 
 
 def count_added_visited_cities_in_range(date_from: date, date_to: date) -> int:
-    return VisitedCity.objects.filter(created_at__date__range=[date_from, date_to]).count()
+    dt_from, dt_to = build_datetime_range(date_from, date_to)
+    return VisitedCity.objects.filter(created_at__gte=dt_from, created_at__lt=dt_to).count()
 
 
 def collect_added_visited_cities_trend_card_overview(
@@ -101,20 +97,12 @@ def collect_added_visited_cities_trend_card_overview(
 
 def collect_visited_cities_by_user_chart(limit: int = 50) -> list[UserStatistics]:
     queryset = (
-        User.objects.annotate(
-            qty_visited_cities=Subquery(
-                VisitedCity.objects.filter(user=OuterRef('pk'))
-                .values('user')
-                .annotate(qty=Count('pk'))
-                .values('qty')
-            )
-        )
-        .values('username', 'qty_visited_cities')
-        .exclude(qty_visited_cities=None)
-        .order_by('-qty_visited_cities')[:limit]
+        VisitedCity.objects.values('user__username')
+        .annotate(qty_visited_cities=Count('pk'))
+        .order_by('-qty_visited_cities', 'user__username')[:limit]
     )
     result = [
-        UserStatistics(label=item['username'], count=item['qty_visited_cities'])
+        UserStatistics(label=item['user__username'], count=item['qty_visited_cities'])
         for item in queryset
     ]
 
@@ -123,20 +111,12 @@ def collect_visited_cities_by_user_chart(limit: int = 50) -> list[UserStatistics
 
 def collect_unique_visited_cities_by_user_chart(limit: int = 50) -> list[UserStatistics]:
     queryset = (
-        User.objects.annotate(
-            qty_unique_visited_cities=Subquery(
-                VisitedCity.objects.filter(user=OuterRef('pk'))
-                .values('user')
-                .annotate(qty=Count('city', distinct=True))
-                .values('qty')
-            )
-        )
-        .values('username', 'qty_unique_visited_cities')
-        .exclude(qty_unique_visited_cities=None)
-        .order_by('-qty_unique_visited_cities')[:limit]
+        VisitedCity.objects.values('user__username')
+        .annotate(qty_unique_visited_cities=Count('city', distinct=True))
+        .order_by('-qty_unique_visited_cities', 'user__username')[:limit]
     )
     result = [
-        UserStatistics(label=item['username'], count=item['qty_unique_visited_cities'])
+        UserStatistics(label=item['user__username'], count=item['qty_unique_visited_cities'])
         for item in queryset
     ]
 

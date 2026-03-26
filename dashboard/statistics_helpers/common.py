@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from datetime import date, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 
 from django.db.models.functions.datetime import TruncDay, TruncMonth, TruncWeek
 
@@ -55,6 +55,15 @@ def build_blog_overview_period(now_date: date, days: int) -> tuple[date, date, d
     return date_from, date_to, previous_date_from, previous_date_to
 
 
+def build_datetime_range(date_from: date, date_to: date) -> tuple[datetime, datetime]:
+    """
+    Возвращает полуинтервал [start, end) в UTC для диапазона дат [date_from, date_to].
+    """
+    start = datetime.combine(date_from, time.min, tzinfo=timezone.utc)
+    end = datetime.combine(date_to + timedelta(days=1), time.min, tzinfo=timezone.utc)
+    return start, end
+
+
 def build_period_comparison_stats(current_count: int, previous_count: int) -> PeriodComparisonStatistics:
     delta = current_count - previous_count
     delta_percent = 0.0 if previous_count == 0 else round((delta / previous_count) * 100, 2)
@@ -71,6 +80,7 @@ __all__ = [
     '_format_group_label',
     '_next_group_date',
     'build_blog_overview_period',
+    'build_datetime_range',
     'build_period_comparison_stats',
     'timezone',
 ]

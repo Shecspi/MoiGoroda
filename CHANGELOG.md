@@ -40,6 +40,8 @@
 
 - *(dashboard)* Перевод дашборда с DRF на django-modern-rest ([b81a45c](https://github.com/Shecspi/MoiGoroda/commit/b81a45c69f631644067813db73ff5a79ce4f1510))
 
+- *(city)* Исправление ошибки, из-за которой невозможно было добавить город с карты ([71da18f](https://github.com/Shecspi/MoiGoroda/commit/71da18fc07b9b66e42632c4a94afdc120cf5b6b1))
+
 
 #### 🐛 Исправление ошибок
 

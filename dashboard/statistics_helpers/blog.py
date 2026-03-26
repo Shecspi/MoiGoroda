@@ -113,7 +113,9 @@ def count_blog_article_views_in_range(date_from: date, date_to: date) -> int:
     )
 
 
-def collect_blog_last_added_card_overview(now_date: date, days: int = 30) -> BlogArticlesCardOverview:
+def collect_blog_last_added_card_overview(
+    now_date: date, days: int = 30
+) -> BlogArticlesCardOverview:
     """Карточка 'Последние добавленные статьи'."""
     period_from, period_to, prev_from, prev_to = build_blog_overview_period(now_date, days)
 
@@ -122,12 +124,16 @@ def collect_blog_last_added_card_overview(now_date: date, days: int = 30) -> Blo
     previous_count = count_blog_articles_added_in_range(prev_from, prev_to)
 
     comparison = build_period_comparison_stats(current_count, previous_count)
-    chart = _collect_blog_articles_added_by_group(date_from=period_from, date_to=period_to, group_by='day')
+    chart = _collect_blog_articles_added_by_group(
+        date_from=period_from, date_to=period_to, group_by='day'
+    )
 
     return BlogArticlesCardOverview(items=items, comparison=comparison, chart=chart)
 
 
-def collect_blog_top_viewed_card_overview(now_date: date, days: int = 60) -> BlogArticlesCardOverview:
+def collect_blog_top_viewed_card_overview(
+    now_date: date, days: int = 60
+) -> BlogArticlesCardOverview:
     """Карточка 'Самые просматриваемые статьи'."""
     period_from, period_to, prev_from, prev_to = build_blog_overview_period(now_date, days)
 
@@ -136,7 +142,9 @@ def collect_blog_top_viewed_card_overview(now_date: date, days: int = 60) -> Blo
     previous_count = count_blog_article_views_in_range(prev_from, prev_to)
 
     comparison = build_period_comparison_stats(current_count, previous_count)
-    chart = _collect_blog_article_views_by_group(date_from=period_from, date_to=period_to, group_by='day')
+    chart = _collect_blog_article_views_by_group(
+        date_from=period_from, date_to=period_to, group_by='day'
+    )
 
     return BlogArticlesCardOverview(items=items, comparison=comparison, chart=chart)
 
@@ -151,4 +159,3 @@ __all__ = [
     'collect_blog_last_added_card_overview',
     'collect_blog_top_viewed_card_overview',
 ]
-

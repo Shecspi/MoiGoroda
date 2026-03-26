@@ -67,4 +67,3 @@ __all__ = [
     'count_personal_collections_created_in_range',
     'collect_personal_collections_trend_card_overview',
 ]
-

@@ -50,7 +50,9 @@ def test_dashboard_api_returns_200_for_superuser(
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_users_overview_last_6m_weekly_chart_has_non_zero_data(client: Client, django_user_model: Any) -> None:
+def test_users_overview_last_6m_weekly_chart_has_non_zero_data(
+    client: Client, django_user_model: Any
+) -> None:
     superuser = django_user_model.objects.create_superuser(username='admin', password='adminpass')
     django_user_model.objects.create_user(username='week_user_1', password='pass')
     django_user_model.objects.create_user(username='week_user_2', password='pass')

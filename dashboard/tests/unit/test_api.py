@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 import pytest
 from django.urls import resolve
 
@@ -39,6 +41,9 @@ def test_dashboard_api_controllers_importable() -> None:
         ('/api/dashboard/blog/articles/overview/', 'GetBlogArticlesOverviewController'),
     ],
 )
-def test_dashboard_api_paths_resolve_to_current_controllers(path: str, controller_name: str) -> None:
+def test_dashboard_api_paths_resolve_to_current_controllers(
+    path: str, controller_name: str
+) -> None:
     match = resolve(path)
-    assert match.func.view_class.__name__ == controller_name
+    resolved_func = cast(Any, match.func)
+    assert resolved_func.view_class.__name__ == controller_name

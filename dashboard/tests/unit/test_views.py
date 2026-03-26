@@ -9,6 +9,8 @@ Licensed under the Apache License, Version 2.0
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
@@ -20,7 +22,7 @@ from dashboard.views import dashboard
 
 @pytest.mark.django_db
 @pytest.mark.unit
-def test_dashboard_allows_superuser(django_user_model: type) -> None:
+def test_dashboard_allows_superuser(django_user_model: Any) -> None:
     user = django_user_model.objects.create_superuser('admin', 'a@a.com', 'pw')
     rf = RequestFactory()
     request = rf.get('/dashboard/')
@@ -31,7 +33,7 @@ def test_dashboard_allows_superuser(django_user_model: type) -> None:
 
 @pytest.mark.django_db
 @pytest.mark.unit
-def test_dashboard_denies_non_superuser(django_user_model: type) -> None:
+def test_dashboard_denies_non_superuser(django_user_model: Any) -> None:
     user = django_user_model.objects.create_user('user', 'u@u.com', 'pw')
     rf = RequestFactory()
     request = rf.get('/dashboard/')

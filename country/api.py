@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
-from typing import Any
+from typing import Any, cast
 
 from django.db.models import Count, Q, QuerySet
 from rest_framework import generics, status
@@ -74,7 +74,7 @@ class GetVisitedCountry(generics.ListAPIView):  # type: ignore[type-arg]
         return super().get(*args, **kwargs)
 
     def get_queryset(self) -> QuerySet[VisitedCountry, VisitedCountry]:  # type: ignore[override]
-        return VisitedCountry.objects.filter(user=self.request.user)  # type: ignore[misc]
+        return VisitedCountry.objects.filter(user=cast(Any, self.request.user))
 
 
 class AddVisitedCountry(generics.CreateAPIView):  # type: ignore[type-arg]

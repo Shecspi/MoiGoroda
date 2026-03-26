@@ -109,7 +109,9 @@ def build_grouped_daily_statistics(
     return result
 
 
-def build_period_comparison_stats(current_count: int, previous_count: int) -> PeriodComparisonStatistics:
+def build_period_comparison_stats(
+    current_count: int, previous_count: int
+) -> PeriodComparisonStatistics:
     delta = current_count - previous_count
     delta_percent = 0.0 if previous_count == 0 else round((delta / previous_count) * 100, 2)
     return PeriodComparisonStatistics(
@@ -130,4 +132,3 @@ __all__ = [
     'build_period_comparison_stats',
     'timezone',
 ]
-

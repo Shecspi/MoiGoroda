@@ -39,4 +39,3 @@ class GetVisitedCountriesOverviewController(Controller[MsgspecSerializer]):
                 now_date=now_date, days=365, group_by='month'
             ),
         )
-

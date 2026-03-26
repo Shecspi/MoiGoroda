@@ -67,4 +67,3 @@ __all__ = [
     'count_added_visited_countries_in_range',
     'collect_added_visited_countries_trend_card_overview',
 ]
-

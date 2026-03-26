@@ -110,4 +110,3 @@ __all__ = [
     'collect_blog_last_added_card_overview',
     'collect_blog_top_viewed_card_overview',
 ]
-

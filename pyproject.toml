@@ -16,19 +16,14 @@ django-admin-autocomplete-filter = "^0.7.1"
 setuptools = "^80.9.0"
 petrovich = "^2.0.1"
 pymorphy3 = "^2.0.4"
-<<<<<<< HEAD
 msgspec = "^0.20.0"
 django-ckeditor-5 = "^0.2.19"
-=======
->>>>>>> 1adf0a5 (CKEditor заменён на TinyMCE)
 django-storages = "^1.14.6"
 boto3 = "^1.42.44"
 django-markdownify = "^0.9.6"
 django-tinymce = "^5.0.0"
-django-ckeditor-5 = "^0.2.19"
 yookassa = "^3.10.0"
-msgspec = "^0.20.0"
-django-modern-rest = {extras = ["msgspec"], version = "^0.3.0"}
+django-modern-rest = { extras = ["msgspec"], version = "^0.3.0" }
 
 
 [tool.poetry.group.dev.dependencies]
@@ -68,19 +63,14 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 strict_concatenate = true
-exclude = [
-    "^.*/migrations/.*\\.py$",
-    "^manage\\.py$",
-]
+exclude = ["^.*/migrations/.*\\.py$", "^manage\\.py$"]
 
 [tool.django-stubs]
 django_settings_module = "MoiGoroda.settings"
 
 [tool.ruff]
 line-length = 100
-exclude = [
-    "*/migrations/*",
-]
+exclude = ["*/migrations/*"]
 
 [tool.ruff.format]
 quote-style = "single"

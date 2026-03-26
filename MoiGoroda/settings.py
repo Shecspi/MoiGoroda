@@ -423,7 +423,6 @@ ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS = (
     else ''
 )
 
-<<<<<<< HEAD
 # Настройки Django Modern Rest
 
 
@@ -440,10 +439,7 @@ DMR_SETTINGS = {
     ],
 }
 
-# CKeditor
-=======
 # TinyMCE
->>>>>>> 1adf0a5 (CKEditor заменён на TinyMCE)
 
 TINYMCE_FILEBROWSER = False
 

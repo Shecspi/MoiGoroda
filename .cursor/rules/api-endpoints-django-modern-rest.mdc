@@ -1,0 +1,10 @@
+---
+description: Use django-modern-rest for API endpoints
+alwaysApply: true
+---
+
+# API endpoints framework
+
+- Для новых API-эндпоинтов в проекте используй `django-modern-rest`, а не `django rest framework`.
+- Ориентируйся на спецификацию и примеры из `llms-full.txt`.
+- Если в существующем файле уже есть DRF-код, не добавляй новый DRF для новых endpoint-ов: реализуй новую часть через `django-modern-rest`.

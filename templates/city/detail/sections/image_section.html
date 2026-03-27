@@ -3,76 +3,80 @@
 <!-- Изображение города -->
 <div class="text-center" id="section-city_image">
     {% if city_user_photos %}
-        <div class="relative max-w-full city-image-carousel">
-            <div class="swiper city-photo-swiper w-full h-[320px] sm:h-[420px] md:h-[520px] lg:h-[600px] min-h-[300px] rounded-lg bg-gray-100 dark:bg-neutral-800 overflow-hidden">
-                <div class="swiper-wrapper">
-                    {% for photo in city_user_photos %}
-                        <div class="swiper-slide h-full"
-                             data-photo-id="{{ photo.id }}"
-                             data-is-default="{% if photo.is_default %}true{% else %}false{% endif %}">
-                            <a href="{% url 'api__city_user_photo_content' photo_id=photo.id %}" class="city-glightbox inline-flex w-full h-full items-center justify-center">
-                                <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
-                                     alt="Фото города {{ city.title }}"
-                                     class="block max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-lg mx-auto"
-                                     onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
-                            </a>
-                        </div>
-                    {% endfor %}
+        <div class="max-w-full rounded-xl border border-layer-line bg-layer/30 overflow-hidden">
+            <div class="relative city-image-carousel">
+                <div class="swiper city-photo-swiper w-full h-[320px] sm:h-[420px] md:h-[520px] lg:h-[600px] min-h-[300px] bg-gray-100 dark:bg-neutral-800 overflow-hidden">
+                    <div class="swiper-wrapper">
+                        {% for photo in city_user_photos %}
+                            <div class="swiper-slide h-full"
+                                 data-photo-id="{{ photo.id }}"
+                                 data-is-default="{% if photo.is_default %}true{% else %}false{% endif %}">
+                                <a href="{% url 'api__city_user_photo_content' photo_id=photo.id %}" class="city-glightbox inline-flex w-full h-full items-center justify-center">
+                                    <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
+                                         alt="Фото города {{ city.title }}"
+                                         class="block max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-lg mx-auto"
+                                         onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
 
+                {% if city_user_photos|length > 1 %}
+                    <div class="swiper-button-prev city-swiper-prev !w-10 !h-10 !rounded-full !left-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4 -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                            <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                        </svg>
+                    </div>
+                    <div class="swiper-button-next city-swiper-next !w-10 !h-10 !rounded-full !right-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                            <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                        </svg>
+                    </div>
+                    <div class="city-swiper-pagination absolute bottom-2 left-0 right-0 z-10"></div>
+                {% endif %}
+            </div>
             {% if city_user_photos|length > 1 %}
-                <div class="swiper-button-prev city-swiper-prev !w-10 !h-10 !rounded-full !left-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4 -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
-                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
-                    </svg>
+                <div class="border-t border-layer-line px-3 py-2">
+                    <div class="swiper city-photo-thumbs">
+                        <div class="swiper-wrapper justify-center">
+                            {% for photo in city_user_photos %}
+                                <div class="swiper-slide !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer"
+                                     data-photo-id="{{ photo.id }}">
+                                    <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
+                                         alt="Миниатюра фото города {{ city.title }}"
+                                         class="w-full h-full object-cover"
+                                         onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-                <div class="swiper-button-next city-swiper-next !w-10 !h-10 !rounded-full !right-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
-                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
-                    </svg>
+            {% endif %}
+            {% if can_manage_city_photos %}
+                <div id="city-photo-list"
+                     data-photo-id=""
+                     class="border-t border-layer-line flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                    <span id="city-photo-default-label" class="hidden inline-flex items-center gap-x-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.2 7.2a1 1 0 01-1.415 0l-3-3a1 1 0 111.414-1.42l2.293 2.294 6.493-6.494a1 1 0 011.415 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Выбрано по умолчанию
+                    </span>
+                    <button type="button"
+                            id="city-photo-set-default-btn"
+                            class="city-photo-set-default btn btn-outline-primary btn-xs">
+                        Сделать основным
+                    </button>
+                    <span class="inline-flex items-center gap-x-3 ml-auto">
+                        <button type="button"
+                                class="city-photo-delete btn btn-outline-red btn-xs">
+                            Удалить
+                        </button>
+                    </span>
                 </div>
-                <div class="city-swiper-pagination absolute bottom-2 left-0 right-0 z-10"></div>
             {% endif %}
         </div>
-        {% if city_user_photos|length > 1 %}
-            <div class="swiper city-photo-thumbs mt-2">
-                <div class="swiper-wrapper justify-center">
-                    {% for photo in city_user_photos %}
-                        <div class="swiper-slide !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer"
-                             data-photo-id="{{ photo.id }}">
-                            <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
-                                 alt="Миниатюра фото города {{ city.title }}"
-                                 class="w-full h-full object-cover"
-                                 onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-        {% if can_manage_city_photos %}
-            <div id="city-photo-list"
-                 data-photo-id=""
-                 class="mt-1 flex items-center justify-between gap-3 rounded-b-lg border border-t-0 border-layer-line bg-layer px-3 py-2 text-sm">
-                <span id="city-photo-default-label" class="hidden inline-flex items-center gap-x-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.2 7.2a1 1 0 01-1.415 0l-3-3a1 1 0 111.414-1.42l2.293 2.294 6.493-6.494a1 1 0 011.415 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Выбрано по умолчанию
-                </span>
-                <button type="button"
-                        id="city-photo-set-default-btn"
-                        class="city-photo-set-default btn btn-outline-primary btn-xs">
-                    Сделать основным
-                </button>
-                <span class="inline-flex items-center gap-x-3 ml-auto">
-                    <button type="button"
-                            class="city-photo-delete btn btn-outline-red btn-xs">
-                        Удалить
-                    </button>
-                </span>
-            </div>
-        {% endif %}
     {% elif city.image %}
         <a href="{{ city.image }}" class="city-glightbox inline-block">
             <img src="{{ city.image }}"

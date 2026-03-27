@@ -42,8 +42,13 @@ function initCityPhotoManager() {
   const uploadSubmit = document.getElementById('city-photo-upload-submit');
   const uploadSpinner = document.getElementById('city-photo-upload-spinner');
   const uploadText = document.getElementById('city-photo-upload-text');
+  const deleteButton = document.getElementById('city-photo-delete-btn');
+  const deleteSpinner = document.getElementById('city-photo-delete-spinner');
+  const deleteText = document.getElementById('city-photo-delete-text');
   const carouselRoot = document.querySelector('.city-image-carousel');
   const setDefaultButton = document.getElementById('city-photo-set-default-btn');
+  const setDefaultSpinner = document.getElementById('city-photo-set-default-spinner');
+  const setDefaultText = document.getElementById('city-photo-set-default-text');
   const defaultLabel = document.getElementById('city-photo-default-label');
   const swiperElement = carouselRoot?.querySelector('.city-photo-swiper');
   const thumbsElement = carouselRoot?.parentElement?.querySelector('.city-photo-thumbs') || null;
@@ -104,6 +109,40 @@ function initCityPhotoManager() {
     citySwiper.on('slideChange', syncControlsWithActiveSlide);
   }
 
+  const setLoadingState = (isLoading, action = null) => {
+    if (fileInput instanceof HTMLInputElement) {
+      fileInput.disabled = isLoading;
+    }
+    if (uploadSubmit instanceof HTMLButtonElement) {
+      uploadSubmit.disabled = isLoading;
+    }
+    if (setDefaultButton instanceof HTMLButtonElement) {
+      setDefaultButton.disabled = isLoading;
+    }
+    if (deleteButton instanceof HTMLButtonElement) {
+      deleteButton.disabled = isLoading;
+    }
+
+    if (uploadSpinner instanceof HTMLElement) {
+      uploadSpinner.classList.toggle('hidden', !(isLoading && action === 'upload'));
+    }
+    if (uploadText instanceof HTMLElement) {
+      uploadText.textContent = isLoading && action === 'upload' ? 'Загрузка...' : 'Загрузить';
+    }
+    if (setDefaultSpinner instanceof HTMLElement) {
+      setDefaultSpinner.classList.toggle('hidden', !(isLoading && action === 'set-default'));
+    }
+    if (setDefaultText instanceof HTMLElement) {
+      setDefaultText.textContent = isLoading && action === 'set-default' ? 'Сохраняем...' : 'Сделать основным';
+    }
+    if (deleteSpinner instanceof HTMLElement) {
+      deleteSpinner.classList.toggle('hidden', !(isLoading && action === 'delete'));
+    }
+    if (deleteText instanceof HTMLElement) {
+      deleteText.textContent = isLoading && action === 'delete' ? 'Удаляем...' : 'Удалить';
+    }
+  };
+
   uploadForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const formData = new FormData(uploadForm);
@@ -114,18 +153,7 @@ function initCityPhotoManager() {
       return;
     }
 
-    if (fileInput instanceof HTMLInputElement) {
-      fileInput.disabled = true;
-    }
-    if (uploadSubmit instanceof HTMLButtonElement) {
-      uploadSubmit.disabled = true;
-    }
-    if (uploadSpinner instanceof HTMLElement) {
-      uploadSpinner.classList.remove('hidden');
-    }
-    if (uploadText instanceof HTMLElement) {
-      uploadText.textContent = 'Загрузка...';
-    }
+    setLoadingState(true, 'upload');
 
     try {
       const response = await fetch('/api/city/photos/upload/', {
@@ -188,18 +216,7 @@ function initCityPhotoManager() {
       const message = error instanceof Error ? error.message : 'Не удалось загрузить фото';
       showError(message);
     } finally {
-      if (fileInput instanceof HTMLInputElement) {
-        fileInput.disabled = false;
-      }
-      if (uploadSubmit instanceof HTMLButtonElement) {
-        uploadSubmit.disabled = false;
-      }
-      if (uploadSpinner instanceof HTMLElement) {
-        uploadSpinner.classList.add('hidden');
-      }
-      if (uploadText instanceof HTMLElement) {
-        uploadText.textContent = 'Загрузить';
-      }
+      setLoadingState(false);
     }
   });
 
@@ -207,6 +224,8 @@ function initCityPhotoManager() {
   list.addEventListener('click', async (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
+    const deleteTrigger = target.closest('.city-photo-delete');
+    const setDefaultTrigger = target.closest('.city-photo-set-default');
 
     const item = target.closest('[data-photo-id]');
     if (!item) return;
@@ -214,7 +233,9 @@ function initCityPhotoManager() {
     if (!photoId) return;
 
     const csrfToken = getCookie('csrftoken');
-    if (target.classList.contains('city-photo-delete')) {
+    if (deleteTrigger) {
+      event.preventDefault();
+      setLoadingState(true, 'delete');
       try {
         const response = await fetch(`/api/city/photos/${photoId}/`, {
           method: 'DELETE',
@@ -254,10 +275,14 @@ function initCityPhotoManager() {
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Не удалось удалить фото';
         showError(message);
+      } finally {
+        setLoadingState(false);
       }
     }
 
-    if (target.classList.contains('city-photo-set-default')) {
+    if (setDefaultTrigger) {
+      event.preventDefault();
+      setLoadingState(true, 'set-default');
       try {
         const response = await fetch(`/api/city/photos/${photoId}/default/`, {
           method: 'POST',
@@ -283,6 +308,8 @@ function initCityPhotoManager() {
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Не удалось выбрать фото по умолчанию';
         showError(message);
+      } finally {
+        setLoadingState(false);
       }
     }
   });

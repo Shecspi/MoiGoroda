@@ -54,7 +54,7 @@ function initCityPhotoManager() {
   let thumbsSwiper = null;
   if (thumbsElement instanceof HTMLElement) {
     thumbsSwiper = new Swiper(thumbsElement, {
-      modules: [FreeMode],
+      modules: [FreeMode, Manipulation],
       spaceBetween: 8,
       slidesPerView: 'auto',
       freeMode: true,
@@ -155,23 +155,22 @@ function initCityPhotoManager() {
             </a>
           </div>
         `;
-        citySwiper.prependSlide(slideHtml);
+        citySwiper.appendSlide(slideHtml);
 
         if (thumbsSwiper) {
           const thumbHtml = `
-            <div class="swiper-slide !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer">
+            <div class="swiper-slide !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer" data-photo-id="${uploadedId}">
               <img src="${imageHref}"
                    alt="Миниатюра фото города"
                    class="w-full h-full object-cover"
                    onerror="this.onerror=null;this.src='/static/image/city_placeholder.png'">
             </div>
           `;
-          thumbsSwiper.prependSlide(thumbHtml);
+          thumbsSwiper.appendSlide(thumbHtml);
           thumbsSwiper.update();
         }
 
         citySwiper.update();
-        citySwiper.slideTo(0, 0);
         syncControlsWithActiveSlide();
         initCityGallery();
       } else {
@@ -227,7 +226,31 @@ function initCityPhotoManager() {
           const data = await response.json();
           throw new Error(data.detail || 'Не удалось удалить фото');
         }
-        window.location.reload();
+
+        if (citySwiper) {
+          const activeIndex = citySwiper.activeIndex;
+          citySwiper.removeSlide(activeIndex);
+          citySwiper.update();
+
+          if (thumbsSwiper) {
+            const thumbToRemove = thumbsSwiper.el.querySelector(`.swiper-slide[data-photo-id="${photoId}"]`);
+            if (thumbToRemove) {
+              thumbToRemove.remove();
+            }
+            thumbsSwiper.update();
+          }
+
+          if (citySwiper.slides.length === 0) {
+            window.location.reload();
+            return;
+          }
+
+          const nextIndex = Math.min(activeIndex, citySwiper.slides.length - 1);
+          citySwiper.slideTo(nextIndex, 0);
+          syncControlsWithActiveSlide();
+        } else {
+          window.location.reload();
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Не удалось удалить фото';
         showError(message);

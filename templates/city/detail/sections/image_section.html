@@ -39,7 +39,8 @@
             <div class="swiper city-photo-thumbs mt-2">
                 <div class="swiper-wrapper justify-center">
                     {% for photo in city_user_photos %}
-                        <div class="swiper-slide !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer">
+                        <div class="swiper-slide !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer"
+                             data-photo-id="{{ photo.id }}">
                             <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
                                  alt="Миниатюра фото города {{ city.title }}"
                                  class="w-full h-full object-cover"

@@ -269,7 +269,17 @@ function initCityPhotoManager() {
           const data = await response.json();
           throw new Error(data.detail || 'Не удалось выбрать фото по умолчанию');
         }
-        window.location.reload();
+
+        if (citySwiper) {
+          citySwiper.slides.forEach((slide) => {
+            const slidePhotoId = slide.getAttribute('data-photo-id');
+            const isTarget = slidePhotoId === photoId;
+            slide.setAttribute('data-is-default', isTarget ? 'true' : 'false');
+          });
+          syncControlsWithActiveSlide();
+        } else {
+          window.location.reload();
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Не удалось выбрать фото по умолчанию';
         showError(message);

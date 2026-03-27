@@ -301,9 +301,9 @@ class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
         }
         if self.request.user.is_authenticated and has_advanced_premium(self.request.user):
             context['city_user_photos'] = list(
-                CityUserPhoto.objects.filter(user=self.request.user, city_id=self.kwargs['pk']).order_by(
-                    '-is_default', 'position', '-created_at'
-                )
+                CityUserPhoto.objects.filter(
+                    user=self.request.user, city_id=self.kwargs['pk']
+                ).order_by('-is_default', 'position', '-created_at')
             )
 
         return context

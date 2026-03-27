@@ -1,12 +1,25 @@
 import GLightbox from 'glightbox';
 import 'glightbox/dist/css/glightbox.min.css';
+import Swiper from 'swiper';
+import { Navigation, Pagination, Manipulation, Thumbs, FreeMode } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/free-mode';
+import 'swiper/css/thumbs';
 import { getCookie } from '../components/get_cookie';
+
+let lightboxInstance = null;
 
 function initCityGallery() {
   const galleryLinks = document.querySelectorAll('.city-glightbox');
   if (galleryLinks.length === 0) return;
 
-  GLightbox({
+  if (lightboxInstance) {
+    lightboxInstance.destroy();
+  }
+
+  lightboxInstance = GLightbox({
     selector: '.city-glightbox',
     touchNavigation: true,
     loop: true,
@@ -23,43 +36,55 @@ function showError(message) {
 
 function initCityPhotoManager() {
   const uploadForm = document.getElementById('city-photo-upload-form');
+  if (!uploadForm) return;
   const list = document.getElementById('city-photo-list');
-  if (!uploadForm || !list) return;
+  const fileInput = document.getElementById('city-photo-file-input');
+  const uploadSubmit = document.getElementById('city-photo-upload-submit');
+  const uploadSpinner = document.getElementById('city-photo-upload-spinner');
+  const uploadText = document.getElementById('city-photo-upload-text');
   const carouselRoot = document.querySelector('.city-image-carousel');
   const setDefaultButton = document.getElementById('city-photo-set-default-btn');
   const defaultLabel = document.getElementById('city-photo-default-label');
-  const viewport = carouselRoot?.querySelector('.hs-carousel') || null;
-  const body = carouselRoot?.querySelector('.hs-carousel-body') || null;
-  const slides = carouselRoot
-    ? [...carouselRoot.querySelectorAll('.hs-carousel-slide[data-photo-id]')]
-    : [];
+  const swiperElement = carouselRoot?.querySelector('.city-photo-swiper');
+  const thumbsElement = carouselRoot?.parentElement?.querySelector('.city-photo-thumbs') || null;
+  const prevButton = carouselRoot?.querySelector('.city-swiper-prev');
+  const nextButton = carouselRoot?.querySelector('.city-swiper-next');
+  const pagination = carouselRoot?.querySelector('.city-swiper-pagination');
 
-  const getTranslateX = (transformValue) => {
-    if (!transformValue || transformValue === 'none') return 0;
-    if (transformValue.startsWith('matrix3d(')) {
-      const values = transformValue.slice(9, -1).split(',').map((v) => Number(v.trim()));
-      return Number.isFinite(values[12]) ? values[12] : 0;
-    }
-    if (transformValue.startsWith('matrix(')) {
-      const values = transformValue.slice(7, -1).split(',').map((v) => Number(v.trim()));
-      return Number.isFinite(values[4]) ? values[4] : 0;
-    }
-    return 0;
-  };
+  let thumbsSwiper = null;
+  if (thumbsElement instanceof HTMLElement) {
+    thumbsSwiper = new Swiper(thumbsElement, {
+      modules: [FreeMode],
+      spaceBetween: 8,
+      slidesPerView: 'auto',
+      freeMode: true,
+      watchSlidesProgress: true,
+    });
+  }
 
-  const getActiveSlide = () => {
-    if (!viewport || !body || slides.length === 0) return null;
-
-    const computedTransform = window.getComputedStyle(body).transform;
-    const translateX = getTranslateX(computedTransform);
-    const viewportWidth = viewport.getBoundingClientRect().width || 1;
-    const rawIndex = Math.round(Math.abs(translateX) / viewportWidth);
-    const index = Math.max(0, Math.min(slides.length - 1, rawIndex));
-    return slides[index];
-  };
+  let citySwiper = null;
+  if (swiperElement instanceof HTMLElement) {
+    citySwiper = new Swiper(swiperElement, {
+      modules: [Navigation, Pagination, Manipulation, Thumbs],
+      slidesPerView: 1,
+      speed: 300,
+      navigation: {
+        prevEl: prevButton instanceof HTMLElement ? prevButton : null,
+        nextEl: nextButton instanceof HTMLElement ? nextButton : null,
+      },
+      pagination: {
+        el: pagination instanceof HTMLElement ? pagination : null,
+        clickable: true,
+        dynamicBullets: true,
+      },
+      thumbs: thumbsSwiper ? { swiper: thumbsSwiper } : undefined,
+    });
+  }
 
   const syncControlsWithActiveSlide = () => {
-    const activeSlide = getActiveSlide();
+    if (!list) return;
+    if (!citySwiper || citySwiper.slides.length === 0) return;
+    const activeSlide = citySwiper.slides[citySwiper.activeIndex];
     if (!activeSlide) return;
 
     const photoId = activeSlide.getAttribute('data-photo-id') || '';
@@ -75,33 +100,32 @@ function initCityPhotoManager() {
   };
 
   syncControlsWithActiveSlide();
-  if (carouselRoot) {
-    const prevButton = carouselRoot.querySelector('.hs-carousel-prev');
-    const nextButton = carouselRoot.querySelector('.hs-carousel-next');
-    if (prevButton instanceof HTMLElement) {
-      prevButton.addEventListener('click', () => {
-        window.setTimeout(syncControlsWithActiveSlide, 50);
-      });
-    }
-    if (nextButton instanceof HTMLElement) {
-      nextButton.addEventListener('click', () => {
-        window.setTimeout(syncControlsWithActiveSlide, 50);
-      });
-    }
-
-    if (body instanceof HTMLElement) {
-      const observer = new MutationObserver(() => {
-        window.setTimeout(syncControlsWithActiveSlide, 0);
-      });
-      observer.observe(body, { attributes: true, attributeFilter: ['style', 'class'] });
-      body.addEventListener('transitionend', syncControlsWithActiveSlide);
-    }
+  if (citySwiper) {
+    citySwiper.on('slideChange', syncControlsWithActiveSlide);
   }
 
   uploadForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const formData = new FormData(uploadForm);
     const csrfToken = formData.get('csrfmiddlewaretoken') || getCookie('csrftoken');
+    const imageFile = formData.get('image');
+    if (!(imageFile instanceof File) || imageFile.size === 0) {
+      showError('Выберите изображение для загрузки');
+      return;
+    }
+
+    if (fileInput instanceof HTMLInputElement) {
+      fileInput.disabled = true;
+    }
+    if (uploadSubmit instanceof HTMLButtonElement) {
+      uploadSubmit.disabled = true;
+    }
+    if (uploadSpinner instanceof HTMLElement) {
+      uploadSpinner.classList.remove('hidden');
+    }
+    if (uploadText instanceof HTMLElement) {
+      uploadText.textContent = 'Загрузка...';
+    }
 
     try {
       const response = await fetch('/api/city/photos/upload/', {
@@ -115,12 +139,72 @@ function initCityPhotoManager() {
         const data = await response.json();
         throw new Error(data.detail || 'Не удалось загрузить фото');
       }
-      window.location.reload();
+      const data = await response.json();
+      const uploadedPhoto = data?.photo;
+      const uploadedId = uploadedPhoto?.id;
+
+      if (citySwiper && uploadedId) {
+        const imageHref = `/api/city/photos/${uploadedId}/`;
+        const slideHtml = `
+          <div class="swiper-slide h-full" data-photo-id="${uploadedId}" data-is-default="${uploadedPhoto.is_default ? 'true' : 'false'}">
+            <a href="${imageHref}" class="city-glightbox inline-flex w-full h-full items-center justify-center">
+              <img src="${imageHref}"
+                   alt="Фото города"
+                   class="block max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-lg mx-auto"
+                   onerror="this.onerror=null;this.src='/static/image/city_placeholder.png'">
+            </a>
+          </div>
+        `;
+        citySwiper.prependSlide(slideHtml);
+
+        if (thumbsSwiper) {
+          const thumbHtml = `
+            <div class="swiper-slide !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer">
+              <img src="${imageHref}"
+                   alt="Миниатюра фото города"
+                   class="w-full h-full object-cover"
+                   onerror="this.onerror=null;this.src='/static/image/city_placeholder.png'">
+            </div>
+          `;
+          thumbsSwiper.prependSlide(thumbHtml);
+          thumbsSwiper.update();
+        }
+
+        citySwiper.update();
+        citySwiper.slideTo(0, 0);
+        syncControlsWithActiveSlide();
+        initCityGallery();
+      } else {
+        // Если блок карусели отсутствует в текущем DOM, просим перезагрузить вручную.
+        showError('Фото загружено. Обновите страницу для отображения в карусели.');
+      }
+
+      const errorNode = document.getElementById('city-photo-error');
+      if (errorNode) {
+        errorNode.classList.add('hidden');
+        errorNode.textContent = '';
+      }
+      uploadForm.reset();
     } catch (error) {
-      showError(error.message);
+      const message = error instanceof Error ? error.message : 'Не удалось загрузить фото';
+      showError(message);
+    } finally {
+      if (fileInput instanceof HTMLInputElement) {
+        fileInput.disabled = false;
+      }
+      if (uploadSubmit instanceof HTMLButtonElement) {
+        uploadSubmit.disabled = false;
+      }
+      if (uploadSpinner instanceof HTMLElement) {
+        uploadSpinner.classList.add('hidden');
+      }
+      if (uploadText instanceof HTMLElement) {
+        uploadText.textContent = 'Загрузить';
+      }
     }
   });
 
+  if (!list) return;
   list.addEventListener('click', async (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
@@ -145,7 +229,8 @@ function initCityPhotoManager() {
         }
         window.location.reload();
       } catch (error) {
-        showError(error.message);
+        const message = error instanceof Error ? error.message : 'Не удалось удалить фото';
+        showError(message);
       }
     }
 
@@ -163,7 +248,8 @@ function initCityPhotoManager() {
         }
         window.location.reload();
       } catch (error) {
-        showError(error.message);
+        const message = error instanceof Error ? error.message : 'Не удалось выбрать фото по умолчанию';
+        showError(message);
       }
     }
   });

@@ -2,9 +2,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from dmr.openapi.views import SwaggerView
 
 from MoiGoroda.tinymce_views import upload_image
 from django.views.generic import TemplateView
+from city.urls.api import ciry_user_photos_schema
 
 
 urlpatterns = [
@@ -31,6 +33,8 @@ urlpatterns = [
     path('api/place/', include('place.urls.api')),
     path('api/region/', include('region.urls.api')),
     path('api/collection/', include('collection.urls.api')),
+    path('api/docs', SwaggerView.as_view(schema=ciry_user_photos_schema), name='api_docs'),
+    path('api/docs/', SwaggerView.as_view(schema=ciry_user_photos_schema), name='api_docs_slash'),
     # Plugins
     path('tinymce/upload-image/', upload_image, name='tinymce-upload-image'),
     path('tinymce/', include('tinymce.urls')),

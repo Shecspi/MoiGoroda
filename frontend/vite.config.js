@@ -63,6 +63,7 @@ export default defineConfig({
         public_collection_copy: path.resolve(entriesDir, 'public_collection_copy.js'),
         public_collections_statistics: path.resolve(entriesDir, 'public_collections_statistics.js'),
         city_search: path.resolve(entriesDir, 'city_search.js'),
+        city_photos: path.resolve(entriesDir, 'city_photos.js'),
         preline: path.resolve(entriesDir, 'preline.js'),
         premium_promo_modal: path.resolve(entriesDir, 'premium_promo_modal.js'),
         

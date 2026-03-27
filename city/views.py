@@ -35,6 +35,7 @@ from city.forms import VisitedCity_Create_Form
 from city.models import (
     City,
     CityListDefaultSettings,
+    CityUserPhoto,
     VisitedCity,
     CityDistrict,
     VisitedCityDistrict,
@@ -55,6 +56,7 @@ from services.db.visited_city_repo import (
 )
 from services.morphology import to_prepositional
 from subscribe.repository import is_user_has_subscriptions, get_all_subscriptions
+from premium.services.access import has_advanced_premium
 
 
 class VisitedCity_Create(LoginRequiredMixin, CreateView):  # type: ignore[type-arg]
@@ -293,7 +295,16 @@ class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
             'city_blog_articles': BlogArticle.objects.filter(
                 city_id=self.kwargs['pk'], is_published=True
             ).order_by('-created_at'),
+            'can_manage_city_photos': self.request.user.is_authenticated
+            and has_advanced_premium(self.request.user),
+            'city_user_photos': [],
         }
+        if self.request.user.is_authenticated and has_advanced_premium(self.request.user):
+            context['city_user_photos'] = list(
+                CityUserPhoto.objects.filter(user=self.request.user, city_id=self.kwargs['pk']).order_by(
+                    '-is_default', 'position', '-created_at'
+                )
+            )
 
         return context
 

@@ -9,13 +9,23 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import mimetypes
+from http import HTTPStatus
 from typing import Any, cast
+from uuid import UUID
 
+from django.core.files.uploadedfile import UploadedFile
 from django.contrib.auth.models import User
 import rest_framework.exceptions as drf_exc
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
+from django.db.models import Max
 from django.db.models import QuerySet
 from django.db.models.functions import ExtractYear
+from django.http import FileResponse
+from django.http import HttpRequest
+from dmr import Controller, ResponseSpec, modify
+from dmr.plugins.msgspec import MsgspecSerializer
+import msgspec
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
@@ -27,6 +37,7 @@ from city.models import (
     City,
     CityDistrict,
     CityListDefaultSettings,
+    CityUserPhoto,
     DistrictMapColorSettings,
     VisitedCity,
     VisitedCityDistrict,
@@ -35,11 +46,13 @@ from city.serializers import (
     AddVisitedCityDistrictSerializer,
     AddVisitedCitySerializer,
     CityDistrictSerializer,
+    CityUserPhotoSerializer,
     CitySearchParamsSerializer,
     CitySerializer,
     NotVisitedCitySerializer,
     VisitedCitySerializer,
 )
+from city.services.photo_processing import compress_city_photo
 from country.models import Country
 from city.services.db import (
     get_first_visit_date_by_city,
@@ -53,7 +66,7 @@ from city.services.filter import apply_filter_to_queryset
 from city.services.search import CitySearchService
 from services import logger
 from subscribe.repository import is_subscribed
-
+from premium.services.access import has_advanced_premium
 
 class GetVisitedCities(generics.ListAPIView):  # type: ignore[type-arg]
     serializer_class = VisitedCitySerializer
@@ -1235,3 +1248,5 @@ def save_district_map_colors(request: Request) -> Response:
         {'status': 'success', 'message': 'Цвета сохранены'},
         status=status.HTTP_200_OK,
     )
+
+

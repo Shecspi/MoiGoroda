@@ -2,11 +2,41 @@
 
 <!-- Изображение города -->
 <div class="text-center" id="section-city_image">
-    {% if city.image %}
-        <img src="{{ city.image }}"
-             alt="Фото города {{ city.title }}"
-             class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg"
-             onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+    {% if city_user_photos %}
+        <div data-hs-carousel='{"isAutoPlay": false}' class="relative max-w-full city-image-carousel">
+            <div class="hs-carousel relative overflow-hidden w-full min-h-[300px] rounded-lg bg-gray-100 dark:bg-neutral-800">
+                <div class="hs-carousel-body absolute top-0 bottom-0 start-0 flex flex-nowrap transition-transform duration-700 opacity-0">
+                    {% for photo in city_user_photos %}
+                        <div class="hs-carousel-slide">
+                            <a href="{% url 'api__city_user_photo_content' photo_id=photo.id %}" class="city-glightbox inline-block w-full h-full">
+                                <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
+                                     alt="Фото города {{ city.title }}"
+                                     class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg mx-auto"
+                                     onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if city_user_photos|length > 1 %}
+                <button type="button" class="hs-carousel-prev hs-carousel-disabled:opacity-50 absolute inset-y-0 start-0 inline-flex justify-center items-center w-[46px] h-full text-white hover:bg-black/20">
+                    <span class="text-2xl" aria-hidden="true">‹</span>
+                    <span class="sr-only">Previous</span>
+                </button>
+                <button type="button" class="hs-carousel-next hs-carousel-disabled:opacity-50 absolute inset-y-0 end-0 inline-flex justify-center items-center w-[46px] h-full text-white hover:bg-black/20">
+                    <span class="sr-only">Next</span>
+                    <span class="text-2xl" aria-hidden="true">›</span>
+                </button>
+            {% endif %}
+        </div>
+    {% elif city.image %}
+        <a href="{{ city.image }}" class="city-glightbox inline-block">
+            <img src="{{ city.image }}"
+                alt="Фото города {{ city.title }}"
+                class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg"
+                onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+        </a>
     {% else %}      
         <img src="{% static 'image/city_placeholder.png' %}"
              alt="Фото города {{ city.title }}"
@@ -29,6 +59,34 @@
                     <span class="text-gray-700 dark:text-neutral-300 break-words">{{ city.image_source_text }}</span>
                 {% endif %}
             </div>
+        </div>
+    {% endif %}
+
+    {% if can_manage_city_photos %}
+        <div class="mt-4 text-left rounded-lg border border-gray-200 dark:border-neutral-700 p-3">
+            <p class="text-sm font-medium mb-2">Ваши фото города (до 5 шт.)</p>
+            <form id="city-photo-upload-form" class="flex items-center gap-2" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="city_id" value="{{ city.id }}">
+                <input type="file" name="image" accept="image/*" required class="block w-full text-sm">
+                <button type="submit" class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    Загрузить
+                </button>
+            </form>
+            <div id="city-photo-error" class="hidden mt-2 text-xs text-red-600"></div>
+            <ul id="city-photo-list" class="mt-3 space-y-2 text-sm">
+                {% for photo in city_user_photos %}
+                    <li class="flex items-center justify-between gap-2 border border-gray-200 dark:border-neutral-700 rounded-md p-2" data-photo-id="{{ photo.id }}">
+                        <span>{% if photo.is_default %}<strong>По умолчанию</strong>{% else %}Фото {{ forloop.counter }}{% endif %}</span>
+                        <span class="flex items-center gap-2">
+                            {% if not photo.is_default %}
+                                <button type="button" class="city-photo-set-default text-blue-600 hover:underline">Сделать основным</button>
+                            {% endif %}
+                            <button type="button" class="city-photo-delete text-red-600 hover:underline">Удалить</button>
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     {% endif %}
 </div>

@@ -7,6 +7,8 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+import uuid
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -14,7 +16,13 @@ from django.db.models import CASCADE, PROTECT
 from django.urls import reverse
 
 from country.models import Country
+from MoiGoroda.storages import CityPhotoPrivateStorage
 from region.models import Region
+
+
+def city_user_photo_upload_to(instance: 'CityUserPhoto', filename: str) -> str:
+    ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else 'jpg'
+    return f'city-photos/user-{instance.user_id}/city-{instance.city_id}/{uuid.uuid4().hex}.{ext}'
 
 
 class City(models.Model):
@@ -180,6 +188,50 @@ class CityListDefaultSettings(models.Model):
 
     def __str__(self) -> str:
         return f'{self.get_parameter_type_display()} для {self.user}: {self.parameter_value}'
+
+
+class CityUserPhoto(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, verbose_name='ID')
+    user = models.ForeignKey(
+        User,
+        on_delete=CASCADE,
+        related_name='city_photos',
+        verbose_name='Пользователь',
+    )
+    city = models.ForeignKey(
+        City,
+        on_delete=CASCADE,
+        related_name='user_photos',
+        verbose_name='Город',
+    )
+    image = models.ImageField(
+        upload_to=city_user_photo_upload_to,
+        storage=CityPhotoPrivateStorage(),
+        verbose_name='Изображение',
+    )
+    is_default = models.BooleanField(default=False, verbose_name='Фото по умолчанию')
+    position = models.PositiveSmallIntegerField(default=0, verbose_name='Позиция')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата и время создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата и время изменения')
+
+    class Meta:
+        ordering = ['position', '-created_at']
+        verbose_name = 'Пользовательское фото города'
+        verbose_name_plural = 'Пользовательские фото городов'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'city', 'position'],
+                name='unique_city_user_photo_position',
+            ),
+            models.UniqueConstraint(
+                fields=['user', 'city'],
+                condition=models.Q(is_default=True),
+                name='unique_city_user_default_photo',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f'Фото {self.city.title} ({self.user.username})'
 
 
 class CityDistrict(models.Model):

@@ -14,7 +14,7 @@ from typing import Any
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from city.models import City, CityDistrict, VisitedCity, VisitedCityDistrict
+from city.models import City, CityDistrict, CityUserPhoto, VisitedCity, VisitedCityDistrict
 
 
 class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
@@ -217,3 +217,22 @@ class AddVisitedCityDistrictSerializer(serializers.Serializer[VisitedCityDistric
             raise serializers.ValidationError({'detail': 'Район уже отмечен как посещённый.'})
 
         return VisitedCityDistrict.objects.create(user=user, city_district=city_district)
+
+
+class CityUserPhotoSerializer(serializers.ModelSerializer[CityUserPhoto]):
+    image_url = serializers.SerializerMethodField()
+
+    def get_image_url(self, obj: CityUserPhoto) -> str:
+        request = self.context.get('request')
+        if request is None:
+            return ''
+        return request.build_absolute_uri(f'/api/city/photos/{obj.id}/content')
+
+    class Meta:
+        model = CityUserPhoto
+        fields = ['id', 'city_id', 'is_default', 'position', 'image_url', 'created_at']
+
+
+class CityUserPhotoUploadSerializer(serializers.Serializer[dict[str, Any]]):
+    city_id = serializers.IntegerField(required=True)
+    image = serializers.ImageField(required=True)

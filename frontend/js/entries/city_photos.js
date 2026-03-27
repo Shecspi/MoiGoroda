@@ -25,6 +25,78 @@ function initCityPhotoManager() {
   const uploadForm = document.getElementById('city-photo-upload-form');
   const list = document.getElementById('city-photo-list');
   if (!uploadForm || !list) return;
+  const carouselRoot = document.querySelector('.city-image-carousel');
+  const setDefaultButton = document.getElementById('city-photo-set-default-btn');
+  const defaultLabel = document.getElementById('city-photo-default-label');
+  const viewport = carouselRoot?.querySelector('.hs-carousel') || null;
+  const body = carouselRoot?.querySelector('.hs-carousel-body') || null;
+  const slides = carouselRoot
+    ? [...carouselRoot.querySelectorAll('.hs-carousel-slide[data-photo-id]')]
+    : [];
+
+  const getTranslateX = (transformValue) => {
+    if (!transformValue || transformValue === 'none') return 0;
+    if (transformValue.startsWith('matrix3d(')) {
+      const values = transformValue.slice(9, -1).split(',').map((v) => Number(v.trim()));
+      return Number.isFinite(values[12]) ? values[12] : 0;
+    }
+    if (transformValue.startsWith('matrix(')) {
+      const values = transformValue.slice(7, -1).split(',').map((v) => Number(v.trim()));
+      return Number.isFinite(values[4]) ? values[4] : 0;
+    }
+    return 0;
+  };
+
+  const getActiveSlide = () => {
+    if (!viewport || !body || slides.length === 0) return null;
+
+    const computedTransform = window.getComputedStyle(body).transform;
+    const translateX = getTranslateX(computedTransform);
+    const viewportWidth = viewport.getBoundingClientRect().width || 1;
+    const rawIndex = Math.round(Math.abs(translateX) / viewportWidth);
+    const index = Math.max(0, Math.min(slides.length - 1, rawIndex));
+    return slides[index];
+  };
+
+  const syncControlsWithActiveSlide = () => {
+    const activeSlide = getActiveSlide();
+    if (!activeSlide) return;
+
+    const photoId = activeSlide.getAttribute('data-photo-id') || '';
+    const isDefault = activeSlide.getAttribute('data-is-default') === 'true';
+    list.setAttribute('data-photo-id', photoId);
+
+    if (setDefaultButton) {
+      setDefaultButton.classList.toggle('hidden', isDefault);
+    }
+    if (defaultLabel) {
+      defaultLabel.classList.toggle('hidden', !isDefault);
+    }
+  };
+
+  syncControlsWithActiveSlide();
+  if (carouselRoot) {
+    const prevButton = carouselRoot.querySelector('.hs-carousel-prev');
+    const nextButton = carouselRoot.querySelector('.hs-carousel-next');
+    if (prevButton instanceof HTMLElement) {
+      prevButton.addEventListener('click', () => {
+        window.setTimeout(syncControlsWithActiveSlide, 50);
+      });
+    }
+    if (nextButton instanceof HTMLElement) {
+      nextButton.addEventListener('click', () => {
+        window.setTimeout(syncControlsWithActiveSlide, 50);
+      });
+    }
+
+    if (body instanceof HTMLElement) {
+      const observer = new MutationObserver(() => {
+        window.setTimeout(syncControlsWithActiveSlide, 0);
+      });
+      observer.observe(body, { attributes: true, attributeFilter: ['style', 'class'] });
+      body.addEventListener('transitionend', syncControlsWithActiveSlide);
+    }
+  }
 
   uploadForm.addEventListener('submit', async (event) => {
     event.preventDefault();

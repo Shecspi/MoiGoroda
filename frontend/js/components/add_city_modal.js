@@ -79,6 +79,7 @@ export function initAddCityForm(actions, onSuccess) {
 
         const formData = new FormData(form);
         formData.set('has_magnet', formData.has('has_magnet') ? '1' : '0');
+        const csrfToken = formData.get('csrfmiddlewaretoken') || getCookie('csrftoken');
         const rawVisitDate = formData.get('date_of_visit');
         if (typeof rawVisitDate === 'string' && rawVisitDate.trim()) {
             const normalizedVisitDate = valueFromInputToIso(rawVisitDate);
@@ -102,7 +103,7 @@ export function initAddCityForm(actions, onSuccess) {
         fetch(url, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': getCookie("csrftoken")
+                'X-CSRFToken': csrfToken
             },
             body: formData
         })

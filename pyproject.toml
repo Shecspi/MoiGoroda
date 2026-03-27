@@ -24,6 +24,7 @@ django-ckeditor-5 = "^0.2.19"
 yookassa = "^3.10.0"
 django-modern-rest = {extras = ["msgspec"], version = "^0.3.0"}
 Pillow = "^11.3.0"
+pillow-heif = "^1.1.1"
 
 
 [tool.poetry.group.dev.dependencies]

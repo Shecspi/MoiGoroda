@@ -4,7 +4,14 @@ from io import BytesIO
 
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import UploadedFile
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, UnidentifiedImageError
+
+try:
+    import pillow_heif  # type: ignore[import-not-found]
+except ImportError:  # pragma: no cover - fallback for environments without optional dependency
+    pillow_heif = None
+else:
+    pillow_heif.register_heif_opener()
 
 ALLOWED_IMAGE_FORMATS = {'JPEG', 'JPG', 'PNG', 'WEBP'}
 MAX_IMAGE_SIDE = 1920
@@ -12,7 +19,10 @@ JPEG_QUALITY = 82
 
 
 def compress_city_photo(uploaded_file: UploadedFile) -> ContentFile:
-    image = Image.open(uploaded_file)
+    try:
+        image = Image.open(uploaded_file)
+    except (UnidentifiedImageError, OSError) as exc:
+        raise ValueError('Неподдерживаемый формат изображения') from exc
     normalized = ImageOps.exif_transpose(image)
     image_format = (normalized.format or '').upper()
 

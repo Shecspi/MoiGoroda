@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Generator
 from datetime import timedelta
 from decimal import Decimal
 from io import BytesIO
@@ -35,7 +36,7 @@ def api_client() -> APIClient:
 @pytest.fixture(autouse=True)
 def use_local_storage_for_city_photos(
     tmp_path: Path,
-) -> FileSystemStorage:
+) -> Generator[FileSystemStorage, None, None]:
     storage = FileSystemStorage(location=tmp_path, base_url='/media/')
     image_field = CityUserPhoto._meta.get_field('image')
     original_storage = image_field.storage
@@ -163,6 +164,29 @@ def test_limit_five_photos_per_user_per_city(
         format='multipart',
     )
     assert limit_response.status_code == status.HTTP_409_CONFLICT
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_upload_rejects_unsupported_image_format(
+    api_client: APIClient,
+    user: User,
+    city: City,
+    active_advanced_subscription: PremiumSubscription,
+) -> None:
+    api_client.force_authenticate(user=user)
+    invalid_file = SimpleUploadedFile(
+        name='photo.heic',
+        content=b'not-a-valid-image',
+        content_type='image/heic',
+    )
+    response = api_client.post(
+        reverse('api__upload_city_user_photo'),
+        {'city_id': city.id, 'image': invalid_file},
+        format='multipart',
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()['image'] == ['Неподдерживаемый формат изображения']
 
 
 @pytest.mark.django_db

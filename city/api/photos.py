@@ -158,7 +158,13 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
                 )
 
             max_position = user_city_qs.aggregate(max_position=Max('position'))['max_position'] or 0
-            compressed_file = compress_city_photo(image)
+            try:
+                compressed_file = compress_city_photo(image)
+            except ValueError:
+                return self.to_response(
+                    raw_data={'image': ['Неподдерживаемый формат изображения']},
+                    status_code=HTTPStatus.BAD_REQUEST,
+                )
             photo = CityUserPhoto.objects.create(
                 user=request.user,
                 city=city,

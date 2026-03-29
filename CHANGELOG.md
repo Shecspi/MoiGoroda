@@ -95,6 +95,8 @@
 
 - *(notification)* Отключен периодический опрос уведомлений ([5be1fe1](https://github.com/Shecspi/MoiGoroda/commit/5be1fe122b15848ede10395e5e2008689689b92f))
 
+- Корректная половина звезды средней оценки и общий компонент рейтинга ([ebcf0aa](https://github.com/Shecspi/MoiGoroda/commit/ebcf0aa8296f82bbde55092c1c16004ef581b58e))
+
 
 #### 🧪 Тестирование
 

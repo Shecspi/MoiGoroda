@@ -95,7 +95,7 @@
                     <!-- Рейтинг и статус сувенира -->
                     <div class="flex items-center justify-between">
                         <div class="flex items-center" id="subsection-city-rating_{{ forloop.counter }}" title="Средний рейтинг города {{ city }} на основе всех Ваших оценок">
-                            {% include 'parts/star_rating.html' with rating=city.average_rating size_class='size-6' star_id_prefix=forloop.counter gap_class='gap-0' %}
+                            {% include 'parts/star_rating.html' with rating=city.average_rating size_class='size-5' star_id_prefix=forloop.counter gap_class='gap-0' %}
                         </div>
 
                         {% if city.has_souvenir %}

@@ -226,6 +226,10 @@
   }
 }
 
+.vc-month-title {
+  @apply leading-tight capitalize;
+}
+
 .vc-month {
   @apply text-gray-800;
 

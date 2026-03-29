@@ -1,4 +1,3 @@
-{% load mathfilters %}
 {% load humanize %}
 {% load vite %}
 
@@ -133,19 +132,7 @@
                         <!-- Рейтинг и статус сувенира -->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center" id="subsection-city-rating_{{ forloop.counter }}" title="Средний рейтинг на основе всех Ваших оценок для города {{ city.title }}">
-                                {% for i in "12345"|make_list %}
-                                    {% with index=forloop.counter %}
-                                        {% if city.rating >= index %}
-                                            <svg class="size-6 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                                <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
-                                            </svg>
-                                        {% else %}
-                                            <svg class="size-6 text-neutral-300 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                                <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
-                                            </svg>
-                                        {% endif %}
-                                    {% endwith %}
-                                {% endfor %}
+                                {% include 'parts/star_rating.html' with rating=city.rating size_class='size-5' star_id_prefix=forloop.counter gap_class='gap-0' %}
                             </div>
 
                             <div id="subsection-city-magnet_{{ forloop.counter }}">

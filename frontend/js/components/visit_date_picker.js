@@ -79,9 +79,20 @@ function todayIsoLocal() {
     return isoFromParts(t.getFullYear(), t.getMonth(), t.getDate());
 }
 
-function monthTitleRu(year, monthIndex) {
-    const d = new Date(year, monthIndex, 1);
-    return new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(d);
+const MONTH_LABEL_RU = Array.from({ length: 12 }, (_, monthIndex) =>
+    new Intl.DateTimeFormat('ru-RU', { month: 'long' }).format(new Date(2000, monthIndex, 1)),
+);
+
+/** Границы года из ISO-ограничений min/max (YYYY-MM-DD). */
+function isoYearBounds(minIso, maxIso) {
+    const minY = Number(minIso.slice(0, 4));
+    const maxY = Number(maxIso.slice(0, 4));
+    return { minY, maxY };
+}
+
+/** Подпись «месяц год» для шапки календаря. */
+function monthYearLabelRu(year, monthIndex) {
+    return `${MONTH_LABEL_RU[monthIndex]} ${year}`;
 }
 
 function daysInMonth(year, monthIndex) {
@@ -303,6 +314,12 @@ class VisitDatePickerController {
         if (!this.panel) {
             return;
         }
+        const { minY, maxY } = isoYearBounds(this.minIso, this.maxIso);
+        if (this.viewYear < minY) {
+            this.viewYear = minY;
+        } else if (this.viewYear > maxY) {
+            this.viewYear = maxY;
+        }
         const y = this.viewYear;
         const m = this.viewMonth;
         const first = new Date(y, m, 1);
@@ -333,14 +350,26 @@ class VisitDatePickerController {
             cells.push({ iso, month: 'next', inRange: this.isDateAllowed(iso) });
         }
 
+        const atMinYear = y <= minY;
+        const atMaxYear = y >= maxY;
+        const chevronLeft = `<svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>`;
+        const chevronRight = `<svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
+        const chevronDblLeft = `<svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m11 18-6-6 6-6"/><path d="m18 18-6-6 6-6"/></svg>`;
+        const chevronDblRight = `<svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/><path d="m15 18 6-6-6-6"/></svg>`;
         const header = `
-      <div class="flex items-center justify-between gap-2 mb-3">
-        <button type="button" class="vc-arrow vc-arrow_prev" data-act="prev" aria-label="Предыдущий месяц">
-          <svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      <div class="flex items-center justify-between gap-0.5 mb-3">
+        <button type="button" class="vc-arrow vc-arrow_year shrink-0" data-act="prev-year" aria-label="Предыдущий год" title="Предыдущий год"${atMinYear ? ' disabled' : ''}>
+          ${chevronDblLeft}
         </button>
-        <span class="vc-month text-sm font-semibold">${monthTitleRu(y, m)}</span>
-        <button type="button" class="vc-arrow vc-arrow_next" data-act="next" aria-label="Следующий месяц">
-          <svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        <button type="button" class="vc-arrow vc-arrow_month shrink-0" data-act="prev-month" aria-label="Предыдущий месяц" title="Предыдущий месяц">
+          ${chevronLeft}
+        </button>
+        <span class="vc-month vc-month-title min-w-0 flex-1 px-1 text-center text-sm font-semibold">${monthYearLabelRu(y, m)}</span>
+        <button type="button" class="vc-arrow vc-arrow_month shrink-0" data-act="next-month" aria-label="Следующий месяц" title="Следующий месяц">
+          ${chevronRight}
+        </button>
+        <button type="button" class="vc-arrow vc-arrow_year shrink-0" data-act="next-year" aria-label="Следующий год" title="Следующий год"${atMaxYear ? ' disabled' : ''}>
+          ${chevronDblRight}
         </button>
       </div>`;
 
@@ -370,7 +399,27 @@ class VisitDatePickerController {
 
         this.panel.innerHTML = header + weekRow + datesHtml;
 
-        this.panel.querySelector('[data-act="prev"]')?.addEventListener('click', (e) => {
+        this.panel.querySelector('[data-act="prev-year"]')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            if (btn instanceof HTMLButtonElement && btn.disabled) {
+                return;
+            }
+            this.viewYear -= 1;
+            this.render();
+            this.place();
+        });
+        this.panel.querySelector('[data-act="next-year"]')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            if (btn instanceof HTMLButtonElement && btn.disabled) {
+                return;
+            }
+            this.viewYear += 1;
+            this.render();
+            this.place();
+        });
+        this.panel.querySelector('[data-act="prev-month"]')?.addEventListener('click', (e) => {
             e.stopPropagation();
             if (this.viewMonth === 0) {
                 this.viewMonth = 11;
@@ -381,7 +430,7 @@ class VisitDatePickerController {
             this.render();
             this.place();
         });
-        this.panel.querySelector('[data-act="next"]')?.addEventListener('click', (e) => {
+        this.panel.querySelector('[data-act="next-month"]')?.addEventListener('click', (e) => {
             e.stopPropagation();
             if (this.viewMonth === 11) {
                 this.viewMonth = 0;

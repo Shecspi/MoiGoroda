@@ -9,15 +9,15 @@
                 <span class="text-lg font-semibold text-gray-900 dark:text-white">
                     {{ average_rating }}
                 </span>
-                <div class="flex items-center gap-0.5">
+                <div class="flex items-center gap-1">
                     {% for i in "12345"|make_list %}
                         {% with index=forloop.counter %}
                             {% if average_rating >= index %}
-                                <svg class="size-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <svg class="size-7 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                     <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
                                 </svg>
                             {% elif average_rating >= index|sub:0.5 %}
-                                <svg class="size-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                                <svg class="size-7 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                                     <defs>
                                         <linearGradient id="city-detail-average-half-{{ forloop.counter0 }}" x1="0" y1="0" x2="1" y2="0">
                                             <stop offset="50%" stop-color="currentColor"/>
@@ -30,7 +30,7 @@
                                           fill="url(#city-detail-average-half-{{ forloop.counter0 }})"/>
                                 </svg>
                             {% else %}
-                                <svg class="size-5 text-gray-300 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <svg class="size-7 text-gray-300 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                     <path d="m12 17.27 5.18 3.11-1.64-5.81L20 10.5l-5.92-.5L12 4.5l-2.08 5.5L4 10.5l4.46 4.07-1.64 5.81z"/>
                                 </svg>
                             {% endif %}

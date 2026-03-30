@@ -8,6 +8,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/free-mode';
 import 'swiper/css/thumbs';
 import { getCookie } from '../components/get_cookie';
+import { openConfirmModal } from '../components/confirm_modal';
 
 let lightboxInstance = null;
 
@@ -323,6 +324,16 @@ function initCityPhotoManager() {
     const csrfToken = getCookie('csrftoken');
     if (deleteTrigger) {
       event.preventDefault();
+      const confirmed = await openConfirmModal({
+        title: 'Удаление фото',
+        message: 'Вы уверены, что хотите удалить это изображение? Его нельзя будет восстановить.',
+        confirmLabel: 'Удалить',
+        cancelLabel: 'Отмена',
+      });
+      if (!confirmed) {
+        return;
+      }
+
       setLoadingState(true, 'delete');
       try {
         const response = await fetch(`/api/city/photos/${photoId}/`, {

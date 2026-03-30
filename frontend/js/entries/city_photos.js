@@ -47,6 +47,62 @@ function showCityPhotoThumbsPanel(panel) {
   panel.setAttribute('aria-hidden', 'false');
 }
 
+function hideCityPhotoThumbsPanel(panel) {
+  if (!(panel instanceof HTMLElement)) return;
+  panel.classList.add('hidden');
+  panel.setAttribute('aria-hidden', 'true');
+}
+
+const CITY_PLACEHOLDER_IMG = '/static/image/city_placeholder.png';
+
+function setCityCarouselNavVisible(visible, prev, next, pag) {
+  [prev, next, pag].forEach((el) => {
+    if (el instanceof HTMLElement) {
+      el.classList.toggle('hidden', !visible);
+    }
+  });
+}
+
+/**
+ * После удаления последнего пользовательского фото: плейсхолдер в карусели, скрыта панель превью, без перезагрузки страницы.
+ * Вызывающий обязан присвоить `thumbsSwiper = null` после вызова (связь thumbs с main сбрасывается).
+ */
+function showPlaceholderAfterLastCityPhotoRemoved(citySwiper, thumbsSwiperInstance, ctx) {
+  const { thumbsPanel, thumbsElement, prevButton, nextButton, pagination } = ctx;
+
+  if (thumbsSwiperInstance) {
+    try {
+      thumbsSwiperInstance.destroy(true, true);
+    } catch {
+      /* Swiper уже уничтожен */
+    }
+  }
+  citySwiper.params.thumbs = undefined;
+
+  hideCityPhotoThumbsPanel(thumbsPanel);
+  if (thumbsElement instanceof HTMLElement) {
+    const wrapper = thumbsElement.querySelector('.swiper-wrapper');
+    if (wrapper) {
+      wrapper.innerHTML = '';
+    }
+  }
+
+  const placeholderSlideHtml = `
+    <div class="swiper-slide h-full flex items-center justify-center"
+         data-photo-id=""
+         data-is-default="true"
+         data-is-placeholder="true">
+      <img src="${CITY_PLACEHOLDER_IMG}"
+           alt="Фото города"
+           class="block max-w-full h-full w-auto object-contain rounded-lg shadow-lg mx-auto">
+    </div>`;
+
+  citySwiper.appendSlide(placeholderSlideHtml);
+  citySwiper.update();
+  citySwiper.slideTo(0, 0);
+  setCityCarouselNavVisible(false, prevButton, nextButton, pagination);
+}
+
 function initCityPhotoManager() {
   const uploadForm = document.getElementById('city-photo-upload-form');
   if (!uploadForm) return;
@@ -352,22 +408,31 @@ function initCityPhotoManager() {
           citySwiper.removeSlide(activeIndex);
           citySwiper.update();
 
-          if (thumbsSwiper) {
-            const thumbToRemove = thumbsSwiper.el.querySelector(`.swiper-slide[data-photo-id="${photoId}"]`);
-            if (thumbToRemove) {
-              thumbToRemove.remove();
-            }
-            thumbsSwiper.update();
-          }
-
           if (citySwiper.slides.length === 0) {
-            window.location.reload();
-            return;
-          }
+            showPlaceholderAfterLastCityPhotoRemoved(citySwiper, thumbsSwiper, {
+              thumbsPanel,
+              thumbsElement,
+              prevButton,
+              nextButton,
+              pagination,
+            });
+            thumbsSwiper = null;
+          } else {
+            if (thumbsSwiper) {
+              const thumbToRemove = thumbsSwiper.el.querySelector(
+                `.swiper-slide[data-photo-id="${photoId}"]`,
+              );
+              if (thumbToRemove) {
+                thumbToRemove.remove();
+              }
+              thumbsSwiper.update();
+            }
 
-          const nextIndex = Math.min(activeIndex, citySwiper.slides.length - 1);
-          citySwiper.slideTo(nextIndex, 0);
+            const nextIndex = Math.min(activeIndex, citySwiper.slides.length - 1);
+            citySwiper.slideTo(nextIndex, 0);
+          }
           syncControlsWithActiveSlide();
+          initCityGallery();
         } else {
           window.location.reload();
         }

@@ -6,9 +6,14 @@ import {initVisitDatePickers, setVisitDateInputValue} from "../components/visit_
  * @param {string} selectId — атрибут id без #
  */
 function destroyHsSelect(selectId) {
-    const inst = window.HSSelect?.getInstance?.(`#${selectId}`);
-    if (inst && typeof inst.destroy === 'function') {
-        inst.destroy();
+    try {
+        const inst = window.HSSelect?.getInstance?.(`#${selectId}`);
+        if (inst && typeof inst.destroy === 'function') {
+            inst.destroy();
+        }
+    } catch (e) {
+        // На части окружений getInstance может падать до полной инициализации реестра Preline.
+        // В таком случае просто продолжаем: новый инстанс будет создан ниже при reinit.
     }
 }
 

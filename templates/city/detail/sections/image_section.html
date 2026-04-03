@@ -90,7 +90,7 @@
             {% if can_manage_city_photos %}
                 <div id="city-photo-list"
                      data-photo-id=""
-                     class="border-t border-layer-line flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                     class="border-t border-layer-line flex items-start justify-between gap-3 px-3 py-2 text-sm">
                     <span id="city-photo-default-label" class="hidden inline-flex h-8 items-center gap-x-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 text-sm font-medium text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300">
                         <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.2 7.2a1 1 0 01-1.415 0l-3-3a1 1 0 111.414-1.42l2.293 2.294 6.493-6.494a1 1 0 011.415 0z" clip-rule="evenodd"/>
@@ -103,12 +103,10 @@
                         </svg>
                         Изображение сервиса
                     </span>
-                    <span id="city-photo-missing-label" class="hidden inline-flex h-8 items-center gap-x-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 text-sm font-medium text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M18 10A8 8 0 114 4.8V4a1 1 0 112 0v3a1 1 0 01-1 1H2a1 1 0 110-2h1.2A10 10 0 1010 0a1 1 0 100 2 8 8 0 018 8zm-8-4a1 1 0 00-1 1v4a1 1 0 102 0V7a1 1 0 00-1-1zm0 8a1.25 1.25 0 100 2.5A1.25 1.25 0 0010 14z" clip-rule="evenodd"/>
-                        </svg>
-                        Изображения этого города еще нет в сервисе
-                    </span>
+                    <div id="city-photo-missing-label"
+                         class="hidden w-full min-w-0 flex-1">
+                        {% include 'city/partials/city_photo_missing_notice.html' %}
+                    </div>
                     <button type="button"
                             id="city-photo-set-default-btn"
                             class="city-photo-set-default inline-flex h-8 items-center gap-x-2 text-sm font-semibold rounded-lg text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus:text-blue-700 dark:focus:text-blue-300 disabled:opacity-50 disabled:pointer-events-none">
@@ -133,14 +131,15 @@
             {% endif %}
         </div>
     {% else %}
-        {# На lg колонка растягивается по высоте соседней — без flex-1 плейсхолдер визуально «прилипает» к верху ячейки #}
-        <div class="w-full lg:flex-1 lg:flex lg:items-center lg:justify-center lg:min-h-0">
-            <div class="max-w-full w-full rounded-xl border border-layer-line bg-layer/30 overflow-hidden">
-                <div class="flex w-full items-center justify-center h-[320px] sm:h-[420px] md:h-[520px] lg:h-[600px] min-h-[300px] bg-gray-100 dark:bg-neutral-800">
-                    <img src="{% static 'image/city_placeholder.png' %}"
-                         alt="Фото города {{ city.title }}"
-                         class="block max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-lg mx-auto">
-                </div>
+        {# Та же обёртка карточки, что и у авторизованного пользователя — без lg:flex + items-center, иначе блок центрируется по вертикали в колонке и визуально «уезжает» вниз #}
+        <div class="max-w-full w-full rounded-xl border border-layer-line bg-layer/30 overflow-hidden">
+            <div class="flex w-full items-center justify-center h-[320px] sm:h-[420px] md:h-[520px] lg:h-[600px] min-h-[300px] bg-gray-100 dark:bg-neutral-800">
+                <img src="{% static 'image/city_placeholder.png' %}"
+                     alt="Фото города {{ city.title }}"
+                     class="block max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-lg mx-auto">
+            </div>
+            <div class="border-t border-layer-line px-3 py-2">
+                {% include 'city/partials/city_photo_missing_notice.html' %}
             </div>
         </div>
     {% endif %}

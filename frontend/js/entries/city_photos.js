@@ -282,7 +282,7 @@ function initCityPhotoManager() {
 
         const slideHtml = `
           <div class="swiper-slide h-full" data-photo-id="${uploadedId}" data-is-default="${uploadedPhoto.is_default ? 'true' : 'false'}">
-            <a href="${imageHref}" class="city-glightbox inline-flex w-full h-full items-center justify-center">
+            <a href="${imageHref}" class="city-glightbox inline-flex w-full h-full items-center justify-center" data-type="image">
               <img src="${imageHref}"
                    alt="Фото города"
                    class="block max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-lg mx-auto"

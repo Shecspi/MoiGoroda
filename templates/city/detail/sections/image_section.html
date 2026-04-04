@@ -21,7 +21,9 @@
                             <div class="swiper-slide h-full"
                                  data-photo-id="{{ photo.id }}"
                                  data-is-default="{% if photo.is_default %}true{% else %}false{% endif %}">
-                                <a href="{% url 'api__city_user_photo_content' photo_id=photo.id %}" class="city-glightbox inline-flex w-full h-full items-center justify-center">
+                                <a href="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
+                                   class="city-glightbox inline-flex w-full h-full items-center justify-center"
+                                   data-type="image">
                                     <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
                                          alt="Фото города {{ city.title }}"
                                          class="block max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-lg mx-auto"
@@ -34,7 +36,9 @@
                                  data-photo-id=""
                                  data-is-default="false"
                                  data-is-service-image="true">
-                                <a href="{{ city.image }}" class="city-glightbox inline-flex w-full h-full items-center justify-center">
+                                <a href="{{ city.image }}"
+                                   class="city-glightbox inline-flex w-full h-full items-center justify-center"
+                                   data-type="image">
                                     <img src="{{ city.image }}"
                                          alt="Фото города {{ city.title }}"
                                          class="block max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-lg mx-auto"

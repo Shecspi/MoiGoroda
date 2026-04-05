@@ -15,6 +15,7 @@ from django.db.models import (
     Max,
     Subquery,
     IntegerField,
+    UUIDField,
     QuerySet,
     Func,
     F,
@@ -22,7 +23,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Round, TruncYear, TruncMonth, Rank, Coalesce
 
-from city.models import VisitedCity, City
+from city.models import City, CityUserPhoto, VisitedCity
 from country.models import Country
 
 
@@ -152,6 +153,25 @@ def get_unique_visited_cities(
     )
 
     return queryset
+
+
+def annotate_visited_city_list_default_photo(
+    queryset: QuerySet[VisitedCity], user_id: int
+) -> QuerySet[VisitedCity]:
+    """
+    Аннотация для страницы списка посещённых городов: id фото по умолчанию пользователя для города.
+    """
+    default_city_user_photo_id_subquery = CityUserPhoto.objects.filter(
+        city_id=OuterRef('city_id'),
+        user_id=user_id,
+        is_default=True,
+    ).values('id')[:1]
+
+    return queryset.annotate(
+        default_city_user_photo_id=Subquery(
+            default_city_user_photo_id_subquery, output_field=UUIDField()
+        )
+    )
 
 
 def get_all_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[VisitedCity]:

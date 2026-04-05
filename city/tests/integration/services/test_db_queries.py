@@ -15,6 +15,7 @@ import pytest
 
 from city.models import City, VisitedCity
 from city.services.db import (
+    annotate_visited_city_list_default_photo,
     get_unique_visited_cities,
     get_all_visited_cities,
     get_all_new_visited_cities,
@@ -162,7 +163,9 @@ class TestUniqueVisitedCitiesFunctions:
             is_first_visit=False,
         )
 
-        cities = get_unique_visited_cities(user.id)
+        cities = annotate_visited_city_list_default_photo(
+            get_unique_visited_cities(user.id), user.id
+        )
         city = cities.first()
 
         # Проверяем наличие аннотаций
@@ -170,9 +173,11 @@ class TestUniqueVisitedCitiesFunctions:
         assert hasattr(city, 'number_of_visits')
         assert hasattr(city, 'average_rating')
         assert hasattr(city, 'has_souvenir')
+        assert hasattr(city, 'default_city_user_photo_id')
 
         assert city.number_of_visits == 2
         assert city.has_souvenir is True
+        assert city.default_city_user_photo_id is None
 
 
 @pytest.mark.django_db

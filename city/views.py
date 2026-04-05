@@ -41,6 +41,7 @@ from city.models import (
     VisitedCityDistrict,
 )
 from city.services.db import (
+    annotate_visited_city_list_default_photo,
     get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
     get_number_of_visited_countries,
@@ -436,6 +437,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
             self.country = str(Country.objects.get(code=self.country_code))
 
         self.queryset = get_unique_visited_cities(self.user_id, self.country_code)
+        self.queryset = annotate_visited_city_list_default_photo(self.queryset, self.user_id)
         self.apply_filter()
         self.apply_sort(
             self.default_sort_settings.parameter_value if self.default_sort_settings else None

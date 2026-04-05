@@ -1,0 +1,23 @@
+{% include 'city/partials/city_photo_missing_notice.html' %}
+{% if user.is_authenticated %}
+    {% if not can_manage_city_photos %}
+        <div class="rounded-lg border border-sky-200/90 bg-sky-50/95 p-3 text-sm leading-relaxed shadow-sm dark:border-sky-800/55 dark:bg-sky-950/35">
+            <p class="text-sky-950 dark:text-sky-100">
+                После оформления
+                <span class="font-semibold">расширенной подписки</span>
+                на этой странице появится возможность загружать свои фотографии города в сервис (до
+                5&nbsp;снимков).
+            </p>
+            <p class="mt-2">
+                <a href="{% url 'premium_promo' %}"
+                   class="font-semibold text-sky-800 underline decoration-sky-300 underline-offset-2 transition-colors hover:text-sky-950 hover:decoration-sky-500 dark:text-sky-200 dark:decoration-sky-600/80 dark:hover:text-white dark:hover:decoration-sky-400">
+                    Оформить подписку
+                </a>
+            </p>
+        </div>
+    {% else %}
+        <p class="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+            Вы можете загрузить свои фотографии этого города формой ниже на странице (до 5&nbsp;файлов).
+        </p>
+    {% endif %}
+{% endif %}

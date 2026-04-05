@@ -53,7 +53,103 @@ function hideCityPhotoThumbsPanel(panel) {
   panel.setAttribute('aria-hidden', 'true');
 }
 
-const CITY_PLACEHOLDER_IMG = '/static/image/city_placeholder.png';
+function hideCityPhotoNoImageMessages() {
+  const el = document.getElementById('city-photo-no-image-messages');
+  if (el instanceof HTMLElement) {
+    el.classList.add('hidden');
+  }
+}
+
+function showCityPhotoNoImageMessages() {
+  const el = document.getElementById('city-photo-no-image-messages');
+  if (el instanceof HTMLElement) {
+    el.classList.remove('hidden');
+  }
+}
+
+const CITY_PHOTO_STAGE_CLASS =
+  'city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15';
+
+const CITY_PHOTO_MISSING_SUB_EMPTY = 'В сервисе пока нет фотографий этого города';
+const CITY_PHOTO_MISSING_SUB_FAILED =
+  'Файл недоступен. Удалите снимок и загрузите другой или обновите страницу.';
+
+function escapeHtmlText(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** HTML блока «Нет изображения» внутри кадра (клон из &lt;template&gt; на странице города). */
+function getCityPhotoMissingInnerHtml(subtitle) {
+  const tpl = document.getElementById('city-photo-carousel-missing-inner-template');
+  if (!(tpl instanceof HTMLTemplateElement)) {
+    return `<div class="city-photo-missing-inner absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 py-6 text-center"><p class="text-base font-semibold text-neutral-800 dark:text-neutral-100">Нет изображения</p><p class="city-photo-missing-subtitle max-w-sm text-sm text-neutral-600 dark:text-neutral-400">${escapeHtmlText(subtitle)}</p></div>`;
+  }
+  const host = document.createElement('div');
+  host.appendChild(tpl.content.cloneNode(true));
+  const sub = host.querySelector('.city-photo-missing-subtitle');
+  if (sub) sub.textContent = subtitle;
+  return host.innerHTML;
+}
+
+function replaceCityPhotoMainUserSlideWithMissing(slide) {
+  if (!(slide instanceof HTMLElement)) return;
+  if (!(slide.getAttribute('data-photo-id') || '').length) return;
+  slide.innerHTML = `<div class="block w-full"><div class="${CITY_PHOTO_STAGE_CLASS}">${getCityPhotoMissingInnerHtml(CITY_PHOTO_MISSING_SUB_FAILED)}</div></div>`;
+  slide.setAttribute('data-is-image-unavailable', 'true');
+}
+
+function replaceCityPhotoThumbWithMissing(img) {
+  if (!(img instanceof HTMLImageElement)) return;
+  const slide = img.closest('.swiper-slide');
+  if (!(slide instanceof HTMLElement)) return;
+  slide.innerHTML = `<div class="flex h-full w-full flex-col items-center justify-center gap-0.5 bg-neutral-200/70 px-1 text-center dark:bg-neutral-700/55" role="img" aria-label="Превью недоступно">
+    <svg xmlns="http://www.w3.org/2000/svg" class="size-4 shrink-0 text-neutral-500 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008H12V8.25Z"/></svg>
+    <span class="text-[9px] font-medium leading-tight text-neutral-600 dark:text-neutral-400">Нет фото</span>
+  </div>`;
+}
+
+function bindCityPhotoUserMediaErrorHandlers(citySwiper, thumbsElement, syncControlsWithActiveSlide) {
+  const onMainFail = (slide) => {
+    replaceCityPhotoMainUserSlideWithMissing(slide);
+    initCityGallery();
+    if (citySwiper) {
+      bindCityMainSwiperImagesForAutoHeight(citySwiper);
+      citySwiper.update();
+    }
+    syncControlsWithActiveSlide();
+  };
+
+  citySwiper?.el?.querySelectorAll('img.city-photo-main-img').forEach((img) => {
+    if (!(img instanceof HTMLImageElement)) return;
+    if (img.dataset.cityPhotoErrorBound === '1') return;
+    img.dataset.cityPhotoErrorBound = '1';
+    const run = () => {
+      const slide = img.closest('.swiper-slide');
+      if (!(slide instanceof HTMLElement)) return;
+      if (!(slide.getAttribute('data-photo-id') || '').length) return;
+      onMainFail(slide);
+    };
+    img.addEventListener('error', run, { once: true });
+    if (img.complete && img.naturalWidth === 0 && img.naturalHeight === 0) {
+      run();
+    }
+  });
+
+  thumbsElement?.querySelectorAll('img.city-photo-thumb-img').forEach((img) => {
+    if (!(img instanceof HTMLImageElement)) return;
+    if (img.dataset.cityPhotoThumbErrorBound === '1') return;
+    img.dataset.cityPhotoThumbErrorBound = '1';
+    const run = () => replaceCityPhotoThumbWithMissing(img);
+    img.addEventListener('error', run, { once: true });
+    if (img.complete && img.naturalWidth === 0 && img.naturalHeight === 0) {
+      run();
+    }
+  });
+}
 
 function setCityCarouselNavVisible(visible, prev, next, pag) {
   [prev, next, pag].forEach((el) => {
@@ -107,10 +203,8 @@ function showPlaceholderAfterLastCityPhotoRemoved(citySwiper, thumbsSwiperInstan
          data-photo-id=""
          data-is-default="true"
          data-is-placeholder="true">
-      <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
-        <img src="${CITY_PLACEHOLDER_IMG}"
-             alt="Фото города"
-             class="absolute inset-0 h-full w-full object-contain">
+      <div class="${CITY_PHOTO_STAGE_CLASS} pointer-events-none select-none">
+        ${getCityPhotoMissingInnerHtml(CITY_PHOTO_MISSING_SUB_EMPTY)}
       </div>
     </div>`;
 
@@ -119,11 +213,11 @@ function showPlaceholderAfterLastCityPhotoRemoved(citySwiper, thumbsSwiperInstan
   bindCityMainSwiperImagesForAutoHeight(citySwiper);
   citySwiper.slideTo(0, 0);
   setCityCarouselNavVisible(false, prevButton, nextButton, pagination);
+  showCityPhotoNoImageMessages();
 }
 
 function initCityPhotoManager() {
   const uploadForm = document.getElementById('city-photo-upload-form');
-  if (!uploadForm) return;
   const list = document.getElementById('city-photo-list');
   const fileInput = document.getElementById('city-photo-file-input');
   const uploadSubmit = document.getElementById('city-photo-upload-submit');
@@ -133,12 +227,14 @@ function initCityPhotoManager() {
   const deleteSpinner = document.getElementById('city-photo-delete-spinner');
   const deleteText = document.getElementById('city-photo-delete-text');
   const carouselRoot = document.querySelector('.city-image-carousel');
+  if (!(carouselRoot instanceof HTMLElement)) {
+    return;
+  }
   const setDefaultButton = document.getElementById('city-photo-set-default-btn');
   const setDefaultSpinner = document.getElementById('city-photo-set-default-spinner');
   const setDefaultText = document.getElementById('city-photo-set-default-text');
   const defaultLabel = document.getElementById('city-photo-default-label');
   const serviceLabel = document.getElementById('city-photo-service-label');
-  const missingLabel = document.getElementById('city-photo-missing-label');
   const thumbsPanel = document.getElementById('city-photo-thumbs-panel');
   const swiperElement = carouselRoot?.querySelector('.city-photo-swiper');
   const thumbsElement = carouselRoot?.parentElement?.querySelector('.city-photo-thumbs') || null;
@@ -204,17 +300,82 @@ function initCityPhotoManager() {
     if (serviceLabel) {
       serviceLabel.classList.toggle('hidden', !isServiceImage);
     }
-    if (missingLabel) {
-      missingLabel.classList.toggle('hidden', !isPlaceholder);
-    }
     if (deleteButton) {
       deleteButton.classList.toggle('hidden', !isManageable || isServiceImage || isPlaceholder);
     }
   };
 
-  syncControlsWithActiveSlide();
   if (citySwiper) {
+    bindCityPhotoUserMediaErrorHandlers(citySwiper, thumbsElement, syncControlsWithActiveSlide);
+
+    /**
+     * `city.image` недоступен (404 и т.п.): убираем слайд сервиса и его превью.
+     * Если есть фото пользователя — только они; если нет — плейсхолдер и скрытая панель миниатюр.
+     */
+    const onBrokenServiceImage = () => {
+      const serviceSlide = citySwiper.el.querySelector('.swiper-slide[data-is-service-image="true"]');
+      if (!(serviceSlide instanceof HTMLElement)) return;
+      const serviceIndex = Array.from(citySwiper.slides).indexOf(serviceSlide);
+      if (serviceIndex < 0) return;
+
+      const hasUserPhotos = Array.from(citySwiper.slides).some(
+        (s, idx) => idx !== serviceIndex && (s.getAttribute('data-photo-id') || '').length > 0,
+      );
+
+      if (hasUserPhotos) {
+        citySwiper.removeSlide(serviceIndex);
+        if (thumbsSwiper) {
+          const tIdx = Array.from(thumbsSwiper.slides).findIndex(
+            (s) => s.getAttribute('data-is-service-image') === 'true',
+          );
+          if (tIdx >= 0) {
+            thumbsSwiper.removeSlide(tIdx);
+          }
+          thumbsSwiper.update();
+        }
+        citySwiper.thumbs?.update?.(true);
+        const navVisible = citySwiper.slides.length > 1;
+        setCityCarouselNavVisible(navVisible, prevButton, nextButton, pagination);
+        const idx = Math.min(serviceIndex, citySwiper.slides.length - 1);
+        citySwiper.slideTo(Math.max(0, idx), 0);
+      } else {
+        citySwiper.removeSlide(serviceIndex);
+        showPlaceholderAfterLastCityPhotoRemoved(citySwiper, thumbsSwiper, {
+          thumbsPanel,
+          thumbsElement,
+          prevButton,
+          nextButton,
+          pagination,
+        });
+        thumbsSwiper = null;
+      }
+
+      initCityGallery();
+      bindCityMainSwiperImagesForAutoHeight(citySwiper);
+      citySwiper.update();
+      syncControlsWithActiveSlide();
+    };
+
+    const wireServiceImageError = (img) => {
+      if (!(img instanceof HTMLImageElement)) return;
+      img.addEventListener('error', () => onBrokenServiceImage(), { once: true });
+      if (img.complete && img.naturalWidth === 0 && img.naturalHeight === 0) {
+        onBrokenServiceImage();
+      }
+    };
+
+    wireServiceImageError(citySwiper.el.querySelector('.swiper-slide[data-is-service-image="true"] img'));
+    wireServiceImageError(
+      thumbsElement?.querySelector('.swiper-slide[data-is-service-image="true"] img') ?? null,
+    );
+
     citySwiper.on('slideChange', syncControlsWithActiveSlide);
+  }
+
+  syncControlsWithActiveSlide();
+
+  if (!uploadForm) {
+    return;
   }
 
   const setLoadingState = (isLoading, action = null) => {
@@ -285,8 +446,7 @@ function initCityPhotoManager() {
             <div class="swiper-slide !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer" data-photo-id="${uploadedId}">
               <img src="${imageHref}"
                    alt="Миниатюра фото города"
-                   class="w-full h-full object-cover"
-                   onerror="this.onerror=null;this.src='/static/image/city_placeholder.png'">
+                   class="city-photo-thumb-img h-full w-full object-cover">
             </div>
           `;
 
@@ -306,8 +466,7 @@ function initCityPhotoManager() {
               <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
                 <img src="${imageHref}"
                      alt="Фото города"
-                     class="absolute inset-0 h-full w-full object-contain"
-                     onerror="this.onerror=null;this.src='/static/image/city_placeholder.png'">
+                     class="city-photo-main-img absolute inset-0 h-full w-full object-contain">
               </div>
             </a>
           </div>
@@ -369,6 +528,8 @@ function initCityPhotoManager() {
         }
         syncControlsWithActiveSlide();
         initCityGallery();
+        bindCityPhotoUserMediaErrorHandlers(citySwiper, thumbsElement, syncControlsWithActiveSlide);
+        hideCityPhotoNoImageMessages();
       } else {
         // Если блок карусели отсутствует в текущем DOM, просим перезагрузить вручную.
         showError('Фото загружено. Обновите страницу для отображения в карусели.');

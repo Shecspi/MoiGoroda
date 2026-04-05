@@ -1,7 +1,9 @@
-{% load static %}
-
 <!-- Изображение города -->
 <div class="text-center w-full lg:flex lg:flex-col lg:h-full lg:min-h-0" id="section-city_image">
+    <template id="city-photo-carousel-missing-inner-template">
+        {% include 'city/partials/city_photo_carousel_missing_inner.html' with subtitle='' only %}
+    </template>
+
     {% if city_user_photos or city.image or can_manage_city_photos %}
         <div class="max-w-full rounded-xl border border-layer-line bg-layer/30 overflow-hidden">
             <div class="relative city-image-carousel overflow-hidden rounded-xl">
@@ -12,10 +14,8 @@
                                  data-photo-id=""
                                  data-is-default="true"
                                  data-is-placeholder="true">
-                                <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
-                                    <img src="{% static 'image/city_placeholder.png' %}"
-                                         alt="Фото города {{ city.title }}"
-                                         class="absolute inset-0 h-full w-full object-contain">
+                                <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15 pointer-events-none select-none">
+                                    {% include 'city/partials/city_photo_carousel_missing_inner.html' with subtitle="В сервисе пока нет фотографий этого города" only %}
                                 </div>
                             </div>
                         {% endif %}
@@ -29,8 +29,7 @@
                                     <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
                                         <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
                                              alt="Фото города {{ city.title }}"
-                                             class="absolute inset-0 h-full w-full object-contain"
-                                             onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+                                             class="city-photo-main-img absolute inset-0 h-full w-full object-contain">
                                     </div>
                                 </a>
                             </div>
@@ -46,8 +45,7 @@
                                     <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
                                         <img src="{{ city.image }}"
                                              alt="Фото города {{ city.title }}"
-                                             class="absolute inset-0 h-full w-full object-contain"
-                                             onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+                                             class="absolute inset-0 h-full w-full object-contain">
                                     </div>
                                 </a>
                             </div>
@@ -80,8 +78,7 @@
                                  data-photo-id="{{ photo.id }}">
                                 <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
                                      alt="Миниатюра фото города {{ city.title }}"
-                                     class="w-full h-full object-cover"
-                                     onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+                                     class="city-photo-thumb-img h-full w-full object-cover">
                             </div>
                         {% endfor %}
                         {% if city.image %}
@@ -90,22 +87,25 @@
                                  data-is-service-image="true">
                                 <img src="{{ city.image }}"
                                      alt="Миниатюра фото города {{ city.title }}"
-                                     class="w-full h-full object-cover"
-                                     onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
+                                     class="w-full h-full object-cover">
                             </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
+            <div id="city-photo-no-image-messages"
+                 class="city-photo-no-image-below space-y-3 px-3 py-2 text-left{% if city_user_photos or city.image %} hidden{% endif %}">
+                {% include 'city/partials/city_photo_no_image_stack_inner.html' %}
+            </div>
             {% if can_manage_city_photos %}
                 <div id="city-photo-list"
                      data-photo-id=""
-                     class="border-t border-layer-line flex items-start justify-between gap-3 px-3 py-2 text-sm">
+                     class="flex items-start justify-between gap-3 px-3 py-2 text-sm">
                     <span id="city-photo-default-label" class="hidden inline-flex h-8 items-center gap-x-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 text-sm font-medium text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300">
                         <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.2 7.2a1 1 0 01-1.415 0l-3-3a1 1 0 111.414-1.42l2.293 2.294 6.493-6.494a1 1 0 011.415 0z" clip-rule="evenodd"/>
                         </svg>
-                        б       Выбрано по умолчанию
+                        Выбрано по умолчанию
                     </span>
                     <span id="city-photo-service-label" class="hidden inline-flex h-8 items-center gap-x-1.5 rounded-full border border-orange-200 bg-orange-50 px-2.5 text-sm font-medium text-orange-700 dark:border-orange-500/40 dark:bg-orange-500/10 dark:text-orange-300">
                         <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 shrink-0" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
@@ -113,10 +113,6 @@
                         </svg>
                         Изображение сервиса
                     </span>
-                    <div id="city-photo-missing-label"
-                         class="hidden w-full min-w-0 flex-1">
-                        {% include 'city/partials/city_photo_missing_notice.html' %}
-                    </div>
                     <button type="button"
                             id="city-photo-set-default-btn"
                             class="city-photo-set-default inline-flex h-8 items-center gap-x-2 text-sm font-semibold rounded-lg text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus:text-blue-700 dark:focus:text-blue-300 disabled:opacity-50 disabled:pointer-events-none">
@@ -141,17 +137,25 @@
             {% endif %}
         </div>
     {% else %}
-        {# Та же обёртка карточки, что и у авторизованного пользователя — без lg:flex + items-center, иначе блок центрируется по вертикали в колонке и визуально «уезжает» вниз #}
+        {# Тот же Swiper, что и при управлении фото: один слайд-плейсхолдер, без превью и без ссылки (GLightbox). Карусель инициализируется в city_photos.js даже без формы загрузки. #}
         <div class="max-w-full w-full rounded-xl border border-layer-line bg-layer/30 overflow-hidden">
-            <div class="flex w-full items-center justify-center py-4 bg-transparent overflow-hidden rounded-xl">
-                <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
-                    <img src="{% static 'image/city_placeholder.png' %}"
-                         alt="Фото города {{ city.title }}"
-                         class="absolute inset-0 h-full w-full object-contain">
+            <div class="relative city-image-carousel overflow-hidden rounded-xl">
+                <div class="swiper city-photo-swiper w-full overflow-hidden bg-transparent">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide !h-auto"
+                             data-photo-id=""
+                             data-is-default="true"
+                             data-is-placeholder="true">
+                            <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15 pointer-events-none select-none">
+                                {% include 'city/partials/city_photo_carousel_missing_inner.html' with subtitle="В сервисе пока нет фотографий этого города" only %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="border-t border-layer-line px-3 py-2">
-                {% include 'city/partials/city_photo_missing_notice.html' %}
+            <div id="city-photo-no-image-messages"
+                 class="city-photo-no-image-below space-y-3 px-3 py-2 text-left">
+                {% include 'city/partials/city_photo_no_image_stack_inner.html' %}
             </div>
         </div>
     {% endif %}

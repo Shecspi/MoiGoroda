@@ -112,11 +112,17 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
                 status_code=HTTPStatus.FORBIDDEN,
             )
 
-        city_id_raw = self.request.POST.get('city_id')
+        city_id = self.request.POST.get('city_id')
+        if not city_id:
+            return self.to_response(
+                raw_data={'detail': 'Параметр city_id является обязательным'},
+                status_code=HTTPStatus.BAD_REQUEST,
+            )
+
         image = self.request.FILES.get('image')
 
         try:
-            payload = UploadCityUserPhotoBody(city_id=int(city_id_raw) if city_id_raw else 0)
+            payload = UploadCityUserPhotoBody(int(city_id))
         except (TypeError, ValueError):
             return self.to_response(
                 raw_data={'city_id': ['A valid integer is required.']},
@@ -147,6 +153,7 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
             user_city_qs = CityUserPhoto.objects.select_for_update().filter(
                 user=self.request.user, city=city
             )
+
             if user_city_qs.count() >= 5:
                 return self.to_response(
                     raw_data={'detail': 'Можно загрузить не более 5 фотографий для одного города'},
@@ -154,6 +161,7 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
                 )
 
             max_position = user_city_qs.aggregate(max_position=Max('position'))['max_position'] or 0
+
             try:
                 compressed_file = compress_city_photo(image)
             except ValueError:
@@ -161,6 +169,7 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
                     raw_data={'image': ['Неподдерживаемый формат изображения']},
                     status_code=HTTPStatus.BAD_REQUEST,
                 )
+
             photo = CityUserPhoto.objects.create(
                 user=self.request.user,
                 city=city,

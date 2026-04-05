@@ -23,6 +23,7 @@ def compress_city_photo(uploaded_file: UploadedFile) -> ContentFile:
         image = Image.open(uploaded_file)
     except (UnidentifiedImageError, OSError) as exc:
         raise ValueError('Неподдерживаемый формат изображения') from exc
+
     normalized = ImageOps.exif_transpose(image)
     image_format = (normalized.format or '').upper()
 
@@ -36,4 +37,7 @@ def compress_city_photo(uploaded_file: UploadedFile) -> ContentFile:
     buffer = BytesIO()
     normalized.save(buffer, format='JPEG', quality=JPEG_QUALITY, optimize=True)
 
-    return ContentFile(buffer.getvalue(), name=f'{uploaded_file.name.rsplit(".", 1)[0]}.jpg')
+    original_name = uploaded_file.name or 'image'
+    stem = original_name.rsplit('.', 1)[0]
+
+    return ContentFile(buffer.getvalue(), name=f'{stem}.jpg')

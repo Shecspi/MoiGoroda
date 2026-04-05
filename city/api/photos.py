@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.db.models import Max
-from django.http import FileResponse, HttpRequest, HttpResponse
+from django.http import FileResponse, HttpResponseBase
 from dmr import Controller, ResponseSpec, modify, validate
 from dmr.files import FileResponseSpec
 from dmr.plugins.msgspec import MsgspecSerializer
@@ -46,23 +46,21 @@ class CityUserPhotosController(Controller[MsgspecSerializer]):
         tags=['Пользовательские фото городов'],
     )
     def get(self) -> Any:
-        request = cast(HttpRequest, self.request)
-
-        if not request.user.is_authenticated:
+        if not self.request.user.is_authenticated:
             return self.to_response(
                 raw_data={'detail': 'Требуется авторизация'},
                 status_code=HTTPStatus.UNAUTHORIZED,
             )
 
-        assert isinstance(request.user, User)
+        assert isinstance(self.request.user, User)
 
-        if not has_advanced_premium(request.user):
+        if not has_advanced_premium(self.request.user):
             return self.to_response(
                 raw_data={'detail': 'Функция доступна только для подписки advanced'},
                 status_code=HTTPStatus.FORBIDDEN,
             )
 
-        city_id = request.GET.get('city_id')
+        city_id = self.request.GET.get('city_id')
         if not city_id:
             return self.to_response(
                 raw_data={'detail': 'Параметр city_id является обязательным'},
@@ -77,10 +75,10 @@ class CityUserPhotosController(Controller[MsgspecSerializer]):
                 status_code=HTTPStatus.BAD_REQUEST,
             )
 
-        photos = CityUserPhoto.objects.filter(user=request.user, city_id=city_id_int).order_by(
+        photos = CityUserPhoto.objects.filter(user=self.request.user, city_id=city_id_int).order_by(
             '-is_default', 'position', '-created_at'
         )
-        serializer = CityUserPhotoSerializer(photos, many=True, context={'request': request})
+        serializer = CityUserPhotoSerializer(photos, many=True, context={'request': self.request})
         return self.to_response(
             raw_data={'photos': serializer.data},
             status_code=HTTPStatus.OK,
@@ -100,24 +98,22 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
         tags=['Пользовательские фото городов'],
     )
     def post(self) -> Any:
-        request = cast(HttpRequest, self.request)
-
-        if not request.user.is_authenticated:
+        if not self.request.user.is_authenticated:
             return self.to_response(
                 raw_data={'detail': 'Требуется авторизация'},
                 status_code=HTTPStatus.UNAUTHORIZED,
             )
 
-        assert isinstance(request.user, User)
+        assert isinstance(self.request.user, User)
 
-        if not has_advanced_premium(request.user):
+        if not has_advanced_premium(self.request.user):
             return self.to_response(
                 raw_data={'detail': 'Функция доступна только для подписки advanced'},
                 status_code=HTTPStatus.FORBIDDEN,
             )
 
-        city_id_raw = request.POST.get('city_id')
-        image = request.FILES.get('image')
+        city_id_raw = self.request.POST.get('city_id')
+        image = self.request.FILES.get('image')
 
         try:
             payload = UploadCityUserPhotoBody(city_id=int(city_id_raw) if city_id_raw else 0)
@@ -149,7 +145,7 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
 
         with transaction.atomic():
             user_city_qs = CityUserPhoto.objects.select_for_update().filter(
-                user=request.user, city=city
+                user=self.request.user, city=city
             )
             if user_city_qs.count() >= 5:
                 return self.to_response(
@@ -166,14 +162,14 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
                     status_code=HTTPStatus.BAD_REQUEST,
                 )
             photo = CityUserPhoto.objects.create(
-                user=request.user,
+                user=self.request.user,
                 city=city,
                 image=compressed_file,
                 is_default=not user_city_qs.exists(),
                 position=max_position + 1,
             )
 
-        response_serializer = CityUserPhotoSerializer(photo, context={'request': request})
+        response_serializer = CityUserPhotoSerializer(photo, context={'request': self.request})
 
         return self.to_response(
             raw_data={'photo': response_serializer.data},
@@ -189,18 +185,19 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
         renderers=[FileRenderer()],
         tags=['Пользовательские фото городов'],
     )
-    def get(self) -> HttpResponse:
-        request = cast(HttpRequest, self.request)
-        photo_id = cast(UUID, self.kwargs['photo_id'])
-
-        if not request.user.is_authenticated:
+    def get(self) -> HttpResponseBase:
+        if not self.request.user.is_authenticated:
             return self.to_response(
                 raw_data={'detail': 'Требуется авторизация'},
                 status_code=HTTPStatus.UNAUTHORIZED,
             )
 
-        assert isinstance(request.user, User)
-        photo = CityUserPhoto.objects.filter(id=photo_id, user=request.user).first()
+        assert isinstance(self.request.user, User)
+
+        photo = CityUserPhoto.objects.filter(
+            id=self.kwargs['photo_id'], user=self.request.user
+        ).first()
+
         if photo is None:
             return self.to_response(
                 raw_data={'detail': 'Фотография не найдена'},
@@ -208,6 +205,7 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
             )
 
         content_type = mimetypes.guess_type(photo.image.name)[0] or 'application/octet-stream'
+
         return FileResponse(photo.image.open('rb'), content_type=content_type)
 
     @modify(
@@ -220,17 +218,16 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
         tags=['Пользовательские фото городов'],
     )
     def delete(self) -> Any:
-        request = cast(HttpRequest, self.request)
         photo_id = cast(UUID, self.kwargs['photo_id'])
 
-        if not request.user.is_authenticated:
+        if not self.request.user.is_authenticated:
             return self.to_response(
                 raw_data={'detail': 'Требуется авторизация'},
                 status_code=HTTPStatus.UNAUTHORIZED,
             )
 
-        assert isinstance(request.user, User)
-        if not has_advanced_premium(request.user):
+        assert isinstance(self.request.user, User)
+        if not has_advanced_premium(self.request.user):
             return self.to_response(
                 raw_data={'detail': 'Функция доступна только для подписки advanced'},
                 status_code=HTTPStatus.FORBIDDEN,
@@ -239,7 +236,7 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
         with transaction.atomic():
             photo = (
                 CityUserPhoto.objects.select_for_update()
-                .filter(id=photo_id, user=request.user)
+                .filter(id=photo_id, user=self.request.user)
                 .select_related('city')
                 .first()
             )
@@ -255,7 +252,7 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
 
             photos = list(
                 CityUserPhoto.objects.select_for_update()
-                .filter(user=request.user, city_id=city_id)
+                .filter(user=self.request.user, city_id=city_id)
                 .order_by('-is_default', 'position', '-created_at')
             )
             has_default = False
@@ -294,17 +291,16 @@ class SetDefaultCityUserPhotoController(Controller[MsgspecSerializer]):
         tags=['Пользовательские фото городов'],
     )
     def post(self) -> Any:
-        request = cast(HttpRequest, self.request)
         photo_id = cast(UUID, self.kwargs['photo_id'])
 
-        if not request.user.is_authenticated:
+        if not self.request.user.is_authenticated:
             return self.to_response(
                 raw_data={'detail': 'Требуется авторизация'},
                 status_code=HTTPStatus.UNAUTHORIZED,
             )
 
-        assert isinstance(request.user, User)
-        if not has_advanced_premium(request.user):
+        assert isinstance(self.request.user, User)
+        if not has_advanced_premium(self.request.user):
             return self.to_response(
                 raw_data={'detail': 'Функция доступна только для подписки advanced'},
                 status_code=HTTPStatus.FORBIDDEN,
@@ -313,7 +309,7 @@ class SetDefaultCityUserPhotoController(Controller[MsgspecSerializer]):
         with transaction.atomic():
             photo = (
                 CityUserPhoto.objects.select_for_update()
-                .filter(id=photo_id, user=request.user)
+                .filter(id=photo_id, user=self.request.user)
                 .select_related('city')
                 .first()
             )
@@ -324,7 +320,7 @@ class SetDefaultCityUserPhotoController(Controller[MsgspecSerializer]):
                 )
 
             CityUserPhoto.objects.select_for_update().filter(
-                user=request.user,
+                user=self.request.user,
                 city=photo.city,
                 is_default=True,
             ).update(is_default=False)

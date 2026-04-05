@@ -5,7 +5,6 @@
     <!-- Карточка города: постер 16:9 сверху, контент снизу -->
     <div class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
          id="section-city_{{ forloop.counter }}">
-        {# Превью: object-cover заполняет слот 16:9 по ширине и высоте. Вертикальные кадры: обрезка по бокам нет — по вертикали; object-center режет симметрично сверху/снизу. Для акцента на верхней части кадра можно заменить на object-top. #}
         <div class="relative aspect-video w-full shrink-0 overflow-hidden bg-white dark:bg-neutral-900">
             {% if city.default_city_user_photo_id %}
                 <a href="{{ city.city.get_absolute_url }}" class="relative block h-full min-h-0 w-full overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" aria-label="{{ city.city.title }}">

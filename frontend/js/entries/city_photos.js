@@ -677,11 +677,11 @@ function initCityPhotoManager() {
             thumbsSwiper = null;
           } else {
             if (thumbsSwiper) {
-              const thumbToRemove = thumbsSwiper.el.querySelector(
-                `.swiper-slide[data-photo-id="${photoId}"]`,
+              const thumbIndex = Array.from(thumbsSwiper.slides).findIndex(
+                (s) => (s.getAttribute('data-photo-id') || '') === photoId,
               );
-              if (thumbToRemove) {
-                thumbToRemove.remove();
+              if (thumbIndex >= 0) {
+                thumbsSwiper.removeSlide(thumbIndex);
               }
               thumbsSwiper.update();
             }
@@ -689,6 +689,15 @@ function initCityPhotoManager() {
             applyCityPhotoDefaultFromServer(citySwiper, deletePayload.default_photo_id, thumbsElement);
             const nextIndex = Math.min(activeIndex, citySwiper.slides.length - 1);
             citySwiper.slideTo(nextIndex, 0);
+            if (thumbsSwiper) {
+              const syncThumbsWithMain = () => {
+                const i = citySwiper.activeIndex;
+                thumbsSwiper.slideTo(i, 0);
+                citySwiper.thumbs?.update?.(true);
+              };
+              syncThumbsWithMain();
+              requestAnimationFrame(syncThumbsWithMain);
+            }
           }
           syncControlsWithActiveSlide();
           initCityGallery();

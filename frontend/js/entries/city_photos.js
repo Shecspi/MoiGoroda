@@ -52,7 +52,25 @@ function showError(message) {
   const errorNode = document.getElementById('city-photo-error');
   if (!errorNode) return;
   errorNode.textContent = message;
-  errorNode.classList.remove('hidden');
+  errorNode.classList.remove('hidden', 'text-amber-700', 'dark:text-amber-400');
+  errorNode.classList.add('text-red-600');
+}
+
+function showCityPhotoUploadNotice(message) {
+  const errorNode = document.getElementById('city-photo-error');
+  if (!errorNode) return;
+  errorNode.textContent = message;
+  errorNode.classList.remove('hidden', 'text-red-600');
+  errorNode.classList.add('text-amber-700', 'dark:text-amber-400');
+}
+
+function hideCityPhotoUploadMessage() {
+  const errorNode = document.getElementById('city-photo-error');
+  if (!errorNode) return;
+  errorNode.textContent = '';
+  errorNode.classList.add('hidden');
+  errorNode.classList.remove('text-amber-700', 'dark:text-amber-400');
+  errorNode.classList.add('text-red-600');
 }
 
 /** Панель миниатюр скрыта шаблоном, пока нет ни одного реального изображения (нет user photos и нет city.image). */
@@ -92,6 +110,20 @@ const CITY_PHOTO_STAGE_CLASS =
 
 const CITY_PHOTO_THUMB_SLIDE_BASE_CLASS =
   'swiper-slide relative !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100';
+
+/** Лимит пользовательских фото на город (совпадает с API). */
+const MAX_CITY_USER_PHOTOS = 5;
+
+function countCityUserPhotosInCarousel(citySwiper) {
+  if (!citySwiper?.el) return 0;
+  return citySwiper.el.querySelectorAll('.swiper-slide[data-photo-id]:not([data-photo-id=""])').length;
+}
+
+function truncateCityPhotoFileName(name, maxLen = 40) {
+  const s = String(name || '');
+  if (s.length <= maxLen) return s;
+  return `${s.slice(0, maxLen - 1)}…`;
+}
 
 const CITY_PHOTO_MISSING_SUB_EMPTY = 'В сервисе пока нет фотографий этого города';
 const CITY_PHOTO_MISSING_SUB_FAILED =
@@ -294,6 +326,9 @@ function initCityPhotoManager() {
   const uploadSubmit = document.getElementById('city-photo-upload-submit');
   const uploadSpinner = document.getElementById('city-photo-upload-spinner');
   const uploadText = document.getElementById('city-photo-upload-text');
+  const uploadProgress = document.getElementById('city-photo-upload-progress');
+  const uploadProgressLabel = document.getElementById('city-photo-upload-progress-text');
+  const uploadProgressSpinnerEl = document.getElementById('city-photo-upload-progress-spinner');
   const deleteButton = document.getElementById('city-photo-delete-btn');
   const deleteSpinner = document.getElementById('city-photo-delete-spinner');
   const deleteText = document.getElementById('city-photo-delete-text');
@@ -470,7 +505,7 @@ function initCityPhotoManager() {
     return;
   }
 
-  const setLoadingState = (isLoading, action = null) => {
+  const setLoadingState = (isLoading, action = null, progressMessage = null) => {
     if (fileInput instanceof HTMLInputElement) {
       fileInput.disabled = isLoading;
     }
@@ -490,6 +525,25 @@ function initCityPhotoManager() {
     if (uploadText instanceof HTMLElement) {
       uploadText.textContent = isLoading && action === 'upload' ? 'Загрузка...' : 'Загрузить';
     }
+    if (uploadProgress instanceof HTMLElement) {
+      if (isLoading && action === 'upload' && typeof progressMessage === 'string' && progressMessage.length > 0) {
+        if (uploadProgressLabel instanceof HTMLElement) {
+          uploadProgressLabel.textContent = progressMessage;
+        }
+        uploadProgress.classList.remove('hidden');
+        if (uploadProgressSpinnerEl instanceof HTMLElement) {
+          uploadProgressSpinnerEl.classList.remove('hidden');
+        }
+      } else {
+        if (uploadProgressLabel instanceof HTMLElement) {
+          uploadProgressLabel.textContent = '';
+        }
+        uploadProgress.classList.add('hidden');
+        if (uploadProgressSpinnerEl instanceof HTMLElement) {
+          uploadProgressSpinnerEl.classList.add('hidden');
+        }
+      }
+    }
     if (setDefaultSpinner instanceof HTMLElement) {
       setDefaultSpinner.classList.toggle('hidden', !(isLoading && action === 'set-default'));
     }
@@ -504,38 +558,13 @@ function initCityPhotoManager() {
     }
   };
 
-  uploadForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const formData = new FormData(uploadForm);
-    const csrfToken = formData.get('csrfmiddlewaretoken') || getCookie('csrftoken');
-    const imageFile = formData.get('image');
-    if (!(imageFile instanceof File) || imageFile.size === 0) {
-      showError('Выберите изображение для загрузки');
-      return;
-    }
+  const integrateUploadedPhotoIntoCarousel = (uploadedPhoto) => {
+    const uploadedId = uploadedPhoto?.id;
+    if (!citySwiper || !uploadedId) return false;
 
-    setLoadingState(true, 'upload');
-
-    try {
-      const response = await fetch('/api/city/photos/upload/', {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': csrfToken,
-        },
-        body: formData,
-      });
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Не удалось загрузить фото');
-      }
-      const data = await response.json();
-      const uploadedPhoto = data?.photo;
-      const uploadedId = uploadedPhoto?.id;
-
-      if (citySwiper && uploadedId) {
-        const imageHref = `/api/city/photos/${uploadedId}/`;
-        const uploadedIsDefault = Boolean(uploadedPhoto.is_default);
-        const thumbHtml = `
+    const imageHref = `/api/city/photos/${uploadedId}/`;
+    const uploadedIsDefault = Boolean(uploadedPhoto.is_default);
+    const thumbHtml = `
             <div class="${CITY_PHOTO_THUMB_SLIDE_BASE_CLASS}" data-photo-id="${uploadedId}" data-is-default="${uploadedIsDefault ? 'true' : 'false'}">
               <img src="${imageHref}"
                    alt="Миниатюра фото города"
@@ -544,17 +573,17 @@ function initCityPhotoManager() {
             </div>
           `;
 
-        const thumbsWasHidden =
-          thumbsPanel instanceof HTMLElement && isCityPhotoThumbsPanelHidden(thumbsPanel);
+    const thumbsWasHidden =
+      thumbsPanel instanceof HTMLElement && isCityPhotoThumbsPanelHidden(thumbsPanel);
 
-        const placeholderIndex = Array.from(citySwiper.slides).findIndex(
-          (slide) => slide.getAttribute('data-is-placeholder') === 'true',
-        );
-        if (placeholderIndex >= 0) {
-          citySwiper.removeSlide(placeholderIndex);
-        }
+    const placeholderIndex = Array.from(citySwiper.slides).findIndex(
+      (slide) => slide.getAttribute('data-is-placeholder') === 'true',
+    );
+    if (placeholderIndex >= 0) {
+      citySwiper.removeSlide(placeholderIndex);
+    }
 
-        const slideHtml = `
+    const slideHtml = `
           <div class="swiper-slide !h-auto" data-photo-id="${uploadedId}" data-is-default="${uploadedPhoto.is_default ? 'true' : 'false'}">
             <a href="${imageHref}" class="city-glightbox block w-full" data-type="image">
               <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
@@ -565,74 +594,136 @@ function initCityPhotoManager() {
             </a>
           </div>
         `;
-        const serviceSlideIndex = Array.from(citySwiper.slides).findIndex(
-          (slide) => slide.getAttribute('data-is-service-image') === 'true',
-        );
-        if (serviceSlideIndex >= 0) {
-          citySwiper.addSlide(serviceSlideIndex, slideHtml);
-        } else {
-          citySwiper.appendSlide(slideHtml);
-        }
+    const serviceSlideIndex = Array.from(citySwiper.slides).findIndex(
+      (slide) => slide.getAttribute('data-is-service-image') === 'true',
+    );
+    if (serviceSlideIndex >= 0) {
+      citySwiper.addSlide(serviceSlideIndex, slideHtml);
+    } else {
+      citySwiper.appendSlide(slideHtml);
+    }
 
-        if (
-          thumbsWasHidden &&
-          thumbsElement instanceof HTMLElement &&
-          thumbsPanel instanceof HTMLElement
-        ) {
-          showCityPhotoThumbsPanel(thumbsPanel);
-          const thumbsWrapper = thumbsElement.querySelector('.swiper-wrapper');
-          if (thumbsWrapper) {
-            thumbsWrapper.insertAdjacentHTML('beforeend', thumbHtml);
-          }
-          thumbsSwiper = new Swiper(thumbsElement, {
-            modules: [FreeMode, Manipulation],
-            spaceBetween: 8,
-            slidesPerView: 'auto',
-            freeMode: true,
-            watchSlidesProgress: true,
-          });
-          citySwiper.params.thumbs = { swiper: thumbsSwiper };
-          citySwiper.thumbs.init();
-          citySwiper.thumbs.update(true);
-        } else if (thumbsSwiper) {
-          const placeholderThumbIndex = Array.from(thumbsSwiper.slides).findIndex(
-            (slide) => slide.getAttribute('data-is-placeholder') === 'true',
-          );
-          if (placeholderThumbIndex >= 0) {
-            thumbsSwiper.removeSlide(placeholderThumbIndex);
-          }
-          const serviceThumbIndex = Array.from(thumbsSwiper.slides).findIndex(
-            (slide) => slide.getAttribute('data-is-service-image') === 'true',
-          );
-          if (serviceThumbIndex >= 0) {
-            thumbsSwiper.addSlide(serviceThumbIndex, thumbHtml);
-          } else {
-            thumbsSwiper.appendSlide(thumbHtml);
-          }
-          thumbsSwiper.update();
-        }
-
-        citySwiper.update();
-        bindCityMainSwiperImagesForAutoHeight(citySwiper);
-        const newSlideIndex = Array.from(citySwiper.slides).findIndex(
-          (slide) => slide.getAttribute('data-photo-id') === String(uploadedId),
-        );
-        if (newSlideIndex >= 0) {
-          citySwiper.slideTo(newSlideIndex, 0);
-        }
-        syncControlsWithActiveSlide();
-        initCityGallery();
-        bindCityPhotoUserMediaErrorHandlers(citySwiper, thumbsElement, syncControlsWithActiveSlide);
-        hideCityPhotoNoImageMessages();
+    if (
+      thumbsWasHidden &&
+      thumbsElement instanceof HTMLElement &&
+      thumbsPanel instanceof HTMLElement
+    ) {
+      showCityPhotoThumbsPanel(thumbsPanel);
+      const thumbsWrapper = thumbsElement.querySelector('.swiper-wrapper');
+      if (thumbsWrapper) {
+        thumbsWrapper.insertAdjacentHTML('beforeend', thumbHtml);
+      }
+      thumbsSwiper = new Swiper(thumbsElement, {
+        modules: [FreeMode, Manipulation],
+        spaceBetween: 8,
+        slidesPerView: 'auto',
+        freeMode: true,
+        watchSlidesProgress: true,
+      });
+      citySwiper.params.thumbs = { swiper: thumbsSwiper, multipleActiveThumbs: false };
+      citySwiper.thumbs.init();
+      citySwiper.thumbs.update(true);
+    } else if (thumbsSwiper) {
+      const placeholderThumbIndex = Array.from(thumbsSwiper.slides).findIndex(
+        (slide) => slide.getAttribute('data-is-placeholder') === 'true',
+      );
+      if (placeholderThumbIndex >= 0) {
+        thumbsSwiper.removeSlide(placeholderThumbIndex);
+      }
+      const serviceThumbIndex = Array.from(thumbsSwiper.slides).findIndex(
+        (slide) => slide.getAttribute('data-is-service-image') === 'true',
+      );
+      if (serviceThumbIndex >= 0) {
+        thumbsSwiper.addSlide(serviceThumbIndex, thumbHtml);
       } else {
-        // Если блок карусели отсутствует в текущем DOM, просим перезагрузить вручную.
-        showError('Фото загружено. Обновите страницу для отображения в карусели.');
+        thumbsSwiper.appendSlide(thumbHtml);
+      }
+      thumbsSwiper.update();
+    }
+
+    citySwiper.update();
+    bindCityMainSwiperImagesForAutoHeight(citySwiper);
+    const newSlideIndex = Array.from(citySwiper.slides).findIndex(
+      (slide) => slide.getAttribute('data-photo-id') === String(uploadedId),
+    );
+    if (newSlideIndex >= 0) {
+      citySwiper.slideTo(newSlideIndex, 0);
+    }
+    syncControlsWithActiveSlide();
+    initCityGallery();
+    bindCityPhotoUserMediaErrorHandlers(citySwiper, thumbsElement, syncControlsWithActiveSlide);
+    hideCityPhotoNoImageMessages();
+    return true;
+  };
+
+  uploadForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData(uploadForm);
+    const csrfToken = formData.get('csrfmiddlewaretoken') || getCookie('csrftoken');
+    const cityId = formData.get('city_id');
+
+    const fileInputEl = uploadForm.querySelector('#city-photo-file-input');
+    const fileList =
+      fileInputEl instanceof HTMLInputElement && fileInputEl.files ? fileInputEl.files : null;
+    const files = fileList ? Array.from(fileList).filter((f) => f instanceof File && f.size > 0) : [];
+
+    if (files.length === 0) {
+      showError('Выберите одно или несколько изображений для загрузки');
+      return;
+    }
+
+    const existingCount = citySwiper ? countCityUserPhotosInCarousel(citySwiper) : 0;
+    const slotsLeft = Math.max(0, MAX_CITY_USER_PHOTOS - existingCount);
+    if (slotsLeft === 0) {
+      showError(`Уже загружено максимум фотографий (${MAX_CITY_USER_PHOTOS} шт.) для этого города`);
+      return;
+    }
+
+    const filesToUpload = files.slice(0, slotsLeft);
+    if (files.length > slotsLeft) {
+      showCityPhotoUploadNotice(
+        `Будет загружено ${slotsLeft} из ${files.length} файлов (лимит ${MAX_CITY_USER_PHOTOS} фото на город).`,
+      );
+    }
+
+    try {
+      let anyCarouselUpdate = false;
+      for (let i = 0; i < filesToUpload.length; i += 1) {
+        const file = filesToUpload[i];
+        const shortName = truncateCityPhotoFileName(file.name);
+        const progressMessage =
+          filesToUpload.length > 1
+            ? `Загрузка файла ${i + 1} из ${filesToUpload.length} на сервер: «${shortName}» — подождите…`
+            : `Отправка фото на сервер: «${shortName}» — подождите…`;
+        setLoadingState(true, 'upload', progressMessage);
+        const fd = new FormData();
+        fd.append('csrfmiddlewaretoken', String(csrfToken ?? ''));
+        if (cityId != null) fd.append('city_id', String(cityId));
+        fd.append('image', file, file.name);
+
+        const response = await fetch('/api/city/photos/upload/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken,
+          },
+          body: fd,
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.detail || 'Не удалось загрузить фото');
+        }
+        const uploadedPhoto = data?.photo;
+        if (citySwiper && uploadedPhoto?.id) {
+          integrateUploadedPhotoIntoCarousel(uploadedPhoto);
+          anyCarouselUpdate = true;
+        } else {
+          showError('Фото загружено. Обновите страницу для отображения в карусели.');
+          break;
+        }
       }
 
-      const errorNode = document.getElementById('city-photo-error');
-      if (errorNode) {
-        errorNode.classList.add('hidden');
-        errorNode.textContent = '';
+      if (anyCarouselUpdate) {
+        hideCityPhotoUploadMessage();
       }
       uploadForm.reset();
     } catch (error) {

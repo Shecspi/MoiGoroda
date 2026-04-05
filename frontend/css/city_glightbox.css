@@ -1,0 +1,65 @@
+/* Стрелки GLightbox на странице города — как у Swiper (.city-swiper-prev / .city-swiper-next) */
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gprev,
+.glightbox-container.glightbox-city-photo.glightbox-clean .gnext {
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+}
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gprev {
+  left: 0.75rem !important;
+}
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gnext {
+  right: 0.75rem !important;
+}
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gprev:hover,
+.glightbox-container.glightbox-city-photo.glightbox-clean .gnext:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+}
+
+.glightbox-container.glightbox-city-photo .gprev svg,
+.glightbox-container.glightbox-city-photo .gnext svg {
+  width: 1rem;
+  height: 1rem;
+  max-width: 1rem;
+  max-height: 1rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.glightbox-container.glightbox-city-photo .gprev path,
+.glightbox-container.glightbox-city-photo .gnext path {
+  fill: currentColor;
+}
+
+@media (max-width: 768px) {
+  .glightbox-container.glightbox-city-photo.glightbox-clean .gprev,
+  .glightbox-container.glightbox-city-photo.glightbox-clean .gnext {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background-color: rgba(0, 0, 0, 0.35);
+  }
+
+  .glightbox-container.glightbox-city-photo.glightbox-clean .gprev:hover,
+  .glightbox-container.glightbox-city-photo.glightbox-clean .gnext:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}

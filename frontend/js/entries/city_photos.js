@@ -63,6 +63,21 @@ function setCityCarouselNavVisible(visible, prev, next, pag) {
   });
 }
 
+/** Пересчёт высоты после загрузки картинок (Swiper `autoHeight`). */
+function bindCityMainSwiperImagesForAutoHeight(swiper) {
+  if (!swiper?.el) return;
+  const speed = swiper.params.speed ?? 300;
+  const bump = () => swiper.updateAutoHeight(speed);
+  swiper.el.querySelectorAll('img').forEach((img) => {
+    if (!(img instanceof HTMLImageElement)) return;
+    if (img.complete && img.naturalWidth > 0) {
+      requestAnimationFrame(bump);
+      return;
+    }
+    img.addEventListener('load', () => bump(), { once: true });
+  });
+}
+
 /**
  * После удаления последнего пользовательского фото: плейсхолдер в карусели, скрыта панель превью, без перезагрузки страницы.
  * Вызывающий обязан присвоить `thumbsSwiper = null` после вызова (связь thumbs с main сбрасывается).
@@ -88,17 +103,20 @@ function showPlaceholderAfterLastCityPhotoRemoved(citySwiper, thumbsSwiperInstan
   }
 
   const placeholderSlideHtml = `
-    <div class="swiper-slide h-full flex items-center justify-center"
+    <div class="swiper-slide !h-auto"
          data-photo-id=""
          data-is-default="true"
          data-is-placeholder="true">
-      <img src="${CITY_PLACEHOLDER_IMG}"
-           alt="Фото города"
-           class="block max-w-full h-full w-auto object-contain rounded-lg shadow-lg mx-auto">
+      <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
+        <img src="${CITY_PLACEHOLDER_IMG}"
+             alt="Фото города"
+             class="absolute inset-0 h-full w-full object-contain">
+      </div>
     </div>`;
 
   citySwiper.appendSlide(placeholderSlideHtml);
   citySwiper.update();
+  bindCityMainSwiperImagesForAutoHeight(citySwiper);
   citySwiper.slideTo(0, 0);
   setCityCarouselNavVisible(false, prevButton, nextButton, pagination);
 }
@@ -149,6 +167,7 @@ function initCityPhotoManager() {
       modules: [Navigation, Pagination, Manipulation, Thumbs],
       slidesPerView: 1,
       speed: 300,
+      autoHeight: true,
       navigation: {
         prevEl: prevButton instanceof HTMLElement ? prevButton : null,
         nextEl: nextButton instanceof HTMLElement ? nextButton : null,
@@ -160,6 +179,7 @@ function initCityPhotoManager() {
       },
       thumbs: thumbsSwiper ? { swiper: thumbsSwiper } : undefined,
     });
+    bindCityMainSwiperImagesForAutoHeight(citySwiper);
   }
 
   const syncControlsWithActiveSlide = () => {
@@ -281,12 +301,14 @@ function initCityPhotoManager() {
         }
 
         const slideHtml = `
-          <div class="swiper-slide h-full" data-photo-id="${uploadedId}" data-is-default="${uploadedPhoto.is_default ? 'true' : 'false'}">
-            <a href="${imageHref}" class="city-glightbox inline-flex w-full h-full items-center justify-center" data-type="image">
-              <img src="${imageHref}"
-                   alt="Фото города"
-                   class="block max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-lg mx-auto"
-                   onerror="this.onerror=null;this.src='/static/image/city_placeholder.png'">
+          <div class="swiper-slide !h-auto" data-photo-id="${uploadedId}" data-is-default="${uploadedPhoto.is_default ? 'true' : 'false'}">
+            <a href="${imageHref}" class="city-glightbox block w-full" data-type="image">
+              <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
+                <img src="${imageHref}"
+                     alt="Фото города"
+                     class="absolute inset-0 h-full w-full object-contain"
+                     onerror="this.onerror=null;this.src='/static/image/city_placeholder.png'">
+              </div>
             </a>
           </div>
         `;
@@ -338,6 +360,7 @@ function initCityPhotoManager() {
         }
 
         citySwiper.update();
+        bindCityMainSwiperImagesForAutoHeight(citySwiper);
         const newSlideIndex = Array.from(citySwiper.slides).findIndex(
           (slide) => slide.getAttribute('data-photo-id') === String(uploadedId),
         );

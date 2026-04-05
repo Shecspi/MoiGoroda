@@ -174,6 +174,25 @@ def annotate_visited_city_list_default_photo(
     )
 
 
+def annotate_city_default_user_photo_for_list(
+    queryset: QuerySet[City], user_id: int
+) -> QuerySet[City]:
+    """
+    Аннотация id фото по умолчанию пользователя для записей City (списки городов с авторизацией).
+    """
+    default_city_user_photo_id_subquery = CityUserPhoto.objects.filter(
+        city_id=OuterRef('pk'),
+        user_id=user_id,
+        is_default=True,
+    ).values('id')[:1]
+
+    return queryset.annotate(
+        default_city_user_photo_id=Subquery(
+            default_city_user_photo_id_subquery, output_field=UUIDField()
+        )
+    )
+
+
 def get_all_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[VisitedCity]:
     """
     Получает из базы данных все посещённые города пользователя с ID, указанным в user_id.

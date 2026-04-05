@@ -649,6 +649,15 @@ function initCityPhotoManager() {
     if (newSlideIndex >= 0) {
       citySwiper.slideTo(newSlideIndex, 0);
     }
+    if (thumbsSwiper) {
+      const syncThumbsWithMain = () => {
+        const i = citySwiper.activeIndex;
+        thumbsSwiper.slideTo(i, 0);
+        citySwiper.thumbs?.update?.(true);
+      };
+      syncThumbsWithMain();
+      requestAnimationFrame(syncThumbsWithMain);
+    }
     syncControlsWithActiveSlide();
     initCityGallery();
     bindCityPhotoUserMediaErrorHandlers(citySwiper, thumbsElement, syncControlsWithActiveSlide);

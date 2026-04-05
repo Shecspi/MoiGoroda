@@ -159,6 +159,14 @@ function setCityCarouselNavVisible(visible, prev, next, pag) {
   });
 }
 
+/** Индекс слайда с фото по умолчанию (`data-is-default`), иначе 0. */
+function getCityPhotoMainInitialSlideIndex(swiperEl) {
+  if (!(swiperEl instanceof HTMLElement)) return 0;
+  const slides = [...swiperEl.querySelectorAll('.swiper-slide')];
+  const i = slides.findIndex((s) => s.getAttribute('data-is-default') === 'true');
+  return i >= 0 ? i : 0;
+}
+
 /** Пересчёт высоты после загрузки картинок (Swiper `autoHeight`). */
 function bindCityMainSwiperImagesForAutoHeight(swiper) {
   if (!swiper?.el) return;
@@ -242,6 +250,9 @@ function initCityPhotoManager() {
   const nextButton = carouselRoot?.querySelector('.city-swiper-next');
   const pagination = carouselRoot?.querySelector('.city-swiper-pagination');
 
+  const initialMainSlide =
+    swiperElement instanceof HTMLElement ? getCityPhotoMainInitialSlideIndex(swiperElement) : 0;
+
   let thumbsSwiper = null;
   if (
     thumbsElement instanceof HTMLElement &&
@@ -254,6 +265,7 @@ function initCityPhotoManager() {
       slidesPerView: 'auto',
       freeMode: true,
       watchSlidesProgress: true,
+      initialSlide: initialMainSlide,
     });
   }
 
@@ -264,6 +276,7 @@ function initCityPhotoManager() {
       slidesPerView: 1,
       speed: 300,
       autoHeight: true,
+      initialSlide: initialMainSlide,
       navigation: {
         prevEl: prevButton instanceof HTMLElement ? prevButton : null,
         nextEl: nextButton instanceof HTMLElement ? nextButton : null,
@@ -273,7 +286,9 @@ function initCityPhotoManager() {
         clickable: true,
         dynamicBullets: true,
       },
-      thumbs: thumbsSwiper ? { swiper: thumbsSwiper } : undefined,
+      thumbs: thumbsSwiper
+        ? { swiper: thumbsSwiper, multipleActiveThumbs: false }
+        : undefined,
     });
     bindCityMainSwiperImagesForAutoHeight(citySwiper);
   }
@@ -373,6 +388,20 @@ function initCityPhotoManager() {
   }
 
   syncControlsWithActiveSlide();
+
+  if (citySwiper) {
+    const alignMainToDefaultSlide = () => {
+      const target = getCityPhotoMainInitialSlideIndex(citySwiper.el);
+      citySwiper.slideTo(target, 0, false);
+      thumbsSwiper?.slideTo(target, 0);
+      citySwiper.thumbs?.update?.(true);
+      syncControlsWithActiveSlide();
+    };
+    requestAnimationFrame(() => {
+      alignMainToDefaultSlide();
+      requestAnimationFrame(alignMainToDefaultSlide);
+    });
+  }
 
   if (!uploadForm) {
     return;

@@ -247,5 +247,32 @@ def test_set_default_and_delete_photo(
         reverse('api__city_user_photo_content', kwargs={'photo_id': photo2.id})
     )
     assert delete_response.status_code == status.HTTP_200_OK
+    delete_payload = delete_response.json()
+    assert delete_payload['status'] == 'success'
+    assert delete_payload['default_photo_id'] == str(photo1.id)
     photo1.refresh_from_db()
     assert photo1.is_default is True
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_delete_last_photo_returns_null_default_id(
+    api_client: APIClient,
+    user: User,
+    city: City,
+    active_advanced_subscription: PremiumSubscription,
+) -> None:
+    photo = CityUserPhoto.objects.create(
+        user=user,
+        city=city,
+        image=_make_image_file(name='only.png'),
+        is_default=True,
+        position=1,
+    )
+    api_client.force_authenticate(user=user)
+    delete_response = api_client.delete(
+        reverse('api__city_user_photo_content', kwargs={'photo_id': photo.id})
+    )
+    assert delete_response.status_code == status.HTTP_200_OK
+    assert delete_response.json() == {'status': 'success', 'default_photo_id': None}
+    assert not CityUserPhoto.objects.filter(id=photo.id).exists()

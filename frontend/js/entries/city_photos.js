@@ -70,6 +70,9 @@ function showCityPhotoNoImageMessages() {
 const CITY_PHOTO_STAGE_CLASS =
   'city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15';
 
+const CITY_PHOTO_THUMB_SLIDE_BASE_CLASS =
+  'swiper-slide relative !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100';
+
 const CITY_PHOTO_MISSING_SUB_EMPTY = 'В сервисе пока нет фотографий этого города';
 const CITY_PHOTO_MISSING_SUB_FAILED =
   'Файл недоступен. Удалите снимок и загрузите другой или обновите страницу.';
@@ -165,6 +168,46 @@ function getCityPhotoMainInitialSlideIndex(swiperEl) {
   const slides = [...swiperEl.querySelectorAll('.swiper-slide')];
   const i = slides.findIndex((s) => s.getAttribute('data-is-default') === 'true');
   return i >= 0 ? i : 0;
+}
+
+function getCityPhotoThumbDefaultBadgeMarkup(isDefault) {
+  return `<span class="city-photo-thumb-default-badge pointer-events-none absolute bottom-0.5 right-0.5 inline-grid size-5 place-items-center rounded-full border border-white/40 bg-black/55 leading-none text-white shadow-md backdrop-blur-[2px] ${
+    isDefault ? '' : 'hidden'
+  }" role="img" aria-label="Основное фото" title="Основное фото" aria-hidden="${isDefault ? 'false' : 'true'}"><svg xmlns="http://www.w3.org/2000/svg" class="block size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.2 7.2a1 1 0 01-1.415 0l-3-3a1 1 0 111.414-1.42l2.293 2.294 6.493-6.494a1 1 0 011.415 0z" clip-rule="evenodd"/></svg></span>`;
+}
+
+function updateCityPhotoThumbDefaultBadges(thumbsRoot) {
+  if (!(thumbsRoot instanceof HTMLElement)) return;
+  thumbsRoot.querySelectorAll('.swiper-slide[data-photo-id]').forEach((slide) => {
+    const pid = slide.getAttribute('data-photo-id') || '';
+    if (!pid.length) return;
+    const badge = slide.querySelector('.city-photo-thumb-default-badge');
+    if (!(badge instanceof HTMLElement)) return;
+    const isDef = slide.getAttribute('data-is-default') === 'true';
+    badge.classList.toggle('hidden', !isDef);
+    badge.setAttribute('aria-hidden', isDef ? 'false' : 'true');
+  });
+}
+
+/** Синхронизация `data-is-default` на главной карусели и превью после ответа API. */
+function applyCityPhotoDefaultFromServer(citySwiper, defaultPhotoId, thumbsElement) {
+  const defaultId = defaultPhotoId == null ? null : String(defaultPhotoId);
+  const patchSlides = (root) => {
+    if (!(root instanceof HTMLElement)) return;
+    root.querySelectorAll('.swiper-slide[data-photo-id]').forEach((slide) => {
+      const pid = slide.getAttribute('data-photo-id') || '';
+      if (!pid.length) return;
+      slide.setAttribute(
+        'data-is-default',
+        defaultId !== null && pid === defaultId ? 'true' : 'false',
+      );
+    });
+  };
+  if (citySwiper?.el) patchSlides(citySwiper.el);
+  if (thumbsElement instanceof HTMLElement) {
+    patchSlides(thumbsElement);
+    updateCityPhotoThumbDefaultBadges(thumbsElement);
+  }
 }
 
 /** Пересчёт высоты после загрузки картинок (Swiper `autoHeight`). */
@@ -471,11 +514,13 @@ function initCityPhotoManager() {
 
       if (citySwiper && uploadedId) {
         const imageHref = `/api/city/photos/${uploadedId}/`;
+        const uploadedIsDefault = Boolean(uploadedPhoto.is_default);
         const thumbHtml = `
-            <div class="swiper-slide !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer" data-photo-id="${uploadedId}">
+            <div class="${CITY_PHOTO_THUMB_SLIDE_BASE_CLASS}" data-photo-id="${uploadedId}" data-is-default="${uploadedIsDefault ? 'true' : 'false'}">
               <img src="${imageHref}"
                    alt="Миниатюра фото города"
                    class="city-photo-thumb-img h-full w-full object-cover">
+              ${getCityPhotoThumbDefaultBadgeMarkup(uploadedIsDefault)}
             </div>
           `;
 
@@ -611,9 +656,9 @@ function initCityPhotoManager() {
             'X-CSRFToken': csrfToken,
           },
         });
+        const deletePayload = await response.json();
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.detail || 'Не удалось удалить фото');
+          throw new Error(deletePayload.detail || 'Не удалось удалить фото');
         }
 
         if (citySwiper) {
@@ -641,6 +686,7 @@ function initCityPhotoManager() {
               thumbsSwiper.update();
             }
 
+            applyCityPhotoDefaultFromServer(citySwiper, deletePayload.default_photo_id, thumbsElement);
             const nextIndex = Math.min(activeIndex, citySwiper.slides.length - 1);
             citySwiper.slideTo(nextIndex, 0);
           }
@@ -673,11 +719,7 @@ function initCityPhotoManager() {
         }
 
         if (citySwiper) {
-          citySwiper.slides.forEach((slide) => {
-            const slidePhotoId = slide.getAttribute('data-photo-id');
-            const isTarget = slidePhotoId === photoId;
-            slide.setAttribute('data-is-default', isTarget ? 'true' : 'false');
-          });
+          applyCityPhotoDefaultFromServer(citySwiper, photoId, thumbsElement);
           syncControlsWithActiveSlide();
         } else {
           window.location.reload();

@@ -271,7 +271,16 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
                 first_photo.is_default = True
                 first_photo.save(update_fields=['is_default', 'updated_at'])
 
-        return self.to_response(raw_data={'status': 'success'}, status_code=HTTPStatus.OK)
+            default_photo_id: str | None = None
+            for item in photos:
+                if item.is_default:
+                    default_photo_id = str(item.id)
+                    break
+
+        return self.to_response(
+            raw_data={'status': 'success', 'default_photo_id': default_photo_id},
+            status_code=HTTPStatus.OK,
+        )
 
 
 class SetDefaultCityUserPhotoController(Controller[MsgspecSerializer]):

@@ -192,7 +192,6 @@
     {% if can_edit_standard_city_photo %}
         <div class="mt-4 text-left rounded-lg border border-amber-200 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-500/10 p-3">
             <p class="text-sm font-medium mb-2 text-amber-900 dark:text-amber-100">Стандартное фото города</p>
-            <p class="text-xs text-muted-foreground-1 mb-3">Файл сохраняется в хранилище: страна и транслит названия города; если у региона задан код ISO3166 — дополнительная папка региона между ними.</p>
             <form id="city-standard-photo-form" class="space-y-3" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="city_id" value="{{ city.id }}">
@@ -224,7 +223,7 @@
                            class="w-full bg-layer border border-layer-line rounded-lg px-3 py-2 text-sm">
                 </div>
                 <div class="flex items-center gap-2">
-                    <button type="submit" id="city-standard-photo-submit" class="btn btn-primary btn-default inline-flex items-center gap-x-2">
+                    <button type="submit" id="city-standard-photo-submit" class="btn btn-default inline-flex w-full items-center justify-center gap-x-2 !border-amber-600 !bg-amber-600 !text-white hover:!border-amber-700 hover:!bg-amber-700 focus:!border-amber-700 focus:!bg-amber-700 dark:!border-amber-500 dark:!bg-amber-500 dark:!text-amber-950 dark:hover:!border-amber-400 dark:hover:!bg-amber-400 sm:w-auto">
                         <svg id="city-standard-photo-spinner" class="hidden size-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>

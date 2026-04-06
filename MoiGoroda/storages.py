@@ -1,12 +1,21 @@
-import os
-
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from storages.backends.s3boto3 import S3Boto3Storage
 
 
 class UsersCityPhotoStorage(S3Boto3Storage):
-    bucket_name = os.getenv('AWS_USERS_CITY_PHOTOS_BUCKET_NAME')
-    region_name = os.getenv('AWS_USERS_CITY_PHOTOS_REGION_NAME')
     querystring_auth = True
-    querystring_expire = int(os.getenv('AWS_USERS_CITY_PHOTOS_URL_EXPIRE_SECONDS', '120'))
     default_acl = None
     file_overwrite = False
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('bucket_name', settings.AWS_USERS_CITY_PHOTOS_BUCKET_NAME)
+        kwargs.setdefault('region_name', settings.AWS_USERS_CITY_PHOTOS_REGION_NAME)
+        kwargs.setdefault('querystring_expire', settings.AWS_USERS_CITY_PHOTOS_URL_EXPIRE_SECONDS)
+
+        if not kwargs.get('bucket_name'):
+            raise ImproperlyConfigured(
+                'Задайте AWS_USERS_CITY_PHOTOS_BUCKET_NAME в окружении (см. .env.example).'
+            )
+
+        super().__init__(**kwargs)

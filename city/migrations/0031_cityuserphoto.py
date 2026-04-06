@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 (
                     'image',
                     models.ImageField(
-                        storage=MoiGoroda.storages.CityPhotoPrivateStorage(),
+                        storage=MoiGoroda.storages.UsersCityPhotoStorage(),
                         upload_to=city.models.city_user_photo_upload_to,
                         verbose_name='Изображение',
                     ),

@@ -46,6 +46,7 @@ from city.services.db import (
     set_is_visit_first_for_all_visited_cities,
     get_number_of_visited_countries,
 )
+from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
 from city.services.interfaces import AbstractVisitedCityService
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
@@ -530,6 +531,10 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
         context['default_sort'] = (
             self.default_sort_settings.parameter_value if self.default_sort_settings else None
         )
+
+        object_list = context.get('object_list')
+        if object_list is not None:
+            attach_default_city_user_photo_presigned_urls(object_list, self.user_id)
 
         return context
 

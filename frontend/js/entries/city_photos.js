@@ -562,7 +562,10 @@ function initCityPhotoManager() {
     const uploadedId = uploadedPhoto?.id;
     if (!citySwiper || !uploadedId) return false;
 
-    const imageHref = `/api/city/photos/${uploadedId}/`;
+    const imageHref =
+      typeof uploadedPhoto.image_url === 'string' && uploadedPhoto.image_url.length > 0
+        ? uploadedPhoto.image_url
+        : `/api/city/photos/${uploadedId}/`;
     const uploadedIsDefault = Boolean(uploadedPhoto.is_default);
     const thumbHtml = `
             <div class="${CITY_PHOTO_THUMB_SLIDE_BASE_CLASS}" data-photo-id="${uploadedId}" data-is-default="${uploadedIsDefault ? 'true' : 'false'}">

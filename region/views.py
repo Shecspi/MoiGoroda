@@ -30,6 +30,7 @@ from country.models import Country
 from region.models import Region
 from city.models import VisitedCity, City
 from city.services.db import annotate_city_default_user_photo_for_list
+from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
 from services import logger
 from region.services.db import (
     get_all_region_with_visited_cities,
@@ -393,6 +394,11 @@ class CitiesByRegionList(ListView):
                 'page_description': f"{page_type} региона '{self.region_name}'",
             }
         )
+
+        if self.request.user.is_authenticated:
+            uid = self.request.user.pk
+            if uid is not None:
+                attach_default_city_user_photo_presigned_urls(context.get('object_list') or [], uid)
 
         return context
 

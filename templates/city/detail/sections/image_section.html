@@ -23,11 +23,11 @@
                             <div class="swiper-slide !h-auto"
                                  data-photo-id="{{ photo.id }}"
                                  data-is-default="{% if photo.is_default %}true{% else %}false{% endif %}">
-                                <a href="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
+                                <a href="{{ photo.image.url }}"
                                    class="city-glightbox block w-full"
                                    data-type="image">
                                     <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
-                                        <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
+                                        <img src="{{ photo.image.url }}"
                                              alt="Фото города {{ city.title }}"
                                              class="city-photo-main-img absolute inset-0 h-full w-full object-contain">
                                     </div>
@@ -77,7 +77,7 @@
                             <div class="swiper-slide relative !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100"
                                  data-photo-id="{{ photo.id }}"
                                  data-is-default="{% if photo.is_default %}true{% else %}false{% endif %}">
-                                <img src="{% url 'api__city_user_photo_content' photo_id=photo.id %}"
+                                <img src="{{ photo.image.url }}"
                                      alt="Миниатюра фото города {{ city.title }}"
                                      class="city-photo-thumb-img h-full w-full object-cover">
                                 <span class="city-photo-thumb-default-badge pointer-events-none absolute bottom-0.5 right-0.5 inline-grid size-5 place-items-center rounded-full border border-white/40 bg-black/55 leading-none text-white shadow-md backdrop-blur-[2px] {% if not photo.is_default %}hidden{% endif %}"

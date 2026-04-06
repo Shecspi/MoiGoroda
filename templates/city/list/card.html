@@ -8,7 +8,7 @@
         <div class="relative aspect-video w-full shrink-0 overflow-hidden bg-white dark:bg-neutral-900">
             {% if city.default_city_user_photo_id %}
                 <a href="{{ city.city.get_absolute_url }}" class="relative block h-full min-h-0 w-full overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" aria-label="{{ city.city.title }}">
-                    <img src="{% url 'api__city_user_photo_content' photo_id=city.default_city_user_photo_id %}"
+                    <img src="{% if city.default_city_user_photo_url %}{{ city.default_city_user_photo_url }}{% else %}{% url 'api__city_user_photo_content' photo_id=city.default_city_user_photo_id %}{% endif %}"
                          alt="{{ city.city.title }}"
                          class="city-list-card-hero-img h-full w-full object-cover object-center"
                          width="800"

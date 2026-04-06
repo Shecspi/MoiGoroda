@@ -16,7 +16,7 @@ from django.db.models import CASCADE, PROTECT
 from django.urls import reverse
 
 from country.models import Country
-from MoiGoroda.storages import CityPhotoPrivateStorage
+from MoiGoroda.storages import UsersCityPhotoStorage
 from region.models import Region
 
 
@@ -206,7 +206,7 @@ class CityUserPhoto(models.Model):
     )
     image = models.ImageField(
         upload_to=city_user_photo_upload_to,
-        storage=CityPhotoPrivateStorage(),
+        storage=UsersCityPhotoStorage(),
         verbose_name='Изображение',
     )
     is_default = models.BooleanField(default=False, verbose_name='Фото по умолчанию')

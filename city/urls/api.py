@@ -78,4 +78,9 @@ urlpatterns = [
         name='api__save_district_map_colors',
     ),
     path(city_user_photos_router.prefix, include(city_user_photos_router.urls)),
+    path(
+        'standard_photo/upload/',
+        api.UploadCityStandardPhotoController.as_view(),
+        name='api__upload_city_standard_photo',
+    ),
 ]

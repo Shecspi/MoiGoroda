@@ -189,6 +189,55 @@
         </div>
     {% endif %}
 
+    {% if can_edit_standard_city_photo %}
+        <div class="mt-4 text-left rounded-lg border border-amber-200 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-500/10 p-3">
+            <p class="text-sm font-medium mb-2 text-amber-900 dark:text-amber-100">Стандартное фото города</p>
+            <p class="text-xs text-muted-foreground-1 mb-3">Файл сохраняется в хранилище: страна и транслит названия города; если у региона задан код ISO3166 — дополнительная папка региона между ними.</p>
+            <form id="city-standard-photo-form" class="space-y-3" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="city_id" value="{{ city.id }}">
+                <div>
+                    <label for="city-standard-photo-file" class="block text-xs font-medium text-muted-foreground-1 mb-1">Изображение</label>
+                    <input type="file"
+                           id="city-standard-photo-file"
+                           name="image"
+                           accept="image/*,.heic,.heif"
+                           required
+                           class="block w-full bg-layer border border-layer-line rounded-lg text-sm text-foreground file:bg-surface file:border-0 file:me-4 file:py-2 file:px-3">
+                </div>
+                <div>
+                    <label for="city-standard-photo-source-text" class="block text-xs font-medium text-muted-foreground-1 mb-1">Название источника изображения</label>
+                    <input type="text"
+                           id="city-standard-photo-source-text"
+                           name="image_source_text"
+                           value="{{ city.image_source_text|default:'' }}"
+                           maxlength="255"
+                           class="w-full bg-layer border border-layer-line rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label for="city-standard-photo-source-link" class="block text-xs font-medium text-muted-foreground-1 mb-1">Ссылка на источник изображения</label>
+                    <input type="url"
+                           id="city-standard-photo-source-link"
+                           name="image_source_link"
+                           value="{{ city.image_source_link|default:'' }}"
+                           maxlength="200"
+                           placeholder="https://"
+                           class="w-full bg-layer border border-layer-line rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="submit" id="city-standard-photo-submit" class="btn btn-primary btn-default inline-flex items-center gap-x-2">
+                        <svg id="city-standard-photo-spinner" class="hidden size-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                        <span id="city-standard-photo-submit-text">Сохранить</span>
+                    </button>
+                </div>
+                <div id="city-standard-photo-error" class="hidden text-xs text-red-600 dark:text-red-400"></div>
+            </form>
+        </div>
+    {% endif %}
+
     {% if can_manage_city_photos %}
         <div class="mt-4 text-left rounded-lg border border-gray-200 dark:border-neutral-700 p-3">
             <p class="text-sm font-medium mb-2">Ваши фото города (до 5 шт.)</p>

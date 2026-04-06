@@ -866,12 +866,94 @@ function initCityPhotoManager() {
   });
 }
 
+function initCityStandardPhotoForm() {
+  const form = document.getElementById('city-standard-photo-form');
+  if (!(form instanceof HTMLFormElement)) return;
+
+  const submitBtn = document.getElementById('city-standard-photo-submit');
+  const spinner = document.getElementById('city-standard-photo-spinner');
+  const submitText = document.getElementById('city-standard-photo-submit-text');
+  const errorEl = document.getElementById('city-standard-photo-error');
+
+  const setLoading = (loading) => {
+    if (submitBtn instanceof HTMLButtonElement) submitBtn.disabled = loading;
+    spinner?.classList.toggle('hidden', !loading);
+    if (submitText) submitText.textContent = loading ? 'Сохранение…' : 'Сохранить';
+  };
+
+  const showError = (message) => {
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.classList.remove('hidden');
+    }
+  };
+
+  const hideError = () => {
+    errorEl?.classList.add('hidden');
+  };
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const fileInput = form.querySelector('#city-standard-photo-file');
+    if (!(fileInput instanceof HTMLInputElement) || !fileInput.files?.length) {
+      showError('Выберите файл изображения');
+      return;
+    }
+
+    const csrfToken = getCookie('csrftoken');
+    if (!csrfToken) {
+      showError('Нет CSRF-токена. Обновите страницу.');
+      return;
+    }
+
+    const body = new FormData(form);
+    setLoading(true);
+    try {
+      const response = await fetch('/api/city/standard_photo/upload/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+        },
+        body,
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const detail = data.detail;
+        if (typeof detail === 'string') {
+          showError(detail);
+        } else if (data && typeof data === 'object') {
+          const parts = [];
+          for (const v of Object.values(data)) {
+            if (Array.isArray(v)) parts.push(...v.map(String));
+            else if (typeof v === 'string') parts.push(v);
+          }
+          showError(parts.join(' ') || 'Не удалось сохранить');
+        } else {
+          showError('Не удалось сохранить');
+        }
+        return;
+      }
+
+      window.location.reload();
+    } catch {
+      showError('Ошибка сети');
+    } finally {
+      setLoading(false);
+    }
+  });
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     initCityGallery();
     initCityPhotoManager();
+    initCityStandardPhotoForm();
   });
 } else {
   initCityGallery();
   initCityPhotoManager();
+  initCityStandardPhotoForm();
 }

@@ -85,11 +85,6 @@ class UploadCityStandardPhotoController(Controller[MsgspecSerializer]):
             )
 
         image = self.request.FILES.get('image')
-        if not isinstance(image, UploadedFile):
-            return self.to_response(
-                raw_data={'image': ['Файл не передан']},
-                status_code=HTTPStatus.BAD_REQUEST,
-            )
 
         image_source_link = image_source_link_raw or None
         if image_source_link:
@@ -108,27 +103,32 @@ class UploadCityStandardPhotoController(Controller[MsgspecSerializer]):
                 status_code=HTTPStatus.NOT_FOUND,
             )
 
-        try:
-            compressed = compress_city_photo(image)
-        except ValueError:
-            return self.to_response(
-                raw_data={'image': ['Неподдерживаемый формат изображения']},
-                status_code=HTTPStatus.BAD_REQUEST,
-            )
+        absolute_url: str | None = None
 
-        try:
-            storage_key = build_standard_city_image_storage_key(city, 'jpg')
-        except ValueError as exc:
-            return self.to_response(
-                raw_data={'detail': str(exc)},
-                status_code=HTTPStatus.BAD_REQUEST,
-            )
+        if image is not None:
+            if not isinstance(image, UploadedFile):
+                return self.to_response(
+                    raw_data={'image': ['Некорректный файл']},
+                    status_code=HTTPStatus.BAD_REQUEST,
+                )
 
-        storage = CityStandardPhotoStorage()
+            try:
+                compressed = compress_city_photo(image)
+            except ValueError:
+                return self.to_response(
+                    raw_data={'image': ['Неподдерживаемый формат изображения']},
+                    status_code=HTTPStatus.BAD_REQUEST,
+                )
 
-        with transaction.atomic():
-            city_locked = City.objects.select_for_update().get(pk=city.pk)
+            try:
+                storage_key = build_standard_city_image_storage_key(city, 'jpg')
+            except ValueError as exc:
+                return self.to_response(
+                    raw_data={'detail': str(exc)},
+                    status_code=HTTPStatus.BAD_REQUEST,
+                )
 
+            storage = CityStandardPhotoStorage()
             saved_name = storage.save(storage_key, compressed)
             public_url = storage.url(saved_name)
 
@@ -139,14 +139,19 @@ class UploadCityStandardPhotoController(Controller[MsgspecSerializer]):
 
             absolute_url = _append_cache_bust_query(absolute_url)
 
-            city_locked.image = absolute_url
+        with transaction.atomic():
+            city_locked = City.objects.select_for_update().get(pk=city.pk)
+
+            if absolute_url is not None:
+                city_locked.image = absolute_url
+
             city_locked.image_source_text = image_source_text or None
             city_locked.image_source_link = image_source_link
             city_locked.save(update_fields=['image', 'image_source_text', 'image_source_link'])
 
         return self.to_response(
             raw_data={
-                'image': absolute_url,
+                'image': city_locked.image or '',
                 'image_source_text': city_locked.image_source_text or '',
                 'image_source_link': city_locked.image_source_link or '',
             },

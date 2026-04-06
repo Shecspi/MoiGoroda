@@ -896,12 +896,6 @@ function initCityStandardPhotoForm() {
     e.preventDefault();
     hideError();
 
-    const fileInput = form.querySelector('#city-standard-photo-file');
-    if (!(fileInput instanceof HTMLInputElement) || !fileInput.files?.length) {
-      showError('Выберите файл изображения');
-      return;
-    }
-
     const csrfToken = getCookie('csrftoken');
     if (!csrfToken) {
       showError('Нет CSRF-токена. Обновите страницу.');

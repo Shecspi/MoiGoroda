@@ -109,7 +109,7 @@ const CITY_PHOTO_STAGE_CLASS =
   'city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15';
 
 const CITY_PHOTO_THUMB_SLIDE_BASE_CLASS =
-  'swiper-slide relative !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100';
+  'swiper-slide block p-0 appearance-none relative !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100';
 
 /** Лимит пользовательских фото на город (совпадает с API). */
 const MAX_CITY_USER_PHOTOS = 5;
@@ -361,6 +361,7 @@ function initCityPhotoManager() {
       modules: [FreeMode, Manipulation],
       spaceBetween: 8,
       slidesPerView: 'auto',
+      centerInsufficientSlides: true,
       freeMode: true,
       watchSlidesProgress: true,
       initialSlide: initialMainSlide,
@@ -568,12 +569,14 @@ function initCityPhotoManager() {
         : `/api/city/photos/${uploadedId}/`;
     const uploadedIsDefault = Boolean(uploadedPhoto.is_default);
     const thumbHtml = `
-            <div class="${CITY_PHOTO_THUMB_SLIDE_BASE_CLASS}" data-photo-id="${uploadedId}" data-is-default="${uploadedIsDefault ? 'true' : 'false'}">
+            <button type="button" class="${CITY_PHOTO_THUMB_SLIDE_BASE_CLASS}" data-photo-id="${uploadedId}" data-is-default="${uploadedIsDefault ? 'true' : 'false'}" aria-label="Показать фото">
               <img src="${imageHref}"
                    alt="Миниатюра фото города"
+                   loading="lazy"
+                   decoding="async"
                    class="city-photo-thumb-img h-full w-full object-cover">
               ${getCityPhotoThumbDefaultBadgeMarkup(uploadedIsDefault)}
-            </div>
+            </button>
           `;
 
     const thumbsWasHidden =
@@ -592,6 +595,8 @@ function initCityPhotoManager() {
               <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
                 <img src="${imageHref}"
                      alt="Фото города"
+                     loading="lazy"
+                     decoding="async"
                      class="city-photo-main-img absolute inset-0 h-full w-full object-contain">
               </div>
             </a>
@@ -620,6 +625,7 @@ function initCityPhotoManager() {
         modules: [FreeMode, Manipulation],
         spaceBetween: 8,
         slidesPerView: 'auto',
+        centerInsufficientSlides: true,
         freeMode: true,
         watchSlidesProgress: true,
       });

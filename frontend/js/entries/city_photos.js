@@ -849,8 +849,15 @@ function initCityPhotoManager() {
         }
 
         if (citySwiper) {
-          const activeIndex = citySwiper.activeIndex;
-          citySwiper.removeSlide(activeIndex);
+          const slideIndexToRemove = Array.from(citySwiper.slides).findIndex(
+            (s) => (s.getAttribute('data-photo-id') || '') === photoId,
+          );
+          const removedIndex = slideIndexToRemove >= 0 ? slideIndexToRemove : citySwiper.activeIndex;
+          if (slideIndexToRemove >= 0) {
+            citySwiper.removeSlide(slideIndexToRemove);
+          } else {
+            citySwiper.removeSlide(removedIndex);
+          }
           citySwiper.update();
 
           if (citySwiper.slides.length === 0) {
@@ -874,8 +881,18 @@ function initCityPhotoManager() {
             }
 
             applyCityPhotoDefaultFromServer(citySwiper, deletePayload.default_photo_id, thumbsElement);
-            const nextIndex = Math.min(activeIndex, citySwiper.slides.length - 1);
-            citySwiper.slideTo(nextIndex, 0);
+            let targetIndex = -1;
+            const defId =
+              deletePayload.default_photo_id != null ? String(deletePayload.default_photo_id) : '';
+            if (defId.length > 0) {
+              targetIndex = Array.from(citySwiper.slides).findIndex(
+                (s) => (s.getAttribute('data-photo-id') || '') === defId,
+              );
+            }
+            if (targetIndex < 0) {
+              targetIndex = Math.min(removedIndex, citySwiper.slides.length - 1);
+            }
+            citySwiper.slideTo(targetIndex, 0);
             if (thumbsSwiper) {
               const syncThumbsWithMain = () => {
                 const i = citySwiper.activeIndex;

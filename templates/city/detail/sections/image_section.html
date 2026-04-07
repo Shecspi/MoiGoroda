@@ -57,23 +57,21 @@
                     </div>
                 </div>
 
-                {% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}
-                    <button type="button"
-                            class="swiper-button-prev city-swiper-prev absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !left-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden"
-                            aria-label="Предыдущее фото">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4 -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
-                            <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
-                        </svg>
-                    </button>
-                    <button type="button"
-                            class="swiper-button-next city-swiper-next absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !right-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden"
-                            aria-label="Следующее фото">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
-                            <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
-                        </svg>
-                    </button>
-                    <div class="city-swiper-pagination absolute bottom-2 left-0 right-0 z-10"></div>
-                {% endif %}
+                <button type="button"
+                        class="swiper-button-prev city-swiper-prev absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !left-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"
+                        aria-label="Предыдущее фото">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4 -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                    </svg>
+                </button>
+                <button type="button"
+                        class="swiper-button-next city-swiper-next absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !right-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"
+                        aria-label="Следующее фото">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                    </svg>
+                </button>
+                <div class="city-swiper-pagination absolute bottom-2 left-0 right-0 z-10{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"></div>
             </div>
             {# Превью только при реальном изображении (фото пользователя или картинка сервиса). Один плейсхолдер в карусели — панель скрыта; после загрузки фото показывает city_photos.js #}
             <div id="city-photo-thumbs-panel"
@@ -178,6 +176,21 @@
                         </div>
                     </div>
                 </div>
+                <button type="button"
+                        class="swiper-button-prev city-swiper-prev absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !left-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden hidden"
+                        aria-label="Предыдущее фото">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4 -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                    </svg>
+                </button>
+                <button type="button"
+                        class="swiper-button-next city-swiper-next absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !right-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden hidden"
+                        aria-label="Следующее фото">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                    </svg>
+                </button>
+                <div class="city-swiper-pagination absolute bottom-2 left-0 right-0 z-10 hidden"></div>
             </div>
             <div id="city-photo-no-image-messages"
                  class="city-photo-no-image-below space-y-3 px-3 py-2 text-left">

@@ -216,6 +216,33 @@ function setCityCarouselNavVisible(visible, prev, next, pag) {
   });
 }
 
+function syncCityActiveThumbWithMain(citySwiper, thumbsSwiper) {
+  if (!citySwiper || !thumbsSwiper) return;
+  const activeMainSlide = citySwiper.slides?.[citySwiper.activeIndex];
+  if (!(activeMainSlide instanceof HTMLElement)) return;
+
+  const activePhotoId = activeMainSlide.getAttribute('data-photo-id') || '';
+  const activeIsServiceImage = activeMainSlide.getAttribute('data-is-service-image') === 'true';
+
+  let activeThumb = null;
+  if (activeIsServiceImage) {
+    activeThumb =
+      thumbsSwiper.el?.querySelector('.swiper-slide[data-is-service-image="true"]') ?? null;
+  } else if (activePhotoId.length > 0) {
+    activeThumb =
+      thumbsSwiper.el?.querySelector(`.swiper-slide[data-photo-id="${activePhotoId}"]`) ?? null;
+  }
+
+  thumbsSwiper.slides.forEach((slide) => {
+    slide.classList.toggle('swiper-slide-thumb-active', slide === activeThumb);
+  });
+
+  // Обновляем внутреннее состояние модулей после ручной синхронизации класса.
+  thumbsSwiper.updateSlidesClasses();
+  citySwiper.updateSlidesClasses();
+  citySwiper.thumbs?.update?.(true);
+}
+
 /** Индекс слайда с фото по умолчанию (`data-is-default`), иначе 0. */
 function getCityPhotoMainInitialSlideIndex(swiperEl) {
   if (!(swiperEl instanceof HTMLElement)) return 0;
@@ -392,6 +419,7 @@ function initCityPhotoManager() {
         : undefined,
     });
     bindCityMainSwiperImagesForAutoHeight(citySwiper);
+    setCityCarouselNavVisible(citySwiper.slides.length > 1, prevButton, nextButton, pagination);
   }
 
   const syncControlsWithActiveSlide = () => {
@@ -653,6 +681,7 @@ function initCityPhotoManager() {
     }
 
     citySwiper.update();
+    setCityCarouselNavVisible(citySwiper.slides.length > 1, prevButton, nextButton, pagination);
     bindCityMainSwiperImagesForAutoHeight(citySwiper);
     const newSlideIndex = Array.from(citySwiper.slides).findIndex(
       (slide) => slide.getAttribute('data-photo-id') === String(uploadedId),
@@ -664,6 +693,7 @@ function initCityPhotoManager() {
       const syncThumbsWithMain = () => {
         const i = citySwiper.activeIndex;
         thumbsSwiper.slideTo(i, 0);
+        syncCityActiveThumbWithMain(citySwiper, thumbsSwiper);
         citySwiper.thumbs?.update?.(true);
       };
       syncThumbsWithMain();
@@ -824,11 +854,13 @@ function initCityPhotoManager() {
               const syncThumbsWithMain = () => {
                 const i = citySwiper.activeIndex;
                 thumbsSwiper.slideTo(i, 0);
+                syncCityActiveThumbWithMain(citySwiper, thumbsSwiper);
                 citySwiper.thumbs?.update?.(true);
               };
               syncThumbsWithMain();
               requestAnimationFrame(syncThumbsWithMain);
             }
+            setCityCarouselNavVisible(citySwiper.slides.length > 1, prevButton, nextButton, pagination);
           }
           syncControlsWithActiveSlide();
           initCityGallery();

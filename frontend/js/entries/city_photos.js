@@ -23,7 +23,9 @@ const cityGlightboxArrowSvgs = {
 };
 
 function initCityGallery() {
-  const galleryLinks = document.querySelectorAll('.city-glightbox');
+  const sectionRoot = document.getElementById('section-city_image');
+  if (!(sectionRoot instanceof HTMLElement)) return;
+  const galleryLinks = sectionRoot.querySelectorAll('.city-glightbox');
   if (galleryLinks.length === 0) return;
 
   if (lightboxInstance) {
@@ -31,7 +33,7 @@ function initCityGallery() {
   }
 
   lightboxInstance = GLightbox({
-    selector: '.city-glightbox',
+    selector: '#section-city_image .city-glightbox',
     touchNavigation: true,
     loop: true,
     autoplayVideos: false,

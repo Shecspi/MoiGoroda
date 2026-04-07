@@ -276,3 +276,47 @@ def test_delete_last_photo_returns_null_default_id(
     assert delete_response.status_code == status.HTTP_200_OK
     assert delete_response.json() == {'status': 'success', 'default_photo_id': None}
     assert not CityUserPhoto.objects.filter(id=photo.id).exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_delete_middle_photo_reorders_positions_without_conflict(
+    api_client: APIClient,
+    user: User,
+    city: City,
+    active_advanced_subscription: PremiumSubscription,
+) -> None:
+    photo1 = CityUserPhoto.objects.create(
+        user=user,
+        city=city,
+        image=_make_image_file(name='1.png'),
+        is_default=True,
+        position=1,
+    )
+    photo2 = CityUserPhoto.objects.create(
+        user=user,
+        city=city,
+        image=_make_image_file(name='2.png'),
+        is_default=False,
+        position=2,
+    )
+    photo3 = CityUserPhoto.objects.create(
+        user=user,
+        city=city,
+        image=_make_image_file(name='3.png'),
+        is_default=False,
+        position=3,
+    )
+
+    api_client.force_authenticate(user=user)
+    delete_response = api_client.delete(
+        reverse('api__city_user_photo_content', kwargs={'photo_id': photo2.id})
+    )
+    assert delete_response.status_code == status.HTTP_200_OK
+    assert not CityUserPhoto.objects.filter(id=photo2.id).exists()
+
+    photo1.refresh_from_db()
+    photo3.refresh_from_db()
+    assert photo1.position == 1
+    assert photo3.position == 2
+    assert photo1.is_default is True

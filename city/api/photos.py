@@ -17,7 +17,7 @@ from uuid import UUID
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
-from django.db.models import Max
+from django.db.models import F, Max
 from django.http import FileResponse, HttpResponseBase
 from dmr import Controller, ResponseSpec, modify, validate
 from dmr.files import FileResponseSpec
@@ -242,6 +242,9 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
                 status_code=HTTPStatus.FORBIDDEN,
             )
 
+        image_name: str | None = None
+        image_storage = None
+
         with transaction.atomic():
             photo = (
                 CityUserPhoto.objects.select_for_update()
@@ -256,15 +259,19 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
                 )
 
             city_id = photo.city_id
-            photo.image.delete(save=False)
+            image_name = photo.image.name
+            image_storage = photo.image.storage
             photo.delete()
 
-            photos = list(
+            photos_qs = (
                 CityUserPhoto.objects.select_for_update()
                 .filter(user=self.request.user, city_id=city_id)
                 .order_by('-is_default', 'position', '-created_at')
             )
+            photos_qs.update(position=F('position') + 100)
+            photos = list(photos_qs)
             has_default = False
+
             for idx, item in enumerate(photos, start=1):
                 item.position = idx
                 if item.is_default and not has_default:
@@ -272,16 +279,21 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
                 elif item.is_default and has_default:
                     item.is_default = False
                 item.save(update_fields=['position', 'is_default', 'updated_at'])
+
             if photos and not has_default:
                 first_photo = photos[0]
                 first_photo.is_default = True
                 first_photo.save(update_fields=['is_default', 'updated_at'])
 
             default_photo_id: str | None = None
+
             for item in photos:
                 if item.is_default:
                     default_photo_id = str(item.id)
                     break
+
+            if image_name and image_storage is not None:
+                transaction.on_commit(lambda: image_storage.delete(image_name))
 
         return self.to_response(
             raw_data={'status': 'success', 'default_photo_id': default_photo_id},

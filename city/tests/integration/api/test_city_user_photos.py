@@ -142,7 +142,7 @@ def test_upload_photo_success_and_default_first(
 
 @pytest.mark.django_db
 @pytest.mark.integration
-def test_limit_five_photos_per_user_per_city(
+def test_limit_ten_photos_per_user_per_city(
     api_client: APIClient,
     user: User,
     city: City,
@@ -150,7 +150,7 @@ def test_limit_five_photos_per_user_per_city(
 ) -> None:
     api_client.force_authenticate(user=user)
     upload_url = reverse('api__upload_city_user_photo')
-    for idx in range(5):
+    for idx in range(10):
         response = api_client.post(
             upload_url,
             {'city_id': city.id, 'image': _make_image_file(name=f'{idx}.png')},

@@ -154,9 +154,9 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
                 user=self.request.user, city=city
             )
 
-            if user_city_qs.count() >= 5:
+            if user_city_qs.count() >= 10:
                 return self.to_response(
-                    raw_data={'detail': 'Можно загрузить не более 5 фотографий для одного города'},
+                    raw_data={'detail': 'Можно загрузить не более 10 фотографий для одного города'},
                     status_code=HTTPStatus.CONFLICT,
                 )
 

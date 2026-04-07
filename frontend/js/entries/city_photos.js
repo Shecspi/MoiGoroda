@@ -114,7 +114,7 @@ const CITY_PHOTO_THUMB_SLIDE_BASE_CLASS =
   'swiper-slide block p-0 appearance-none relative !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100';
 
 /** Лимит пользовательских фото на город (совпадает с API). */
-const MAX_CITY_USER_PHOTOS = 5;
+const MAX_CITY_USER_PHOTOS = 10;
 
 function countCityUserPhotosInCarousel(citySwiper) {
   if (!citySwiper?.el) return 0;
@@ -598,16 +598,29 @@ function initCityPhotoManager() {
         ? uploadedPhoto.image_url
         : `/api/city/photos/${uploadedId}/`;
     const uploadedIsDefault = Boolean(uploadedPhoto.is_default);
-    const thumbHtml = `
-            <button type="button" class="${CITY_PHOTO_THUMB_SLIDE_BASE_CLASS}" data-photo-id="${uploadedId}" data-is-default="${uploadedIsDefault ? 'true' : 'false'}" aria-label="Показать фото">
-              <img src="${imageHref}"
-                   alt="Миниатюра фото города"
-                   loading="lazy"
-                   decoding="async"
-                   class="city-photo-thumb-img h-full w-full object-cover">
-              ${getCityPhotoThumbDefaultBadgeMarkup(uploadedIsDefault)}
-            </button>
-          `;
+    const createThumbSlideElement = () => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = CITY_PHOTO_THUMB_SLIDE_BASE_CLASS;
+      button.setAttribute('data-photo-id', String(uploadedId));
+      button.setAttribute('data-is-default', uploadedIsDefault ? 'true' : 'false');
+      button.setAttribute('aria-label', 'Показать фото');
+
+      const img = document.createElement('img');
+      img.src = imageHref;
+      img.alt = 'Миниатюра фото города';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.className = 'city-photo-thumb-img h-full w-full object-cover';
+      button.appendChild(img);
+
+      const badgeHost = document.createElement('div');
+      badgeHost.innerHTML = getCityPhotoThumbDefaultBadgeMarkup(uploadedIsDefault);
+      const badge = badgeHost.firstElementChild;
+      if (badge) button.appendChild(badge);
+
+      return button;
+    };
 
     const thumbsWasHidden =
       thumbsPanel instanceof HTMLElement && isCityPhotoThumbsPanelHidden(thumbsPanel);
@@ -619,26 +632,39 @@ function initCityPhotoManager() {
       citySwiper.removeSlide(placeholderIndex);
     }
 
-    const slideHtml = `
-          <div class="swiper-slide !h-auto" data-photo-id="${uploadedId}" data-is-default="${uploadedPhoto.is_default ? 'true' : 'false'}">
-            <a href="${imageHref}" class="city-glightbox block w-full" data-type="image">
-              <div class="${CITY_PHOTO_STAGE_CLASS}">
-                <img src="${imageHref}"
-                     alt="Фото города"
-                     loading="lazy"
-                     decoding="async"
-                     class="city-photo-main-img absolute inset-0 h-full w-full object-contain">
-              </div>
-            </a>
-          </div>
-        `;
+    const createMainSlideElement = () => {
+      const slide = document.createElement('div');
+      slide.className = 'swiper-slide !h-auto';
+      slide.setAttribute('data-photo-id', String(uploadedId));
+      slide.setAttribute('data-is-default', uploadedIsDefault ? 'true' : 'false');
+
+      const link = document.createElement('a');
+      link.href = imageHref;
+      link.className = 'city-glightbox block w-full';
+      link.setAttribute('data-type', 'image');
+
+      const stage = document.createElement('div');
+      stage.className = CITY_PHOTO_STAGE_CLASS;
+
+      const img = document.createElement('img');
+      img.src = imageHref;
+      img.alt = 'Фото города';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.className = 'city-photo-main-img absolute inset-0 h-full w-full object-contain';
+
+      stage.appendChild(img);
+      link.appendChild(stage);
+      slide.appendChild(link);
+      return slide;
+    };
     const serviceSlideIndex = Array.from(citySwiper.slides).findIndex(
       (slide) => slide.getAttribute('data-is-service-image') === 'true',
     );
     if (serviceSlideIndex >= 0) {
-      citySwiper.addSlide(serviceSlideIndex, slideHtml);
+      citySwiper.addSlide(serviceSlideIndex, createMainSlideElement());
     } else {
-      citySwiper.appendSlide(slideHtml);
+      citySwiper.appendSlide(createMainSlideElement());
     }
 
     if (
@@ -649,7 +675,7 @@ function initCityPhotoManager() {
       showCityPhotoThumbsPanel(thumbsPanel);
       const thumbsWrapper = thumbsElement.querySelector('.swiper-wrapper');
       if (thumbsWrapper) {
-        thumbsWrapper.insertAdjacentHTML('beforeend', thumbHtml);
+        thumbsWrapper.appendChild(createThumbSlideElement());
       }
       thumbsSwiper = new Swiper(thumbsElement, {
         modules: [FreeMode, Manipulation],
@@ -673,9 +699,9 @@ function initCityPhotoManager() {
         (slide) => slide.getAttribute('data-is-service-image') === 'true',
       );
       if (serviceThumbIndex >= 0) {
-        thumbsSwiper.addSlide(serviceThumbIndex, thumbHtml);
+        thumbsSwiper.addSlide(serviceThumbIndex, createThumbSlideElement());
       } else {
-        thumbsSwiper.appendSlide(thumbHtml);
+        thumbsSwiper.appendSlide(createThumbSlideElement());
       }
       thumbsSwiper.update();
     }

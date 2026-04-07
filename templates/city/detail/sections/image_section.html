@@ -14,7 +14,7 @@
                                  data-photo-id=""
                                  data-is-default="true"
                                  data-is-placeholder="true">
-                                <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15 pointer-events-none select-none">
+                                <div class="city-photo-stage city-photo-stage--placeholder">
                                     {% include 'city/partials/city_photo_carousel_missing_inner.html' with subtitle="В сервисе пока нет фотографий этого города" only %}
                                 </div>
                             </div>
@@ -26,7 +26,7 @@
                                 <a href="{{ photo.image.url }}"
                                    class="city-glightbox block w-full"
                                    data-type="image">
-                                    <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
+                                    <div class="city-photo-stage">
                                         <img src="{{ photo.image.url }}"
                                              alt="Фото города {{ city.title }}"
                                              loading="lazy"
@@ -44,7 +44,7 @@
                                 <a href="{{ city.image }}"
                                    class="city-glightbox block w-full"
                                    data-type="image">
-                                    <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
+                                    <div class="city-photo-stage">
                                         <img src="{{ city.image }}"
                                              alt="Фото города {{ city.title }}"
                                              loading="lazy"
@@ -172,7 +172,7 @@
                              data-photo-id=""
                              data-is-default="true"
                              data-is-placeholder="true">
-                            <div class="city-photo-stage relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15 pointer-events-none select-none">
+                            <div class="city-photo-stage city-photo-stage--placeholder">
                                 {% include 'city/partials/city_photo_carousel_missing_inner.html' with subtitle="В сервисе пока нет фотографий этого города" only %}
                             </div>
                         </div>

@@ -2,7 +2,7 @@
 {% if user.is_authenticated %}
     {% if can_manage_city_photos %}
         <p class="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Вы можете загрузить свои фотографии этого города формой ниже на странице (до 10&nbsp;файлов).
+            Вы можете загрузить свои фотографии этого города формой ниже на странице (до {{ city_user_photos_limit }}&nbsp;файлов).
         </p>
     {% endif %}
 {% endif %}

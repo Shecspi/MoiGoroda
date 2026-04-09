@@ -268,9 +268,12 @@
 
     {% if can_manage_city_photos %}
         <div class="mt-4 text-left rounded-lg border border-gray-200 dark:border-neutral-700 p-3">
-            <p class="text-sm font-medium mb-2">Ваши фото города (до 10 шт.)</p>
+            <p class="text-sm font-medium mb-2">Ваши фото города (до {{ city_user_photos_limit }} шт.)</p>
             <p class="text-xs text-muted-foreground-1 mb-2">Можно выбрать несколько файлов за раз; лишние сверх лимита не загрузятся.</p>
-            <form id="city-photo-upload-form" class="flex flex-wrap items-center gap-2 sm:flex-nowrap" enctype="multipart/form-data">
+            <form id="city-photo-upload-form"
+                  class="flex flex-wrap items-center gap-2 sm:flex-nowrap"
+                  enctype="multipart/form-data"
+                  data-city-user-photos-limit="{{ city_user_photos_limit }}">
                 {% csrf_token %}
                 <input type="hidden" name="city_id" value="{{ city.id }}">
                 <input type="file"
@@ -312,7 +315,7 @@
                     После оформления
                     <span class="font-semibold">расширенной подписки</span>
                     на этой странице появится возможность загружать свои фотографии города в сервис (до
-                    10&nbsp;снимков).
+                    {{ city_user_photos_limit }}&nbsp;снимков).
                 </p>
                 <p class="mt-2">
                     <a href="{% url 'premium_promo' %}"

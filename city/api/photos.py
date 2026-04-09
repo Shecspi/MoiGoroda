@@ -14,6 +14,7 @@ from http import HTTPStatus
 from typing import Any, cast
 from uuid import UUID
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
@@ -154,9 +155,14 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
                 user=self.request.user, city=city
             )
 
-            if user_city_qs.count() >= 10:
+            if user_city_qs.count() >= settings.CITY_USER_PHOTOS_LIMIT:
                 return self.to_response(
-                    raw_data={'detail': 'Можно загрузить не более 10 фотографий для одного города'},
+                    raw_data={
+                        'detail': (
+                            f'Можно загрузить не более {settings.CITY_USER_PHOTOS_LIMIT} '
+                            'фотографий для одного города'
+                        )
+                    },
                     status_code=HTTPStatus.CONFLICT,
                 )
 

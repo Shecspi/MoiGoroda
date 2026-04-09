@@ -113,9 +113,6 @@ const CITY_PHOTO_STAGE_PLACEHOLDER_CLASS = 'city-photo-stage city-photo-stage--p
 const CITY_PHOTO_THUMB_SLIDE_BASE_CLASS =
   'swiper-slide block p-0 appearance-none relative !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100';
 
-/** Лимит пользовательских фото на город (совпадает с API). */
-const MAX_CITY_USER_PHOTOS = 10;
-
 function countCityUserPhotosInCarousel(citySwiper) {
   if (!citySwiper?.el) return 0;
   return citySwiper.el.querySelectorAll('.swiper-slide[data-photo-id]:not([data-photo-id=""])').length;
@@ -536,6 +533,15 @@ function initCityPhotoManager() {
     return;
   }
 
+  const uploadLimitFromDataset = Number.parseInt(
+    uploadForm.dataset.cityUserPhotosLimit ?? '',
+    10,
+  );
+  const maxCityUserPhotos =
+    Number.isFinite(uploadLimitFromDataset) && uploadLimitFromDataset > 0
+      ? uploadLimitFromDataset
+      : null;
+
   const setLoadingState = (isLoading, action = null, progressMessage = null) => {
     if (fileInput instanceof HTMLInputElement) {
       fileInput.disabled = isLoading;
@@ -749,17 +755,19 @@ function initCityPhotoManager() {
     }
 
     const existingCount = citySwiper ? countCityUserPhotosInCarousel(citySwiper) : 0;
-    const slotsLeft = Math.max(0, MAX_CITY_USER_PHOTOS - existingCount);
-    if (slotsLeft === 0) {
-      showError(`Уже загружено максимум фотографий (${MAX_CITY_USER_PHOTOS} шт.) для этого города`);
-      return;
-    }
-
-    const filesToUpload = files.slice(0, slotsLeft);
-    if (files.length > slotsLeft) {
-      showCityPhotoUploadNotice(
-        `Будет загружено ${slotsLeft} из ${files.length} файлов (лимит ${MAX_CITY_USER_PHOTOS} фото на город).`,
-      );
+    let filesToUpload = files;
+    if (typeof maxCityUserPhotos === 'number') {
+      const slotsLeft = Math.max(0, maxCityUserPhotos - existingCount);
+      if (slotsLeft === 0) {
+        showError(`Уже загружено максимум фотографий (${maxCityUserPhotos} шт.) для этого города`);
+        return;
+      }
+      filesToUpload = files.slice(0, slotsLeft);
+      if (files.length > slotsLeft) {
+        showCityPhotoUploadNotice(
+          `Будет загружено ${slotsLeft} из ${files.length} файлов (лимит ${maxCityUserPhotos} фото на город).`,
+        );
+      }
     }
 
     try {

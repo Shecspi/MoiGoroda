@@ -300,6 +300,7 @@ class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
             'can_manage_city_photos': self.request.user.is_authenticated
             and has_advanced_premium(self.request.user),
             'can_edit_standard_city_photo': self.request.user.is_superuser,
+            'city_user_photos_limit': settings.CITY_USER_PHOTOS_LIMIT,
             'city_user_photos': [],
         }
         if self.request.user.is_authenticated and has_advanced_premium(self.request.user):

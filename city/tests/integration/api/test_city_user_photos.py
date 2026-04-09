@@ -7,6 +7,7 @@ from io import BytesIO
 from pathlib import Path
 
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -142,7 +143,7 @@ def test_upload_photo_success_and_default_first(
 
 @pytest.mark.django_db
 @pytest.mark.integration
-def test_limit_ten_photos_per_user_per_city(
+def test_photos_limit_per_user_per_city(
     api_client: APIClient,
     user: User,
     city: City,
@@ -150,7 +151,7 @@ def test_limit_ten_photos_per_user_per_city(
 ) -> None:
     api_client.force_authenticate(user=user)
     upload_url = reverse('api__upload_city_user_photo')
-    for idx in range(10):
+    for idx in range(settings.CITY_USER_PHOTOS_LIMIT):
         response = api_client.post(
             upload_url,
             {'city_id': city.id, 'image': _make_image_file(name=f'{idx}.png')},

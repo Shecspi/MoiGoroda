@@ -22,7 +22,7 @@ from region.models import Region
 
 def city_user_photo_upload_to(instance: 'CityUserPhoto', filename: str) -> str:
     ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else 'jpg'
-    return f'city-photos/user-{instance.user_id}/city-{instance.city_id}/{uuid.uuid4().hex}.{ext}'
+    return f'user-{instance.user_id}/city-{instance.city_id}/{uuid.uuid4().hex}.{ext}'
 
 
 class City(models.Model):

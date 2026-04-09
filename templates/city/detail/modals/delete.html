@@ -7,7 +7,7 @@
                 <h3 class="font-bold text-gray-800 dark:text-white" id="deleteModal_label">
                     Удаление
                 </h3>
-                <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#deleteModal">
+                <button type="button" class="btn btn-ghost-muted btn-sm btn-pilled !size-7 !p-0" data-hs-overlay="#deleteModal">
                     <span class="sr-only">Закрыть</span>
                     <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m18 6-12 12"></path>
@@ -27,12 +27,12 @@
 
             <!-- Footer -->
             <div class="flex items-center justify-end gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">
-                <button type="button" class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:ring-offset-neutral-800" data-hs-overlay="#deleteModal">
+                <button type="button" class="btn btn-white btn-sm" data-hs-overlay="#deleteModal">
                     Отмена
                 </button>
                 <form id="deleteCityForm" method="post" action="" class="inline">
                     {% csrf_token %}
-                    <button type="submit" class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800">
+                    <button type="submit" class="btn btn-red btn-sm">
                         Удалить
                     </button>
                 </form>

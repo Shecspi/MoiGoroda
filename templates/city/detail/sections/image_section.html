@@ -305,6 +305,23 @@
             </div>
             <div id="city-photo-error" class="hidden mt-2 text-xs text-red-600"></div>
         </div>
+    {% else %}
+        {% if user.is_authenticated %}
+            <div class="mt-4 text-left rounded-lg border border-sky-200/90 bg-sky-50/95 p-3 text-sm leading-relaxed shadow-sm dark:border-sky-800/55 dark:bg-sky-950/35">
+                <p class="text-sky-950 dark:text-sky-100">
+                    После оформления
+                    <span class="font-semibold">расширенной подписки</span>
+                    на этой странице появится возможность загружать свои фотографии города в сервис (до
+                    10&nbsp;снимков).
+                </p>
+                <p class="mt-2">
+                    <a href="{% url 'premium_promo' %}"
+                    class="font-semibold text-sky-800 underline decoration-sky-300 underline-offset-2 transition-colors hover:text-sky-950 hover:decoration-sky-500 dark:text-sky-200 dark:decoration-sky-600/80 dark:hover:text-white dark:hover:decoration-sky-400">
+                        Оформить подписку
+                    </a>
+                </p>
+            </div>
+        {% endif %}
     {% endif %}
 </div>
 

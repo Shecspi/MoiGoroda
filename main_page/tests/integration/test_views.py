@@ -143,7 +143,7 @@ def test_main_page_different_users_redirect_to_same_page(
 @pytest.mark.django_db
 def test_help_premium_photos_page_accessible(client: Client) -> None:
     """Тест что страница справки о фото в подписке доступна."""
-    response = client.get(reverse('help-premium-photos'))
+    response = client.get(reverse('help-users-city-photos'))
 
     assert response.status_code == 200
     assert 'help/premium_photos.html' in [t.name for t in response.templates]
@@ -174,4 +174,4 @@ def test_help_index_page_accessible(client: Client) -> None:
     assert 'help/index.html' in [t.name for t in response.templates]
     content = response.content.decode('utf-8')
     assert 'Все статьи справки' in content
-    assert '/help/premium-photos/' in content
+    assert '/help/users-city-photos/' in content

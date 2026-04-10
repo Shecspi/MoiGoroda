@@ -58,7 +58,7 @@ def help_index(request: HttpRequest) -> HttpResponse:
         {
             'title': 'Фотографии в премиум-доступе',
             'description': 'Как загружать фотографии, выбирать основное изображение и как работает хранение после окончания периода доступа.',
-            'url': '/help/premium-photos/',
+            'url': '/help/users-city-photos/',
         },
     ]
     return render(

@@ -15,7 +15,6 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from dmr import Controller, ResponseSpec, modify
 from dmr.plugins.msgspec import MsgspecSerializer
@@ -106,12 +105,6 @@ class UploadCityStandardPhotoController(Controller[MsgspecSerializer]):
         absolute_url: str | None = None
 
         if image is not None:
-            if not isinstance(image, UploadedFile):
-                return self.to_response(
-                    raw_data={'image': ['Некорректный файл']},
-                    status_code=HTTPStatus.BAD_REQUEST,
-                )
-
             try:
                 compressed = compress_city_photo(image)
             except ValueError as exc:

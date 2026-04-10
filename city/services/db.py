@@ -1,6 +1,6 @@
 import calendar
 import datetime
-from typing import Any
+from typing import Any, cast
 from datetime import date
 
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -186,11 +186,10 @@ def annotate_city_default_user_photo_for_list(
         is_default=True,
     ).values('id')[:1]
 
-    return queryset.annotate(
-        default_city_user_photo_id=Subquery(
-            default_city_user_photo_id_subquery, output_field=UUIDField()
-        )
+    annotated_queryset = queryset.annotate(
+        default_city_user_photo_id=Subquery(default_city_user_photo_id_subquery, output_field=UUIDField())
     )
+    return cast(QuerySet[City], annotated_queryset)
 
 
 def get_all_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[VisitedCity]:

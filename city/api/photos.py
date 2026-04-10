@@ -79,7 +79,11 @@ class CityUserPhotosController(Controller[MsgspecSerializer]):
         photos = CityUserPhoto.objects.filter(user=self.request.user, city_id=city_id_int).order_by(
             '-is_default', 'position', '-created_at'
         )
-        serializer = CityUserPhotoSerializer(photos, many=True, context={'request': self.request})
+        serializer = CityUserPhotoSerializer(
+            cast(list[CityUserPhoto], list(photos)),
+            many=True,
+            context={'request': self.request},
+        )
         return self.to_response(
             raw_data={'photos': serializer.data},
             status_code=HTTPStatus.OK,

@@ -504,6 +504,6 @@ class Error(TypedDict):
     detail: str
 
 
-DMR_SETTINGS = {
+DMR_SETTINGS: dict[Settings, list[Error]] = {
     Settings.responses: [],
 }

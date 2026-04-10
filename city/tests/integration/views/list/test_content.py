@@ -342,6 +342,7 @@ class TestContextData:
             'active_page',
             'is_user_has_subscriptions',
             'subscriptions',
+            'has_advanced_premium',
             'page_title',
             'page_description',
             'country_name',

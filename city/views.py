@@ -514,6 +514,9 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
 
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(self.user_id)
         context['subscriptions'] = get_all_subscriptions(self.user_id)
+        context['has_advanced_premium'] = isinstance(
+            self.request.user, AbstractBaseUser
+        ) and has_advanced_premium(self.request.user)
 
         context['country_name'] = str(self.country)
         context['country_code'] = self.country_code

@@ -192,6 +192,36 @@ def test_upload_rejects_unsupported_image_format(
 
 @pytest.mark.django_db
 @pytest.mark.integration
+def test_upload_rejects_too_large_file(
+    api_client: APIClient,
+    user: User,
+    city: City,
+    active_advanced_subscription: PremiumSubscription,
+) -> None:
+    api_client.force_authenticate(user=user)
+
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        monkeypatch.setattr(settings, 'CITY_USER_PHOTO_MAX_UPLOAD_MB', 1)
+        monkeypatch.setattr(settings, 'CITY_USER_PHOTO_MAX_UPLOAD_BYTES', 1 * 1024 * 1024)
+
+        too_large_content = b'a' * (settings.CITY_USER_PHOTO_MAX_UPLOAD_BYTES + 1)
+        too_large_file = SimpleUploadedFile(
+            name='too-large.jpg',
+            content=too_large_content,
+            content_type='image/jpeg',
+        )
+        response = api_client.post(
+            reverse('api__upload_city_user_photo'),
+            {'city_id': city.id, 'image': too_large_file},
+            format='multipart',
+        )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()['detail'] == 'Размер файла превышает допустимый лимит 1 МБ'
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
 def test_owner_only_access_to_photo_content(
     api_client: APIClient,
     user: User,

@@ -269,11 +269,16 @@
     {% if can_manage_city_photos %}
         <div class="mt-4 text-left rounded-lg border border-gray-200 dark:border-neutral-700 p-3">
             <p class="text-sm font-medium mb-2">Ваши фото города (до {{ city_user_photos_limit }} шт.)</p>
-            <p class="text-xs text-muted-foreground-1 mb-2">Можно выбрать несколько файлов за раз; лишние сверх лимита не загрузятся.</p>
+            <p class="text-xs text-muted-foreground-1 mb-2">
+                Можно выбрать несколько файлов за раз; лишние сверх лимита не загрузятся.
+                Размер одного файла - до {{ city_user_photo_max_upload_mb }} МБ.
+            </p>
             <form id="city-photo-upload-form"
                   class="flex flex-wrap items-center gap-2 sm:flex-nowrap"
                   enctype="multipart/form-data"
-                  data-city-user-photos-limit="{{ city_user_photos_limit }}">
+                  data-city-user-photos-limit="{{ city_user_photos_limit }}"
+                  data-city-user-photo-max-upload-bytes="{{ city_user_photo_max_upload_bytes }}"
+                  data-city-user-photo-max-upload-mb="{{ city_user_photo_max_upload_mb }}">
                 {% csrf_token %}
                 <input type="hidden" name="city_id" value="{{ city.id }}">
                 <input type="file"

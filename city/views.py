@@ -301,6 +301,8 @@ class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
             and has_advanced_premium(self.request.user),
             'can_edit_standard_city_photo': self.request.user.is_superuser,
             'city_user_photos_limit': settings.CITY_USER_PHOTOS_LIMIT,
+            'city_user_photo_max_upload_mb': settings.CITY_USER_PHOTO_MAX_UPLOAD_MB,
+            'city_user_photo_max_upload_bytes': settings.CITY_USER_PHOTO_MAX_UPLOAD_BYTES,
             'city_user_photos': [],
         }
         if self.request.user.is_authenticated and has_advanced_premium(self.request.user):

@@ -541,6 +541,19 @@ function initCityPhotoManager() {
     Number.isFinite(uploadLimitFromDataset) && uploadLimitFromDataset > 0
       ? uploadLimitFromDataset
       : null;
+  const uploadMaxBytesFromDataset = Number.parseInt(
+    uploadForm.dataset.cityUserPhotoMaxUploadBytes ?? '',
+    10,
+  );
+  const maxUploadBytes =
+    Number.isFinite(uploadMaxBytesFromDataset) && uploadMaxBytesFromDataset > 0
+      ? uploadMaxBytesFromDataset
+      : null;
+  const uploadMaxMbFromDataset = Number.parseInt(uploadForm.dataset.cityUserPhotoMaxUploadMb ?? '', 10);
+  const maxUploadMb =
+    Number.isFinite(uploadMaxMbFromDataset) && uploadMaxMbFromDataset > 0
+      ? uploadMaxMbFromDataset
+      : 15;
 
   const setLoadingState = (isLoading, action = null, progressMessage = null) => {
     if (fileInput instanceof HTMLInputElement) {
@@ -752,6 +765,14 @@ function initCityPhotoManager() {
     if (files.length === 0) {
       showError('Выберите одно или несколько изображений для загрузки');
       return;
+    }
+    if (typeof maxUploadBytes === 'number') {
+      const oversizedFile = files.find((f) => f.size > maxUploadBytes);
+      if (oversizedFile) {
+        const shortName = truncateCityPhotoFileName(oversizedFile.name);
+        showError(`Файл «${shortName}» превышает лимит ${maxUploadMb} МБ`);
+        return;
+      }
     }
 
     const existingCount = citySwiper ? countCityUserPhotosInCarousel(citySwiper) : 0;

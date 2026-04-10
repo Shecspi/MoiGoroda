@@ -48,6 +48,7 @@ def help_premium_photos(request: HttpRequest) -> HttpResponse:
             'page_title': 'Справка: фотографии в расширенной подписке',
             'page_description': 'Как работает загрузка фотографий в расширенной подписке и что происходит с фото после её окончания',
             'city_user_photos_limit': settings.CITY_USER_PHOTOS_LIMIT,
+            'city_user_photo_max_upload_mb': settings.CITY_USER_PHOTO_MAX_UPLOAD_MB,
         },
     )
 

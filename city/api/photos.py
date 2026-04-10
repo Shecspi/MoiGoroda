@@ -142,6 +142,18 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
                 status_code=HTTPStatus.BAD_REQUEST,
             )
 
+        image_size = image.size or 0
+        if image_size > settings.CITY_USER_PHOTO_MAX_UPLOAD_BYTES:
+            return self.to_response(
+                raw_data={
+                    'detail': (
+                        'Размер файла превышает допустимый лимит '
+                        f'{settings.CITY_USER_PHOTO_MAX_UPLOAD_MB} МБ'
+                    )
+                },
+                status_code=HTTPStatus.BAD_REQUEST,
+            )
+
         try:
             city = City.objects.get(pk=payload.city_id)
         except City.DoesNotExist:

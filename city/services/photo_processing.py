@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from io import BytesIO
+from typing import Any
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import UploadedFile
 from PIL import Image, ImageOps, UnidentifiedImageError
+from PIL.Image import DecompressionBombError
 
 try:
-    import pillow_heif  # type: ignore[import-not-found]
+    import pillow_heif  # type: ignore[import-untyped]
 except ImportError:  # pragma: no cover - fallback for environments without optional dependency
     pillow_heif = None
 else:
@@ -18,11 +21,20 @@ MAX_IMAGE_SIDE = 1920
 JPEG_QUALITY = 82
 
 
-def compress_city_photo(uploaded_file: UploadedFile) -> ContentFile:
+def compress_city_photo(uploaded_file: UploadedFile) -> ContentFile[Any]:
+    Image.MAX_IMAGE_PIXELS = settings.CITY_USER_PHOTO_MAX_PIXELS
+
     try:
         image = Image.open(uploaded_file)
-    except (UnidentifiedImageError, OSError) as exc:
+    except (DecompressionBombError, UnidentifiedImageError, OSError) as exc:
         raise ValueError('Неподдерживаемый формат изображения') from exc
+
+    width, height = image.size
+    if width <= 0 or height <= 0:
+        raise ValueError('Неподдерживаемый формат изображения')
+
+    if width * height > settings.CITY_USER_PHOTO_MAX_PIXELS:
+        raise ValueError('Слишком большое изображение')
 
     normalized = ImageOps.exif_transpose(image)
     image_format = (normalized.format or '').upper()

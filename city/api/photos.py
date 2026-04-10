@@ -182,7 +182,13 @@ class UploadCityUserPhotoController(Controller[MsgspecSerializer]):
 
             try:
                 compressed_file = compress_city_photo(image)
-            except ValueError:
+            except ValueError as exc:
+                message = str(exc)
+                if message == 'Слишком большое изображение':
+                    return self.to_response(
+                        raw_data={'image': [message]},
+                        status_code=HTTPStatus.BAD_REQUEST,
+                    )
                 return self.to_response(
                     raw_data={'image': ['Неподдерживаемый формат изображения']},
                     status_code=HTTPStatus.BAD_REQUEST,

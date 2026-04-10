@@ -222,6 +222,28 @@ def test_upload_rejects_too_large_file(
 
 @pytest.mark.django_db
 @pytest.mark.integration
+def test_upload_rejects_too_many_pixels(
+    api_client: APIClient,
+    user: User,
+    city: City,
+    active_advanced_subscription: PremiumSubscription,
+) -> None:
+    api_client.force_authenticate(user=user)
+
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        monkeypatch.setattr(settings, 'CITY_USER_PHOTO_MAX_PIXELS', 1000)
+        response = api_client.post(
+            reverse('api__upload_city_user_photo'),
+            {'city_id': city.id, 'image': _make_image_file(size=(100, 100))},
+            format='multipart',
+        )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()['image'] == ['Слишком большое изображение']
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
 def test_owner_only_access_to_photo_content(
     api_client: APIClient,
     user: User,

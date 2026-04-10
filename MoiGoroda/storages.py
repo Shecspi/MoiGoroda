@@ -36,7 +36,9 @@ class CityStandardPhotoStorage(S3Boto3Storage):
     def __init__(self, **kwargs):
         kwargs.setdefault('bucket_name', settings.AWS_STANDARD_CITY_PHOTOS_BUCKET_NAME)
         kwargs.setdefault('region_name', settings.AWS_STANDARD_CITY_PHOTOS_REGION_NAME)
-        kwargs.setdefault('querystring_expire', settings.AWS_STANDARD_CITY_PHOTOS_URL_EXPIRE_SECONDS)
+        kwargs.setdefault(
+            'querystring_expire', settings.AWS_STANDARD_CITY_PHOTOS_URL_EXPIRE_SECONDS
+        )
 
         if not kwargs.get('bucket_name'):
             raise ImproperlyConfigured(

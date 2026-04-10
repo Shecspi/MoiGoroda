@@ -22,7 +22,9 @@ from country.models import Country
 from premium.models import PremiumPlan, PremiumSubscription
 
 
-def _make_image_file(name: str = 'photo.png', size: tuple[int, int] = (3200, 1600)) -> SimpleUploadedFile:
+def _make_image_file(
+    name: str = 'photo.png', size: tuple[int, int] = (3200, 1600)
+) -> SimpleUploadedFile:
     buffer = BytesIO()
     image = Image.new('RGB', size, color=(220, 120, 10))
     image.save(buffer, format='PNG')
@@ -111,7 +113,9 @@ def test_guest_cannot_upload_photo(api_client: APIClient, city: City) -> None:
 
 @pytest.mark.django_db
 @pytest.mark.integration
-def test_upload_requires_advanced_subscription(api_client: APIClient, user: User, city: City) -> None:
+def test_upload_requires_advanced_subscription(
+    api_client: APIClient, user: User, city: City
+) -> None:
     api_client.force_authenticate(user=user)
     response = api_client.post(
         reverse('api__upload_city_user_photo'),
@@ -259,7 +263,9 @@ def test_owner_only_access_to_photo_content(
         position=1,
     )
     api_client.force_authenticate(user=another_user)
-    response = api_client.get(reverse('api__city_user_photo_content', kwargs={'photo_id': photo.id}))
+    response = api_client.get(
+        reverse('api__city_user_photo_content', kwargs={'photo_id': photo.id})
+    )
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 

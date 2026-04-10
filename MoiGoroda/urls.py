@@ -51,7 +51,9 @@ if settings.DEBUG:
 
     urlpatterns += [
         path('api/docs', SwaggerView.as_view(schema=city_user_photos_schema), name='api_docs'),
-        path('api/docs/', SwaggerView.as_view(schema=city_user_photos_schema), name='api_docs_slash'),
+        path(
+            'api/docs/', SwaggerView.as_view(schema=city_user_photos_schema), name='api_docs_slash'
+        ),
     ]
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

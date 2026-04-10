@@ -234,9 +234,7 @@ class CitiesByRegionList(ListView):
 
         if self.request.user.is_authenticated:
             queryset = get_all_cities_in_region(self.request.user, self.region_id)
-            queryset = annotate_city_default_user_photo_for_list(
-                queryset, self.request.user.pk
-            )
+            queryset = annotate_city_default_user_photo_for_list(queryset, self.request.user.pk)
 
             # Количество городов считаем до фильтрации, чтобы всегда было указано, сколько городов посещено
             self.number_of_cities = City.objects.filter(region_id=self.region_id).count()

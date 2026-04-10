@@ -225,10 +225,13 @@ class CityUserPhotoSerializer(serializers.ModelSerializer[CityUserPhoto]):
     def get_image_url(self, obj: CityUserPhoto) -> str:
         if not obj.image:
             return ''
+
         request = self.context.get('request')
         url = str(obj.image.url)
+
         if request is not None and url.startswith('/'):
             return str(request.build_absolute_uri(url))
+
         return url
 
     class Meta:

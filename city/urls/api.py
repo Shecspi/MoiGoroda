@@ -26,8 +26,8 @@ city_user_photos_router = Router(
     ],
 )
 
-# Создаём OpanAPI-схему для роутеров Django-modern-rest
-ciry_user_photos_schema = build_schema(city_user_photos_router)
+# Создаём OpenAPI-схему для роутеров Django-modern-rest
+city_user_photos_schema = build_schema(city_user_photos_router)
 
 urlpatterns = [
     path('visited', api.GetVisitedCities.as_view(), name='api__get_visited_cities'),

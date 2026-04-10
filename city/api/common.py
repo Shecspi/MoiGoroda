@@ -68,6 +68,7 @@ from services import logger
 from subscribe.repository import is_subscribed
 from premium.services.access import has_advanced_premium
 
+
 class GetVisitedCities(generics.ListAPIView):  # type: ignore[type-arg]
     serializer_class = VisitedCitySerializer
     permission_classes = (IsAuthenticated,)
@@ -1248,5 +1249,3 @@ def save_district_map_colors(request: Request) -> Response:
         {'status': 'success', 'message': 'Цвета сохранены'},
         status=status.HTTP_200_OK,
     )
-
-

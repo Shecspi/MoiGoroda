@@ -6,7 +6,7 @@ from dmr.openapi.views import SwaggerView
 
 from MoiGoroda.tinymce_views import upload_image
 from django.views.generic import TemplateView
-from city.urls.api import ciry_user_photos_schema
+from city.urls.api import city_user_photos_schema
 
 
 urlpatterns = [
@@ -33,8 +33,6 @@ urlpatterns = [
     path('api/place/', include('place.urls.api')),
     path('api/region/', include('region.urls.api')),
     path('api/collection/', include('collection.urls.api')),
-    path('api/docs', SwaggerView.as_view(schema=ciry_user_photos_schema), name='api_docs'),
-    path('api/docs/', SwaggerView.as_view(schema=ciry_user_photos_schema), name='api_docs_slash'),
     # Plugins
     path('tinymce/upload-image/', upload_image, name='tinymce-upload-image'),
     path('tinymce/', include('tinymce.urls')),
@@ -50,5 +48,10 @@ if settings.DEBUG:
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
+
+    urlpatterns += [
+        path('api/docs', SwaggerView.as_view(schema=city_user_photos_schema), name='api_docs'),
+        path('api/docs/', SwaggerView.as_view(schema=city_user_photos_schema), name='api_docs_slash'),
+    ]
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

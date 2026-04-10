@@ -3,16 +3,22 @@
 """
 
 from typing import Any
+from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 from django.contrib.auth.models import User
+from django.core.files.storage import FileSystemStorage
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 
-from city.models import City, VisitedCity
+from city.models import City, CityUserPhoto, VisitedCity
 from collection.models import Collection
 from collection.views import get_url_params
 from country.models import Country
+from premium.models import PremiumPlan, PremiumSubscription
 from region.models import Region
 
 
@@ -232,6 +238,60 @@ class TestCollectionSelectedListView:
 
         assert response.status_code == 200
         assert 'collection/selected/map/page.html' in [t.name for t in response.templates]
+
+    @pytest.fixture(autouse=True)
+    def use_local_storage_for_city_photos(self, tmp_path: Any) -> Any:
+        storage = FileSystemStorage(location=tmp_path, base_url='/media/')
+        image_field = CityUserPhoto._meta.get_field('image')
+        original_storage = image_field.storage
+        image_field.storage = storage
+        try:
+            yield storage
+        finally:
+            image_field.storage = original_storage
+
+    def test_collection_list_prefers_user_uploaded_city_photo(
+        self, client: Client, setup_data: dict[str, Any]
+    ) -> None:
+        user = setup_data['user']
+        collection = setup_data['collection']
+        city2 = setup_data['city2']
+        plan = PremiumPlan.objects.create(
+            slug='advanced',
+            name='Advanced',
+            description='Advanced plan',
+            price_month=Decimal('599.00'),
+            price_year=Decimal('5990.00'),
+            currency='RUB',
+            is_active=True,
+            sort_order=0,
+        )
+        now = timezone.now()
+        PremiumSubscription.objects.create(
+            user=user,
+            plan=plan,
+            billing_period=PremiumSubscription.BillingPeriod.MONTHLY,
+            status=PremiumSubscription.Status.ACTIVE,
+            started_at=now,
+            expires_at=now + timedelta(days=30),
+            provider_payment_id='test-payment',
+        )
+        photo = CityUserPhoto.objects.create(
+            user=user,
+            city=city2,
+            image=SimpleUploadedFile('city2.jpg', b'fake-image', content_type='image/jpeg'),
+            is_default=True,
+            position=1,
+        )
+
+        client.force_login(user)
+        response = client.get(reverse('collection-detail-list', kwargs={'pk': collection.pk}))
+
+        assert response.status_code == 200
+        object_list = list(response.context['object_list'])
+        city_row = next(item for item in object_list if item.id == city2.id)
+        assert str(city_row.default_city_user_photo_id) == str(photo.id)
+        assert getattr(city_row, 'default_city_user_photo_url', '').endswith('.jpg')
 
 
 @pytest.mark.unit

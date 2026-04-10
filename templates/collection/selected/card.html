@@ -5,7 +5,21 @@
     <div class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
          id="section-city_{{ forloop.counter }}">
         <div class="relative aspect-video w-full shrink-0 overflow-hidden bg-neutral-300/85 shadow-inner ring-1 ring-inset ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15">
-            {% if city.image %}
+            {% if has_advanced_premium and city.default_city_user_photo_id %}
+                <a href="{% url 'city-selected' city.id %}" class="relative block h-full min-h-0 w-full overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" aria-label="{{ city.title }}">
+                    <img src="{% if city.default_city_user_photo_url %}{{ city.default_city_user_photo_url }}{% else %}{% url 'api__city_user_photo_content' photo_id=city.default_city_user_photo_id %}{% endif %}"
+                         alt="{{ city.title }}"
+                         class="city-list-card-hero-img h-full w-full object-cover object-center"
+                         width="800"
+                         height="450"
+                         loading="lazy"
+                         decoding="async"
+                         onerror="this.classList.add('hidden'); var p=this.nextElementSibling; if(p){p.classList.remove('hidden');}">
+                    <div class="city-list-card-hero-placeholder hidden absolute inset-0 overflow-hidden">
+                        {% include 'city/partials/city_photo_carousel_missing_inner.html' with subtitle='Не удалось загрузить изображение' only %}
+                    </div>
+                </a>
+            {% elif city.image %}
                 <a href="{% url 'city-selected' city.id %}" class="relative block h-full min-h-0 w-full overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" aria-label="{{ city.title }}">
                     <img src="{{ city.image }}"
                          alt="{{ city.title }}"

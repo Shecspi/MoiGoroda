@@ -10,7 +10,7 @@ from city.urls.api import ciry_user_photos_schema
 
 
 urlpatterns = [
-    path('', include('main_page.urls'), name='main_page'),
+    path('', include('main_page.urls')),
     path('account/', include('account.urls')),
     path('city/', include('city.urls.views')),
     path('region/', include('region.urls.views')),

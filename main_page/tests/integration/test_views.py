@@ -137,3 +137,41 @@ def test_main_page_different_users_redirect_to_same_page(
     assert response2.status_code == 302
     assert response1.url == response2.url  # type: ignore[attr-defined]
     assert response1.url == reverse('city-all-list')  # type: ignore[attr-defined]
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_help_premium_photos_page_accessible(client: Client) -> None:
+    """Тест что страница справки о фото в подписке доступна."""
+    response = client.get(reverse('help-premium-photos'))
+
+    assert response.status_code == 200
+    assert 'help/premium_photos.html' in [t.name for t in response.templates]
+    content = response.content.decode('utf-8')
+    assert 'Справка: фотографии в расширенной подписке' in content
+    assert '30 дней' in content
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_help_link_in_footer_visible_on_main_page(client: Client) -> None:
+    """Тест что ссылка на страницу справки отображается в футере."""
+    response = client.get(reverse('main_page'))
+
+    assert response.status_code == 200
+    content = response.content.decode('utf-8')
+    assert '/help/' in content
+    assert 'Все статьи справки' in content
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_help_index_page_accessible(client: Client) -> None:
+    """Тест что главная страница справки доступна и содержит список статей."""
+    response = client.get('/help/')
+
+    assert response.status_code == 200
+    assert 'help/index.html' in [t.name for t in response.templates]
+    content = response.content.decode('utf-8')
+    assert 'Все статьи справки' in content
+    assert '/help/premium-photos/' in content

@@ -45,9 +45,9 @@ class TestGetVisitedCities:
         response = client_method(self.url)
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
-    @patch('city.api.apply_filter_to_queryset')
-    @patch('city.api.get_unique_visited_cities')
-    @patch('city.api.logger')
+    @patch('city.api.common.apply_filter_to_queryset')
+    @patch('city.api.common.get_unique_visited_cities')
+    @patch('city.api.common.logger')
     def test_get_visited_cities_success(
         self,
         mock_logger: MagicMock,
@@ -68,7 +68,7 @@ class TestGetVisitedCities:
         mock_logger.info.assert_called_once()
         mock_get_unique_visited_cities.assert_called_once_with(authenticated_user.pk, None)
 
-    @patch('city.api.get_unique_visited_cities')
+    @patch('city.api.common.get_unique_visited_cities')
     def test_get_visited_cities_with_country_filter(
         self,
         mock_get_unique_visited_cities: MagicMock,
@@ -85,8 +85,8 @@ class TestGetVisitedCities:
         assert response.status_code == status.HTTP_200_OK
         mock_get_unique_visited_cities.assert_called_once_with(authenticated_user.pk, '1')
 
-    @patch('city.api.apply_filter_to_queryset')
-    @patch('city.api.get_unique_visited_cities')
+    @patch('city.api.common.apply_filter_to_queryset')
+    @patch('city.api.common.get_unique_visited_cities')
     def test_get_visited_cities_with_filter(
         self,
         mock_get_unique_visited_cities: MagicMock,
@@ -100,9 +100,7 @@ class TestGetVisitedCities:
         mock_get_unique_visited_cities.return_value = mock_queryset
         mock_apply_filter.return_value = mock_queryset
 
-        response = api_client.get(f'{self.url}?filter=rating_high')
+        response = api_client.get(f'{self.url}?filter=magnet')
 
         assert response.status_code == status.HTTP_200_OK
-        mock_apply_filter.assert_called_once_with(
-            mock_queryset, authenticated_user.pk, 'rating_high'
-        )
+        mock_apply_filter.assert_called_once_with(mock_queryset, authenticated_user.pk, 'magnet')

@@ -187,7 +187,9 @@ def annotate_city_default_user_photo_for_list(
     ).values('id')[:1]
 
     annotated_queryset = queryset.annotate(
-        default_city_user_photo_id=Subquery(default_city_user_photo_id_subquery, output_field=UUIDField())
+        default_city_user_photo_id=Subquery(
+            default_city_user_photo_id_subquery, output_field=UUIDField()
+        )
     )
     return cast(QuerySet[City], annotated_queryset)
 

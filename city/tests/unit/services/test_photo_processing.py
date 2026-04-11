@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import warnings
 from io import BytesIO
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
-from PIL.Image import DecompressionBombError
+from PIL.Image import DecompressionBombError, DecompressionBombWarning
 
 from city.services.photo_processing import compress_city_photo
 
@@ -34,8 +35,12 @@ def test_compress_city_photo_rejects_too_many_pixels(monkeypatch: pytest.MonkeyP
     monkeypatch.setattr('city.services.photo_processing.settings.CITY_USER_PHOTO_MAX_PIXELS', 5000)
     source = _build_uploaded_image((100, 100))
 
-    with pytest.raises(ValueError, match='Слишком большое изображение'):
-        compress_city_photo(source)
+    # При лимите 5000 Pillow предупреждает о 100×100=10000 пикселей ещё на open();
+    # нас интересует явная проверка width*height в compress_city_photo.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', DecompressionBombWarning)
+        with pytest.raises(ValueError, match='Слишком большое изображение'):
+            compress_city_photo(source)
 
 
 @pytest.mark.unit

@@ -44,13 +44,13 @@ class TestAddVisitedCity:
         response = client_method(self.url)
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
-    @patch('city.api.VisitedCity.objects.filter')
-    @patch('city.api.City.objects.get')
-    @patch('city.api.get_number_of_visits_by_city')
-    @patch('city.api.get_first_visit_date_by_city')
-    @patch('city.api.get_last_visit_date_by_city')
-    @patch('city.api.get_number_of_users_who_visit_city')
-    @patch('city.api.logger')
+    @patch('city.api.common.VisitedCity.objects.filter')
+    @patch('city.api.common.City.objects.get')
+    @patch('city.api.common.get_number_of_visits_by_city')
+    @patch('city.api.common.get_first_visit_date_by_city')
+    @patch('city.api.common.get_last_visit_date_by_city')
+    @patch('city.api.common.get_number_of_users_who_visit_city')
+    @patch('city.api.common.logger')
     def test_add_visited_city_success(
         self,
         mock_logger: MagicMock,
@@ -89,8 +89,8 @@ class TestAddVisitedCity:
         }
 
         with (
-            patch('city.api.VisitedCity.objects.create') as mock_create,
-            patch('city.api.AddVisitedCitySerializer') as mock_serializer_class,
+            patch('city.api.common.VisitedCity.objects.create') as mock_create,
+            patch('city.api.common.AddVisitedCitySerializer') as mock_serializer_class,
         ):
             # Мокаем сериализатор
             mock_serializer = MagicMock()
@@ -136,9 +136,9 @@ class TestAddVisitedCity:
         assert 'city' in response_data
         mock_logger.info.assert_called_once()
 
-    @patch('city.api.VisitedCity.objects.filter')
-    @patch('city.api.City.objects.get')
-    @patch('city.api.logger')
+    @patch('city.api.common.VisitedCity.objects.filter')
+    @patch('city.api.common.City.objects.get')
+    @patch('city.api.common.logger')
     def test_add_duplicate_visited_city(
         self,
         mock_logger: MagicMock,
@@ -154,7 +154,7 @@ class TestAddVisitedCity:
 
         data = {'city': mock_city.id, 'date_of_visit': '2024-01-15', 'rating': 5}
 
-        with patch('city.api.AddVisitedCitySerializer') as mock_serializer_class:
+        with patch('city.api.common.AddVisitedCitySerializer') as mock_serializer_class:
             # Мокаем сериализатор
             mock_serializer = MagicMock()
             mock_serializer.is_valid.return_value = True
@@ -172,7 +172,7 @@ class TestAddVisitedCity:
         assert response_data['status'] == 'success'
         assert 'уже сохранили посещение' in response_data['message']
 
-    @patch('city.api.logger')
+    @patch('city.api.common.logger')
     def test_invalid_serializer_data(
         self, mock_logger: MagicMock, api_client: APIClient, authenticated_user: User
     ) -> None:

@@ -1,21 +1,25 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Generator
+from typing import Any, cast
 from datetime import timedelta
 from decimal import Decimal
 from io import BytesIO
 from pathlib import Path
+from unittest.mock import patch
+from urllib.parse import urlencode
 
 import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from city.models import City, CityUserPhoto
 from country.models import Country
@@ -31,9 +35,15 @@ def _make_image_file(
     return SimpleUploadedFile(name=name, content=buffer.getvalue(), content_type='image/png')
 
 
+def _response_json(response: object) -> dict[str, Any]:
+    """Парсит JSON из ответа django-modern-rest (обычный HttpResponse)."""
+    content = getattr(response, 'content', b'')
+    return cast(dict[str, Any], json.loads(content.decode()))
+
+
 @pytest.fixture
-def api_client() -> APIClient:
-    return APIClient()
+def client() -> Client:
+    return Client()
 
 
 @pytest.fixture(autouse=True)
@@ -102,25 +112,21 @@ def active_advanced_subscription(user: User, advanced_plan: PremiumPlan) -> Prem
 
 @pytest.mark.django_db
 @pytest.mark.integration
-def test_guest_cannot_upload_photo(api_client: APIClient, city: City) -> None:
-    response = api_client.post(
+def test_guest_cannot_upload_photo(client: Client, city: City) -> None:
+    response = client.post(
         reverse('api__upload_city_user_photo'),
         {'city_id': city.id, 'image': _make_image_file()},
-        format='multipart',
     )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
-def test_upload_requires_advanced_subscription(
-    api_client: APIClient, user: User, city: City
-) -> None:
-    api_client.force_authenticate(user=user)
-    response = api_client.post(
+def test_upload_requires_advanced_subscription(client: Client, user: User, city: City) -> None:
+    client.force_login(user)
+    response = client.post(
         reverse('api__upload_city_user_photo'),
         {'city_id': city.id, 'image': _make_image_file()},
-        format='multipart',
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -128,16 +134,15 @@ def test_upload_requires_advanced_subscription(
 @pytest.mark.django_db
 @pytest.mark.integration
 def test_upload_photo_success_and_default_first(
-    api_client: APIClient,
+    client: Client,
     user: User,
     city: City,
     active_advanced_subscription: PremiumSubscription,
 ) -> None:
-    api_client.force_authenticate(user=user)
-    response = api_client.post(
+    client.force_login(user)
+    response = client.post(
         reverse('api__upload_city_user_photo'),
         {'city_id': city.id, 'image': _make_image_file()},
-        format='multipart',
     )
     assert response.status_code == status.HTTP_201_CREATED
     photo = CityUserPhoto.objects.get(user=user, city=city)
@@ -148,25 +153,23 @@ def test_upload_photo_success_and_default_first(
 @pytest.mark.django_db
 @pytest.mark.integration
 def test_photos_limit_per_user_per_city(
-    api_client: APIClient,
+    client: Client,
     user: User,
     city: City,
     active_advanced_subscription: PremiumSubscription,
 ) -> None:
-    api_client.force_authenticate(user=user)
+    client.force_login(user)
     upload_url = reverse('api__upload_city_user_photo')
     for idx in range(settings.CITY_USER_PHOTOS_LIMIT):
-        response = api_client.post(
+        response = client.post(
             upload_url,
             {'city_id': city.id, 'image': _make_image_file(name=f'{idx}.png')},
-            format='multipart',
         )
         assert response.status_code == status.HTTP_201_CREATED
 
-    limit_response = api_client.post(
+    limit_response = client.post(
         upload_url,
         {'city_id': city.id, 'image': _make_image_file(name='extra.png')},
-        format='multipart',
     )
     assert limit_response.status_code == status.HTTP_409_CONFLICT
 
@@ -174,35 +177,34 @@ def test_photos_limit_per_user_per_city(
 @pytest.mark.django_db
 @pytest.mark.integration
 def test_upload_rejects_unsupported_image_format(
-    api_client: APIClient,
+    client: Client,
     user: User,
     city: City,
     active_advanced_subscription: PremiumSubscription,
 ) -> None:
-    api_client.force_authenticate(user=user)
+    client.force_login(user)
     invalid_file = SimpleUploadedFile(
         name='photo.heic',
         content=b'not-a-valid-image',
         content_type='image/heic',
     )
-    response = api_client.post(
+    response = client.post(
         reverse('api__upload_city_user_photo'),
         {'city_id': city.id, 'image': invalid_file},
-        format='multipart',
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()['image'] == ['Неподдерживаемый формат изображения']
+    assert _response_json(response)['image'] == ['Неподдерживаемый формат изображения']
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
 def test_upload_rejects_too_large_file(
-    api_client: APIClient,
+    client: Client,
     user: User,
     city: City,
     active_advanced_subscription: PremiumSubscription,
 ) -> None:
-    api_client.force_authenticate(user=user)
+    client.force_login(user)
 
     with pytest.MonkeyPatch.context() as monkeypatch:
         monkeypatch.setattr(settings, 'CITY_USER_PHOTO_MAX_UPLOAD_MB', 1)
@@ -214,42 +216,42 @@ def test_upload_rejects_too_large_file(
             content=too_large_content,
             content_type='image/jpeg',
         )
-        response = api_client.post(
+        response = client.post(
             reverse('api__upload_city_user_photo'),
             {'city_id': city.id, 'image': too_large_file},
-            format='multipart',
         )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()['detail'] == 'Размер файла превышает допустимый лимит 1 МБ'
+    assert _response_json(response)['detail'] == 'Размер файла превышает допустимый лимит 1 МБ'
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
 def test_upload_rejects_too_many_pixels(
-    api_client: APIClient,
+    client: Client,
     user: User,
     city: City,
     active_advanced_subscription: PremiumSubscription,
 ) -> None:
-    api_client.force_authenticate(user=user)
+    client.force_login(user)
 
-    with pytest.MonkeyPatch.context() as monkeypatch:
-        monkeypatch.setattr(settings, 'CITY_USER_PHOTO_MAX_PIXELS', 1000)
-        response = api_client.post(
+    with patch(
+        'city.api.photos.compress_city_photo',
+        side_effect=ValueError('Слишком большое изображение'),
+    ):
+        response = client.post(
             reverse('api__upload_city_user_photo'),
-            {'city_id': city.id, 'image': _make_image_file(size=(100, 100))},
-            format='multipart',
+            {'city_id': city.id, 'image': _make_image_file()},
         )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()['image'] == ['Слишком большое изображение']
+    assert _response_json(response)['image'] == ['Слишком большое изображение']
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
 def test_owner_only_access_to_photo_content(
-    api_client: APIClient,
+    client: Client,
     user: User,
     another_user: User,
     city: City,
@@ -262,17 +264,15 @@ def test_owner_only_access_to_photo_content(
         is_default=True,
         position=1,
     )
-    api_client.force_authenticate(user=another_user)
-    response = api_client.get(
-        reverse('api__city_user_photo_content', kwargs={'photo_id': photo.id})
-    )
+    client.force_login(another_user)
+    response = client.get(reverse('api__city_user_photo_content', kwargs={'photo_id': photo.id}))
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
 def test_set_default_and_delete_photo(
-    api_client: APIClient,
+    client: Client,
     user: User,
     city: City,
     active_advanced_subscription: PremiumSubscription,
@@ -292,8 +292,8 @@ def test_set_default_and_delete_photo(
         position=2,
     )
 
-    api_client.force_authenticate(user=user)
-    set_default_response = api_client.post(
+    client.force_login(user)
+    set_default_response = client.post(
         reverse('api__set_default_city_user_photo', kwargs={'photo_id': photo2.id})
     )
     assert set_default_response.status_code == status.HTTP_200_OK
@@ -302,11 +302,11 @@ def test_set_default_and_delete_photo(
     assert photo1.is_default is False
     assert photo2.is_default is True
 
-    delete_response = api_client.delete(
+    delete_response = client.delete(
         reverse('api__city_user_photo_content', kwargs={'photo_id': photo2.id})
     )
     assert delete_response.status_code == status.HTTP_200_OK
-    delete_payload = delete_response.json()
+    delete_payload = _response_json(delete_response)
     assert delete_payload['status'] == 'success'
     assert delete_payload['default_photo_id'] == str(photo1.id)
     photo1.refresh_from_db()
@@ -316,7 +316,7 @@ def test_set_default_and_delete_photo(
 @pytest.mark.django_db
 @pytest.mark.integration
 def test_delete_last_photo_returns_null_default_id(
-    api_client: APIClient,
+    client: Client,
     user: User,
     city: City,
     active_advanced_subscription: PremiumSubscription,
@@ -328,19 +328,19 @@ def test_delete_last_photo_returns_null_default_id(
         is_default=True,
         position=1,
     )
-    api_client.force_authenticate(user=user)
-    delete_response = api_client.delete(
+    client.force_login(user)
+    delete_response = client.delete(
         reverse('api__city_user_photo_content', kwargs={'photo_id': photo.id})
     )
     assert delete_response.status_code == status.HTTP_200_OK
-    assert delete_response.json() == {'status': 'success', 'default_photo_id': None}
+    assert _response_json(delete_response) == {'status': 'success', 'default_photo_id': None}
     assert not CityUserPhoto.objects.filter(id=photo.id).exists()
 
 
 @pytest.mark.django_db
 @pytest.mark.integration
 def test_delete_middle_photo_reorders_positions_without_conflict(
-    api_client: APIClient,
+    client: Client,
     user: User,
     city: City,
     active_advanced_subscription: PremiumSubscription,
@@ -367,8 +367,8 @@ def test_delete_middle_photo_reorders_positions_without_conflict(
         position=3,
     )
 
-    api_client.force_authenticate(user=user)
-    delete_response = api_client.delete(
+    client.force_login(user)
+    delete_response = client.delete(
         reverse('api__city_user_photo_content', kwargs={'photo_id': photo2.id})
     )
     assert delete_response.status_code == status.HTTP_200_OK
@@ -379,3 +379,128 @@ def test_delete_middle_photo_reorders_positions_without_conflict(
     assert photo1.position == 1
     assert photo3.position == 2
     assert photo1.is_default is True
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_list_photos_requires_auth(client: Client, city: City) -> None:
+    url = f'{reverse("api__city_user_photos")}?{urlencode({"city_id": city.id})}'
+    assert client.get(url).status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_list_photos_requires_advanced_premium(client: Client, user: User, city: City) -> None:
+    client.force_login(user)
+    url = f'{reverse("api__city_user_photos")}?{urlencode({"city_id": city.id})}'
+    assert client.get(url).status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_list_photos_requires_city_id(
+    client: Client, user: User, active_advanced_subscription: PremiumSubscription
+) -> None:
+    client.force_login(user)
+    assert client.get(reverse('api__city_user_photos')).status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_list_photos_invalid_city_id(
+    client: Client, user: User, active_advanced_subscription: PremiumSubscription
+) -> None:
+    client.force_login(user)
+    url = f'{reverse("api__city_user_photos")}?{urlencode({"city_id": "abc"})}'
+    assert client.get(url).status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_list_photos_returns_uploaded_photos(
+    client: Client,
+    user: User,
+    city: City,
+    active_advanced_subscription: PremiumSubscription,
+) -> None:
+    client.force_login(user)
+    client.post(
+        reverse('api__upload_city_user_photo'),
+        {'city_id': city.id, 'image': _make_image_file(name='a.png')},
+    )
+    url = f'{reverse("api__city_user_photos")}?{urlencode({"city_id": city.id})}'
+    response = client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    data = _response_json(response)
+    assert len(data['photos']) == 1
+    assert 'image_url' in data['photos'][0]
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_get_photo_binary_for_owner(
+    client: Client,
+    user: User,
+    city: City,
+    active_advanced_subscription: PremiumSubscription,
+) -> None:
+    client.force_login(user)
+    client.post(
+        reverse('api__upload_city_user_photo'),
+        {'city_id': city.id, 'image': _make_image_file()},
+    )
+    photo = CityUserPhoto.objects.get(user=user, city=city)
+    response = client.get(reverse('api__city_user_photo_content', kwargs={'photo_id': photo.id}))
+    assert response.status_code == status.HTTP_200_OK
+    assert response['Content-Type'].startswith('image/')
+    stream = getattr(response, 'streaming_content', None)
+    body = response.content if stream is None else b''.join(stream)
+    assert len(body) > 0
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_delete_requires_premium(
+    client: Client, user: User, city: City, active_advanced_subscription: PremiumSubscription
+) -> None:
+    photo = CityUserPhoto.objects.create(
+        user=user,
+        city=city,
+        image=_make_image_file(),
+        is_default=True,
+        position=1,
+    )
+    client.force_login(user)
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(
+            'city.api.photos.has_advanced_premium',
+            lambda u: False,
+        )
+        response = client.delete(
+            reverse('api__city_user_photo_content', kwargs={'photo_id': photo.id})
+        )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_set_default_requires_premium(
+    client: Client, user: User, city: City, active_advanced_subscription: PremiumSubscription
+) -> None:
+    photo = CityUserPhoto.objects.create(
+        user=user,
+        city=city,
+        image=_make_image_file(),
+        is_default=True,
+        position=1,
+    )
+    client.force_login(user)
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(
+            'city.api.photos.has_advanced_premium',
+            lambda u: False,
+        )
+        response = client.post(
+            reverse('api__set_default_city_user_photo', kwargs={'photo_id': photo.id})
+        )
+    assert response.status_code == status.HTTP_403_FORBIDDEN

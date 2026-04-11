@@ -22,7 +22,7 @@ from django.db.models import F, Max
 from django.http import FileResponse, HttpResponseBase
 from dmr import Controller, ResponseSpec, modify, validate
 from dmr.files import FileResponseSpec
-from dmr.plugins.msgspec import MsgspecSerializer
+from dmr.plugins.msgspec import MsgspecJsonRenderer, MsgspecSerializer
 from dmr.renderers import FileRenderer
 import msgspec
 
@@ -220,13 +220,16 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
         ResponseSpec(dict[str, str], status_code=HTTPStatus.UNAUTHORIZED),
         ResponseSpec(dict[str, str], status_code=HTTPStatus.NOT_FOUND),
         renderers=[FileRenderer()],
+        validate_responses=False,
         tags=['Пользовательские фото городов'],
     )
     def get(self) -> HttpResponseBase:
+        json_renderer = MsgspecJsonRenderer()
         if not self.request.user.is_authenticated:
             return self.to_response(
                 raw_data={'detail': 'Требуется авторизация'},
                 status_code=HTTPStatus.UNAUTHORIZED,
+                renderer=json_renderer,
             )
 
         assert isinstance(self.request.user, User)
@@ -239,6 +242,7 @@ class CityUserPhotoController(Controller[MsgspecSerializer]):
             return self.to_response(
                 raw_data={'detail': 'Фотография не найдена'},
                 status_code=HTTPStatus.NOT_FOUND,
+                renderer=json_renderer,
             )
 
         content_type = mimetypes.guess_type(photo.image.name)[0] or 'application/octet-stream'

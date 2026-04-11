@@ -46,7 +46,7 @@ class TestGetVisitedCitiesFromSubscriptions:
         response = client_method(self.url)
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
-    @patch('city.api.logger')
+    @patch('city.api.common.logger')
     def test_invalid_user_ids_format(
         self, mock_logger: MagicMock, api_client: APIClient, authenticated_user: User
     ) -> None:
@@ -55,8 +55,8 @@ class TestGetVisitedCitiesFromSubscriptions:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         mock_logger.warning.assert_called_once()
 
-    @patch('city.api.get_unique_visited_cities')
-    @patch('city.api.logger')
+    @patch('city.api.common.get_unique_visited_cities')
+    @patch('city.api.common.logger')
     def test_empty_user_ids(
         self,
         mock_logger: MagicMock,
@@ -69,10 +69,10 @@ class TestGetVisitedCitiesFromSubscriptions:
         response = api_client.get(f'{self.url}?user_ids=')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    @patch('city.api.get_unique_visited_cities')
+    @patch('city.api.common.get_unique_visited_cities')
     @patch('subscribe.repository.is_subscribed')
     @patch('account.models.ShareSettings.objects.get')
-    @patch('city.api.logger')
+    @patch('city.api.common.logger')
     def test_superuser_bypasses_restrictions(
         self,
         mock_logger: MagicMock,
@@ -97,10 +97,10 @@ class TestGetVisitedCitiesFromSubscriptions:
         mock_is_subscribed.assert_not_called()
         mock_share_settings.assert_not_called()
 
-    @patch('city.api.get_unique_visited_cities')
+    @patch('city.api.common.get_unique_visited_cities')
     @patch('subscribe.repository.is_subscribed')
     @patch('account.models.ShareSettings.objects.get')
-    @patch('city.api.logger')
+    @patch('city.api.common.logger')
     def test_user_without_subscription_access_denied(
         self,
         mock_logger: MagicMock,

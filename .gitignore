@@ -168,3 +168,4 @@ cython_debug/
 */node_modules/
 /static/js/
 /media/
+/logs/

@@ -210,7 +210,9 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
             and self.request.user.pk is not None
             and has_advanced_premium(self.request.user)
         ):
-            self.cities = annotate_city_default_user_photo_for_list(self.cities, self.request.user.pk)
+            self.cities = annotate_city_default_user_photo_for_list(
+                self.cities, self.request.user.pk
+            )
         self.qty_of_visited_cities = sum([1 if city.is_visited else 0 for city in self.cities])
         self.qty_of_cities = len(self.cities)
 
@@ -291,8 +293,8 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
             f'Путешествуйте по России и закрывайте коллекции.'
         )
 
-        context['has_advanced_premium'] = self.request.user.is_authenticated and has_advanced_premium(
-            self.request.user
+        context['has_advanced_premium'] = (
+            self.request.user.is_authenticated and has_advanced_premium(self.request.user)
         )
 
         if context['has_advanced_premium'] and self.request.user.pk is not None:

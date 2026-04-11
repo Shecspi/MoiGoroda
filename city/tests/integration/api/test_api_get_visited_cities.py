@@ -79,7 +79,7 @@ def test_get_visited_cities_prohibited_methods(
 @pytest.mark.integration
 def test_get_visited_cities_superuser_can_access(api_client: APIClient, superuser: User) -> None:
     """Проверяет, что суперпользователь может получить доступ к API."""
-    with patch('city.api.GetVisitedCities.get_queryset', return_value=[]):
+    with patch('city.api.common.GetVisitedCities.get_queryset', return_value=[]):
         response = api_client.get(VISITED_CITIES_URL)
         assert response.status_code == status.HTTP_200_OK
 
@@ -87,7 +87,7 @@ def test_get_visited_cities_superuser_can_access(api_client: APIClient, superuse
 # Тесты получения данных
 
 
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_authenticated_user_gets_list(
     mock_get_unique_visited_cities: MagicMock, api_client: APIClient, authenticated_user: User
@@ -134,7 +134,7 @@ def test_get_visited_cities_authenticated_user_gets_list(
     assert data[0]['average_rating'] == 4.5
 
 
-@patch('city.api.GetVisitedCities.get_queryset')
+@patch('city.api.common.GetVisitedCities.get_queryset')
 @pytest.mark.integration
 def test_get_visited_cities_empty_list(
     mock_get_queryset: MagicMock, api_client: APIClient, authenticated_user: User
@@ -146,7 +146,7 @@ def test_get_visited_cities_empty_list(
     assert response.json() == []
 
 
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_multiple_cities(
     mock_get_unique_visited_cities: MagicMock, api_client: APIClient, authenticated_user: User
@@ -195,7 +195,7 @@ def test_get_visited_cities_multiple_cities(
 # Тесты фильтрации
 
 
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_filter_by_country(
     mock_get_unique_visited_cities: MagicMock, api_client: APIClient, authenticated_user: User
@@ -212,8 +212,8 @@ def test_get_visited_cities_filter_by_country(
     mock_get_unique_visited_cities.assert_called_once_with(authenticated_user.pk, 'RU')
 
 
-@patch('city.api.apply_filter_to_queryset')
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.apply_filter_to_queryset')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_with_magnet_filter(
     mock_get_unique_visited_cities: MagicMock,
@@ -235,8 +235,8 @@ def test_get_visited_cities_with_magnet_filter(
     mock_apply_filter.assert_called_once_with(mock_base_queryset, authenticated_user.pk, 'magnet')
 
 
-@patch('city.api.apply_filter_to_queryset')
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.apply_filter_to_queryset')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_with_no_magnet_filter(
     mock_get_unique_visited_cities: MagicMock,
@@ -260,8 +260,8 @@ def test_get_visited_cities_with_no_magnet_filter(
     )
 
 
-@patch('city.api.apply_filter_to_queryset')
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.apply_filter_to_queryset')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_with_current_year_filter(
     mock_get_unique_visited_cities: MagicMock,
@@ -285,8 +285,8 @@ def test_get_visited_cities_with_current_year_filter(
     )
 
 
-@patch('city.api.apply_filter_to_queryset')
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.apply_filter_to_queryset')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_with_last_year_filter(
     mock_get_unique_visited_cities: MagicMock,
@@ -310,8 +310,8 @@ def test_get_visited_cities_with_last_year_filter(
     )
 
 
-@patch('city.api.apply_filter_to_queryset')
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.apply_filter_to_queryset')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_with_country_and_filter(
     mock_get_unique_visited_cities: MagicMock,
@@ -337,8 +337,8 @@ def test_get_visited_cities_with_country_and_filter(
 # Тесты логирования
 
 
-@patch('city.api.logger')
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.logger')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_logs_successful_request(
     mock_get_unique_visited_cities: MagicMock,
@@ -375,8 +375,8 @@ def test_get_visited_cities_logs_successful_request(
 
 
 @pytest.mark.parametrize('method', ['post', 'put', 'patch', 'delete'])
-@patch('city.api.logger')
-@patch('city.api.get_unique_visited_cities')
+@patch('city.api.common.logger')
+@patch('city.api.common.get_unique_visited_cities')
 @pytest.mark.integration
 def test_get_visited_cities_no_logging_on_prohibited_methods(
     mock_get_unique_visited_cities: MagicMock,

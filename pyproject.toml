@@ -73,6 +73,10 @@ django_settings_module = "MoiGoroda.settings"
 line-length = 100
 exclude = ["*/migrations/*"]
 
+[tool.ruff.lint.per-file-ignores]
+# Реэкспорт публичного API из подмодулей для `import city.api as api`
+"city/api/__init__.py" = ["F403"]
+
 [tool.ruff.format]
 quote-style = "single"
 

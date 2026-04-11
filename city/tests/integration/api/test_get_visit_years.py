@@ -361,7 +361,7 @@ def test_get_visit_years_only_current_user(
 # Тесты логирования
 
 
-@patch('city.api.logger')
+@patch('city.api.common.logger')
 @pytest.mark.integration
 def test_get_visit_years_logs_successful_request(
     mock_logger: MagicMock,
@@ -391,7 +391,7 @@ def test_get_visit_years_logs_successful_request(
     assert 'years count: 1' in args[1]
 
 
-@patch('city.api.logger')
+@patch('city.api.common.logger')
 @pytest.mark.integration
 def test_get_visit_years_logs_with_country_filter(
     mock_logger: MagicMock,

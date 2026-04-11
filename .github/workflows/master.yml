@@ -137,6 +137,11 @@ jobs:
             - name: Install dependencies
               run: poetry install --no-interaction --with dev
 
+            # mypy-django инициализирует Django и импортирует модели; без .env пустые
+            # AWS_*_BUCKET_NAME приводят к ImproperlyConfigured в storages.py.
+            - name: Create .env for Django (mypy plugin)
+              run: cp MoiGoroda/.env.example MoiGoroda/.env
+
             - name: Run mypy
               run: make lint-mypy
 

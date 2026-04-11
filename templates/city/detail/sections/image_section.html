@@ -1,16 +1,202 @@
-{% load static %}
-
 <!-- Изображение города -->
-<div class="text-center" id="section-city_image">
-    {% if city.image %}
-        <img src="{{ city.image }}"
-             alt="Фото города {{ city.title }}"
-             class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg"
-             onerror="this.onerror=null;this.src='{% static 'image/city_placeholder.png' %}'">
-    {% else %}      
-        <img src="{% static 'image/city_placeholder.png' %}"
-             alt="Фото города {{ city.title }}"
-             class="inline-block max-w-full h-auto max-h-[600px] rounded-lg shadow-lg">
+<div class="text-center w-full lg:flex lg:flex-col lg:h-full lg:min-h-0" id="section-city_image">
+    <template id="city-photo-carousel-missing-inner-template">
+        {% include 'city/partials/city_photo_carousel_missing_inner.html' with subtitle='' only %}
+    </template>
+
+    {% if city_user_photos or city.image or can_manage_city_photos %}
+        <div class="max-w-full rounded-xl border border-layer-line bg-layer/30 overflow-hidden">
+            <div class="relative city-image-carousel overflow-hidden rounded-xl">
+                <div class="swiper city-photo-swiper w-full overflow-hidden bg-transparent">
+                    <div class="swiper-wrapper">
+                        {% if not city_user_photos and not city.image %}
+                            <div class="swiper-slide !h-auto w-full shrink-0"
+                                 data-photo-id=""
+                                 data-is-default="true"
+                                 data-is-placeholder="true">
+                                <div class="city-photo-stage city-photo-stage--placeholder">
+                                    {% include 'city/partials/city_photo_carousel_missing_inner.html' with subtitle="В сервисе пока нет фотографий этого города" only %}
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% for photo in city_user_photos %}
+                            <div class="swiper-slide !h-auto w-full shrink-0"
+                                 data-photo-id="{{ photo.id }}"
+                                 data-is-default="{% if photo.is_default %}true{% else %}false{% endif %}">
+                                <a href="{{ photo.image.url }}"
+                                   class="city-glightbox block w-full"
+                                   data-type="image">
+                                    <div class="city-photo-stage">
+                                        <img src="{{ photo.image.url }}"
+                                             alt="Фото города {{ city.title }}"
+                                             loading="lazy"
+                                             decoding="async"
+                                             class="city-photo-main-img absolute inset-0 h-full w-full object-contain">
+                                    </div>
+                                </a>
+                            </div>
+                        {% endfor %}
+                        {% if city.image %}
+                            <div class="swiper-slide !h-auto w-full shrink-0"
+                                 data-photo-id=""
+                                 data-is-default="false"
+                                 data-is-service-image="true">
+                                <a href="{{ city.image }}"
+                                   class="city-glightbox block w-full"
+                                   data-type="image">
+                                    <div class="city-photo-stage">
+                                        <img src="{{ city.image }}"
+                                             alt="Фото города {{ city.title }}"
+                                             loading="lazy"
+                                             decoding="async"
+                                             class="absolute inset-0 h-full w-full object-contain">
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="swiper-button-prev city-swiper-prev absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !left-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"
+                        aria-label="Предыдущее фото">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4 -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                    </svg>
+                </button>
+                <button type="button"
+                        class="swiper-button-next city-swiper-next absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !right-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"
+                        aria-label="Следующее фото">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                    </svg>
+                </button>
+                <div class="city-swiper-pagination absolute bottom-2 left-0 right-0 z-10{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"></div>
+            </div>
+            {# Превью только при реальном изображении (фото пользователя или картинка сервиса). Один плейсхолдер в карусели — панель скрыта; после загрузки фото показывает city_photos.js #}
+            <div id="city-photo-thumbs-panel"
+                 class="px-3 py-2{% if city_user_photos or city.image %}{% else %} hidden{% endif %}"
+                 aria-hidden="{% if city_user_photos or city.image %}false{% else %}true{% endif %}">
+                <div class="swiper city-photo-thumbs">
+                    <div class="swiper-wrapper">
+                        {% for photo in city_user_photos %}
+                            <button type="button"
+                                    class="swiper-slide block p-0 appearance-none relative !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100"
+                                    data-photo-id="{{ photo.id }}"
+                                    data-is-default="{% if photo.is_default %}true{% else %}false{% endif %}"
+                                    aria-label="Показать фото {{ forloop.counter }}">
+                                <img src="{{ photo.image.url }}"
+                                     alt="Миниатюра фото города {{ city.title }}"
+                                     loading="lazy"
+                                     decoding="async"
+                                     class="city-photo-thumb-img h-full w-full object-cover">
+                                <span class="city-photo-thumb-default-badge pointer-events-none absolute bottom-0.5 right-0.5 inline-grid size-5 place-items-center rounded-full border border-white/40 bg-black/55 leading-none text-white shadow-md backdrop-blur-[2px] {% if not photo.is_default %}hidden{% endif %}"
+                                      role="img"
+                                      aria-label="Основное фото"
+                                      title="Основное фото"
+                                      aria-hidden="{% if photo.is_default %}false{% else %}true{% endif %}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="block size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.2 7.2a1 1 0 01-1.415 0l-3-3a1 1 0 111.414-1.42l2.293 2.294 6.493-6.494a1 1 0 011.415 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </span>
+                            </button>
+                        {% endfor %}
+                        {% if city.image %}
+                            <button type="button"
+                                 class="swiper-slide block p-0 appearance-none !w-20 !h-14 rounded-md overflow-hidden border border-layer-line bg-layer cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100"
+                                 data-photo-id=""
+                                 data-is-service-image="true"
+                                 aria-label="Показать изображение сервиса">
+                                <img src="{{ city.image }}"
+                                     alt="Миниатюра фото города {{ city.title }}"
+                                     loading="lazy"
+                                     decoding="async"
+                                     class="w-full h-full object-cover">
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div id="city-photo-no-image-messages"
+                 class="city-photo-no-image-below space-y-3 px-3 py-2 text-left{% if city_user_photos or city.image %} hidden{% endif %}">
+                {% include 'city/partials/city_photo_no_image_stack_inner.html' %}
+            </div>
+            {% if can_manage_city_photos %}
+                <div id="city-photo-list"
+                     data-photo-id=""
+                     class="flex items-start justify-between gap-3 px-3 py-2 text-sm">
+                    <span id="city-photo-default-label" class="hidden inline-flex h-8 items-center gap-x-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 text-sm font-medium text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.2 7.2a1 1 0 01-1.415 0l-3-3a1 1 0 111.414-1.42l2.293 2.294 6.493-6.494a1 1 0 011.415 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Выбрано по умолчанию
+                    </span>
+                    <span id="city-photo-service-label" class="hidden inline-flex h-8 items-center gap-x-1.5 rounded-full border border-orange-200 bg-orange-50 px-2.5 text-sm font-medium text-orange-700 dark:border-orange-500/40 dark:bg-orange-500/10 dark:text-orange-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 shrink-0" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                            <path d="M304 112L192 112C183.2 112 176 119.2 176 128L176 512C176 520.8 183.2 528 192 528L448 528C456.8 528 464 520.8 464 512L464 272L376 272C336.2 272 304 239.8 304 200L304 112zM444.1 224L352 131.9L352 200C352 213.3 362.7 224 376 224L444.1 224zM128 128C128 92.7 156.7 64 192 64L325.5 64C342.5 64 358.8 70.7 370.8 82.7L493.3 205.3C505.3 217.3 512 233.6 512 250.6L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 128zM387.4 496L252.6 496C236.8 496 224 483.2 224 467.4C224 461 226.1 454.9 230 449.8L297.6 362.9C303 356 311.3 352 320 352C328.7 352 337 356 342.4 362.9L410 449.9C413.9 454.9 416 461.1 416 467.5C416 483.3 403.2 496.1 387.4 496.1zM240 288C257.7 288 272 302.3 272 320C272 337.7 257.7 352 240 352C222.3 352 208 337.7 208 320C208 302.3 222.3 288 240 288z"/>
+                        </svg>
+                        Изображение сервиса
+                    </span>
+                    <button type="button"
+                            id="city-photo-set-default-btn"
+                            class="city-photo-set-default btn btn-ghost-primary btn-sm">
+                        <svg id="city-photo-set-default-spinner" class="hidden size-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                        <span id="city-photo-set-default-text">Сделать основным</span>
+                    </button>
+                    <span class="inline-flex items-center gap-x-3 ml-auto">
+                        <button type="button"
+                                id="city-photo-delete-btn"
+                                class="city-photo-delete btn btn-ghost-red btn-sm">
+                            <svg id="city-photo-delete-spinner" class="hidden size-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+                            <span id="city-photo-delete-text">Удалить</span>
+                        </button>
+                    </span>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        {# Тот же Swiper, что и при управлении фото: один слайд-плейсхолдер, без превью и без ссылки (GLightbox). Карусель инициализируется в city_photos.js даже без формы загрузки. #}
+        <div class="max-w-full w-full rounded-xl border border-layer-line bg-layer/30 overflow-hidden">
+            <div class="relative city-image-carousel overflow-hidden rounded-xl">
+                <div class="swiper city-photo-swiper w-full overflow-hidden bg-transparent">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide !h-auto w-full shrink-0"
+                             data-photo-id=""
+                             data-is-default="true"
+                             data-is-placeholder="true">
+                            <div class="city-photo-stage city-photo-stage--placeholder">
+                                {% include 'city/partials/city_photo_carousel_missing_inner.html' with subtitle="В сервисе пока нет фотографий этого города" only %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button"
+                        class="swiper-button-prev city-swiper-prev absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !left-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden hidden"
+                        aria-label="Предыдущее фото">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4 -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                    </svg>
+                </button>
+                <button type="button"
+                        class="swiper-button-next city-swiper-next absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !right-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden hidden"
+                        aria-label="Следующее фото">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                        <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
+                    </svg>
+                </button>
+                <div class="city-swiper-pagination absolute bottom-2 left-0 right-0 z-10 hidden"></div>
+            </div>
+            <div id="city-photo-no-image-messages"
+                 class="city-photo-no-image-below space-y-3 px-3 py-2 text-left">
+                {% include 'city/partials/city_photo_no_image_stack_inner.html' %}
+            </div>
+        </div>
     {% endif %}
     {% if city.image_source_text %}
         <div class="mt-3 inline-block rounded-lg border border-blue-200 border-l-4 bg-blue-50 px-3 py-2 dark:border-blue-500/40 dark:bg-blue-500/10">
@@ -24,12 +210,126 @@
                 {% if city.image_source_link %}
                     <a href="{{ city.image_source_link }}"
                     class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline break-words"
-                    target="_blank">{{ city.image_source_text }}</a>
+                    target="_blank"
+                    rel="noopener noreferrer">{{ city.image_source_text }}</a>
                 {% else %}
                     <span class="text-gray-700 dark:text-neutral-300 break-words">{{ city.image_source_text }}</span>
                 {% endif %}
             </div>
         </div>
+    {% endif %}
+
+    {% if can_edit_standard_city_photo %}
+        <div class="mt-4 text-left rounded-lg border border-amber-200 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-500/10 p-3">
+            <p class="text-sm font-medium mb-2 text-amber-900 dark:text-amber-100">Стандартное фото города</p>
+            <form id="city-standard-photo-form" class="space-y-3" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="city_id" value="{{ city.id }}">
+                <div>
+                    <label for="city-standard-photo-file" class="block text-xs font-medium text-muted-foreground-1 mb-1">Изображение</label>
+                    <input type="file"
+                           id="city-standard-photo-file"
+                           name="image"
+                           accept="image/*,.heic,.heif"
+                           class="block w-full bg-layer border border-layer-line rounded-lg text-sm text-foreground file:bg-surface file:border-0 file:me-4 file:py-2 file:px-3">
+                </div>
+                <div>
+                    <label for="city-standard-photo-source-text" class="block text-xs font-medium text-muted-foreground-1 mb-1">Название источника изображения</label>
+                    <input type="text"
+                           id="city-standard-photo-source-text"
+                           name="image_source_text"
+                           value="{{ city.image_source_text|default:'' }}"
+                           maxlength="255"
+                           class="w-full bg-layer border border-layer-line rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label for="city-standard-photo-source-link" class="block text-xs font-medium text-muted-foreground-1 mb-1">Ссылка на источник изображения</label>
+                    <input type="url"
+                           id="city-standard-photo-source-link"
+                           name="image_source_link"
+                           value="{{ city.image_source_link|default:'' }}"
+                           maxlength="200"
+                           placeholder="https://"
+                           class="w-full bg-layer border border-layer-line rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="submit" id="city-standard-photo-submit" class="btn btn-yellow btn-default inline-flex w-full items-center justify-center gap-x-2 sm:w-auto">
+                        <svg id="city-standard-photo-spinner" class="hidden size-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                        <span id="city-standard-photo-submit-text">Сохранить</span>
+                    </button>
+                </div>
+                <div id="city-standard-photo-error" class="hidden text-xs text-red-600 dark:text-red-400"></div>
+            </form>
+        </div>
+    {% endif %}
+
+    {% if can_manage_city_photos %}
+        <div class="mt-4 text-left rounded-lg border border-gray-200 dark:border-neutral-700 p-3">
+            <p class="text-sm font-medium mb-2">Ваши фото города (до {{ city_user_photos_limit }} шт.)</p>
+            <p class="text-xs text-muted-foreground-1 mb-2">
+                Можно выбрать несколько файлов за раз; лишние сверх лимита не загрузятся.
+                Размер одного файла - до {{ city_user_photo_max_upload_mb }} МБ.
+            </p>
+            <form id="city-photo-upload-form"
+                  class="flex flex-wrap items-center gap-2 sm:flex-nowrap"
+                  enctype="multipart/form-data"
+                  data-city-user-photos-limit="{{ city_user_photos_limit }}"
+                  data-city-user-photo-max-upload-bytes="{{ city_user_photo_max_upload_bytes }}"
+                  data-city-user-photo-max-upload-mb="{{ city_user_photo_max_upload_mb }}">
+                {% csrf_token %}
+                <input type="hidden" name="city_id" value="{{ city.id }}">
+                <input type="file"
+                       id="city-photo-file-input"
+                       name="image"
+                       accept="image/*,.heic,.heif"
+                       multiple
+                       class="block w-full bg-layer border border-layer-line rounded-lg text-sm text-foreground placeholder:text-muted-foreground-1 focus:z-10 focus:outline-hidden focus:border-primary-focus focus:ring-1 focus:ring-primary-focus disabled:opacity-50 disabled:bg-layer/60 disabled:cursor-not-allowed disabled:pointer-events-none file:bg-surface file:border-0 file:me-4 file:py-3 file:px-4 disabled:file:opacity-50 disabled:file:cursor-not-allowed sm:min-w-0 sm:flex-1"
+                       aria-label="Изображения города, можно выбрать несколько файлов">
+                <button type="submit" id="city-photo-upload-submit" class="btn btn-primary btn-default inline-flex w-full items-center justify-center gap-x-2 sm:w-auto sm:shrink-0">
+                    <svg id="city-photo-upload-spinner" class="hidden size-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                    <span id="city-photo-upload-text">Загрузить</span>
+                </button>
+            </form>
+            <div id="city-photo-upload-progress"
+                 class="hidden mt-1.5 flex items-start gap-2 text-xs text-muted-foreground-1"
+                 role="status"
+                 aria-live="polite">
+                <svg id="city-photo-upload-progress-spinner"
+                     class="hidden size-3.5 shrink-0 animate-spin text-muted-foreground-1"
+                     xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     aria-hidden="true">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span id="city-photo-upload-progress-text" class="min-w-0 leading-snug tabular-nums"></span>
+            </div>
+            <div id="city-photo-error" class="hidden mt-2 text-xs text-red-600"></div>
+        </div>
+    {% else %}
+        {% if user.is_authenticated %}
+            <div class="mt-4 text-left rounded-lg border border-sky-200/90 bg-sky-50/95 p-3 text-sm leading-relaxed shadow-sm dark:border-sky-800/55 dark:bg-sky-950/35">
+                <p class="text-sky-950 dark:text-sky-100">
+                    После оформления
+                    <span class="font-semibold">расширенной подписки</span>
+                    на этой странице появится возможность загружать свои фотографии города в сервис (до
+                    {{ city_user_photos_limit }}&nbsp;снимков).
+                </p>
+                <p class="mt-2">
+                    <a href="{% url 'premium_promo' %}"
+                    class="font-semibold text-sky-800 underline decoration-sky-300 underline-offset-2 transition-colors hover:text-sky-950 hover:decoration-sky-500 dark:text-sky-200 dark:decoration-sky-600/80 dark:hover:text-white dark:hover:decoration-sky-400">
+                        Оформить подписку
+                    </a>
+                </p>
+            </div>
+        {% endif %}
     {% endif %}
 </div>
 

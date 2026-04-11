@@ -2,13 +2,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from dmr.openapi.views import SwaggerView
 
 from MoiGoroda.tinymce_views import upload_image
 from django.views.generic import TemplateView
+from city.urls.api import city_user_photos_schema
 
 
 urlpatterns = [
-    path('', include('main_page.urls'), name='main_page'),
+    path('', include('main_page.urls')),
     path('account/', include('account.urls')),
     path('city/', include('city.urls.views')),
     path('region/', include('region.urls.views')),
@@ -46,5 +48,12 @@ if settings.DEBUG:
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
+
+    urlpatterns += [
+        path('api/docs', SwaggerView.as_view(schema=city_user_photos_schema), name='api_docs'),
+        path(
+            'api/docs/', SwaggerView.as_view(schema=city_user_photos_schema), name='api_docs_slash'
+        ),
+    ]
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

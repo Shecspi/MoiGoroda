@@ -1,0 +1,107 @@
+/* Стрелки GLightbox на странице города — как у Swiper (.city-swiper-prev / .city-swiper-next) */
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gprev,
+.glightbox-container.glightbox-city-photo.glightbox-clean .gnext,
+.glightbox-container.glightbox-city-photo.glightbox-clean .gclose {
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+}
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gprev {
+  left: 0.75rem !important;
+}
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gnext {
+  right: 0.75rem !important;
+}
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gprev:hover,
+.glightbox-container.glightbox-city-photo.glightbox-clean .gnext:hover,
+.glightbox-container.glightbox-city-photo.glightbox-clean .gclose:hover {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-50%) scale(1.04) !important;
+  opacity: 1;
+}
+
+.glightbox-container.glightbox-city-photo .gprev svg,
+.glightbox-container.glightbox-city-photo .gnext svg,
+.glightbox-container.glightbox-city-photo .gclose svg {
+  width: 1rem;
+  height: 1rem;
+  max-width: 1rem;
+  max-height: 1rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* В GLightbox крестик визуально крупнее стрелок — слегка уменьшаем и усиливаем контраст. */
+.glightbox-container.glightbox-city-photo .gclose svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  max-width: 0.875rem;
+  max-height: 0.875rem;
+  color: rgba(255, 255, 255, 1);
+  opacity: 1;
+}
+
+.glightbox-container.glightbox-city-photo .gclose path {
+  fill: rgba(255, 255, 255, 0.98) !important;
+  stroke: none !important;
+}
+
+.glightbox-container.glightbox-city-photo .gclose line,
+.glightbox-container.glightbox-city-photo .gclose polyline {
+  stroke: rgba(255, 255, 255, 0.98) !important;
+  stroke-width: 2 !important;
+}
+
+.glightbox-container.glightbox-city-photo .gprev path,
+.glightbox-container.glightbox-city-photo .gnext path,
+.glightbox-container.glightbox-city-photo .gclose path {
+  fill: currentColor;
+}
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gclose {
+  top: 0.75rem !important;
+  right: 0.75rem !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
+.glightbox-container.glightbox-city-photo.glightbox-clean .gclose:hover {
+  transform: scale(1.04) !important;
+}
+
+@media (max-width: 768px) {
+  .glightbox-container.glightbox-city-photo.glightbox-clean .gprev,
+  .glightbox-container.glightbox-city-photo.glightbox-clean .gnext {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background-color: rgba(0, 0, 0, 0.35);
+  }
+
+  .glightbox-container.glightbox-city-photo.glightbox-clean .gprev:hover,
+  .glightbox-container.glightbox-city-photo.glightbox-clean .gnext:hover,
+  .glightbox-container.glightbox-city-photo.glightbox-clean .gclose:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}

@@ -42,8 +42,8 @@ class TestGetNotVisitedCities:
         response = client_method(self.url)
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
-    @patch('city.api.get_not_visited_cities')
-    @patch('city.api.logger')
+    @patch('city.api.common.get_not_visited_cities')
+    @patch('city.api.common.logger')
     def test_get_not_visited_cities_success(
         self,
         mock_logger: MagicMock,
@@ -63,7 +63,7 @@ class TestGetNotVisitedCities:
         mock_logger.info.assert_called_once()
         mock_get_not_visited_cities.assert_called_once_with(authenticated_user.pk, None)
 
-    @patch('city.api.get_not_visited_cities')
+    @patch('city.api.common.get_not_visited_cities')
     def test_get_not_visited_cities_with_country(
         self,
         mock_get_not_visited_cities: MagicMock,

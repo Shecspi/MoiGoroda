@@ -19,6 +19,7 @@ from .models import (
     City,
     CityDistrict,
     CityListDefaultSettings,
+    CityUserPhoto,
     DistrictMapColorSettings,
     VisitedCity,
     VisitedCityDistrict,
@@ -230,3 +231,28 @@ class DistrictMapColorSettingsAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_filter = (UserFilter,)
     search_fields = ('user__username',)
     readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(CityUserPhoto)
+class CityUserPhotoAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
+    list_display = (
+        'id',
+        'city',
+        'user',
+        'position',
+        'is_default',
+        'created_at',
+        'updated_at',
+    )
+    list_filter = (
+        UserFilter,
+        'city',
+        'is_default',
+        'created_at',
+        'updated_at',
+    )
+    search_fields = ('user__username', 'city__title')
+    readonly_fields = ('created_at', 'updated_at')
+    date_hierarchy = 'created_at'
+    autocomplete_fields = ('city',)
+    raw_id_fields = ('user',)

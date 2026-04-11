@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="w-full px-3 py-10">
+        <header class="mx-auto mb-6 max-w-4xl" id="block-page_header">
+            <h1 class="mb-6 flex items-end justify-center text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+                Фотографии в расширенной подписке
+            </h1>
+
+            <nav aria-label="Хлебные крошки" class="flex justify-center">
+                <ol class="flex flex-wrap items-center justify-center whitespace-nowrap border-y border-gray-200 py-2 text-sm dark:border-neutral-700">
+                    <li class="inline-flex items-center font-semibold text-gray-900 dark:text-white">
+                        <a class="flex items-center text-gray-600 hover:text-blue-600 focus:outline-none focus:text-blue-600 dark:text-neutral-400 dark:hover:text-blue-400 dark:focus:text-blue-400"
+                           href="/help/">
+                            <svg class="mr-2 size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" x2="8" y1="13" y2="13"/>
+                                <line x1="16" x2="8" y1="17" y2="17"/>
+                                <line x1="10" x2="8" y1="9" y2="9"/>
+                            </svg>
+                            Справка
+                        </a>
+                    </li>
+                </ol>
+            </nav>
+        </header>
+
+        <section class="mx-auto max-w-4xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 dark:border-neutral-700 dark:bg-neutral-800">
+            <div class="space-y-6 text-sm leading-relaxed text-gray-700 dark:text-neutral-300 sm:text-base">
+                <div class="space-y-2">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">
+                        Что можно делать с фотографиями города
+                    </h2>
+                    <p>
+                        Загрузка пользовательских фотографий доступна при активной расширенной
+                        <a href="{% url 'premium_promo' %}"
+                           class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                            подписке
+                        </a>.
+                        Для каждого города можно загрузить до {{ city_user_photos_limit }} фотографий.
+                    </p>
+                    <p>
+                        Можно загружать несколько файлов за один раз. Если выбранных файлов больше, чем осталось
+                        свободных слотов по лимиту, будут загружены только файлы в пределах лимита.
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">
+                        Фотография по умолчанию
+                    </h2>
+                    <p>
+                        Первая загруженная фотография для города автоматически становится фотографией по умолчанию.
+                        Позже любую другую фотографию можно назначить основной кнопкой «Сделать основным».
+                    </p>
+                    <p>
+                        Если удалить текущую основную фотографию, сервис автоматически выберет новую основную
+                        из оставшихся фотографий.
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">
+                        Где отображаются ваши фотографии
+                    </h2>
+                    <p>
+                        На странице города ваши фотографии показываются в карусели вместе со стандартным изображением сервиса.
+                    </p>
+                    <p>
+                        Основная пользовательская фотография подставляется в карточки городов в списках и подборках
+                        и отображается вместо стандартного изображения сервиса.
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">
+                        Обработка фотографий после загрузки
+                    </h2>
+                    <p>
+                        После загрузки изображение автоматически обрабатывается для более быстрой загрузки страниц:
+                        изображение приводится к JPEG и сжимается.
+                    </p>
+                    <p>
+                        Максимальная сторона изображения после обработки ограничивается 1920 пикселями.
+                        Это уменьшает итоговый вес файла и ускоряет отображение фотографий в списках и карточках.
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">
+                        Ограничение по объёму файла
+                    </h2>
+                    <p>
+                        В сервисе установлен лимит по количеству фотографий на один город
+                        (до {{ city_user_photos_limit }} шт.) и по размеру одного загружаемого файла
+                        (до {{ city_user_photo_max_upload_mb }} МБ).
+                    </p>
+                    <p>
+                        После успешной загрузки изображение автоматически сжимается, чтобы снизить его объём.
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">
+                        Что происходит после окончания
+                        <a href="{% url 'premium_promo' %}"
+                           class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                            подписки
+                        </a>
+                    </h2>
+                    <p>
+                        Если
+                        <a href="{% url 'premium_promo' %}"
+                           class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                            подписка
+                        </a>
+                        заканчивается, ваши фотографии продолжают храниться в сервисе в течение
+                        30 дней в ожидании продления
+                        <a href="{% url 'premium_promo' %}"
+                           class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                            подписки
+                        </a>.
+                    </p>
+                    <p>
+                        Если
+                        <a href="{% url 'premium_promo' %}"
+                           class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+                            подписка
+                        </a>
+                        не будет продлена в этот период, фотографии могут быть удалены.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}

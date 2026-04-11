@@ -8,6 +8,15 @@ from city.views import VisitedCityDetail
 from city.dto import CityDetailsDTO
 
 
+@pytest.fixture(autouse=True)
+def _no_advanced_premium_for_mock_user(mocker: Any) -> None:
+    """
+    У request.user в тестах Mock: is_authenticated даёт truthy MagicMock, из-за чего
+    вызывается has_advanced_premium → ORM с user=Mock → TypeError. Отключаем премиум.
+    """
+    mocker.patch('city.views.has_advanced_premium', return_value=False)
+
+
 @pytest.fixture
 def fake_service(mocker: Any) -> Any:
     service = mocker.Mock()

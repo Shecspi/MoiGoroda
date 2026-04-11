@@ -25,9 +25,12 @@ from django.utils.safestring import mark_safe
 from django.views.generic import ListView, TemplateView
 
 from city.models import VisitedCity
+from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
+from city.services.db import annotate_city_default_user_photo_for_list
 from collection.filter import apply_filter_to_queryset
 from collection.models import Collection, FavoriteCollection, PersonalCollection
 from collection.repository import CollectionRepository
+from premium.services.access import has_advanced_premium
 from collection.services import PersonalCollectionService, get_all_cities_from_collection
 from services import logger
 from services.word_modifications.city import modification__city
@@ -202,6 +205,14 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
             self.pk,
             self.request.user if self.request.user.is_authenticated else None,
         )
+        if (
+            self.request.user.is_authenticated
+            and self.request.user.pk is not None
+            and has_advanced_premium(self.request.user)
+        ):
+            self.cities = annotate_city_default_user_photo_for_list(
+                self.cities, self.request.user.pk
+            )
         self.qty_of_visited_cities = sum([1 if city.is_visited else 0 for city in self.cities])
         self.qty_of_cities = len(self.cities)
 
@@ -281,6 +292,15 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
             f'Города России, представленные в коллекции "{self.collection_title}". '
             f'Путешествуйте по России и закрывайте коллекции.'
         )
+
+        context['has_advanced_premium'] = (
+            self.request.user.is_authenticated and has_advanced_premium(self.request.user)
+        )
+
+        if context['has_advanced_premium'] and self.request.user.pk is not None:
+            attach_default_city_user_photo_presigned_urls(
+                context.get('object_list') or [], self.request.user.pk
+            )
 
         return context
 

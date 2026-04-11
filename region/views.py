@@ -29,6 +29,8 @@ from MoiGoroda.settings import ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS
 from country.models import Country
 from region.models import Region
 from city.models import VisitedCity, City
+from city.services.db import annotate_city_default_user_photo_for_list
+from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
 from services import logger
 from region.services.db import (
     get_all_region_with_visited_cities,
@@ -232,6 +234,7 @@ class CitiesByRegionList(ListView):
 
         if self.request.user.is_authenticated:
             queryset = get_all_cities_in_region(self.request.user, self.region_id)
+            queryset = annotate_city_default_user_photo_for_list(queryset, self.request.user.pk)
 
             # Количество городов считаем до фильтрации, чтобы всегда было указано, сколько городов посещено
             self.number_of_cities = City.objects.filter(region_id=self.region_id).count()
@@ -255,6 +258,8 @@ class CitiesByRegionList(ListView):
                 'rating',
                 'number_of_users_who_visit_city',
                 'number_of_visits_all_users',
+                'image',
+                'default_city_user_photo_id',
             )
         else:
             # Подзапрос для получения количество пользователей, посетивших город
@@ -290,6 +295,7 @@ class CitiesByRegionList(ListView):
                     'coordinate_longitude',
                     'number_of_users_who_visit_city',
                     'number_of_visits_all_users',
+                    'image',
                 )
             )
             self.number_of_cities = queryset.count()
@@ -386,6 +392,11 @@ class CitiesByRegionList(ListView):
                 'page_description': f"{page_type} региона '{self.region_name}'",
             }
         )
+
+        if self.request.user.is_authenticated:
+            uid = self.request.user.pk
+            if uid is not None:
+                attach_default_city_user_photo_presigned_urls(context.get('object_list') or [], uid)
 
         return context
 

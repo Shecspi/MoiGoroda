@@ -1,6 +1,6 @@
 import calendar
 import datetime
-from typing import Any
+from typing import Any, cast
 from datetime import date
 
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -15,6 +15,7 @@ from django.db.models import (
     Max,
     Subquery,
     IntegerField,
+    UUIDField,
     QuerySet,
     Func,
     F,
@@ -22,7 +23,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Round, TruncYear, TruncMonth, Rank, Coalesce
 
-from city.models import VisitedCity, City
+from city.models import City, CityUserPhoto, VisitedCity
 from country.models import Country
 
 
@@ -152,6 +153,45 @@ def get_unique_visited_cities(
     )
 
     return queryset
+
+
+def annotate_visited_city_list_default_photo(
+    queryset: QuerySet[VisitedCity], user_id: int
+) -> QuerySet[VisitedCity]:
+    """
+    Аннотация для страницы списка посещённых городов: id фото по умолчанию пользователя для города.
+    """
+    default_city_user_photo_id_subquery = CityUserPhoto.objects.filter(
+        city_id=OuterRef('city_id'),
+        user_id=user_id,
+        is_default=True,
+    ).values('id')[:1]
+
+    return queryset.annotate(
+        default_city_user_photo_id=Subquery(
+            default_city_user_photo_id_subquery, output_field=UUIDField()
+        )
+    )
+
+
+def annotate_city_default_user_photo_for_list(
+    queryset: QuerySet[City], user_id: int
+) -> QuerySet[City]:
+    """
+    Аннотация id фото по умолчанию пользователя для записей City (списки городов с авторизацией).
+    """
+    default_city_user_photo_id_subquery = CityUserPhoto.objects.filter(
+        city_id=OuterRef('pk'),
+        user_id=user_id,
+        is_default=True,
+    ).values('id')[:1]
+
+    annotated_queryset = queryset.annotate(
+        default_city_user_photo_id=Subquery(
+            default_city_user_photo_id_subquery, output_field=UUIDField()
+        )
+    )
+    return cast(QuerySet[City], annotated_queryset)
 
 
 def get_all_visited_cities(user_id: int, country_code: str | None = None) -> QuerySet[VisitedCity]:

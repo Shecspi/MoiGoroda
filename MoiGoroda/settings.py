@@ -12,13 +12,11 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 import sys
-from http import HTTPStatus
 from pathlib import Path
 
 from dotenv import load_dotenv
 from typing_extensions import TypedDict
 
-from dmr import ResponseSpec
 from dmr.settings import Settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -69,6 +67,7 @@ INSTALLED_APPS = [
     'advertisement',
     'admin_auto_filters',
     'premium',
+    'dmr',
 ]
 
 
@@ -474,6 +473,24 @@ AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+AWS_USERS_CITY_PHOTOS_BUCKET_NAME = os.getenv('AWS_USERS_CITY_PHOTOS_BUCKET_NAME')
+AWS_USERS_CITY_PHOTOS_REGION_NAME = (
+    os.getenv('AWS_USERS_CITY_PHOTOS_REGION_NAME') or AWS_S3_REGION_NAME
+)
+AWS_USERS_CITY_PHOTOS_URL_EXPIRE_SECONDS = int(
+    os.getenv('AWS_USERS_CITY_PHOTOS_URL_EXPIRE_SECONDS', '120')
+)
+CITY_USER_PHOTOS_LIMIT = int(os.getenv('CITY_USER_PHOTOS_LIMIT', '10'))
+CITY_USER_PHOTO_MAX_UPLOAD_MB = int(os.getenv('CITY_USER_PHOTO_MAX_UPLOAD_MB', '15'))
+CITY_USER_PHOTO_MAX_UPLOAD_BYTES = CITY_USER_PHOTO_MAX_UPLOAD_MB * 1024 * 1024
+CITY_USER_PHOTO_MAX_PIXELS = int(os.getenv('CITY_USER_PHOTO_MAX_PIXELS', '40000000'))
+AWS_STANDARD_CITY_PHOTOS_BUCKET_NAME = os.getenv('AWS_STANDARD_CITY_PHOTOS_BUCKET_NAME')
+AWS_STANDARD_CITY_PHOTOS_REGION_NAME = (
+    os.getenv('AWS_STANDARD_CITY_PHOTOS_REGION_NAME') or AWS_S3_REGION_NAME
+)
+AWS_STANDARD_CITY_PHOTOS_URL_EXPIRE_SECONDS = int(
+    os.getenv('AWS_STANDARD_CITY_PHOTOS_URL_EXPIRE_SECONDS', '86400')
+)
 AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_OBJECT_PARAMETERS = {
@@ -487,11 +504,6 @@ class Error(TypedDict):
     detail: str
 
 
-DMR_SETTINGS = {
-    Settings.responses: [
-        ResponseSpec(
-            Error,
-            status_code=HTTPStatus.UNAUTHORIZED,
-        ),
-    ],
+DMR_SETTINGS: dict[Settings, list[Error]] = {
+    Settings.responses: [],
 }

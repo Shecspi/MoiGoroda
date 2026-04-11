@@ -1,6 +1,33 @@
-from django.urls import path
-
+from django.urls import path, include
+from dmr.routing import path as dmr_path, Router
+from dmr.openapi import build_schema
 import city.api as api
+
+# Формируем роутеры Django-modern-rest
+city_user_photos_router = Router(
+    'photos/',
+    [
+        dmr_path('', api.CityUserPhotosController.as_view(), name='api__city_user_photos'),
+        dmr_path(
+            'upload/',
+            api.UploadCityUserPhotoController.as_view(),
+            name='api__upload_city_user_photo',
+        ),
+        dmr_path(
+            '<uuid:photo_id>/',
+            api.CityUserPhotoController.as_view(),
+            name='api__city_user_photo_content',
+        ),
+        dmr_path(
+            '<uuid:photo_id>/default/',
+            api.SetDefaultCityUserPhotoController.as_view(),
+            name='api__set_default_city_user_photo',
+        ),
+    ],
+)
+
+# Создаём OpenAPI-схему для роутеров Django-modern-rest
+city_user_photos_schema = build_schema(city_user_photos_router)
 
 urlpatterns = [
     path('visited', api.GetVisitedCities.as_view(), name='api__get_visited_cities'),
@@ -49,5 +76,11 @@ urlpatterns = [
         'districts/map_colors/save/',
         api.save_district_map_colors,
         name='api__save_district_map_colors',
+    ),
+    path(city_user_photos_router.prefix, include(city_user_photos_router.urls)),
+    path(
+        'standard_photo/upload/',
+        api.UploadCityStandardPhotoController.as_view(),
+        name='api__upload_city_standard_photo',
     ),
 ]

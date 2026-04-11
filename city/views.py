@@ -35,15 +35,18 @@ from city.forms import VisitedCity_Create_Form
 from city.models import (
     City,
     CityListDefaultSettings,
+    CityUserPhoto,
     VisitedCity,
     CityDistrict,
     VisitedCityDistrict,
 )
 from city.services.db import (
+    annotate_visited_city_list_default_photo,
     get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
     get_number_of_visited_countries,
 )
+from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
 from city.services.interfaces import AbstractVisitedCityService
 from city.services.sort import apply_sort_to_queryset
 from city.services.filter import apply_filter_to_queryset
@@ -55,6 +58,7 @@ from services.db.visited_city_repo import (
 )
 from services.morphology import to_prepositional
 from subscribe.repository import is_user_has_subscriptions, get_all_subscriptions
+from premium.services.access import has_advanced_premium
 
 
 class VisitedCity_Create(LoginRequiredMixin, CreateView):  # type: ignore[type-arg]
@@ -293,7 +297,20 @@ class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
             'city_blog_articles': BlogArticle.objects.filter(
                 city_id=self.kwargs['pk'], is_published=True
             ).order_by('-created_at'),
+            'can_manage_city_photos': self.request.user.is_authenticated
+            and has_advanced_premium(self.request.user),
+            'can_edit_standard_city_photo': self.request.user.is_superuser,
+            'city_user_photos_limit': settings.CITY_USER_PHOTOS_LIMIT,
+            'city_user_photo_max_upload_mb': settings.CITY_USER_PHOTO_MAX_UPLOAD_MB,
+            'city_user_photo_max_upload_bytes': settings.CITY_USER_PHOTO_MAX_UPLOAD_BYTES,
+            'city_user_photos': [],
         }
+        if self.request.user.is_authenticated and has_advanced_premium(self.request.user):
+            context['city_user_photos'] = list(
+                CityUserPhoto.objects.filter(
+                    user=self.request.user, city_id=self.kwargs['pk']
+                ).order_by('-is_default', 'position', '-created_at')
+            )
 
         return context
 
@@ -425,6 +442,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
             self.country = str(Country.objects.get(code=self.country_code))
 
         self.queryset = get_unique_visited_cities(self.user_id, self.country_code)
+        self.queryset = annotate_visited_city_list_default_photo(self.queryset, self.user_id)
         self.apply_filter()
         self.apply_sort(
             self.default_sort_settings.parameter_value if self.default_sort_settings else None
@@ -498,6 +516,9 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
 
         context['is_user_has_subscriptions'] = is_user_has_subscriptions(self.user_id)
         context['subscriptions'] = get_all_subscriptions(self.user_id)
+        context['has_advanced_premium'] = isinstance(
+            self.request.user, AbstractBaseUser
+        ) and has_advanced_premium(self.request.user)
 
         context['country_name'] = str(self.country)
         context['country_code'] = self.country_code
@@ -517,6 +538,10 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
         context['default_sort'] = (
             self.default_sort_settings.parameter_value if self.default_sort_settings else None
         )
+
+        object_list = context.get('object_list')
+        if object_list is not None:
+            attach_default_city_user_photo_presigned_urls(object_list, self.user_id)
 
         return context
 

@@ -6,6 +6,33 @@
 @tailwind utilities;
 
 @layer components {
+    .city-photo-stage {
+        @apply relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15;
+    }
+
+    .city-photo-stage--placeholder {
+        @apply pointer-events-none select-none;
+    }
+
+    #section-city_image .city-photo-swiper:not(.swiper-initialized) .swiper-slide {
+        display: none;
+    }
+
+    #section-city_image .city-photo-swiper:not(.swiper-initialized) .swiper-slide:first-child {
+        display: block;
+    }
+
+    #section-city_image .city-photo-thumbs:not(.swiper-initialized) {
+        display: none;
+    }
+
+    #section-city_image .city-photo-swiper:not(.swiper-initialized) ~ .city-swiper-prev,
+    #section-city_image .city-photo-swiper:not(.swiper-initialized) ~ .city-swiper-next,
+    #section-city_image .city-photo-swiper:not(.swiper-initialized) ~ .city-swiper-pagination {
+        opacity: 0;
+        pointer-events: none;
+    }
+
     /* Стили для Preline UI tooltip */
     .hs-tooltip-content {
         @apply absolute inline-block whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-neutral-700 z-[10000] opacity-0 invisible -translate-y-1 transition-all duration-200 ease-out;

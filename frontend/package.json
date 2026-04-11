@@ -19,6 +19,7 @@
     "leaflet-fullscreen": "^1.0.2",
     "leaflet-simple-map-screenshoter": "^0.5.0",
     "marked": "^16.1.2",
-    "preline": "^3.2.3"
+    "preline": "^3.2.3",
+    "swiper": "^12.1.3"
   }
 }

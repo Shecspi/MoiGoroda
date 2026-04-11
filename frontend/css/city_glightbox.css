@@ -1,3 +1,6 @@
+/* Базовые стили через @import, не из JS — иначе в production они в отдельном CSS-чанке и не попадают в link из vite_asset. */
+@import 'glightbox/dist/css/glightbox.min.css';
+
 /* Стрелки GLightbox на странице города — как у Swiper (.city-swiper-prev / .city-swiper-next) */
 
 .glightbox-container.glightbox-city-photo.glightbox-clean .gprev,

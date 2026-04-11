@@ -2,6 +2,8 @@
  * Стили изображений в контенте статей и новостей.
  * Каждое изображение на своей строке, по центру. Вертикальные ограничены по высоте.
  */
+@import 'glightbox/dist/css/glightbox.min.css';
+
 .content-with-image-gallery p:has(> img),
 .content-with-image-gallery p:has(> a > img),
 .content-with-image-gallery figure:has(> img) {

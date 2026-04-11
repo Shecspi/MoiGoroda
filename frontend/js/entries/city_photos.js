@@ -1,5 +1,4 @@
 import GLightbox from 'glightbox';
-import 'glightbox/dist/css/glightbox.min.css';
 import '../../css/city_glightbox.css';
 import Swiper from 'swiper';
 import { Navigation, Pagination, Manipulation, Thumbs, FreeMode } from 'swiper/modules';

@@ -3,7 +3,6 @@
  * При клике на изображение открывается лайтбокс GLightbox для просмотра в полном размере.
  */
 import GLightbox from 'glightbox';
-import 'glightbox/dist/css/glightbox.min.css';
 
 function initContentImageGallery() {
   const containers = document.querySelectorAll('.content-with-image-gallery');

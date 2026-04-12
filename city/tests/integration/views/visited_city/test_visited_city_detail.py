@@ -189,6 +189,37 @@ def test_visited_city_detail_integration_full_flow(django_user_model: Any, clien
 
 @pytest.mark.django_db
 @pytest.mark.integration
+def test_visited_city_detail_without_region_hides_region_section(
+    django_user_model: Any, client: Client
+) -> None:
+    """Блок «Регион» не выводится, если у города не задан регион."""
+    from country.models import PartOfTheWorld, Location, Country
+
+    user = django_user_model.objects.create_user(username='testuser_nr', password='testpass')
+    part = PartOfTheWorld.objects.create(name='NR')
+    loc = Location.objects.create(name='NR', part_of_the_world=part)
+    country = Country.objects.create(name='NR', code='N', fullname='NR', location=loc)
+    city = City.objects.create(
+        title='No Region City',
+        country=country,
+        region=None,
+        coordinate_width=10.0,
+        coordinate_longitude=20.0,
+    )
+
+    from city.models import VisitedCity
+
+    VisitedCity.objects.create(user=user, city=city, date_of_visit=date(2024, 2, 1), rating=4)
+
+    client.login(username='testuser_nr', password='testpass')
+    response = client.get(reverse('city-selected', kwargs={'pk': city.pk}))
+
+    assert response.status_code == 200
+    assert b'id="section-region"' not in response.content
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
 def test_visited_city_detail_integration_nonexistent_city_404(client: Client) -> None:
     """ИНТЕГРАЦИОННЫЙ ТЕСТ: Несуществующий город возвращает 404."""
     _user = User.objects.create_user(username='testuser', password='testpass')

@@ -99,6 +99,8 @@
 
 - Корректная половина звезды средней оценки и общий компонент рейтинга ([ebcf0aa](https://github.com/Shecspi/MoiGoroda/commit/ebcf0aa8296f82bbde55092c1c16004ef581b58e))
 
+- *(city)* Скрыт блок региона на странице города без региона ([e207672](https://github.com/Shecspi/MoiGoroda/commit/e2076727c163701fba54ea5f68cf21dee8008f30))
+
 
 #### 🧪 Тестирование
 

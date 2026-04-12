@@ -2,7 +2,6 @@
 
 <!-- Основная информация -->
 <div class="grid grid-cols-1 gap-3">
-    {% url 'region-selected-list' city.region.id as region_url %}
     <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50" id="section-country">
         <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-blue-200 bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/20 flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600 dark:text-blue-400" viewBox="0 0 640 640" fill="currentColor">
@@ -18,6 +17,8 @@
             </p>
         </div>
     </div>
+    {% if city.region %}
+    {% url 'region-selected-list' city.region.id as region_url %}
     <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50" id="section-region">
         <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-emerald-200 bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/20 flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600 dark:text-emerald-400" viewBox="0 0 640 640" fill="currentColor">
@@ -31,6 +32,7 @@
             </p>
         </div>
     </div>
+    {% endif %}
     {% if city.region.area %}
     <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50" id="section-area">
         <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-purple-200 bg-purple-100 dark:border-purple-500/40 dark:bg-purple-500/20 flex items-center justify-center">

@@ -9,7 +9,7 @@
 <!-- Панель инструментов -->
 <div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
     <!-- Статистика -->
-    <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
+    <div class="toolbar-stats flex flex-wrap items-center gap-3">
         <div class="hs-tooltip [--placement:top] relative inline-block">
             <span class="hs-tooltip-toggle stat-badge stat-badge-success">
                 <span class="stat-badge-dot"></span>
@@ -46,16 +46,20 @@
         {% endif %}
     </div>
 
-    <!-- Поиск -->
-    <div class="relative flex-1 min-w-[220px] self-center z-50">
-        <input id="city-search"
-               type="text"
-               class="py-2 px-4 block w-full border border-gray-200 rounded-xl bg-white text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 search-input"
-               placeholder="Начните вводить название города...">
+    <!-- Поиск по названию города -->
+    <div class="relative flex-1 min-w-[220px]">
+        <div id="city_search_wrapper" class="city-search-autocomplete">
+            <input id="city-search"
+                   type="text"
+                   autocomplete="off"
+                   class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg bg-white sm:text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-neutral-600"
+                   placeholder="Начните вводить название города...">
+        </div>
     </div>
 
     <!-- Селект страны: Preline HSSelect, конфиг как у формы создания города (hs_select_search_single_config) -->
-    <div class="flex-1 min-w-[220px] country-select-wrapper self-center z-[40]">
+    <!-- z выше мобильного навбара (z-[100]), ниже оверлея сайдбара и модалок; иначе выпадашка вверх уходит под шапку -->
+    <div class="relative z-[102] flex-1 min-w-[220px] country-select-wrapper">
         <div class="relative w-full">
             <select id="id_country"
                     disabled
@@ -68,7 +72,7 @@
                         "placeholder": "Загрузка...",
                         "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"text-gray-800 dark:text-neutral-200 truncate\" data-title></span></button>",
                         "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:outline-hidden dark:focus:ring-1 dark:focus:ring-neutral-600",
-                        "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-20 w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 rounded-lg shadow-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500",
+                        "dropdownClasses": "mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-[102] w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 rounded-lg shadow-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500",
                         "optionClasses": "py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:text-neutral-200 dark:focus:bg-neutral-800",
                         "optionTemplate": "<div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div><div class=\"text-sm text-gray-800 dark:text-neutral-200\" data-title></div></div><div class=\"ms-auto\"><span class=\"hidden\"><svg class=\"shrink-0 size-4 text-blue-600 dark:text-blue-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\"><path d=\"M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z\"/></svg></span></div></div>",
                         "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-neutral-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
@@ -79,8 +83,8 @@
     </div>
 
     <!-- Кнопки действий -->
-    <div class="toolbar-actions flex flex-wrap items-center gap-3 self-center">
-        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+    <div class="toolbar-actions flex flex-wrap items-center gap-3">
+        <div class="hs-tooltip [--placement:top] relative inline-block">
             <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}" 
                class="hs-tooltip-toggle inline-flex items-center gap-x-2 rounded-xl border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-400 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
                 <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
@@ -93,7 +97,7 @@
             </span>
         </div>
 
-        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
+        <div class="hs-tooltip [--placement:top] relative inline-block">
             {% comment %}Проверяем, отличается ли фильтр или сортировка от дефолтных значений{% endcomment %}
             <button class="hs-tooltip-toggle relative inline-flex items-center gap-x-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition dark:focus:ring-offset-neutral-900 {% if default_filter and filter != default_filter or not default_filter and filter and filter != 'no_filter' or default_sort and sort != default_sort or not default_sort and sort and sort != 'last_visit_date_down' %}border border-transparent bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400{% else %}border border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-500/10{% endif %}"
                     type="button"

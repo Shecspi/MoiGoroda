@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'mathfilters',
     'markdownify',
     'tinymce',
+    'django_ckeditor_5',
     'storages',
     'dashboard',
     'share.apps.ShareConfig',

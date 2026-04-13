@@ -15,6 +15,7 @@ from django.contrib.admin import SimpleListFilter
 from django.db.models import Q, Count, QuerySet
 from django.http import HttpRequest
 
+from country.models import Country
 from .models import (
     City,
     CityDistrict,
@@ -83,6 +84,15 @@ class HasCoordinatesFilter(SimpleListFilter):
         return queryset
 
 
+class CountryWithCitiesFilter(AutocompleteFilter):  # type: ignore[misc]
+    title = 'Страна'
+    field_name = 'country'
+
+    @staticmethod
+    def get_queryset_for_field(model: type[City], name: str) -> QuerySet[Country]:
+        return Country.objects.filter(city__isnull=False).distinct().order_by('name')
+
+
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = (
@@ -98,7 +108,7 @@ class CityAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         'exists_image',
     )
     search_fields = ('title',)
-    list_filter = (HasImageFilter, HasCoordinatesFilter, HasWikiLinkFilter)
+    list_filter = (CountryWithCitiesFilter, HasImageFilter, HasCoordinatesFilter, HasWikiLinkFilter)
     fieldsets = [
         (
             None,

@@ -289,14 +289,14 @@
         @apply bg-muted-foreground-1;
     }
     .badge-soft-plain .badge-dot {
-        @apply bg-foreground-inverse;
+        @apply bg-foreground dark:bg-foreground-inverse;
     }
 
     .badge-solid-secondary .badge-dot {
         @apply bg-secondary-foreground;
     }
     .badge-solid-surface .badge-dot {
-        @apply bg-foreground-inverse;
+        @apply bg-foreground;
     }
     .badge-solid-teal .badge-dot,
     .badge-solid-red .badge-dot,
@@ -315,7 +315,7 @@
         @apply bg-secondary text-secondary-foreground;
     }
     .badge-solid-surface {
-        @apply bg-surface-4 text-foreground-inverse;
+        @apply bg-surface-4 text-foreground;
     }
     .badge-solid-teal {
         @apply bg-teal-500 text-foreground-inverse;
@@ -353,7 +353,7 @@
         @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400;
     }
     .badge-soft-plain {
-        @apply bg-plain/10 text-foreground-inverse;
+        @apply bg-plain/10 text-foreground dark:text-foreground-inverse;
     }
 
     /* ═══ Outline ═══ */
@@ -399,7 +399,7 @@
         @apply border border-yellow-500/35 bg-yellow-100 text-yellow-800 dark:border-yellow-500/40 dark:bg-yellow-500/20 dark:text-yellow-400;
     }
     .badge-soft-outline-plain {
-        @apply border border-plain/20 bg-plain/10 text-foreground-inverse;
+        @apply border border-plain/20 bg-plain/10 text-foreground dark:text-foreground-inverse;
     }
 
     /* Стилизованный range slider (совпадает с Preline UI). Класс range-slider для input[type="range"]. */

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
+    {% include 'ui_demo/_subnav.html' %}
+
+    <h1 class="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Кнопки</h1>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Размеры</h2>
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button" class="btn btn-primary btn-xs">btn-xs</button>
+            <button type="button" class="btn btn-primary btn-sm">btn-sm</button>
+            <button type="button" class="btn btn-primary btn-default">btn-default</button>
+            <button type="button" class="btn btn-primary btn-lg">btn-lg</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Solid</h2>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-primary btn-sm">Primary</button>
+            <button type="button" class="btn btn-secondary btn-sm">Secondary</button>
+            <button type="button" class="btn btn-teal btn-sm">Teal</button>
+            <button type="button" class="btn btn-red btn-sm">Red</button>
+            <button type="button" class="btn btn-yellow btn-sm">Yellow</button>
+            <button type="button" class="btn btn-plain btn-sm">Plain</button>
+            <button type="button" class="btn btn-white btn-sm">White</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Outline</h2>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm">Outline primary</button>
+            <button type="button" class="btn btn-outline-muted btn-sm">Outline muted</button>
+            <button type="button" class="btn btn-outline-layer btn-sm">Outline layer</button>
+            <button type="button" class="btn btn-outline-teal btn-sm">Outline teal</button>
+            <button type="button" class="btn btn-outline-red btn-sm">Outline red</button>
+            <button type="button" class="btn btn-outline-yellow btn-sm">Outline yellow</button>
+        </div>
+        <div class="mt-3 rounded-lg bg-gray-900 p-4">
+            <button type="button" class="btn btn-outline-inverse btn-sm">Outline inverse</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Ghost</h2>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-ghost btn-sm">Ghost</button>
+            <button type="button" class="btn btn-ghost-muted btn-sm">Ghost muted</button>
+            <button type="button" class="btn btn-ghost-primary btn-sm">Ghost primary</button>
+            <button type="button" class="btn btn-ghost-teal btn-sm">Ghost teal</button>
+            <button type="button" class="btn btn-ghost-red btn-sm">Ghost red</button>
+            <button type="button" class="btn btn-ghost-yellow btn-sm">Ghost yellow</button>
+        </div>
+        <div class="mt-3 rounded-lg bg-gray-900 p-4">
+            <button type="button" class="btn btn-ghost-inverse btn-sm">Ghost inverse</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Soft</h2>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-soft-primary btn-sm">Soft primary</button>
+            <button type="button" class="btn btn-soft-teal btn-sm">Soft teal</button>
+            <button type="button" class="btn btn-soft-red btn-sm">Soft red</button>
+            <button type="button" class="btn btn-soft-yellow btn-sm">Soft yellow</button>
+            <button type="button" class="btn btn-soft-muted btn-sm">Soft muted</button>
+        </div>
+        <div class="mt-3 rounded-lg bg-gray-900 p-4">
+            <button type="button" class="btn btn-soft-plain btn-sm">Soft plain</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Ссылка и опции</h2>
+        <div class="flex flex-wrap items-center gap-4">
+            <button type="button" class="btn btn-link">btn-link</button>
+            <button type="button" class="btn btn-link-muted">btn-link-muted</button>
+            <button type="button" class="btn btn-link-primary">btn-link-primary</button>
+            <button type="button" class="btn btn-primary btn-sm btn-pilled">btn-pilled</button>
+            <button type="button" class="btn btn-primary btn-sm btn-block max-w-xs">btn-block</button>
+        </div>
+        <div class="mt-3 rounded-lg bg-gray-900 p-4">
+            <button type="button" class="btn btn-link-inverse">btn-link-inverse</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Состояние disabled</h2>
+        <button type="button" class="btn btn-primary btn-sm btn-disabled" disabled>btn-disabled</button>
+    </section>
+</div>
+{% endblock %}

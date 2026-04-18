@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
+    {% include 'ui_demo/_subnav.html' %}
+
+    <h1 class="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Поля форм</h1>
+
+    <section class="mb-10 max-w-xl space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">form-input</h2>
+        <div>
+            <label for="demo-input" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Текст</label>
+            <input id="demo-input" type="text" class="form-input" placeholder="Placeholder" autocomplete="off">
+        </div>
+        <div>
+            <label for="demo-input-dis" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Disabled</label>
+            <input id="demo-input-dis" type="text" class="form-input" value="Недоступно" disabled>
+        </div>
+    </section>
+
+    <section class="mb-10 max-w-xl space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">form-select</h2>
+        <div>
+            <label for="demo-select" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Выбор</label>
+            <select id="demo-select" class="form-select dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100">
+                <option>Первый</option>
+                <option>Второй</option>
+                <option>Третий</option>
+            </select>
+        </div>
+    </section>
+
+    <section class="mb-10 max-w-xl space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">color-picker</h2>
+        <div>
+            <label for="demo-color" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Цвет</label>
+            <input id="demo-color" type="color" class="color-picker dark:bg-neutral-900 dark:border-neutral-600" value="#2563eb" title="Выбор цвета">
+        </div>
+    </section>
+</div>
+{% endblock %}

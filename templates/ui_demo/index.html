@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
+    {% include 'ui_demo/_subnav.html' %}
+
+    <header class="mb-10">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">UI kit</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-neutral-400">
+            Демонстрация компонентов из <code class="rounded bg-gray-100 px-1 dark:bg-neutral-800">frontend/css/tailwind.css</code>.
+            Доступно только суперпользователям при <code class="rounded bg-gray-100 px-1 dark:bg-neutral-800">DEBUG=True</code>.
+        </p>
+    </header>
+
+    <ul class="grid gap-4 sm:grid-cols-2">
+        <li>
+            <a href="{% url 'ui_demo:buttons' %}" class="block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-blue-600">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Кнопки</h2>
+                <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">Классы <span class="font-mono text-xs">.btn</span> и варианты</p>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'ui_demo:badges' %}" class="block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-blue-600">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Бейджи</h2>
+                <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">Solid, soft, outline, с индикатором и иконками</p>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'ui_demo:forms' %}" class="block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-blue-600">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Поля форм</h2>
+                <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400"><span class="font-mono text-xs">form-input</span>, <span class="font-mono text-xs">form-select</span>, <span class="font-mono text-xs">color-picker</span></p>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'ui_demo:stat_badges' %}" class="block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-blue-600">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Статистические бейджи</h2>
+                <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400"><span class="font-mono text-xs">.stat-badge-*</span></p>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'ui_demo:misc' %}" class="block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-blue-600">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Прочее</h2>
+                <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">Range slider, подсказки Preline</p>
+            </a>
+        </li>
+    </ul>
+</div>
+{% endblock %}

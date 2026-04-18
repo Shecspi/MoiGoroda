@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
+    {% include 'ui_demo/_subnav.html' %}
+
+    <h1 class="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Бейджи</h1>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Solid</h2>
+        <div class="inline-flex flex-wrap gap-2">
+            <span class="badge badge-solid-secondary">Secondary</span>
+            <span class="badge badge-solid-surface">Surface</span>
+            <span class="badge badge-solid-teal">Teal</span>
+            <span class="badge badge-solid-primary">Primary</span>
+            <span class="badge badge-solid-red">Red</span>
+            <span class="badge badge-solid-yellow">Yellow</span>
+            <span class="badge badge-solid-plain">Plain</span>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Soft</h2>
+        <div class="inline-flex flex-wrap gap-2">
+            <span class="badge badge-soft-surface">Surface</span>
+            <span class="badge badge-soft-muted">Muted</span>
+            <span class="badge badge-soft-teal">Teal</span>
+            <span class="badge badge-soft-primary">Primary</span>
+            <span class="badge badge-soft-red">Red</span>
+            <span class="badge badge-soft-yellow">Yellow</span>
+            <span class="badge badge-soft-plain">Plain</span>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Outline</h2>
+        <div class="inline-flex flex-wrap gap-2">
+            <span class="badge badge-outline-default">Default</span>
+            <span class="badge badge-outline-muted">Muted</span>
+            <span class="badge badge-outline-teal">Teal</span>
+            <span class="badge badge-outline-primary">Primary</span>
+            <span class="badge badge-outline-red">Red</span>
+            <span class="badge badge-outline-yellow">Yellow</span>
+        </div>
+        <div class="mt-3 rounded-lg bg-gray-900 p-4">
+            <span class="badge badge-outline-inverse">Inverse</span>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Soft + рамка</h2>
+        <div class="inline-flex flex-wrap gap-2">
+            <span class="badge badge-soft-outline-surface">Surface</span>
+            <span class="badge badge-soft-outline-muted">Muted</span>
+            <span class="badge badge-soft-outline-teal">Teal</span>
+            <span class="badge badge-soft-outline-primary">Primary</span>
+            <span class="badge badge-soft-outline-red">Red</span>
+            <span class="badge badge-soft-outline-yellow">Yellow</span>
+            <span class="badge badge-soft-outline-plain">Plain</span>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Форма: pill и rounded-lg</h2>
+        <div class="flex flex-wrap gap-2">
+            <span class="badge badge-soft-primary badge-pill">Pill (по умолчанию)</span>
+            <span class="badge badge-soft-primary badge-rounded">rounded-lg</span>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">С индикатором</h2>
+        <div class="inline-flex flex-wrap gap-2">
+            <span class="badge badge-soft-primary">
+                <span class="badge-dot" aria-hidden="true"></span>
+                Статус
+            </span>
+            <span class="badge badge-soft-teal">
+                <span class="badge-dot" aria-hidden="true"></span>
+                Онлайн
+            </span>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">С иконками (компакт)</h2>
+        <div class="inline-flex flex-wrap gap-2">
+            <span class="badge badge-compact badge-soft-teal">
+                <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                Готово
+            </span>
+            <span class="badge badge-compact badge-soft-red">
+                <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                Внимание
+            </span>
+            <span class="badge badge-compact badge-soft-surface badge-rounded-md">
+                <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                37.3%
+            </span>
+        </div>
+    </section>
+</div>
+{% endblock %}

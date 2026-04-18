@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
+    {% include 'ui_demo/_subnav.html' %}
+
+    <h1 class="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Прочие компоненты</h1>
+
+    <section class="mb-10 max-w-xl">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Range slider</h2>
+        <p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Класс <span class="font-mono text-xs">range-slider</span> для <span class="font-mono text-xs">input[type="range"]</span>.</p>
+        <input type="range" class="range-slider" min="0" max="100" value="40" aria-label="Демо ползунка">
+    </section>
+
+    <section class="mb-10 max-w-2xl">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Подсказки Preline</h2>
+        <p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">
+            Стили тултипа заданы в Tailwind для классов <span class="font-mono text-xs">.hs-tooltip-content</span> и состояния <span class="font-mono text-xs">.hs-tooltip.show</span>.
+            Разметка и инициализация — через компоненты Preline (см. документацию Preline UI).
+        </p>
+        <div class="hs-tooltip [--placement:top] relative inline-block">
+            <button type="button" class="hs-tooltip-toggle btn btn-outline-primary btn-sm">
+                Наведи для подсказки
+            </button>
+            <span class="hs-tooltip-content" role="tooltip">
+                Пример текста
+            </span>
+        </div>
+    </section>
+</div>
+{% endblock %}

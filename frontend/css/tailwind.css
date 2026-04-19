@@ -236,7 +236,7 @@
     }
 
     /*
-     * Бейджи (Preline UI / design tokens)
+     * Бейджи: семантика secondary | primary | info | success | warning | danger | plain (только токены темы).
      *
      * База: .badge + форма (.badge-pill | .badge-rounded | .badge-rounded-md) + размер (.badge-compact)
      * Варианты: badge-solid-* | badge-soft-* | badge-outline-* | badge-soft-outline-*
@@ -272,39 +272,89 @@
     }
 
     /* Точка индикатора: цвет наследуется от варианта бейджа */
+    .badge-soft-secondary .badge-dot {
+        @apply bg-secondary-800 dark:bg-secondary-400;
+    }
     .badge-soft-primary .badge-dot {
         @apply bg-primary-800 dark:bg-primary-400;
     }
-    .badge-soft-teal .badge-dot {
-        @apply bg-teal-800 dark:bg-teal-400;
+    .badge-soft-info .badge-dot {
+        @apply bg-info-800 dark:bg-info-400;
     }
-    .badge-soft-red .badge-dot {
-        @apply bg-red-800 dark:bg-red-400;
+    .badge-soft-success .badge-dot {
+        @apply bg-success-800 dark:bg-success-400;
     }
-    .badge-soft-yellow .badge-dot {
-        @apply bg-yellow-800 dark:bg-yellow-400;
+    .badge-soft-warning .badge-dot {
+        @apply bg-warning-800 dark:bg-warning-400;
     }
-    .badge-soft-muted .badge-dot,
-    .badge-soft-surface .badge-dot {
-        @apply bg-muted-foreground-1;
+    .badge-soft-danger .badge-dot {
+        @apply bg-danger-800 dark:bg-danger-400;
     }
     .badge-soft-plain .badge-dot {
+        @apply bg-foreground dark:bg-foreground-inverse;
+    }
+
+    .badge-soft-outline-secondary .badge-dot {
+        @apply bg-secondary-800 dark:bg-secondary-400;
+    }
+    .badge-soft-outline-primary .badge-dot {
+        @apply bg-primary-800 dark:bg-primary-400;
+    }
+    .badge-soft-outline-info .badge-dot {
+        @apply bg-info-800 dark:bg-info-400;
+    }
+    .badge-soft-outline-success .badge-dot {
+        @apply bg-success-800 dark:bg-success-400;
+    }
+    .badge-soft-outline-warning .badge-dot {
+        @apply bg-warning-800 dark:bg-warning-400;
+    }
+    .badge-soft-outline-danger .badge-dot {
+        @apply bg-danger-800 dark:bg-danger-400;
+    }
+    .badge-soft-outline-plain .badge-dot {
+        @apply bg-foreground dark:bg-foreground-inverse;
+    }
+
+    .badge-outline-secondary .badge-dot {
+        @apply bg-secondary-800 dark:bg-secondary-400;
+    }
+    .badge-outline-primary .badge-dot {
+        @apply bg-primary-800 dark:bg-primary-400;
+    }
+    .badge-outline-info .badge-dot {
+        @apply bg-info-800 dark:bg-info-400;
+    }
+    .badge-outline-success .badge-dot {
+        @apply bg-success-800 dark:bg-success-400;
+    }
+    .badge-outline-warning .badge-dot {
+        @apply bg-warning-800 dark:bg-warning-400;
+    }
+    .badge-outline-danger .badge-dot {
+        @apply bg-danger-800 dark:bg-danger-400;
+    }
+    .badge-outline-plain .badge-dot {
         @apply bg-foreground dark:bg-foreground-inverse;
     }
 
     .badge-solid-secondary .badge-dot {
         @apply bg-secondary-foreground;
     }
-    .badge-solid-surface .badge-dot {
-        @apply bg-foreground;
-    }
-    .badge-solid-teal .badge-dot,
-    .badge-solid-red .badge-dot,
-    .badge-solid-yellow .badge-dot {
-        @apply bg-foreground-inverse;
-    }
     .badge-solid-primary .badge-dot {
         @apply bg-primary-foreground;
+    }
+    .badge-solid-info .badge-dot {
+        @apply bg-info-foreground;
+    }
+    .badge-solid-success .badge-dot {
+        @apply bg-success-foreground;
+    }
+    .badge-solid-warning .badge-dot {
+        @apply bg-warning-foreground;
+    }
+    .badge-solid-danger .badge-dot {
+        @apply bg-danger-foreground;
     }
     .badge-solid-plain .badge-dot {
         @apply bg-inverse;
@@ -314,89 +364,89 @@
     .badge-solid-secondary {
         @apply bg-secondary text-secondary-foreground;
     }
-    .badge-solid-surface {
-        @apply bg-surface-4 text-foreground;
-    }
-    .badge-solid-teal {
-        @apply bg-teal-500 text-foreground-inverse;
-    }
     .badge-solid-primary {
         @apply bg-primary text-primary-foreground;
     }
-    .badge-solid-red {
-        @apply bg-red-500 text-foreground-inverse;
+    .badge-solid-info {
+        @apply bg-info text-info-foreground;
     }
-    .badge-solid-yellow {
-        @apply bg-yellow-500 text-foreground-inverse;
+    .badge-solid-success {
+        @apply bg-success text-success-foreground;
+    }
+    .badge-solid-warning {
+        @apply bg-warning text-warning-foreground;
+    }
+    .badge-solid-danger {
+        @apply bg-danger text-danger-foreground;
     }
     .badge-solid-plain {
         @apply bg-plain text-inverse;
     }
 
     /* ═══ Soft ═══ */
-    .badge-soft-surface {
-        @apply bg-surface text-surface-foreground;
-    }
-    .badge-soft-muted {
-        @apply bg-muted text-muted-foreground-1;
-    }
-    .badge-soft-teal {
-        @apply bg-teal-100 text-teal-800 dark:bg-teal-500/20 dark:text-teal-400;
+    .badge-soft-secondary {
+        @apply bg-secondary-100 text-secondary-800 dark:bg-secondary-500/20 dark:text-secondary-400;
     }
     .badge-soft-primary {
         @apply bg-primary-100 text-primary-800 dark:bg-primary-500/20 dark:text-primary-400;
     }
-    .badge-soft-red {
-        @apply bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400;
+    .badge-soft-info {
+        @apply bg-info-100 text-info-800 dark:bg-info-500/20 dark:text-info-400;
     }
-    .badge-soft-yellow {
-        @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400;
+    .badge-soft-success {
+        @apply bg-success-100 text-success-800 dark:bg-success-500/20 dark:text-success-400;
+    }
+    .badge-soft-warning {
+        @apply bg-warning-100 text-warning-800 dark:bg-warning-500/20 dark:text-warning-400;
+    }
+    .badge-soft-danger {
+        @apply bg-danger-100 text-danger-800 dark:bg-danger-500/20 dark:text-danger-400;
     }
     .badge-soft-plain {
         @apply bg-plain/10 text-foreground dark:text-foreground-inverse;
     }
 
     /* ═══ Outline ═══ */
-    .badge-outline-default {
-        @apply border border-line-8 text-foreground;
-    }
-    .badge-outline-muted {
-        @apply border border-line-5 text-muted-foreground-1;
-    }
-    .badge-outline-teal {
-        @apply border border-teal-500 text-teal-500;
+    .badge-outline-secondary {
+        @apply border border-secondary-500 text-secondary-800 dark:border-secondary-400 dark:text-secondary-400;
     }
     .badge-outline-primary {
         @apply border border-primary text-primary;
     }
-    .badge-outline-red {
-        @apply border border-red-500 text-red-500;
+    .badge-outline-info {
+        @apply border border-info text-info;
     }
-    .badge-outline-yellow {
-        @apply border border-yellow-500 text-yellow-500;
+    .badge-outline-success {
+        @apply border border-success text-success;
     }
-    .badge-outline-inverse {
-        @apply border border-line-inverse text-foreground-inverse;
+    .badge-outline-warning {
+        @apply border border-warning text-warning;
+    }
+    .badge-outline-danger {
+        @apply border border-danger text-danger;
+    }
+    .badge-outline-plain {
+        @apply border border-line-8 text-foreground;
     }
 
     /* ═══ Soft + рамка ═══ */
-    .badge-soft-outline-surface {
-        @apply border border-line-8 bg-surface text-surface-foreground;
-    }
-    .badge-soft-outline-muted {
-        @apply border border-line-5 bg-muted text-muted-foreground-1;
-    }
-    .badge-soft-outline-teal {
-        @apply border border-teal-500/30 bg-teal-100 text-teal-800 dark:border-teal-500/40 dark:bg-teal-500/20 dark:text-teal-400;
+    .badge-soft-outline-secondary {
+        @apply border border-secondary-500/45 bg-secondary-100 text-secondary-800 dark:border-secondary-400/70 dark:bg-secondary-500/20 dark:text-secondary-400;
     }
     .badge-soft-outline-primary {
         @apply border border-primary/25 bg-primary-100 text-primary-800 dark:border-primary-500/35 dark:bg-primary-500/20 dark:text-primary-400;
     }
-    .badge-soft-outline-red {
-        @apply border border-red-500/30 bg-red-100 text-red-800 dark:border-red-500/40 dark:bg-red-500/20 dark:text-red-400;
+    .badge-soft-outline-info {
+        @apply border border-info/30 bg-info-100 text-info-800 dark:border-info-500/40 dark:bg-info-500/20 dark:text-info-400;
     }
-    .badge-soft-outline-yellow {
-        @apply border border-yellow-500/35 bg-yellow-100 text-yellow-800 dark:border-yellow-500/40 dark:bg-yellow-500/20 dark:text-yellow-400;
+    .badge-soft-outline-success {
+        @apply border border-success/30 bg-success-100 text-success-800 dark:border-success-500/40 dark:bg-success-500/20 dark:text-success-400;
+    }
+    .badge-soft-outline-warning {
+        @apply border border-warning/35 bg-warning-100 text-warning-800 dark:border-warning-500/40 dark:bg-warning-500/20 dark:text-warning-400;
+    }
+    .badge-soft-outline-danger {
+        @apply border border-danger/30 bg-danger-100 text-danger-800 dark:border-danger-500/40 dark:bg-danger-500/20 dark:text-danger-400;
     }
     .badge-soft-outline-plain {
         @apply border border-plain/20 bg-plain/10 text-foreground dark:text-foreground-inverse;

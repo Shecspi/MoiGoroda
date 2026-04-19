@@ -14,11 +14,15 @@
         @apply pointer-events-none select-none;
     }
 
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) .swiper-slide {
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        .swiper-slide {
         display: none;
     }
 
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) .swiper-slide:first-child {
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        .swiper-slide:first-child {
         display: block;
     }
 
@@ -26,9 +30,15 @@
         display: none;
     }
 
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) ~ .city-swiper-prev,
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) ~ .city-swiper-next,
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) ~ .city-swiper-pagination {
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        ~ .city-swiper-prev,
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        ~ .city-swiper-next,
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        ~ .city-swiper-pagination {
         opacity: 0;
         pointer-events: none;
     }
@@ -141,7 +151,7 @@
     }
 
     .btn-icon {
-        @apply shrink-0 size-[1em];
+        @apply shrink-0 size-[1.3em];
     }
 
     /* ═══ Solid ═══ (рамка совпадает с заливкой и при hover — без «светлого» кольца) */

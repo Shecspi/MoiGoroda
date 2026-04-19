@@ -722,13 +722,13 @@ window.updateFilterSortButtonState = function() {
         }
     }
     
-    // Обновляем классы кнопки
+    // Обновляем вариант кнопки (компоненты btn из tailwind.css)
     if (isActive) {
-        button.classList.remove('border-blue-600', 'text-blue-600', 'hover:bg-blue-50', 'dark:text-blue-400', 'dark:border-blue-500', 'dark:hover:bg-blue-500/10');
-        button.classList.add('border-transparent', 'bg-blue-600', 'text-white', 'hover:bg-blue-700', 'dark:bg-blue-500', 'dark:hover:bg-blue-400');
+        button.classList.remove('btn-elevated');
+        button.classList.add('btn-solid-primary');
     } else {
-        button.classList.remove('border-transparent', 'bg-blue-600', 'text-white', 'hover:bg-blue-700', 'dark:bg-blue-500', 'dark:hover:bg-blue-400');
-        button.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-50', 'dark:text-blue-400', 'dark:border-blue-500', 'dark:hover:bg-blue-500/10');
+        button.classList.remove('btn-solid-primary');
+        button.classList.add('btn-elevated');
     }
     
     // Обновляем бейджик
@@ -737,7 +737,7 @@ window.updateFilterSortButtonState = function() {
         if (!badge) {
             badge = document.createElement('span');
             badge.id = 'filterSortBadge';
-            badge.className = 'absolute -right-1.5 -top-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-neutral-900';
+            badge.className = 'absolute -right-1.5 -top-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white';
             badge.innerHTML = '<span class="sr-only">Применена фильтрация или сортировка</span>';
             button.appendChild(badge);
         }

@@ -27,12 +27,12 @@
 
             <!-- Footer -->
             <div class="flex items-center justify-end gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">
-                <button type="button" class="btn btn-white btn-sm" data-hs-overlay="#deleteModal">
+                <button type="button" class="btn btn-elevated btn-sm" data-hs-overlay="#deleteModal">
                     Отмена
                 </button>
                 <form id="deleteCityForm" method="post" action="" class="inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-red btn-sm">
+                    <button type="submit" class="btn btn-solid-danger btn-sm">
                         Удалить
                     </button>
                 </form>

@@ -1,0 +1,19 @@
+---
+description: Кнопки в UI — только компоненты из tailwind.css
+alwaysApply: true
+---
+
+# Кнопки
+
+Если нужно **добавить, изменить или стилизовать кнопки** (в шаблонах, разметке из JS и т.п.), используй **готовую систему классов** из [`frontend/css/tailwind.css`](frontend/css/tailwind.css), а не произвольные утилиты Tailwind для цветов и состояний с нуля. Стили рассчитаны на **светлую тему**.
+
+- База: `btn`, размеры: `btn-xs`, `btn-sm`, `btn-default`, `btn-lg`, опции: `btn-block`, `btn-pilled`, `btn-disabled`.
+- Семантика и вид (как у бейджей): `btn-solid-*`, `btn-soft-*`, `btn-outline-*`, `btn-soft-outline-*`, где `*` — `secondary`, `primary`, `info`, `success`, `warning`, `danger`, `plain`.
+- Ghost: `btn-ghost-secondary`, `btn-ghost` (= secondary), `btn-ghost-muted`, `btn-ghost-primary`, `btn-ghost-info`, `btn-ghost-success`, `btn-ghost-warning`, `btn-ghost-danger`, `btn-ghost-plain`.
+- Дополнительно: `btn-elevated` (светлая «карточная»), `btn-outline-layer` (нейтральная рамка с акцентом при hover).
+- Ссылки-кнопки: `btn-link`, `btn-link-secondary`, `btn-link-primary`.
+- Иконка: `btn-icon` на `svg` внутри кнопки.
+
+Цвета задаются токенами темы в [`frontend/tailwind.config.js`](frontend/tailwind.config.js); не дублируй палитру инлайном для кнопок.
+
+Демо-образцы: [`templates/ui_demo/buttons.html`](templates/ui_demo/buttons.html).

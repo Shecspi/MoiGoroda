@@ -10,26 +10,32 @@
 <div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
     <!-- Статистика -->
     <div class="toolbar-stats flex flex-wrap items-center gap-3">
-        <span class="badge badge-soft-outline-info"
+        <span class="badge badge-soft-outline-success"
               title="Общее количество городов, которые Вы посетили">
             <span class="badge-dot" aria-hidden="true"></span>
-            Всего посещено
-            <strong>{{ qty_of_visited_cities }}</strong>
-            {{ "города"|plural_by_num:qty_of_visited_cities }}
+            <span>
+                Всего посещено
+                <strong>{{ qty_of_visited_cities }}</strong>
+                {{ "города"|plural_by_num:qty_of_visited_cities }}
+            </span>
         </span>
 
         {% if country_code %}
-            <span class="badge badge-soft-outline-primary"
+            <span class="badge badge-soft-outline-info"
                   title="Количество посещённых городов в выбранной стране">
-                В {{ country_name|prepositional }}:
-                <strong>{{ number_of_visited_cities_in_country }}</strong>
-                из {{ number_of_cities_in_country }}
+                <span>
+                    В {{ country_name|prepositional }}:
+                    <strong>{{ number_of_visited_cities_in_country }}</strong>
+                    из {{ number_of_cities_in_country }}
+                </span>
             </span>
         {% else %}
-            <span class="badge badge-soft-outline-primary"
+            <span class="badge badge-soft-outline-info"
                   title="Количество стран, в которых Вы посещали города">
-                Стран:
-                <strong>{{ number_of_visited_countries }}</strong>
+                  <span>
+                    Стран:
+                    <strong>{{ number_of_visited_countries }}</strong>
+                </span>
             </span>
         {% endif %}
     </div>

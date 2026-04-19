@@ -40,8 +40,8 @@
         {% endif %}
     </div>
 
-    <!-- Поиск по названию города -->
-    <div class="relative flex-1 min-w-[220px]">
+    <!-- Поиск города: до sm — блок на всю ширину; с sm — гибкая колонка рядом с селектом страны -->
+    <div class="relative w-full min-w-0 sm:w-auto sm:flex-1 sm:min-w-[220px]">
         <div id="city_search_wrapper" class="city-search-autocomplete">
             <input id="city-search"
                    type="text"
@@ -53,7 +53,7 @@
 
     <!-- Селект страны: Preline HSSelect, конфиг как у формы создания города (hs_select_search_single_config) -->
     <!-- z выше мобильного навбара (z-[100]), ниже оверлея сайдбара и модалок; иначе выпадашка вверх уходит под шапку -->
-    <div class="relative z-[102] flex-1 min-w-[220px] country-select-wrapper">
+    <div class="relative z-[102] w-full min-w-0 sm:w-auto sm:flex-1 sm:min-w-[220px] country-select-wrapper">
         <div class="relative w-full">
             <select id="id_country"
                     disabled
@@ -76,10 +76,10 @@
         </div>
     </div>
 
-    <!-- Кнопки действий (компоненты btn из tailwind.css) -->
-    <div class="toolbar-actions flex flex-wrap items-center gap-3">
+    <!-- Кнопки: блочные до sm; с sm — в ряд (как поиск города и селект страны) -->
+    <div class="toolbar-actions flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:w-auto">
         <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-           class="btn btn-soft-outline-success btn-default"
+           class="btn btn-soft-outline-success btn-default w-full justify-center sm:w-auto"
            title="Открыть карту с посещёнными городами">
             <svg class="btn-icon" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
@@ -90,7 +90,7 @@
         {% comment %}Проверяем, отличается ли фильтр или сортировка от дефолтных значений{% endcomment %}
         <button type="button"
                 id="btnOpenFilterSortPanel"
-                class="btn btn-default relative {% if default_filter and filter != default_filter or not default_filter and filter and filter != 'no_filter' or default_sort and sort != default_sort or not default_sort and sort and sort != 'last_visit_date_down' %}btn-solid-primary{% else %}btn-elevated{% endif %}"
+                class="btn btn-default relative w-full justify-center sm:w-auto {% if default_filter and filter != default_filter or not default_filter and filter and filter != 'no_filter' or default_sort and sort != default_sort or not default_sort and sort and sort != 'last_visit_date_down' %}btn-solid-primary{% else %}btn-elevated{% endif %}"
                 title="Открыть панель фильтрации и сортировки городов"
                 data-default-filter="{{ default_filter|default:'' }}"
                 data-default-sort="{{ default_sort|default:'' }}">

@@ -97,6 +97,7 @@
      * Ссылка: btn-link | btn-link-secondary | btn-link-primary
      * Иконка внутри: <svg class="btn-icon">
      * Опции: btn-block | btn-pilled | btn-disabled
+     * Адаптив (тулбар и узкие экраны): btn-full-until-sm | btn-group-until-sm
      */
     .btn {
         @apply inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-transparent focus:outline-none transition focus-visible:outline-none;
@@ -124,6 +125,17 @@
     .btn-block {
         @apply w-full;
     }
+
+    /* До sm — на всю ширину строки; с sm — ширина по содержимому (тулбар списка городов и т.п.) */
+    .btn-full-until-sm {
+        @apply w-full justify-center sm:w-auto;
+    }
+
+    /* Группа кнопок: колонка на всю ширину до sm, с sm — в ряд */
+    .btn-group-until-sm {
+        @apply flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:w-auto;
+    }
+
     .btn-pilled {
         @apply rounded-full;
     }

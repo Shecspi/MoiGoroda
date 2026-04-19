@@ -8,6 +8,7 @@ alwaysApply: true
 Если нужно **добавить, изменить или стилизовать кнопки** (в шаблонах, разметке из JS и т.п.), используй **готовую систему классов** из [`frontend/css/tailwind.css`](frontend/css/tailwind.css), а не произвольные утилиты Tailwind для цветов и состояний с нуля. Стили рассчитаны на **светлую тему**.
 
 - База: `btn`, размеры: `btn-xs`, `btn-sm`, `btn-default`, `btn-lg`, опции: `btn-block`, `btn-pilled`, `btn-disabled`.
+- Узкий тулбар (до `sm`): `btn-full-until-sm` на кнопке/ссылке; `btn-group-until-sm` на обёртке группы.
 - Семантика и вид (как у бейджей): `btn-solid-*`, `btn-soft-*`, `btn-outline-*`, `btn-soft-outline-*`, где `*` — `secondary`, `primary`, `info`, `success`, `warning`, `danger`, `plain`.
 - Ghost: `btn-ghost-secondary`, `btn-ghost` (= secondary), `btn-ghost-muted`, `btn-ghost-primary`, `btn-ghost-info`, `btn-ghost-success`, `btn-ghost-warning`, `btn-ghost-danger`, `btn-ghost-plain`.
 - Дополнительно: `btn-elevated` (светлая «карточная»), `btn-outline-layer` (нейтральная рамка с акцентом при hover).

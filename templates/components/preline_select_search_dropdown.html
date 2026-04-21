@@ -1,0 +1,46 @@
+{% comment %}
+Переиспользуемый одиночный select с поиском для Preline HSSelect.
+
+Параметры include:
+- select_id (обязательный): id элемента select
+- select_name (опционально): name элемента select
+- select_class (опционально): CSS-классы select
+- disabled (опционально): True/False, по умолчанию True
+- placeholder (опционально): текст плейсхолдера HSSelect
+- search_placeholder (опционально): текст плейсхолдера поля поиска в dropdown
+- loading_option_value (опционально): value стартовой option
+- loading_option_label (опционально): текст стартовой option
+- dropdown_z_class (опционально): z-index класс dropdown (например: z-20, z-[102])
+- variant (опционально): "default" (без иконки) или "with_icon"
+
+Пример:
+{% include "components/preline_select_search_dropdown.html" with select_id="id_country" select_class="country-preline-select w-full min-w-0 --prevent-on-load-init" dropdown_z_class="z-[102]" placeholder="Загрузка..." %}
+{% endcomment %}
+<select
+    id="{{ select_id }}"
+    {% if select_name %}name="{{ select_name }}"{% endif %}
+    {% if disabled != False %}disabled{% endif %}
+    class="{{ select_class|default:'hidden disabled:opacity-50 disabled:pointer-events-none' }}"
+    data-hs-select='{
+        "hasSearch": true,
+        "searchPlaceholder": "{{ search_placeholder|default:"Поиск..."|escapejs }}",
+        "searchClasses": "mg-select-search",
+        "searchWrapperClasses": "mg-select-search-wrap",
+        "placeholder": "{{ placeholder|default:"Загрузка..."|escapejs }}",
+        {% if variant == "with_icon" %}
+            "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"me-2\" data-icon></span><span class=\"text-gray-800 dark:text-neutral-200 truncate\" data-title></span></button>",
+        {% else %}
+            "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"text-gray-800 dark:text-neutral-200 truncate\" data-title></span></button>",
+        {% endif %}
+        "toggleClasses": "mg-select-toggle",
+        "dropdownClasses": "mg-select-dropdown {{ dropdown_z_class|default:'z-20' }}",
+        "optionClasses": "mg-select-option",
+        {% if variant == "with_icon" %}
+            "optionTemplate": "<div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div class=\"text-gray-800 dark:text-neutral-200 whitespace-nowrap\" data-title></div></div>",
+        {% else %}
+            "optionTemplate": "<div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div><div class=\"text-sm text-gray-800 dark:text-neutral-200\" data-title></div></div><div class=\"ms-auto\"><span class=\"hidden\"><svg class=\"shrink-0 size-4 text-blue-600 dark:text-blue-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\"><path d=\"M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z\"/></svg></span></div></div>",
+        {% endif %}
+        "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-neutral-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
+    }'>
+    <option value="{{ loading_option_value|default:'__mg_country_loading__' }}">{{ loading_option_label|default:"Загрузка..." }}</option>
+</select>

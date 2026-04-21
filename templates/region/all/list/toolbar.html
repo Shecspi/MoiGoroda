@@ -40,11 +40,7 @@
     <!-- Селект страны -->
     <div class="flex-1 min-w-[220px] country-select-wrapper self-center z-[40]">
         <div class="relative">
-            <select class="py-2 px-4 pe-9 block w-full border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
-                    id="id_country"></select>
-            <span class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 dark:text-neutral-500 pointer-events-none">
-                <i class="fa-solid fa-chevron-down text-xs"></i>
-            </span>
+            {% include "components/preline_select_search_dropdown.html" with select_id="id_country" select_class="country-preline-select w-full min-w-0 --prevent-on-load-init" dropdown_z_class="z-20" placeholder="Загрузка..." loading_option_value="__mg_country_loading__" loading_option_label="Загрузка..." %}
         </div>
     </div>
 

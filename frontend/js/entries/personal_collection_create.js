@@ -208,7 +208,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
             // Метод 2: Проверяем визуальные элементы Preline Select с классом selected
             const regionSelectContainer = regionSelectElement.closest('.hs-select');
             if (regionSelectContainer) {
-                const selectedVisualElements = regionSelectContainer.querySelectorAll('.hs-select-option.selected, [class*="hs-select-option"].selected, [data-value].selected');
+                const selectedVisualElements = regionSelectContainer.querySelectorAll('.mg-select-option.selected, [class*="mg-select-option"].selected, .hs-select-option.selected, [class*="hs-select-option"].selected, [data-value].selected');
                 selectedVisualElements.forEach(element => {
                     // Пытаемся получить значение из data-value или из текста опции
                     let value = element.getAttribute('data-value') || element.dataset.value;
@@ -271,7 +271,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         const regionSelectContainer = regionSelectElement.closest('.hs-select') || document.body;
         regionSelectContainer.addEventListener('click', (event) => {
             // Проверяем, был ли клик на опции региона
-            const clickedOption = event.target.closest('.hs-select-option, [class*="hs-select-option"]');
+            const clickedOption = event.target.closest('.mg-select-option, [class*="mg-select-option"], .hs-select-option, [class*="hs-select-option"]');
             if (clickedOption && regionSelectElement.contains(clickedOption) || 
                 (regionSelectContainer.contains(clickedOption) && regionSelectContainer.contains(regionSelectElement))) {
                 // Небольшая задержка, чтобы Preline успел обновить selected атрибут

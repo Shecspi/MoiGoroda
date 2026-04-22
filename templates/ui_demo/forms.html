@@ -32,11 +32,17 @@
 
     <section class="mb-10 max-w-xl space-y-4">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-select-search</h2>
-        <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-300">
-            Использование: добавьте <code>data-hs-select</code> на <code>select</code> и укажите системные классы
-            <code>mg-select-search</code>, <code>mg-select-search-wrap</code>, <code>mg-select-toggle</code>,
-            <code>mg-select-dropdown</code>, <code>mg-select-option</code>. Для Django-шаблонов можно подключать
-            готовый include <code>components/preline_select_search_dropdown.html</code>.
+        <div class="space-y-1 text-xs text-gray-600 dark:text-neutral-400">
+            <p>Как подключить:</p>
+            <p>
+                1) Добавьте <code>data-hs-select</code> на <code>select</code> и используйте классы
+                <code>mg-select-search</code>, <code>mg-select-search-wrap</code>, <code>mg-select-toggle</code>,
+                <code>mg-select-dropdown</code>, <code>mg-select-option</code>.
+            </p>
+            <p>
+                2) В Django-шаблонах можно использовать include
+                <code>components/preline_select_search_dropdown.html</code>.
+            </p>
         </div>
         <div>
             <label for="demo-hs-select" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Выбор с поиском</label>

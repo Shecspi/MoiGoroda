@@ -24,9 +24,18 @@
     max-height: 320px;
     overflow-y: auto;
     overscroll-behavior: contain;
-    z-index: 1053;
+    /* Must stay above select controls/dropdowns in toolbars */
+    z-index: 2100;
     scrollbar-width: thin;
     scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+}
+
+/*
+ * Any autoComplete.js list id (autoComplete_list_1, autoComplete_list_2, ...)
+ * should render above country select controls/dropdowns.
+ */
+ul[id^="autoComplete_list_"] {
+    z-index: 2100 !important;
 }
 
 .dark .autoComplete_wrapper > ul,

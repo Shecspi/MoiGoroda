@@ -107,6 +107,11 @@
 - *(region)* Добавлены тесты генератора изображений карты городов региона ([13fd6ab](https://github.com/Shecspi/MoiGoroda/commit/13fd6abdac08c30626a74e4cd422e003428d85f6))
 
 
+#### ⚙️ Miscellaneous Tasks
+
+- *(style)* Обновлён дизайн тулбара списка городов ([921fa54](https://github.com/Shecspi/MoiGoroda/commit/921fa54c50a4edecb453efdfa5d72a4a004423fa))
+
+
 #### Fear
 
 - *(city)* Календарь даты посещения: переключение года и месяца кнопками ([a37cf72](https://github.com/Shecspi/MoiGoroda/commit/a37cf7204f7975bd730eab9e9723929d7e003933))

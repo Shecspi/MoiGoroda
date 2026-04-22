@@ -337,3 +337,104 @@ Licensed under the Apache License, Version 2.0
 .dark #city-create-form .choices__list--dropdown .choices__item--no-results {
     color: #94a3b8;
 }
+
+/*
+ * Country toolbar: нативный <select> до инициализации Preline HSSelect — тот же силуэт, что у toggle
+ * (border, py-3, pe-9, стрелка как в extraMarkup). После init селект скрыт (display:none), правила безвредны.
+ */
+#toolbar #id_country.country-preline-select[data-hs-select] {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 0.875rem 0.875rem;
+    /* Preline extraMarkup: chevron, stroke gray-500 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
+    padding: 0.75rem 2.25rem 0.75rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    text-align: left;
+    color: #1f2937;
+    -webkit-text-fill-color: #1f2937;
+    cursor: pointer;
+}
+
+.dark #toolbar #id_country.country-preline-select[data-hs-select] {
+    border-color: #404040;
+    background-color: #171717;
+    color: #e5e5e5;
+    -webkit-text-fill-color: #e5e5e5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
+}
+
+/* Карта городов / карта регионов: toggle в тёмной теме с muted текстом (как в data-hs-select toggleClasses) */
+.dark #toolbar #id_country.country-preline-select.country-preline-select--map[data-hs-select] {
+    color: #a3a3a3;
+    -webkit-text-fill-color: #a3a3a3;
+}
+
+/*
+ * Disabled: как у Preline (hs-select-disabled:opacity-50 на кнопке) — тот же базовый цвет текста,
+ * затем полупрозрачность всего контроля. Без переопределения UA-серого текста/фона у нативного
+ * disabled select он выглядит светлее, чем кнопка после init.
+ */
+#toolbar #id_country.country-preline-select[data-hs-select]:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+    /* Tailwind text-gray-800 — как у toggle до opacity */
+    color: #1f2937 !important;
+    -webkit-text-fill-color: #1f2937 !important;
+    background-color: #ffffff !important;
+    border-color: #e5e7eb !important;
+}
+
+.dark #toolbar #id_country.country-preline-select[data-hs-select]:disabled {
+    /* text-neutral-200 */
+    color: #e5e5e5 !important;
+    -webkit-text-fill-color: #e5e5e5 !important;
+    background-color: #171717 !important;
+    border-color: #404040 !important;
+}
+
+.dark #toolbar #id_country.country-preline-select.country-preline-select--map[data-hs-select]:disabled {
+    /* dark:text-neutral-400 на картах */
+    color: #a3a3a3 !important;
+    -webkit-text-fill-color: #a3a3a3 !important;
+}
+
+#toolbar #id_country.country-preline-select[data-hs-select]:disabled option {
+    color: #1f2937;
+    background-color: #ffffff;
+}
+
+.dark #toolbar #id_country.country-preline-select[data-hs-select]:disabled option {
+    color: #e5e5e5;
+    background-color: #171717;
+}
+
+.dark #toolbar #id_country.country-preline-select.country-preline-select--map[data-hs-select]:disabled option {
+    color: #a3a3a3;
+    background-color: #171717;
+}
+
+#toolbar #id_country.country-preline-select[data-hs-select]:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.dark #toolbar #id_country.country-preline-select[data-hs-select]:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px rgba(82, 82, 82, 0.6);
+}

@@ -2,6 +2,7 @@ import * as L from 'leaflet';
 import 'leaflet-fullscreen';
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 import {addLoadControl, addErrorControl, create_map} from "../components/map";
+import {waitForHSSelect, attachCountrySelectHSSelect} from "../components/initCountrySelect";
 
 const fillOpacity = 0.7;
 const fillOpacityHighlight = 0.9;
@@ -241,9 +242,7 @@ function createLegendControl(map) {
 }
 
 /**
- * Инициализирует выпадающий список стран и обработчик изменений.
- * Загружает страны асинхронно через API и добавляет опции в select.
- * Preline UI автоматически инициализирует компонент через autoInit().
+ * Список стран и чанк Preline грузятся параллельно; HSSelect создаётся один раз после заполнения &lt;option&gt;.
  */
 async function initCountryFilter() {
     const countrySelect = document.getElementById('id_country');
@@ -252,77 +251,67 @@ async function initCountryFilter() {
         return;
     }
 
-    // Получаем текущий выбранный код страны из URL
     const urlParams = new URLSearchParams(window.location.search);
     const selectedCountryCode = urlParams.get('country');
 
-    try {
-        // Загружаем список стран через API
+    async function loadCountries() {
         const response = await fetch('/api/country/list_by_cities');
         if (!response.ok) {
             throw new Error('Ошибка загрузки списка стран');
         }
-        const countries = await response.json();
+        return response.json();
+    }
 
-        // Добавляем опции в select
+    try {
+        const [, countries] = await Promise.all([
+            waitForHSSelect(),
+            loadCountries(),
+        ]);
+
+        countrySelect.textContent = '';
         countries.forEach((country) => {
             const option = document.createElement('option');
             option.value = country.code;
-            
-            // Формируем текст опции
-            if (country.number_of_visited_cities !== undefined && country.number_of_cities !== undefined) {
-                option.textContent = `${country.name} (${country.number_of_visited_cities} из ${country.number_of_cities})`;
-            } else {
-                option.textContent = country.name;
-            }
-            
-            // Выбираем текущую страну, если она есть в URL
+            option.textContent = country.number_of_visited_cities !== undefined && country.number_of_cities !== undefined
+                ? `${country.name} (${country.number_of_visited_cities} из ${country.number_of_cities})`
+                : country.name;
             if (selectedCountryCode === country.code) {
                 option.selected = true;
             }
-            
             countrySelect.appendChild(option);
         });
 
-        // Preline UI автоматически обновит компонент при изменении опций в DOM
-        // Если компонент уже был инициализирован, переинициализируем его
-        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_country') : null;
-        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
-            hsSelectInstance.destroy();
-        }
-        
-        // Переинициализируем компонент с новыми опциями
-        if (window.HSSelect) {
-            try {
-                new window.HSSelect('#id_country');
-            } catch (e) {
-                // Если не получилось, используем autoInit
-                if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-                    window.HSStaticMethods.autoInit();
-                }
-            }
-        }
+        attachCountrySelectHSSelect(countrySelect);
     } catch (error) {
         console.error('Ошибка при загрузке списка стран:', error);
+        await waitForHSSelect();
+        countrySelect.textContent = '';
+        const errOpt = document.createElement('option');
+        errOpt.value = '';
+        errOpt.textContent = 'Ошибка загрузки';
+        errOpt.disabled = true;
+        errOpt.selected = true;
+        countrySelect.appendChild(errOpt);
+        attachCountrySelectHSSelect(countrySelect);
     }
 
-    // Обработчик изменений значения
     const handleChange = () => {
         const selectedValue = countrySelect.value || '';
         const url = new URL(window.location.href);
-        
+
         if (selectedValue) {
             url.searchParams.set('country', selectedValue);
         } else {
             url.searchParams.delete('country');
         }
-        
-        // Перенаправляем на обновлённый URL
+
         window.location.href = url.toString();
     };
 
-    // Слушаем изменения напрямую на select элементе
-    countrySelect.addEventListener('change', handleChange);
+    if (!countrySelect.dataset.mgCountryChangeBound) {
+        countrySelect.dataset.mgCountryChangeBound = '1';
+        countrySelect.addEventListener('change', handleChange);
+    }
 }
 
 /**

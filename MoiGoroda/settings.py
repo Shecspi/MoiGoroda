@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'admin_auto_filters',
     'premium',
     'dmr',
+    'ui_demo.apps.UiDemoConfig',
 ]
 
 

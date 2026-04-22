@@ -66,7 +66,7 @@ export function getCountryFromUrl() {
 
 export function createResultsListElement(data) {
     const info = document.createElement("p");
-    info.classList.add("dropdown-item", "my-2", "px-2", "small", "text-secondary");
+    info.className = "city-search-list-caption";
 
     const count = data.results.length;
     const word = pluralize(count, "совпадение", "совпадения", "совпадений");
@@ -77,16 +77,16 @@ export function createResultsListElement(data) {
 
 export function createResultItemElement(data) {
     const item = document.createElement("div");
-    item.style.cssText = "display: flex !important; flex-direction: column !important; width: 100%;";
+    item.className = "city-search-result-inner";
     
     // Основная строка с названием города (сохраняем подсветку)
     const cityName = document.createElement("span");
-    cityName.style.cssText = "display: block; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-weight: 500; width: 100%;";
+    cityName.className = "city-search-result-title";
     cityName.innerHTML = sanitizeMatchHtml(data.match); // Экранируем, сохраняя только <mark> для подсветки
     
     // Вторая строка с регионом и страной
     const locationInfo = document.createElement("span");
-    locationInfo.style.cssText = "display: block; font-size: 0.85em; color: #6c757d; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; width: 100%; margin-top: 2px;";
+    locationInfo.className = "city-search-result-meta";
     
     const locationParts = [];
     if (data.value.region) {

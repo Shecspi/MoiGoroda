@@ -24,9 +24,18 @@
     max-height: 320px;
     overflow-y: auto;
     overscroll-behavior: contain;
-    z-index: 1053;
+    /* Must stay above select controls/dropdowns in toolbars */
+    z-index: 2100;
     scrollbar-width: thin;
     scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+}
+
+/*
+ * Any autoComplete.js list id (autoComplete_list_1, autoComplete_list_2, ...)
+ * should render above country select controls/dropdowns.
+ */
+ul[id^="autoComplete_list_"] {
+    z-index: 2100 !important;
 }
 
 .dark .autoComplete_wrapper > ul,
@@ -187,5 +196,189 @@
 }
 
 .dark .autoComplete-info strong {
+    color: #60a5fa;
+}
+
+/*
+ * Тулбар списка городов (#toolbar): выпадающий список автодополнения
+ * визуально как панель Preline HSSelect (hs_select_search_single_config).
+ */
+#toolbar #city_search_wrapper .autoComplete_wrapper > ul,
+#toolbar #city_search_wrapper ul[id^="autoComplete_list_"] {
+    margin-top: 0.5rem;
+    max-height: 18rem;
+    padding: 0;
+    z-index: 50;
+    width: 100%;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.1),
+        0 4px 6px -4px rgb(0 0 0 / 0.1);
+    overflow-x: hidden;
+    overflow-y: auto;
+    text-align: left !important;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f3f4f6;
+}
+
+.dark #toolbar #city_search_wrapper .autoComplete_wrapper > ul,
+.dark #toolbar #city_search_wrapper ul[id^="autoComplete_list_"] {
+    background-color: #171717;
+    border-color: #404040;
+    scrollbar-color: #737373 #404040;
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.4),
+        0 4px 6px -4px rgb(0 0 0 / 0.3);
+}
+
+#toolbar #city_search_wrapper .autoComplete_wrapper > ul::-webkit-scrollbar,
+#toolbar #city_search_wrapper ul[id^="autoComplete_list_"]::-webkit-scrollbar {
+    width: 8px;
+}
+
+#toolbar #city_search_wrapper .autoComplete_wrapper > ul::-webkit-scrollbar-track,
+#toolbar #city_search_wrapper ul[id^="autoComplete_list_"]::-webkit-scrollbar-track {
+    background-color: #f3f4f6;
+    border-radius: 9999px;
+}
+
+#toolbar #city_search_wrapper .autoComplete_wrapper > ul::-webkit-scrollbar-thumb,
+#toolbar #city_search_wrapper ul[id^="autoComplete_list_"]::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 9999px;
+}
+
+.dark #toolbar #city_search_wrapper .autoComplete_wrapper > ul::-webkit-scrollbar-track,
+.dark #toolbar #city_search_wrapper ul[id^="autoComplete_list_"]::-webkit-scrollbar-track {
+    background-color: #404040;
+}
+
+.dark #toolbar #city_search_wrapper .autoComplete_wrapper > ul::-webkit-scrollbar-thumb,
+.dark #toolbar #city_search_wrapper ul[id^="autoComplete_list_"]::-webkit-scrollbar-thumb {
+    background-color: #737373;
+}
+
+#toolbar #city_search_wrapper .city-search-list-caption {
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #6b7280;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#toolbar #city_search_wrapper .city-search-list-caption strong {
+    color: #111827;
+    font-weight: 600;
+}
+
+.dark #toolbar #city_search_wrapper .city-search-list-caption {
+    color: #a3a3a3;
+    background-color: #171717;
+    border-bottom-color: #404040;
+}
+
+.dark #toolbar #city_search_wrapper .city-search-list-caption strong {
+    color: #fafafa;
+}
+
+#toolbar #city_search_wrapper .autoComplete_wrapper > ul > li,
+#toolbar #city_search_wrapper ul[id^="autoComplete_list_"] > li {
+    list-style: none;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #1f2937;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left !important;
+    white-space: normal;
+    overflow: visible;
+    box-shadow: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dark #toolbar #city_search_wrapper .autoComplete_wrapper > ul > li,
+.dark #toolbar #city_search_wrapper ul[id^="autoComplete_list_"] > li {
+    color: #e5e5e5;
+}
+
+#toolbar #city_search_wrapper .autoComplete_wrapper > ul > li:hover,
+#toolbar #city_search_wrapper .autoComplete_wrapper > ul > li[aria-selected="true"],
+#toolbar #city_search_wrapper ul[id^="autoComplete_list_"] > li:hover,
+#toolbar #city_search_wrapper ul[id^="autoComplete_list_"] > li[aria-selected="true"] {
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+
+.dark #toolbar #city_search_wrapper .autoComplete_wrapper > ul > li:hover,
+.dark #toolbar #city_search_wrapper .autoComplete_wrapper > ul > li[aria-selected="true"],
+.dark #toolbar #city_search_wrapper ul[id^="autoComplete_list_"] > li:hover,
+.dark #toolbar #city_search_wrapper ul[id^="autoComplete_list_"] > li[aria-selected="true"] {
+    background-color: #262626;
+    color: #e5e5e5;
+}
+
+#toolbar #city_search_wrapper .autoComplete_result[aria-selected="false"] {
+    font-style: normal;
+    color: inherit;
+}
+
+#toolbar #city_search_wrapper .city-search-result-inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+}
+
+#toolbar #city_search_wrapper .city-search-result-title {
+    display: block;
+    width: 100%;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#toolbar #city_search_wrapper .city-search-result-meta {
+    display: block;
+    width: 100%;
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #737373;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dark #toolbar #city_search_wrapper .city-search-result-meta {
+    color: #a3a3a3;
+}
+
+#toolbar #city_search_wrapper .autoComplete_wrapper > ul > li mark,
+#toolbar #city_search_wrapper ul[id^="autoComplete_list_"] mark {
+    background-color: transparent;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.dark #toolbar #city_search_wrapper .autoComplete_wrapper > ul > li mark,
+.dark #toolbar #city_search_wrapper ul[id^="autoComplete_list_"] mark {
     color: #60a5fa;
 }

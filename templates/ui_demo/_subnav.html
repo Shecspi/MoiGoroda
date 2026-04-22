@@ -1,0 +1,17 @@
+{% comment %}
+Поднавигация между страницами демо UI kit.
+{% endcomment %}
+<nav class="mb-8 flex flex-wrap gap-2 border-b border-gray-200 pb-4 dark:border-neutral-700" aria-label="Разделы UI kit">
+    <a href="{% url 'ui_demo:index' %}"
+       class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-800{% if request.resolver_match.url_name == 'index' %} bg-gray-100 dark:bg-neutral-800{% endif %}">Обзор</a>
+    <a href="{% url 'ui_demo:buttons' %}"
+       class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-800{% if request.resolver_match.url_name == 'buttons' %} bg-gray-100 dark:bg-neutral-800{% endif %}">Кнопки</a>
+    <a href="{% url 'ui_demo:badges' %}"
+       class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-800{% if request.resolver_match.url_name == 'badges' %} bg-gray-100 dark:bg-neutral-800{% endif %}">Бейджи</a>
+    <a href="{% url 'ui_demo:forms' %}"
+       class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-800{% if request.resolver_match.url_name == 'forms' %} bg-gray-100 dark:bg-neutral-800{% endif %}">Поля форм</a>
+    <a href="{% url 'ui_demo:stat_badges' %}"
+       class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-800{% if request.resolver_match.url_name == 'stat_badges' %} bg-gray-100 dark:bg-neutral-800{% endif %}">Стат. бейджи</a>
+    <a href="{% url 'ui_demo:misc' %}"
+       class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-800{% if request.resolver_match.url_name == 'misc' %} bg-gray-100 dark:bg-neutral-800{% endif %}">Прочее</a>
+</nav>

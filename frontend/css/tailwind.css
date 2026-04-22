@@ -14,11 +14,15 @@
         @apply pointer-events-none select-none;
     }
 
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) .swiper-slide {
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        .swiper-slide {
         display: none;
     }
 
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) .swiper-slide:first-child {
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        .swiper-slide:first-child {
         display: block;
     }
 
@@ -26,9 +30,15 @@
         display: none;
     }
 
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) ~ .city-swiper-prev,
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) ~ .city-swiper-next,
-    #section-city_image .city-photo-swiper:not(.swiper-initialized) ~ .city-swiper-pagination {
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        ~ .city-swiper-prev,
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        ~ .city-swiper-next,
+    #section-city_image
+        .city-photo-swiper:not(.swiper-initialized)
+        ~ .city-swiper-pagination {
         opacity: 0;
         pointer-events: none;
     }
@@ -86,69 +96,21 @@
         @apply font-semibold text-amber-700 dark:text-amber-200;
     }
 
-    /* Стилизованный range slider (совпадает с Preline UI). Класс range-slider для input[type="range"]. */
-    .range-slider {
-        @apply w-full bg-transparent cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus:outline-none;
-        appearance: none;
-        -webkit-appearance: none;
-    }
-    .range-slider::-webkit-slider-thumb {
-        width: 0.625rem;
-        height: 0.625rem;
-        margin-top: -0.125rem;
-        appearance: none;
-        -webkit-appearance: none;
-        background: var(--color-layer, #fff);
-        box-shadow: 0 0 0 4px var(--color-primary, #3b82f6);
-        border-radius: 9999px;
-        transition: all 0.15s ease-in-out;
-    }
-    .range-slider::-moz-range-thumb {
-        width: 0.625rem;
-        height: 0.625rem;
-        appearance: none;
-        background: var(--color-layer, #fff);
-        border: 4px solid var(--color-primary, #3b82f6);
-        border-radius: 9999px;
-        transition: all 0.15s ease-in-out;
-    }
-    .range-slider::-webkit-slider-runnable-track {
-        width: 100%;
-        height: 0.5rem;
-        background: var(--color-surface, #e5e7eb);
-        border-radius: 9999px;
-    }
-    .range-slider::-moz-range-track {
-        width: 100%;
-        height: 0.5rem;
-        background: var(--color-surface, #e5e7eb);
-        border-radius: 9999px;
-    }
-    .dark .range-slider::-webkit-slider-thumb {
-        background: var(--color-layer, #404040);
-    }
-    .dark .range-slider::-moz-range-thumb {
-        background: var(--color-layer, #404040);
-    }
-    .dark .range-slider::-webkit-slider-runnable-track,
-    .dark .range-slider::-moz-range-track {
-        background: var(--color-surface, #525252);
-    }
-
     /*
-     * Button pack:
-     * .btn + размер + вариант + опции
+     * Кнопки: та же семантика, что у бейджей — secondary | primary | info | success | warning | danger | plain
+     * (только токены темы в tailwind.config.js). Светлая тема.
      *
-     * Размеры: btn-xs | btn-sm | btn-default | btn-lg
-     * Опции: btn-block (full width) | btn-pilled (rounded-full)
-     *
-     * Примеры:
-     *   btn btn-primary btn-default btn-block
-     *   btn btn-outline-teal btn-sm
-     *   btn btn-ghost-primary btn-lg btn-pilled
+     * База: .btn + размер (btn-xs | btn-sm | btn-default | btn-lg)
+     * Варианты: btn-solid-* | btn-soft-* | btn-outline-* | btn-soft-outline-*
+     * Ghost: btn-ghost-* (те же семантики)
+     * Дополнительно: btn-elevated (карточный/светлый), btn-outline-layer (нейтральная рамка → акцент при hover)
+     * Ссылка: btn-link | btn-link-secondary | btn-link-primary
+     * Иконка внутри: <svg class="btn-icon">
+     * Опции: btn-block | btn-pilled | btn-disabled
+     * Адаптив (тулбар и узкие экраны): btn-full-until-sm | btn-group-until-sm
      */
     .btn {
-        @apply inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-transparent focus:outline-none transition;
+        @apply inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-transparent focus:outline-none transition focus-visible:outline-none;
     }
 
     .btn-disabled {
@@ -173,115 +135,411 @@
     .btn-block {
         @apply w-full;
     }
+
+    /* До sm — на всю ширину строки; с sm — ширина по содержимому (тулбар списка городов и т.п.) */
+    .btn-full-until-sm {
+        @apply w-full justify-center sm:w-auto;
+    }
+
+    /* Группа кнопок: колонка на всю ширину до sm, с sm — в ряд */
+    .btn-group-until-sm {
+        @apply flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:w-auto;
+    }
+
     .btn-pilled {
         @apply rounded-full;
     }
 
-    /* ═══ Solid ═══ */
-    .btn-primary {
-        @apply bg-blue-600 border-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700 dark:bg-blue-600 dark:border-blue-600 dark:hover:bg-blue-500 dark:focus:bg-blue-500;
+    .btn-icon {
+        @apply shrink-0 size-[1.3em];
     }
-    .btn-secondary {
-        @apply bg-gray-200 border-gray-200 text-gray-800 hover:bg-gray-300 focus:bg-gray-300 dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600 dark:focus:bg-neutral-600;
+
+    /* ═══ Solid ═══ (рамка совпадает с заливкой и при hover — без «светлого» кольца) */
+    .btn-solid-secondary {
+        @apply border-secondary bg-secondary text-secondary-foreground hover:border-gray-300 hover:bg-gray-300 focus-visible:ring-2 focus-visible:ring-secondary-500/35;
     }
-    .btn-teal {
-        @apply bg-teal-600 border-teal-600 text-white hover:bg-teal-700 focus:bg-teal-700 dark:bg-teal-500 dark:border-teal-500 dark:hover:bg-teal-600 dark:focus:bg-teal-600;
+    .btn-solid-primary {
+        @apply border-primary bg-primary text-primary-foreground hover:border-primary-800 hover:bg-primary-800 focus-visible:ring-2 focus-visible:ring-primary/40;
     }
-    .btn-red {
-        @apply bg-red-500 border-red-500 text-white hover:bg-red-600 focus:bg-red-600 dark:bg-red-500 dark:border-red-500 dark:hover:bg-red-600 dark:focus:bg-red-600;
+    .btn-solid-info {
+        @apply border-info bg-info text-info-foreground hover:border-info-800 hover:bg-info-800 focus-visible:ring-2 focus-visible:ring-info/40;
     }
-    .btn-yellow {
-        @apply bg-yellow-500 border-yellow-500 text-white hover:bg-yellow-600 focus:bg-yellow-600 dark:bg-yellow-500 dark:border-yellow-500 dark:hover:bg-yellow-600 dark:focus:bg-yellow-600;
+    .btn-solid-success {
+        @apply border-success bg-success text-success-foreground hover:border-success-800 hover:bg-success-800 focus-visible:ring-2 focus-visible:ring-success/40;
     }
-    .btn-plain {
-        @apply bg-gray-900 border-gray-900 text-white hover:bg-gray-800 focus:bg-gray-800 dark:bg-gray-900 dark:border-gray-900 dark:hover:bg-gray-900/90 dark:focus:bg-gray-900/90;
+    .btn-solid-warning {
+        @apply border-warning bg-warning text-warning-foreground hover:border-warning-800 hover:bg-warning-800 focus-visible:ring-2 focus-visible:ring-warning/40;
+    }
+    .btn-solid-danger {
+        @apply border-danger bg-danger text-danger-foreground hover:border-danger-800 hover:bg-danger-800 focus-visible:ring-2 focus-visible:ring-danger/40;
+    }
+    .btn-solid-plain {
+        @apply border-plain bg-plain text-inverse hover:border-gray-800 hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-plain/30;
+    }
+
+    /* ═══ Soft ═══ */
+    .btn-soft-secondary {
+        @apply border-transparent bg-secondary-100 text-secondary-800 hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-secondary-500/25;
+    }
+    .btn-soft-primary {
+        @apply border-transparent bg-primary-100 text-primary-800 hover:bg-primary-200 focus-visible:ring-2 focus-visible:ring-primary/30;
+    }
+    .btn-soft-info {
+        @apply border-transparent bg-info-100 text-info-800 hover:bg-info-200 focus-visible:ring-2 focus-visible:ring-info/30;
+    }
+    .btn-soft-success {
+        @apply border-transparent bg-success-100 text-success-800 hover:bg-success-200 focus-visible:ring-2 focus-visible:ring-success/30;
+    }
+    .btn-soft-warning {
+        @apply border-transparent bg-warning-100 text-warning-800 hover:bg-warning-200 focus-visible:ring-2 focus-visible:ring-warning/30;
+    }
+    .btn-soft-danger {
+        @apply border-transparent bg-danger-100 text-danger-800 hover:bg-danger-200 focus-visible:ring-2 focus-visible:ring-danger/30;
+    }
+    .btn-soft-plain {
+        @apply border-transparent bg-plain/10 text-foreground hover:bg-plain/15 focus-visible:ring-2 focus-visible:ring-plain/20;
     }
 
     /* ═══ Outline ═══ */
+    .btn-outline-secondary {
+        @apply border-secondary-500 text-secondary-800 hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/30;
+    }
     .btn-outline-primary {
-        @apply border border-blue-600 text-blue-600 hover:border-blue-500 hover:text-blue-500 focus:border-blue-500 focus:text-blue-500 dark:border-blue-400 dark:text-blue-400 dark:hover:border-blue-400/70 dark:hover:text-blue-400/70 dark:focus:border-blue-400/70 dark:focus:text-blue-400/70;
+        @apply border-primary text-primary hover:bg-primary-100 focus-visible:ring-2 focus-visible:ring-primary/35;
     }
-    .btn-outline-muted {
-        @apply border border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-900 focus:border-gray-400 focus:text-gray-900 dark:border-neutral-600 dark:text-neutral-200 dark:hover:border-neutral-500 dark:hover:text-white dark:focus:border-neutral-500 dark:focus:text-white;
+    .btn-outline-info {
+        @apply border-info text-info hover:bg-info-100 focus-visible:ring-2 focus-visible:ring-info/35;
     }
-    /* Вариант outline-кнопки для layout-кнопок (по мотивам примера с layer-токенами),
-       но на базе реально существующих utility-классов Tailwind. */
-    .btn-outline-layer {
-        @apply border border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-600 focus:border-blue-600 focus:text-blue-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-blue-400 dark:hover:text-blue-300 dark:focus:border-blue-400 dark:focus:text-blue-200;
+    .btn-outline-success {
+        @apply border-success text-success hover:bg-success-100 focus-visible:ring-2 focus-visible:ring-success/35;
     }
-    .btn-outline-teal {
-        @apply border border-teal-600 text-teal-600 hover:border-teal-700 hover:text-teal-700 focus:border-teal-700 focus:text-teal-700 dark:border-teal-500 dark:text-teal-500 dark:hover:border-teal-400 dark:focus:border-teal-400;
+    .btn-outline-warning {
+        @apply border-warning text-warning hover:bg-warning-100 focus-visible:ring-2 focus-visible:ring-warning/35;
     }
-    .btn-outline-red {
-        @apply border border-red-500 text-red-500 hover:border-red-400 hover:text-red-400 focus:border-red-400 focus:text-red-400 dark:border-red-500 dark:text-red-500 dark:hover:border-red-400 dark:focus:border-red-400;
+    .btn-outline-danger {
+        @apply border-danger text-danger hover:bg-danger-100 focus-visible:ring-2 focus-visible:ring-danger/35;
     }
-    .btn-outline-yellow {
-        @apply border border-yellow-500 text-yellow-500 hover:border-yellow-400 hover:text-yellow-400 focus:border-yellow-400 focus:text-yellow-400 dark:border-yellow-500 dark:text-yellow-500 dark:hover:border-yellow-400 dark:focus:border-yellow-400;
-    }
-    .btn-outline-inverse {
-        @apply border border-white text-white hover:border-white/70 hover:text-white/70 focus:border-white/70 focus:text-white/70 dark:border-white dark:text-white dark:hover:border-white/70 dark:hover:text-white/70 dark:focus:border-white/70 dark:focus:text-white/70;
+    .btn-outline-plain {
+        @apply border-line-8 text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-foreground/15;
     }
 
-    /* ═══ Ghost (прозрачный фон, hover/focus подсветка) ═══ */
+    /* ═══ Soft + рамка (как badge-soft-outline) ═══ */
+    .btn-soft-outline-secondary {
+        @apply border border-secondary-500/45 bg-secondary-100 text-secondary-800 hover:bg-secondary/90 focus-visible:ring-2 focus-visible:ring-secondary-500/30;
+    }
+    .btn-soft-outline-primary {
+        @apply border border-primary/25 bg-primary-100 text-primary-800 hover:bg-primary-200 focus-visible:ring-2 focus-visible:ring-primary/30;
+    }
+    .btn-soft-outline-info {
+        @apply border border-info/30 bg-info-100 text-info-800 hover:bg-info-200 focus-visible:ring-2 focus-visible:ring-info/30;
+    }
+    .btn-soft-outline-success {
+        @apply border border-success/30 bg-success-100 text-success-800 hover:bg-success-200 focus-visible:ring-2 focus-visible:ring-success/30;
+    }
+    .btn-soft-outline-warning {
+        @apply border border-warning/35 bg-warning-100 text-warning-800 hover:bg-warning-200 focus-visible:ring-2 focus-visible:ring-warning/30;
+    }
+    .btn-soft-outline-danger {
+        @apply border border-danger/30 bg-danger-100 text-danger-800 hover:bg-danger-200 focus-visible:ring-2 focus-visible:ring-danger/30;
+    }
+    .btn-soft-outline-plain {
+        @apply border border-plain/20 bg-plain/10 text-foreground hover:bg-plain/15 focus-visible:ring-2 focus-visible:ring-plain/25;
+    }
+
+    /* ═══ Ghost ═══ */
+    .btn-ghost-secondary,
     .btn-ghost {
-        @apply border-transparent text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700;
+        @apply border-transparent bg-transparent text-foreground hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/25;
     }
     .btn-ghost-muted {
-        @apply border-transparent text-gray-600 hover:bg-gray-100 focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700;
+        @apply border-transparent bg-transparent text-secondary-500 hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/20;
     }
     .btn-ghost-primary {
-        @apply border-transparent text-blue-600 hover:bg-blue-100 focus:bg-blue-100 hover:text-blue-800 focus:text-blue-800 dark:text-blue-500 dark:hover:bg-blue-500/20 dark:hover:text-blue-400 dark:focus:bg-blue-500/20 dark:focus:text-blue-400;
+        @apply border-transparent bg-transparent text-primary hover:bg-primary-100 focus-visible:ring-2 focus-visible:ring-primary/30;
     }
-    .btn-ghost-teal {
-        @apply border-transparent text-teal-600 hover:bg-teal-100 focus:bg-teal-100 hover:text-teal-900 focus:text-teal-900 dark:text-teal-400 dark:hover:bg-teal-500/25 dark:hover:text-teal-300 dark:focus:bg-teal-500/25 dark:focus:text-teal-300;
+    .btn-ghost-info {
+        @apply border-transparent bg-transparent text-info hover:bg-info-100 focus-visible:ring-2 focus-visible:ring-info/30;
     }
-    .btn-ghost-red {
-        @apply border-transparent text-red-500 hover:bg-red-100 focus:bg-red-100 hover:text-red-800 dark:hover:bg-red-500/20 dark:hover:text-red-400 dark:focus:bg-red-500/20 dark:focus:text-red-400;
+    .btn-ghost-success {
+        @apply border-transparent bg-transparent text-success hover:bg-success-100 focus-visible:ring-2 focus-visible:ring-success/30;
     }
-    .btn-ghost-yellow {
-        @apply border-transparent text-yellow-500 hover:bg-yellow-100 focus:bg-yellow-100 hover:text-yellow-800 dark:hover:bg-yellow-500/20 dark:hover:text-yellow-400 dark:focus:bg-yellow-500/20 dark:focus:text-yellow-400;
+    .btn-ghost-warning {
+        @apply border-transparent bg-transparent text-warning hover:bg-warning-100 focus-visible:ring-2 focus-visible:ring-warning/30;
     }
-    .btn-ghost-inverse {
-        @apply border-transparent text-white hover:bg-white/10 focus:bg-white/10 dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10;
+    .btn-ghost-danger {
+        @apply border-transparent bg-transparent text-danger hover:bg-danger-100 focus-visible:ring-2 focus-visible:ring-danger/30;
     }
-
-    /* ═══ Soft (пастельный фон) ═══ */
-    .btn-soft-primary {
-        @apply border-transparent bg-blue-100 text-blue-800 hover:bg-blue-200 focus:bg-blue-200 dark:bg-blue-800/30 dark:text-blue-400 dark:hover:bg-blue-500/20 dark:focus:bg-blue-500/20;
-    }
-    .btn-soft-teal {
-        @apply border-transparent bg-teal-100 text-teal-800 hover:bg-teal-200 focus:bg-teal-200 dark:bg-teal-800/40 dark:text-teal-400 dark:hover:bg-teal-500/25 dark:focus:bg-teal-500/25;
-    }
-    .btn-soft-red {
-        @apply border-transparent bg-red-100 text-red-800 hover:bg-red-200 focus:bg-red-200 dark:bg-red-800/30 dark:text-red-500 dark:hover:bg-red-500/20 dark:focus:bg-red-500/20;
-    }
-    .btn-soft-yellow {
-        @apply border-transparent bg-yellow-100 text-yellow-800 hover:bg-yellow-200 focus:bg-yellow-200 dark:bg-yellow-800/30 dark:text-yellow-500 dark:hover:bg-yellow-500/20 dark:focus:bg-yellow-500/20;
-    }
-    .btn-soft-muted {
-        @apply border-transparent bg-gray-100 text-gray-700 hover:bg-gray-200 focus:bg-gray-200 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600 dark:focus:bg-neutral-600;
-    }
-    .btn-soft-plain {
-        @apply border-transparent bg-gray-900/10 text-white hover:bg-gray-900/20 focus:bg-gray-900/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:focus:bg-white/20;
+    .btn-ghost-plain {
+        @apply border-transparent bg-transparent text-foreground hover:bg-plain/10 focus-visible:ring-2 focus-visible:ring-plain/20;
     }
 
-    /* ═══ White / Layer (светлый фон, тень) ═══ */
-    .btn-white {
-        @apply bg-white border-gray-200 text-gray-900 shadow-sm hover:bg-gray-50 focus:bg-gray-100 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800;
+    /* ═══ Светлая «карточная» кнопка (бывш. btn-white) ═══ */
+    .btn-elevated {
+        @apply border-line-5 bg-surface text-surface-foreground shadow-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary/20;
     }
 
-    /* ═══ Link (без рамки и фона, только текст) ═══ */
+    /* Нейтральная рамка с переходом в акцент (тулбары, вторичные действия) */
+    .btn-outline-layer {
+        @apply border-line-5 text-secondary-500 hover:border-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/30;
+    }
+
+    /* ═══ Link (только текст) ═══ */
     .btn-link {
-        @apply border-transparent py-0 px-0 rounded-none font-semibold text-gray-900 hover:text-blue-600 focus:text-blue-500 dark:text-neutral-200 dark:hover:text-blue-400 dark:focus:text-blue-400;
+        @apply border-transparent py-0 px-0 rounded-none font-semibold text-foreground hover:text-primary focus-visible:ring-0;
     }
-    .btn-link-muted {
-        @apply border-transparent py-0 px-0 rounded-none font-semibold text-gray-600 hover:text-blue-600 focus:text-blue-500 dark:text-neutral-400 dark:hover:text-blue-400 dark:focus:text-blue-400;
+    .btn-link-secondary {
+        @apply border-transparent py-0 px-0 rounded-none font-semibold text-secondary-500 hover:text-primary focus-visible:ring-0;
     }
     .btn-link-primary {
-        @apply border-transparent py-0 px-0 rounded-none font-semibold text-blue-600 hover:text-blue-700 focus:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 dark:focus:text-blue-400;
+        @apply border-transparent py-0 px-0 rounded-none font-semibold text-primary hover:text-primary-800 focus-visible:ring-0;
     }
-    .btn-link-inverse {
-        @apply border-transparent py-0 px-0 rounded-none font-semibold text-white hover:text-white/80 focus:text-white/80 dark:text-white dark:hover:text-white/80 dark:focus:text-white/80;
+
+    /*
+     * Бейджи: семантика secondary | primary | info | success | warning | danger | plain (только токены темы).
+     *
+     * База: .badge + форма (.badge-pill | .badge-rounded | .badge-rounded-md) + размер (.badge-compact)
+     * Варианты: badge-solid-* | badge-soft-* | badge-outline-* | badge-soft-outline-*
+     * Индикатор: внутри бейджа <span class="badge-dot"></span>
+     * Иконка: на <svg class="badge-icon">
+     */
+    .badge {
+        @apply inline-flex items-center gap-x-1.5 py-1.5 px-3 text-xs font-medium rounded-full;
+    }
+
+    .badge-pill {
+        @apply rounded-full;
+    }
+
+    .badge-rounded {
+        @apply rounded-lg;
+    }
+
+    .badge-rounded-md {
+        @apply rounded-md;
+    }
+
+    .badge-compact {
+        @apply py-1 px-2 gap-x-1;
+    }
+
+    .badge-icon {
+        @apply shrink-0 size-3;
+    }
+
+    .badge-dot {
+        @apply size-1.5 inline-block rounded-full;
+    }
+
+    /* Точка индикатора: цвет наследуется от варианта бейджа */
+    .badge-soft-secondary .badge-dot {
+        @apply bg-secondary-800 dark:bg-secondary-400;
+    }
+    .badge-soft-primary .badge-dot {
+        @apply bg-primary-800 dark:bg-primary-400;
+    }
+    .badge-soft-info .badge-dot {
+        @apply bg-info-800 dark:bg-info-400;
+    }
+    .badge-soft-success .badge-dot {
+        @apply bg-success-800 dark:bg-success-400;
+    }
+    .badge-soft-warning .badge-dot {
+        @apply bg-warning-800 dark:bg-warning-400;
+    }
+    .badge-soft-danger .badge-dot {
+        @apply bg-danger-800 dark:bg-danger-400;
+    }
+    .badge-soft-plain .badge-dot {
+        @apply bg-foreground dark:bg-foreground-inverse;
+    }
+
+    .badge-soft-outline-secondary .badge-dot {
+        @apply bg-secondary-800 dark:bg-secondary-400;
+    }
+    .badge-soft-outline-primary .badge-dot {
+        @apply bg-primary-800 dark:bg-primary-400;
+    }
+    .badge-soft-outline-info .badge-dot {
+        @apply bg-info-800 dark:bg-info-400;
+    }
+    .badge-soft-outline-success .badge-dot {
+        @apply bg-success-800 dark:bg-success-400;
+    }
+    .badge-soft-outline-warning .badge-dot {
+        @apply bg-warning-800 dark:bg-warning-400;
+    }
+    .badge-soft-outline-danger .badge-dot {
+        @apply bg-danger-800 dark:bg-danger-400;
+    }
+    .badge-soft-outline-plain .badge-dot {
+        @apply bg-foreground dark:bg-foreground-inverse;
+    }
+
+    .badge-outline-secondary .badge-dot {
+        @apply bg-secondary-800 dark:bg-secondary-400;
+    }
+    .badge-outline-primary .badge-dot {
+        @apply bg-primary-800 dark:bg-primary-400;
+    }
+    .badge-outline-info .badge-dot {
+        @apply bg-info-800 dark:bg-info-400;
+    }
+    .badge-outline-success .badge-dot {
+        @apply bg-success-800 dark:bg-success-400;
+    }
+    .badge-outline-warning .badge-dot {
+        @apply bg-warning-800 dark:bg-warning-400;
+    }
+    .badge-outline-danger .badge-dot {
+        @apply bg-danger-800 dark:bg-danger-400;
+    }
+    .badge-outline-plain .badge-dot {
+        @apply bg-foreground dark:bg-foreground-inverse;
+    }
+
+    .badge-solid-secondary .badge-dot {
+        @apply bg-secondary-foreground;
+    }
+    .badge-solid-primary .badge-dot {
+        @apply bg-primary-foreground;
+    }
+    .badge-solid-info .badge-dot {
+        @apply bg-info-foreground;
+    }
+    .badge-solid-success .badge-dot {
+        @apply bg-success-foreground;
+    }
+    .badge-solid-warning .badge-dot {
+        @apply bg-warning-foreground;
+    }
+    .badge-solid-danger .badge-dot {
+        @apply bg-danger-foreground;
+    }
+    .badge-solid-plain .badge-dot {
+        @apply bg-inverse;
+    }
+
+    /* ═══ Solid ═══ */
+    .badge-solid-secondary {
+        @apply bg-secondary text-secondary-foreground;
+    }
+    .badge-solid-primary {
+        @apply bg-primary text-primary-foreground;
+    }
+    .badge-solid-info {
+        @apply bg-info text-info-foreground;
+    }
+    .badge-solid-success {
+        @apply bg-success text-success-foreground;
+    }
+    .badge-solid-warning {
+        @apply bg-warning text-warning-foreground;
+    }
+    .badge-solid-danger {
+        @apply bg-danger text-danger-foreground;
+    }
+    .badge-solid-plain {
+        @apply bg-plain text-inverse;
+    }
+
+    /* ═══ Soft ═══ */
+    .badge-soft-secondary {
+        @apply bg-secondary-100 text-secondary-800 dark:bg-secondary-500/20 dark:text-secondary-400;
+    }
+    .badge-soft-primary {
+        @apply bg-primary-100 text-primary-800 dark:bg-primary-500/20 dark:text-primary-400;
+    }
+    .badge-soft-info {
+        @apply bg-info-100 text-info-800 dark:bg-info-500/20 dark:text-info-400;
+    }
+    .badge-soft-success {
+        @apply bg-success-100 text-success-800 dark:bg-success-500/20 dark:text-success-400;
+    }
+    .badge-soft-warning {
+        @apply bg-warning-100 text-warning-800 dark:bg-warning-500/20 dark:text-warning-400;
+    }
+    .badge-soft-danger {
+        @apply bg-danger-100 text-danger-800 dark:bg-danger-500/20 dark:text-danger-400;
+    }
+    .badge-soft-plain {
+        @apply bg-plain/10 text-foreground dark:text-foreground-inverse;
+    }
+
+    /* ═══ Outline ═══ */
+    .badge-outline-secondary {
+        @apply border border-secondary-500 text-secondary-800 dark:border-secondary-400 dark:text-secondary-400;
+    }
+    .badge-outline-primary {
+        @apply border border-primary text-primary;
+    }
+    .badge-outline-info {
+        @apply border border-info text-info;
+    }
+    .badge-outline-success {
+        @apply border border-success text-success;
+    }
+    .badge-outline-warning {
+        @apply border border-warning text-warning;
+    }
+    .badge-outline-danger {
+        @apply border border-danger text-danger;
+    }
+    .badge-outline-plain {
+        @apply border border-line-8 text-foreground;
+    }
+
+    /* ═══ Soft + рамка ═══ */
+    .badge-soft-outline-secondary {
+        @apply border border-secondary-500/45 bg-secondary-100 text-secondary-800 dark:border-secondary-400/70 dark:bg-secondary-500/20 dark:text-secondary-400;
+    }
+    .badge-soft-outline-primary {
+        @apply border border-primary/25 bg-primary-100 text-primary-800 dark:border-primary-500/35 dark:bg-primary-500/20 dark:text-primary-400;
+    }
+    .badge-soft-outline-info {
+        @apply border border-info/30 bg-info-100 text-info-800 dark:border-info-500/40 dark:bg-info-500/20 dark:text-info-400;
+    }
+    .badge-soft-outline-success {
+        @apply border border-success/30 bg-success-100 text-success-800 dark:border-success-500/40 dark:bg-success-500/20 dark:text-success-400;
+    }
+    .badge-soft-outline-warning {
+        @apply border border-warning/35 bg-warning-100 text-warning-800 dark:border-warning-500/40 dark:bg-warning-500/20 dark:text-warning-400;
+    }
+    .badge-soft-outline-danger {
+        @apply border border-danger/30 bg-danger-100 text-danger-800 dark:border-danger-500/40 dark:bg-danger-500/20 dark:text-danger-400;
+    }
+    .badge-soft-outline-plain {
+        @apply border border-plain/20 bg-plain/10 text-foreground dark:text-foreground-inverse;
+    }
+
+    /*
+     * HS Select (Preline): системный выпадающий список с поиском.
+     *
+     * База конфигурации в data-hs-select:
+     * - searchClasses: mg-select-search
+     * - searchWrapperClasses: mg-select-search-wrap
+     * - toggleClasses: mg-select-toggle
+     * - dropdownClasses: mg-select-dropdown (+ z-index класс по месту)
+     * - optionClasses: mg-select-option
+     */
+    .mg-select-search {
+        @apply block w-full text-sm bg-transparent border border-gray-200 dark:border-neutral-600 rounded-lg text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 placeholder:text-sm dark:placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-0 dark:focus:ring-1 dark:focus:ring-blue-500 py-2 px-3;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .mg-select-search-wrap {
+        @apply bg-white dark:bg-neutral-900 p-2 -mx-1 sticky top-0 border-b border-gray-200 dark:border-neutral-700 z-10;
+    }
+
+    .mg-select-toggle {
+        @apply relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:focus:outline-hidden dark:focus:ring-1 dark:focus:ring-neutral-600;
+    }
+
+    .mg-select-dropdown {
+        @apply mt-2 max-h-72 pb-1 px-1 space-y-0.5 w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 rounded-lg shadow-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500;
+    }
+
+    .mg-select-option {
+        @apply py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:text-neutral-200 dark:focus:bg-neutral-800;
     }
 
     /* Стилизованный range slider (совпадает с Preline UI). Класс range-slider для input[type="range"]. */
@@ -516,7 +774,9 @@
     /* Стили для Preline Select - показываем галочку когда визуальный элемент опции имеет класс selected */
     /* Preline добавляет класс selected к визуальному элементу опции, когда option имеет атрибут selected */
     .selected .ms-auto span.hidden,
+    .mg-select-option.selected .ms-auto span.hidden,
     .hs-select-option.selected .ms-auto span.hidden,
+    [class*="mg-select-option"].selected .ms-auto span.hidden,
     [class*="hs-select-option"].selected .ms-auto span.hidden,
     [class*="selected"] .ms-auto span.hidden {
         display: block !important;

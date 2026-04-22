@@ -1,0 +1,16 @@
+---
+description: Бейджи в UI — только компоненты из tailwind.css
+alwaysApply: true
+---
+
+# Бейджи
+
+Если нужно **добавить, изменить или стилизовать бейджи** (в шаблонах, разметке из JS и т.п.), используй **готовую систему классов** из [`frontend/css/tailwind.css`](frontend/css/tailwind.css), а не произвольные утилиты Tailwind для «чипов» и цветов с нуля.
+
+- База: `badge`, модификаторы формы и размера: `badge-pill`, `badge-rounded`, `badge-rounded-md`, `badge-compact`.
+- Семантика и вид: `badge-solid-*`, `badge-soft-*`, `badge-outline-*`, `badge-soft-outline-*`, где `*` — `secondary`, `primary`, `info`, `success`, `warning`, `danger`, `plain`.
+- Дополнительно: `badge-dot`, `badge-icon`.
+
+Цвета задаются токенами темы в [`frontend/tailwind.config.js`](frontend/tailwind.config.js); не дублируй палитру инлайном для бейджей.
+
+Демо-образцы: [`templates/ui_demo/badges.html`](templates/ui_demo/badges.html).

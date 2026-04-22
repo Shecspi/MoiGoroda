@@ -237,6 +237,17 @@ Licensed under the Apache License, Version 2.0
                         Dashboard
                     </a>
                 </li>
+                {% if DEBUG %}
+                <li>
+                    <a href="{% url 'ui_demo:index' %}"
+                       class="flex items-center gap-x-2 py-2 pl-8 pr-2 text-start text-sm text-gray-800 rounded-md hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700{% if active_page == 'ui_demo' %} bg-amber-50 text-amber-900 dark:bg-amber-500/10 dark:text-amber-400{% endif %}">
+                        <svg class="shrink-0 size-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a1.99 1.99 0 01-1.855-.543M15.75 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm1.5 0a4.875 4.875 0 11-9.75 0 4.875 4.875 0 019.75 0z" />
+                        </svg>
+                        UI kit (демо)
+                    </a>
+                </li>
+                {% endif %}
             {% endif %}
             {% if user.is_authenticated and user.is_staff %}
                 <li>

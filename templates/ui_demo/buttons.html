@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
+    {% include 'ui_demo/_subnav.html' %}
+
+    <h1 class="mb-4 text-3xl font-bold text-gray-900">Кнопки</h1>
+    <p class="mb-8 text-sm text-gray-600">Семантика: secondary, primary, info, success, warning, danger, plain — для каждой: solid, soft, outline, soft-outline. Дополнительно: ghost (те же семантики), ссылки, «карточная» <span class="font-mono text-xs">btn-elevated</span>, нейтральная <span class="font-mono text-xs">btn-outline-layer</span>.</p>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Размеры</h2>
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button" class="btn btn-solid-primary btn-xs">btn-xs</button>
+            <button type="button" class="btn btn-solid-primary btn-sm">btn-sm</button>
+            <button type="button" class="btn btn-solid-primary btn-default">btn-default</button>
+            <button type="button" class="btn btn-solid-primary btn-lg">btn-lg</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Solid</h2>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-solid-secondary btn-sm">Secondary</button>
+            <button type="button" class="btn btn-solid-primary btn-sm">Primary</button>
+            <button type="button" class="btn btn-solid-info btn-sm">Info</button>
+            <button type="button" class="btn btn-solid-success btn-sm">Success</button>
+            <button type="button" class="btn btn-solid-warning btn-sm">Warning</button>
+            <button type="button" class="btn btn-solid-danger btn-sm">Danger</button>
+            <button type="button" class="btn btn-solid-plain btn-sm">Plain</button>
+            <button type="button" class="btn btn-elevated btn-sm">Elevated</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Soft</h2>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-soft-secondary btn-sm">Secondary</button>
+            <button type="button" class="btn btn-soft-primary btn-sm">Primary</button>
+            <button type="button" class="btn btn-soft-info btn-sm">Info</button>
+            <button type="button" class="btn btn-soft-success btn-sm">Success</button>
+            <button type="button" class="btn btn-soft-warning btn-sm">Warning</button>
+            <button type="button" class="btn btn-soft-danger btn-sm">Danger</button>
+            <button type="button" class="btn btn-soft-plain btn-sm">Plain</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Outline</h2>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm">Secondary</button>
+            <button type="button" class="btn btn-outline-primary btn-sm">Primary</button>
+            <button type="button" class="btn btn-outline-info btn-sm">Info</button>
+            <button type="button" class="btn btn-outline-success btn-sm">Success</button>
+            <button type="button" class="btn btn-outline-warning btn-sm">Warning</button>
+            <button type="button" class="btn btn-outline-danger btn-sm">Danger</button>
+            <button type="button" class="btn btn-outline-plain btn-sm">Plain</button>
+        </div>
+        <p class="mt-3 text-sm text-gray-600">Нейтральная рамка с акцентом при наведении (тулбары): <span class="font-mono text-xs">btn-outline-layer</span></p>
+        <div class="mt-2 flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-layer btn-sm">Outline layer</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Soft outline</h2>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-soft-outline-secondary btn-sm">Secondary</button>
+            <button type="button" class="btn btn-soft-outline-primary btn-sm">Primary</button>
+            <button type="button" class="btn btn-soft-outline-info btn-sm">Info</button>
+            <button type="button" class="btn btn-soft-outline-success btn-sm">Success</button>
+            <button type="button" class="btn btn-soft-outline-warning btn-sm">Warning</button>
+            <button type="button" class="btn btn-soft-outline-danger btn-sm">Danger</button>
+            <button type="button" class="btn btn-soft-outline-plain btn-sm">Plain</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Ghost</h2>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-ghost-secondary btn-sm">Secondary</button>
+            <button type="button" class="btn btn-ghost btn-sm">Ghost (= secondary)</button>
+            <button type="button" class="btn btn-ghost-muted btn-sm">Ghost muted</button>
+            <button type="button" class="btn btn-ghost-primary btn-sm">Primary</button>
+            <button type="button" class="btn btn-ghost-info btn-sm">Info</button>
+            <button type="button" class="btn btn-ghost-success btn-sm">Success</button>
+            <button type="button" class="btn btn-ghost-warning btn-sm">Warning</button>
+            <button type="button" class="btn btn-ghost-danger btn-sm">Danger</button>
+            <button type="button" class="btn btn-ghost-plain btn-sm">Plain</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Ссылка и опции</h2>
+        <div class="flex flex-wrap items-center gap-4">
+            <button type="button" class="btn btn-link">btn-link</button>
+            <button type="button" class="btn btn-link-secondary">btn-link-secondary</button>
+            <button type="button" class="btn btn-link-primary">btn-link-primary</button>
+            <button type="button" class="btn btn-solid-primary btn-sm btn-pilled">btn-pilled</button>
+            <button type="button" class="btn btn-solid-primary btn-sm btn-block max-w-xs">btn-block</button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Иконка</h2>
+        <p class="mb-3 text-sm text-gray-600">На <span class="font-mono text-xs">svg</span> — класс <span class="font-mono text-xs">btn-icon</span> (размер от шрифта кнопки).</p>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-soft-outline-primary btn-sm">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                С иконкой
+            </button>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">Состояние disabled</h2>
+        <button type="button" class="btn btn-solid-primary btn-sm btn-disabled" disabled>btn-disabled</button>
+    </section>
+</div>
+{% endblock %}

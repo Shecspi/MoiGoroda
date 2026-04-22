@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
+    {% include 'ui_demo/_subnav.html' %}
+
+    <h1 class="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Статистические бейджи</h1>
+    <p class="mb-8 text-sm text-gray-600 dark:text-neutral-400">Классы <span class="font-mono text-xs">stat-badge</span> + модификатор варианта.</p>
+
+    <div class="flex flex-col gap-4">
+        <span class="stat-badge stat-badge-success">
+            <span class="stat-badge-dot" aria-hidden="true"></span>
+            Успех: <strong>1 234</strong>
+        </span>
+        <span class="stat-badge stat-badge-info">
+            Инфо: <strong>567</strong>
+        </span>
+        <span class="stat-badge stat-badge-primary">
+            Primary: <strong>890</strong>
+        </span>
+        <span class="stat-badge stat-badge-danger">
+            Опасность: <strong>12</strong>
+        </span>
+        <span class="stat-badge stat-badge-warning">
+            Предупреждение: <strong>3</strong>
+        </span>
+    </div>
+</div>
+{% endblock %}

@@ -27,42 +27,17 @@ def hs_select_search_single_config(
     return {
         'hasSearch': True,
         'searchPlaceholder': search_placeholder,
-        'searchClasses': (
-            'block w-full text-sm bg-transparent border border-gray-200 dark:border-neutral-600 '
-            'rounded-lg text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 '
-            'placeholder:text-sm dark:placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none '
-            'focus:ring-1 focus:ring-blue-500 focus:ring-offset-0 dark:focus:ring-1 dark:focus:ring-blue-500 '
-            'py-2 px-3 [-webkit-tap-highlight-color:transparent]'
-        ),
-        'searchWrapperClasses': (
-            'bg-white dark:bg-neutral-900 p-2 -mx-1 sticky top-0 '
-            'border-b border-gray-200 dark:border-neutral-700 z-10'
-        ),
+        'searchClasses': 'mg-select-search',
+        'searchWrapperClasses': 'mg-select-search-wrap',
         'placeholder': placeholder,
         'toggleTag': (
             '<button type="button" aria-expanded="false">'
             '<span class="text-gray-800 dark:text-neutral-200 truncate" data-title></span>'
             '</button>'
         ),
-        'toggleClasses': (
-            'hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 '
-            'flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg '
-            'text-start text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 '
-            'dark:border-neutral-700 dark:text-neutral-200 dark:focus:outline-hidden dark:focus:ring-1 '
-            'dark:focus:ring-neutral-600'
-        ),
-        'dropdownClasses': (
-            'mt-2 max-h-72 pb-1 px-1 space-y-0.5 z-20 w-full bg-white dark:bg-neutral-900 '
-            'border border-gray-200 dark:border-neutral-700 rounded-lg shadow-lg overflow-hidden '
-            'overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full '
-            '[&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 '
-            'dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500'
-        ),
-        'optionClasses': (
-            'py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg '
-            'focus:outline-hidden focus:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 '
-            'dark:text-neutral-200 dark:focus:bg-neutral-800'
-        ),
+        'toggleClasses': 'mg-select-toggle',
+        'dropdownClasses': 'mg-select-dropdown z-20',
+        'optionClasses': 'mg-select-option',
         'optionTemplate': (
             '<div class="flex items-center">'
             '<div class="me-2" data-icon></div>'

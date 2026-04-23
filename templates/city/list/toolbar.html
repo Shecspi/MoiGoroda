@@ -41,7 +41,7 @@
 
     <!-- Поиск города: до sm — блок на всю ширину; с sm — гибкая колонка рядом с селектом страны -->
     <div class="relative w-full min-w-0 sm:w-auto sm:flex-1 sm:min-w-[220px]">
-        {% include "components/ui/combobox_remote.html" with combobox_id="city-search-combobox" input_id="city-search" hidden_name="city_search_id" placeholder="Начните вводить название города..." show_leading_icon=True input_class="mg-input mg-input-with-leading-icon" source_url="/api/city/search" country_url_param="country" value_key="id" label_key="title" meta_keys="region,country" min_chars="1" max_items="20" debounce="300" loading_text="Загрузка..." empty_text="Ничего не найдено" %}
+        {% include "components/ui/combobox_remote.html" with combobox_id="city-search-combobox" input_id="city-search" hidden_name="city_search_id" placeholder="Начните вводить название города..." show_leading_icon=True input_class="mg-input mg-input-default" source_url="/api/city/search" country_url_param="country" value_key="id" label_key="title" meta_keys="region,country" min_chars="3" max_items="20" debounce="300" loading_text="Загрузка..." empty_text="Ничего не найдено" %}
     </div>
 
     <!-- Селект страны: Preline HSSelect, конфиг как у формы создания города (hs_select_search_single_config) -->

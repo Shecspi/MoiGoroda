@@ -49,7 +49,7 @@ Optional:
             autocomplete="off"
             spellcheck="false"
             data-role="input"
-            class="{{ input_class|default:'mg-input' }}"
+            class="{{ input_class|default:'mg-input mg-input-default' }}{% if show_leading_icon %} mg-input-with-leading-icon{% endif %}"
             placeholder="{{ placeholder|default:'Начните вводить...' }}"
             value="{{ input_value|default:'' }}"
         >

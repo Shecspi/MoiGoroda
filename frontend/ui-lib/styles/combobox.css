@@ -12,7 +12,13 @@
     }
 
     .mg-combobox-option {
-        @apply cursor-pointer rounded-md px-3 py-2 text-sm text-gray-800 transition hover:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-800;
+        @apply cursor-pointer rounded-md border border-transparent px-3 py-2 text-sm text-gray-800 transition hover:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-800;
+    }
+
+    /* Сильнее базового hover, иначе hover перебивает фон из .is-active (одинаковая специфичность). */
+    .mg-combobox-option.is-active,
+    .mg-combobox-option.is-active:hover {
+        @apply border border-blue-200 bg-blue-100 text-blue-900 shadow-sm dark:border-blue-400/50 dark:bg-blue-600/40 dark:text-blue-50 dark:shadow-blue-900/20 dark:hover:bg-blue-600/50;
     }
 
     .mg-combobox-option-title {
@@ -25,10 +31,6 @@
 
     .mg-combobox-option-meta {
         @apply mt-0.5 block text-xs text-gray-500 dark:text-neutral-400;
-    }
-
-    .mg-combobox-option.is-active {
-        @apply bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200;
     }
 
     .mg-combobox-empty {

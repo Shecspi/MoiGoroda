@@ -1,0 +1,69 @@
+{% comment %}
+UI-lib компонент: одиночный select с поиском (без внешних UI-библиотек).
+
+Параметры include:
+- select_id (обязательный): id элемента select
+- select_name (опционально): name элемента select
+- select_class (опционально): CSS-классы нативного select
+- root_class (опционально): CSS-классы корневого контейнера
+- disabled (опционально): True/False, по умолчанию True
+- placeholder (опционально): текст плейсхолдера компонента
+- search_placeholder (опционально): текст поля фильтра
+- empty_text (опционально): текст пустого списка
+- loading_option_value (опционально): value стартовой option
+- loading_option_label (опционально): текст стартовой option
+- options (опционально): список option-словарей {value, label, disabled, selected}
+- dropdown_z_class (опционально): z-index класс dropdown (например: z-20, z-[102])
+
+Пример:
+{% include "components/ui/select_search.html" with select_id="id_country" select_class="country-preline-select w-full min-w-0 --prevent-on-load-init" dropdown_z_class="z-[102]" placeholder="Загрузка..." %}
+{% endcomment %}
+<div
+    data-component="select-search"
+    data-select-search-placeholder="{{ placeholder|default:'Загрузка...' }}"
+    data-select-search-search-placeholder="{{ search_placeholder|default:'Поиск...' }}"
+    data-select-search-empty-text="{{ empty_text|default:'Ничего не найдено' }}"
+    class="mg-select-search-component {{ root_class|default:'' }}"
+>
+    <select
+        id="{{ select_id }}"
+        {% if select_name %}name="{{ select_name }}"{% endif %}
+        {% if disabled != False %}disabled{% endif %}
+        data-role="native-select"
+        class="hidden {{ select_class|default:'' }}"
+    >
+        {% if options %}
+            {% for option in options %}
+                <option value="{{ option.value }}"{% if option.disabled %} disabled{% endif %}{% if option.selected %} selected{% endif %}>{{ option.label }}</option>
+            {% endfor %}
+        {% else %}
+            <option value="{{ loading_option_value|default:'__mg_country_loading__' }}">{{ loading_option_label|default:"Загрузка..." }}</option>
+        {% endif %}
+    </select>
+
+    <div class="relative">
+        <button type="button" data-role="toggle" class="mg-select-search-toggle mg-input mg-input-default w-full text-left pr-10" aria-expanded="false">
+            <span data-role="toggle-label" class="block truncate text-gray-500 dark:text-neutral-400">{{ placeholder|default:"Загрузка..." }}</span>
+            <span class="mg-select-search-toggle-icon" aria-hidden="true">
+                <svg class="size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m7 15 5 5 5-5"/>
+                    <path d="m7 9 5-5 5 5"/>
+                </svg>
+            </span>
+        </button>
+
+        <div data-role="dropdown" class="mg-select-search-dropdown {{ dropdown_z_class|default:'z-30' }} hidden">
+            <div class="mg-select-search-input-wrap">
+                <input
+                    type="text"
+                    data-role="search-input"
+                    class="mg-input mg-input-default"
+                    placeholder="{{ search_placeholder|default:'Поиск...' }}"
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+            </div>
+            <ul data-role="options-list" class="mg-select-search-options list-none" role="listbox"></ul>
+        </div>
+    </div>
+</div>

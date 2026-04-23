@@ -105,6 +105,25 @@ import './ui-lib/auto-init.js';
 ></div>
 ```
 
+## Select search (поиск по select options)
+
+`select-search` — самостоятельный компонент ui-lib для фильтрации `option` в нативном `select`.
+Компонент использует нативный `select` как источник данных и синхронизирует выбор обратно в него.
+
+```html
+<div
+  data-component="select-search"
+  data-select-search-placeholder="Выберите страну"
+  data-select-search-search-placeholder="Поиск..."
+>
+  <select id="id_country" data-role="native-select" class="hidden">
+    <option value="">Выберите страну</option>
+    <option value="RU">Россия</option>
+    <option value="KZ">Казахстан</option>
+  </select>
+</div>
+```
+
 ## События
 
 Подписка на события корневого узла combobox:

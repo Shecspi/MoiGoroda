@@ -7,23 +7,11 @@ const COUNTRY_SELECT_SEPARATOR_VALUE = '__mg_sep_unvisited__';
 const COUNTRY_SELECT_ERROR_VALUE = '__mg_country_error__';
 
 /**
- * Preline подключается в extra_js после entry; ждём появления HSSelect в window.
+ * Backward-compatible shim for legacy imports.
+ * Select search is now rendered by our own ui-lib component.
  */
 export function waitForHSSelect() {
-    return new Promise((resolve) => {
-        if (window.HSSelect) {
-            resolve();
-            return;
-        }
-        const check = () => {
-            if (window.HSSelect) {
-                resolve();
-            } else {
-                requestAnimationFrame(check);
-            }
-        };
-        check();
-    });
+    return Promise.resolve();
 }
 
 function ensureLoadingOption(countrySelect) {
@@ -37,38 +25,13 @@ function ensureLoadingOption(countrySelect) {
     countrySelect.appendChild(opt);
 }
 
-/**
- * Первый и единственный вызов после того, как в &lt;select&gt; уже лежат нужные &lt;option&gt;.
- * До этого момента виден только нативный селект (стили из select-field.css) — без смены цвета на кнопку Preline.
- */
-function initHSSelectFromPopulatedDom(countrySelect) {
-    if (!countrySelect?.id) {
+/** Backward-compatible helper for legacy callers. */
+export function attachCountrySelectHSSelect(countrySelect) {
+    if (!countrySelect) {
         return null;
     }
-
-    if (typeof window.HSSelect.autoInit === 'function') {
-        window.HSSelect.autoInit();
-    }
-
-    const sel = `#${countrySelect.id}`;
-    if (!window.HSSelect.getInstance(sel)) {
-        try {
-            new window.HSSelect(countrySelect);
-        } catch (e) {
-            console.error('Ошибка инициализации HSSelect:', e);
-            return null;
-        }
-    }
-
-    countrySelect.classList.remove('--prevent-on-load-init');
-    countrySelect.classList.remove('hidden');
-
-    return window.HSSelect.getInstance(sel);
-}
-
-/** Для map_region и др.: после ручного заполнения &lt;option&gt; — один вызов HSSelect. */
-export function attachCountrySelectHSSelect(countrySelect) {
-    return initHSSelectFromPopulatedDom(countrySelect);
+    countrySelect.dispatchEvent(new Event('change', { bubbles: true }));
+    return null;
 }
 
 function buildCountryOptionsNative(countrySelect, countries, selectedCountryCode, showAllOption) {
@@ -146,29 +109,10 @@ export async function initCountrySelect({
         return response.json();
     }
 
-    function applyPlaceholderToDataAttr(placeholderText) {
-        const dataHsSelect = countrySelect.getAttribute('data-hs-select');
-        if (!dataHsSelect) return;
-        try {
-            const config = JSON.parse(dataHsSelect);
-            config.placeholder = placeholderText;
-            countrySelect.setAttribute('data-hs-select', JSON.stringify(config));
-        } catch (e) {
-            console.error('Ошибка при обновлении конфигурации Preline UI:', e);
-        }
-    }
-
     try {
-        const [, countries] = await Promise.all([
-            waitForHSSelect(),
-            loadCountriesJson(),
-        ]);
-
-        applyPlaceholderToDataAttr(showAllOption ? 'Все страны' : 'Выберите страну...');
+        const countries = await loadCountriesJson();
         buildCountryOptionsNative(countrySelect, countries, selectedCountryCode, showAllOption);
         countrySelect.removeAttribute('disabled');
-
-        initHSSelectFromPopulatedDom(countrySelect);
     } catch (error) {
         console.error('Ошибка при загрузке списка стран:', error);
 
@@ -177,8 +121,6 @@ export async function initCountrySelect({
             window.showDangerToast('Ошибка загрузки', errorMessage);
         }
 
-        await waitForHSSelect();
-        applyPlaceholderToDataAttr('Ошибка загрузки');
         countrySelect.textContent = '';
         const errOpt = document.createElement('option');
         errOpt.value = COUNTRY_SELECT_ERROR_VALUE;
@@ -186,8 +128,6 @@ export async function initCountrySelect({
         errOpt.disabled = true;
         errOpt.selected = true;
         countrySelect.appendChild(errOpt);
-
-        initHSSelectFromPopulatedDom(countrySelect);
     }
 
     if (!countrySelect.dataset.mgCountryChangeBound) {

@@ -71,12 +71,21 @@ def forms(request: HttpRequest) -> HttpResponse:
         {'value': 'yekaterinburg', 'label': 'Екатеринбург'},
         {'value': 'nizhny-novgorod', 'label': 'Нижний Новгород'},
     ]
+    demo_select_search_options = [
+        {'value': '', 'label': 'Выберите значение', 'selected': True},
+        {'value': '1', 'label': 'Первый'},
+        {'value': '2', 'label': 'Второй'},
+        {'value': '3', 'label': 'Третий'},
+    ]
 
     return _render(
         request,
         'ui_demo/forms.html',
         'Поля форм',
-        extra_context={'demo_combobox_options': demo_combobox_options},
+        extra_context={
+            'demo_combobox_options': demo_combobox_options,
+            'demo_select_search_options': demo_select_search_options,
+        },
     )
 
 

@@ -739,6 +739,108 @@
     .form-input.form-input-date.form-input-date--with-shortcuts {
         @apply pe-[10.5rem] sm:pe-[11.5rem];
     }
+
+    /*
+     * Input-компоненты (аналогично системе кнопок/бейджей, на основе паттернов Preline Input):
+     * База: .mg-input
+     * Размеры: .mg-input-sm | .mg-input-default | .mg-input-lg
+     * Варианты: .mg-input-underline
+     * Форма: .mg-input-pilled
+     * Лейаут: .mg-input-with-leading-icon + .mg-input-leading-icon
+     * Текст/метаданные: .mg-input-label | .mg-input-label-sr | .mg-input-helper | .mg-input-corner-hint
+     * Состояния: .mg-input-state-error | .mg-input-state-success
+     */
+    .mg-input {
+        @apply block w-full rounded-lg bg-white border border-gray-300 shadow-sm sm:text-sm text-gray-900 placeholder:text-gray-400 hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-0 disabled:opacity-100 disabled:pointer-events-none disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-500 disabled:placeholder:text-gray-400 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:hover:border-neutral-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 dark:disabled:bg-neutral-800 dark:disabled:border-neutral-700 dark:disabled:text-neutral-400 dark:disabled:placeholder:text-neutral-500;
+        padding-top: var(--mg-input-pt, 0.625rem);
+        padding-bottom: var(--mg-input-pb, 0.625rem);
+        padding-left: var(--mg-input-pl, 1rem);
+        padding-right: var(--mg-input-pr, 1rem);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (min-width: 640px) {
+        .mg-input {
+            padding-top: var(--mg-input-pt-sm, var(--mg-input-pt, 0.625rem));
+            padding-bottom: var(--mg-input-pb-sm, var(--mg-input-pb, 0.625rem));
+            padding-left: var(--mg-input-pl-sm, var(--mg-input-pl, 1rem));
+            padding-right: var(--mg-input-pr-sm, var(--mg-input-pr, 1rem));
+        }
+    }
+
+    .mg-input-sm {
+        --mg-input-pt: 0.375rem;
+        --mg-input-pb: 0.375rem;
+        --mg-input-pl: 0.75rem;
+        --mg-input-pr: 0.75rem;
+        --mg-input-pt-sm: 0.5rem;
+        --mg-input-pb-sm: 0.5rem;
+        --mg-input-pl-sm: 0.75rem;
+        --mg-input-pr-sm: 0.75rem;
+    }
+
+    .mg-input-default {
+        --mg-input-pt: 0.625rem;
+        --mg-input-pb: 0.625rem;
+        --mg-input-pl: 1rem;
+        --mg-input-pr: 1rem;
+        --mg-input-pt-sm: 0.75rem;
+        --mg-input-pb-sm: 0.75rem;
+        --mg-input-pl-sm: 1rem;
+        --mg-input-pr-sm: 1rem;
+    }
+
+    .mg-input-lg {
+        --mg-input-pt: 0.875rem;
+        --mg-input-pb: 0.875rem;
+        --mg-input-pl: 0.875rem;
+        --mg-input-pr: 0.875rem;
+        --mg-input-pt-sm: 1.25rem;
+        --mg-input-pb-sm: 1.25rem;
+        --mg-input-pl-sm: 1.25rem;
+        --mg-input-pr-sm: 1.25rem;
+    }
+
+    .mg-input-underline {
+        @apply rounded-none bg-transparent border-t-transparent border-x-transparent border-b-2 border-b-gray-300 px-0 shadow-none hover:border-t-transparent hover:border-x-transparent hover:border-b-gray-400 focus:border-t-transparent focus:border-x-transparent focus:border-b-blue-500 focus:ring-0 dark:border-b-neutral-600 dark:hover:border-b-neutral-500;
+    }
+
+    .mg-input-pilled {
+        @apply rounded-full;
+    }
+
+    .mg-input-with-leading-icon {
+        --mg-input-pl: 2.5rem;
+        --mg-input-pl-sm: 2.5rem;
+    }
+
+    .mg-input-leading-icon {
+        @apply pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3 text-gray-400 dark:text-neutral-500;
+    }
+
+    .mg-input-label {
+        @apply block mb-2 text-sm font-medium text-gray-900 dark:text-neutral-100;
+    }
+
+    .mg-input-label-sr {
+        @apply sr-only;
+    }
+
+    .mg-input-helper {
+        @apply mt-2 text-sm text-gray-500 dark:text-neutral-400;
+    }
+
+    .mg-input-corner-hint {
+        @apply mb-2 flex flex-wrap items-center justify-between gap-2;
+    }
+
+    .mg-input-state-error {
+        @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+    }
+
+    .mg-input-state-success {
+        @apply border-teal-500 focus:border-teal-500 focus:ring-teal-500;
+    }
 }
 
 @layer utilities {

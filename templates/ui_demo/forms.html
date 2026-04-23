@@ -6,15 +6,70 @@
 
     <h1 class="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Поля форм</h1>
 
-    <section class="mb-10 max-w-xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">form-input</h2>
-        <div>
-            <label for="demo-input" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Текст</label>
-            <input id="demo-input" type="text" class="form-input" placeholder="Placeholder" autocomplete="off">
+    <section class="mb-10 max-w-3xl space-y-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Input components</h2>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label for="demo-input-base" class="mg-input-label">Base</label>
+                <input id="demo-input-base" type="text" class="mg-input" placeholder="Base input" autocomplete="off">
+            </div>
+            <div>
+                <label for="demo-input-readonly" class="mg-input-label">Readonly</label>
+                <input id="demo-input-readonly" type="text" class="mg-input" value="Readonly value" readonly>
+            </div>
+            <div>
+                <label for="demo-input-underline" class="mg-input-label">Underline</label>
+                <input id="demo-input-underline" type="text" class="mg-input mg-input-underline" placeholder="Underline input">
+            </div>
+            <div>
+                <label for="demo-input-pilled" class="mg-input-label">Pilled</label>
+                <input id="demo-input-pilled" type="text" class="mg-input mg-input-pilled" placeholder="Pilled input">
+            </div>
         </div>
+
+        <div class="grid items-start gap-4 sm:grid-cols-3">
+            <input type="text" class="mg-input mg-input-sm" placeholder="Small">
+            <input type="text" class="mg-input mg-input-default" placeholder="Default">
+            <input type="text" class="mg-input mg-input-lg" placeholder="Large">
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div class="relative">
+                <label for="demo-input-leading" class="mg-input-label">Leading icon</label>
+                <span class="mg-input-leading-icon pt-7">
+                    <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/>
+                    </svg>
+                </span>
+                <input id="demo-input-leading" type="text" class="mg-input mg-input-with-leading-icon" placeholder="Search...">
+            </div>
+            <div>
+                <label for="demo-input-disabled" class="mg-input-label">Disabled</label>
+                <input id="demo-input-disabled" type="text" class="mg-input" value="Недоступно" disabled>
+            </div>
+        </div>
+
         <div>
-            <label for="demo-input-dis" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Disabled</label>
-            <input id="demo-input-dis" type="text" class="form-input" value="Недоступно" disabled>
+            <div class="mg-input-corner-hint">
+                <label for="demo-input-hint" class="mg-input-label mb-0">Corner hint</label>
+                <span class="text-sm text-gray-500 dark:text-neutral-400">Optional</span>
+            </div>
+            <input id="demo-input-hint" type="text" class="mg-input" placeholder="Address line 2">
+            <p class="mg-input-helper">Helper text для описания поля ввода.</p>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label for="demo-input-error" class="mg-input-label">Validation: error</label>
+                <input id="demo-input-error" type="text" class="mg-input mg-input-state-error" value="wrong@email">
+                <p class="mt-2 text-sm text-red-500">Введите корректный email.</p>
+            </div>
+            <div>
+                <label for="demo-input-success" class="mg-input-label">Validation: success</label>
+                <input id="demo-input-success" type="text" class="mg-input mg-input-state-success" value="ok@example.com">
+                <p class="mt-2 text-sm text-teal-500">Все отлично.</p>
+            </div>
         </div>
     </section>
 

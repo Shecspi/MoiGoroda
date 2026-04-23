@@ -430,8 +430,15 @@ export class RemoteComboboxController extends ComboboxBaseController {
 
   onFocusOpen() {
     const query = this.input.value.trim();
-    if (query.length >= this.config.minChars) {
-      this.scheduleRemoteSearch(query);
+    if (query.length < this.config.minChars) {
+      return;
+    }
+
+    if (this.state.visibleOptions.length > 0) {
+      this.open();
+      if (this.config.autoSelectFirst) {
+        this.setActiveIndex(0);
+      }
     }
   }
 

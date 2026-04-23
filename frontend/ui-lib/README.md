@@ -2,6 +2,13 @@
 
 Эта папка содержит переносимый слой интеграции для UI-компонентов на Data-API.
 
+## Именование
+
+- **`data-component`** — всегда с префиксом `mg-`: `mg-combobox-static`, `mg-combobox-remote`, `mg-select-search`.
+- **Настройки** — `data-mg-<тот же slug, что и в имени компонента>-<параметр>`: `data-mg-combobox-min-chars`, `data-mg-combobox-source-url`, `data-mg-select-search-placeholder`, `data-mg-select-search-filter-placeholder` (плейсхолдер поля фильтра в выпадашке).
+- **Внутренние узлы** — `data-mg-part="..."` (`input`, `listbox`, `option`, `native-select`, …), не `data-role`.
+- **CSS** — классы с префиксом `mg-`; корень `mg-select-search` в проекте занят стилями Preline, у виджета библиотеки корневой класс **`mg-ui-select-search`**.
+
 ## Файлы
 
 - `index.js` — экспортирует API ядра и хелперы регистрации компонентов.
@@ -50,9 +57,7 @@ import './ui-lib/auto-init.js';
     @apply mt-0.5 block text-xs text-gray-500 dark:text-neutral-400;
   }
 
-  .mg-combobox-option.is-active {
-    @apply bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200;
-  }
+  /* .mg-combobox-option.is-active — см. styles/combobox.css */
 
   .mg-combobox-empty {
     @apply px-3 py-2 text-sm text-gray-500 dark:text-neutral-400;
@@ -67,20 +72,20 @@ import './ui-lib/auto-init.js';
 ```html
 <div
   id="city-combobox"
-  data-component="combobox-static"
-  data-combobox-min-chars="1"
-  data-combobox-max-items="20"
-  data-combobox-open-on-focus="true"
-  data-combobox-autoselect-first="true"
+  data-component="mg-combobox-static"
+  data-mg-combobox-min-chars="1"
+  data-mg-combobox-max-items="20"
+  data-mg-combobox-open-on-focus="true"
+  data-mg-combobox-autoselect-first="true"
 >
   <div style="position: relative;">
-    <input data-role="input" type="text" placeholder="Начните вводить город..." />
-    <input data-role="hidden-input" name="city_id" type="hidden" />
-    <ul data-role="listbox" class="mg-combobox-dropdown hidden">
-      <li data-role="option" data-value="1" data-label="Москва" class="mg-combobox-option">
+    <input data-mg-part="input" type="text" placeholder="Начните вводить город..." />
+    <input data-mg-part="hidden-input" name="city_id" type="hidden" />
+    <ul data-mg-part="listbox" class="mg-combobox-dropdown hidden">
+      <li data-mg-part="option" data-value="1" data-label="Москва" class="mg-combobox-option">
         <span class="mg-combobox-option-title">Москва</span>
       </li>
-      <li data-role="option" data-value="2" data-label="Казань" class="mg-combobox-option">
+      <li data-mg-part="option" data-value="2" data-label="Казань" class="mg-combobox-option">
         <span class="mg-combobox-option-title">Казань</span>
       </li>
     </ul>
@@ -94,29 +99,30 @@ import './ui-lib/auto-init.js';
 
 ```html
 <div
-  data-component="combobox-remote"
-  data-combobox-source-url="/api/city/search"
-  data-combobox-query-param="query"
-  data-combobox-country-url-param="country"
-  data-combobox-value-key="id"
-  data-combobox-label-key="title"
-  data-combobox-meta-keys="region,country"
-  data-combobox-debounce="300"
+  data-component="mg-combobox-remote"
+  data-mg-combobox-source-url="/api/city/search"
+  data-mg-combobox-query-param="query"
+  data-mg-combobox-country-url-param="country"
+  data-mg-combobox-value-key="id"
+  data-mg-combobox-label-key="title"
+  data-mg-combobox-meta-keys="region,country"
+  data-mg-combobox-debounce="300"
 ></div>
 ```
 
 ## Select search (поиск по select options)
 
-`select-search` — самостоятельный компонент ui-lib для фильтрации `option` в нативном `select`.
+`mg-select-search` — самостоятельный компонент ui-lib для фильтрации `option` в нативном `select`.
 Компонент использует нативный `select` как источник данных и синхронизирует выбор обратно в него.
 
 ```html
 <div
-  data-component="select-search"
-  data-select-search-placeholder="Выберите страну"
-  data-select-search-search-placeholder="Поиск..."
+  class="mg-ui-select-search"
+  data-component="mg-select-search"
+  data-mg-select-search-placeholder="Выберите страну"
+  data-mg-select-search-filter-placeholder="Поиск..."
 >
-  <select id="id_country" data-role="native-select" class="hidden">
+  <select id="id_country" data-mg-part="native-select" class="hidden">
     <option value="">Выберите страну</option>
     <option value="RU">Россия</option>
     <option value="KZ">Казахстан</option>

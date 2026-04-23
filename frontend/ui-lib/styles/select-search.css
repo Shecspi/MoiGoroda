@@ -3,7 +3,8 @@
      * Select search: кнопка/поле + выпадашка. Панель списка визуально как .mg-combobox-dropdown (см. combobox.css),
      * пункты списка — те же .mg-combobox-option / .mg-combobox-empty.
      */
-    .mg-select-search-component {
+    /* Корень виджета (не путать с .mg-select-search в tailwind.css — стили поля поиска Preline HS Select). */
+    .mg-ui-select-search {
         @apply w-full;
     }
 

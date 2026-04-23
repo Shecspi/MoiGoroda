@@ -4,10 +4,18 @@
 <div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
     {% include 'ui_demo/_subnav.html' %}
 
-    <h1 class="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Поля форм</h1>
+    <h1 class="mb-4 text-3xl font-bold text-gray-900 dark:text-white">Поля форм</h1>
+    <div class="mb-10 max-w-3xl rounded-r-lg border-l-4 border-blue-500 bg-blue-50/80 py-3 pl-4 pr-4 text-sm text-gray-800 dark:border-blue-500/80 dark:bg-blue-950/30 dark:text-neutral-200">
+        <p class="font-medium text-gray-900 dark:text-white">Проектная библиотека компонентов (<code class="text-xs">frontend/ui-lib</code>)</p>
+        <p class="mt-1 text-gray-700 dark:text-neutral-300">
+            Блоки с корнем <code class="text-xs">data-component="mg-…"</code> — это инициализируемые виджеты (JS, события <code class="text-xs">mg:…</code>, части DOM через <code class="text-xs">data-mg-part</code>).
+            Секция ниже с классами <code class="text-xs">.mg-input</code> — демо стилей из Tailwind-набора; не путайте с компонентами библиотеки.
+        </p>
+    </div>
 
     <section class="mb-10 max-w-3xl space-y-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Input components</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Input components (только стили)</h2>
+        <p class="text-sm text-gray-600 dark:text-neutral-400">Классы <code class="text-xs">.mg-input</code> / <code class="text-xs">.mg-input-label</code> — из общего CSS, без <code class="text-xs">data-component</code>.</p>
 
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
@@ -86,11 +94,11 @@
     </section>
 
     <section class="mb-10 max-w-xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">ui-lib select-search</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-select-search (ui-lib)</h2>
         <div class="space-y-1 text-xs text-gray-600 dark:text-neutral-400">
-            <p>Как подключить:</p>
+            <p>Регистрация: <code class="text-xs">data-component="mg-select-search"</code>, настройки — <code class="text-xs">data-mg-select-search-*</code>, разметка с <code class="text-xs">data-mg-part</code>.</p>
             <p>
-                В Django-шаблонах используйте include
+                В Django-шаблонах: include
                 <code>components/ui/select_search.html</code>.
             </p>
         </div>
@@ -101,10 +109,10 @@
     </section>
 
     <section class="mb-10 max-w-3xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-combobox (2 сущности: static и remote)</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-combobox-static / mg-combobox-remote (ui-lib)</h2>
         <div class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
-            <p>Компонент работает без фронтенд-фреймворка: шаблон + <code>data-*</code> конфиг + автoинициализация через <code>ui_core.js</code>.</p>
-            <p>Теперь разделен на два include: <code>combobox_static.html</code> и <code>combobox_remote.html</code>.</p>
+            <p>Компоненты без React/Vue: шаблон + <code>data-mg-combobox-*</code> + <code>data-mg-part</code> + автoинициализация <code>ui_core.js</code> по <code>data-component="mg-combobox-static"</code> или <code>mg-combobox-remote</code>.</p>
+            <p>Два include: <code>combobox_static.html</code> и <code>combobox_remote.html</code>.</p>
         </div>
 
         <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm dark:border-neutral-700 dark:bg-neutral-900/50">
@@ -134,12 +142,12 @@ autoselect_first="true"
                 </ul>
             </div>
             <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
-                <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Поведение (data-атрибуты)</p>
+                <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Поведение (в HTML — <code class="text-xs">data-mg-combobox-…</code>)</p>
                 <ul class="space-y-1">
-                    <li><code>open_on_focus</code>: открывать список при focus</li>
-                    <li><code>min_chars</code>: минимум символов для поиска</li>
-                    <li><code>max_items</code>: максимум элементов в списке</li>
-                    <li><code>autoselect_first</code>: автофокус на первый элемент</li>
+                    <li><code>open_on_focus</code> → <code>data-mg-combobox-open-on-focus</code></li>
+                    <li><code>min_chars</code> → <code>data-mg-combobox-min-chars</code></li>
+                    <li><code>max_items</code> → <code>data-mg-combobox-max-items</code></li>
+                    <li><code>autoselect_first</code> → <code>data-mg-combobox-autoselect-first</code></li>
                 </ul>
             </div>
         </div>
@@ -183,7 +191,7 @@ node.addEventListener('mg:combobox:select', (event) =&gt; {
 
         <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
             <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Переинициализация для динамического DOM</p>
-            <pre class="overflow-x-auto rounded-lg bg-gray-50 p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>// После вставки HTML фрагмента с data-component="combobox-static" или "combobox-remote"
+            <pre class="overflow-x-auto rounded-lg bg-gray-50 p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>// После вставки HTML с data-component="mg-combobox-static" или "mg-combobox-remote"
 window.MGUi.initAll(containerElement);
 
 // При удалении фрагмента (чтобы снять обработчики)

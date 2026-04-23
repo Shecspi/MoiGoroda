@@ -4,10 +4,9 @@ import { ComboboxController, StaticComboboxController, RemoteComboboxController 
 import { SelectSearchController } from './components/select-search';
 
 export function registerDefaultComponents() {
-  registerComponent('combobox', ComboboxController);
-  registerComponent('combobox-static', StaticComboboxController);
-  registerComponent('combobox-remote', RemoteComboboxController);
-  registerComponent('select-search', SelectSearchController);
+  registerComponent('mg-combobox-static', StaticComboboxController);
+  registerComponent('mg-combobox-remote', RemoteComboboxController);
+  registerComponent('mg-select-search', SelectSearchController);
 }
 
 export {

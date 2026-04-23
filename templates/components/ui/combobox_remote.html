@@ -31,20 +31,20 @@ Optional:
 {% endcomment %}
 <div
     id="{{ combobox_id }}"
-    data-component="combobox-remote"
-    data-combobox-open-on-focus="{{ open_on_focus|default:'true' }}"
-    data-combobox-min-chars="{{ min_chars|default:'1' }}"
-    data-combobox-max-items="{{ max_items|default:'20' }}"
-    data-combobox-autoselect-first="{{ autoselect_first|default:'true' }}"
-    data-combobox-source-url="{{ source_url }}"
-    data-combobox-query-param="{{ query_param|default:'query' }}"
-    {% if country_url_param %}data-combobox-country-url-param="{{ country_url_param }}"{% endif %}
-    data-combobox-value-key="{{ value_key|default:'value' }}"
-    data-combobox-label-key="{{ label_key|default:'label' }}"
-    {% if meta_keys %}data-combobox-meta-keys="{{ meta_keys }}"{% endif %}
-    data-combobox-loading-text="{{ loading_text|default:'Загрузка...' }}"
-    data-combobox-empty-text="{{ empty_text|default:'Ничего не найдено' }}"
-    data-combobox-debounce="{{ debounce|default:'250' }}"
+    data-component="mg-combobox-remote"
+    data-mg-combobox-open-on-focus="{{ open_on_focus|default:'true' }}"
+    data-mg-combobox-min-chars="{{ min_chars|default:'1' }}"
+    data-mg-combobox-max-items="{{ max_items|default:'20' }}"
+    data-mg-combobox-autoselect-first="{{ autoselect_first|default:'true' }}"
+    data-mg-combobox-source-url="{{ source_url }}"
+    data-mg-combobox-query-param="{{ query_param|default:'query' }}"
+    {% if country_url_param %}data-mg-combobox-country-url-param="{{ country_url_param }}"{% endif %}
+    data-mg-combobox-value-key="{{ value_key|default:'value' }}"
+    data-mg-combobox-label-key="{{ label_key|default:'label' }}"
+    {% if meta_keys %}data-mg-combobox-meta-keys="{{ meta_keys }}"{% endif %}
+    data-mg-combobox-loading-text="{{ loading_text|default:'Загрузка...' }}"
+    data-mg-combobox-empty-text="{{ empty_text|default:'Ничего не найдено' }}"
+    data-mg-combobox-debounce="{{ debounce|default:'250' }}"
     class="mg-combobox {{ root_class|default:'' }}"
 >
     {% if label %}
@@ -64,18 +64,18 @@ Optional:
             type="text"
             autocomplete="off"
             spellcheck="false"
-            data-role="input"
+            data-mg-part="input"
             class="{{ input_class|default:'mg-input mg-input-default' }}{% if show_leading_icon %} mg-input-with-leading-icon{% endif %}"
             placeholder="{{ placeholder|default:'Начните вводить...' }}"
             value="{{ input_value|default:'' }}"
         >
         <input
             type="hidden"
-            data-role="hidden-input"
+            data-mg-part="hidden-input"
             name="{{ hidden_name }}"
             value="{{ value|default:'' }}"
         >
-        <ul data-role="listbox" class="mg-combobox-dropdown absolute left-0 right-0 z-30 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-gray-200 bg-white p-1 shadow-lg hidden dark:border-neutral-700 dark:bg-neutral-900 {{ listbox_class|default:'' }}">
+        <ul data-mg-part="listbox" class="mg-combobox-dropdown absolute left-0 right-0 z-30 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-gray-200 bg-white p-1 shadow-lg hidden dark:border-neutral-700 dark:bg-neutral-900 {{ listbox_class|default:'' }}">
             <li class="mg-combobox-empty px-3 py-2 text-sm text-gray-500 dark:text-neutral-400">{{ empty_text|default:'Начните вводить для поиска' }}</li>
         </ul>
     </div>

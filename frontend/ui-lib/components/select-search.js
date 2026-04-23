@@ -18,17 +18,17 @@ function normalizeText(value) {
 export class SelectSearchController {
   constructor(root) {
     this.root = root;
-    this.nativeSelect = root.querySelector('[data-role="native-select"]');
-    this.toggle = root.querySelector('[data-role="toggle"]');
-    this.toggleLabel = root.querySelector('[data-role="toggle-label"]');
-    this.dropdown = root.querySelector('[data-role="dropdown"]');
-    this.searchInput = root.querySelector('[data-role="search-input"]');
-    this.optionsList = root.querySelector('[data-role="options-list"]');
+    this.nativeSelect = root.querySelector('[data-mg-part="native-select"]');
+    this.toggle = root.querySelector('[data-mg-part="toggle"]');
+    this.toggleLabel = root.querySelector('[data-mg-part="toggle-label"]');
+    this.dropdown = root.querySelector('[data-mg-part="dropdown"]');
+    this.searchInput = root.querySelector('[data-mg-part="search-input"]');
+    this.optionsList = root.querySelector('[data-mg-part="options-list"]');
 
     this.config = {
-      placeholder: root.dataset.selectSearchPlaceholder || 'Выберите значение',
-      searchPlaceholder: root.dataset.selectSearchSearchPlaceholder || 'Поиск...',
-      emptyText: root.dataset.selectSearchEmptyText || 'Ничего не найдено',
+      placeholder: root.dataset.mgSelectSearchPlaceholder || 'Выберите значение',
+      searchPlaceholder: root.dataset.mgSelectSearchFilterPlaceholder || 'Поиск...',
+      emptyText: root.dataset.mgSelectSearchEmptyText || 'Ничего не найдено',
     };
 
     this.state = {
@@ -155,7 +155,7 @@ export class SelectSearchController {
 
     this.state.filteredOptions.forEach((option) => {
       const optionNode = document.createElement('li');
-      optionNode.dataset.role = 'option';
+      optionNode.setAttribute('data-mg-part', 'option');
       optionNode.dataset.index = String(option.index);
       optionNode.setAttribute('role', 'option');
       optionNode.className = 'mg-combobox-option';
@@ -242,7 +242,7 @@ export class SelectSearchController {
   }
 
   handleOptionsClick(event) {
-    const optionNode = event.target.closest('[data-role="option"]');
+    const optionNode = event.target.closest('[data-mg-part="option"]');
     if (!optionNode || !this.optionsList.contains(optionNode)) {
       return;
     }

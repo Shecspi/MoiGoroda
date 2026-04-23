@@ -24,11 +24,11 @@ Optional:
 {% endcomment %}
 <div
     id="{{ combobox_id }}"
-    data-component="combobox-static"
-    data-combobox-open-on-focus="{{ open_on_focus|default:'true' }}"
-    data-combobox-min-chars="{{ min_chars|default:'0' }}"
-    data-combobox-max-items="{{ max_items|default:'20' }}"
-    data-combobox-autoselect-first="{{ autoselect_first|default:'true' }}"
+    data-component="mg-combobox-static"
+    data-mg-combobox-open-on-focus="{{ open_on_focus|default:'true' }}"
+    data-mg-combobox-min-chars="{{ min_chars|default:'0' }}"
+    data-mg-combobox-max-items="{{ max_items|default:'20' }}"
+    data-mg-combobox-autoselect-first="{{ autoselect_first|default:'true' }}"
     class="mg-combobox {{ root_class|default:'' }}"
 >
     {% if label %}
@@ -48,22 +48,22 @@ Optional:
             type="text"
             autocomplete="off"
             spellcheck="false"
-            data-role="input"
+            data-mg-part="input"
             class="{{ input_class|default:'mg-input mg-input-default' }}{% if show_leading_icon %} mg-input-with-leading-icon{% endif %}"
             placeholder="{{ placeholder|default:'Начните вводить...' }}"
             value="{{ input_value|default:'' }}"
         >
         <input
             type="hidden"
-            data-role="hidden-input"
+            data-mg-part="hidden-input"
             name="{{ hidden_name }}"
             value="{{ value|default:'' }}"
         >
 
-        <ul data-role="listbox" class="mg-combobox-dropdown absolute left-0 right-0 z-30 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-gray-200 bg-white p-1 shadow-lg hidden dark:border-neutral-700 dark:bg-neutral-900 {{ listbox_class|default:'' }}">
+        <ul data-mg-part="listbox" class="mg-combobox-dropdown absolute left-0 right-0 z-30 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-gray-200 bg-white p-1 shadow-lg hidden dark:border-neutral-700 dark:bg-neutral-900 {{ listbox_class|default:'' }}">
             {% for option in options %}
                 <li
-                    data-role="option"
+                    data-mg-part="option"
                     data-value="{{ option.value }}"
                     data-label="{{ option.label }}"
                     class="mg-combobox-option cursor-pointer rounded-md px-3 py-2 text-sm text-gray-800 transition hover:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-800 {% if option.meta %}has-meta{% endif %}"

@@ -14,10 +14,10 @@ function dispatchComboboxEvent(root, name, detail = {}) {
 class ComboboxBaseController {
   constructor(root) {
     this.root = root;
-    this.input = root.querySelector('[data-role="input"]');
-    this.listbox = root.querySelector('[data-role="listbox"]');
-    this.hiddenInput = root.querySelector('[data-role="hidden-input"]');
-    this.optionNodes = Array.from(root.querySelectorAll('[data-role="option"]'));
+    this.input = root.querySelector('[data-mg-part="input"]');
+    this.listbox = root.querySelector('[data-mg-part="listbox"]');
+    this.hiddenInput = root.querySelector('[data-mg-part="hidden-input"]');
+    this.optionNodes = Array.from(root.querySelectorAll('[data-mg-part="option"]'));
 
     this.state = {
       isOpen: false,
@@ -27,10 +27,10 @@ class ComboboxBaseController {
     };
 
     this.config = {
-      openOnFocus: parseBooleanAttr(root.dataset.comboboxOpenOnFocus, true),
-      minChars: Math.max(0, parseNumberAttr(root.dataset.comboboxMinChars, 0)),
-      maxItems: Math.max(1, parseNumberAttr(root.dataset.comboboxMaxItems, 20)),
-      autoSelectFirst: parseBooleanAttr(root.dataset.comboboxAutoselectFirst, true),
+      openOnFocus: parseBooleanAttr(root.dataset.mgComboboxOpenOnFocus, true),
+      minChars: Math.max(0, parseNumberAttr(root.dataset.mgComboboxMinChars, 0)),
+      maxItems: Math.max(1, parseNumberAttr(root.dataset.mgComboboxMaxItems, 20)),
+      autoSelectFirst: parseBooleanAttr(root.dataset.mgComboboxAutoselectFirst, true),
     };
 
     this.handleInput = this.handleInput.bind(this);
@@ -197,7 +197,7 @@ class ComboboxBaseController {
   }
 
   handleOptionClick(event) {
-    const option = event.target.closest('[data-role="option"]');
+    const option = event.target.closest('[data-mg-part="option"]');
     if (!option || !this.listbox.contains(option)) {
       return;
     }
@@ -292,7 +292,7 @@ class ComboboxBaseController {
       }
 
       const option = document.createElement('li');
-      option.setAttribute('data-role', 'option');
+      option.setAttribute('data-mg-part', 'option');
       option.className = 'mg-combobox-option';
       option.dataset.value = String(value);
       option.dataset.label = String(label);
@@ -390,18 +390,18 @@ export class RemoteComboboxController extends ComboboxBaseController {
     super(root);
     this.config = {
       ...this.config,
-      remoteUrl: root.dataset.comboboxSourceUrl || '',
-      queryParam: root.dataset.comboboxQueryParam || 'query',
-      countryParamFromUrl: root.dataset.comboboxCountryUrlParam || '',
-      valueKey: root.dataset.comboboxValueKey || 'value',
-      labelKey: root.dataset.comboboxLabelKey || 'label',
-      metaKeys: (root.dataset.comboboxMetaKeys || '')
+      remoteUrl: root.dataset.mgComboboxSourceUrl || '',
+      queryParam: root.dataset.mgComboboxQueryParam || 'query',
+      countryParamFromUrl: root.dataset.mgComboboxCountryUrlParam || '',
+      valueKey: root.dataset.mgComboboxValueKey || 'value',
+      labelKey: root.dataset.mgComboboxLabelKey || 'label',
+      metaKeys: (root.dataset.mgComboboxMetaKeys || '')
         .split(',')
         .map((key) => key.trim())
         .filter(Boolean),
-      loadingText: root.dataset.comboboxLoadingText || 'Загрузка...',
-      emptyText: root.dataset.comboboxEmptyText || 'Ничего не найдено',
-      debounceMs: Math.max(0, parseNumberAttr(root.dataset.comboboxDebounce, 250)),
+      loadingText: root.dataset.mgComboboxLoadingText || 'Загрузка...',
+      emptyText: root.dataset.mgComboboxEmptyText || 'Ничего не найдено',
+      debounceMs: Math.max(0, parseNumberAttr(root.dataset.mgComboboxDebounce, 250)),
     };
     this.fetchDebounceTimer = null;
     this.currentAbortController = null;
@@ -525,5 +525,4 @@ export class RemoteComboboxController extends ComboboxBaseController {
   }
 }
 
-// Backward compatible alias for existing imports.
 export class ComboboxController extends StaticComboboxController {}

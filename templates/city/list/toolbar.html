@@ -3,7 +3,6 @@
 {% load static %}
 {% load filters %}
 
-{% vite_css 'css/autoComplete' %}
 {% vite_css 'css/select-field' %}
 
 <!-- Панель инструментов -->
@@ -42,18 +41,7 @@
 
     <!-- Поиск города: до sm — блок на всю ширину; с sm — гибкая колонка рядом с селектом страны -->
     <div class="relative w-full min-w-0 sm:w-auto sm:flex-1 sm:min-w-[220px]">
-        <span class="mg-input-leading-icon">
-            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/>
-            </svg>
-        </span>
-        <div id="city_search_wrapper" class="city-search-autocomplete">
-            <input id="city-search"
-                   type="text"
-                   autocomplete="off"
-                   class="mg-input mg-input-with-leading-icon"
-                   placeholder="Начните вводить название города...">
-        </div>
+        {% include "components/ui/combobox_remote.html" with combobox_id="city-search-combobox" input_id="city-search" hidden_name="city_search_id" placeholder="Начните вводить название города..." show_leading_icon=True input_class="mg-input mg-input-with-leading-icon" source_url="/api/city/search" country_url_param="country" value_key="id" label_key="title" meta_keys="region,country" min_chars="1" max_items="20" debounce="300" loading_text="Загрузка..." empty_text="Ничего не найдено" %}
     </div>
 
     <!-- Селект страны: Preline HSSelect, конфиг как у формы создания города (hs_select_search_single_config) -->

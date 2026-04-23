@@ -125,6 +125,104 @@
         </div>
     </section>
 
+    <section class="mb-10 max-w-3xl space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-combobox (2 сущности: static и remote)</h2>
+        <div class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+            <p>Компонент работает без фронтенд-фреймворка: шаблон + <code>data-*</code> конфиг + автoинициализация через <code>ui_core.js</code>.</p>
+            <p>Теперь разделен на два include: <code>combobox_static.html</code> и <code>combobox_remote.html</code>.</p>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm dark:border-neutral-700 dark:bg-neutral-900/50">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Базовый include (статические опции)</p>
+            <pre class="overflow-x-auto rounded-lg bg-white p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>{% templatetag openblock %} include "components/ui/combobox_static.html" with
+combobox_id="city-search"
+input_id="city-search-input"
+hidden_name="city_id"
+label="Город"
+placeholder="Начните вводить..."
+options=demo_combobox_options
+min_chars="0"
+max_items="20"
+open_on_focus="true"
+autoselect_first="true"
+{% templatetag closeblock %}</code></pre>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+                <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Основные параметры include</p>
+                <ul class="space-y-1">
+                    <li><code>combobox_id</code>, <code>input_id</code>, <code>hidden_name</code></li>
+                    <li><code>options</code> (list dict: <code>value</code>, <code>label</code>)</li>
+                    <li><code>label</code>, <code>placeholder</code>, <code>value</code>, <code>input_value</code></li>
+                    <li><code>show_leading_icon</code>, <code>root_class</code>, <code>input_class</code>, <code>listbox_class</code></li>
+                </ul>
+            </div>
+            <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+                <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Поведение (data-атрибуты)</p>
+                <ul class="space-y-1">
+                    <li><code>open_on_focus</code>: открывать список при focus</li>
+                    <li><code>min_chars</code>: минимум символов для поиска</li>
+                    <li><code>max_items</code>: максимум элементов в списке</li>
+                    <li><code>autoselect_first</code>: автофокус на первый элемент</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Remote-режим (через include combobox_remote.html)</p>
+            <ul class="space-y-1">
+                <li><code>source_url</code> — endpoint для поиска (например, <code>/api/city/search</code>).</li>
+                <li><code>query_param</code> — имя query-параметра (по умолчанию <code>query</code>).</li>
+                <li><code>country_url_param</code> — дополнительный фильтр из текущего URL.</li>
+                <li><code>value_key</code>, <code>label_key</code> — поля из JSON-ответа.</li>
+                <li><code>meta_keys</code> — дополнительные поля второй строкой в опции.</li>
+                <li><code>debounce</code>, <code>loading_text</code>, <code>empty_text</code>.</li>
+            </ul>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">События компонента</p>
+            <ul class="space-y-1">
+                <li><code>mg:combobox:open</code> — список открыт.</li>
+                <li><code>mg:combobox:close</code> — список закрыт.</li>
+                <li><code>mg:combobox:highlight</code> — смена активной опции (detail: <code>value</code>, <code>label</code>).</li>
+                <li><code>mg:combobox:select</code> — выбор значения (detail: <code>value</code>, <code>label</code>, <code>source</code>).</li>
+            </ul>
+            <pre class="mt-3 overflow-x-auto rounded-lg bg-gray-50 p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>const node = document.getElementById('city-search-combobox');
+node.addEventListener('mg:combobox:select', (event) =&gt; {
+  const { value } = event.detail;
+  window.location.href = `/city/${value}`;
+});</code></pre>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Клавиатура и доступность</p>
+            <ul class="space-y-1">
+                <li><code>ArrowDown/ArrowUp</code> — перемещение по опциям.</li>
+                <li><code>Enter</code> — выбор активной опции.</li>
+                <li><code>Escape</code> или клик вне компонента — закрытие.</li>
+                <li>ARIA: <code>role="combobox"</code>, <code>role="listbox"</code>, <code>role="option"</code>, <code>aria-expanded</code>, <code>aria-activedescendant</code>.</li>
+            </ul>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Переинициализация для динамического DOM</p>
+            <pre class="overflow-x-auto rounded-lg bg-gray-50 p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>// После вставки HTML фрагмента с data-component="combobox-static" или "combobox-remote"
+window.MGUi.initAll(containerElement);
+
+// При удалении фрагмента (чтобы снять обработчики)
+window.MGUi.destroyAll(containerElement);</code></pre>
+        </div>
+
+        {% include "components/ui/combobox_static.html" with combobox_id="demo-city-combobox" input_id="demo-city-combobox-input" hidden_name="demo_city" label="Город" placeholder="Начните вводить город..." options=demo_combobox_options min_chars="0" max_items="6" open_on_focus="true" autoselect_first="true" %}
+   
+
+        <p id="demo-combobox-result" class="mg-input-helper">
+            Выбранное значение: пока не выбрано
+        </p>
+    </section>
+
     <section class="mb-10 max-w-xl space-y-4">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">color-picker</h2>
         <div>
@@ -133,4 +231,18 @@
         </div>
     </section>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const combobox = document.getElementById('demo-city-combobox');
+        const resultNode = document.getElementById('demo-combobox-result');
+
+        if (!combobox || !resultNode) return;
+
+        combobox.addEventListener('mg:combobox:select', (event) => {
+            const { value, label, source } = event.detail || {};
+            resultNode.textContent = `Выбранное значение: ${label || '-'} (${value || '-'}, ${source || 'unknown'})`;
+        });
+    });
+</script>
 {% endblock %}

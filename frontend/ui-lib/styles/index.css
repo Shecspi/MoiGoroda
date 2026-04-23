@@ -1,0 +1,8 @@
+/*
+ * Единая точка входа стилей UI-библиотеки.
+ * Добавляйте сюда новые компоненты (button.css, badge.css, ...),
+ * чтобы в приложении по-прежнему подключался только один entry: css/ui-lib.
+ */
+@import "./combobox.css" layer(components);
+
+@tailwind components;

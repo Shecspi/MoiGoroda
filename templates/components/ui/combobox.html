@@ -1,0 +1,11 @@
+{% comment %}
+Backward-compatible proxy include.
+Prefer:
+- components/ui/combobox_static.html
+- components/ui/combobox_remote.html
+{% endcomment %}
+{% if source_url %}
+    {% include "components/ui/combobox_remote.html" %}
+{% else %}
+    {% include "components/ui/combobox_static.html" %}
+{% endif %}

@@ -841,6 +841,7 @@
     .mg-input-state-success {
         @apply border-teal-500 focus:border-teal-500 focus:ring-teal-500;
     }
+
 }
 
 @layer utilities {

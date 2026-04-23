@@ -4,8 +4,8 @@
     <!-- Статистика посещений -->
     <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
         <div class="hs-tooltip [--placement:top] relative inline-block">
-            <span class="hs-tooltip-toggle stat-badge stat-badge-success">
-                <span class="stat-badge-dot"></span>
+            <span class="hs-tooltip-toggle badge badge-soft-outline-success text-sm">
+                <span class="badge-dot" aria-hidden="true"></span>
                 Всего посещено
                 <strong id="number_of_visited_cities">{{ qty_of_visited_cities }}</strong>
                 {{ "города"|plural_by_num:qty_of_visited_cities }}
@@ -16,7 +16,7 @@
         </div>
         {% if country_code %}
             <div class="hs-tooltip [--placement:top] relative inline-block">
-                <span class="hs-tooltip-toggle stat-badge stat-badge-info">
+                <span class="hs-tooltip-toggle badge badge-soft-outline-info text-sm">
                     В {{ country_name|prepositional }}:
                     <strong>{{ number_of_visited_cities_in_country }}</strong>
                     из {{ number_of_cities_in_country }}
@@ -27,7 +27,7 @@
             </div>
         {% else %}
             <div class="hs-tooltip [--placement:top] relative inline-block">
-                <span class="hs-tooltip-toggle stat-badge stat-badge-info">
+                <span class="hs-tooltip-toggle badge badge-soft-outline-info text-sm">
                     Стран:
                     <strong>{{ number_of_visited_countries }}</strong>
                 </span>

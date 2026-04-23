@@ -1,11 +1,11 @@
 ---
-description: Бейджи в UI — только компоненты из tailwind.css
+description: Бейджи в UI — стили в ui-lib (классы без изменения имён)
 alwaysApply: true
 ---
 
 # Бейджи
 
-Если нужно **добавить, изменить или стилизовать бейджи** (в шаблонах, разметке из JS и т.п.), используй **готовую систему классов** из [`frontend/css/tailwind.css`](frontend/css/tailwind.css), а не произвольные утилиты Tailwind для «чипов» и цветов с нуля.
+Если нужно **добавить, изменить или стилизовать бейджи** (в шаблонах, разметке из JS и т.п.), применяй **только готовую систему классов** из [`frontend/ui-lib/styles/badge.css`](frontend/ui-lib/styles/badge.css) (подключается вместе с библиотекой через [`frontend/ui-lib/styles/index.css`](frontend/ui-lib/styles/index.css). Отдельного Django-include или JS-компонента нет. Не копируй дизайн с нуля утилитами Tailwind. Старые `stat-badge*` сняты — в тулбарах обычные `badge` (см. [`templates/ui_demo/badges.html`](templates/ui_demo/badges.html)).
 
 - База: `badge`, модификаторы формы и размера: `badge-pill`, `badge-rounded`, `badge-rounded-md`, `badge-compact`.
 - Семантика и вид: `badge-solid-*`, `badge-soft-*`, `badge-outline-*`, `badge-soft-outline-*`, где `*` — `secondary`, `primary`, `info`, `success`, `warning`, `danger`, `plain`.

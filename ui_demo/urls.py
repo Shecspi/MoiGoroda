@@ -18,6 +18,5 @@ urlpatterns = [
     path('buttons/', views.buttons, name='buttons'),
     path('badges/', views.badges, name='badges'),
     path('forms/', views.forms, name='forms'),
-    path('stat-badges/', views.stat_badges, name='stat_badges'),
     path('misc/', views.misc, name='misc'),
 ]

@@ -1,9 +1,10 @@
 /*
  * Единая точка входа стилей UI-библиотеки.
- * Добавляйте сюда новые компоненты (button.css, badge.css, ...),
+ * Добавляйте сюда стили: виджеты (combobox, select-search) и примитивы вроде badge.css (только классы, без JS),
  * чтобы в приложении по-прежнему подключался только один entry: css/ui-lib.
  */
 @import "./combobox.css" layer(components);
 @import "./select-search.css" layer(components);
+@import "./badge.css" layer(components);
 
 @tailwind components;

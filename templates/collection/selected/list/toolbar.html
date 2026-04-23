@@ -6,8 +6,8 @@
     <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
         {% if user.is_authenticated %}
             <div class="hs-tooltip [--placement:top] relative inline-block">
-                <span class="hs-tooltip-toggle stat-badge stat-badge-success">
-                    <span class="stat-badge-dot"></span>
+                <span class="hs-tooltip-toggle badge badge-soft-outline-success text-sm">
+                    <span class="badge-dot" aria-hidden="true"></span>
                     {{ change__visited|title }}:
                     <strong>{{ qty_of_visited_cities }}</strong>
                     {{ change__city }} из {{ qty_of_cities }}
@@ -18,8 +18,8 @@
             </div>
         {% else %}
             <div class="hs-tooltip [--placement:top] relative inline-block">
-                <span class="hs-tooltip-toggle stat-badge stat-badge-warning">
-                    <span class="stat-badge-dot"></span>
+                <span class="hs-tooltip-toggle badge badge-soft-outline-warning text-sm">
+                    <span class="badge-dot" aria-hidden="true"></span>
                     Городов в коллекции:
                     <strong>{{ qty_of_cities }}</strong>
                 </span>

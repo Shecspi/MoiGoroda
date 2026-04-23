@@ -9,8 +9,8 @@
     {% elif viewing_others_collection %}
     <!-- Просмотр чужой публичной коллекции: только счётчик и кнопка «Мои места» -->
     <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
-        <span class="stat-badge stat-badge-success">
-            <span class="stat-badge-dot"></span>
+        <span class="badge badge-soft-outline-success text-sm">
+            <span class="badge-dot" aria-hidden="true"></span>
             <span>Мест в коллекции: <strong>{{ collection_places_count }}</strong></span>
         </span>
     </div>
@@ -58,8 +58,8 @@
     <!-- Статистика -->
     <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
         <div class="relative inline-block" id="block-statistic">
-            <span class="stat-badge stat-badge-success" id="block-qty_places" title="Количество отмеченных мест на карте">
-                <span class="stat-badge-dot"></span>
+            <span class="badge badge-soft-outline-success text-sm" id="block-qty_places" title="Количество отмеченных мест на карте">
+                <span class="badge-dot" aria-hidden="true"></span>
                 <span id="block-qty_places-text">
                     <div class="inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" role="status">
                         <span class="sr-only">Загрузка...</span>

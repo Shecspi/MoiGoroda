@@ -90,10 +90,5 @@ def forms(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-def stat_badges(request: HttpRequest) -> HttpResponse:
-    return _render(request, 'ui_demo/stat_badges.html', 'Статистические бейджи')
-
-
-@login_required
 def misc(request: HttpRequest) -> HttpResponse:
     return _render(request, 'ui_demo/misc.html', 'Прочее')

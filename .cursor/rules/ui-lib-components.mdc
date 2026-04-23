@@ -8,9 +8,9 @@ alwaysApply: true
 При **создании** или **редактировании** переиспользуемых UI-компонентов (селекты, комбобоксы, кастомные поля, выпадашки с поиском и т.п.) работай как с **внутренней библиотекой** в [`frontend/ui-lib/`](frontend/ui-lib/).
 
 - **Логика** (инициализация, события, `data-*` контракт, регистрация в `registerComponent`, авто-инициализация) — в [`frontend/ui-lib/components/`](frontend/ui-lib/components/) и реестр в [`frontend/ui-lib/index.js`](frontend/ui-lib/index.js).
-- **Стили** — в [`frontend/ui-lib/styles/`](frontend/ui-lib/styles/), подключать через единую точку [`frontend/ui-lib/styles/index.css`](frontend/ui-lib/styles/index.css) (и через сборку, например `css/ui-lib`).
+- **Стили** — в [`frontend/ui-lib/styles/`](frontend/ui-lib/styles/) (в т.ч. [`badge.css`](frontend/ui-lib/styles/badge.css) — бейджи), подключать через единую точку [`frontend/ui-lib/styles/index.css`](frontend/ui-lib/styles/index.css) (и через сборку, например `css/ui-lib`).
 
-В **Django-шаблонах** допустимы только **тонкие** include-обёртки: разметка + `data-component` + нужные `data-*`, без внешних UI-библиотек (Preline HSSelect и т.д.) **для той части, которую мы вынесли в ui-lib**. Пример размещения include: [`templates/components/ui/`](templates/components/ui/).
+В **Django-шаблонах** допустимы только **тонкие** include-обёртки для **интерактивных** виджетов: `data-component` + `data-mg-*` и разметка (см. [`templates/components/ui/`](templates/components/ui/)). **Бейджи** — не компоненты: только CSS-классы в разметке, без include. Без внешних UI-библиотек (Preline HSSelect и т.д.) **для той части, которую мы вынесли в ui-lib**.
 
 - Демо/справка по переносимой библиотеке: [`frontend/ui-lib/README.md`](frontend/ui-lib/README.md); страница демо: [`templates/ui_demo/`](templates/ui_demo/).
 

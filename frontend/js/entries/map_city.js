@@ -141,7 +141,7 @@ async function getVisitedCities() {
 
 /**
  * Инициализирует выпадающий список годов и загружает годы через API.
- * Preline UI автоматически инициализирует компонент через autoInit().
+ * UI-lib компонент mg-select инициализируется через auto-init.js.
  */
 async function initYearFilter() {
     const yearSelect = document.getElementById('id_year_filter');
@@ -149,19 +149,6 @@ async function initYearFilter() {
     if (!yearSelect) {
         return;
     }
-
-    // Инициализируем компонент сразу с disabled и placeholder "Загрузка..."
-    // Убираем класс hidden перед инициализацией
-    if (yearSelect.classList.contains('hidden')) {
-        yearSelect.classList.remove('hidden');
-    }
-
-    // Инициализируем Preline UI компонент с disabled состоянием
-    requestAnimationFrame(() => {
-        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-            window.HSStaticMethods.autoInit();
-        }
-    });
 
     // Получаем текущий выбранный код страны из URL для фильтрации
     const countryCode = selectedCountryCode;
@@ -215,41 +202,8 @@ async function initYearFilter() {
             yearSelect.appendChild(option);
         });
 
-        // Убираем disabled и обновляем placeholder
+        // Убираем disabled после загрузки опций
         yearSelect.removeAttribute('disabled');
-        
-        // Обновляем data-hs-select для изменения placeholder
-        const dataHsSelect = yearSelect.getAttribute('data-hs-select');
-        if (dataHsSelect) {
-            try {
-                const config = JSON.parse(dataHsSelect);
-                config.placeholder = 'Все годы';
-                yearSelect.setAttribute('data-hs-select', JSON.stringify(config));
-            } catch (e) {
-                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
-            }
-        }
-
-        // Если компонент уже был инициализирован, переинициализируем его
-        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
-        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
-            hsSelectInstance.destroy();
-        }
-        
-        // Переинициализируем компонент с новыми опциями
-        // Используем requestAnimationFrame для гарантии, что DOM обновлен
-        requestAnimationFrame(() => {
-            if (window.HSSelect) {
-                try {
-                    new window.HSSelect('#id_year_filter');
-                } catch (e) {
-                    // Если не получилось, используем autoInit
-                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-                        window.HSStaticMethods.autoInit();
-                    }
-                }
-            }
-        });
 
         // Обработчик изменений значения
         const handleChange = () => {
@@ -269,37 +223,7 @@ async function initYearFilter() {
         // Показываем сообщение об ошибке пользователю
         const errorMessage = error.message || 'Не удалось загрузить список годов посещений';
         showDangerToast('Ошибка загрузки', errorMessage);
-        
-        // Обновляем placeholder для отображения ошибки
-        const dataHsSelect = yearSelect.getAttribute('data-hs-select');
-        if (dataHsSelect) {
-            try {
-                const config = JSON.parse(dataHsSelect);
-                config.placeholder = 'Ошибка загрузки';
-                yearSelect.setAttribute('data-hs-select', JSON.stringify(config));
-            } catch (e) {
-                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
-            }
-        }
-        
-        // Переинициализируем компонент с обновлённым placeholder
-        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
-        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
-            hsSelectInstance.destroy();
-        }
-        
-        requestAnimationFrame(() => {
-            if (window.HSSelect) {
-                try {
-                    new window.HSSelect('#id_year_filter');
-                } catch (e) {
-                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-                        window.HSStaticMethods.autoInit();
-                    }
-                }
-            }
-        });
-        
+
         // Компонент остаётся в disabled состоянии
     }
 }
@@ -439,36 +363,7 @@ async function updateYearFilterIfNeeded(year) {
             yearSelect.appendChild(option);
         });
 
-        // Обновляем data-hs-select для изменения placeholder
-        const dataHsSelect = yearSelect.getAttribute('data-hs-select');
-        if (dataHsSelect) {
-            try {
-                const config = JSON.parse(dataHsSelect);
-                config.placeholder = 'Все годы';
-                yearSelect.setAttribute('data-hs-select', JSON.stringify(config));
-            } catch (e) {
-                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
-            }
-        }
-
-        // Если компонент уже был инициализирован, переинициализируем его
-        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
-        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
-            hsSelectInstance.destroy();
-        }
-        
-        // Переинициализируем компонент с новыми опциями
-        requestAnimationFrame(() => {
-            if (window.HSSelect) {
-                try {
-                    new window.HSSelect('#id_year_filter');
-                } catch (e) {
-                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-                        window.HSStaticMethods.autoInit();
-                    }
-                }
-            }
-        });
+        yearSelect.removeAttribute('disabled');
     } catch (error) {
         console.error('Ошибка при обновлении списка годов:', error);
     }

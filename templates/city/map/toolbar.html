@@ -2,7 +2,7 @@
 
 <div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
     <!-- Статистика посещений -->
-    <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
+    <div class="flex flex-wrap items-center gap-3 self-center basis-full 2xl:basis-auto" id="section-stats">
         <span class="badge badge-soft-outline-success" title="Общее количество городов, которые Вы посетили">
             <span class="badge-dot" aria-hidden="true"></span>
             <span>
@@ -29,80 +29,84 @@
         {% endif %}
     </div>
 
-    <div class="relative inline-block grow basis-full self-center md:basis-auto md:min-w-[280px] z-10" title="Выберите страну для фильтрации городов на карте">
+    <div class="relative inline-block grow basis-full self-center min-w-0 sm:order-1 sm:grow-0 sm:basis-[calc(50%-0.375rem)] md:basis-[calc(33.333%-0.5rem)] 2xl:order-none 2xl:grow 2xl:basis-auto 2xl:min-w-[280px] z-10" title="Выберите страну для фильтрации городов на карте">
         {% include "components/ui/select_search.html" with select_id="id_country" select_class="country-preline-select country-preline-select--map w-full min-w-0 --prevent-on-load-init" dropdown_z_class="z-20" placeholder="Загрузка..." loading_option_value="__mg_country_loading__" loading_option_label="Загрузка..." %}
     </div>
 
     {% if user.is_authenticated %}
-        <div class="z-[40] relative inline-block basis-full self-center sm:basis-auto sm:min-w-[200px] sm:order-2" title="Выберите год для фильтрации городов на карте">
+        <div class="z-[40] relative inline-block basis-full self-center min-w-0 sm:order-2 sm:basis-[calc(50%-0.375rem)] md:basis-[calc(33.333%-0.5rem)] 2xl:order-none 2xl:basis-auto 2xl:min-w-[200px]" title="Выберите год для фильтрации городов на карте">
             {% include "components/ui/select.html" with select_id="id_year_filter" select_class="year-preline-select w-full min-w-0 --prevent-on-load-init" dropdown_z_class="z-50" placeholder="Загрузка..." loading_option_value="" loading_option_label="Загрузка..." %}
         </div>
     {% endif %}
 
-    <!-- Помощь -->
-    <div class="relative inline-block self-center">
-        <button class="btn btn-default btn-elevated"
-                id="btn_help"
-                data-hs-overlay="#helpModal"
-                title="Открыть подробное описание функций страницы">
-            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/>
-            </svg>
-            Помощь
-        </button>
-    </div>
-    <!-- ^^^ Помощь -->
+    <div class="flex w-full min-w-0 max-w-full flex-col gap-3 sm:order-3 sm:max-w-none sm:flex-row sm:items-center sm:gap-3 sm:basis-full md:contents">
+        <div class="relative w-full self-center min-w-0 sm:flex-1 sm:min-w-0 md:max-w-full md:flex-none md:order-3 md:basis-[calc(33.333%-0.5rem)] md:w-full 2xl:order-none 2xl:basis-auto 2xl:w-auto sm:inline-block">
+            <a href="{% url 'city-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}"
+               class="btn btn-default btn-soft-outline-info w-full min-w-0 justify-center 2xl:w-auto"
+               title="Открыть полный список посещённых городов">
+                <svg class="btn-icon size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+                <span class="truncate">Посмотреть список</span>
+            </a>
+        </div>
 
-    <!-- Показать маркеры посещённых мест -->
-    <div class="relative inline-block self-center">
-        <button class="btn btn-default btn-outline-primary"
-                id="btn_show-places"
-                title="Показать маркеры посещённых мест на карте">
-            <svg class="btn-icon size-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-            </svg>
-        </button>
-    </div>
-    <!-- ^^^ Показать маркеры посещённых мест -->
+        <div class="flex w-full max-w-full min-w-0 flex-none items-center gap-3 sm:w-auto md:order-4 md:basis-full md:max-w-none md:w-full 2xl:contents">
+            <!-- Помощь -->
+            <div class="relative min-w-0 flex-none self-center 2xl:order-none">
+                <button class="btn btn-default btn-elevated w-auto"
+                        id="btn_help"
+                        data-hs-overlay="#helpModal"
+                        title="Открыть подробное описание функций страницы">
+                    <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/>
+                    </svg>
+                    <span>Помощь</span>
+                </button>
+            </div>
+            <!-- ^^^ Помощь -->
 
-    <!-- Показать непосещённые города -->
-    <div class="relative inline-block self-center">
-        <button class="btn btn-default btn-outline-danger"
-                id="btn_show-not-visited-cities"
-                data-url="{% url 'api__get_not_visited_cities' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-                data-type="show"
-                title="Показать города, где Вы ещё не были">
-            <svg class="btn-icon size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9a3 3 0 100 6 3 3 0 000-6z"/>
-            </svg>
-        </button>
-    </div>
-    <!-- ^^^ Показать непосещённые города -->
+            <!-- Показать маркеры посещённых мест -->
+            <div class="relative flex-none self-center 2xl:order-none">
+                <button class="btn btn-default btn-outline-primary"
+                        id="btn_show-places"
+                        title="Показать маркеры посещённых мест на карте">
+                    <svg class="btn-icon size-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- ^^^ Показать маркеры посещённых мест -->
 
-    <!-- Подписки -->
-    <div class="relative inline-block self-center">
-        <button class="btn btn-default btn-outline-warning"
-                id="btn_open_modal_with_subscriptions"
-                data-hs-overlay="#subscriptionsModal"
-                title="Показать города пользователей, на которых вы подписаны"
-                {% if not is_user_has_subscriptions %}disabled{% endif %}>
-            <svg class="btn-icon size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-            </svg>
-        </button>
-    </div>
-    <!-- ^^^ Подписки -->
+            <!-- Показать непосещённые города -->
+            <div class="relative flex-none self-center 2xl:order-none">
+                <button class="btn btn-default btn-outline-danger"
+                        id="btn_show-not-visited-cities"
+                        data-url="{% url 'api__get_not_visited_cities' %}{% if country_code %}?country={{ country_code }}{% endif %}"
+                        data-type="show"
+                        title="Показать города, где Вы ещё не были">
+                    <svg class="btn-icon size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9a3 3 0 100 6 3 3 0 000-6z"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- ^^^ Показать непосещённые города -->
 
-    <div class="relative inline-block self-center">
-        <a href="{% url 'city-all-list' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-           class="btn btn-default btn-soft-outline-info"
-           title="Открыть полный список посещённых городов">
-            <svg class="btn-icon size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-            </svg>
-            <span>Посмотреть список</span>
-        </a>
+            <!-- Подписки -->
+            <div class="relative flex-none self-center 2xl:order-none">
+                <button class="btn btn-default btn-outline-warning"
+                        id="btn_open_modal_with_subscriptions"
+                        data-hs-overlay="#subscriptionsModal"
+                        title="Показать города пользователей, на которых вы подписаны"
+                        {% if not is_user_has_subscriptions %}disabled{% endif %}>
+                    <svg class="btn-icon size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- ^^^ Подписки -->
+        </div>
     </div>
 </div>
 

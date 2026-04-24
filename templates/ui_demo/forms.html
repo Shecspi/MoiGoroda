@@ -93,18 +93,22 @@
         </div>
     </section>
 
-    <section class="mb-10 max-w-xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-select-search (ui-lib)</h2>
-        <div class="space-y-1 text-xs text-gray-600 dark:text-neutral-400">
-            <p>Регистрация: <code class="text-xs">data-component="mg-select-search"</code>, настройки — <code class="text-xs">data-mg-select-search-*</code>, разметка с <code class="text-xs">data-mg-part</code>.</p>
-            <p>
-                В Django-шаблонах: include
-                <code>components/ui/select_search.html</code>.
-            </p>
+    <section class="mb-10 max-w-3xl space-y-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-select / mg-select-searchable (ui-lib)</h2>
+        <div class="space-y-2 text-xs text-gray-600 dark:text-neutral-400">
+            <p><code class="text-xs">mg-select</code> — вариант без поля поиска (регистрация: <code class="text-xs">data-component="mg-select"</code>).</p>
+            <p><code class="text-xs">mg-select-searchable</code> — вариант с фильтрацией (регистрация: <code class="text-xs">data-component="mg-select-searchable"</code>).</p>
+            <p>В Django-шаблонах используйте include: <code>components/ui/select.html</code> и <code>components/ui/select_search.html</code>.</p>
         </div>
-        <div>
-            <label for="demo-hs-select" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Выбор с фильтрацией</label>
-            {% include "components/ui/select_search.html" with select_id="demo-hs-select" select_name="demo_hs_select" disabled=False placeholder="Выберите значение" search_placeholder="Поиск..." options=demo_select_search_options %}
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label for="demo-select-basic" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">mg-select (без поиска)</label>
+                {% include "components/ui/select.html" with select_id="demo-select-basic" select_name="demo_select_basic" disabled=False placeholder="Выберите значение" options=demo_select_search_options %}
+            </div>
+            <div>
+                <label for="demo-select-searchable" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">mg-select-searchable (с поиском)</label>
+                {% include "components/ui/select_search.html" with select_id="demo-select-searchable" select_name="demo_select_searchable" disabled=False placeholder="Выберите значение" search_placeholder="Поиск..." options=demo_select_search_options %}
+            </div>
         </div>
     </section>
 

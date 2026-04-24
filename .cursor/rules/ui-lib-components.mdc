@@ -22,10 +22,10 @@ alwaysApply: true
 
 | Что | Соглашение |
 |-----|------------|
-| Регистрация и корневой маркер | `data-component="mg-<имя>"` — **всегда** с префиксом `mg-` (кебаб-кейс), например `mg-combobox-static`, `mg-select-search`. |
-| Настройки с корня виджета | `data-mg-<имя-видажета>-<параметр>`, напр. `data-mg-combobox-min-chars`, `data-mg-select-search-placeholder`. Тот же нейминг, что и у `data-component`, чтобы по атрибуту было ясно, к какому компоненту относится опция. |
+| Регистрация и корневой маркер | `data-component="mg-<имя>"` — **всегда** с префиксом `mg-` (кебаб-кейс), например `mg-combobox-static`, `mg-select`, `mg-select-searchable`. |
+| Настройки с корня виджета | `data-mg-<имя-видажета>-<параметр>`, напр. `data-mg-combobox-min-chars`, `data-mg-select-placeholder`, `data-mg-select-searchable-filter-placeholder`. Тот же нейминг, что и у `data-component`, чтобы по атрибуту было ясно, к какому компоненту относится опция. |
 | Внутренние части DOM (роли для JS) | `data-mg-part="<роль>"` — не путать с `data-role`; значение в кебаб-кейс: `input`, `listbox`, `native-select` и т.д. |
 | CSS-классы | БЭМ-подобно: `mg-<блок>[-<элемент>][--<модификатор>]`; корень виджета не должен пересекаться с классами из «страничного» `tailwind.css` (например, корень select-search в библиотеке — `mg-ui-select-search`, а не `mg-select-search` — в проекте `mg-select-search` занят стилями Preline). |
-| События | `mg:<суть>:<действие>` (уже используется), напр. `mg:combobox:select`, `mg:select-search:open`. |
+| События | `mg:<суть>:<действие>` (уже используется), напр. `mg:combobox:select`, `mg:select:open`. |
 
 Новый компонент: зарегистрируй имя в [`frontend/ui-lib/index.js`](frontend/ui-lib/index.js), стили в отдельном файле в `styles/`, подключи в `styles/index.css`, задокументируй в [`frontend/ui-lib/README.md`](frontend/ui-lib/README.md).

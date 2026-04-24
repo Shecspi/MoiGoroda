@@ -2,7 +2,7 @@ import { isEventOutside } from '../utils/dom';
 
 const HIDDEN_CLASS = 'hidden';
 
-function dispatchSelectSearchEvent(root, name, detail = {}) {
+function dispatchSelectEvent(root, name, detail = {}) {
   root.dispatchEvent(
     new CustomEvent(name, {
       detail,
@@ -15,7 +15,7 @@ function normalizeText(value) {
   return String(value || '').trim().toLowerCase();
 }
 
-export class SelectSearchController {
+export class SelectController {
   constructor(root) {
     this.root = root;
     this.nativeSelect = root.querySelector('[data-mg-part="native-select"]');
@@ -26,22 +26,18 @@ export class SelectSearchController {
     this.optionsList = root.querySelector('[data-mg-part="options-list"]');
 
     this.config = {
-      placeholder: root.dataset.mgSelectSearchPlaceholder || 'Выберите значение',
-      searchPlaceholder: root.dataset.mgSelectSearchFilterPlaceholder || 'Поиск...',
-      emptyText: root.dataset.mgSelectSearchEmptyText || 'Ничего не найдено',
+      placeholder: root.dataset.mgSelectPlaceholder || 'Выберите значение',
+      emptyText: root.dataset.mgSelectEmptyText || 'Ничего не найдено',
     };
 
     this.state = {
       isOpen: false,
-      query: '',
       options: [],
-      filteredOptions: [],
     };
 
     this.observer = null;
 
     this.handleToggleClick = this.handleToggleClick.bind(this);
-    this.handleSearchInput = this.handleSearchInput.bind(this);
     this.handleOptionsClick = this.handleOptionsClick.bind(this);
     this.handleNativeChange = this.handleNativeChange.bind(this);
     this.handleDocumentPointerDown = this.handleDocumentPointerDown.bind(this);
@@ -54,20 +50,15 @@ export class SelectSearchController {
       !this.toggle ||
       !this.toggleLabel ||
       !this.dropdown ||
-      !this.searchInput ||
       !this.optionsList
     ) {
       return;
     }
 
-    this.searchInput.placeholder = this.config.searchPlaceholder;
-
     this.toggle.addEventListener('click', this.handleToggleClick);
-    this.searchInput.addEventListener('input', this.handleSearchInput);
     this.optionsList.addEventListener('click', this.handleOptionsClick);
     this.nativeSelect.addEventListener('change', this.handleNativeChange);
     this.toggle.addEventListener('keydown', this.handleKeydown);
-    this.searchInput.addEventListener('keydown', this.handleKeydown);
     document.addEventListener('pointerdown', this.handleDocumentPointerDown);
 
     this.observer = new MutationObserver(() => {
@@ -82,6 +73,7 @@ export class SelectSearchController {
 
     this.syncFromNativeSelect();
     this.close();
+    this.initSearch();
   }
 
   destroy() {
@@ -90,12 +82,11 @@ export class SelectSearchController {
     }
 
     this.toggle?.removeEventListener('click', this.handleToggleClick);
-    this.searchInput?.removeEventListener('input', this.handleSearchInput);
     this.optionsList?.removeEventListener('click', this.handleOptionsClick);
     this.nativeSelect.removeEventListener('change', this.handleNativeChange);
     this.toggle?.removeEventListener('keydown', this.handleKeydown);
-    this.searchInput?.removeEventListener('keydown', this.handleKeydown);
     document.removeEventListener('pointerdown', this.handleDocumentPointerDown);
+    this.destroySearch();
 
     if (this.observer) {
       this.observer.disconnect();
@@ -113,7 +104,7 @@ export class SelectSearchController {
     }));
 
     this.state.options = options;
-    this.applyFilter(this.state.query);
+    this.renderOptions();
     this.syncDisabledState();
     this.updateToggleLabel();
   }
@@ -121,31 +112,18 @@ export class SelectSearchController {
   syncDisabledState() {
     const isDisabled = this.nativeSelect.disabled;
     this.toggle.disabled = isDisabled;
-    this.searchInput.disabled = isDisabled;
+    this.syncSearchDisabledState(isDisabled);
 
     if (isDisabled) {
       this.close();
     }
   }
 
-  applyFilter(query) {
-    this.state.query = query;
-    const normalizedQuery = normalizeText(query);
-
-    this.state.filteredOptions = this.state.options.filter((option) => {
-      if (!normalizedQuery) {
-        return true;
-      }
-      return normalizeText(option.label).includes(normalizedQuery);
-    });
-
-    this.renderOptions();
-  }
-
   renderOptions() {
+    const options = this.getRenderableOptions();
     this.optionsList.innerHTML = '';
 
-    if (this.state.filteredOptions.length === 0) {
+    if (options.length === 0) {
       const emptyNode = document.createElement('li');
       emptyNode.className = 'mg-combobox-empty';
       emptyNode.textContent = this.config.emptyText;
@@ -153,7 +131,7 @@ export class SelectSearchController {
       return;
     }
 
-    this.state.filteredOptions.forEach((option) => {
+    options.forEach((option) => {
       const optionNode = document.createElement('li');
       optionNode.setAttribute('data-mg-part', 'option');
       optionNode.dataset.index = String(option.index);
@@ -196,8 +174,8 @@ export class SelectSearchController {
     this.state.isOpen = true;
     this.dropdown.classList.remove(HIDDEN_CLASS);
     this.toggle.setAttribute('aria-expanded', 'true');
-    this.searchInput.focus();
-    dispatchSelectSearchEvent(this.root, 'mg:select-search:open');
+    this.focusOpenTarget();
+    dispatchSelectEvent(this.root, 'mg:select:open');
   }
 
   close() {
@@ -207,9 +185,8 @@ export class SelectSearchController {
     this.state.isOpen = false;
     this.dropdown.classList.add(HIDDEN_CLASS);
     this.toggle.setAttribute('aria-expanded', 'false');
-    this.searchInput.value = '';
-    this.applyFilter('');
-    dispatchSelectSearchEvent(this.root, 'mg:select-search:close');
+    this.onClose();
+    dispatchSelectEvent(this.root, 'mg:select:close');
   }
 
   selectOption(optionIndex) {
@@ -223,7 +200,7 @@ export class SelectSearchController {
     this.syncFromNativeSelect();
     this.close();
 
-    dispatchSelectSearchEvent(this.root, 'mg:select-search:select', {
+    dispatchSelectEvent(this.root, 'mg:select:select', {
       value: targetOption.value,
       label: targetOption.textContent || '',
     });
@@ -235,10 +212,6 @@ export class SelectSearchController {
       return;
     }
     this.open();
-  }
-
-  handleSearchInput(event) {
-    this.applyFilter(event.target.value || '');
   }
 
   handleOptionsClick(event) {
@@ -265,5 +238,89 @@ export class SelectSearchController {
       this.close();
       this.toggle.focus();
     }
+  }
+
+  getRenderableOptions() {
+    return this.state.options;
+  }
+
+  initSearch() {}
+
+  destroySearch() {}
+
+  syncSearchDisabledState() {}
+
+  focusOpenTarget() {}
+
+  onClose() {}
+}
+
+export class SelectSearchableController extends SelectController {
+  constructor(root) {
+    super(root);
+    this.config.searchPlaceholder = root.dataset.mgSelectSearchableFilterPlaceholder || 'Поиск...';
+    this.state.query = '';
+    this.state.filteredOptions = [];
+    this.handleSearchInput = this.handleSearchInput.bind(this);
+  }
+
+  initSearch() {
+    if (!this.searchInput) {
+      return;
+    }
+
+    this.searchInput.placeholder = this.config.searchPlaceholder;
+    this.searchInput.addEventListener('input', this.handleSearchInput);
+    this.searchInput.addEventListener('keydown', this.handleKeydown);
+    this.applyFilter('');
+  }
+
+  destroySearch() {
+    this.searchInput?.removeEventListener('input', this.handleSearchInput);
+    this.searchInput?.removeEventListener('keydown', this.handleKeydown);
+  }
+
+  syncSearchDisabledState(isDisabled) {
+    if (this.searchInput) {
+      this.searchInput.disabled = isDisabled;
+    }
+  }
+
+  focusOpenTarget() {
+    if (this.searchInput) {
+      this.searchInput.focus();
+    }
+  }
+
+  onClose() {
+    if (this.searchInput) {
+      this.searchInput.value = '';
+    }
+    this.applyFilter('');
+  }
+
+  handleSearchInput(event) {
+    this.applyFilter(event.target.value || '');
+  }
+
+  applyFilter(query) {
+    this.state.query = query;
+    const normalizedQuery = normalizeText(query);
+    this.state.filteredOptions = this.state.options.filter((option) => {
+      if (!normalizedQuery) {
+        return true;
+      }
+      return normalizeText(option.label).includes(normalizedQuery);
+    });
+    this.renderOptions();
+  }
+
+  getRenderableOptions() {
+    return this.state.filteredOptions;
+  }
+
+  syncFromNativeSelect() {
+    super.syncFromNativeSelect();
+    this.applyFilter(this.state.query);
   }
 }

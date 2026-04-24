@@ -4,8 +4,8 @@
 
 ## Именование
 
-- **`data-component`** — всегда с префиксом `mg-`: `mg-combobox-static`, `mg-combobox-remote`, `mg-select-search`.
-- **Настройки** — `data-mg-<тот же slug, что и в имени компонента>-<параметр>`: `data-mg-combobox-min-chars`, `data-mg-combobox-source-url`, `data-mg-select-search-placeholder`, `data-mg-select-search-filter-placeholder` (плейсхолдер поля фильтра в выпадашке).
+- **`data-component`** — всегда с префиксом `mg-`: `mg-combobox-static`, `mg-combobox-remote`, `mg-select`, `mg-select-searchable`.
+- **Настройки** — `data-mg-<тот же slug, что и в имени компонента>-<параметр>`: `data-mg-combobox-min-chars`, `data-mg-combobox-source-url`, `data-mg-select-placeholder`, `data-mg-select-searchable-filter-placeholder`.
 - **Внутренние узлы** — `data-mg-part="..."` (`input`, `listbox`, `option`, `native-select`, …), не `data-role`.
 - **CSS** — классы с префиксом `mg-`; корень `mg-select-search` в проекте занят стилями Preline, у виджета библиотеки корневой класс **`mg-ui-select-search`**.
 
@@ -112,17 +112,82 @@ import './ui-lib/auto-init.js';
 ></div>
 ```
 
-## Select search (поиск по select options)
+## Select и Select searchable
 
-`mg-select-search` — самостоятельный компонент ui-lib для фильтрации `option` в нативном `select`.
-Компонент использует нативный `select` как источник данных и синхронизирует выбор обратно в него.
+`mg-select` — select без поля поиска.  
+`mg-select-searchable` — select с полем поиска по `option`.  
+Оба компонента используют нативный `select` как источник данных и синхронизируют выбор обратно в него.
+
+### Когда использовать
+
+- Используйте `mg-select`, когда список короткий и искать по нему не нужно (например, выбор года).
+- Используйте `mg-select-searchable`, когда список длинный и пользователю нужна фильтрация.
+
+### Через Django include
+
+`mg-select` (без поиска):
+
+```django
+{% include "components/ui/select.html" with
+  select_id="id_year"
+  select_name="year"
+  disabled=False
+  placeholder="Выберите год"
+  options=year_options
+%}
+```
+
+`mg-select-searchable` (с поиском):
+
+```django
+{% include "components/ui/select_search.html" with
+  select_id="id_country"
+  select_name="country"
+  disabled=False
+  placeholder="Выберите страну"
+  search_placeholder="Поиск..."
+  options=country_options
+%}
+```
+
+### Через Data API (чистый HTML)
+
+`mg-select`:
+
+```html
+<div class="mg-ui-select-search" data-component="mg-select" data-mg-select-placeholder="Выберите год">
+  <select id="id_year" data-mg-part="native-select" class="hidden">
+    <option value="">Выберите год</option>
+    <option value="2024">2024</option>
+    <option value="2025">2025</option>
+  </select>
+  <!-- остальная разметка с data-mg-part совпадает с include components/ui/select.html -->
+</div>
+```
+
+`mg-select-searchable`:
 
 ```html
 <div
   class="mg-ui-select-search"
-  data-component="mg-select-search"
-  data-mg-select-search-placeholder="Выберите страну"
-  data-mg-select-search-filter-placeholder="Поиск..."
+  data-component="mg-select-searchable"
+  data-mg-select-placeholder="Выберите страну"
+  data-mg-select-searchable-filter-placeholder="Поиск..."
+>
+  <select id="id_country" data-mg-part="native-select" class="hidden">
+    <option value="">Выберите страну</option>
+    <option value="RU">Россия</option>
+    <option value="KZ">Казахстан</option>
+  </select>
+</div>
+```
+
+```html
+<div
+  class="mg-ui-select-search"
+  data-component="mg-select-searchable"
+  data-mg-select-placeholder="Выберите страну"
+  data-mg-select-searchable-filter-placeholder="Поиск..."
 >
   <select id="id_country" data-mg-part="native-select" class="hidden">
     <option value="">Выберите страну</option>

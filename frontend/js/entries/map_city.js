@@ -395,6 +395,12 @@ function updateNotVisitedCitiesButtonState() {
         actions.stateSubscriptionCities.size > 0 &&
         Array.from(actions.stateSubscriptionCities.values()).some(marker => map.hasLayer(marker));
 
+    const subscriptionsButton = document.getElementById('btn_open_modal_with_subscriptions');
+    if (subscriptionsButton) {
+        subscriptionsButton.classList.remove('btn-outline-warning', 'btn-soft-outline-warning');
+        subscriptionsButton.classList.add(hasSubscriptionCitiesShown ? 'btn-soft-outline-warning' : 'btn-outline-warning');
+    }
+
     // Проверяем, применена ли фильтрация по годам
     const yearSelect = document.getElementById('id_year_filter');
     const hasYearFilter = yearSelect && yearSelect.value && yearSelect.value !== '' && yearSelect.value !== 'all';

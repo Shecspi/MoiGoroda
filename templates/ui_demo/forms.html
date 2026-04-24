@@ -13,9 +13,12 @@
         </p>
     </div>
 
-    <section class="mb-10 max-w-3xl space-y-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Input components (только стили)</h2>
-        <p class="text-sm text-gray-600 dark:text-neutral-400">Классы <code class="text-xs">.mg-input</code> / <code class="text-xs">.mg-input-label</code> — из общего CSS, без <code class="text-xs">data-component</code>.</p>
+    <section class="mb-10 max-w-3xl rounded-2xl border border-blue-200 bg-blue-50/40 p-5 space-y-6 dark:border-blue-900/50 dark:bg-blue-950/20">
+        <div class="border-b border-blue-200/70 pb-3 dark:border-blue-900/60">
+            <p class="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Блок 1</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Input components (только стили)</h2>
+            <p class="text-sm text-gray-700 dark:text-neutral-300">Классы <code class="text-xs">.mg-input</code> / <code class="text-xs">.mg-input-label</code> — из общего CSS, без <code class="text-xs">data-component</code>.</p>
+        </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
@@ -81,8 +84,12 @@
         </div>
     </section>
 
-    <section class="mb-10 max-w-xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">form-select</h2>
+    <section class="mb-10 max-w-xl rounded-2xl border border-violet-200 bg-violet-50/40 p-5 space-y-4 dark:border-violet-900/50 dark:bg-violet-950/20">
+        <div class="border-b border-violet-200/70 pb-3 dark:border-violet-900/60">
+            <p class="text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300">Блок 2</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">form-select</h2>
+            <p class="text-sm text-gray-700 dark:text-neutral-300">Базовый нативный select для сравнения с компонентами ui-lib.</p>
+        </div>
         <div>
             <label for="demo-select" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Выбор</label>
             <select id="demo-select" class="form-select dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100">
@@ -93,13 +100,37 @@
         </div>
     </section>
 
-    <section class="mb-10 max-w-3xl space-y-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-select / mg-select-searchable (ui-lib)</h2>
-        <div class="space-y-2 text-xs text-gray-600 dark:text-neutral-400">
-            <p><code class="text-xs">mg-select</code> — вариант без поля поиска (регистрация: <code class="text-xs">data-component="mg-select"</code>).</p>
-            <p><code class="text-xs">mg-select-searchable</code> — вариант с фильтрацией (регистрация: <code class="text-xs">data-component="mg-select-searchable"</code>).</p>
-            <p>В Django-шаблонах используйте include: <code>components/ui/select.html</code> и <code>components/ui/select_search.html</code>.</p>
+    <section class="mb-10 max-w-3xl rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 space-y-6 dark:border-emerald-900/50 dark:bg-emerald-950/20">
+        <div class="border-b border-emerald-200/70 pb-3 dark:border-emerald-900/60">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Селект-компоненты UI-библиотеки</h2>
+            <p class="mt-2 text-sm text-gray-700 dark:text-neutral-300">
+                <code class="text-xs">mg-select</code> — селект без поиска, <code class="text-xs">mg-select-searchable</code> — селект с фильтрацией по опциям.
+            </p>
+            <p class="mt-1 text-sm text-gray-700 dark:text-neutral-300">
+                Используйте <code class="text-xs">mg-select</code> для коротких списков (например, выбор года), а <code class="text-xs">mg-select-searchable</code> — для длинных списков стран, регионов и т.п.
+            </p>
         </div>
+
+        <div class="rounded-xl border border-emerald-200/70 bg-white/80 p-4 text-xs text-gray-700 dark:border-emerald-900/60 dark:bg-neutral-900/40 dark:text-neutral-300">
+            <p class="mb-2 text-sm font-semibold text-gray-900 dark:text-neutral-100">Документация (Django include)</p>
+            <pre class="overflow-x-auto rounded-lg bg-white p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>{% templatetag openblock %} include "components/ui/select.html" with
+select_id="id_year"
+select_name="year"
+disabled=False
+placeholder="Выберите год"
+options=year_options
+{% templatetag closeblock %}
+
+{% templatetag openblock %} include "components/ui/select_search.html" with
+select_id="id_country"
+select_name="country"
+disabled=False
+placeholder="Выберите страну"
+search_placeholder="Поиск..."
+options=country_options
+{% templatetag closeblock %}</code></pre>
+        </div>
+
         <div class="grid gap-5 sm:grid-cols-2">
             <div>
                 <label for="demo-select-basic" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">mg-select (без поиска)</label>
@@ -112,8 +143,12 @@
         </div>
     </section>
 
-    <section class="mb-10 max-w-3xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-combobox-static / mg-combobox-remote (ui-lib)</h2>
+    <section class="mb-10 max-w-3xl rounded-2xl border border-amber-200 bg-amber-50/40 p-5 space-y-4 dark:border-amber-900/50 dark:bg-amber-950/20">
+        <div class="border-b border-amber-200/70 pb-3 dark:border-amber-900/60">
+            <p class="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">Блок 4</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">mg-combobox-static / mg-combobox-remote (ui-lib)</h2>
+            <p class="text-sm text-gray-700 dark:text-neutral-300">Autocomplete-компоненты с локальными данными и загрузкой из API.</p>
+        </div>
         <div class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
             <p>Компоненты без React/Vue: шаблон + <code>data-mg-combobox-*</code> + <code>data-mg-part</code> + автoинициализация <code>ui_core.js</code> по <code>data-component="mg-combobox-static"</code> или <code>mg-combobox-remote</code>.</p>
             <p>Два include: <code>combobox_static.html</code> и <code>combobox_remote.html</code>.</p>
@@ -210,8 +245,12 @@ window.MGUi.destroyAll(containerElement);</code></pre>
         </p>
     </section>
 
-    <section class="mb-10 max-w-xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">color-picker</h2>
+    <section class="mb-10 max-w-xl rounded-2xl border border-rose-200 bg-rose-50/40 p-5 space-y-4 dark:border-rose-900/50 dark:bg-rose-950/20">
+        <div class="border-b border-rose-200/70 pb-3 dark:border-rose-900/60">
+            <p class="text-xs font-semibold uppercase tracking-wide text-rose-700 dark:text-rose-300">Блок 5</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">color-picker</h2>
+            <p class="text-sm text-gray-700 dark:text-neutral-300">Отдельный элемент формы для выбора цвета.</p>
+        </div>
         <div>
             <label for="demo-color" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Цвет</label>
             <input id="demo-color" type="color" class="color-picker dark:bg-neutral-900 dark:border-neutral-600" value="#2563eb" title="Выбор цвета">

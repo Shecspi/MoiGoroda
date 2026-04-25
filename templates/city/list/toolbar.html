@@ -6,9 +6,9 @@
 {% vite_css 'css/select-field' %}
 
 <!-- Панель инструментов -->
-<div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
+<div class="mx-3 my-3 flex flex-col items-stretch gap-3 2xl:flex-row 2xl:flex-nowrap 2xl:items-center" id="toolbar">
     <!-- Статистика -->
-    <div class="toolbar-stats flex flex-wrap items-center gap-3">
+    <div class="toolbar-stats flex w-full min-w-0 flex-wrap items-center gap-3 2xl:w-auto 2xl:shrink-0">
         <span class="badge badge-soft-outline-success"
               title="Общее количество городов, которые Вы посетили">
             <span class="badge-dot" aria-hidden="true"></span>
@@ -39,47 +39,49 @@
         {% endif %}
     </div>
 
-    <!-- Поиск города: до sm — блок на всю ширину; с sm — гибкая колонка рядом с селектом страны -->
-    <div class="relative w-full min-w-0 sm:w-auto sm:flex-1 sm:min-w-[220px]">
-        {% include "components/ui/combobox_remote.html" with combobox_id="city-search-combobox" input_id="city-search" hidden_name="city_search_id" placeholder="Начните вводить название города..." show_leading_icon=True input_class="mg-input mg-input-default" source_url="/api/city/search" country_url_param="country" value_key="id" label_key="title" meta_keys="region,country" min_chars="3" max_items="20" debounce="300" loading_text="Загрузка..." empty_text="Ничего не найдено" %}
-    </div>
-
-    <!-- Селект страны: Preline HSSelect, конфиг как у формы создания города (hs_select_search_single_config) -->
-    <!-- z выше мобильного навбара (z-[100]), ниже оверлея сайдбара и модалок; иначе выпадашка вверх уходит под шапку -->
-    <div class="relative z-[102] w-full min-w-0 sm:w-auto sm:flex-1 sm:min-w-[220px] country-select-wrapper">
-        <div class="relative w-full">
-            {% include "components/ui/select_search.html" with select_id="id_country" select_class="country-preline-select w-full min-w-0 --prevent-on-load-init" dropdown_z_class="z-[102]" placeholder="Загрузка..." loading_option_value="__mg_country_loading__" loading_option_label="Загрузка..." %}
+    <!-- До 2xl: бейджи — отдельная строка; с lg: поиск+селект+кнопки в одной строке под ними. 2xl:contents — в один ряд с бейджами. -->
+    <div class="toolbar-controls flex w-full min-w-0 flex-col gap-3 lg:flex-row lg:items-stretch lg:min-w-0 lg:gap-3 2xl:contents">
+        <div class="search-country flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-stretch lg:contents">
+            <div class="relative w-full min-w-0 sm:flex-1 sm:min-w-0 lg:min-w-0 lg:flex-1">
+                {% include "components/ui/combobox_remote.html" with combobox_id="city-search-combobox" input_id="city-search" hidden_name="city_search_id" placeholder="Начните вводить название города..." show_leading_icon=True input_class="mg-input mg-input-default" source_url="/api/city/search" country_url_param="country" value_key="id" label_key="title" meta_keys="region,country" min_chars="3" max_items="20" debounce="300" loading_text="Загрузка..." empty_text="Ничего не найдено" %}
+            </div>
+            <!-- z выше мобильного навбара (z-[100]), ниже оверлея сайдбара и модалок; иначе выпадашка вверх уходит под шапку -->
+            <div class="country-select-wrapper relative z-[102] w-full min-w-0 sm:flex-1 sm:min-w-0 lg:min-w-0 lg:flex-1">
+                <div class="relative w-full">
+                    {% include "components/ui/select_search.html" with select_id="id_country" select_class="country-preline-select w-full min-w-0 --prevent-on-load-init" dropdown_z_class="z-[102]" placeholder="Загрузка..." loading_option_value="__mg_country_loading__" loading_option_label="Загрузка..." %}
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Кнопки: см. btn-full-until-sm / btn-group-until-sm в tailwind.css -->
-    <div class="toolbar-actions btn-group-until-sm">
-        <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}"
-           class="btn btn-soft-outline-warning btn-default btn-full-until-sm"
-           title="Открыть карту с посещёнными городами">
-            <svg class="btn-icon" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
-            </svg>
-            <span>Посмотреть на карте</span>
-        </a>
+        <!-- Кнопки: до sm — колонка; sm–lg: 50/50; с lg — по контенту, вправо; в строке с полями до 2xl -->
+        <div class="toolbar-actions flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-stretch lg:ml-auto lg:w-auto lg:shrink-0">
+            <a href="{% url 'city-all-map' %}{% if country_code %}?country={{ country_code }}{% endif %}"
+               class="btn btn-soft-outline-warning btn-default w-full justify-center sm:min-w-0 sm:flex-1 lg:w-auto lg:flex-initial"
+               title="Открыть карту с посещёнными городами">
+                <svg class="btn-icon" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
+                </svg>
+                <span>Посмотреть на карте</span>
+            </a>
 
-        {% comment %}Проверяем, отличается ли фильтр или сортировка от дефолтных значений{% endcomment %}
-        <button type="button"
-                id="btnOpenFilterSortPanel"
-                class="btn btn-default btn-full-until-sm relative {% if default_filter and filter != default_filter or not default_filter and filter and filter != 'no_filter' or default_sort and sort != default_sort or not default_sort and sort and sort != 'last_visit_date_down' %}btn-solid-primary{% else %}btn-elevated{% endif %}"
-                title="Открыть панель фильтрации и сортировки городов"
-                data-default-filter="{{ default_filter|default:'' }}"
-                data-default-sort="{{ default_sort|default:'' }}">
-            <svg class="btn-icon" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M96 128C78.3 128 64 142.3 64 160C64 177.7 78.3 192 96 192L182.7 192C195 220.3 223.2 240 256 240C288.8 240 317 220.3 329.3 192L544 192C561.7 192 576 177.7 576 160C576 142.3 561.7 128 544 128L329.3 128C317 99.7 288.8 80 256 80C223.2 80 195 99.7 182.7 128L96 128zM96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L342.7 352C355 380.3 383.2 400 416 400C448.8 400 477 380.3 489.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L489.3 288C477 259.7 448.8 240 416 240C383.2 240 355 259.7 342.7 288L96 288zM96 448C78.3 448 64 462.3 64 480C64 497.7 78.3 512 96 512L150.7 512C163 540.3 191.2 560 224 560C256.8 560 285 540.3 297.3 512L544 512C561.7 512 576 497.7 576 480C576 462.3 561.7 448 544 448L297.3 448C285 419.7 256.8 400 224 400C191.2 400 163 419.7 150.7 448L96 448z"/>
-            </svg>
-            <span>Фильтры и сортировка</span>
-            {% if default_filter and filter != default_filter or not default_filter and filter and filter != 'no_filter' or default_sort and sort != default_sort or not default_sort and sort and sort != 'last_visit_date_down' %}
-                <span class="absolute -right-1.5 -top-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" id="filterSortBadge">
-                    <span class="sr-only">Применена фильтрация или сортировка</span>
-                </span>
-            {% endif %}
-        </button>
+            {% comment %}Проверяем, отличается ли фильтр или сортировка от дефолтных значений{% endcomment %}
+            <button type="button"
+                    id="btnOpenFilterSortPanel"
+                    class="btn btn-default w-full justify-center sm:min-w-0 sm:flex-1 lg:w-auto lg:flex-initial relative {% if default_filter and filter != default_filter or not default_filter and filter and filter != 'no_filter' or default_sort and sort != default_sort or not default_sort and sort and sort != 'last_visit_date_down' %}btn-solid-primary{% else %}btn-elevated{% endif %}"
+                    title="Открыть панель фильтрации и сортировки городов"
+                    data-default-filter="{{ default_filter|default:'' }}"
+                    data-default-sort="{{ default_sort|default:'' }}">
+                <svg class="btn-icon" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M96 128C78.3 128 64 142.3 64 160C64 177.7 78.3 192 96 192L182.7 192C195 220.3 223.2 240 256 240C288.8 240 317 220.3 329.3 192L544 192C561.7 192 576 177.7 576 160C576 142.3 561.7 128 544 128L329.3 128C317 99.7 288.8 80 256 80C223.2 80 195 99.7 182.7 128L96 128zM96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L342.7 352C355 380.3 383.2 400 416 400C448.8 400 477 380.3 489.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L489.3 288C477 259.7 448.8 240 416 240C383.2 240 355 259.7 342.7 288L96 288zM96 448C78.3 448 64 462.3 64 480C64 497.7 78.3 512 96 512L150.7 512C163 540.3 191.2 560 224 560C256.8 560 285 540.3 297.3 512L544 512C561.7 512 576 497.7 576 480C576 462.3 561.7 448 544 448L297.3 448C285 419.7 256.8 400 224 400C191.2 400 163 419.7 150.7 448L96 448z"/>
+                </svg>
+                <span>Фильтры и сортировка</span>
+                {% if default_filter and filter != default_filter or not default_filter and filter and filter != 'no_filter' or default_sort and sort != default_sort or not default_sort and sort and sort != 'last_visit_date_down' %}
+                    <span class="absolute -right-1.5 -top-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" id="filterSortBadge">
+                        <span class="sr-only">Применена фильтрация или сортировка</span>
+                    </span>
+                {% endif %}
+            </button>
+        </div>
     </div>
 </div>
 <!-- ^^^ Панель инструментов -->

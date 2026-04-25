@@ -1,45 +1,36 @@
 {% load morphology %}
 
-<div class="mx-3 my-3 flex flex-wrap items-center gap-3 sm:grid sm:grid-cols-3 sm:items-center" id="toolbar">
+<div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
     <!-- Статистика посещений -->
-    <div class="flex flex-wrap items-center gap-3 self-center flex-shrink-0 sm:justify-start" id="section-stats">
-        <div class="hs-tooltip [--placement:top] relative inline-block">
-            <span id="js-districts-stats-badge" class="hs-tooltip-toggle badge badge-soft-outline-success text-sm">
+    <div class="flex flex-wrap items-center gap-3 self-center" id="section-stats">
+        {% if user.is_authenticated %}
+            <span id="js-districts-stats-badge"
+                  class="badge badge-soft-outline-success"
+                  title="Количество посещённых районов города">
                 <span class="badge-dot" aria-hidden="true"></span>
-                {% if user.is_authenticated %}
-                    {% if qty_of_districts > 0 %}
-                        Посещено <strong>{{ qty_of_visited_districts }}</strong> {{ "район"|plural_by_num:qty_of_visited_districts }} из {{ qty_of_districts }}
-                    {% else %}
-                        Нет информации о районах
-                    {% endif %}
+                {% if qty_of_districts > 0 %}
+                    <span>
+                        Посещено <strong>{{ qty_of_visited_districts }}</strong>
+                        {{ "район"|plural_by_num:qty_of_visited_districts }} из {{ qty_of_districts }}
+                    </span>
                 {% else %}
-                    Зарегистрируйтесь, чтобы отмечать районы
+                    <span>Нет информации о районах</span>
                 {% endif %}
             </span>
-            <span class="hs-tooltip-content" role="tooltip">
-                {% if user.is_authenticated %}
-                    {% if qty_of_districts > 0 %}
-                        Количество посещённых районов города
-                    {% else %}
-                        Для данного города нет информации о районах
-                    {% endif %}
-                {% else %}
-                    Зарегистрируйтесь, чтобы отмечать посещённые районы
-                {% endif %}
+        {% else %}
+            <span id="js-districts-stats-badge"
+                  class="badge badge-soft-outline-info"
+                  title="Зарегистрируйтесь, чтобы отмечать посещённые районы">
+                <span>Зарегистрируйтесь, чтобы отмечать районы</span>
             </span>
-        </div>
+        {% endif %}
     </div>
 
     <!-- Селектор выбора города -->
-    <div class="hs-tooltip [--placement:top] z-[40] relative inline-block basis-full self-center sm:col-start-2 sm:col-end-3 sm:justify-self-center sm:min-w-[280px]">
-        <div class="hs-tooltip-toggle relative w-full">
-            {% include "components/ui/select_search.html" with select_id="city-select" disabled=False variant="with_icon" select_class="hidden" dropdown_z_class="z-20" placeholder="Загрузка..." loading_option_value="" loading_option_label="Загрузка..." %}
+    <div class="relative z-30 self-center w-full basis-full min-w-0 sm:ml-auto sm:w-auto sm:basis-auto sm:min-w-[280px]">
+        <div class="relative w-full" title="Выберите город для просмотра его районов на карте">
+            {% include "components/ui/select_search.html" with select_id="city-select" disabled=False variant="with_icon" select_class="hidden" dropdown_z_class="z-30" placeholder="Загрузка..." loading_option_value="" loading_option_label="Загрузка..." %}
         </div>
-        <span class="hs-tooltip-content" role="tooltip">
-            Выберите город для просмотра его районов на карте
-        </span>
     </div>
 
-    <!-- Пустой элемент для баланса на больших экранах -->
-    <div class="hidden sm:block"></div>
 </div>

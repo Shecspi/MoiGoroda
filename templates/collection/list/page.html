@@ -8,8 +8,7 @@
 {% endblock %}
 
 {% block content %}
-    {# Стили для автодополнения #}
-    {% vite_css 'css/autoComplete' %}
+    {% vite_css 'css/select-field' %}
 
     {# Заголовок страницы #}
     <header class="mx-3 mt-10 mb-8 text-center" id="block-page_header">
@@ -25,36 +24,10 @@
 
     {# Карточки с коллекциями #}
     {% if object_list %}
-        {# Поисковый тулбар в стиле Tailwind/Preline #}
+        {# Поисковый тулбар #}
         <div class="mx-3 mb-6 flex justify-center relative z-[11050]" id="toolbar">
             <div class="w-full max-w-xl">
-                <label for="collection-search" class="sr-only">Поиск коллекций</label>
-                <div class="relative">
-                    {# Иконка поиска #}
-                    <div class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-4 text-gray-400 dark:text-neutral-500">
-                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 7.5 15a7.5 7.5 0 0 0 9.15 1.65Z" />
-                        </svg>
-                    </div>
-                    {# Поле ввода #}
-                    <input
-                        id="collection-search"
-                        type="text"
-                        class="block w-full rounded-2xl border border-gray-200 bg-white py-3 pl-11 pr-12 text-sm text-gray-900 placeholder:text-gray-400 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:placeholder:text-neutral-500"
-                        placeholder="Найти коллекцию..."
-                    >
-                    {# Кнопка очистки (изначально скрыта) #}
-                    <button
-                        id="collection-search-clear"
-                        type="button"
-                        class="hidden absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 transition hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-500 dark:hover:text-neutral-300 dark:focus-visible:ring-offset-neutral-900"
-                    >
-                        <span class="sr-only">Очистить поиск</span>
-                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 18 12-12M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+                {% include "components/ui/combobox_remote.html" with combobox_id="collection-search-combobox" input_id="collection-search" hidden_name="collection_search_id" placeholder="Начните вводить название коллекции..." show_leading_icon=True input_class="mg-input mg-input-default" source_url="/api/collection/search" value_key="id" label_key="title" min_chars="1" max_items="20" debounce="300" loading_text="Загрузка..." empty_text="Ничего не найдено" listbox_class="!z-50" %}
             </div>
         </div>
 

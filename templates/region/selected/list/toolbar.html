@@ -3,85 +3,62 @@
 {% load static %}
 {% load filters %}
 
-<!-- Панель инструментов -->
-<div class="mx-3 my-3 flex flex-wrap items-center gap-3" id="toolbar">
-    <!-- Статистика -->
-    <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
-        <div class="hs-tooltip [--placement:top] relative inline-block">
-            <span class="hs-tooltip-toggle badge badge-soft-outline-success text-sm">
+<!-- Панель инструментов (ui-lib: badge + btn) -->
+<div class="mx-3 my-3 flex flex-col items-stretch gap-3 lg:flex-row lg:flex-nowrap lg:items-center" id="toolbar">
+    <div class="toolbar-stats flex w-full min-w-0 flex-wrap items-center gap-3 lg:w-auto lg:shrink-0">
+        {% if user.is_authenticated %}
+            <span class="badge badge-soft-outline-success"
+                  title="Количество посещённых городов в регионе">
                 <span class="badge-dot" aria-hidden="true"></span>
-                {% if user.is_authenticated %}
-                    Посещено: {{ number_of_visited_cities }} {{ "город"|plural_by_num:number_of_visited_cities }} из {{ number_of_cities }}
-                {% else %}
-                    Зарегистрируйтесь, чтобы отмечать регионы
-                {% endif %}
+                <span>
+                    Посещено <strong>{{ number_of_visited_cities }}</strong>
+                    {{ "город"|plural_by_num:number_of_visited_cities }} из {{ number_of_cities }}
+                </span>
             </span>
-            <span class="hs-tooltip-content" role="tooltip">
-                {% if user.is_authenticated %}
-                    Количество посещённых городов в регионе
-                {% else %}
-                    Зарегистрируйтесь, чтобы отмечать посещённые города
-                {% endif %}
+        {% else %}
+            <span class="badge badge-soft-outline-info"
+                  title="Зарегистрируйтесь, чтобы отмечать посещённые города">
+                <span>Зарегистрируйтесь, чтобы отмечать регионы</span>
             </span>
-        </div>
+        {% endif %}
     </div>
 
-    <!-- Кнопки действий -->
-    <div class="toolbar-actions ml-auto flex flex-wrap items-center justify-end gap-3 self-center">
-        <!-- Посмотреть на карте -->
-        <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-            <a href="{% url 'region-selected-map' region_id %}" 
-               class="hs-tooltip-toggle btn btn-outline-info btn-sm">
-                <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
-                </svg>
-                <span>Посмотреть на карте</span>
-            </a>
-            <span class="hs-tooltip-content" role="tooltip">
-                Посмотреть города региона на карте
-            </span>
-        </div>
-        <!-- ^^^ Посмотреть на карте -->
+    <div class="toolbar-actions flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-stretch sm:justify-end lg:ml-auto lg:w-auto lg:shrink-0">
+        <a href="{% url 'region-selected-map' region_id %}"
+           class="btn btn-soft-outline-warning btn-default w-full justify-center sm:min-w-0 sm:flex-1 lg:w-auto lg:flex-initial"
+           title="Посмотреть города региона на карте">
+            <svg class="btn-icon" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/>
+            </svg>
+            <span>Посмотреть на карте</span>
+        </a>
 
         {% if user.is_authenticated %}
-            <!-- Поделиться -->
-            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-                <a href="{% url 'region-share' pk=region_id %}"
-                   class="hs-tooltip-toggle btn btn-outline-primary btn-sm"
-                   target="_blank"
-                   rel="noopener noreferrer">
-                    <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path d="M371.8 82.4C359.8 87.4 352 99 352 112L352 192L240 192C142.8 192 64 270.8 64 368C64 481.3 145.5 531.9 164.2 542.1C166.7 543.5 169.5 544 172.3 544C183.2 544 192 535.1 192 524.3C192 516.8 187.7 509.9 182.2 504.8C172.8 496 160 478.4 160 448.1C160 395.1 203 352.1 256 352.1L352 352.1L352 432.1C352 445 359.8 456.7 371.8 461.7C383.8 466.7 397.5 463.9 406.7 454.8L566.7 294.8C579.2 282.3 579.2 262 566.7 249.5L406.7 89.5C397.5 80.3 383.8 77.6 371.8 82.6z"/>
-                    </svg>
-                    <span>Поделиться</span>
-                </a>
-                <span class="hs-tooltip-content" role="tooltip">
-                    Создать изображение с картой региона и прогрессом для соцсетей
-                </span>
-            </div>
+            <a href="{% url 'region-share' pk=region_id %}"
+               class="btn btn-soft-outline-primary btn-default w-full justify-center sm:min-w-0 sm:flex-1 lg:w-auto lg:flex-initial"
+               target="_blank"
+               rel="noopener noreferrer"
+               title="Создать изображение с картой региона и прогрессом для соцсетей">
+                <svg class="btn-icon" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M371.8 82.4C359.8 87.4 352 99 352 112L352 192L240 192C142.8 192 64 270.8 64 368C64 481.3 145.5 531.9 164.2 542.1C166.7 543.5 169.5 544 172.3 544C183.2 544 192 535.1 192 524.3C192 516.8 187.7 509.9 182.2 504.8C172.8 496 160 478.4 160 448.1C160 395.1 203 352.1 256 352.1L352 352.1L352 432.1C352 445 359.8 456.7 371.8 461.7C383.8 466.7 397.5 463.9 406.7 454.8L566.7 294.8C579.2 282.3 579.2 262 566.7 249.5L406.7 89.5C397.5 80.3 383.8 77.6 371.8 82.6z"/>
+                </svg>
+                <span>Поделиться</span>
+            </a>
 
-            <!-- ^^^ Поделиться -->
-
-            <!-- Фильтры и сортировка -->
-            <div class="hs-tooltip [--placement:top] relative inline-block self-center">
-                <button class="hs-tooltip-toggle relative btn btn-sm {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}btn-outline-danger{% else %}btn-outline-secondary{% endif %}"
-                        type="button"
-                        id="btnOpenFilterSortPanel">
-                    <svg class="size-4" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M96 128C78.3 128 64 142.3 64 160C64 177.7 78.3 192 96 192L182.7 192C195 220.3 223.2 240 256 240C288.8 240 317 220.3 329.3 192L544 192C561.7 192 576 177.7 576 160C576 142.3 561.7 128 544 128L329.3 128C317 99.7 288.8 80 256 80C223.2 80 195 99.7 182.7 128L96 128zM96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L342.7 352C355 380.3 383.2 400 416 400C448.8 400 477 380.3 489.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L489.3 288C477 259.7 448.8 240 416 240C383.2 240 355 259.7 342.7 288L96 288zM96 448C78.3 448 64 462.3 64 480C64 497.7 78.3 512 96 512L150.7 512C163 540.3 191.2 560 224 560C256.8 560 285 540.3 297.3 512L544 512C561.7 512 576 497.7 576 480C576 462.3 561.7 448 544 448L297.3 448C285 419.7 256.8 400 224 400C191.2 400 163 419.7 150.7 448L96 448z"/>
-                    </svg>
-                    <span>Фильтры и сортировка</span>
-                    {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
-                        <span class="absolute -right-1.5 -top-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-neutral-900">
-                            <span class="sr-only">Применена фильтрация или сортировка</span>
-                        </span>
-                    {% endif %}
-                </button>
-                <span class="hs-tooltip-content" role="tooltip">
-                    Открыть панель фильтрации и сортировки городов
-                </span>
-            </div>
-            <!-- ^^^ Фильтры и сортировка -->
+            <button type="button"
+                    id="btnOpenFilterSortPanel"
+                    class="btn btn-default relative w-full justify-center sm:min-w-0 sm:flex-1 lg:w-auto lg:flex-initial {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}btn-solid-primary{% else %}btn-elevated{% endif %}"
+                    title="Открыть панель фильтрации и сортировки городов">
+                <svg class="btn-icon" fill="currentColor" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M96 128C78.3 128 64 142.3 64 160C64 177.7 78.3 192 96 192L182.7 192C195 220.3 223.2 240 256 240C288.8 240 317 220.3 329.3 192L544 192C561.7 192 576 177.7 576 160C576 142.3 561.7 128 544 128L329.3 128C317 99.7 288.8 80 256 80C223.2 80 195 99.7 182.7 128L96 128zM96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L342.7 352C355 380.3 383.2 400 416 400C448.8 400 477 380.3 489.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L489.3 288C477 259.7 448.8 240 416 240C383.2 240 355 259.7 342.7 288L96 288zM96 448C78.3 448 64 462.3 64 480C64 497.7 78.3 512 96 512L150.7 512C163 540.3 191.2 560 224 560C256.8 560 285 540.3 297.3 512L544 512C561.7 512 576 497.7 576 480C576 462.3 561.7 448 544 448L297.3 448C285 419.7 256.8 400 224 400C191.2 400 163 419.7 150.7 448L96 448z"/>
+                </svg>
+                <span>Фильтры и сортировка</span>
+                {% if filter is not None or sort is not None and sort != 'last_visit_date_down' %}
+                    <span class="absolute -right-1.5 -top-1.5 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" id="filterSortBadge">
+                        <span class="sr-only">Применена фильтрация или сортировка</span>
+                    </span>
+                {% endif %}
+            </button>
         {% endif %}
     </div>
 </div>
@@ -97,9 +74,8 @@
         <h3 class="font-bold text-gray-800 dark:text-neutral-200">
             Фильтрация и сортировка
         </h3>
-        <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#offcanvasRight">
-            <span class="sr-only">Закрыть</span>
-            <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="btn btn-ghost-secondary p-1.5 rounded-full" data-hs-overlay="#offcanvasRight" title="Закрыть" aria-label="Закрыть">
+            <svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="m18 6-12 12"></path>
                 <path d="m6 6 12 12"></path>
             </svg>
@@ -261,14 +237,14 @@
 
     </div>
     <div class="p-4 border-t border-gray-200 dark:border-neutral-700 shrink-0">
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2 sm:flex-nowrap">
             <button type="submit"
-                    class="flex-1 py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"
+                    class="btn btn-solid-primary btn-default min-w-0 flex-1 justify-center"
                     id="applyFilters"
                     data-filter="{{ filter|default:defaultFilter }}"
                     data-sort="{{ sort|default:defaultSort }}">Применить</button>
             <button type="button"
-                    class="flex-1 py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:ring-offset-neutral-800"
+                    class="btn btn-elevated btn-default min-w-0 flex-1 justify-center"
                     id="resetFilters"
                     data-filter="{{ filter|default:defaultFilter }}"
                     data-sort="{{ sort|default:defaultSort }}">

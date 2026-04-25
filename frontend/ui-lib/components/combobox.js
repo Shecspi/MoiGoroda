@@ -234,11 +234,32 @@ class ComboboxBaseController {
     activeOption.classList.add('is-active');
     activeOption.setAttribute('aria-selected', 'true');
     this.input.setAttribute('aria-activedescendant', activeOption.id);
+    this.scrollActiveOptionIntoView(activeOption);
 
     dispatchComboboxEvent(this.root, 'mg:combobox:highlight', {
       value: activeOption.dataset.value || '',
       label: activeOption.dataset.label || activeOption.textContent?.trim() || '',
     });
+  }
+
+  scrollActiveOptionIntoView(activeOption) {
+    if (!activeOption || !this.listbox) {
+      return;
+    }
+
+    const optionTop = activeOption.offsetTop;
+    const optionBottom = optionTop + activeOption.offsetHeight;
+    const visibleTop = this.listbox.scrollTop;
+    const visibleBottom = visibleTop + this.listbox.clientHeight;
+
+    if (optionTop < visibleTop) {
+      this.listbox.scrollTop = optionTop;
+      return;
+    }
+
+    if (optionBottom > visibleBottom) {
+      this.listbox.scrollTop = optionBottom - this.listbox.clientHeight;
+    }
   }
 
   filterOptions(query) {

@@ -101,6 +101,8 @@
 
 - *(city)* Скрыт блок региона на странице города без региона ([e207672](https://github.com/Shecspi/MoiGoroda/commit/e2076727c163701fba54ea5f68cf21dee8008f30))
 
+- *(city)* Исправлена фильтрация по стране в поиске городов ([8b1aa6c](https://github.com/Shecspi/MoiGoroda/commit/8b1aa6c57537de4989140dbed4b3b822683268c7))
+
 
 #### 🎨 Дизайн
 

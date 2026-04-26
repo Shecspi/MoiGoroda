@@ -5,6 +5,31 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    /* Основной скролл окна: те же размер/цвета, что у #sidebar-nav (overflow-y) */
+    html {
+        scrollbar-color: theme("colors.gray.300") theme("colors.gray.100");
+    }
+    html.dark {
+        scrollbar-color: theme("colors.neutral.500") theme("colors.neutral.700");
+    }
+    html::-webkit-scrollbar {
+        @apply w-2;
+    }
+    html::-webkit-scrollbar-track {
+        @apply bg-gray-100;
+    }
+    html::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-gray-300;
+    }
+    html.dark::-webkit-scrollbar-track {
+        @apply bg-neutral-700;
+    }
+    html.dark::-webkit-scrollbar-thumb {
+        @apply bg-neutral-500;
+    }
+}
+
 @layer components {
     .city-photo-stage {
         @apply relative mx-auto w-[min(100%,calc(min(85vh,600px)*16/9))] aspect-video overflow-hidden rounded-lg bg-neutral-300/85 shadow-inner ring-1 ring-neutral-400/25 backdrop-blur-md dark:bg-neutral-800/65 dark:ring-white/15;

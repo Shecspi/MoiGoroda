@@ -25,7 +25,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const selectedCountryCode = urlParams.get('country');
 
 window.onload = async () => {
-    map = create_map();
+    map = create_map({ mapPageHelp: true });
     window.MG_MAIN_MAP = map;
     addExternalBorderControl(map, selectedCountryCode);
     addInternalBorderControl(map, selectedCountryCode);

@@ -453,8 +453,16 @@ function filterCitiesByYear(selectedYear) {
 
         // Пересоздаём все маркеры без фильтрации по годам
         const allMarkers = [];
-        
-        // Добавляем свои города
+        const placedCityIds = new Set();
+        const subscriptionCityIds = new Set(
+            (actions.subscriptionCities || []).map((c) => c.id)
+        );
+        const usersWhoVisitedCity =
+            actions.subscriptionCities && actions.subscriptionCities.length > 0
+                ? actions.getUsersWhoVisitedCity()
+                : new Map();
+
+        // Сначала свои города: пересечение с данными подписок → тёмно-зелёный (TOGETHER), иначе светло-зелёный (OWN)
         if (actions.ownCities) {
             actions.ownCities.forEach((cityData) => {
                 const city = new City();
@@ -469,23 +477,30 @@ function filterCitiesByYear(selectedYear) {
                 city.last_visit_date = cityData.last_visit_date;
                 city.number_of_visits = cityData.number_of_visits;
 
-                const marker = actions.addMarkerToMap(city, MarkerStyle.OWN);
-                actions.stateOwnCities.set(city.id, marker);
+                const showSubscriptions =
+                    actions.subscriptionCities && actions.subscriptionCities.length > 0;
+                const isAlsoInSubscriptions =
+                    showSubscriptions && subscriptionCityIds.has(cityData.id);
+
+                let marker;
+                if (isAlsoInSubscriptions) {
+                    const users = usersWhoVisitedCity.get(cityData.id) || [];
+                    marker = actions.addMarkerToMap(city, MarkerStyle.TOGETHER, users);
+                    actions.stateSubscriptionCities.set(cityData.id, marker);
+                } else {
+                    marker = actions.addMarkerToMap(city, MarkerStyle.OWN);
+                    actions.stateOwnCities.set(cityData.id, marker);
+                }
                 allMarkers.push(marker);
+                placedCityIds.add(cityData.id);
             });
         }
 
-        // Добавляем города подписок (они могут включать города, посещённые и мной, и подписчиками)
+        // Города только подписок (я не был): оранжевый (SUBSCRIPTION); дубликаты id в ответе пропускаем
         if (actions.subscriptionCities && actions.subscriptionCities.length > 0) {
-            // Получаем информацию о пользователях без фильтрации по годам
-            const usersWhoVisitedCity = actions.getUsersWhoVisitedCity();
-            const processedCityIds = new Set(Array.from(actions.stateOwnCities.keys()));
-
             actions.subscriptionCities.forEach((cityData) => {
                 const cityId = cityData.id;
-                
-                // Пропускаем города, которые уже добавлены как свои
-                if (processedCityIds.has(cityId)) {
+                if (placedCityIds.has(cityId)) {
                     return;
                 }
 
@@ -496,9 +511,8 @@ function filterCitiesByYear(selectedYear) {
                 city.country = cityData.country;
                 city.lat = cityData.lat;
                 city.lon = cityData.lon;
-                
-                // Для городов подписок visit_years берём из ownCities по названию, если город есть там
-                const ownCityData = actions.ownCities?.find(c => c.id === cityId);
+
+                const ownCityData = actions.ownCities?.find((c) => c.id === cityId);
                 if (ownCityData) {
                     city.visit_years = ownCityData.visit_years;
                     city.first_visit_date = ownCityData.first_visit_date;
@@ -507,11 +521,10 @@ function filterCitiesByYear(selectedYear) {
                 }
 
                 const users = usersWhoVisitedCity.get(cityId) || [];
-                const markerStyle = ownCityData ? MarkerStyle.TOGETHER : MarkerStyle.SUBSCRIPTION;
-                const marker = actions.addMarkerToMap(city, markerStyle, users);
+                const marker = actions.addMarkerToMap(city, MarkerStyle.SUBSCRIPTION, users);
                 actions.stateSubscriptionCities.set(cityId, marker);
                 allMarkers.push(marker);
-                processedCityIds.add(cityId);
+                placedCityIds.add(cityId);
             });
         }
 

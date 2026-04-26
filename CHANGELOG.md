@@ -102,6 +102,11 @@
 - *(city)* Скрыт блок региона на странице города без региона ([e207672](https://github.com/Shecspi/MoiGoroda/commit/e2076727c163701fba54ea5f68cf21dee8008f30))
 
 
+#### 🎨 Дизайн
+
+- Стандартизирован дизайн всех тулбаров ([0a866b6](https://github.com/Shecspi/MoiGoroda/commit/0a866b64d5ce63f37d414a87ed568936e885bc8e))
+
+
 #### 🧪 Тестирование
 
 - *(region)* Добавлены тесты генератора изображений карты городов региона ([13fd6ab](https://github.com/Shecspi/MoiGoroda/commit/13fd6abdac08c30626a74e4cd422e003428d85f6))

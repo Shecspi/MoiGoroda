@@ -32,7 +32,7 @@ class TestCitySearchServiceBasic:
         CitySearchService.search_cities(query='Москва')
 
         # Проверяем что был вызван select_related для оптимизации
-        mock_city_objects.select_related.assert_called_once_with('region__country')
+        mock_city_objects.select_related.assert_called_once_with('country', 'region')
 
         # Проверяем фильтрацию по названию
         mock_queryset.filter.assert_called_once_with(title__icontains='Москва')
@@ -54,7 +54,7 @@ class TestCitySearchServiceBasic:
 
         # Второй вызов - фильтр по стране
         second_call = mock_queryset.filter.call_args_list[1]
-        assert 'region__country__code' in str(second_call)
+        assert 'country__code' in str(second_call)
 
     @patch('city.services.search.City.objects')
     def test_search_cities_without_country_filter(self, mock_city_objects: MagicMock) -> None:

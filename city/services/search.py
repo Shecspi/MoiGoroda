@@ -29,7 +29,7 @@ class CitySearchService:
         """
         # Базовый запрос с оптимизацией и приоритизацией
         cities_queryset = (
-            City.objects.select_related('region__country')
+            City.objects.select_related('country', 'region')
             .filter(title__icontains=query)
             .annotate(
                 # Приоритет для городов, начинающихся с поискового запроса
@@ -42,9 +42,9 @@ class CitySearchService:
             .order_by('search_priority', 'title')
         )
 
-        # Дополнительная фильтрация по стране
+        # Дополнительная фильтрация по коду страны
         if country:
-            cities_queryset = cities_queryset.filter(region__country__code=country)
+            cities_queryset = cities_queryset.filter(country__code=country)
 
         # Ограничиваем количество результатов для производительности
         return cities_queryset[:limit]

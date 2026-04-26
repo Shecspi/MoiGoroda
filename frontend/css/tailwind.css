@@ -156,27 +156,27 @@
         @apply border-transparent bg-plain/10 text-foreground hover:bg-plain/15 focus-visible:ring-2 focus-visible:ring-plain/20;
     }
 
-    /* ═══ Outline ═══ */
+    /* ═══ Outline ═══ (текст *-800; рамка как у soft-outline) */
     .btn-outline-secondary {
-        @apply border-secondary-500 text-secondary-800 hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/30;
+        @apply border border-secondary-500/45 text-secondary-800 hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/30;
     }
     .btn-outline-primary {
-        @apply border-primary text-primary hover:bg-primary-100 focus-visible:ring-2 focus-visible:ring-primary/35;
+        @apply border border-primary/25 text-primary-800 hover:bg-primary-100 focus-visible:ring-2 focus-visible:ring-primary/35;
     }
     .btn-outline-info {
-        @apply border-info text-info hover:bg-info-100 focus-visible:ring-2 focus-visible:ring-info/35;
+        @apply border border-info/30 text-info-800 hover:bg-info-100 focus-visible:ring-2 focus-visible:ring-info/35;
     }
     .btn-outline-success {
-        @apply border-success text-success hover:bg-success-100 focus-visible:ring-2 focus-visible:ring-success/35;
+        @apply border border-success/30 text-success-800 hover:bg-success-100 focus-visible:ring-2 focus-visible:ring-success/35;
     }
     .btn-outline-warning {
-        @apply border-warning text-warning hover:bg-warning-100 focus-visible:ring-2 focus-visible:ring-warning/35;
+        @apply border border-warning/35 text-warning-800 hover:bg-warning-100 focus-visible:ring-2 focus-visible:ring-warning/35;
     }
     .btn-outline-danger {
-        @apply border-danger text-danger hover:bg-danger-100 focus-visible:ring-2 focus-visible:ring-danger/35;
+        @apply border border-danger/30 text-danger-800 hover:bg-danger-100 focus-visible:ring-2 focus-visible:ring-danger/35;
     }
     .btn-outline-plain {
-        @apply border-line-8 text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-foreground/15;
+        @apply border border-plain/20 text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-foreground/15;
     }
 
     /* ═══ Soft + рамка (как badge-soft-outline) ═══ */
@@ -580,7 +580,6 @@
     .mg-input-state-success {
         @apply border-teal-500 focus:border-teal-500 focus:ring-teal-500;
     }
-
 }
 
 @layer utilities {

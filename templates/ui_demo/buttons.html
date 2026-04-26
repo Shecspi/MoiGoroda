@@ -113,7 +113,84 @@
 
     <section class="mb-10">
         <h2 class="mb-4 text-lg font-semibold text-gray-900">Состояние disabled</h2>
-        <button type="button" class="btn btn-solid-primary btn-sm btn-disabled" disabled>btn-disabled</button>
+        <p class="mb-4 text-sm text-gray-600">С атрибутом <code class="rounded bg-gray-100 px-1.5 py-0.5 text-xs dark:bg-neutral-800">disabled</code> — <span class="font-mono text-xs">cursor-not-allowed</span>, снижение непрозрачности, при наведении фон/рамка не «оживают» (стили hover завязаны на <span class="font-mono text-xs">:enabled</span>).</p>
+
+        <h3 class="mb-2 text-sm font-medium text-gray-800 dark:text-neutral-200">Solid</h3>
+        <div class="mb-4 flex flex-wrap gap-2">
+            <button type="button" class="btn btn-solid-secondary btn-sm" disabled>Secondary</button>
+            <button type="button" class="btn btn-solid-primary btn-sm" disabled>Primary</button>
+            <button type="button" class="btn btn-solid-info btn-sm" disabled>Info</button>
+            <button type="button" class="btn btn-solid-success btn-sm" disabled>Success</button>
+            <button type="button" class="btn btn-solid-warning btn-sm" disabled>Warning</button>
+            <button type="button" class="btn btn-solid-danger btn-sm" disabled>Danger</button>
+            <button type="button" class="btn btn-solid-plain btn-sm" disabled>Plain</button>
+            <button type="button" class="btn btn-elevated btn-sm" disabled>Elevated</button>
+        </div>
+
+        <h3 class="mb-2 text-sm font-medium text-gray-800 dark:text-neutral-200">Soft</h3>
+        <div class="mb-4 flex flex-wrap gap-2">
+            <button type="button" class="btn btn-soft-secondary btn-sm" disabled>Secondary</button>
+            <button type="button" class="btn btn-soft-primary btn-sm" disabled>Primary</button>
+            <button type="button" class="btn btn-soft-info btn-sm" disabled>Info</button>
+            <button type="button" class="btn btn-soft-success btn-sm" disabled>Success</button>
+            <button type="button" class="btn btn-soft-warning btn-sm" disabled>Warning</button>
+            <button type="button" class="btn btn-soft-danger btn-sm" disabled>Danger</button>
+            <button type="button" class="btn btn-soft-plain btn-sm" disabled>Plain</button>
+        </div>
+
+        <h3 class="mb-2 text-sm font-medium text-gray-800 dark:text-neutral-200">Outline</h3>
+        <div class="mb-4 flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Secondary</button>
+            <button type="button" class="btn btn-outline-primary btn-sm" disabled>Primary</button>
+            <button type="button" class="btn btn-outline-info btn-sm" disabled>Info</button>
+            <button type="button" class="btn btn-outline-success btn-sm" disabled>Success</button>
+            <button type="button" class="btn btn-outline-warning btn-sm" disabled>Warning</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" disabled>Danger</button>
+            <button type="button" class="btn btn-outline-plain btn-sm" disabled>Plain</button>
+            <button type="button" class="btn btn-outline-layer btn-sm" disabled>Outline layer</button>
+        </div>
+
+        <h3 class="mb-2 text-sm font-medium text-gray-800 dark:text-neutral-200">Soft outline</h3>
+        <div class="mb-4 flex flex-wrap gap-2">
+            <button type="button" class="btn btn-soft-outline-secondary btn-sm" disabled>Secondary</button>
+            <button type="button" class="btn btn-soft-outline-primary btn-sm" disabled>Primary</button>
+            <button type="button" class="btn btn-soft-outline-info btn-sm" disabled>Info</button>
+            <button type="button" class="btn btn-soft-outline-success btn-sm" disabled>Success</button>
+            <button type="button" class="btn btn-soft-outline-warning btn-sm" disabled>Warning</button>
+            <button type="button" class="btn btn-soft-outline-danger btn-sm" disabled>Danger</button>
+            <button type="button" class="btn btn-soft-outline-plain btn-sm" disabled>Plain</button>
+        </div>
+
+        <h3 class="mb-2 text-sm font-medium text-gray-800 dark:text-neutral-200">Ghost</h3>
+        <div class="mb-4 flex flex-wrap gap-2">
+            <button type="button" class="btn btn-ghost-secondary btn-sm" disabled>Secondary</button>
+            <button type="button" class="btn btn-ghost btn-sm" disabled>Ghost</button>
+            <button type="button" class="btn btn-ghost-muted btn-sm" disabled>Muted</button>
+            <button type="button" class="btn btn-ghost-primary btn-sm" disabled>Primary</button>
+            <button type="button" class="btn btn-ghost-info btn-sm" disabled>Info</button>
+            <button type="button" class="btn btn-ghost-success btn-sm" disabled>Success</button>
+            <button type="button" class="btn btn-ghost-warning btn-sm" disabled>Warning</button>
+            <button type="button" class="btn btn-ghost-danger btn-sm" disabled>Danger</button>
+            <button type="button" class="btn btn-ghost-plain btn-sm" disabled>Plain</button>
+        </div>
+
+        <h3 class="mb-2 text-sm font-medium text-gray-800 dark:text-neutral-200">Ссылка и с иконкой</h3>
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+            <button type="button" class="btn btn-link" disabled>btn-link</button>
+            <button type="button" class="btn btn-link-secondary" disabled>btn-link-secondary</button>
+            <button type="button" class="btn btn-link-primary" disabled>btn-link-primary</button>
+            <button type="button" class="btn btn-soft-outline-danger btn-sm" disabled>
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                С иконкой
+            </button>
+        </div>
+
+        <h3 class="mb-2 text-sm font-medium text-gray-800 dark:text-neutral-200">Класс <span class="font-mono text-xs">btn-disabled</span> (только внешний вид, без <code class="rounded bg-gray-100 px-1.5 py-0.5 text-xs dark:bg-neutral-800">disabled</code>)</h3>
+        <p class="mb-2 text-sm text-gray-600">Полезно, когда кнопка визуально «выключена», но в разметке остаётся <span class="font-mono text-xs">button</span> для раскладки: без нативного <span class="font-mono text-xs">focus</span> с клавиатуры — при необходимости добавьте <span class="font-mono text-xs">tabindex="-1"</span> и <span class="font-mono text-xs">aria-disabled="true"</span>.</p>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm btn-default btn-disabled" tabindex="-1" aria-disabled="true">class btn-disabled</button>
+            <button type="button" class="btn btn-soft-outline-plain btn-sm btn-default btn-disabled" tabindex="-1" aria-disabled="true">как в тулбаре коллекции</button>
+        </div>
     </section>
 </div>
 {% endblock %}

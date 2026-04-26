@@ -64,13 +64,15 @@
      * Иконка внутри: <svg class="btn-icon">
      * Опции: btn-block | btn-pilled | btn-disabled
      * Адаптив (тулбар и узкие экраны): btn-full-until-sm | btn-group-until-sm
+     * Hover-стили вариантов — через enabled:hover, чтобы :disabled не подсвечивался на наведение.
      */
     .btn {
         @apply inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-transparent focus:outline-none transition focus-visible:outline-none;
+        @apply disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .btn-disabled {
-        @apply opacity-50 pointer-events-none cursor-not-allowed;
+        @apply cursor-not-allowed opacity-50 pointer-events-none;
     }
 
     /* Размеры */
@@ -112,142 +114,142 @@
 
     /* ═══ Solid ═══ (рамка совпадает с заливкой и при hover — без «светлого» кольца) */
     .btn-solid-secondary {
-        @apply border-secondary bg-secondary text-secondary-foreground hover:border-gray-300 hover:bg-gray-300 focus-visible:ring-2 focus-visible:ring-secondary-500/35;
+        @apply border-secondary bg-secondary text-secondary-foreground enabled:hover:border-gray-300 enabled:hover:bg-gray-300 focus-visible:ring-2 focus-visible:ring-secondary-500/35;
     }
     .btn-solid-primary {
-        @apply border-primary bg-primary text-primary-foreground hover:border-primary-800 hover:bg-primary-800 focus-visible:ring-2 focus-visible:ring-primary/40;
+        @apply border-primary bg-primary text-primary-foreground enabled:hover:border-primary-800 enabled:hover:bg-primary-800 focus-visible:ring-2 focus-visible:ring-primary/40;
     }
     .btn-solid-info {
-        @apply border-info bg-info text-info-foreground hover:border-info-800 hover:bg-info-800 focus-visible:ring-2 focus-visible:ring-info/40;
+        @apply border-info bg-info text-info-foreground enabled:hover:border-info-800 enabled:hover:bg-info-800 focus-visible:ring-2 focus-visible:ring-info/40;
     }
     .btn-solid-success {
-        @apply border-success bg-success text-success-foreground hover:border-success-800 hover:bg-success-800 focus-visible:ring-2 focus-visible:ring-success/40;
+        @apply border-success bg-success text-success-foreground enabled:hover:border-success-800 enabled:hover:bg-success-800 focus-visible:ring-2 focus-visible:ring-success/40;
     }
     .btn-solid-warning {
-        @apply border-warning bg-warning text-warning-foreground hover:border-warning-800 hover:bg-warning-800 focus-visible:ring-2 focus-visible:ring-warning/40;
+        @apply border-warning bg-warning text-warning-foreground enabled:hover:border-warning-800 enabled:hover:bg-warning-800 focus-visible:ring-2 focus-visible:ring-warning/40;
     }
     .btn-solid-danger {
-        @apply border-danger bg-danger text-danger-foreground hover:border-danger-800 hover:bg-danger-800 focus-visible:ring-2 focus-visible:ring-danger/40;
+        @apply border-danger bg-danger text-danger-foreground enabled:hover:border-danger-800 enabled:hover:bg-danger-800 focus-visible:ring-2 focus-visible:ring-danger/40;
     }
     .btn-solid-plain {
-        @apply border-plain bg-plain text-inverse hover:border-gray-800 hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-plain/30;
+        @apply border-plain bg-plain text-inverse enabled:hover:border-gray-800 enabled:hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-plain/30;
     }
 
     /* ═══ Soft ═══ */
     .btn-soft-secondary {
-        @apply border-transparent bg-secondary-100 text-secondary-800 hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-secondary-500/25;
+        @apply border-transparent bg-secondary-100 text-secondary-800 enabled:hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-secondary-500/25;
     }
     .btn-soft-primary {
-        @apply border-transparent bg-primary-100 text-primary-800 hover:bg-primary-200 focus-visible:ring-2 focus-visible:ring-primary/30;
+        @apply border-transparent bg-primary-100 text-primary-800 enabled:hover:bg-primary-200 focus-visible:ring-2 focus-visible:ring-primary/30;
     }
     .btn-soft-info {
-        @apply border-transparent bg-info-100 text-info-800 hover:bg-info-200 focus-visible:ring-2 focus-visible:ring-info/30;
+        @apply border-transparent bg-info-100 text-info-800 enabled:hover:bg-info-200 focus-visible:ring-2 focus-visible:ring-info/30;
     }
     .btn-soft-success {
-        @apply border-transparent bg-success-100 text-success-800 hover:bg-success-200 focus-visible:ring-2 focus-visible:ring-success/30;
+        @apply border-transparent bg-success-100 text-success-800 enabled:hover:bg-success-200 focus-visible:ring-2 focus-visible:ring-success/30;
     }
     .btn-soft-warning {
-        @apply border-transparent bg-warning-100 text-warning-800 hover:bg-warning-200 focus-visible:ring-2 focus-visible:ring-warning/30;
+        @apply border-transparent bg-warning-100 text-warning-800 enabled:hover:bg-warning-200 focus-visible:ring-2 focus-visible:ring-warning/30;
     }
     .btn-soft-danger {
-        @apply border-transparent bg-danger-100 text-danger-800 hover:bg-danger-200 focus-visible:ring-2 focus-visible:ring-danger/30;
+        @apply border-transparent bg-danger-100 text-danger-800 enabled:hover:bg-danger-200 focus-visible:ring-2 focus-visible:ring-danger/30;
     }
     .btn-soft-plain {
-        @apply border-transparent bg-plain/10 text-foreground hover:bg-plain/15 focus-visible:ring-2 focus-visible:ring-plain/20;
+        @apply border-transparent bg-plain/10 text-foreground enabled:hover:bg-plain/15 focus-visible:ring-2 focus-visible:ring-plain/20;
     }
 
     /* ═══ Outline ═══ (текст *-800; рамка как у soft-outline) */
     .btn-outline-secondary {
-        @apply border border-secondary-500/45 text-secondary-800 hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/30;
+        @apply border border-secondary-500/45 text-secondary-800 enabled:hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/30;
     }
     .btn-outline-primary {
-        @apply border border-primary/25 text-primary-800 hover:bg-primary-100 focus-visible:ring-2 focus-visible:ring-primary/35;
+        @apply border border-primary/25 text-primary-800 enabled:hover:bg-primary-100 focus-visible:ring-2 focus-visible:ring-primary/35;
     }
     .btn-outline-info {
-        @apply border border-info/30 text-info-800 hover:bg-info-100 focus-visible:ring-2 focus-visible:ring-info/35;
+        @apply border border-info/30 text-info-800 enabled:hover:bg-info-100 focus-visible:ring-2 focus-visible:ring-info/35;
     }
     .btn-outline-success {
-        @apply border border-success/30 text-success-800 hover:bg-success-100 focus-visible:ring-2 focus-visible:ring-success/35;
+        @apply border border-success/30 text-success-800 enabled:hover:bg-success-100 focus-visible:ring-2 focus-visible:ring-success/35;
     }
     .btn-outline-warning {
-        @apply border border-warning/35 text-warning-800 hover:bg-warning-100 focus-visible:ring-2 focus-visible:ring-warning/35;
+        @apply border border-warning/35 text-warning-800 enabled:hover:bg-warning-100 focus-visible:ring-2 focus-visible:ring-warning/35;
     }
     .btn-outline-danger {
-        @apply border border-danger/30 text-danger-800 hover:bg-danger-100 focus-visible:ring-2 focus-visible:ring-danger/35;
+        @apply border border-danger/30 text-danger-800 enabled:hover:bg-danger-100 focus-visible:ring-2 focus-visible:ring-danger/35;
     }
     .btn-outline-plain {
-        @apply border border-plain/20 text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-foreground/15;
+        @apply border border-plain/20 text-foreground enabled:hover:bg-muted focus-visible:ring-2 focus-visible:ring-foreground/15;
     }
 
     /* ═══ Soft + рамка (как badge-soft-outline) ═══ */
     .btn-soft-outline-secondary {
-        @apply border border-secondary-500/45 bg-secondary-100 text-secondary-800 hover:bg-secondary/90 focus-visible:ring-2 focus-visible:ring-secondary-500/30;
+        @apply border border-secondary-500/45 bg-secondary-100 text-secondary-800 enabled:hover:bg-secondary/90 focus-visible:ring-2 focus-visible:ring-secondary-500/30;
     }
     .btn-soft-outline-primary {
-        @apply border border-primary/25 bg-primary-100 text-primary-800 hover:bg-primary-200 focus-visible:ring-2 focus-visible:ring-primary/30;
+        @apply border border-primary/25 bg-primary-100 text-primary-800 enabled:hover:bg-primary-200 focus-visible:ring-2 focus-visible:ring-primary/30;
     }
     .btn-soft-outline-info {
-        @apply border border-info/30 bg-info-100 text-info-800 hover:bg-info-200 focus-visible:ring-2 focus-visible:ring-info/30;
+        @apply border border-info/30 bg-info-100 text-info-800 enabled:hover:bg-info-200 focus-visible:ring-2 focus-visible:ring-info/30;
     }
     .btn-soft-outline-success {
-        @apply border border-success/30 bg-success-100 text-success-800 hover:bg-success-200 focus-visible:ring-2 focus-visible:ring-success/30;
+        @apply border border-success/30 bg-success-100 text-success-800 enabled:hover:bg-success-200 focus-visible:ring-2 focus-visible:ring-success/30;
     }
     .btn-soft-outline-warning {
-        @apply border border-warning/35 bg-warning-100 text-warning-800 hover:bg-warning-200 focus-visible:ring-2 focus-visible:ring-warning/30;
+        @apply border border-warning/35 bg-warning-100 text-warning-800 enabled:hover:bg-warning-200 focus-visible:ring-2 focus-visible:ring-warning/30;
     }
     .btn-soft-outline-danger {
-        @apply border border-danger/30 bg-danger-100 text-danger-800 hover:bg-danger-200 focus-visible:ring-2 focus-visible:ring-danger/30;
+        @apply border border-danger/30 bg-danger-100 text-danger-800 enabled:hover:bg-danger-200 focus-visible:ring-2 focus-visible:ring-danger/30;
     }
     .btn-soft-outline-plain {
-        @apply border border-plain/20 bg-plain/10 text-foreground hover:bg-plain/15 focus-visible:ring-2 focus-visible:ring-plain/25;
+        @apply border border-plain/20 bg-plain/10 text-foreground enabled:hover:bg-plain/15 focus-visible:ring-2 focus-visible:ring-plain/25;
     }
 
     /* ═══ Ghost ═══ */
     .btn-ghost-secondary,
     .btn-ghost {
-        @apply border-transparent bg-transparent text-foreground hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/25;
+        @apply border-transparent bg-transparent text-foreground enabled:hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/25;
     }
     .btn-ghost-muted {
-        @apply border-transparent bg-transparent text-secondary-500 hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/20;
+        @apply border-transparent bg-transparent text-secondary-500 enabled:hover:bg-secondary-100 focus-visible:ring-2 focus-visible:ring-secondary-500/20;
     }
     .btn-ghost-primary {
-        @apply border-transparent bg-transparent text-primary hover:bg-primary-100 focus-visible:ring-2 focus-visible:ring-primary/30;
+        @apply border-transparent bg-transparent text-primary enabled:hover:bg-primary-100 focus-visible:ring-2 focus-visible:ring-primary/30;
     }
     .btn-ghost-info {
-        @apply border-transparent bg-transparent text-info hover:bg-info-100 focus-visible:ring-2 focus-visible:ring-info/30;
+        @apply border-transparent bg-transparent text-info enabled:hover:bg-info-100 focus-visible:ring-2 focus-visible:ring-info/30;
     }
     .btn-ghost-success {
-        @apply border-transparent bg-transparent text-success hover:bg-success-100 focus-visible:ring-2 focus-visible:ring-success/30;
+        @apply border-transparent bg-transparent text-success enabled:hover:bg-success-100 focus-visible:ring-2 focus-visible:ring-success/30;
     }
     .btn-ghost-warning {
-        @apply border-transparent bg-transparent text-warning hover:bg-warning-100 focus-visible:ring-2 focus-visible:ring-warning/30;
+        @apply border-transparent bg-transparent text-warning enabled:hover:bg-warning-100 focus-visible:ring-2 focus-visible:ring-warning/30;
     }
     .btn-ghost-danger {
-        @apply border-transparent bg-transparent text-danger hover:bg-danger-100 focus-visible:ring-2 focus-visible:ring-danger/30;
+        @apply border-transparent bg-transparent text-danger enabled:hover:bg-danger-100 focus-visible:ring-2 focus-visible:ring-danger/30;
     }
     .btn-ghost-plain {
-        @apply border-transparent bg-transparent text-foreground hover:bg-plain/10 focus-visible:ring-2 focus-visible:ring-plain/20;
+        @apply border-transparent bg-transparent text-foreground enabled:hover:bg-plain/10 focus-visible:ring-2 focus-visible:ring-plain/20;
     }
 
     /* ═══ Светлая «карточная» кнопка (бывш. btn-white) ═══ */
     .btn-elevated {
-        @apply border-line-5 bg-surface text-surface-foreground shadow-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary/20;
+        @apply border-line-5 bg-surface text-surface-foreground shadow-sm enabled:hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary/20;
     }
 
     /* Нейтральная рамка с переходом в акцент (тулбары, вторичные действия) */
     .btn-outline-layer {
-        @apply border-line-5 text-secondary-500 hover:border-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/30;
+        @apply border-line-5 text-secondary-500 enabled:hover:border-primary enabled:hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/30;
     }
 
     /* ═══ Link (только текст) ═══ */
     .btn-link {
-        @apply border-transparent py-0 px-0 rounded-none font-semibold text-foreground hover:text-primary focus-visible:ring-0;
+        @apply border-transparent py-0 px-0 rounded-none font-semibold text-foreground enabled:hover:text-primary focus-visible:ring-0;
     }
     .btn-link-secondary {
-        @apply border-transparent py-0 px-0 rounded-none font-semibold text-secondary-500 hover:text-primary focus-visible:ring-0;
+        @apply border-transparent py-0 px-0 rounded-none font-semibold text-secondary-500 enabled:hover:text-primary focus-visible:ring-0;
     }
     .btn-link-primary {
-        @apply border-transparent py-0 px-0 rounded-none font-semibold text-primary hover:text-primary-800 focus-visible:ring-0;
+        @apply border-transparent py-0 px-0 rounded-none font-semibold text-primary enabled:hover:text-primary-800 focus-visible:ring-0;
     }
 
     /*

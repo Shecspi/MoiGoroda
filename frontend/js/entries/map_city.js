@@ -369,6 +369,9 @@ async function updateYearFilterIfNeeded(year) {
     }
 }
 
+const TITLE_NOT_VISITED_CITIES = 'Показать города, где Вы ещё не были';
+const TITLE_NOT_VISITED_CITIES_NEED_COUNTRY = 'Сначала выберите конкретную страну, чтобы смотреть непосещённые города';
+
 /**
  * Обновляет состояние кнопки "Показать непосещённые города".
  * Кнопка активна только если:
@@ -377,23 +380,24 @@ async function updateYearFilterIfNeeded(year) {
  * - Не применена фильтрация по годам
  */
 function updateNotVisitedCitiesButtonState() {
-    if (!actions) {
-        return;
-    }
-
     const btn = document.getElementById('btn_show-not-visited-cities');
     if (!btn) {
         return;
     }
 
-    // Проверяем, выбрана ли конкретная страна
     const countrySelect = document.getElementById('id_country');
     const hasCountrySelected = countrySelect && countrySelect.value && countrySelect.value !== '' && countrySelect.value !== 'all';
 
-    // Проверяем, показаны ли города подписок (есть ли маркеры на карте)
-    const hasSubscriptionCitiesShown = actions.stateSubscriptionCities && 
+    if (!actions) {
+        btn.disabled = !hasCountrySelected;
+        btn.setAttribute('aria-disabled', String(!hasCountrySelected));
+        btn.title = hasCountrySelected ? TITLE_NOT_VISITED_CITIES : TITLE_NOT_VISITED_CITIES_NEED_COUNTRY;
+        return;
+    }
+
+    const hasSubscriptionCitiesShown = actions.stateSubscriptionCities &&
         actions.stateSubscriptionCities.size > 0 &&
-        Array.from(actions.stateSubscriptionCities.values()).some(marker => map.hasLayer(marker));
+        Array.from(actions.stateSubscriptionCities.values()).some((marker) => map.hasLayer(marker));
 
     const subscriptionsButton = document.getElementById('btn_open_modal_with_subscriptions');
     if (subscriptionsButton) {
@@ -401,14 +405,21 @@ function updateNotVisitedCitiesButtonState() {
         subscriptionsButton.classList.add(hasSubscriptionCitiesShown ? 'btn-soft-outline-warning' : 'btn-outline-warning');
     }
 
-    // Проверяем, применена ли фильтрация по годам
     const yearSelect = document.getElementById('id_year_filter');
     const hasYearFilter = yearSelect && yearSelect.value && yearSelect.value !== '' && yearSelect.value !== 'all';
 
-    // Кнопка активна только если все условия выполнены
     const shouldBeEnabled = hasCountrySelected && !hasSubscriptionCitiesShown && !hasYearFilter;
 
     btn.disabled = !shouldBeEnabled;
+    btn.setAttribute('aria-disabled', String(!shouldBeEnabled));
+    if (shouldBeEnabled) {
+        btn.title = TITLE_NOT_VISITED_CITIES;
+    } else if (!hasCountrySelected) {
+        btn.title = TITLE_NOT_VISITED_CITIES_NEED_COUNTRY;
+    } else {
+        btn.title =
+            'Снимите отображение городов по подписке и выберите «Все годы», чтобы смотреть непосещённые города';
+    }
 }
 
 /**

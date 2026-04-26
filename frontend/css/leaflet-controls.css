@@ -634,6 +634,15 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
     stroke-linejoin: round;
 }
 
+/* Иконка «Помощь» (Font Awesome) — заливка, без обводки от stroke-стиля выше */
+#map .custom-control-for-map svg.control-icon.control-icon--solid {
+    width: 1.5rem;
+    height: 1.5rem;
+    stroke: none;
+    stroke-width: 0;
+    fill: currentColor;
+}
+
 /* Скрываем Font Awesome иконки если они остались */
 #map .custom-control-for-map i {
     display: none !important;

@@ -1,0 +1,38 @@
+@layer components {
+    /*
+     * Select search: кнопка/поле + выпадашка. Панель списка визуально как .mg-combobox-dropdown (см. combobox.css),
+     * пункты списка — те же .mg-combobox-option / .mg-combobox-empty.
+     */
+    /* Корень виджета (не путать с .mg-select-search в tailwind.css — стили поля поиска Preline HS Select). */
+    .mg-ui-select-search {
+        @apply w-full;
+    }
+
+    .mg-select-search-toggle {
+        @apply relative cursor-pointer;
+    }
+
+    .mg-select-search-toggle:disabled {
+        @apply cursor-not-allowed;
+    }
+
+    .mg-select-search-toggle-icon {
+        @apply pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center pr-3 text-gray-500 dark:text-neutral-500;
+    }
+
+    .mg-select-search-dropdown {
+        @apply absolute left-0 right-0 mt-1 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-900;
+    }
+
+    .mg-select-search-input-wrap {
+        @apply border-b border-gray-200 p-2 dark:border-neutral-700;
+    }
+
+    .mg-select-search-options {
+        @apply m-0 max-h-64 w-full list-none overflow-auto p-1;
+    }
+
+    .mg-combobox-option.is-disabled {
+        @apply cursor-not-allowed opacity-50 hover:bg-transparent dark:hover:bg-transparent;
+    }
+}

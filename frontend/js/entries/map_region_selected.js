@@ -109,7 +109,7 @@ if (allMarkers.length > 0) {
  * Обновляет бейджик с количеством посещённых городов в тулбаре
  */
 const updateVisitedCitiesBadge = () => {
-    const statBadge = document.querySelector('.stat-badge-success');
+    const statBadge = document.querySelector('.js-visited-cities-stat');
     if (!statBadge) {
         return;
     }

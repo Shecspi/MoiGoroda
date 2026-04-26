@@ -28,16 +28,21 @@ def _render(
     template: str,
     page_title: str,
     page_description: str = '',
+    extra_context: dict | None = None,
 ) -> HttpResponse:
     _guard(request)
+    context = {
+        'page_title': page_title,
+        'page_description': page_description,
+        'active_page': 'ui_demo',
+    }
+    if extra_context:
+        context.update(extra_context)
+
     return render(
         request,
         template,
-        {
-            'page_title': page_title,
-            'page_description': page_description,
-            'active_page': 'ui_demo',
-        },
+        context,
     )
 
 
@@ -58,12 +63,30 @@ def badges(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def forms(request: HttpRequest) -> HttpResponse:
-    return _render(request, 'ui_demo/forms.html', 'Поля форм')
+    demo_combobox_options = [
+        {'value': 'moscow', 'label': 'Москва'},
+        {'value': 'saint-petersburg', 'label': 'Санкт-Петербург'},
+        {'value': 'kazan', 'label': 'Казань'},
+        {'value': 'novosibirsk', 'label': 'Новосибирск'},
+        {'value': 'yekaterinburg', 'label': 'Екатеринбург'},
+        {'value': 'nizhny-novgorod', 'label': 'Нижний Новгород'},
+    ]
+    demo_select_search_options = [
+        {'value': '', 'label': 'Выберите значение', 'selected': True},
+        {'value': '1', 'label': 'Первый'},
+        {'value': '2', 'label': 'Второй'},
+        {'value': '3', 'label': 'Третий'},
+    ]
 
-
-@login_required
-def stat_badges(request: HttpRequest) -> HttpResponse:
-    return _render(request, 'ui_demo/stat_badges.html', 'Статистические бейджи')
+    return _render(
+        request,
+        'ui_demo/forms.html',
+        'Поля форм',
+        extra_context={
+            'demo_combobox_options': demo_combobox_options,
+            'demo_select_search_options': demo_select_search_options,
+        },
+    )
 
 
 @login_required

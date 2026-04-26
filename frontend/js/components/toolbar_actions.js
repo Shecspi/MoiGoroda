@@ -48,6 +48,7 @@ export class ToolbarActions {
         this.elementShowSubscriptionCities = document.getElementById('btn_show-subscriptions-cities');
         this.elementShowPlaces = document.getElementById('btn_show-places');
         this.elementShowNotVisitedCities = document.getElementById('btn_show-not-visited-cities');
+        this.elementOpenSubscriptionsModal = document.getElementById('btn_open_modal_with_subscriptions');
 
         this.set_handlers();
     }
@@ -59,7 +60,7 @@ export class ToolbarActions {
 
 
         this.elementShowPlaces.addEventListener('click', () => {
-            const isActive = this.elementShowPlaces.classList.contains('bg-blue-100');
+            const isActive = this.elementShowPlaces.classList.contains('btn-soft-outline-primary');
             if (isActive) {
                 this.hidePlaces();
                 this.setPlacesButtonActive(false);
@@ -73,9 +74,11 @@ export class ToolbarActions {
             if (this.elementShowNotVisitedCities.dataset.type === 'show') {
                 this.showNotVisitedCities();
                 this.setButtonState(this.elementShowNotVisitedCities, true);
+                this.setToggleButtonVariant(this.elementShowNotVisitedCities, 'danger', true);
             } else {
                 this.hideNotVisitedCities();
                 this.setButtonState(this.elementShowNotVisitedCities, false);
+                this.setToggleButtonVariant(this.elementShowNotVisitedCities, 'danger', false);
             }
         });
     }
@@ -84,25 +87,21 @@ export class ToolbarActions {
         element.dataset.type = isActive ? 'hide' : 'show';
     }
 
+    setToggleButtonVariant(element, color, isActive) {
+        if (!element) {
+            return;
+        }
+        element.classList.remove(`btn-outline-${color}`, `btn-soft-outline-${color}`);
+        element.classList.add(isActive ? `btn-soft-outline-${color}` : `btn-outline-${color}`);
+    }
+
     /**
      * Устанавливает активное состояние кнопки "Показать места" через CSS классы.
      * В активном состоянии добавляется только фон, остальные стили остаются без изменений.
      * @param {boolean} isActive - Активна ли кнопка
      */
     setPlacesButtonActive(isActive) {
-        if (!this.elementShowPlaces) {
-            return;
-        }
-
-        if (isActive) {
-            // Активное состояние: добавляем синий фон, остальное не меняем
-            this.elementShowPlaces.classList.remove('bg-white', 'hover:bg-gray-50', 'focus:bg-gray-50', 'dark:bg-neutral-800', 'dark:hover:bg-neutral-700', 'dark:focus:bg-neutral-700');
-            this.elementShowPlaces.classList.add('bg-blue-100', 'hover:bg-blue-200', 'focus:bg-blue-200', 'dark:bg-blue-800/30', 'dark:hover:bg-blue-800/20', 'dark:focus:bg-blue-800/20');
-        } else {
-            // Неактивное состояние: возвращаем стандартный фон
-            this.elementShowPlaces.classList.remove('bg-blue-100', 'hover:bg-blue-200', 'focus:bg-blue-200', 'dark:bg-blue-800/30', 'dark:hover:bg-blue-800/20', 'dark:focus:bg-blue-800/20');
-            this.elementShowPlaces.classList.add('bg-white', 'hover:bg-gray-50', 'focus:bg-gray-50', 'dark:bg-neutral-800', 'dark:hover:bg-neutral-700', 'dark:focus:bg-neutral-700');
-        }
+        this.setToggleButtonVariant(this.elementShowPlaces, 'primary', isActive);
     }
 
     disableButton(element, shouldDisable) {
@@ -182,6 +181,11 @@ export class ToolbarActions {
             if (typeof window.updateNotVisitedCitiesButtonState === 'function') {
                 window.updateNotVisitedCitiesButtonState();
             }
+
+            const hasSubscriptionsVisible =
+                this.stateSubscriptionCities.size > 0 &&
+                Array.from(this.stateSubscriptionCities.values()).some(marker => this.myMap.hasLayer(marker));
+            this.setToggleButtonVariant(this.elementOpenSubscriptionsModal, 'warning', hasSubscriptionsVisible);
         } else {
             const element = document.getElementById('toast_validation_error');
             const toast = new bootstrap.Toast(element);

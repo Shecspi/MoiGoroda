@@ -921,7 +921,7 @@ function updateStatsBadge() {
         return;
     }
 
-    const badgeElement = document.querySelector('#section-stats .stat-badge');
+    const badgeElement = document.getElementById('js-districts-stats-badge');
     if (!badgeElement) {
         return;
     }
@@ -940,12 +940,12 @@ function updateStatsBadge() {
     if (qtyOfDistricts > 0) {
         const word = pluralize(qtyOfVisitedDistricts, 'район', 'района', 'районов');
         badgeElement.innerHTML = `
-            <span class="stat-badge-dot"></span>
+            <span class="badge-dot" aria-hidden="true"></span>
             Посещено <strong>${qtyOfVisitedDistricts}</strong> ${word} из ${qtyOfDistricts}
         `;
     } else {
         badgeElement.innerHTML = `
-            <span class="stat-badge-dot"></span>
+            <span class="badge-dot" aria-hidden="true"></span>
             Нет информации о районах
         `;
     }

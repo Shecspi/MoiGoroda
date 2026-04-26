@@ -150,7 +150,7 @@ jobs:
     ruff:
         name: Linting with ruff
         if: github.ref == 'refs/heads/master'
-        needs: [changelog]
+        needs: [frontend_vitest]
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -183,6 +183,26 @@ jobs:
 
             - name: Run ruff
               run: make lint-ruff
+
+    frontend_vitest:
+        name: Frontend unit tests (Vitest)
+        if: github.ref == 'refs/heads/master'
+        needs: [changelog]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Install frontend dependencies
+              run: make frontend-install
+
+            - name: Run frontend unit tests
+              run: make frontend-test
 
     deploy:
         name: Deploy to server

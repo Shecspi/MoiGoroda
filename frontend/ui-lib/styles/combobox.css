@@ -1,0 +1,43 @@
+@layer components {
+    /*
+     * Combobox (Data-API)
+     * Базовый dropdown для input + listbox без JS-фреймворка.
+     */
+    .mg-combobox {
+        @apply w-full;
+    }
+
+    .mg-combobox-dropdown {
+        @apply absolute z-30 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-900;
+    }
+
+    .mg-combobox-option {
+        @apply cursor-pointer rounded-md border border-transparent px-3 py-2 text-sm text-gray-800 transition hover:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-800;
+    }
+
+    .mg-combobox-option.is-selected {
+        @apply font-semibold text-gray-900 dark:text-neutral-100;
+    }
+
+    /* Сильнее базового hover, иначе hover перебивает фон из .is-active (одинаковая специфичность). */
+    .mg-combobox-option.is-active,
+    .mg-combobox-option.is-active:hover {
+        @apply border border-blue-200 bg-blue-100 text-blue-900 shadow-sm dark:border-blue-400/50 dark:bg-blue-600/40 dark:text-blue-50 dark:shadow-blue-900/20 dark:hover:bg-blue-600/50;
+    }
+
+    .mg-combobox-option-title {
+        @apply block truncate;
+    }
+
+    .mg-combobox-option.has-meta .mg-combobox-option-title {
+        @apply font-semibold;
+    }
+
+    .mg-combobox-option-meta {
+        @apply mt-0.5 block text-xs text-gray-500 dark:text-neutral-400;
+    }
+
+    .mg-combobox-empty {
+        @apply px-3 py-2 text-sm text-gray-500 dark:text-neutral-400;
+    }
+}

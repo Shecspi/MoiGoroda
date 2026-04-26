@@ -1,0 +1,218 @@
+@layer components {
+    /*
+     * Бейджи: семантика secondary | primary | info | success | warning | danger | plain (только токены темы).
+     *
+     * База: .badge + форма (.badge-pill | .badge-rounded | .badge-rounded-md) + размер (.badge-compact)
+     * Варианты: badge-solid-* | badge-soft-* | badge-outline-* | badge-soft-outline-*
+     * Индикатор: внутри бейджа <span class="badge-dot"></span>
+     * Иконка: на <svg class="badge-icon">
+     */
+    .badge {
+        @apply inline-flex items-center gap-x-1.5 py-1.5 px-3 text-xs font-medium rounded-full;
+    }
+
+    .badge-pill {
+        @apply rounded-full;
+    }
+
+    .badge-rounded {
+        @apply rounded-lg;
+    }
+
+    .badge-rounded-md {
+        @apply rounded-md;
+    }
+
+    .badge-compact {
+        @apply py-1 px-2 gap-x-1;
+    }
+
+    .badge-icon {
+        @apply shrink-0 size-3;
+    }
+
+    .badge-dot {
+        @apply size-1.5 inline-block rounded-full;
+    }
+
+    /* Точка индикатора: цвет наследуется от варианта бейджа */
+    .badge-soft-secondary .badge-dot {
+        @apply bg-secondary-800 dark:bg-secondary-400;
+    }
+    .badge-soft-primary .badge-dot {
+        @apply bg-primary-800 dark:bg-primary-400;
+    }
+    .badge-soft-info .badge-dot {
+        @apply bg-info-800 dark:bg-info-400;
+    }
+    .badge-soft-success .badge-dot {
+        @apply bg-success-800 dark:bg-success-400;
+    }
+    .badge-soft-warning .badge-dot {
+        @apply bg-warning-800 dark:bg-warning-400;
+    }
+    .badge-soft-danger .badge-dot {
+        @apply bg-danger-800 dark:bg-danger-400;
+    }
+    .badge-soft-plain .badge-dot {
+        @apply bg-foreground dark:bg-foreground-inverse;
+    }
+
+    .badge-soft-outline-secondary .badge-dot {
+        @apply bg-secondary-800 dark:bg-secondary-400;
+    }
+    .badge-soft-outline-primary .badge-dot {
+        @apply bg-primary-800 dark:bg-primary-400;
+    }
+    .badge-soft-outline-info .badge-dot {
+        @apply bg-info-800 dark:bg-info-400;
+    }
+    .badge-soft-outline-success .badge-dot {
+        @apply bg-success-800 dark:bg-success-400;
+    }
+    .badge-soft-outline-warning .badge-dot {
+        @apply bg-warning-800 dark:bg-warning-400;
+    }
+    .badge-soft-outline-danger .badge-dot {
+        @apply bg-danger-800 dark:bg-danger-400;
+    }
+    .badge-soft-outline-plain .badge-dot {
+        @apply bg-foreground dark:bg-foreground-inverse;
+    }
+
+    .badge-outline-secondary .badge-dot {
+        @apply bg-secondary-800 dark:bg-secondary-400;
+    }
+    .badge-outline-primary .badge-dot {
+        @apply bg-primary-800 dark:bg-primary-400;
+    }
+    .badge-outline-info .badge-dot {
+        @apply bg-info-800 dark:bg-info-400;
+    }
+    .badge-outline-success .badge-dot {
+        @apply bg-success-800 dark:bg-success-400;
+    }
+    .badge-outline-warning .badge-dot {
+        @apply bg-warning-800 dark:bg-warning-400;
+    }
+    .badge-outline-danger .badge-dot {
+        @apply bg-danger-800 dark:bg-danger-400;
+    }
+    .badge-outline-plain .badge-dot {
+        @apply bg-foreground dark:bg-foreground-inverse;
+    }
+
+    .badge-solid-secondary .badge-dot {
+        @apply bg-secondary-foreground;
+    }
+    .badge-solid-primary .badge-dot {
+        @apply bg-primary-foreground;
+    }
+    .badge-solid-info .badge-dot {
+        @apply bg-info-foreground;
+    }
+    .badge-solid-success .badge-dot {
+        @apply bg-success-foreground;
+    }
+    .badge-solid-warning .badge-dot {
+        @apply bg-warning-foreground;
+    }
+    .badge-solid-danger .badge-dot {
+        @apply bg-danger-foreground;
+    }
+    .badge-solid-plain .badge-dot {
+        @apply bg-inverse;
+    }
+
+    /* ═══ Solid ═══ */
+    .badge-solid-secondary {
+        @apply bg-secondary text-secondary-foreground;
+    }
+    .badge-solid-primary {
+        @apply bg-primary text-primary-foreground;
+    }
+    .badge-solid-info {
+        @apply bg-info text-info-foreground;
+    }
+    .badge-solid-success {
+        @apply bg-success text-success-foreground;
+    }
+    .badge-solid-warning {
+        @apply bg-warning text-warning-foreground;
+    }
+    .badge-solid-danger {
+        @apply bg-danger text-danger-foreground;
+    }
+    .badge-solid-plain {
+        @apply bg-plain text-inverse;
+    }
+
+    /* ═══ Soft ═══ */
+    .badge-soft-secondary {
+        @apply bg-secondary-100 text-secondary-800 dark:bg-secondary-500/20 dark:text-secondary-400;
+    }
+    .badge-soft-primary {
+        @apply bg-primary-100 text-primary-800 dark:bg-primary-500/20 dark:text-primary-400;
+    }
+    .badge-soft-info {
+        @apply bg-info-100 text-info-800 dark:bg-info-500/20 dark:text-info-400;
+    }
+    .badge-soft-success {
+        @apply bg-success-100 text-success-800 dark:bg-success-500/20 dark:text-success-400;
+    }
+    .badge-soft-warning {
+        @apply bg-warning-100 text-warning-800 dark:bg-warning-500/20 dark:text-warning-400;
+    }
+    .badge-soft-danger {
+        @apply bg-danger-100 text-danger-800 dark:bg-danger-500/20 dark:text-danger-400;
+    }
+    .badge-soft-plain {
+        @apply bg-plain/10 text-foreground dark:text-foreground-inverse;
+    }
+
+    /* ═══ Outline ═══ */
+    .badge-outline-secondary {
+        @apply border border-secondary-500 text-secondary-800 dark:border-secondary-400 dark:text-secondary-400;
+    }
+    .badge-outline-primary {
+        @apply border border-primary text-primary;
+    }
+    .badge-outline-info {
+        @apply border border-info text-info;
+    }
+    .badge-outline-success {
+        @apply border border-success text-success;
+    }
+    .badge-outline-warning {
+        @apply border border-warning text-warning;
+    }
+    .badge-outline-danger {
+        @apply border border-danger text-danger;
+    }
+    .badge-outline-plain {
+        @apply border border-line-8 text-foreground;
+    }
+
+    /* ═══ Soft + рамка ═══ */
+    .badge-soft-outline-secondary {
+        @apply border border-secondary-500/45 bg-secondary-100 text-secondary-800 dark:border-secondary-400/70 dark:bg-secondary-500/20 dark:text-secondary-400;
+    }
+    .badge-soft-outline-primary {
+        @apply border border-primary/25 bg-primary-100 text-primary-800 dark:border-primary-500/35 dark:bg-primary-500/20 dark:text-primary-400;
+    }
+    .badge-soft-outline-info {
+        @apply border border-info/30 bg-info-100 text-info-800 dark:border-info-500/40 dark:bg-info-500/20 dark:text-info-400;
+    }
+    .badge-soft-outline-success {
+        @apply border border-success/30 bg-success-100 text-success-800 dark:border-success-500/40 dark:bg-success-500/20 dark:text-success-400;
+    }
+    .badge-soft-outline-warning {
+        @apply border border-warning/35 bg-warning-100 text-warning-800 dark:border-warning-500/40 dark:bg-warning-500/20 dark:text-warning-400;
+    }
+    .badge-soft-outline-danger {
+        @apply border border-danger/30 bg-danger-100 text-danger-800 dark:border-danger-500/40 dark:bg-danger-500/20 dark:text-danger-400;
+    }
+    .badge-soft-outline-plain {
+        @apply border border-plain/20 bg-plain/10 text-foreground dark:text-foreground-inverse;
+    }
+}

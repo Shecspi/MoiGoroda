@@ -14,8 +14,9 @@ import 'leaflet-fullscreen';
 import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
 /**
- * Создаёт и возвращает объект карты с подложкой в виде карты OpenStreetMap
- * и кнопками увеличения/уменьшения масштаба, полноэкранного режима и создания скриншота.
+ * Создаёт и возвращает объект карты с подложкой (OpenStreetMap) и кнопками зума,
+ * полноэкранного режима, либо скриншота, либо (страница «карта городов») кнопки «Помощь».
+ * @param {{ mapPageHelp?: boolean }} [options]
  */
 let downloadedExternalBorder = undefined;
 let downloadedInternalBorder = undefined;
@@ -36,7 +37,8 @@ const myStyle = {
     opacity: strokeOpacity
 };
 
-export function create_map() {
+export function create_map(options = {}) {
+    const mapPageHelp = options.mapPageHelp === true;
     const map = L.map('map', {
         attributionControl: false,
         zoomControl: false
@@ -45,7 +47,11 @@ export function create_map() {
     add_attribution(map);
     add_zoom_control(map);
     add_fullscreen_control(map);
-    add_screenshot_control(map);
+    if (mapPageHelp) {
+        addMapPageHelpControl(map);
+    } else {
+        add_screenshot_control(map);
+    }
 
     return map
 }
@@ -114,6 +120,49 @@ function add_screenshot_control(map) {
             }
         }, 100);
     });
+}
+
+/**
+ * Кнопка «Помощь» (иконка, как custom-control-for-map) вместо скриншота — только страница карты городов.
+ * Открывает #helpModal через Preline HSOverlay.
+ */
+function addMapPageHelpControl(map) {
+    const Help = L.Control.extend({
+        onAdd: function () {
+            const wrap = L.DomUtil.create('div', 'leaflet-map-page-help');
+            const el = L.DomUtil.create('div', 'custom-control-for-map', wrap);
+            el.id = 'btn_help';
+            el.setAttribute('role', 'button');
+            el.setAttribute('tabindex', '0');
+            el.title = 'Открыть подробное описание функций страницы';
+            el.setAttribute('aria-label', el.title);
+            el.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" class="control-icon control-icon--solid" fill="currentColor" aria-hidden="true">' +
+                '<path d="M528 320C528 205.1 434.9 112 320 112C205.1 112 112 205.1 112 320C112 434.9 205.1 528 320 528C434.9 528 528 434.9 528 320zM64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576C178.6 576 64 461.4 64 320zM320 240C302.3 240 288 254.3 288 272C288 285.3 277.3 296 264 296C250.7 296 240 285.3 240 272C240 227.8 275.8 192 320 192C364.2 192 400 227.8 400 272C400 319.2 364 339.2 344 346.5L344 350.3C344 363.6 333.3 374.3 320 374.3C306.7 374.3 296 363.6 296 350.3L296 342.2C296 321.7 310.8 307 326.1 302C332.5 299.9 339.3 296.5 344.3 291.7C348.6 287.5 352 281.7 352 272.1C352 254.4 337.7 240.1 320 240.1zM288 432C288 414.3 302.3 400 320 400C337.7 400 352 414.3 352 432C352 449.7 337.7 464 320 464C302.3 464 288 449.7 288 432z"/>' +
+                '</svg>';
+            L.DomEvent.disableClickPropagation(wrap);
+            L.DomEvent.disableScrollPropagation(wrap);
+            const open = () => {
+                void import('preline').then((m) => {
+                    if (m.HSOverlay && typeof m.HSOverlay.open === 'function') {
+                        m.HSOverlay.open('#helpModal');
+                    }
+                });
+            };
+            L.DomEvent.on(el, 'click', (e) => {
+                L.DomEvent.stop(e);
+                open();
+            });
+            L.DomEvent.on(el, 'keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    L.DomEvent.stop(e);
+                    open();
+                }
+            });
+            return wrap;
+        }
+    });
+    (new Help({ position: 'topleft' })).addTo(map);
 }
 
 export function addExternalBorderControl(map, countryCode) {

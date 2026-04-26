@@ -25,7 +25,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const selectedCountryCode = urlParams.get('country');
 
 window.onload = async () => {
-    map = create_map();
+    map = create_map({ mapPageHelp: true });
     window.MG_MAIN_MAP = map;
     addExternalBorderControl(map, selectedCountryCode);
     addInternalBorderControl(map, selectedCountryCode);
@@ -141,7 +141,7 @@ async function getVisitedCities() {
 
 /**
  * Инициализирует выпадающий список годов и загружает годы через API.
- * Preline UI автоматически инициализирует компонент через autoInit().
+ * UI-lib компонент mg-select инициализируется через auto-init.js.
  */
 async function initYearFilter() {
     const yearSelect = document.getElementById('id_year_filter');
@@ -149,19 +149,6 @@ async function initYearFilter() {
     if (!yearSelect) {
         return;
     }
-
-    // Инициализируем компонент сразу с disabled и placeholder "Загрузка..."
-    // Убираем класс hidden перед инициализацией
-    if (yearSelect.classList.contains('hidden')) {
-        yearSelect.classList.remove('hidden');
-    }
-
-    // Инициализируем Preline UI компонент с disabled состоянием
-    requestAnimationFrame(() => {
-        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-            window.HSStaticMethods.autoInit();
-        }
-    });
 
     // Получаем текущий выбранный код страны из URL для фильтрации
     const countryCode = selectedCountryCode;
@@ -215,41 +202,8 @@ async function initYearFilter() {
             yearSelect.appendChild(option);
         });
 
-        // Убираем disabled и обновляем placeholder
+        // Убираем disabled после загрузки опций
         yearSelect.removeAttribute('disabled');
-        
-        // Обновляем data-hs-select для изменения placeholder
-        const dataHsSelect = yearSelect.getAttribute('data-hs-select');
-        if (dataHsSelect) {
-            try {
-                const config = JSON.parse(dataHsSelect);
-                config.placeholder = 'Все годы';
-                yearSelect.setAttribute('data-hs-select', JSON.stringify(config));
-            } catch (e) {
-                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
-            }
-        }
-
-        // Если компонент уже был инициализирован, переинициализируем его
-        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
-        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
-            hsSelectInstance.destroy();
-        }
-        
-        // Переинициализируем компонент с новыми опциями
-        // Используем requestAnimationFrame для гарантии, что DOM обновлен
-        requestAnimationFrame(() => {
-            if (window.HSSelect) {
-                try {
-                    new window.HSSelect('#id_year_filter');
-                } catch (e) {
-                    // Если не получилось, используем autoInit
-                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-                        window.HSStaticMethods.autoInit();
-                    }
-                }
-            }
-        });
 
         // Обработчик изменений значения
         const handleChange = () => {
@@ -269,37 +223,7 @@ async function initYearFilter() {
         // Показываем сообщение об ошибке пользователю
         const errorMessage = error.message || 'Не удалось загрузить список годов посещений';
         showDangerToast('Ошибка загрузки', errorMessage);
-        
-        // Обновляем placeholder для отображения ошибки
-        const dataHsSelect = yearSelect.getAttribute('data-hs-select');
-        if (dataHsSelect) {
-            try {
-                const config = JSON.parse(dataHsSelect);
-                config.placeholder = 'Ошибка загрузки';
-                yearSelect.setAttribute('data-hs-select', JSON.stringify(config));
-            } catch (e) {
-                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
-            }
-        }
-        
-        // Переинициализируем компонент с обновлённым placeholder
-        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
-        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
-            hsSelectInstance.destroy();
-        }
-        
-        requestAnimationFrame(() => {
-            if (window.HSSelect) {
-                try {
-                    new window.HSSelect('#id_year_filter');
-                } catch (e) {
-                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-                        window.HSStaticMethods.autoInit();
-                    }
-                }
-            }
-        });
-        
+
         // Компонент остаётся в disabled состоянии
     }
 }
@@ -439,40 +363,14 @@ async function updateYearFilterIfNeeded(year) {
             yearSelect.appendChild(option);
         });
 
-        // Обновляем data-hs-select для изменения placeholder
-        const dataHsSelect = yearSelect.getAttribute('data-hs-select');
-        if (dataHsSelect) {
-            try {
-                const config = JSON.parse(dataHsSelect);
-                config.placeholder = 'Все годы';
-                yearSelect.setAttribute('data-hs-select', JSON.stringify(config));
-            } catch (e) {
-                console.error('Ошибка при обновлении конфигурации Preline UI:', e);
-            }
-        }
-
-        // Если компонент уже был инициализирован, переинициализируем его
-        const hsSelectInstance = window.HSSelect && window.HSSelect.getInstance ? window.HSSelect.getInstance('#id_year_filter') : null;
-        if (hsSelectInstance && typeof hsSelectInstance.destroy === 'function') {
-            hsSelectInstance.destroy();
-        }
-        
-        // Переинициализируем компонент с новыми опциями
-        requestAnimationFrame(() => {
-            if (window.HSSelect) {
-                try {
-                    new window.HSSelect('#id_year_filter');
-                } catch (e) {
-                    if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-                        window.HSStaticMethods.autoInit();
-                    }
-                }
-            }
-        });
+        yearSelect.removeAttribute('disabled');
     } catch (error) {
         console.error('Ошибка при обновлении списка годов:', error);
     }
 }
+
+const TITLE_NOT_VISITED_CITIES = 'Показать города, где Вы ещё не были';
+const TITLE_NOT_VISITED_CITIES_NEED_COUNTRY = 'Сначала выберите конкретную страну, чтобы смотреть непосещённые города';
 
 /**
  * Обновляет состояние кнопки "Показать непосещённые города".
@@ -482,32 +380,46 @@ async function updateYearFilterIfNeeded(year) {
  * - Не применена фильтрация по годам
  */
 function updateNotVisitedCitiesButtonState() {
-    if (!actions) {
-        return;
-    }
-
     const btn = document.getElementById('btn_show-not-visited-cities');
     if (!btn) {
         return;
     }
 
-    // Проверяем, выбрана ли конкретная страна
     const countrySelect = document.getElementById('id_country');
     const hasCountrySelected = countrySelect && countrySelect.value && countrySelect.value !== '' && countrySelect.value !== 'all';
 
-    // Проверяем, показаны ли города подписок (есть ли маркеры на карте)
-    const hasSubscriptionCitiesShown = actions.stateSubscriptionCities && 
-        actions.stateSubscriptionCities.size > 0 &&
-        Array.from(actions.stateSubscriptionCities.values()).some(marker => map.hasLayer(marker));
+    if (!actions) {
+        btn.disabled = !hasCountrySelected;
+        btn.setAttribute('aria-disabled', String(!hasCountrySelected));
+        btn.title = hasCountrySelected ? TITLE_NOT_VISITED_CITIES : TITLE_NOT_VISITED_CITIES_NEED_COUNTRY;
+        return;
+    }
 
-    // Проверяем, применена ли фильтрация по годам
+    const hasSubscriptionCitiesShown = actions.stateSubscriptionCities &&
+        actions.stateSubscriptionCities.size > 0 &&
+        Array.from(actions.stateSubscriptionCities.values()).some((marker) => map.hasLayer(marker));
+
+    const subscriptionsButton = document.getElementById('btn_open_modal_with_subscriptions');
+    if (subscriptionsButton) {
+        subscriptionsButton.classList.remove('btn-outline-warning', 'btn-soft-outline-warning');
+        subscriptionsButton.classList.add(hasSubscriptionCitiesShown ? 'btn-soft-outline-warning' : 'btn-outline-warning');
+    }
+
     const yearSelect = document.getElementById('id_year_filter');
     const hasYearFilter = yearSelect && yearSelect.value && yearSelect.value !== '' && yearSelect.value !== 'all';
 
-    // Кнопка активна только если все условия выполнены
     const shouldBeEnabled = hasCountrySelected && !hasSubscriptionCitiesShown && !hasYearFilter;
 
     btn.disabled = !shouldBeEnabled;
+    btn.setAttribute('aria-disabled', String(!shouldBeEnabled));
+    if (shouldBeEnabled) {
+        btn.title = TITLE_NOT_VISITED_CITIES;
+    } else if (!hasCountrySelected) {
+        btn.title = TITLE_NOT_VISITED_CITIES_NEED_COUNTRY;
+    } else {
+        btn.title =
+            'Снимите отображение городов по подписке и выберите «Все годы», чтобы смотреть непосещённые города';
+    }
 }
 
 /**
@@ -541,8 +453,16 @@ function filterCitiesByYear(selectedYear) {
 
         // Пересоздаём все маркеры без фильтрации по годам
         const allMarkers = [];
-        
-        // Добавляем свои города
+        const placedCityIds = new Set();
+        const subscriptionCityIds = new Set(
+            (actions.subscriptionCities || []).map((c) => c.id)
+        );
+        const usersWhoVisitedCity =
+            actions.subscriptionCities && actions.subscriptionCities.length > 0
+                ? actions.getUsersWhoVisitedCity()
+                : new Map();
+
+        // Сначала свои города: пересечение с данными подписок → тёмно-зелёный (TOGETHER), иначе светло-зелёный (OWN)
         if (actions.ownCities) {
             actions.ownCities.forEach((cityData) => {
                 const city = new City();
@@ -557,23 +477,30 @@ function filterCitiesByYear(selectedYear) {
                 city.last_visit_date = cityData.last_visit_date;
                 city.number_of_visits = cityData.number_of_visits;
 
-                const marker = actions.addMarkerToMap(city, MarkerStyle.OWN);
-                actions.stateOwnCities.set(city.id, marker);
+                const showSubscriptions =
+                    actions.subscriptionCities && actions.subscriptionCities.length > 0;
+                const isAlsoInSubscriptions =
+                    showSubscriptions && subscriptionCityIds.has(cityData.id);
+
+                let marker;
+                if (isAlsoInSubscriptions) {
+                    const users = usersWhoVisitedCity.get(cityData.id) || [];
+                    marker = actions.addMarkerToMap(city, MarkerStyle.TOGETHER, users);
+                    actions.stateSubscriptionCities.set(cityData.id, marker);
+                } else {
+                    marker = actions.addMarkerToMap(city, MarkerStyle.OWN);
+                    actions.stateOwnCities.set(cityData.id, marker);
+                }
                 allMarkers.push(marker);
+                placedCityIds.add(cityData.id);
             });
         }
 
-        // Добавляем города подписок (они могут включать города, посещённые и мной, и подписчиками)
+        // Города только подписок (я не был): оранжевый (SUBSCRIPTION); дубликаты id в ответе пропускаем
         if (actions.subscriptionCities && actions.subscriptionCities.length > 0) {
-            // Получаем информацию о пользователях без фильтрации по годам
-            const usersWhoVisitedCity = actions.getUsersWhoVisitedCity();
-            const processedCityIds = new Set(Array.from(actions.stateOwnCities.keys()));
-
             actions.subscriptionCities.forEach((cityData) => {
                 const cityId = cityData.id;
-                
-                // Пропускаем города, которые уже добавлены как свои
-                if (processedCityIds.has(cityId)) {
+                if (placedCityIds.has(cityId)) {
                     return;
                 }
 
@@ -584,9 +511,8 @@ function filterCitiesByYear(selectedYear) {
                 city.country = cityData.country;
                 city.lat = cityData.lat;
                 city.lon = cityData.lon;
-                
-                // Для городов подписок visit_years берём из ownCities по названию, если город есть там
-                const ownCityData = actions.ownCities?.find(c => c.id === cityId);
+
+                const ownCityData = actions.ownCities?.find((c) => c.id === cityId);
                 if (ownCityData) {
                     city.visit_years = ownCityData.visit_years;
                     city.first_visit_date = ownCityData.first_visit_date;
@@ -595,11 +521,10 @@ function filterCitiesByYear(selectedYear) {
                 }
 
                 const users = usersWhoVisitedCity.get(cityId) || [];
-                const markerStyle = ownCityData ? MarkerStyle.TOGETHER : MarkerStyle.SUBSCRIPTION;
-                const marker = actions.addMarkerToMap(city, markerStyle, users);
+                const marker = actions.addMarkerToMap(city, MarkerStyle.SUBSCRIPTION, users);
                 actions.stateSubscriptionCities.set(cityId, marker);
                 allMarkers.push(marker);
-                processedCityIds.add(cityId);
+                placedCityIds.add(cityId);
             });
         }
 

@@ -4,22 +4,92 @@
 <div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
     {% include 'ui_demo/_subnav.html' %}
 
-    <h1 class="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Поля форм</h1>
+    <h1 class="mb-4 text-3xl font-bold text-gray-900 dark:text-white">Поля форм</h1>
+    <div class="mb-10 max-w-3xl rounded-r-lg border-l-4 border-blue-500 bg-blue-50/80 py-3 pl-4 pr-4 text-sm text-gray-800 dark:border-blue-500/80 dark:bg-blue-950/30 dark:text-neutral-200">
+        <p class="font-medium text-gray-900 dark:text-white">Проектная библиотека компонентов (<code class="text-xs">frontend/ui-lib</code>)</p>
+        <p class="mt-1 text-gray-700 dark:text-neutral-300">
+            Блоки с корнем <code class="text-xs">data-component="mg-…"</code> — это инициализируемые виджеты (JS, события <code class="text-xs">mg:…</code>, части DOM через <code class="text-xs">data-mg-part</code>).
+            Секция ниже с классами <code class="text-xs">.mg-input</code> — демо стилей из Tailwind-набора; не путайте с компонентами библиотеки.
+        </p>
+    </div>
 
-    <section class="mb-10 max-w-xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">form-input</h2>
-        <div>
-            <label for="demo-input" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Текст</label>
-            <input id="demo-input" type="text" class="form-input" placeholder="Placeholder" autocomplete="off">
+    <section class="mb-10 max-w-3xl rounded-2xl border border-blue-200 bg-blue-50/40 p-5 space-y-6 dark:border-blue-900/50 dark:bg-blue-950/20">
+        <div class="border-b border-blue-200/70 pb-3 dark:border-blue-900/60">
+            <p class="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Блок 1</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Input components (только стили)</h2>
+            <p class="text-sm text-gray-700 dark:text-neutral-300">Классы <code class="text-xs">.mg-input</code> / <code class="text-xs">.mg-input-label</code> — из общего CSS, без <code class="text-xs">data-component</code>.</p>
         </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label for="demo-input-base" class="mg-input-label">Base</label>
+                <input id="demo-input-base" type="text" class="mg-input" placeholder="Base input" autocomplete="off">
+            </div>
+            <div>
+                <label for="demo-input-readonly" class="mg-input-label">Readonly</label>
+                <input id="demo-input-readonly" type="text" class="mg-input" value="Readonly value" readonly>
+            </div>
+            <div>
+                <label for="demo-input-underline" class="mg-input-label">Underline</label>
+                <input id="demo-input-underline" type="text" class="mg-input mg-input-underline" placeholder="Underline input">
+            </div>
+            <div>
+                <label for="demo-input-pilled" class="mg-input-label">Pilled</label>
+                <input id="demo-input-pilled" type="text" class="mg-input mg-input-pilled" placeholder="Pilled input">
+            </div>
+        </div>
+
+        <div class="grid items-start gap-4 sm:grid-cols-3">
+            <input type="text" class="mg-input mg-input-sm" placeholder="Small">
+            <input type="text" class="mg-input mg-input-default" placeholder="Default">
+            <input type="text" class="mg-input mg-input-lg" placeholder="Large">
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div class="relative">
+                <label for="demo-input-leading" class="mg-input-label">Leading icon</label>
+                <span class="mg-input-leading-icon pt-7">
+                    <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/>
+                    </svg>
+                </span>
+                <input id="demo-input-leading" type="text" class="mg-input mg-input-with-leading-icon" placeholder="Search...">
+            </div>
+            <div>
+                <label for="demo-input-disabled" class="mg-input-label">Disabled</label>
+                <input id="demo-input-disabled" type="text" class="mg-input" value="Недоступно" disabled>
+            </div>
+        </div>
+
         <div>
-            <label for="demo-input-dis" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Disabled</label>
-            <input id="demo-input-dis" type="text" class="form-input" value="Недоступно" disabled>
+            <div class="mg-input-corner-hint">
+                <label for="demo-input-hint" class="mg-input-label mb-0">Corner hint</label>
+                <span class="text-sm text-gray-500 dark:text-neutral-400">Optional</span>
+            </div>
+            <input id="demo-input-hint" type="text" class="mg-input" placeholder="Address line 2">
+            <p class="mg-input-helper">Helper text для описания поля ввода.</p>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label for="demo-input-error" class="mg-input-label">Validation: error</label>
+                <input id="demo-input-error" type="text" class="mg-input mg-input-state-error" value="wrong@email">
+                <p class="mt-2 text-sm text-red-500">Введите корректный email.</p>
+            </div>
+            <div>
+                <label for="demo-input-success" class="mg-input-label">Validation: success</label>
+                <input id="demo-input-success" type="text" class="mg-input mg-input-state-success" value="ok@example.com">
+                <p class="mt-2 text-sm text-teal-500">Все отлично.</p>
+            </div>
         </div>
     </section>
 
-    <section class="mb-10 max-w-xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">form-select</h2>
+    <section class="mb-10 max-w-xl rounded-2xl border border-violet-200 bg-violet-50/40 p-5 space-y-4 dark:border-violet-900/50 dark:bg-violet-950/20">
+        <div class="border-b border-violet-200/70 pb-3 dark:border-violet-900/60">
+            <p class="text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300">Блок 2</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">form-select</h2>
+            <p class="text-sm text-gray-700 dark:text-neutral-300">Базовый нативный select для сравнения с компонентами ui-lib.</p>
+        </div>
         <div>
             <label for="demo-select" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Выбор</label>
             <select id="demo-select" class="form-select dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100">
@@ -30,52 +100,175 @@
         </div>
     </section>
 
-    <section class="mb-10 max-w-xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">mg-select-search</h2>
-        <div class="space-y-1 text-xs text-gray-600 dark:text-neutral-400">
-            <p>Как подключить:</p>
-            <p>
-                1) Добавьте <code>data-hs-select</code> на <code>select</code> и используйте классы
-                <code>mg-select-search</code>, <code>mg-select-search-wrap</code>, <code>mg-select-toggle</code>,
-                <code>mg-select-dropdown</code>, <code>mg-select-option</code>.
+    <section class="mb-10 max-w-3xl rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 space-y-6 dark:border-emerald-900/50 dark:bg-emerald-950/20">
+        <div class="border-b border-emerald-200/70 pb-3 dark:border-emerald-900/60">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Селект-компоненты UI-библиотеки</h2>
+            <p class="mt-2 text-sm text-gray-700 dark:text-neutral-300">
+                <code class="text-xs">mg-select</code> — селект без поиска, <code class="text-xs">mg-select-searchable</code> — селект с фильтрацией по опциям.
             </p>
-            <p>
-                2) В Django-шаблонах можно использовать include
-                <code>components/preline_select_search_dropdown.html</code>.
+            <p class="mt-1 text-sm text-gray-700 dark:text-neutral-300">
+                Используйте <code class="text-xs">mg-select</code> для коротких списков (например, выбор года), а <code class="text-xs">mg-select-searchable</code> — для длинных списков стран, регионов и т.п.
             </p>
         </div>
-        <div>
-            <label for="demo-hs-select" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Выбор с поиском</label>
-            <select
-                id="demo-hs-select"
-                class="hidden"
-                data-hs-select='{
-                    "hasSearch": true,
-                    "searchPlaceholder": "Поиск...",
-                    "searchClasses": "mg-select-search",
-                    "searchWrapperClasses": "mg-select-search-wrap",
-                    "placeholder": "Выберите значение",
-                    "toggleTag": "<button type=\"button\" aria-expanded=\"false\"><span class=\"text-gray-800 dark:text-neutral-200 truncate\" data-title></span></button>",
-                    "toggleClasses": "mg-select-toggle",
-                    "dropdownClasses": "mg-select-dropdown z-20",
-                    "optionClasses": "mg-select-option",
-                    "optionTemplate": "<div class=\"flex items-center\"><div class=\"me-2\" data-icon></div><div><div class=\"text-sm text-gray-800 dark:text-neutral-200\" data-title></div></div><div class=\"ms-auto\"><span class=\"hidden\"><svg class=\"shrink-0 size-4 text-blue-600 dark:text-blue-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\"><path d=\"M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z\"/></svg></span></div></div>",
-                    "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 dark:text-neutral-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
-                }'>
-                <option value="">Выберите значение</option>
-                <option value="1">Первый</option>
-                <option value="2">Второй</option>
-                <option value="3">Третий</option>
-            </select>
+
+        <div class="rounded-xl border border-emerald-200/70 bg-white/80 p-4 text-xs text-gray-700 dark:border-emerald-900/60 dark:bg-neutral-900/40 dark:text-neutral-300">
+            <p class="mb-2 text-sm font-semibold text-gray-900 dark:text-neutral-100">Документация (Django include)</p>
+            <pre class="overflow-x-auto rounded-lg bg-white p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>{% templatetag openblock %} include "components/ui/select.html" with
+select_id="id_year"
+select_name="year"
+disabled=False
+placeholder="Выберите год"
+options=year_options
+{% templatetag closeblock %}
+
+{% templatetag openblock %} include "components/ui/select_search.html" with
+select_id="id_country"
+select_name="country"
+disabled=False
+placeholder="Выберите страну"
+search_placeholder="Поиск..."
+options=country_options
+{% templatetag closeblock %}</code></pre>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label for="demo-select-basic" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">mg-select (без поиска)</label>
+                {% include "components/ui/select.html" with select_id="demo-select-basic" select_name="demo_select_basic" disabled=False placeholder="Выберите значение" options=demo_select_search_options %}
+            </div>
+            <div>
+                <label for="demo-select-searchable" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">mg-select-searchable (с поиском)</label>
+                {% include "components/ui/select_search.html" with select_id="demo-select-searchable" select_name="demo_select_searchable" disabled=False placeholder="Выберите значение" search_placeholder="Поиск..." options=demo_select_search_options %}
+            </div>
         </div>
     </section>
 
-    <section class="mb-10 max-w-xl space-y-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">color-picker</h2>
+    <section class="mb-10 max-w-3xl rounded-2xl border border-amber-200 bg-amber-50/40 p-5 space-y-4 dark:border-amber-900/50 dark:bg-amber-950/20">
+        <div class="border-b border-amber-200/70 pb-3 dark:border-amber-900/60">
+            <p class="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">Блок 4</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">mg-combobox-static / mg-combobox-remote (ui-lib)</h2>
+            <p class="text-sm text-gray-700 dark:text-neutral-300">Autocomplete-компоненты с локальными данными и загрузкой из API.</p>
+        </div>
+        <div class="space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+            <p>Компоненты без React/Vue: шаблон + <code>data-mg-combobox-*</code> + <code>data-mg-part</code> + автoинициализация <code>ui_core.js</code> по <code>data-component="mg-combobox-static"</code> или <code>mg-combobox-remote</code>.</p>
+            <p>Два include: <code>combobox_static.html</code> и <code>combobox_remote.html</code>.</p>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm dark:border-neutral-700 dark:bg-neutral-900/50">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Базовый include (статические опции)</p>
+            <pre class="overflow-x-auto rounded-lg bg-white p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>{% templatetag openblock %} include "components/ui/combobox_static.html" with
+combobox_id="city-search"
+input_id="city-search-input"
+hidden_name="city_id"
+label="Город"
+placeholder="Начните вводить..."
+options=demo_combobox_options
+min_chars="0"
+max_items="20"
+open_on_focus="true"
+autoselect_first="true"
+{% templatetag closeblock %}</code></pre>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+                <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Основные параметры include</p>
+                <ul class="space-y-1">
+                    <li><code>combobox_id</code>, <code>input_id</code>, <code>hidden_name</code></li>
+                    <li><code>options</code> (list dict: <code>value</code>, <code>label</code>)</li>
+                    <li><code>label</code>, <code>placeholder</code>, <code>value</code>, <code>input_value</code></li>
+                    <li><code>show_leading_icon</code>, <code>root_class</code>, <code>input_class</code>, <code>listbox_class</code></li>
+                </ul>
+            </div>
+            <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+                <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Поведение (в HTML — <code class="text-xs">data-mg-combobox-…</code>)</p>
+                <ul class="space-y-1">
+                    <li><code>open_on_focus</code> → <code>data-mg-combobox-open-on-focus</code></li>
+                    <li><code>min_chars</code> → <code>data-mg-combobox-min-chars</code></li>
+                    <li><code>max_items</code> → <code>data-mg-combobox-max-items</code></li>
+                    <li><code>autoselect_first</code> → <code>data-mg-combobox-autoselect-first</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Remote-режим (через include combobox_remote.html)</p>
+            <ul class="space-y-1">
+                <li><code>source_url</code> — endpoint для поиска (например, <code>/api/city/search</code>).</li>
+                <li><code>query_param</code> — имя query-параметра (по умолчанию <code>query</code>).</li>
+                <li><code>country_url_param</code> — дополнительный фильтр из текущего URL.</li>
+                <li><code>value_key</code>, <code>label_key</code> — поля из JSON-ответа.</li>
+                <li><code>meta_keys</code> — дополнительные поля второй строкой в опции.</li>
+                <li><code>debounce</code>, <code>loading_text</code>, <code>empty_text</code>.</li>
+            </ul>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">События компонента</p>
+            <ul class="space-y-1">
+                <li><code>mg:combobox:open</code> — список открыт.</li>
+                <li><code>mg:combobox:close</code> — список закрыт.</li>
+                <li><code>mg:combobox:highlight</code> — смена активной опции (detail: <code>value</code>, <code>label</code>).</li>
+                <li><code>mg:combobox:select</code> — выбор значения (detail: <code>value</code>, <code>label</code>, <code>source</code>).</li>
+            </ul>
+            <pre class="mt-3 overflow-x-auto rounded-lg bg-gray-50 p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>const node = document.getElementById('city-search-combobox');
+node.addEventListener('mg:combobox:select', (event) =&gt; {
+  const { value } = event.detail;
+  window.location.href = `/city/${value}`;
+});</code></pre>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Клавиатура и доступность</p>
+            <ul class="space-y-1">
+                <li><code>ArrowDown/ArrowUp</code> — перемещение по опциям.</li>
+                <li><code>Enter</code> — выбор активной опции.</li>
+                <li><code>Escape</code> или клик вне компонента — закрытие.</li>
+                <li>ARIA: <code>role="combobox"</code>, <code>role="listbox"</code>, <code>role="option"</code>, <code>aria-expanded</code>, <code>aria-activedescendant</code>.</li>
+            </ul>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 p-4 text-xs dark:border-neutral-700">
+            <p class="mb-2 font-semibold text-gray-900 dark:text-neutral-100">Переинициализация для динамического DOM</p>
+            <pre class="overflow-x-auto rounded-lg bg-gray-50 p-3 text-xs text-gray-700 dark:bg-neutral-900 dark:text-neutral-200"><code>// После вставки HTML с data-component="mg-combobox-static" или "mg-combobox-remote"
+window.MGUi.initAll(containerElement);
+
+// При удалении фрагмента (чтобы снять обработчики)
+window.MGUi.destroyAll(containerElement);</code></pre>
+        </div>
+
+        {% include "components/ui/combobox_static.html" with combobox_id="demo-city-combobox" input_id="demo-city-combobox-input" hidden_name="demo_city" label="Город" placeholder="Начните вводить город..." options=demo_combobox_options min_chars="0" max_items="6" open_on_focus="true" autoselect_first="true" %}
+   
+
+        <p id="demo-combobox-result" class="mg-input-helper">
+            Выбранное значение: пока не выбрано
+        </p>
+    </section>
+
+    <section class="mb-10 max-w-xl rounded-2xl border border-rose-200 bg-rose-50/40 p-5 space-y-4 dark:border-rose-900/50 dark:bg-rose-950/20">
+        <div class="border-b border-rose-200/70 pb-3 dark:border-rose-900/60">
+            <p class="text-xs font-semibold uppercase tracking-wide text-rose-700 dark:text-rose-300">Блок 5</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">color-picker</h2>
+            <p class="text-sm text-gray-700 dark:text-neutral-300">Отдельный элемент формы для выбора цвета.</p>
+        </div>
         <div>
             <label for="demo-color" class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300">Цвет</label>
             <input id="demo-color" type="color" class="color-picker dark:bg-neutral-900 dark:border-neutral-600" value="#2563eb" title="Выбор цвета">
         </div>
     </section>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const combobox = document.getElementById('demo-city-combobox');
+        const resultNode = document.getElementById('demo-combobox-result');
+
+        if (!combobox || !resultNode) return;
+
+        combobox.addEventListener('mg:combobox:select', (event) => {
+            const { value, label, source } = event.detail || {};
+            resultNode.textContent = `Выбранное значение: ${label || '-'} (${value || '-'}, ${source || 'unknown'})`;
+        });
+    });
+</script>
 {% endblock %}

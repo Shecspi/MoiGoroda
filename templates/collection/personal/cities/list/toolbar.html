@@ -6,8 +6,8 @@
     <!-- Статистика -->
     <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
         <div class="hs-tooltip [--placement:top] relative inline-block">
-            <span class="hs-tooltip-toggle stat-badge stat-badge-success">
-                <span class="stat-badge-dot"></span>
+            <span class="hs-tooltip-toggle badge badge-soft-outline-success text-sm">
+                <span class="badge-dot" aria-hidden="true"></span>
                 <span id="visited-word">{{ "Посещён,Посещено"|modify_by_num:qty_of_visited_cities }}</span>
                 <strong>{{ qty_of_visited_cities }}</strong>
                 <span id="visited-cities-word">{{ "город"|plural_by_num:qty_of_visited_cities }}</span>

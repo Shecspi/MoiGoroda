@@ -1,0 +1,31 @@
+---
+description: Переиспользуемые UI-компоненты — логика и стили в frontend/ui-lib
+alwaysApply: true
+---
+
+# UI-lib: компоненты
+
+При **создании** или **редактировании** переиспользуемых UI-компонентов (селекты, комбобоксы, кастомные поля, выпадашки с поиском и т.п.) работай как с **внутренней библиотекой** в [`frontend/ui-lib/`](frontend/ui-lib/).
+
+- **Логика** (инициализация, события, `data-*` контракт, регистрация в `registerComponent`, авто-инициализация) — в [`frontend/ui-lib/components/`](frontend/ui-lib/components/) и реестр в [`frontend/ui-lib/index.js`](frontend/ui-lib/index.js).
+- **Стили** — в [`frontend/ui-lib/styles/`](frontend/ui-lib/styles/) (в т.ч. [`badge.css`](frontend/ui-lib/styles/badge.css) — бейджи), подключать через единую точку [`frontend/ui-lib/styles/index.css`](frontend/ui-lib/styles/index.css) (и через сборку, например `css/ui-lib`).
+
+В **Django-шаблонах** допустимы только **тонкие** include-обёртки для **интерактивных** виджетов: `data-component` + `data-mg-*` и разметка (см. [`templates/components/ui/`](templates/components/ui/)). **Бейджи** — не компоненты: только CSS-классы в разметке, без include. Без внешних UI-библиотек (Preline HSSelect и т.д.) **для той части, которую мы вынесли в ui-lib**.
+
+- Демо/справка по переносимой библиотеке: [`frontend/ui-lib/README.md`](frontend/ui-lib/README.md); страница демо: [`templates/ui_demo/`](templates/ui_demo/).
+
+Если меняется только **страничная** вёрстка без выделения в общий компонент — не обязательно трогать ui-lib, но **новый** переиспользуемый виджет сначала проектируй в `ui-lib`, затем подключай в шаблоны.
+
+## Именование (обязательно)
+
+Все компоненты библиотеки используют префикс **`mg-`** и единый контракт:
+
+| Что | Соглашение |
+|-----|------------|
+| Регистрация и корневой маркер | `data-component="mg-<имя>"` — **всегда** с префиксом `mg-` (кебаб-кейс), например `mg-combobox-static`, `mg-select`, `mg-select-searchable`. |
+| Настройки с корня виджета | `data-mg-<имя-видажета>-<параметр>`, напр. `data-mg-combobox-min-chars`, `data-mg-select-placeholder`, `data-mg-select-searchable-filter-placeholder`. Тот же нейминг, что и у `data-component`, чтобы по атрибуту было ясно, к какому компоненту относится опция. |
+| Внутренние части DOM (роли для JS) | `data-mg-part="<роль>"` — не путать с `data-role`; значение в кебаб-кейс: `input`, `listbox`, `native-select` и т.д. |
+| CSS-классы | БЭМ-подобно: `mg-<блок>[-<элемент>][--<модификатор>]`; корень виджета не должен пересекаться с классами из «страничного» `tailwind.css` (например, корень select-search в библиотеке — `mg-ui-select-search`, а не `mg-select-search` — в проекте `mg-select-search` занят стилями Preline). |
+| События | `mg:<суть>:<действие>` (уже используется), напр. `mg:combobox:select`, `mg:select:open`. |
+
+Новый компонент: зарегистрируй имя в [`frontend/ui-lib/index.js`](frontend/ui-lib/index.js), стили в отдельном файле в `styles/`, подключи в `styles/index.css`, задокументируй в [`frontend/ui-lib/README.md`](frontend/ui-lib/README.md).

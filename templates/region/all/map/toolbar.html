@@ -22,7 +22,7 @@
     </div>
 
     <div class="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:ml-auto lg:w-auto lg:max-w-full lg:flex lg:flex-nowrap lg:items-center lg:justify-end lg:gap-3">
-        <div class="z-30 relative w-full min-w-0
+        <div class="z-40 relative w-full min-w-0
                     lg:w-[280px] lg:min-w-0 lg:max-w-md lg:flex-none
                     {% if user.is_authenticated and all_visit_years %} sm:col-span-1
                     {% else %} sm:col-span-2
@@ -34,7 +34,7 @@
         </div>
 
         {% if user.is_authenticated and all_visit_years %}
-            <div class="z-30 relative w-full min-w-0 sm:col-span-1 lg:w-[200px] lg:min-w-0 lg:max-w-md lg:flex-none"
+            <div class="z-20 relative w-full min-w-0 sm:col-span-1 lg:w-[200px] lg:min-w-0 lg:max-w-md lg:flex-none"
                  title="Выберите год для фильтрации регионов на карте">
                 <div data-component="mg-select"
                      data-mg-select-placeholder="Все годы"
@@ -59,7 +59,7 @@
                                 </svg>
                             </span>
                         </button>
-                        <div data-mg-part="dropdown" class="mg-select-search-dropdown z-50 hidden">
+                        <div data-mg-part="dropdown" class="mg-select-search-dropdown z-20 hidden">
                             <ul data-mg-part="options-list" class="mg-select-search-options list-none" role="listbox"></ul>
                         </div>
                     </div>

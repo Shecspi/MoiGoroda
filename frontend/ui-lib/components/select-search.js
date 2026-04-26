@@ -33,6 +33,8 @@ export class SelectController {
     this.state = {
       isOpen: false,
       options: [],
+      /** Позиция в списке из getRenderableOptions() (подсветка клавиатуры), -1 когда список закрыт */
+      keyboardListPos: -1,
     };
 
     this.observer = null;
@@ -121,6 +123,9 @@ export class SelectController {
 
   renderOptions() {
     const options = this.getRenderableOptions();
+    if (this.state.isOpen) {
+      this.clampKeyboardIndex();
+    }
     this.optionsList.innerHTML = '';
 
     if (options.length === 0) {
@@ -131,13 +136,19 @@ export class SelectController {
       return;
     }
 
-    options.forEach((option) => {
+    options.forEach((option, i) => {
       const optionNode = document.createElement('li');
       optionNode.setAttribute('data-mg-part', 'option');
       optionNode.dataset.index = String(option.index);
       optionNode.setAttribute('role', 'option');
       optionNode.className = 'mg-combobox-option';
       if (option.selected) {
+        optionNode.classList.add('is-selected');
+        optionNode.setAttribute('aria-selected', 'true');
+      } else {
+        optionNode.setAttribute('aria-selected', 'false');
+      }
+      if (this.state.isOpen && this.state.keyboardListPos === i) {
         optionNode.classList.add('is-active');
       }
       if (option.disabled) {
@@ -167,14 +178,17 @@ export class SelectController {
     this.toggleLabel.classList.remove('text-gray-900', 'dark:text-neutral-100');
   }
 
-  open() {
+  open({ keyboardFromEnd = false } = {}) {
     if (this.state.isOpen || this.nativeSelect.disabled) {
       return;
     }
     this.state.isOpen = true;
     this.dropdown.classList.remove(HIDDEN_CLASS);
     this.toggle.setAttribute('aria-expanded', 'true');
+    this.initKeyboardPosition({ fromEnd: keyboardFromEnd });
+    this.renderOptions();
     this.focusOpenTarget();
+    this.scrollKeyboardItemIntoView();
     dispatchSelectEvent(this.root, 'mg:select:open');
   }
 
@@ -183,6 +197,7 @@ export class SelectController {
       return;
     }
     this.state.isOpen = false;
+    this.state.keyboardListPos = -1;
     this.dropdown.classList.add(HIDDEN_CLASS);
     this.toggle.setAttribute('aria-expanded', 'false');
     this.onClose();
@@ -234,9 +249,156 @@ export class SelectController {
   }
 
   handleKeydown(event) {
-    if (event.key === 'Escape') {
+    const { key, code, target } = event;
+    const isArrowDown = key === 'ArrowDown' || code === 'ArrowDown';
+    const isArrowUp = key === 'ArrowUp' || code === 'ArrowUp';
+    const fromSearch = this.searchInput && target === this.searchInput;
+
+    if (key === 'Escape') {
+      event.preventDefault();
       this.close();
-      this.toggle.focus();
+      this.toggle?.focus();
+      return;
+    }
+
+    if (key === 'Tab' && this.state.isOpen) {
+      this.close();
+      return;
+    }
+
+    if (!this.state.isOpen) {
+      if (fromSearch) {
+        return;
+      }
+      if (isArrowDown || isArrowUp || key === 'Enter' || key === ' ' || code === 'Space') {
+        event.preventDefault();
+        this.open({ keyboardFromEnd: isArrowUp });
+      }
+      return;
+    }
+
+    if (isArrowDown) {
+      event.preventDefault();
+      this.moveKeyboardActive(1);
+      return;
+    }
+    if (isArrowUp) {
+      event.preventDefault();
+      this.moveKeyboardActive(-1);
+      return;
+    }
+    if (key === 'Home' || code === 'Home') {
+      event.preventDefault();
+      this.moveKeyboardToEdge('start');
+      return;
+    }
+    if (key === 'End' || code === 'End') {
+      event.preventDefault();
+      this.moveKeyboardToEdge('end');
+      return;
+    }
+    if (key === 'Enter' || code === 'Enter' || code === 'NumpadEnter') {
+      if (this.state.keyboardListPos < 0) {
+        return;
+      }
+      event.preventDefault();
+      this.selectKeyboardActive();
+      return;
+    }
+  }
+
+  initKeyboardPosition({ fromEnd = false } = {}) {
+    if (fromEnd) {
+      const all = this.getRenderableOptions();
+      const enabledIdx = all.map((o, i) => (o.disabled ? -1 : i)).filter((j) => j >= 0);
+      this.state.keyboardListPos = enabledIdx.length ? enabledIdx[enabledIdx.length - 1] : -1;
+      return;
+    }
+    this.state.keyboardListPos = this.findInitialKeyboardIndex();
+  }
+
+  findInitialKeyboardIndex() {
+    const all = this.getRenderableOptions();
+    if (all.length === 0) {
+      return -1;
+    }
+    const selectedIdx = all.findIndex((o) => o.selected && !o.disabled);
+    if (selectedIdx >= 0) {
+      return selectedIdx;
+    }
+    const firstEnabled = all.findIndex((o) => !o.disabled);
+    return firstEnabled >= 0 ? firstEnabled : 0;
+  }
+
+  clampKeyboardIndex() {
+    const options = this.getRenderableOptions();
+    if (options.length === 0) {
+      this.state.keyboardListPos = -1;
+      return;
+    }
+    if (this.state.keyboardListPos < 0 || this.state.keyboardListPos >= options.length) {
+      this.state.keyboardListPos = this.findInitialKeyboardIndex();
+      return;
+    }
+    if (options[this.state.keyboardListPos].disabled) {
+      this.state.keyboardListPos = this.findInitialKeyboardIndex();
+    }
+  }
+
+  moveKeyboardActive(delta) {
+    const all = this.getRenderableOptions();
+    const enabledIdx = all.map((o, i) => (o.disabled ? -1 : i)).filter((i) => i >= 0);
+    if (enabledIdx.length === 0) {
+      return;
+    }
+    let pos = this.state.keyboardListPos;
+    if (pos < 0 || all[pos].disabled) {
+      pos = enabledIdx[0];
+    } else {
+      const inList = enabledIdx.indexOf(pos);
+      if (inList < 0) {
+        pos = enabledIdx[0];
+      } else {
+        const next = (inList + delta + enabledIdx.length) % enabledIdx.length;
+        pos = enabledIdx[next];
+      }
+    }
+    this.state.keyboardListPos = pos;
+    this.renderOptions();
+    this.scrollKeyboardItemIntoView();
+  }
+
+  moveKeyboardToEdge(edge) {
+    const all = this.getRenderableOptions();
+    const enabledIdx = all.map((o, i) => (o.disabled ? -1 : i)).filter((i) => i >= 0);
+    if (enabledIdx.length === 0) {
+      return;
+    }
+    this.state.keyboardListPos = edge === 'start' ? enabledIdx[0] : enabledIdx[enabledIdx.length - 1];
+    this.renderOptions();
+    this.scrollKeyboardItemIntoView();
+  }
+
+  selectKeyboardActive() {
+    const options = this.getRenderableOptions();
+    if (this.state.keyboardListPos < 0) {
+      return;
+    }
+    const opt = options[this.state.keyboardListPos];
+    if (!opt || opt.disabled) {
+      return;
+    }
+    this.selectOption(opt.index);
+  }
+
+  scrollKeyboardItemIntoView() {
+    if (this.state.keyboardListPos < 0 || !this.optionsList) {
+      return;
+    }
+    const optionElements = this.optionsList.querySelectorAll('[data-mg-part="option"]');
+    const li = optionElements[this.state.keyboardListPos];
+    if (li) {
+      li.scrollIntoView({ block: 'nearest' });
     }
   }
 

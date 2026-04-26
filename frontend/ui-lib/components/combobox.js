@@ -143,9 +143,11 @@ class ComboboxBaseController {
   }
 
   handleKeydown(event) {
-    const { key } = event;
+    const { key, code } = event;
+    const isArrowDown = key === 'ArrowDown' || code === 'ArrowDown';
+    const isArrowUp = key === 'ArrowUp' || code === 'ArrowUp';
 
-    if (key === 'ArrowDown') {
+    if (isArrowDown) {
       event.preventDefault();
       if (!this.state.isOpen) {
         this.open();
@@ -158,7 +160,7 @@ class ComboboxBaseController {
       return;
     }
 
-    if (key === 'ArrowUp') {
+    if (isArrowUp) {
       event.preventDefault();
       if (!this.state.isOpen) {
         this.open();
@@ -171,7 +173,7 @@ class ComboboxBaseController {
       return;
     }
 
-    if (key === 'Enter') {
+    if (key === 'Enter' || code === 'Enter' || code === 'NumpadEnter') {
       if (this.state.isOpen && this.state.activeIndex >= 0) {
         event.preventDefault();
         const option = this.state.visibleOptions[this.state.activeIndex];
@@ -243,23 +245,10 @@ class ComboboxBaseController {
   }
 
   scrollActiveOptionIntoView(activeOption) {
-    if (!activeOption || !this.listbox) {
+    if (!activeOption) {
       return;
     }
-
-    const optionTop = activeOption.offsetTop;
-    const optionBottom = optionTop + activeOption.offsetHeight;
-    const visibleTop = this.listbox.scrollTop;
-    const visibleBottom = visibleTop + this.listbox.clientHeight;
-
-    if (optionTop < visibleTop) {
-      this.listbox.scrollTop = optionTop;
-      return;
-    }
-
-    if (optionBottom > visibleBottom) {
-      this.listbox.scrollTop = optionBottom - this.listbox.clientHeight;
-    }
+    activeOption.scrollIntoView({ block: 'nearest' });
   }
 
   filterOptions(query) {

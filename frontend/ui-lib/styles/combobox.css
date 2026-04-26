@@ -15,6 +15,10 @@
         @apply cursor-pointer rounded-md border border-transparent px-3 py-2 text-sm text-gray-800 transition hover:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-800;
     }
 
+    .mg-combobox-option.is-selected {
+        @apply font-semibold text-gray-900 dark:text-neutral-100;
+    }
+
     /* Сильнее базового hover, иначе hover перебивает фон из .is-active (одинаковая специфичность). */
     .mg-combobox-option.is-active,
     .mg-combobox-option.is-active:hover {

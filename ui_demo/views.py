@@ -9,6 +9,8 @@ Licensed under the Apache License, Version 2.0
 
 from __future__ import annotations
 
+from typing import Any
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -28,7 +30,7 @@ def _render(
     template: str,
     page_title: str,
     page_description: str = '',
-    extra_context: dict | None = None,
+    extra_context: dict[str, Any] | None = None,
 ) -> HttpResponse:
     _guard(request)
     context = {

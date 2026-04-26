@@ -16,6 +16,16 @@
 - `styles/index.css` — агрегатор: combobox, select-search, **badge** (классы `.badge*`, без JS-виджета).
 - **Бейджи** — чисто CSS: `styles/badge.css`. Отдельного шаблона/JS в библиотеке нет: в разметке используйте классы `badge`, `badge-soft-*` и т.д. (см. демо в проекте).
 
+## Тесты (в каталоге `frontend/`)
+
+Автотесты [Vitest](https://vitest.dev/) + [happy-dom](https://github.com/capricorn86/happy-dom) лежат в `ui-lib/**/*.test.js`; разметка-фикстуры — `ui-lib/test/fixtures.js`. Запуск из папки `frontend`:
+
+```bash
+npm test
+# или непрерывно при разработке
+npm run test:watch
+```
+
 ## Быстрый старт (любой frontend-проект)
 
 1. Скопируйте в проект только папку `frontend/ui-lib/`.

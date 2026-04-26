@@ -1,4 +1,4 @@
-.PHONY: help run-dev run-frontend-dev run-prod build-prod check format lint test frontend-install frontend-build lint-mypy lint-ruff
+.PHONY: help run-dev run-frontend-dev run-prod build-prod check format lint test frontend-install frontend-test frontend-build lint-mypy lint-ruff
 
 help: ## Показать справку по командам
 	@printf "\033[0;32mДоступные команды:\033[0m\n"
@@ -90,6 +90,10 @@ test:
 frontend-install:
 	@printf "\033[0;32mУстановка зависимостей frontend...\033[0m\n"
 	cd frontend && npm ci
+
+frontend-test: ## Запуск unit-тестов frontend (Vitest, ui-lib)
+	@printf "\033[0;32mТесты frontend (npm test)...\033[0m\n"
+	cd frontend && npm test
 
 frontend-build:
 	@printf "\033[0;32mСборка frontend...\033[0m\n"

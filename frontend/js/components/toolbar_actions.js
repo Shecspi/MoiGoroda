@@ -309,12 +309,16 @@ export class ToolbarActions {
             city.visit_years = ownCities[city.name] ? ownCities[city.name].visit_years : undefined;
             city.first_visit_date = ownCities[city.name] ? ownCities[city.name].first_visit_date : undefined;
             city.last_visit_date = ownCities[city.name] ? ownCities[city.name].last_visit_date : undefined;
+            city.number_of_users_who_visit_city = this.subscriptionCities[i].number_of_users_who_visit_city;
+            city.number_of_visits_all_users = this.subscriptionCities[i].number_of_visits_all_users;
 
             // ToDo: очень неэффективно - на каждый город подписчика проходимся по всем моим городам
             this.ownCities.forEach(own_city => {
                 if (city.id === own_city.id) {
                     city.date_of_first_visit = own_city.date_of_first_visit;
                     city.number_of_visits = own_city.number_of_visits;
+                    city.number_of_users_who_visit_city = own_city.number_of_users_who_visit_city;
+                    city.number_of_visits_all_users = own_city.number_of_visits_all_users;
                 }
             });
 
@@ -364,6 +368,8 @@ export class ToolbarActions {
             city.first_visit_date = this.ownCities[i].first_visit_date;
             city.last_visit_date = this.ownCities[i].last_visit_date;
             city.number_of_visits = this.ownCities[i].number_of_visits;
+            city.number_of_users_who_visit_city = this.ownCities[i].number_of_users_who_visit_city;
+            city.number_of_visits_all_users = this.ownCities[i].number_of_visits_all_users;
 
             // Если указан год, то добавляем на карту только города, которые были посещены в указанном году
             if (year !== undefined && (!city.visit_years || !city.visit_years.includes(year))) {
@@ -467,8 +473,8 @@ export class ToolbarActions {
             firstVisitDate: city.first_visit_date || '',
             lastVisitDate: city.last_visit_date || '',
             numberOfVisits: city.number_of_visits || 1,
-            numberOfUsersWhoVisitCity: null,
-            numberOfVisitsAllUsers: null
+            numberOfUsersWhoVisitCity: city.number_of_users_who_visit_city ?? null,
+            numberOfVisitsAllUsers: city.number_of_visits_all_users ?? null
         };
 
         const regionLink = city.region_id ? `/region/${city.region_id}/list` : '';

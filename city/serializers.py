@@ -31,6 +31,8 @@ class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
     first_visit_date = serializers.CharField(read_only=True)
     last_visit_date = serializers.CharField(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
+    number_of_users_who_visit_city = serializers.IntegerField(read_only=True)
+    number_of_visits_all_users = serializers.IntegerField(read_only=True)
     visit_years = serializers.SerializerMethodField()
 
     def get_year(self, obj: VisitedCity) -> int | None:
@@ -74,6 +76,8 @@ class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
             'first_visit_date',
             'last_visit_date',
             'average_rating',
+            'number_of_users_who_visit_city',
+            'number_of_visits_all_users',
             'visit_years',
         )
 

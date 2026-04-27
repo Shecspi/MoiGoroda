@@ -478,6 +478,8 @@ function filterCitiesByYear(selectedYear) {
                 city.first_visit_date = cityData.first_visit_date;
                 city.last_visit_date = cityData.last_visit_date;
                 city.number_of_visits = cityData.number_of_visits;
+                city.number_of_users_who_visit_city = cityData.number_of_users_who_visit_city;
+                city.number_of_visits_all_users = cityData.number_of_visits_all_users;
 
                 const showSubscriptions =
                     actions.subscriptionCities && actions.subscriptionCities.length > 0;
@@ -522,6 +524,11 @@ function filterCitiesByYear(selectedYear) {
                     city.first_visit_date = ownCityData.first_visit_date;
                     city.last_visit_date = ownCityData.last_visit_date;
                     city.number_of_visits = ownCityData.number_of_visits;
+                    city.number_of_users_who_visit_city = ownCityData.number_of_users_who_visit_city;
+                    city.number_of_visits_all_users = ownCityData.number_of_visits_all_users;
+                } else {
+                    city.number_of_users_who_visit_city = cityData.number_of_users_who_visit_city;
+                    city.number_of_visits_all_users = cityData.number_of_visits_all_users;
                 }
 
                 const users = usersWhoVisitedCity.get(cityId) || [];
@@ -662,6 +669,8 @@ function filterCitiesByYear(selectedYear) {
             city.first_visit_date = ownCityData.first_visit_date;
             city.last_visit_date = ownCityData.last_visit_date;
             city.number_of_visits = ownCityData.number_of_visits;
+            city.number_of_users_who_visit_city = ownCityData.number_of_users_who_visit_city;
+            city.number_of_visits_all_users = ownCityData.number_of_visits_all_users;
 
             // Получаем список пользователей с учётом выбранного года (используем предварительно полученный Map)
             const users = usersWhoVisitedCity.get(cityId) || [];
@@ -689,6 +698,12 @@ function filterCitiesByYear(selectedYear) {
             // Получаем number_of_visits из ownCityData, если город есть там
             if (ownCityData) {
                 city.number_of_visits = ownCityData.number_of_visits;
+                city.number_of_users_who_visit_city = ownCityData.number_of_users_who_visit_city;
+                city.number_of_visits_all_users = ownCityData.number_of_visits_all_users;
+            } else {
+                city.number_of_users_who_visit_city =
+                    subscriptionCityFullData.number_of_users_who_visit_city;
+                city.number_of_visits_all_users = subscriptionCityFullData.number_of_visits_all_users;
             }
 
             // Получаем список пользователей с учётом выбранного года (используем предварительно полученный Map)
@@ -710,6 +725,8 @@ function filterCitiesByYear(selectedYear) {
             city.first_visit_date = ownCityData.first_visit_date;
             city.last_visit_date = ownCityData.last_visit_date;
             city.number_of_visits = ownCityData.number_of_visits;
+            city.number_of_users_who_visit_city = ownCityData.number_of_users_who_visit_city;
+            city.number_of_visits_all_users = ownCityData.number_of_visits_all_users;
 
             marker = actions.addMarkerToMap(city, MarkerStyle.OWN);
             actions.stateOwnCities.set(cityId, marker);

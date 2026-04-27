@@ -46,6 +46,8 @@
 
 - Добавлена ссылка на чат в Макс в сайдбаре ([32e48f7](https://github.com/Shecspi/MoiGoroda/commit/32e48f71b6e97f4978f713221e4b64c98a0924fc))
 
+- Стандартизированы popup-окна маркеров городов на всех картах ([84d39d0](https://github.com/Shecspi/MoiGoroda/commit/84d39d0981913f579419225cf9b1304f8fec9235))
+
 
 #### 🐛 Исправление ошибок
 

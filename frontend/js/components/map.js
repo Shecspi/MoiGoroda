@@ -11,11 +11,10 @@
 
 import * as L from 'leaflet';
 import 'leaflet-fullscreen';
-import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
 /**
- * Создаёт и возвращает объект карты с подложкой (OpenStreetMap) и кнопками зума,
- * полноэкранного режима, либо скриншота, либо (страница «карта городов») кнопки «Помощь».
+ * Создаёт и возвращает объект карты с подложкой (OpenStreetMap), кнопками зума,
+ * полноэкранного режима и (для страницы «карта городов») кнопкой «Помощь».
  * @param {{ mapPageHelp?: boolean }} [options]
  */
 let downloadedExternalBorder = undefined;
@@ -49,8 +48,6 @@ export function create_map(options = {}) {
     add_fullscreen_control(map);
     if (mapPageHelp) {
         addMapPageHelpControl(map);
-    } else {
-        add_screenshot_control(map);
     }
 
     return map
@@ -93,33 +90,6 @@ function add_attribution(map) {
         maxZoom: 19,
         attribution: 'Используются карты &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> под лицензией <a href="https://opendatacommons.org/licenses/odbl/">ODbL.</a>'
     }).addTo(map);
-}
-
-/**
- * Добавляет кнопку создания скриншота карты.
- * @param map Объект карты, на которую нужно добавить кнопку.
- */
-function add_screenshot_control(map) {
-    const screenshotControl = new SimpleMapScreenshoter({
-        hideElementsWithSelectors: ['.leaflet-control-container'],
-        preventDownload: false,
-        hidden: false,
-        mimeType: 'image/png',
-        caption: null,
-        position: 'topleft',
-        screenName: 'MoiGoroda',
-    });
-    screenshotControl.addTo(map);
-    
-    // Добавляем подсказку для кнопки скриншота
-    map.whenReady(() => {
-        setTimeout(() => {
-            const screenshotBtn = document.querySelector('#map .leaflet-control-simpleMapScreenshoter-btn');
-            if (screenshotBtn) {
-                screenshotBtn.setAttribute('title', 'Создать скриншот карты');
-            }
-        }, 100);
-    });
 }
 
 /**

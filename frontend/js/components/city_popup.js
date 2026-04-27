@@ -11,6 +11,7 @@
  */
 
 import L from 'leaflet';
+import {MarkerStyle} from './schemas.js';
 
 /**
  * Форматирует дату из формата YYYY-MM-DD в формат ДД.ММ.ГГГГ
@@ -48,9 +49,61 @@ export const formatDate = (value) => {
  * @param {boolean} [isAuthenticated] - Авторизован ли пользователь
  * @returns {string} HTML-код блока информации
  */
-export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectionOwnerUsername = null, isCollectionOwner = false) => {
+export const buildVisitInfoBlock = (
+    cityData,
+    isAuthenticated = false,
+    collectionOwnerUsername = null,
+    isCollectionOwner = false,
+    popupContext = {}
+) => {
+    const {
+        markerStyle = null,
+        subscriptionUsers = [],
+        selectedYear = null
+    } = popupContext;
     let info = '';
-    if (cityData.isVisited) {
+
+    const usersText = subscriptionUsers.length > 0 ? subscriptionUsers.join(', ') : '—';
+    const statusText = selectedYear
+        ? `Вы не были в этом городе в ${selectedYear} году`
+        : 'Вы не были в этом городе';
+
+    if (markerStyle === MarkerStyle.SUBSCRIPTION) {
+        info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+        info += `<div class="flex items-center gap-2">`;
+        info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+        info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
+        info += `</div>`;
+        info += `<span class="text-gray-900 dark:text-white">${statusText}</span>`;
+        info += `</div>`;
+
+        info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+        info += `<div class="flex items-center gap-2">`;
+        info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+        info += `<span class="text-gray-500 dark:text-neutral-400">Пользователи:</span>`;
+        info += `</div>`;
+        info += `<span class="text-gray-900 dark:text-white">${usersText}</span>`;
+        info += `</div>`;
+    } else if (markerStyle === MarkerStyle.NOT_VISITED) {
+        info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+        info += `<div class="flex items-center gap-2">`;
+        info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+        info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
+        info += `</div>`;
+        info += `<span class="text-gray-900 dark:text-white">${statusText}</span>`;
+        info += `</div>`;
+    } else {
+        if (markerStyle === MarkerStyle.TOGETHER) {
+            info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+            info += `<div class="flex items-center gap-2">`;
+            info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+            info += `<span class="text-gray-500 dark:text-neutral-400">Пользователи:</span>`;
+            info += `</div>`;
+            info += `<span class="text-gray-900 dark:text-white">${usersText}</span>`;
+            info += `</div>`;
+        }
+
+        if (cityData.isVisited) {
         if (cityData.firstVisitDate && cityData.lastVisitDate && cityData.firstVisitDate === cityData.lastVisitDate) {
             info += `<div class="flex items-center justify-between gap-2 text-sm">`;
             info += `<div class="flex items-center gap-2">`;
@@ -83,8 +136,7 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectio
         info += `</div>`;
         info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${cityData.numberOfVisits || 1}</span>`;
         info += `</div>`;
-    } else {
-        if (collectionOwnerUsername && !isCollectionOwner) {
+        } else if (collectionOwnerUsername && !isCollectionOwner) {
             // Для персональных коллекций показываем информацию о владельце для всех пользователей
             info += `<div class="text-sm">`;
             info += `<span class="text-gray-900 dark:text-white">Пользователь <span class="font-semibold">${collectionOwnerUsername}</span> не был в этом городе</span>`;
@@ -93,10 +145,10 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectio
             info += `<div class="text-sm">`;
             info += `<span class="text-gray-900 dark:text-white">Вы не были в этом городе</span>`;
             info += `</div>`;
-        }
+        } 
         
         // Для неавторизованных пользователей дополнительно показываем текст про регистрацию
-        if (!isAuthenticated) {
+        if (!cityData.isVisited && !isAuthenticated) {
             info += `<div class="text-sm mt-2">`;
             info += `<span class="text-gray-900 dark:text-white">`;
             info += `<a href="/account/signup/" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors font-medium">Зарегистрируйтесь</a>, чтобы отмечать посещённые города`;
@@ -152,6 +204,9 @@ export const buildPopupContent = (cityData, options = {}) => {
         isCollectionOwner = false,
         canMarkVisited = isCollectionOwner,
         collectionOwnerUsername = null,
+        markerStyle = null,
+        subscriptionUsers = [],
+        selectedYear = null,
         addButtonText = null
     } = options;
 
@@ -184,7 +239,13 @@ export const buildPopupContent = (cityData, options = {}) => {
     content += `</div>`;
 
     content += '<div class="space-y-1.5 text-sm">';
-    content += buildVisitInfoBlock(cityData, isAuthenticated, collectionOwnerUsername, isCollectionOwner);
+    content += buildVisitInfoBlock(
+        cityData,
+        isAuthenticated,
+        collectionOwnerUsername,
+        isCollectionOwner,
+        {markerStyle, subscriptionUsers, selectedYear}
+    );
     content += '</div>';
 
     if (isAuthenticated && canMarkVisited) {

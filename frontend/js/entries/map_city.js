@@ -469,7 +469,9 @@ function filterCitiesByYear(selectedYear) {
                 city.id = cityData.id;
                 city.name = cityData.title;
                 city.region = cityData.region_title;
+                city.region_id = cityData.region_id;
                 city.country = cityData.country;
+                city.country_code = cityData.country_code;
                 city.lat = cityData.lat;
                 city.lon = cityData.lon;
                 city.visit_years = cityData.visit_years;
@@ -508,7 +510,9 @@ function filterCitiesByYear(selectedYear) {
                 city.id = cityId;
                 city.name = cityData.title;
                 city.region = cityData.region_title;
+                city.region_id = cityData.region_id;
                 city.country = cityData.country;
+                city.country_code = cityData.country_code;
                 city.lat = cityData.lat;
                 city.lon = cityData.lon;
 
@@ -649,7 +653,9 @@ function filterCitiesByYear(selectedYear) {
             city.id = cityId;
             city.name = ownCityData.title;
             city.region = ownCityData.region_title;
+                city.region_id = ownCityData.region_id;
             city.country = ownCityData.country;
+                city.country_code = ownCityData.country_code;
             city.lat = ownCityData.lat;
             city.lon = ownCityData.lon;
             city.visit_years = ownCityData.visit_years;
@@ -670,7 +676,9 @@ function filterCitiesByYear(selectedYear) {
             city.id = cityId;
             city.name = subscriptionCityFullData.title;
             city.region = subscriptionCityFullData.region_title;
+            city.region_id = subscriptionCityFullData.region_id;
             city.country = subscriptionCityFullData.country;
+            city.country_code = subscriptionCityFullData.country_code;
             city.lat = subscriptionCityFullData.lat;
             city.lon = subscriptionCityFullData.lon;
             // Для городов подписок visit_years берём из ownCities по названию, если город есть там
@@ -693,7 +701,9 @@ function filterCitiesByYear(selectedYear) {
             city.id = cityId;
             city.name = ownCityData.title;
             city.region = ownCityData.region_title;
+            city.region_id = ownCityData.region_id;
             city.country = ownCityData.country;
+            city.country_code = ownCityData.country_code;
             city.lat = ownCityData.lat;
             city.lon = ownCityData.lon;
             city.visit_years = ownCityData.visit_years;

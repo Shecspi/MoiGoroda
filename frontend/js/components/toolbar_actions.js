@@ -9,6 +9,7 @@ import {City, MarkerStyle} from "./schemas.js";
 import {open_modal_for_add_city, close_modal_for_add_city} from './services.js';
 import {getCookie} from './get_cookie.js';
 import {addErrorControl, addLoadControl} from "./map";
+import {bindPopupToMarker} from './city_popup.js';
 
 // Это нужно для того, чтобы open_modal_for_add_city можно было использовать в onclick.
 // Иначе из-за специфичной области видимости доступа к этой функции нет.
@@ -300,7 +301,9 @@ export class ToolbarActions {
             city.id = this.subscriptionCities[i].id;
             city.name = this.subscriptionCities[i].title;
             city.region = this.subscriptionCities[i].region_title;
+            city.region_id = this.subscriptionCities[i].region_id;
             city.country = this.subscriptionCities[i].country;
+            city.country_code = this.subscriptionCities[i].country_code;
             city.lat = this.subscriptionCities[i].lat;
             city.lon = this.subscriptionCities[i].lon;
             city.visit_years = ownCities[city.name] ? ownCities[city.name].visit_years : undefined;
@@ -352,7 +355,9 @@ export class ToolbarActions {
             city.id = this.ownCities[i].id;
             city.name = this.ownCities[i].title;
             city.region = this.ownCities[i].region_title;
+            city.region_id = this.ownCities[i].region_id;
             city.country = this.ownCities[i].country;
+            city.country_code = this.ownCities[i].country_code;
             city.lat = this.ownCities[i].lat;
             city.lon = this.ownCities[i].lon;
             city.visit_years = this.ownCities[i].visit_years;
@@ -382,7 +387,9 @@ export class ToolbarActions {
             city.id = this.notVisitedCities[i].id;
             city.name = this.notVisitedCities[i].title;
             city.region = this.notVisitedCities[i].region;
+            city.region_id = this.notVisitedCities[i].region_id;
             city.country = this.notVisitedCities[i].country;
+            city.country_code = this.notVisitedCities[i].country_code;
             city.lat = this.notVisitedCities[i].lat;
             city.lon = this.notVisitedCities[i].lon;
 
@@ -442,212 +449,48 @@ export class ToolbarActions {
         const marker = L.marker([city.lat, city.lon], {icon: icon}).addTo(this.myMap);
         marker.setZIndexOffset(zIndexOffset);
 
-        // Экранируем данные для безопасного использования в HTML
-        const cityNameEscaped = city.name.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-        const regionEscaped = city.region ? city.region.replace(/'/g, "&#39;").replace(/"/g, "&quot;") : '';
-        
-        const first_visit_date = city.first_visit_date ? new Date(city.first_visit_date).toLocaleDateString() : undefined;
-        const last_visit_date = city.last_visit_date ? new Date(city.last_visit_date).toLocaleDateString() : undefined;
-        const visit_years = city.visit_years ? city.visit_years : undefined;
-        const number_of_visits = city.number_of_visits;
-
-        // Получаем текущий выбранный год из фильтра для отображения в статусе
-        const getSelectedYear = () => {
-            const yearSelect = document.getElementById('id_year_filter');
-            if (yearSelect && yearSelect.value && yearSelect.value !== 'all') {
-                const year = parseInt(yearSelect.value, 10);
-                if (!isNaN(year)) {
-                    return year;
-                }
+        const yearSelect = document.getElementById('id_year_filter');
+        let selectedYear = null;
+        if (yearSelect && yearSelect.value && yearSelect.value !== 'all') {
+            const year = parseInt(yearSelect.value, 10);
+            if (!isNaN(year)) {
+                selectedYear = year;
             }
-            return null;
-        };
-
-        // Вспомогательная функция для генерации контента информации о посещениях
-        // Смешанный вариант: компактность и горизонтальное расположение (вариант 2) + иконки (вариант 3) + бейджики для дат (вариант 5)
-        const generateVisitInfo = () => {
-            let info = '';
-            const selectedYear = getSelectedYear();
-            const statusText = selectedYear 
-                ? `Вы не были в этом городе в ${selectedYear} году`
-                : 'Вы не были в этом городе';
-            
-            if (marker_style === MarkerStyle.SUBSCRIPTION) {
-                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                info += `<div class="flex items-center gap-2">`;
-                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
-                info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
-                info += `</div>`;
-                info += `<span class="text-gray-900 dark:text-white">${statusText}</span>`;
-                info += `</div>`;
-                
-                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                info += `<div class="flex items-center gap-2">`;
-                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
-                info += `<span class="text-gray-500 dark:text-neutral-400">Пользователи:</span>`;
-                info += `</div>`;
-                info += `<span class="text-gray-900 dark:text-white">${users.join(', ')}</span>`;
-                info += `</div>`;
-            } else if (marker_style === MarkerStyle.TOGETHER) {
-                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                info += `<div class="flex items-center gap-2">`;
-                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
-                info += `<span class="text-gray-500 dark:text-neutral-400">Пользователи:</span>`;
-                info += `</div>`;
-                info += `<span class="text-gray-900 dark:text-white">${users.join(', ')}</span>`;
-                info += `</div>`;
-                
-                if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
-                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                    info += `<div class="flex items-center gap-2">`;
-                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
-                    info += `<span class="text-gray-500 dark:text-neutral-400">Дата посещения:</span>`;
-                    info += `</div>`;
-                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${first_visit_date || 'Не указана'}</span>`;
-                    info += `</div>`;
-                } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
-                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                    info += `<div class="flex items-center gap-2">`;
-                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
-                    info += `<span class="text-gray-500 dark:text-neutral-400">Первое посещение:</span>`;
-                    info += `</div>`;
-                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${first_visit_date || 'Не указана'}</span>`;
-                    info += `</div>`;
-                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                    info += `<div class="flex items-center gap-2">`;
-                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
-                    info += `<span class="text-gray-500 dark:text-neutral-400">Последнее посещение:</span>`;
-                    info += `</div>`;
-                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">${last_visit_date || 'Не указана'}</span>`;
-                    info += `</div>`;
-                }
-                
-                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                info += `<div class="flex items-center gap-2">`;
-                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`;
-                info += `<span class="text-gray-500 dark:text-neutral-400">Всего посещений:</span>`;
-                info += `</div>`;
-                info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${number_of_visits}</span>`;
-                info += `</div>`;
-            } else if (marker_style === MarkerStyle.NOT_VISITED) {
-                const selectedYear = getSelectedYear();
-                const statusText = selectedYear 
-                    ? `Вы не были в этом городе в ${selectedYear} году`
-                    : 'Вы не были в этом городе';
-                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                info += `<div class="flex items-center gap-2">`;
-                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
-                info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
-                info += `</div>`;
-                info += `<span class="text-gray-900 dark:text-white">${statusText}</span>`;
-                info += `</div>`;
-            } else {
-                if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date === last_visit_date) {
-                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                    info += `<div class="flex items-center gap-2">`;
-                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
-                    info += `<span class="text-gray-500 dark:text-neutral-400">Дата посещения:</span>`;
-                    info += `</div>`;
-                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${first_visit_date || 'Не указана'}</span>`;
-                    info += `</div>`;
-                } else if (first_visit_date !== undefined && last_visit_date !== undefined && first_visit_date !== last_visit_date) {
-                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                    info += `<div class="flex items-center gap-2">`;
-                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
-                    info += `<span class="text-gray-500 dark:text-neutral-400">Первое посещение:</span>`;
-                    info += `</div>`;
-                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${first_visit_date || 'Не указана'}</span>`;
-                    info += `</div>`;
-                    info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                    info += `<div class="flex items-center gap-2">`;
-                    info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
-                    info += `<span class="text-gray-500 dark:text-neutral-400">Последнее посещение:</span>`;
-                    info += `</div>`;
-                    info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">${last_visit_date || 'Не указана'}</span>`;
-                    info += `</div>`;
-                }
-                
-                info += `<div class="flex items-center justify-between gap-2 text-sm">`;
-                info += `<div class="flex items-center gap-2">`;
-                info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`;
-                info += `<span class="text-gray-500 dark:text-neutral-400">Всего посещений:</span>`;
-                info += `</div>`;
-                info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${number_of_visits}</span>`;
-                info += `</div>`;
-            }
-            return info;
-        };
-
-        // Генерируем ссылку действия
-        const generateActionLink = () => {
-            if (marker_style === MarkerStyle.SUBSCRIPTION || marker_style === MarkerStyle.NOT_VISITED) {
-                return `<a href="#" 
-                    class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-                    data-hs-overlay="#addCityModal" 
-                    data-city-name="${cityNameEscaped}" 
-                    data-city-id="${city.id}" 
-                    data-city-region="${regionEscaped}">Отметить как посещённый</a>`;
-            } else {
-                return `<a href="#" 
-                    class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-                    data-hs-overlay="#addCityModal" 
-                    data-city-name="${cityNameEscaped}" 
-                    data-city-id="${city.id}" 
-                    data-city-region="${regionEscaped}">Добавить ещё одно посещение</a>`;
-            }
-        };
-
-        let content = '<div class="px-1.5 py-1.5 min-w-[280px] max-w-[400px]">';
-        
-        // Заголовок (стиль варианта 2 - компактный, без серого блока)
-        content += `<div class="mb-2 pb-1 border-b border-gray-200 dark:border-neutral-700">`;
-        content += `<h3 class="text-base font-semibold text-gray-900 dark:text-white mb-0">`;
-        content += `<a href="/city/${city.id}" target="_blank" rel="noopener noreferrer" class="text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors">${city.name}</a>`;
-        content += `</h3>`;
-        content += `<div class="text-xs text-gray-600 dark:text-neutral-400 mt-2">`;
-        if (city.region) {
-            content += `${city.region}, ${city.country}`;
-        } else {
-            content += `${city.country}`;
         }
-        content += `</div>`;
-        content += `</div>`;
-        
-        // Информация о посещениях (смешанный вариант: компактность + иконки + бейджики)
-        content += '<div class="space-y-1.5 text-sm">';
-        content += generateVisitInfo();
-        content += '</div>';
-        
-        // Ссылки действий
-        content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
-        content += generateActionLink();
-        content += '</div>';
-        
-        content += '</div>'; // закрываем основной контейнер
-        
-        marker.bindPopup(content, {maxWidth: 400, minWidth: 280});
-        
-        // Инициализируем Preline UI для ссылок в popup после его открытия
-        marker.on('popupopen', function() {
-            // Инициализируем Preline UI для динамически созданных элементов
-            if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
-                window.HSStaticMethods.autoInit();
-            }
-        });
 
-        marker.bindTooltip(city.name, {
-            direction: 'top'
-        });
-        marker.on('mouseover', function () {
-            const tooltip = this.getTooltip();
-            if (this.isPopupOpen()) {
-                tooltip.setOpacity(0.0);
-            } else {
-                tooltip.setOpacity(0.9);
-            }
-        });
-        marker.on('click', function () {
-            this.getTooltip().setOpacity(0.0);
+        const popupCityData = {
+            id: city.id,
+            name: city.name,
+            regionName: city.region || '',
+            countryName: city.country || '',
+            isVisited: marker_style === MarkerStyle.OWN || marker_style === MarkerStyle.TOGETHER,
+            firstVisitDate: city.first_visit_date || '',
+            lastVisitDate: city.last_visit_date || '',
+            numberOfVisits: city.number_of_visits || 1,
+            numberOfUsersWhoVisitCity: null,
+            numberOfVisitsAllUsers: null
+        };
+
+        const regionLink = city.region_id ? `/region/${city.region_id}/list` : '';
+        const countryCodeFromUrl = new URLSearchParams(window.location.search).get('country');
+        const countryCode = city.country_code || countryCodeFromUrl || '';
+        const countryLink = countryCode ? `/city/all/list?country=${encodeURIComponent(countryCode)}` : '';
+
+        const addButtonText = marker_style === MarkerStyle.SUBSCRIPTION || marker_style === MarkerStyle.NOT_VISITED
+            ? 'Отметить как посещённый'
+            : 'Добавить ещё одно посещение';
+
+        bindPopupToMarker(marker, popupCityData, {
+            regionName: city.region || '',
+            countryName: city.country || '',
+            regionLink: regionLink,
+            countryLink: countryLink,
+            isAuthenticated: true,
+            canMarkVisited: true,
+            markerStyle: marker_style,
+            subscriptionUsers: users || [],
+            selectedYear: selectedYear,
+            addButtonText: addButtonText
         });
 
         return marker;

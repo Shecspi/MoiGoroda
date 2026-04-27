@@ -5,6 +5,28 @@ Licensed under the Apache License, Version 2.0
 
 /* Стилизация контролов Leaflet в стиле Preline UI */
 
+/* Уменьшаем внутренние отступы контента popup (по умолчанию в Leaflet слишком большие margin) */
+#map .leaflet-popup-content {
+    margin: 8px 10px;
+}
+
+/* Leaflet красит все <a> в синий; для кнопок в popup возвращаем ui-lib цвет */
+#map .leaflet-popup-content a.btn-soft-outline-success {
+    color: #166534; /* text-success-800 */
+}
+
+#map .leaflet-popup-content a.btn-soft-outline-success:hover {
+    color: #166534;
+}
+
+.dark #map .leaflet-popup-content a.btn-soft-outline-success {
+    color: #4ade80; /* text-success-400 */
+}
+
+.dark #map .leaflet-popup-content a.btn-soft-outline-success:hover {
+    color: #4ade80;
+}
+
 /* Общие стили для панелей контролов Leaflet */
 #map .leaflet-control {
     border: none;

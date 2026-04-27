@@ -210,14 +210,14 @@ export const buildPopupContent = (cityData, options = {}) => {
         addButtonText = null
     } = options;
 
-    let content = '<div class="px-1.5 py-1.5 min-w-[280px] max-w-[400px]">';
+    let content = '<div class="px-0.5 py-0.5 min-w-[280px] max-w-[400px]">';
 
-    content += `<div class="mb-2 pb-1 border-b border-gray-200 dark:border-neutral-700">`;
-    content += `<h3 class="text-base font-semibold text-gray-900 dark:text-white mb-0">`;
+    content += `<div class="mb-2.5 pb-1.5 border-b border-gray-200 dark:border-neutral-700">`;
+    content += `<h3 class="text-lg font-bold tracking-tight text-gray-900 dark:text-white mb-0">`;
     content += `<a href="/city/${cityData.id}" target="_blank" rel="noopener noreferrer" class="text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors">${cityData.name}</a>`;
     content += `</h3>`;
 
-    content += `<div class="mt-2 flex items-center text-xs text-gray-600 dark:text-neutral-400">`;
+    content += `<div class="mt-1.5 flex items-center text-sm font-medium text-gray-700 dark:text-neutral-300">`;
     if (regionLink && regionName) {
         content += `<a href="${regionLink}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">${regionName}</a>`;
     } else if (regionName) {
@@ -258,7 +258,7 @@ export const buildPopupContent = (cityData, options = {}) => {
             buttonText = !cityData.isVisited ? 'Отметить как посещённый' : 'Добавить ещё одно посещение';
         }
             content += `<a href="#" 
-                class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                class="btn btn-sm btn-soft-outline-success btn-block"
                 data-hs-overlay="#addCityModal" 
                 data-city-name="${cityData.name}" 
                 data-city-id="${cityData.id}" 

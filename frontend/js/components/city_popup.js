@@ -150,6 +150,7 @@ export const buildPopupContent = (cityData, options = {}) => {
         countryLink = '',
         isAuthenticated = false,
         isCollectionOwner = false,
+        canMarkVisited = isCollectionOwner,
         collectionOwnerUsername = null,
         addButtonText = null
     } = options;
@@ -186,7 +187,7 @@ export const buildPopupContent = (cityData, options = {}) => {
     content += buildVisitInfoBlock(cityData, isAuthenticated, collectionOwnerUsername, isCollectionOwner);
     content += '</div>';
 
-    if (isAuthenticated && isCollectionOwner) {
+    if (isAuthenticated && canMarkVisited) {
         content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
         // Используем кастомный текст кнопки, если передан, иначе используем стандартный
         let buttonText;

@@ -1,6 +1,5 @@
 import * as L from 'leaflet';
 import 'leaflet-fullscreen';
-import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 import {addLoadControl, addErrorControl, create_map} from "../components/map";
 import {waitForHSSelect, attachCountrySelectHSSelect} from "../components/initCountrySelect";
 

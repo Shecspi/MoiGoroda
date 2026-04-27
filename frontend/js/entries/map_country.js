@@ -1,6 +1,5 @@
 import * as L from 'leaflet';
 import 'leaflet-fullscreen';
-import {SimpleMapScreenshoter} from 'leaflet-simple-map-screenshoter';
 
 import {getCookie} from '../components/get_cookie.js';
 import {showSuccessToast} from "../components/toast";
@@ -467,7 +466,6 @@ function create_map(center, zoom) {
     add_attribution(map);
     add_zoom_control(map);
     add_fullscreen_control(map);
-    new SimpleMapScreenshoter().addTo(map);
 
     return map
 }

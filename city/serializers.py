@@ -24,12 +24,15 @@ class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
     region_title = serializers.CharField(source='city.region', read_only=True)
     region_id = serializers.IntegerField(source='city.region_id', read_only=True)
     country = serializers.CharField(source='city.country', read_only=True)
+    country_code = serializers.CharField(source='city.country.code', read_only=True)
     lat = serializers.CharField(source='city.coordinate_width', read_only=True)
     lon = serializers.CharField(source='city.coordinate_longitude', read_only=True)
     number_of_visits = serializers.IntegerField(read_only=True)
     first_visit_date = serializers.CharField(read_only=True)
     last_visit_date = serializers.CharField(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
+    number_of_users_who_visit_city = serializers.IntegerField(read_only=True)
+    number_of_visits_all_users = serializers.IntegerField(read_only=True)
     visit_years = serializers.SerializerMethodField()
 
     def get_year(self, obj: VisitedCity) -> int | None:
@@ -66,12 +69,15 @@ class VisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):
             'region_title',
             'region_id',
             'country',
+            'country_code',
             'lat',
             'lon',
             'number_of_visits',
             'first_visit_date',
             'last_visit_date',
             'average_rating',
+            'number_of_users_who_visit_city',
+            'number_of_visits_all_users',
             'visit_years',
         )
 
@@ -80,11 +86,13 @@ class NotVisitedCitySerializer(serializers.ModelSerializer[City]):
     lat = serializers.CharField(source='coordinate_width', read_only=True)
     lon = serializers.CharField(source='coordinate_longitude', read_only=True)
     region: Any = serializers.StringRelatedField()
+    region_id = serializers.IntegerField(read_only=True)
     country = serializers.CharField(source='country.name', read_only=True)
+    country_code = serializers.CharField(source='country.code', read_only=True)
 
     class Meta:
         model = City
-        fields = ('id', 'title', 'region', 'country', 'lat', 'lon')
+        fields = ('id', 'title', 'region', 'region_id', 'country', 'country_code', 'lat', 'lon')
 
 
 class AddVisitedCitySerializer(serializers.ModelSerializer[VisitedCity]):

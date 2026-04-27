@@ -11,6 +11,7 @@
  */
 
 import L from 'leaflet';
+import {MarkerStyle} from './schemas.js';
 
 /**
  * Форматирует дату из формата YYYY-MM-DD в формат ДД.ММ.ГГГГ
@@ -48,16 +49,68 @@ export const formatDate = (value) => {
  * @param {boolean} [isAuthenticated] - Авторизован ли пользователь
  * @returns {string} HTML-код блока информации
  */
-export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectionOwnerUsername = null, isCollectionOwner = false) => {
+export const buildVisitInfoBlock = (
+    cityData,
+    isAuthenticated = false,
+    collectionOwnerUsername = null,
+    isCollectionOwner = false,
+    popupContext = {}
+) => {
+    const {
+        markerStyle = null,
+        subscriptionUsers = [],
+        selectedYear = null
+    } = popupContext;
     let info = '';
-    if (cityData.isVisited) {
+
+    const usersText = subscriptionUsers.length > 0 ? subscriptionUsers.join(', ') : '—';
+    const statusText = selectedYear
+        ? `Вы не были в этом городе в ${selectedYear} году`
+        : 'Вы не были в этом городе';
+
+    if (markerStyle === MarkerStyle.SUBSCRIPTION) {
+        info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+        info += `<div class="flex items-center gap-2">`;
+        info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+        info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
+        info += `</div>`;
+        info += `<span class="text-gray-900 dark:text-white">${statusText}</span>`;
+        info += `</div>`;
+
+        info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+        info += `<div class="flex items-center gap-2">`;
+        info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+        info += `<span class="text-gray-500 dark:text-neutral-400">Пользователи:</span>`;
+        info += `</div>`;
+        info += `<span class="text-gray-900 dark:text-white">${usersText}</span>`;
+        info += `</div>`;
+    } else if (markerStyle === MarkerStyle.NOT_VISITED) {
+        info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+        info += `<div class="flex items-center gap-2">`;
+        info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+        info += `<span class="text-gray-500 dark:text-neutral-400">Статус:</span>`;
+        info += `</div>`;
+        info += `<span class="text-gray-900 dark:text-white">${statusText}</span>`;
+        info += `</div>`;
+    } else {
+        if (markerStyle === MarkerStyle.TOGETHER) {
+            info += `<div class="flex items-center justify-between gap-2 text-sm">`;
+            info += `<div class="flex items-center gap-2">`;
+            info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+            info += `<span class="text-gray-500 dark:text-neutral-400">Пользователи:</span>`;
+            info += `</div>`;
+            info += `<span class="text-gray-900 dark:text-white">${usersText}</span>`;
+            info += `</div>`;
+        }
+
+        if (cityData.isVisited) {
         if (cityData.firstVisitDate && cityData.lastVisitDate && cityData.firstVisitDate === cityData.lastVisitDate) {
             info += `<div class="flex items-center justify-between gap-2 text-sm">`;
             info += `<div class="flex items-center gap-2">`;
             info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
             info += `<span class="text-gray-500 dark:text-neutral-400">Дата посещения:</span>`;
             info += `</div>`;
-            info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${formatDate(cityData.firstVisitDate)}</span>`;
+            info += `<span class="badge badge-compact-xs badge-soft-outline-primary badge-rounded-md">${formatDate(cityData.firstVisitDate)}</span>`;
             info += `</div>`;
         } else if (cityData.firstVisitDate && cityData.lastVisitDate && cityData.firstVisitDate !== cityData.lastVisitDate) {
             info += `<div class="flex items-center justify-between gap-2 text-sm">`;
@@ -65,14 +118,14 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectio
             info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
             info += `<span class="text-gray-500 dark:text-neutral-400">Первое посещение:</span>`;
             info += `</div>`;
-            info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${formatDate(cityData.firstVisitDate)}</span>`;
+            info += `<span class="badge badge-compact-xs badge-soft-outline-primary badge-rounded-md">${formatDate(cityData.firstVisitDate)}</span>`;
             info += `</div>`;
             info += `<div class="flex items-center justify-between gap-2 text-sm">`;
             info += `<div class="flex items-center gap-2">`;
             info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
             info += `<span class="text-gray-500 dark:text-neutral-400">Последнее посещение:</span>`;
             info += `</div>`;
-            info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">${formatDate(cityData.lastVisitDate)}</span>`;
+            info += `<span class="badge badge-compact-xs badge-soft-outline-success badge-rounded-md">${formatDate(cityData.lastVisitDate)}</span>`;
             info += `</div>`;
         }
 
@@ -81,10 +134,9 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectio
         info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`;
         info += `<span class="text-gray-500 dark:text-neutral-400">Всего посещений:</span>`;
         info += `</div>`;
-        info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${cityData.numberOfVisits || 1}</span>`;
+        info += `<span class="badge badge-compact-xs badge-soft-outline-secondary badge-rounded-md">${cityData.numberOfVisits || 1}</span>`;
         info += `</div>`;
-    } else {
-        if (collectionOwnerUsername && !isCollectionOwner) {
+        } else if (collectionOwnerUsername && !isCollectionOwner) {
             // Для персональных коллекций показываем информацию о владельце для всех пользователей
             info += `<div class="text-sm">`;
             info += `<span class="text-gray-900 dark:text-white">Пользователь <span class="font-semibold">${collectionOwnerUsername}</span> не был в этом городе</span>`;
@@ -93,10 +145,10 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectio
             info += `<div class="text-sm">`;
             info += `<span class="text-gray-900 dark:text-white">Вы не были в этом городе</span>`;
             info += `</div>`;
-        }
+        } 
         
         // Для неавторизованных пользователей дополнительно показываем текст про регистрацию
-        if (!isAuthenticated) {
+        if (!cityData.isVisited && !isAuthenticated) {
             info += `<div class="text-sm mt-2">`;
             info += `<span class="text-gray-900 dark:text-white">`;
             info += `<a href="/account/signup/" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors font-medium">Зарегистрируйтесь</a>, чтобы отмечать посещённые города`;
@@ -113,7 +165,7 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectio
         info += `<svg class="h-4 w-4 shrink-0 text-gray-400 dark:text-neutral-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
         info += `<span class="text-gray-500 dark:text-neutral-400">Пользователей посетило:</span>`;
         info += `</div>`;
-        info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-500/10 dark:text-orange-400">${cityData.numberOfUsersWhoVisitCity ?? 0}</span>`;
+        info += `<span class="badge badge-compact-xs badge-soft-outline-warning badge-rounded-md">${cityData.numberOfUsersWhoVisitCity ?? 0}</span>`;
         info += `</div>`;
 
         info += `<div class="flex items-center justify-between gap-2 text-sm">`;
@@ -121,7 +173,7 @@ export const buildVisitInfoBlock = (cityData, isAuthenticated = false, collectio
         info += `<svg class="h-4 w-4 shrink-0 text-gray-400 dark:text-neutral-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>`;
         info += `<span class="text-gray-500 dark:text-neutral-400">Посещений всеми пользователями:</span>`;
         info += `</div>`;
-        info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-500/10 dark:text-teal-400">${cityData.numberOfVisitsAllUsers ?? 0}</span>`;
+        info += `<span class="badge badge-compact-xs badge-soft-outline-info badge-rounded-md">${cityData.numberOfVisitsAllUsers ?? 0}</span>`;
         info += `</div>`;
     }
 
@@ -150,18 +202,22 @@ export const buildPopupContent = (cityData, options = {}) => {
         countryLink = '',
         isAuthenticated = false,
         isCollectionOwner = false,
+        canMarkVisited = isCollectionOwner,
         collectionOwnerUsername = null,
+        markerStyle = null,
+        subscriptionUsers = [],
+        selectedYear = null,
         addButtonText = null
     } = options;
 
-    let content = '<div class="px-1.5 py-1.5 min-w-[280px] max-w-[400px]">';
+    let content = '<div class="px-0.5 py-0.5 min-w-[280px] max-w-[400px]">';
 
-    content += `<div class="mb-2 pb-1 border-b border-gray-200 dark:border-neutral-700">`;
-    content += `<h3 class="text-base font-semibold text-gray-900 dark:text-white mb-0">`;
+    content += `<div class="mb-2.5 pb-1.5 border-b border-gray-200 dark:border-neutral-700">`;
+    content += `<h3 class="text-lg font-bold tracking-tight text-gray-900 dark:text-white mb-0">`;
     content += `<a href="/city/${cityData.id}" target="_blank" rel="noopener noreferrer" class="text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors">${cityData.name}</a>`;
     content += `</h3>`;
 
-    content += `<div class="mt-2 flex items-center text-xs text-gray-600 dark:text-neutral-400">`;
+    content += `<div class="mt-1.5 flex items-center text-sm font-medium text-gray-700 dark:text-neutral-300">`;
     if (regionLink && regionName) {
         content += `<a href="${regionLink}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">${regionName}</a>`;
     } else if (regionName) {
@@ -183,10 +239,16 @@ export const buildPopupContent = (cityData, options = {}) => {
     content += `</div>`;
 
     content += '<div class="space-y-1.5 text-sm">';
-    content += buildVisitInfoBlock(cityData, isAuthenticated, collectionOwnerUsername, isCollectionOwner);
+    content += buildVisitInfoBlock(
+        cityData,
+        isAuthenticated,
+        collectionOwnerUsername,
+        isCollectionOwner,
+        {markerStyle, subscriptionUsers, selectedYear}
+    );
     content += '</div>';
 
-    if (isAuthenticated && isCollectionOwner) {
+    if (isAuthenticated && canMarkVisited) {
         content += '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700">';
         // Используем кастомный текст кнопки, если передан, иначе используем стандартный
         let buttonText;
@@ -196,7 +258,7 @@ export const buildPopupContent = (cityData, options = {}) => {
             buttonText = !cityData.isVisited ? 'Отметить как посещённый' : 'Добавить ещё одно посещение';
         }
             content += `<a href="#" 
-                class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                class="btn btn-sm btn-soft-outline-success btn-block"
                 data-hs-overlay="#addCityModal" 
                 data-city-name="${cityData.name}" 
                 data-city-id="${cityData.id}" 

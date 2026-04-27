@@ -110,6 +110,8 @@
 
 - Стандартизирован дизайн всех тулбаров ([0a866b6](https://github.com/Shecspi/MoiGoroda/commit/0a866b64d5ce63f37d414a87ed568936e885bc8e))
 
+- *(region-map)* Исправлено позиционирование модального окна "Помощь" на карте городов региона ([26d953b](https://github.com/Shecspi/MoiGoroda/commit/26d953b5756dc67346274e1baf7dfe841e1011be))
+
 
 #### 🧪 Тестирование
 

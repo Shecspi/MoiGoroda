@@ -105,6 +105,8 @@
 
 - *(city)* Исправлена фильтрация по стране в поиске городов ([8b1aa6c](https://github.com/Shecspi/MoiGoroda/commit/8b1aa6c57537de4989140dbed4b3b822683268c7))
 
+- *(logout)* Исправлен выход из аккаунта через POST-форму ([870bcfb](https://github.com/Shecspi/MoiGoroda/commit/870bcfb64c7bc38cca7031811fb09f9a16bb1fc9))
+
 
 #### 🎨 Дизайн
 

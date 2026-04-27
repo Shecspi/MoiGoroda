@@ -27,6 +27,14 @@
         @apply py-1 px-2 gap-x-1;
     }
 
+    /*
+     * Экстра-компактный вариант для плотных UI (карточки, popup на карте).
+     * Осознанно уменьшаем высоту и размер шрифта.
+     */
+    .badge-compact-xs {
+        @apply py-0.5 px-1.5 gap-x-1 text-[11px] leading-4;
+    }
+
     .badge-icon {
         @apply shrink-0 size-3;
     }

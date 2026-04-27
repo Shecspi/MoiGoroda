@@ -94,3 +94,13 @@ def forms(request: HttpRequest) -> HttpResponse:
 @login_required
 def misc(request: HttpRequest) -> HttpResponse:
     return _render(request, 'ui_demo/misc.html', 'Прочее')
+
+
+@login_required
+def city_popup(request: HttpRequest) -> HttpResponse:
+    return _render(
+        request,
+        'ui_demo/city_popup.html',
+        'Popup города (демо)',
+        'Временная страница для отладки внешнего вида popup окна города на карте.',
+    )

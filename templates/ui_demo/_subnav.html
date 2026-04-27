@@ -12,4 +12,6 @@
        class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-800{% if request.resolver_match.url_name == 'forms' %} bg-gray-100 dark:bg-neutral-800{% endif %}">Поля форм</a>
     <a href="{% url 'ui_demo:misc' %}"
        class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-800{% if request.resolver_match.url_name == 'misc' %} bg-gray-100 dark:bg-neutral-800{% endif %}">Прочее</a>
+    <a href="{% url 'ui_demo:city_popup' %}"
+       class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-neutral-300 dark:hover:bg-neutral-800{% if request.resolver_match.url_name == 'city_popup' %} bg-gray-100 dark:bg-neutral-800{% endif %}">Popup города</a>
 </nav>

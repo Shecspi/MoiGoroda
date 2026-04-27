@@ -48,3 +48,7 @@ def test_ui_demo_allows_superuser_when_debug(client: Client, django_user_model: 
     with override_settings(DEBUG=True):
         r2 = client.get(reverse('ui_demo:buttons'))
     assert r2.status_code == 200
+
+    with override_settings(DEBUG=True):
+        r3 = client.get(reverse('ui_demo:city_popup'))
+    assert r3.status_code == 200

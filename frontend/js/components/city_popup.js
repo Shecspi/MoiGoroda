@@ -110,7 +110,7 @@ export const buildVisitInfoBlock = (
             info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
             info += `<span class="text-gray-500 dark:text-neutral-400">Дата посещения:</span>`;
             info += `</div>`;
-            info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${formatDate(cityData.firstVisitDate)}</span>`;
+            info += `<span class="badge badge-compact-xs badge-soft-outline-primary badge-rounded-md">${formatDate(cityData.firstVisitDate)}</span>`;
             info += `</div>`;
         } else if (cityData.firstVisitDate && cityData.lastVisitDate && cityData.firstVisitDate !== cityData.lastVisitDate) {
             info += `<div class="flex items-center justify-between gap-2 text-sm">`;
@@ -118,14 +118,14 @@ export const buildVisitInfoBlock = (
             info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
             info += `<span class="text-gray-500 dark:text-neutral-400">Первое посещение:</span>`;
             info += `</div>`;
-            info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400">${formatDate(cityData.firstVisitDate)}</span>`;
+            info += `<span class="badge badge-compact-xs badge-soft-outline-primary badge-rounded-md">${formatDate(cityData.firstVisitDate)}</span>`;
             info += `</div>`;
             info += `<div class="flex items-center justify-between gap-2 text-sm">`;
             info += `<div class="flex items-center gap-2">`;
             info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
             info += `<span class="text-gray-500 dark:text-neutral-400">Последнее посещение:</span>`;
             info += `</div>`;
-            info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">${formatDate(cityData.lastVisitDate)}</span>`;
+            info += `<span class="badge badge-compact-xs badge-soft-outline-success badge-rounded-md">${formatDate(cityData.lastVisitDate)}</span>`;
             info += `</div>`;
         }
 
@@ -134,7 +134,7 @@ export const buildVisitInfoBlock = (
         info += `<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`;
         info += `<span class="text-gray-500 dark:text-neutral-400">Всего посещений:</span>`;
         info += `</div>`;
-        info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">${cityData.numberOfVisits || 1}</span>`;
+        info += `<span class="badge badge-compact-xs badge-soft-outline-secondary badge-rounded-md">${cityData.numberOfVisits || 1}</span>`;
         info += `</div>`;
         } else if (collectionOwnerUsername && !isCollectionOwner) {
             // Для персональных коллекций показываем информацию о владельце для всех пользователей
@@ -165,7 +165,7 @@ export const buildVisitInfoBlock = (
         info += `<svg class="h-4 w-4 shrink-0 text-gray-400 dark:text-neutral-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
         info += `<span class="text-gray-500 dark:text-neutral-400">Пользователей посетило:</span>`;
         info += `</div>`;
-        info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-500/10 dark:text-orange-400">${cityData.numberOfUsersWhoVisitCity ?? 0}</span>`;
+        info += `<span class="badge badge-compact-xs badge-soft-outline-warning badge-rounded-md">${cityData.numberOfUsersWhoVisitCity ?? 0}</span>`;
         info += `</div>`;
 
         info += `<div class="flex items-center justify-between gap-2 text-sm">`;
@@ -173,7 +173,7 @@ export const buildVisitInfoBlock = (
         info += `<svg class="h-4 w-4 shrink-0 text-gray-400 dark:text-neutral-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>`;
         info += `<span class="text-gray-500 dark:text-neutral-400">Посещений всеми пользователями:</span>`;
         info += `</div>`;
-        info += `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-500/10 dark:text-teal-400">${cityData.numberOfVisitsAllUsers ?? 0}</span>`;
+        info += `<span class="badge badge-compact-xs badge-soft-outline-info badge-rounded-md">${cityData.numberOfVisitsAllUsers ?? 0}</span>`;
         info += `</div>`;
     }
 

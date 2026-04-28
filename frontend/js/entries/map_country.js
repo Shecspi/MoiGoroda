@@ -210,9 +210,11 @@ function add_country(iso3166_1_alpha2) {
     const url = document.getElementById('url_add_visited_countries').dataset.url;
     const formData = new FormData();
     formData.set('code', iso3166_1_alpha2);
+    formData.set('from', 'country map');
 
     fetch(url, {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
             'X-CSRFToken': getCookie("csrftoken")
         },
@@ -263,6 +265,7 @@ function delete_country(iso3166_1_alpha2) {
 
     fetch(url, {
         method: 'DELETE',
+        credentials: 'same-origin',
         headers: {
             'X-CSRFToken': getCookie("csrftoken")
         },

@@ -109,6 +109,10 @@
 
 - *(logout)* Исправлен выход из аккаунта через POST-форму ([870bcfb](https://github.com/Shecspi/MoiGoroda/commit/870bcfb64c7bc38cca7031811fb09f9a16bb1fc9))
 
+- Корректно передавать источник добавления страны (#192) ([5fb3778](https://github.com/Shecspi/MoiGoroda/commit/5fb3778f872f1e44129b2fd9dfdc11e5a18f1824))
+
+- *(vountry)* Корректно передаётся источник добавления страны (#192) ([df73656](https://github.com/Shecspi/MoiGoroda/commit/df73656ac624d3df0dbf721cb4bdbb9c0d7c7265))
+
 
 #### 🎨 Дизайн
 

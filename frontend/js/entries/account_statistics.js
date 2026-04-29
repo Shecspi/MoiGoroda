@@ -4,6 +4,7 @@ import {getCookie} from '../components/get_cookie.js';
 const ACCOUNT_STATS_ROUTES = Object.freeze({
     getVisitedCitiesOverview: '/api/account/stats/visited_cities/overview/',
     getVisitedCitiesCountriesCoverage: '/api/account/stats/visited_cities/countries_coverage/',
+    getVisitedRegionsCountriesCoverage: '/api/account/stats/regions/countries_coverage/',
     getRegionsVisitedCitiesTreemap: '/api/account/stats/regions/visited_cities_treemap/',
     getRegionsCountries: '/api/country/list_by_cities',
 });
@@ -108,6 +109,57 @@ function renderCountriesCoverageCards(countries) {
                     </div>
                     <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
                         <div class="h-1.5 rounded-full bg-emerald-500" style="width: ${widthPercent}%"></div>
+                    </div>
+                </div>
+            `;
+        })
+        .join('');
+
+    loadingElement.classList.add('hidden');
+    cardsContainer.classList.remove('hidden');
+}
+
+function renderRegionsCoverageCards(countries) {
+    const loadingElement = document.getElementById('regions-coverage-cards-loading');
+    const cardsContainer = document.getElementById('regions-coverage-cards');
+    if (!loadingElement || !cardsContainer) {
+        return;
+    }
+
+    const items = Array.isArray(countries)
+        ? countries.filter((country) => Number(country?.visited_regions || 0) > 0)
+        : [];
+    const sortedItems = [...items].sort(
+        (a, b) => Number(b?.visited_regions || 0) - Number(a?.visited_regions || 0)
+    );
+
+    if (sortedItems.length === 0) {
+        loadingElement.classList.remove('hidden');
+        cardsContainer.classList.add('hidden');
+        loadingElement.innerHTML = `
+            <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+                Пока нет данных по посещённым регионам в странах.
+            </div>
+        `;
+        return;
+    }
+
+    cardsContainer.innerHTML = sortedItems
+        .map((country) => {
+            const visitedRegions = Number(country?.visited_regions || 0);
+            const totalRegions = Number(country?.total_regions || 0);
+            const widthPercent = totalRegions > 0 ? Math.round((visitedRegions / totalRegions) * 100) : 0;
+            const countryName = String(country?.name || '—');
+            return `
+                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                    <div class="mb-3 flex items-start justify-between gap-3">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${countryName}</p>
+                        <p class="whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-neutral-300">
+                            ${formatRuNumber(visitedRegions)} из ${formatRuNumber(totalRegions)}
+                        </p>
+                    </div>
+                    <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
+                        <div class="h-1.5 rounded-full bg-indigo-500" style="width: ${widthPercent}%"></div>
                     </div>
                 </div>
             `;
@@ -570,6 +622,10 @@ async function fetchVisitedCitiesCountriesCoverage() {
     return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesCoverage);
 }
 
+async function fetchVisitedRegionsCountriesCoverage() {
+    return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedRegionsCountriesCoverage);
+}
+
 async function fetchRegionsVisitedCitiesTreemap(countryCode, signal) {
     const query = new URLSearchParams({country_code: countryCode || 'RU'});
     return await apiGet(
@@ -835,6 +891,8 @@ function initVisitedCitiesOverview() {
         document.getElementById('personal-visited-cities-by-month-chart'),
         document.getElementById('countries-coverage-cards-loading'),
         document.getElementById('countries-coverage-cards'),
+        document.getElementById('regions-coverage-cards-loading'),
+        document.getElementById('regions-coverage-cards'),
     ];
 
     if (requiredElements.some((element) => !element)) {
@@ -913,6 +971,15 @@ function initVisitedCitiesOverview() {
         .catch((error) => {
             console.error('Failed to fetch countries coverage data', error);
             renderCountriesCoverageCards([]);
+        });
+
+    fetchVisitedRegionsCountriesCoverage()
+        .then((data) => {
+            renderRegionsCoverageCards(data.countries_coverage);
+        })
+        .catch((error) => {
+            console.error('Failed to fetch regions coverage data', error);
+            renderRegionsCoverageCards([]);
         });
 }
 

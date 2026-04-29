@@ -10,16 +10,21 @@ from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
 
 from city.models import VisitedCity
-from country.repository import get_countries_with_visited_city
+from country.repository import (
+    get_countries_with_visited_city,
+    get_list_of_countries_with_visited_regions,
+)
 from region.models import Region
 from account.schemas import (
     DailyStatistics,
     PersonalVisitedCitiesCountriesCoverageResponse,
     PersonalVisitedCitiesOverviewResponse,
+    PersonalVisitedRegionsCountriesCoverageResponse,
     Quantity,
     RegionsVisitedCitiesTreemapResponse,
     RegionVisitedCitiesTreemapItem,
     VisitedCitiesCountryCoverage,
+    VisitedRegionsCountryCoverage,
 )
 
 
@@ -145,6 +150,27 @@ class GetPersonalVisitedCitiesCountriesCoverageController(Controller[MsgspecSeri
         ]
 
         return PersonalVisitedCitiesCountriesCoverageResponse(
+            countries_coverage=countries_coverage
+        )
+
+
+class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSerializer]):
+    def get(self) -> PersonalVisitedRegionsCountriesCoverageResponse:
+        user = self.request.user
+
+        if not user.is_authenticated:
+            raise PermissionDenied
+
+        countries_coverage = [
+            VisitedRegionsCountryCoverage(
+                name=country.name,
+                visited_regions=country.number_of_visited_regions,
+                total_regions=country.number_of_regions,
+            )
+            for country in get_list_of_countries_with_visited_regions(user.id)
+        ]
+
+        return PersonalVisitedRegionsCountriesCoverageResponse(
             countries_coverage=countries_coverage
         )
 

@@ -10,6 +10,26 @@ const ACCOUNT_STATS_ROUTES = Object.freeze({
     getRegionsCountries: '/api/country/list_by_cities',
 });
 
+function getStatisticsRequestContext() {
+    const root = document.getElementById('account-statistics-root');
+    const sharedUserIdRaw = root?.dataset?.statisticsUserId || '';
+    const isSharedMode = root?.dataset?.statisticsSharedMode === '1';
+    const sharedUserId = Number(sharedUserIdRaw);
+    const hasSharedUserId = Number.isInteger(sharedUserId) && sharedUserId > 0;
+    return {
+        isSharedMode,
+        sharedUserId: hasSharedUserId ? sharedUserId : null,
+    };
+}
+
+function buildStatsUrl(baseUrl, requestContext) {
+    if (!requestContext?.isSharedMode || !requestContext?.sharedUserId) {
+        return baseUrl;
+    }
+    const separator = baseUrl.includes('?') ? '&' : '?';
+    return `${baseUrl}${separator}shared_user_id=${requestContext.sharedUserId}`;
+}
+
 const treemapState = {
     selectedCountryCode: 'RU',
     requestId: 0,
@@ -69,7 +89,7 @@ function updateNumberOnCard(elementId, value) {
     `;
 }
 
-function updateRankBadge(elementId, rank, totalUsersCount, metricLabel) {
+function updateRankBadge(elementId, rank, totalUsersCount, metricLabel, isSharedMode = false) {
     const badgeElement = document.getElementById(elementId);
     if (!badgeElement) {
         return;
@@ -83,11 +103,13 @@ function updateRankBadge(elementId, rank, totalUsersCount, metricLabel) {
     }
 
     badgeElement.textContent = `${formatRuNumber(rank)} место`;
-    badgeElement.title = `Вы занимаете ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству ${metricLabel}`;
+    badgeElement.title = isSharedMode
+        ? `Пользователь занимает ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству ${metricLabel}`
+        : `Вы занимаете ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству ${metricLabel}`;
     badgeElement.classList.remove('hidden');
 }
 
-function renderCountriesCoverageCards(countries) {
+function renderCountriesCoverageCards(countries, isSharedMode = false) {
     const loadingElement = document.getElementById('countries-coverage-cards-loading');
     const cardsContainer = document.getElementById('countries-coverage-cards');
     if (!loadingElement || !cardsContainer) {
@@ -122,7 +144,7 @@ function renderCountriesCoverageCards(countries) {
             const countryName = String(country?.name || '—');
             const rankBadgeHtml =
                 Number.isFinite(rank) && rank > 0 && Number.isFinite(totalUsersCount) && totalUsersCount > 0
-                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="Вы занимаете ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещённых городов в этой стране">${formatRuNumber(rank)} место</span>`
+                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="${isSharedMode ? 'Пользователь занимает' : 'Вы занимаете'} ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещённых городов в этой стране">${formatRuNumber(rank)} место</span>`
                     : '';
             return `
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
@@ -198,7 +220,7 @@ function renderRegionsCoverageCards(countries) {
     cardsContainer.classList.remove('hidden');
 }
 
-function renderCountriesVisitsCards(countries) {
+function renderCountriesVisitsCards(countries, isSharedMode = false) {
     const loadingElement = document.getElementById('countries-visits-cards-loading');
     const cardsContainer = document.getElementById('countries-visits-cards');
     if (!loadingElement || !cardsContainer) {
@@ -231,7 +253,7 @@ function renderCountriesVisitsCards(countries) {
             const countryName = String(country?.name || '—');
             const rankBadgeHtml =
                 Number.isFinite(rank) && rank > 0 && Number.isFinite(totalUsersCount) && totalUsersCount > 0
-                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="Вы занимаете ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещений городов в этой стране">${formatRuNumber(rank)} место</span>`
+                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="${isSharedMode ? 'Пользователь занимает' : 'Вы занимаете'} ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещений городов в этой стране">${formatRuNumber(rank)} место</span>`
                     : '';
             return `
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
@@ -697,26 +719,35 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
     });
 }
 
-async function fetchVisitedCitiesOverview() {
-    return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview);
+async function fetchVisitedCitiesOverview(requestContext) {
+    return await apiGet(buildStatsUrl(ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview, requestContext));
 }
 
-async function fetchVisitedCitiesCountriesCoverage() {
-    return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesCoverage);
+async function fetchVisitedCitiesCountriesCoverage(requestContext) {
+    return await apiGet(
+        buildStatsUrl(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesCoverage, requestContext)
+    );
 }
 
-async function fetchVisitedCitiesCountriesVisits() {
-    return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesVisits);
+async function fetchVisitedCitiesCountriesVisits(requestContext) {
+    return await apiGet(
+        buildStatsUrl(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesVisits, requestContext)
+    );
 }
 
-async function fetchVisitedRegionsCountriesCoverage() {
-    return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedRegionsCountriesCoverage);
+async function fetchVisitedRegionsCountriesCoverage(requestContext) {
+    return await apiGet(
+        buildStatsUrl(ACCOUNT_STATS_ROUTES.getVisitedRegionsCountriesCoverage, requestContext)
+    );
 }
 
-async function fetchRegionsVisitedCitiesTreemap(countryCode, signal) {
+async function fetchRegionsVisitedCitiesTreemap(countryCode, signal, requestContext) {
     const query = new URLSearchParams({country_code: countryCode || 'RU'});
     return await apiGet(
-        `${ACCOUNT_STATS_ROUTES.getRegionsVisitedCitiesTreemap}?${query.toString()}`,
+        buildStatsUrl(
+            `${ACCOUNT_STATS_ROUTES.getRegionsVisitedCitiesTreemap}?${query.toString()}`,
+            requestContext
+        ),
         {signal}
     );
 }
@@ -912,7 +943,7 @@ function populateRegionsCountrySelect(items) {
     countrySelect.disabled = false;
 }
 
-function initRegionsVisitedCitiesTreemap() {
+function initRegionsVisitedCitiesTreemap(requestContext) {
     const loadingElement = document.getElementById('personal-regions-treemap-loading');
     const chartContainer = document.getElementById('personal-regions-treemap-chart');
     const countrySelect = document.getElementById('personal-regions-country-select');
@@ -937,7 +968,8 @@ function initRegionsVisitedCitiesTreemap() {
 
         fetchRegionsVisitedCitiesTreemap(
             treemapState.selectedCountryCode,
-            treemapState.fetchController.signal
+            treemapState.fetchController.signal,
+            requestContext
         )
             .then((data) => {
                 if (currentRequestId !== treemapState.requestId) {
@@ -976,7 +1008,7 @@ function initRegionsVisitedCitiesTreemap() {
         });
 }
 
-function initVisitedCitiesOverview() {
+function initVisitedCitiesOverview(requestContext) {
     const requiredElements = [
         document.getElementById('number-personal_unique_visited_cities'),
         document.getElementById('badge-personal_unique_visited_cities_rank'),
@@ -1001,7 +1033,7 @@ function initVisitedCitiesOverview() {
         return;
     }
 
-    fetchVisitedCitiesOverview()
+    fetchVisitedCitiesOverview(requestContext)
         .then((data) => {
             updateNumberOnCard(
                 'number-personal_unique_visited_cities',
@@ -1011,7 +1043,8 @@ function initVisitedCitiesOverview() {
                 'badge-personal_unique_visited_cities_rank',
                 Number(data.unique_visited_cities_rank),
                 Number(data.total_users_count),
-                'уникальных посещенных городов'
+                'уникальных посещенных городов',
+                requestContext?.isSharedMode
             );
             updateNumberOnCard(
                 'number-personal_total_visited_cities_visits',
@@ -1021,7 +1054,8 @@ function initVisitedCitiesOverview() {
                 'badge-personal_total_visited_cities_visits_rank',
                 Number(data.total_visited_cities_visits_rank),
                 Number(data.total_users_count),
-                'посещений городов'
+                'посещений городов',
+                requestContext?.isSharedMode
             );
 
             renderTrendChart(
@@ -1085,16 +1119,16 @@ function initVisitedCitiesOverview() {
             }
         });
 
-    fetchVisitedCitiesCountriesCoverage()
+    fetchVisitedCitiesCountriesCoverage(requestContext)
         .then((data) => {
-            renderCountriesCoverageCards(data.countries_coverage);
+            renderCountriesCoverageCards(data.countries_coverage, requestContext?.isSharedMode);
         })
         .catch((error) => {
             console.error('Failed to fetch countries coverage data', error);
-            renderCountriesCoverageCards([]);
+            renderCountriesCoverageCards([], requestContext?.isSharedMode);
         });
 
-    fetchVisitedRegionsCountriesCoverage()
+    fetchVisitedRegionsCountriesCoverage(requestContext)
         .then((data) => {
             renderRegionsCoverageCards(data.countries_coverage);
         })
@@ -1103,13 +1137,13 @@ function initVisitedCitiesOverview() {
             renderRegionsCoverageCards([]);
         });
 
-    fetchVisitedCitiesCountriesVisits()
+    fetchVisitedCitiesCountriesVisits(requestContext)
         .then((data) => {
-            renderCountriesVisitsCards(data.countries_visits);
+            renderCountriesVisitsCards(data.countries_visits, requestContext?.isSharedMode);
         })
         .catch((error) => {
             console.error('Failed to fetch countries visits data', error);
-            renderCountriesVisitsCards([]);
+            renderCountriesVisitsCards([], requestContext?.isSharedMode);
         });
 }
 
@@ -1118,8 +1152,9 @@ function initAccountStatistics() {
         return;
     }
     window.__mgAccountStatisticsInitialized = true;
-    initVisitedCitiesOverview();
-    initRegionsVisitedCitiesTreemap();
+    const requestContext = getStatisticsRequestContext();
+    initVisitedCitiesOverview(requestContext);
+    initRegionsVisitedCitiesTreemap(requestContext);
 }
 
 if (document.readyState === 'loading') {

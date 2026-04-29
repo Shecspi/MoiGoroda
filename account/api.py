@@ -10,6 +10,7 @@ from django.db.models.functions import TruncMonth, TruncYear
 from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
 
+from account.models import ShareSettings
 from city.models import City
 from city.models import VisitedCity
 from country.models import Country
@@ -33,14 +34,42 @@ from account.schemas import (
 )
 
 
-class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
-    def get(self) -> PersonalVisitedCitiesOverviewResponse:
-        user = self.request.user
-
-        if not user.is_authenticated:
+def resolve_statistics_user_id(request_user: object, shared_user_id_raw: str | None) -> int:
+    if shared_user_id_raw:
+        try:
+            shared_user_id = int(shared_user_id_raw)
+        except (TypeError, ValueError):
             raise PermissionDenied
 
-        visited_cities_queryset = VisitedCity.objects.filter(user_id=user.id)
+        if shared_user_id <= 0:
+            raise PermissionDenied
+
+        if not ShareSettings.objects.filter(
+            user_id=shared_user_id,
+            can_share=True,
+            can_share_dashboard=True,
+        ).exists():
+            raise PermissionDenied
+
+        return shared_user_id
+
+    if not getattr(request_user, 'is_authenticated', False):
+        raise PermissionDenied
+
+    user_id = getattr(request_user, 'id', None)
+    if not user_id:
+        raise PermissionDenied
+
+    return int(user_id)
+
+
+class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
+    def get(self) -> PersonalVisitedCitiesOverviewResponse:
+        user_id = resolve_statistics_user_id(
+            self.request.user, self.request.GET.get('shared_user_id')
+        )
+
+        visited_cities_queryset = VisitedCity.objects.filter(user_id=user_id)
 
         unique_total = visited_cities_queryset.filter(is_first_visit=True).count()
         visits_total = visited_cities_queryset.count()
@@ -158,12 +187,11 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
 
 class GetPersonalVisitedCitiesCountriesCoverageController(Controller[MsgspecSerializer]):
     def get(self) -> PersonalVisitedCitiesCountriesCoverageResponse:
-        user = self.request.user
+        user_id = resolve_statistics_user_id(
+            self.request.user, self.request.GET.get('shared_user_id')
+        )
 
-        if not user.is_authenticated:
-            raise PermissionDenied
-
-        countries = list(get_countries_with_visited_city(user.id))
+        countries = list(get_countries_with_visited_city(user_id))
         country_ids = [country.pk for country in countries]
         total_users_count = User.objects.count()
         rank_by_country_id: dict[int, int] = {}
@@ -209,10 +237,9 @@ class GetPersonalVisitedCitiesCountriesCoverageController(Controller[MsgspecSeri
 
 class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSerializer]):
     def get(self) -> PersonalVisitedRegionsCountriesCoverageResponse:
-        user = self.request.user
-
-        if not user.is_authenticated:
-            raise PermissionDenied
+        user_id = resolve_statistics_user_id(
+            self.request.user, self.request.GET.get('shared_user_id')
+        )
 
         countries_coverage = [
             VisitedRegionsCountryCoverage(
@@ -220,7 +247,7 @@ class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSer
                 visited_regions=country.number_of_visited_regions,
                 total_regions=country.number_of_regions,
             )
-            for country in get_list_of_countries_with_visited_regions(user.id)
+            for country in get_list_of_countries_with_visited_regions(user_id)
         ]
 
         return PersonalVisitedRegionsCountriesCoverageResponse(
@@ -230,13 +257,12 @@ class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSer
 
 class GetPersonalVisitedCitiesCountriesVisitsController(Controller[MsgspecSerializer]):
     def get(self) -> PersonalVisitedCitiesCountriesVisitsResponse:
-        user = self.request.user
-
-        if not user.is_authenticated:
-            raise PermissionDenied
+        user_id = resolve_statistics_user_id(
+            self.request.user, self.request.GET.get('shared_user_id')
+        )
 
         countries_visits_queryset = (
-            VisitedCity.objects.filter(user_id=user.id)
+            VisitedCity.objects.filter(user_id=user_id)
             .values('city__country_id', 'city__country__name')
             .annotate(visits=Count('id'))
             .order_by('-visits', 'city__country__name')
@@ -281,9 +307,9 @@ class GetPersonalVisitedCitiesCountriesVisitsController(Controller[MsgspecSerial
 
 class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
     def get(self) -> RegionsVisitedCitiesTreemapResponse:
-        user = self.request.user
-        if not user.is_authenticated:
-            raise PermissionDenied
+        user_id = resolve_statistics_user_id(
+            self.request.user, self.request.GET.get('shared_user_id')
+        )
 
         requested_country_code = (self.request.GET.get('country_code') or 'RU').upper()
 
@@ -293,7 +319,7 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
                 total_cities=Count('city', distinct=True),
                 unique_visited_cities=Count(
                     'city',
-                    filter=Q(city__visitedcity__user_id=user.id),
+                    filter=Q(city__visitedcity__user_id=user_id),
                     distinct=True,
                 ),
             )
@@ -314,7 +340,7 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
             total_cities = City.objects.filter(country__code=requested_country_code).count()
             unique_visited_cities = (
                 VisitedCity.objects.filter(
-                    user_id=user.id,
+                    user_id=user_id,
                     city__country__code=requested_country_code,
                 )
                 .values('city_id')

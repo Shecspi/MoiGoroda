@@ -53,6 +53,8 @@ class Statistics(LoginRequiredMixin, TemplateView):
             'Здесь отображается подробная информация о результатах Ваших путешествий'
             ' - посещённые города, регионы и федеральнаые округа'
         )
+        context['statistics_user_id'] = user_id
+        context['statistics_shared_mode'] = False
 
         number_of_visited_cities = get_number_of_visited_cities(user_id)
         if number_of_visited_cities == 0:

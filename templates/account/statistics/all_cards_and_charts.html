@@ -49,8 +49,11 @@
     <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
         <div class="mb-5">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">
-                Регионы России: уникальные посещенные города
+                Посещённые регионы
             </h2>
+        </div>
+        <div class="mb-4 max-w-xs">
+            {% include 'components/ui/select.html' with select_id='personal-regions-country-select' select_name='personal_regions_country' placeholder='Выберите страну' loading_option_label='Загрузка стран...' %}
         </div>
         <div id="personal-regions-treemap-loading" class="flex items-center justify-center min-h-[420px]">
             <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">

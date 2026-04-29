@@ -80,8 +80,10 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
         if not user.is_authenticated:
             raise PermissionDenied
 
+        requested_country_code = (self.request.GET.get('country_code') or 'RU').upper()
+
         regions = (
-            Region.objects.filter(country__code='RU')
+            Region.objects.filter(country__code=requested_country_code)
             .annotate(
                 total_cities=Count('city', distinct=True),
                 unique_visited_cities=Count(

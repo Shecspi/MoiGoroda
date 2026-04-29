@@ -4,7 +4,50 @@ import {getCookie} from '../components/get_cookie.js';
 const ACCOUNT_STATS_ROUTES = Object.freeze({
     getVisitedCitiesOverview: '/api/account/stats/visited_cities/overview/',
     getRegionsVisitedCitiesTreemap: '/api/account/stats/regions/visited_cities_treemap/',
+    getRegionsCountries: '/api/country/list_by_cities',
 });
+
+const treemapState = {
+    selectedCountryCode: 'RU',
+    requestId: 0,
+    fetchController: null,
+    chartInstance: null,
+};
+const TREEMAP_LABEL_MAX = 28;
+const TREEMAP_COLOR_BY_TEN_PERCENT = [
+    '#b91c1c', // 0-9%
+    '#dc2626', // 10-19%
+    '#ea580c', // 20-29%
+    '#f59e0b', // 30-39%
+    '#eab308', // 40-49%
+    '#84cc16', // 50-59%
+    '#22c55e', // 60-69%
+    '#14b8a6', // 70-79%
+    '#06b6d4', // 80-89%
+    '#3b82f6', // 90-99%
+];
+const TREEMAP_FULL_COVERAGE_COLOR = '#8b5cf6'; // 100%
+const TREEMAP_LOADING_HTML = `
+    <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+        <span class="sr-only">Загрузка...</span>
+    </div>
+`;
+
+async function apiGet(url, {signal} = {}) {
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            Accept: 'application/json',
+        },
+        credentials: 'same-origin',
+        signal,
+    });
+    if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+    }
+    return await response.json();
+}
 
 function formatRuNumber(value) {
     return new Intl.NumberFormat('ru-RU').format(value ?? 0);
@@ -112,178 +155,240 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
 }
 
 async function fetchVisitedCitiesOverview() {
-    const response = await fetch(ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview, {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            Accept: 'application/json',
-        },
-        credentials: 'same-origin',
-    });
-
-    if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-    }
-
-    return await response.json();
+    return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview);
 }
 
-async function fetchRegionsVisitedCitiesTreemap() {
-    const response = await fetch(ACCOUNT_STATS_ROUTES.getRegionsVisitedCitiesTreemap, {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            Accept: 'application/json',
-        },
-        credentials: 'same-origin',
-    });
+async function fetchRegionsVisitedCitiesTreemap(countryCode, signal) {
+    const query = new URLSearchParams({country_code: countryCode || 'RU'});
+    return await apiGet(
+        `${ACCOUNT_STATS_ROUTES.getRegionsVisitedCitiesTreemap}?${query.toString()}`,
+        {signal}
+    );
+}
 
-    if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
+async function fetchRegionsCountries() {
+    const data = await apiGet(ACCOUNT_STATS_ROUTES.getRegionsCountries);
+    return Array.isArray(data) ? data : [];
+}
+
+function getTreemapFillColor(percent) {
+    if (percent >= 100) {
+        return TREEMAP_FULL_COVERAGE_COLOR;
+    }
+    const colorIndex = Math.min(9, Math.floor(percent / 10));
+    return TREEMAP_COLOR_BY_TEN_PERCENT[colorIndex];
+}
+
+function buildShortLabel(fullname) {
+    return fullname.length > TREEMAP_LABEL_MAX
+        ? `${fullname.slice(0, TREEMAP_LABEL_MAX).trimEnd()}...`
+        : fullname;
+}
+
+function normalizeCountryOptions(data) {
+    return data
+        .map((country) => ({
+            code: String(country.code || ''),
+            name: String(country.name || country.code || ''),
+            numberOfVisitedCities: Number(country.number_of_visited_cities || 0),
+        }))
+        .filter((country) => country.code && country.numberOfVisitedCities > 0);
+}
+
+function renderRegionsTreemap(items, loadingElement, chartContainer) {
+    if (items.length === 0) {
+        loadingElement.innerHTML =
+            '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
+        chartContainer.classList.add('hidden');
+        return;
     }
 
-    return await response.json();
+    const sortedItems = [...items].sort(
+        (a, b) => (b.unique_visited_cities ?? 0) - (a.unique_visited_cities ?? 0)
+    );
+    const treemapData = sortedItems.map((item) => {
+        const totalCities = item.total_cities ?? 0;
+        const uniqueVisitedCities = item.unique_visited_cities ?? 0;
+        const progress = totalCities > 0 ? uniqueVisitedCities / totalCities : 0;
+        const percent = Math.round(progress * 100);
+        return {
+            x: buildShortLabel(item.fullname),
+            fullname: item.fullname,
+            y: uniqueVisitedCities,
+            valueLabel: `${uniqueVisitedCities} из ${totalCities}`,
+            totalCities,
+            progress,
+            fillColor: getTreemapFillColor(percent),
+        };
+    });
+
+    loadingElement.classList.add('hidden');
+    chartContainer.classList.remove('hidden');
+    chartContainer.innerHTML = '';
+    if (treemapState.chartInstance) {
+        treemapState.chartInstance.destroy();
+        treemapState.chartInstance = null;
+    }
+
+    const chart = new ApexCharts(chartContainer, {
+        series: [
+            {
+                data: treemapData,
+            },
+        ],
+        legend: {
+            show: false,
+        },
+        chart: {
+            type: 'treemap',
+            height: 420,
+            toolbar: {
+                show: false,
+            },
+        },
+        states: {
+            normal: {
+                filter: {
+                    type: 'none',
+                },
+            },
+            hover: {
+                filter: {
+                    type: 'darken',
+                    value: 0.12,
+                },
+            },
+            active: {
+                filter: {
+                    type: 'darken',
+                    value: 0.16,
+                },
+            },
+        },
+        dataLabels: {
+            enabled: true,
+            offsetY: -2,
+            formatter(text, opts) {
+                const point = opts.w.config.series[0].data[opts.dataPointIndex];
+                return [text, point.valueLabel];
+            },
+            style: {
+                fontSize: '14px',
+                fontWeight: 700,
+                colors: ['#ffffff'],
+            },
+            textAnchor: 'middle',
+            dropShadow: {
+                enabled: true,
+                left: 0,
+                top: 1,
+                blur: 1,
+                color: '#0f172a',
+                opacity: 0.45,
+            },
+        },
+        tooltip: {
+            custom({seriesIndex, dataPointIndex, w}) {
+                const point = w.config.series[seriesIndex].data[dataPointIndex];
+                const percent = Math.round((point.progress || 0) * 100);
+                return `
+                    <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
+                        <div class="font-semibold">${point.fullname}</div>
+                        <div>Посещено: <span class="font-semibold">${point.y}</span></div>
+                        <div>Всего городов: <span class="font-semibold">${point.totalCities}</span></div>
+                        <div>Покрытие: <span class="font-semibold">${percent}%</span></div>
+                    </div>
+                `;
+            },
+        },
+    });
+    treemapState.chartInstance = chart;
+    chart.render();
+}
+
+function populateRegionsCountrySelect(items) {
+    const countrySelect = document.getElementById('personal-regions-country-select');
+    if (!countrySelect) {
+        return;
+    }
+
+    countrySelect.innerHTML = '';
+
+    for (const item of items) {
+        const option = document.createElement('option');
+        option.value = item.code;
+        option.textContent = item.name;
+        if (item.code === treemapState.selectedCountryCode) {
+            option.selected = true;
+        }
+        countrySelect.appendChild(option);
+    }
+
+    if (!items.some((item) => item.code === treemapState.selectedCountryCode) && items.length > 0) {
+        treemapState.selectedCountryCode = items[0].code;
+        countrySelect.value = treemapState.selectedCountryCode;
+    }
+
+    countrySelect.disabled = false;
 }
 
 function initRegionsVisitedCitiesTreemap() {
     const loadingElement = document.getElementById('personal-regions-treemap-loading');
     const chartContainer = document.getElementById('personal-regions-treemap-chart');
-    if (!loadingElement || !chartContainer) {
+    const countrySelect = document.getElementById('personal-regions-country-select');
+    if (!loadingElement || !chartContainer || !countrySelect) {
         return;
     }
 
-    fetchRegionsVisitedCitiesTreemap()
-        .then((data) => {
-            const items = Array.isArray(data?.items) ? data.items : [];
-            if (items.length === 0) {
-                loadingElement.innerHTML =
-                    '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
-                return;
-            }
+    const loadTreemap = (countryCode) => {
+        treemapState.selectedCountryCode = countryCode || 'RU';
+        const currentRequestId = ++treemapState.requestId;
+        if (treemapState.fetchController) {
+            treemapState.fetchController.abort();
+        }
+        treemapState.fetchController = new AbortController();
+        loadingElement.classList.remove('hidden');
+        chartContainer.classList.add('hidden');
+        loadingElement.innerHTML = TREEMAP_LOADING_HTML;
 
-            const sortedItems = [...items].sort(
-                (a, b) => (b.unique_visited_cities ?? 0) - (a.unique_visited_cities ?? 0)
-            );
-            const paletteByTenPercent = [
-                '#b91c1c', // 0-9%
-                '#dc2626', // 10-19%
-                '#ea580c', // 20-29%
-                '#f59e0b', // 30-39%
-                '#eab308', // 40-49%
-                '#84cc16', // 50-59%
-                '#22c55e', // 60-69%
-                '#14b8a6', // 70-79%
-                '#06b6d4', // 80-89%
-                '#3b82f6', // 90-99%
-            ];
-            const fullCoverageColor = '#8b5cf6'; // 100%
-            const treemapData = sortedItems.map((item) => {
-                const totalCities = item.total_cities ?? 0;
-                const uniqueVisitedCities = item.unique_visited_cities ?? 0;
-                const progress = totalCities > 0 ? uniqueVisitedCities / totalCities : 0;
-                const percent = Math.round(progress * 100);
-                const colorIndex = Math.min(9, Math.floor(percent / 10));
-                let fillColor = fullCoverageColor;
-                if (percent < 100) {
-                    fillColor = paletteByTenPercent[colorIndex];
+        fetchRegionsVisitedCitiesTreemap(
+            treemapState.selectedCountryCode,
+            treemapState.fetchController.signal
+        )
+            .then((data) => {
+                if (currentRequestId !== treemapState.requestId) {
+                    return;
                 }
-                const shortLabel =
-                    item.fullname.length > 28
-                        ? `${item.fullname.slice(0, 28).trimEnd()}...`
-                        : item.fullname;
-                return {
-                    x: shortLabel,
-                    fullname: item.fullname,
-                    y: uniqueVisitedCities,
-                    valueLabel: `${uniqueVisitedCities} из ${totalCities}`,
-                    totalCities,
-                    progress,
-                    fillColor,
-                };
+                const items = Array.isArray(data?.items) ? data.items : [];
+                renderRegionsTreemap(items, loadingElement, chartContainer);
+            })
+            .catch((error) => {
+                if (currentRequestId !== treemapState.requestId) {
+                    return;
+                }
+                if (error?.name === 'AbortError') {
+                    return;
+                }
+                console.error('Failed to fetch regions treemap data', error);
+                loadingElement.innerHTML =
+                    '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
             });
+    };
 
-            loadingElement.classList.add('hidden');
-            chartContainer.classList.remove('hidden');
-            chartContainer.innerHTML = '';
-
-            const chart = new ApexCharts(chartContainer, {
-                series: [
-                    {
-                        data: treemapData,
-                    },
-                ],
-                legend: {
-                    show: false,
-                },
-                chart: {
-                    type: 'treemap',
-                    height: 420,
-                    toolbar: {
-                        show: false,
-                    },
-                },
-                states: {
-                    normal: {
-                        filter: {
-                            type: 'none',
-                        },
-                    },
-                    hover: {
-                        filter: {
-                            type: 'darken',
-                            value: 0.12,
-                        },
-                    },
-                    active: {
-                        filter: {
-                            type: 'darken',
-                            value: 0.16,
-                        },
-                    },
-                },
-                dataLabels: {
-                    enabled: true,
-                    offsetY: -2,
-                    formatter(text, opts) {
-                        const point = opts.w.config.series[0].data[opts.dataPointIndex];
-                        return [text, point.valueLabel];
-                    },
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 700,
-                        colors: ['#ffffff'],
-                    },
-                    textAnchor: 'middle',
-                    dropShadow: {
-                        enabled: true,
-                        left: 0,
-                        top: 1,
-                        blur: 1,
-                        color: '#0f172a',
-                        opacity: 0.45,
-                    },
-                },
-                tooltip: {
-                    custom({seriesIndex, dataPointIndex, w}) {
-                        const point = w.config.series[seriesIndex].data[dataPointIndex];
-                        const percent = Math.round((point.progress || 0) * 100);
-                        return `
-                            <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
-                                <div class="font-semibold">${point.fullname}</div>
-                                <div>Посещено: <span class="font-semibold">${point.y}</span></div>
-                                <div>Всего городов: <span class="font-semibold">${point.totalCities}</span></div>
-                                <div>Покрытие: <span class="font-semibold">${percent}%</span></div>
-                            </div>
-                        `;
-                    },
-                },
-            });
-            chart.render();
+    fetchRegionsCountries()
+        .then((data) => {
+            const items = normalizeCountryOptions(data);
+            populateRegionsCountrySelect(items);
+            countrySelect.onchange = (event) => {
+                const nextCountryCode = event.target.value || 'RU';
+                loadTreemap(nextCountryCode);
+            };
+            loadTreemap(countrySelect.value || treemapState.selectedCountryCode);
         })
         .catch((error) => {
-            console.error('Failed to fetch regions treemap data', error);
-            loadingElement.innerHTML =
-                '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
+            console.error('Failed to fetch regions countries', error);
+            countrySelect.disabled = true;
+            loadTreemap(treemapState.selectedCountryCode);
         });
 }
 
@@ -346,12 +451,17 @@ function initVisitedCitiesOverview() {
         });
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        initVisitedCitiesOverview();
-        initRegionsVisitedCitiesTreemap();
-    });
-} else {
+function initAccountStatistics() {
+    if (window.__mgAccountStatisticsInitialized) {
+        return;
+    }
+    window.__mgAccountStatisticsInitialized = true;
     initVisitedCitiesOverview();
     initRegionsVisitedCitiesTreemap();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccountStatistics);
+} else {
+    initAccountStatistics();
 }

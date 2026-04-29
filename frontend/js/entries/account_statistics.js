@@ -115,13 +115,22 @@ function renderCountriesCoverageCards(countries) {
         .map((country) => {
             const visitedCities = Number(country?.visited_cities || 0);
             const totalCities = Number(country?.total_cities || 0);
+            const rank = Number(country?.rank || 0);
+            const totalUsersCount = Number(country?.total_users_count || 0);
             const widthPercent = totalCities > 0 ? Math.round((visitedCities / totalCities) * 100) : 0;
             const countryName = String(country?.name || '—');
+            const rankBadgeHtml =
+                Number.isFinite(rank) && rank > 0 && Number.isFinite(totalUsersCount) && totalUsersCount > 0
+                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="Вы занимаете ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещённых городов в этой стране">${formatRuNumber(rank)} место</span>`
+                    : '';
             return `
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                     <div class="mb-3 flex items-start justify-between gap-3">
                         <p class="text-sm font-semibold text-gray-900 dark:text-white">${countryName}</p>
-                        <p class="whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-neutral-300">
+                        ${rankBadgeHtml}
+                    </div>
+                    <div class="mb-3">
+                        <p class="dashboard-metric-number text-2xl font-extrabold leading-none text-gray-900 dark:text-white">
                             ${formatRuNumber(visitedCities)} из ${formatRuNumber(totalCities)}
                         </p>
                     </div>

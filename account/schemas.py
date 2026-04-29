@@ -16,6 +16,8 @@ class VisitedCitiesCountryCoverage(msgspec.Struct):
     name: str
     visited_cities: int
     total_cities: int
+    rank: int
+    total_users_count: int
 
 
 class VisitedRegionsCountryCoverage(msgspec.Struct):

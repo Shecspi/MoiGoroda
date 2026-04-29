@@ -159,13 +159,43 @@ class GetPersonalVisitedCitiesCountriesCoverageController(Controller[MsgspecSeri
         if not user.is_authenticated:
             raise PermissionDenied
 
+        countries = list(get_countries_with_visited_city(user.id))
+        country_ids = [country.pk for country in countries]
+        total_users_count = User.objects.count()
+        rank_by_country_id: dict[int, int] = {}
+
+        if country_ids:
+            country_users_stats = (
+                VisitedCity.objects.filter(is_first_visit=True, city__country_id__in=country_ids)
+                .values('city__country_id', 'user_id')
+                .annotate(unique_visited_cities=Count('city_id', distinct=True))
+            )
+            unique_counts_by_country_id: dict[int, list[int]] = {}
+            for item in country_users_stats:
+                country_id = int(item['city__country_id'])
+                unique_counts_by_country_id.setdefault(country_id, []).append(
+                    int(item['unique_visited_cities'])
+                )
+
+            for country in countries:
+                country_id = int(country.pk)
+                user_unique_visited_cities = int(country.visited_cities)
+                users_with_more_visited_cities = sum(
+                    1
+                    for unique_count in unique_counts_by_country_id.get(country_id, [])
+                    if unique_count > user_unique_visited_cities
+                )
+                rank_by_country_id[country_id] = users_with_more_visited_cities + 1
+
         countries_coverage = [
             VisitedCitiesCountryCoverage(
                 name=country.name,
                 visited_cities=country.visited_cities,
                 total_cities=country.total_cities,
+                rank=rank_by_country_id.get(int(country.pk), 1),
+                total_users_count=total_users_count,
             )
-            for country in get_countries_with_visited_city(user.id)
+            for country in countries
         ]
 
         return PersonalVisitedCitiesCountriesCoverageResponse(

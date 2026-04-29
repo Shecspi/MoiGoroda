@@ -29,6 +29,7 @@ urlpatterns = [
     path('sitemap.xml', TemplateView.as_view(template_name='sitemap.xml', content_type='text/xml')),
     # API
     path('api/city/', include('city.urls.api')),
+    path('api/account/', include('account.urls_api')),
     path('api/country/', include('country.urls.api')),
     path('api/dashboard/', include('dashboard.urls.api')),
     path('api/place/', include('place.urls.api')),

@@ -7,6 +7,14 @@
 {% endblock %}
 
 {% block content %}
+    <style>
+        .dashboard-metric-number {
+            font-family: 'Lato', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: 'tnum' 1, 'lnum' 1;
+        }
+    </style>
+
     <header class="mx-3 mt-10 mb-8 text-center" id="block-page_header">
         <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
             Личная статистика
@@ -20,6 +28,8 @@
     {% endif %}
 
     {% include 'account/statistics/all_cards_and_charts.html' %}
+
+    {% vite_asset 'js/entries/account_statistics.js' %}
 {% endblock %}
 
 {% block modals %}

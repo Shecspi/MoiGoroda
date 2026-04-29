@@ -1,3 +1,84 @@
+<div class="mx-3 mb-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+        <div class="mb-5">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Уникальных посещенных городов</h2>
+        </div>
+        <div id="number-personal_unique_visited_cities" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+            <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading">
+                <span class="sr-only">Загрузка...</span>
+            </div>
+        </div>
+        <div class="mt-5 h-20">
+            <div id="personal-unique-visited-cities-trend-chart" class="h-full w-full"></div>
+        </div>
+    </div>
+
+    <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+        <div class="mb-5">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Всего посещений городов</h2>
+        </div>
+        <div id="number-personal_total_visited_cities_visits" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
+            <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-emerald-600 dark:text-emerald-400" role="status" aria-label="loading">
+                <span class="sr-only">Загрузка...</span>
+            </div>
+        </div>
+        <div class="mt-5 h-20">
+            <div id="personal-total-visited-cities-trend-chart" class="h-full w-full"></div>
+        </div>
+    </div>
+    <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+        <div class="mb-5">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Количество новых городов</h2>
+        </div>
+        <div aria-hidden="true" class="invisible text-4xl font-bold leading-none">
+            <span class="dashboard-metric-number text-5xl font-extrabold leading-none">0</span>
+        </div>
+        <div class="mt-5 h-20">
+            <div id="personal-new-visited-cities-trend-chart" class="h-full w-full">
+                <div class="flex h-full items-center justify-center">
+                    <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
+                        <span class="sr-only">Загрузка...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mx-3 mb-12">
+    <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+        <div class="mb-5">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+                Регионы России: уникальные посещенные города
+            </h2>
+        </div>
+        <div id="personal-regions-treemap-loading" class="flex items-center justify-center min-h-[420px]">
+            <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
+                <span class="sr-only">Загрузка...</span>
+            </div>
+        </div>
+        <div id="personal-regions-treemap-chart" class="hidden h-[420px] w-full"></div>
+        <div class="mt-4">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-neutral-400">
+                Легенда покрытия региона
+            </p>
+            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #b91c1c;"></span>0-9%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #dc2626;"></span>10-19%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #ea580c;"></span>20-29%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #f59e0b;"></span>30-39%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #eab308;"></span>40-49%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #84cc16;"></span>50-59%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #22c55e;"></span>60-69%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #14b8a6;"></span>70-79%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #06b6d4;"></span>80-89%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #3b82f6;"></span>90-99%</div>
+                <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-neutral-300"><span class="inline-block h-3 w-3 rounded-sm" style="background-color: #8b5cf6;"></span>100%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <h1 class="text-center text-2xl font-bold mt-8 mb-6 text-gray-900 dark:text-white">
     Города
 </h1>

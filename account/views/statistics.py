@@ -19,9 +19,6 @@ from django.views.generic import TemplateView
 from account.models import ShareSettings
 from services import logger
 from services.db.statistics.fake_statistics import get_fake_statistics
-from services.db.statistics.get_info_for_statistic_cards_and_charts import (
-    get_info_for_statistic_cards_and_charts,
-)
 from services.db.statistics.visited_city import get_number_of_visited_cities
 
 
@@ -90,8 +87,10 @@ class Statistics(LoginRequiredMixin, TemplateView):
         ##################################
         # --- Вспомогательные данные --- #
         ##################################
-
-        return context | get_info_for_statistic_cards_and_charts(user_id)
+        # На этапе миграции /account/stats на django-modern-rest не грузим
+        # тяжёлые синхронные данные для legacy-секций страницы.
+        # return context | get_info_for_statistic_cards_and_charts(user_id)
+        return context
 
 
 @login_required()

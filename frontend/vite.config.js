@@ -31,6 +31,7 @@ export default defineConfig({
         city_all: path.resolve(entriesDir, 'city_all.js'),
         city_create: path.resolve(entriesDir, 'city_create.js'),
         city_statistics: path.resolve(entriesDir, 'city_statistics.js'),
+        account_statistics: path.resolve(entriesDir, 'account_statistics.js'),
         dashboard: path.resolve(entriesDir, 'dashboard.js'),
         filter_city: path.resolve(entriesDir, 'filter_city.js'),
         filter_region: path.resolve(entriesDir, 'filter_region.js'),

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import calendar
+import datetime
+
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
-from django.db.models.functions import TruncYear
+from django.db.models.functions import TruncMonth, TruncYear
 from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
 
@@ -67,6 +70,51 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
             DailyStatistics(label=str(item['year'].year), count=item['qty'])
             for item in new_by_year_queryset
         ]
+        now = datetime.datetime.now()
+        if now.month == 12:
+            month_start = datetime.date(now.year - 1, 1, 1)
+        else:
+            month_start = datetime.date(now.year - 2, now.month + 1, 1)
+        month_end = datetime.date(now.year, now.month, calendar.monthrange(now.year, now.month)[1])
+
+        month_range_queryset = visited_cities_queryset.filter(
+            date_of_visit__range=(month_start, month_end)
+        )
+        unique_by_month_queryset = (
+            month_range_queryset.annotate(month=TruncMonth('date_of_visit'))
+            .exclude(month=None)
+            .values('month')
+            .annotate(qty=Count('city_id', distinct=True))
+            .order_by('month')
+        )
+        visits_by_month_queryset = (
+            month_range_queryset.annotate(month=TruncMonth('date_of_visit'))
+            .exclude(month=None)
+            .values('month')
+            .annotate(qty=Count('id'))
+            .order_by('month')
+        )
+        new_by_month_queryset = (
+            month_range_queryset.filter(is_first_visit=True)
+            .annotate(month=TruncMonth('date_of_visit'))
+            .exclude(month=None)
+            .values('month')
+            .annotate(qty=Count('id'))
+            .order_by('month')
+        )
+
+        unique_by_month = [
+            DailyStatistics(label=item['month'].strftime('%m.%Y'), count=item['qty'])
+            for item in unique_by_month_queryset
+        ]
+        visits_by_month = [
+            DailyStatistics(label=item['month'].strftime('%m.%Y'), count=item['qty'])
+            for item in visits_by_month_queryset
+        ]
+        new_by_month = [
+            DailyStatistics(label=item['month'].strftime('%m.%Y'), count=item['qty'])
+            for item in new_by_month_queryset
+        ]
 
         return PersonalVisitedCitiesOverviewResponse(
             unique_visited_cities=Quantity(count=unique_total),
@@ -74,6 +122,9 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
             new_visited_cities_by_year=new_by_year,
             unique_visited_cities_by_year=unique_by_year,
             total_visited_cities_visits_by_year=visits_by_year,
+            new_visited_cities_by_month=new_by_month,
+            unique_visited_cities_by_month=unique_by_month,
+            total_visited_cities_visits_by_month=visits_by_month,
         )
 
 

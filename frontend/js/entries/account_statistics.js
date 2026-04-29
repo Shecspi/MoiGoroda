@@ -334,6 +334,139 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
     chart.render();
 }
 
+function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth) {
+    const loadingElement = document.getElementById('personal-visited-cities-by-month-loading');
+    const chartContainer = document.getElementById('personal-visited-cities-by-month-chart');
+    if (!loadingElement || !chartContainer) {
+        return;
+    }
+
+    const uniqueMap = new Map(
+        (Array.isArray(uniqueByMonth) ? uniqueByMonth : []).map((item) => [
+            String(item?.label || ''),
+            Number(item?.count || 0),
+        ])
+    );
+    const totalMap = new Map(
+        (Array.isArray(totalByMonth) ? totalByMonth : []).map((item) => [
+            String(item?.label || ''),
+            Number(item?.count || 0),
+        ])
+    );
+    const newMap = new Map(
+        (Array.isArray(newByMonth) ? newByMonth : []).map((item) => [
+            String(item?.label || ''),
+            Number(item?.count || 0),
+        ])
+    );
+
+    const labels = [...new Set([...uniqueMap.keys(), ...totalMap.keys(), ...newMap.keys()])]
+        .filter((label) => /^\d{2}\.\d{4}$/.test(label))
+        .sort((a, b) => {
+            const [aMonth, aYear] = a.split('.').map(Number);
+            const [bMonth, bYear] = b.split('.').map(Number);
+            return aYear * 100 + aMonth - (bYear * 100 + bMonth);
+        });
+
+    if (labels.length === 0) {
+        loadingElement.innerHTML =
+            '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
+        chartContainer.classList.add('hidden');
+        return;
+    }
+
+    const uniqueValues = labels.map((label) => uniqueMap.get(label) ?? 0);
+    const totalValues = labels.map((label) => totalMap.get(label) ?? 0);
+    const newValues = labels.map((label) => newMap.get(label) ?? 0);
+
+    loadingElement.classList.add('hidden');
+    chartContainer.classList.remove('hidden');
+    chartContainer.innerHTML = '';
+
+    const chart = new ApexCharts(chartContainer, {
+        series: [
+            {
+                name: 'Всего посещений',
+                data: totalValues,
+            },
+            {
+                name: 'Уникальные города',
+                data: uniqueValues,
+            },
+            {
+                name: 'Новые города',
+                data: newValues,
+            },
+        ],
+        chart: {
+            type: 'area',
+            height: 320,
+            toolbar: {
+                show: false,
+            },
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 3,
+        },
+        colors: ['#10b981', '#f59e0b', '#0ea5e9'],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'dark',
+                gradientToColors: ['#10b981', '#f59e0b', '#0ea5e9'],
+                shadeIntensity: 1,
+                opacityFrom: 0.6,
+                opacityTo: 0,
+                stops: [0, 100],
+            },
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        markers: {
+            size: 0,
+            hover: {
+                size: 5,
+            },
+        },
+        xaxis: {
+            categories: labels,
+            labels: {
+                style: {
+                    colors: '#6b7280',
+                },
+            },
+        },
+        yaxis: {
+            min: 0,
+            labels: {
+                formatter(value) {
+                    return formatRuNumber(Math.round(value));
+                },
+            },
+        },
+        grid: {
+            borderColor: '#e5e7eb',
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'left',
+        },
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: {
+                formatter(value) {
+                    return formatRuNumber(value);
+                },
+            },
+        },
+    });
+
+    chart.render();
+}
+
 async function fetchVisitedCitiesOverview() {
     return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview);
 }
@@ -585,6 +718,8 @@ function initVisitedCitiesOverview() {
         document.getElementById('personal-new-visited-cities-trend-chart'),
         document.getElementById('personal-visited-cities-by-year-loading'),
         document.getElementById('personal-visited-cities-by-year-chart'),
+        document.getElementById('personal-visited-cities-by-month-loading'),
+        document.getElementById('personal-visited-cities-by-month-chart'),
         document.getElementById('countries-coverage-cards-loading'),
         document.getElementById('countries-coverage-cards'),
     ];
@@ -627,6 +762,11 @@ function initVisitedCitiesOverview() {
                 data.total_visited_cities_visits_by_year,
                 data.new_visited_cities_by_year
             );
+            renderVisitedCitiesByMonthChart(
+                data.unique_visited_cities_by_month,
+                data.total_visited_cities_visits_by_month,
+                data.new_visited_cities_by_month
+            );
         })
         .catch((error) => {
             console.error('Failed to fetch account visited cities overview', error);
@@ -644,6 +784,11 @@ function initVisitedCitiesOverview() {
             const loadingElement = document.getElementById('personal-visited-cities-by-year-loading');
             if (loadingElement) {
                 loadingElement.innerHTML =
+                    '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
+            }
+            const monthLoadingElement = document.getElementById('personal-visited-cities-by-month-loading');
+            if (monthLoadingElement) {
+                monthLoadingElement.innerHTML =
                     '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
             }
         });

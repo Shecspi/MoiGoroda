@@ -3,6 +3,7 @@ import {getCookie} from '../components/get_cookie.js';
 
 const ACCOUNT_STATS_ROUTES = Object.freeze({
     getVisitedCitiesOverview: '/api/account/stats/visited_cities/overview/',
+    getVisitedCitiesCountriesCoverage: '/api/account/stats/visited_cities/countries_coverage/',
     getRegionsVisitedCitiesTreemap: '/api/account/stats/regions/visited_cities_treemap/',
     getRegionsCountries: '/api/country/list_by_cities',
 });
@@ -64,6 +65,57 @@ function updateNumberOnCard(elementId, value) {
             ${formatRuNumber(value)}
         </span>
     `;
+}
+
+function renderCountriesCoverageCards(countries) {
+    const loadingElement = document.getElementById('countries-coverage-cards-loading');
+    const cardsContainer = document.getElementById('countries-coverage-cards');
+    if (!loadingElement || !cardsContainer) {
+        return;
+    }
+
+    const items = Array.isArray(countries)
+        ? countries.filter((country) => Number(country?.visited_cities || 0) > 0)
+        : [];
+    const sortedItems = [...items].sort(
+        (a, b) => Number(b?.visited_cities || 0) - Number(a?.visited_cities || 0)
+    );
+
+    if (sortedItems.length === 0) {
+        loadingElement.classList.remove('hidden');
+        cardsContainer.classList.add('hidden');
+        loadingElement.innerHTML = `
+            <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+                Пока нет данных по посещённым городам в странах.
+            </div>
+        `;
+        return;
+    }
+
+    cardsContainer.innerHTML = sortedItems
+        .map((country) => {
+            const visitedCities = Number(country?.visited_cities || 0);
+            const totalCities = Number(country?.total_cities || 0);
+            const widthPercent = totalCities > 0 ? Math.round((visitedCities / totalCities) * 100) : 0;
+            const countryName = String(country?.name || '—');
+            return `
+                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                    <div class="mb-3 flex items-start justify-between gap-3">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${countryName}</p>
+                        <p class="whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-neutral-300">
+                            ${formatRuNumber(visitedCities)} из ${formatRuNumber(totalCities)}
+                        </p>
+                    </div>
+                    <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
+                        <div class="h-1.5 rounded-full bg-emerald-500" style="width: ${widthPercent}%"></div>
+                    </div>
+                </div>
+            `;
+        })
+        .join('');
+
+    loadingElement.classList.add('hidden');
+    cardsContainer.classList.remove('hidden');
 }
 
 function renderTrendChart(containerId, chartData, seriesName, color) {
@@ -154,8 +206,140 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
     chart.render();
 }
 
+function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
+    const loadingElement = document.getElementById('personal-visited-cities-by-year-loading');
+    const chartContainer = document.getElementById('personal-visited-cities-by-year-chart');
+    if (!loadingElement || !chartContainer) {
+        return;
+    }
+
+    const uniqueMap = new Map(
+        (Array.isArray(uniqueByYear) ? uniqueByYear : []).map((item) => [
+            String(item?.label || ''),
+            Number(item?.count || 0),
+        ])
+    );
+    const totalMap = new Map(
+        (Array.isArray(totalByYear) ? totalByYear : []).map((item) => [
+            String(item?.label || ''),
+            Number(item?.count || 0),
+        ])
+    );
+    const newMap = new Map(
+        (Array.isArray(newByYear) ? newByYear : []).map((item) => [
+            String(item?.label || ''),
+            Number(item?.count || 0),
+        ])
+    );
+    const labels = [...new Set([...uniqueMap.keys(), ...totalMap.keys(), ...newMap.keys()])]
+        .filter((label) => label)
+        .sort((a, b) => Number(a) - Number(b));
+
+    if (labels.length === 0) {
+        loadingElement.innerHTML =
+            '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
+        chartContainer.classList.add('hidden');
+        return;
+    }
+
+    const uniqueValues = labels.map((label) => uniqueMap.get(label) ?? 0);
+    const totalValues = labels.map((label) => totalMap.get(label) ?? 0);
+    const newValues = labels.map((label) => newMap.get(label) ?? 0);
+
+    loadingElement.classList.add('hidden');
+    chartContainer.classList.remove('hidden');
+    chartContainer.innerHTML = '';
+
+    const chart = new ApexCharts(chartContainer, {
+        series: [
+            {
+                name: 'Всего посещений',
+                data: totalValues,
+            },
+            {
+                name: 'Уникальные города',
+                data: uniqueValues,
+            },
+            {
+                name: 'Новые города',
+                data: newValues,
+            },
+        ],
+        chart: {
+            type: 'area',
+            height: 320,
+            toolbar: {
+                show: false,
+            },
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 3,
+        },
+        colors: ['#10b981', '#f59e0b', '#0ea5e9'],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'dark',
+                gradientToColors: ['#10b981', '#f59e0b', '#0ea5e9'],
+                shadeIntensity: 1,
+                opacityFrom: 0.6,
+                opacityTo: 0,
+                stops: [0, 100],
+            },
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        markers: {
+            size: 0,
+            hover: {
+                size: 5,
+            },
+        },
+        xaxis: {
+            categories: labels,
+            labels: {
+                style: {
+                    colors: '#6b7280',
+                },
+            },
+        },
+        yaxis: {
+            min: 0,
+            labels: {
+                formatter(value) {
+                    return formatRuNumber(Math.round(value));
+                },
+            },
+        },
+        grid: {
+            borderColor: '#e5e7eb',
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'left',
+        },
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: {
+                formatter(value) {
+                    return formatRuNumber(value);
+                },
+            },
+        },
+    });
+
+    chart.render();
+}
+
 async function fetchVisitedCitiesOverview() {
     return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview);
+}
+
+async function fetchVisitedCitiesCountriesCoverage() {
+    return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesCoverage);
 }
 
 async function fetchRegionsVisitedCitiesTreemap(countryCode, signal) {
@@ -399,6 +583,10 @@ function initVisitedCitiesOverview() {
         document.getElementById('personal-unique-visited-cities-trend-chart'),
         document.getElementById('personal-total-visited-cities-trend-chart'),
         document.getElementById('personal-new-visited-cities-trend-chart'),
+        document.getElementById('personal-visited-cities-by-year-loading'),
+        document.getElementById('personal-visited-cities-by-year-chart'),
+        document.getElementById('countries-coverage-cards-loading'),
+        document.getElementById('countries-coverage-cards'),
     ];
 
     if (requiredElements.some((element) => !element)) {
@@ -434,6 +622,11 @@ function initVisitedCitiesOverview() {
                 'Новые города',
                 '#0ea5e9'
             );
+            renderVisitedCitiesByYearChart(
+                data.unique_visited_cities_by_year,
+                data.total_visited_cities_visits_by_year,
+                data.new_visited_cities_by_year
+            );
         })
         .catch((error) => {
             console.error('Failed to fetch account visited cities overview', error);
@@ -448,6 +641,20 @@ function initVisitedCitiesOverview() {
                     element.textContent = '—';
                 }
             }
+            const loadingElement = document.getElementById('personal-visited-cities-by-year-loading');
+            if (loadingElement) {
+                loadingElement.innerHTML =
+                    '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
+            }
+        });
+
+    fetchVisitedCitiesCountriesCoverage()
+        .then((data) => {
+            renderCountriesCoverageCards(data.countries_coverage);
+        })
+        .catch((error) => {
+            console.error('Failed to fetch countries coverage data', error);
+            renderCountriesCoverageCards([]);
         });
 }
 

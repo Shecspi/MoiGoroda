@@ -7,13 +7,16 @@ from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
 
 from city.models import VisitedCity
+from country.repository import get_countries_with_visited_city
 from region.models import Region
 from account.schemas import (
     DailyStatistics,
+    PersonalVisitedCitiesCountriesCoverageResponse,
     PersonalVisitedCitiesOverviewResponse,
     Quantity,
     RegionsVisitedCitiesTreemapResponse,
     RegionVisitedCitiesTreemapItem,
+    VisitedCitiesCountryCoverage,
 )
 
 
@@ -71,6 +74,27 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
             new_visited_cities_by_year=new_by_year,
             unique_visited_cities_by_year=unique_by_year,
             total_visited_cities_visits_by_year=visits_by_year,
+        )
+
+
+class GetPersonalVisitedCitiesCountriesCoverageController(Controller[MsgspecSerializer]):
+    def get(self) -> PersonalVisitedCitiesCountriesCoverageResponse:
+        user = self.request.user
+
+        if not user.is_authenticated:
+            raise PermissionDenied
+
+        countries_coverage = [
+            VisitedCitiesCountryCoverage(
+                name=country.name,
+                visited_cities=country.visited_cities,
+                total_cities=country.total_cities,
+            )
+            for country in get_countries_with_visited_city(user.id)
+        ]
+
+        return PersonalVisitedCitiesCountriesCoverageResponse(
+            countries_coverage=countries_coverage
         )
 
 

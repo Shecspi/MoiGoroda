@@ -2,6 +2,7 @@ from django.urls import include
 from dmr.routing import Router, path
 
 from account.api import (
+    GetPersonalVisitedCitiesCountriesCoverageController,
     GetPersonalVisitedCitiesOverviewController,
     GetRegionsVisitedCitiesTreemapController,
 )
@@ -12,6 +13,10 @@ router = Router(
         path(
             'stats/visited_cities/overview/',
             GetPersonalVisitedCitiesOverviewController.as_view(),
+        ),
+        path(
+            'stats/visited_cities/countries_coverage/',
+            GetPersonalVisitedCitiesCountriesCoverageController.as_view(),
         ),
         path(
             'stats/regions/visited_cities_treemap/',

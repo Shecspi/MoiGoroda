@@ -3,6 +3,7 @@ from __future__ import annotations
 import calendar
 import datetime
 
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django.db.models.functions import TruncMonth, TruncYear
@@ -39,6 +40,21 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
 
         unique_total = visited_cities_queryset.filter(is_first_visit=True).count()
         visits_total = visited_cities_queryset.count()
+        total_users_count = User.objects.count()
+        users_with_more_unique_visited_cities = (
+            VisitedCity.objects.values('user_id')
+            .annotate(unique_visited_cities=Count('city_id', distinct=True))
+            .filter(unique_visited_cities__gt=unique_total)
+            .count()
+        )
+        unique_visited_cities_rank = users_with_more_unique_visited_cities + 1
+        users_with_more_total_visited_cities_visits = (
+            VisitedCity.objects.values('user_id')
+            .annotate(total_visited_cities_visits=Count('id'))
+            .filter(total_visited_cities_visits__gt=visits_total)
+            .count()
+        )
+        total_visited_cities_visits_rank = users_with_more_total_visited_cities_visits + 1
 
         unique_by_year_queryset = (
             visited_cities_queryset.annotate(year=TruncYear('date_of_visit'))
@@ -122,8 +138,11 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
         ]
 
         return PersonalVisitedCitiesOverviewResponse(
+            total_users_count=total_users_count,
             unique_visited_cities=Quantity(count=unique_total),
+            unique_visited_cities_rank=unique_visited_cities_rank,
             total_visited_cities_visits=Quantity(count=visits_total),
+            total_visited_cities_visits_rank=total_visited_cities_visits_rank,
             new_visited_cities_by_year=new_by_year,
             unique_visited_cities_by_year=unique_by_year,
             total_visited_cities_visits_by_year=visits_by_year,

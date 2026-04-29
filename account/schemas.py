@@ -25,8 +25,11 @@ class VisitedRegionsCountryCoverage(msgspec.Struct):
 
 
 class PersonalVisitedCitiesOverviewResponse(msgspec.Struct):
+    total_users_count: int
     unique_visited_cities: Quantity
+    unique_visited_cities_rank: int
     total_visited_cities_visits: Quantity
+    total_visited_cities_visits_rank: int
     new_visited_cities_by_year: list[DailyStatistics]
     unique_visited_cities_by_year: list[DailyStatistics]
     total_visited_cities_visits_by_year: list[DailyStatistics]

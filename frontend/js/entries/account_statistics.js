@@ -68,6 +68,24 @@ function updateNumberOnCard(elementId, value) {
     `;
 }
 
+function updateRankBadge(elementId, rank, totalUsersCount, metricLabel) {
+    const badgeElement = document.getElementById(elementId);
+    if (!badgeElement) {
+        return;
+    }
+
+    if (!Number.isFinite(rank) || rank <= 0 || !Number.isFinite(totalUsersCount) || totalUsersCount <= 0) {
+        badgeElement.classList.add('hidden');
+        badgeElement.innerHTML = '';
+        badgeElement.removeAttribute('title');
+        return;
+    }
+
+    badgeElement.textContent = `${formatRuNumber(rank)} место`;
+    badgeElement.title = `Вы занимаете ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству ${metricLabel}`;
+    badgeElement.classList.remove('hidden');
+}
+
 function renderCountriesCoverageCards(countries) {
     const loadingElement = document.getElementById('countries-coverage-cards-loading');
     const cardsContainer = document.getElementById('countries-coverage-cards');
@@ -881,6 +899,8 @@ function initRegionsVisitedCitiesTreemap() {
 function initVisitedCitiesOverview() {
     const requiredElements = [
         document.getElementById('number-personal_unique_visited_cities'),
+        document.getElementById('badge-personal_unique_visited_cities_rank'),
+        document.getElementById('badge-personal_total_visited_cities_visits_rank'),
         document.getElementById('number-personal_total_visited_cities_visits'),
         document.getElementById('personal-unique-visited-cities-trend-chart'),
         document.getElementById('personal-total-visited-cities-trend-chart'),
@@ -905,9 +925,21 @@ function initVisitedCitiesOverview() {
                 'number-personal_unique_visited_cities',
                 data.unique_visited_cities?.count
             );
+            updateRankBadge(
+                'badge-personal_unique_visited_cities_rank',
+                Number(data.unique_visited_cities_rank),
+                Number(data.total_users_count),
+                'уникальных посещенных городов'
+            );
             updateNumberOnCard(
                 'number-personal_total_visited_cities_visits',
                 data.total_visited_cities_visits?.count
+            );
+            updateRankBadge(
+                'badge-personal_total_visited_cities_visits_rank',
+                Number(data.total_visited_cities_visits_rank),
+                Number(data.total_users_count),
+                'посещений городов'
             );
 
             renderTrendChart(
@@ -952,6 +984,13 @@ function initVisitedCitiesOverview() {
                     element.textContent = '—';
                 }
             }
+            updateRankBadge('badge-personal_unique_visited_cities_rank', Number.NaN, Number.NaN, '');
+            updateRankBadge(
+                'badge-personal_total_visited_cities_visits_rank',
+                Number.NaN,
+                Number.NaN,
+                ''
+            );
             const loadingElement = document.getElementById('personal-visited-cities-by-year-loading');
             if (loadingElement) {
                 loadingElement.innerHTML =

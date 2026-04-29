@@ -751,6 +751,11 @@ function normalizeCountryOptions(data) {
 }
 
 function renderRegionsTreemap(items, loadingElement, chartContainer) {
+    if (treemapState.chartInstance) {
+        treemapState.chartInstance.destroy();
+        treemapState.chartInstance = null;
+    }
+
     if (items.length === 0) {
         loadingElement.innerHTML =
             '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
@@ -780,10 +785,6 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
     loadingElement.classList.add('hidden');
     chartContainer.classList.remove('hidden');
     chartContainer.innerHTML = '';
-    if (treemapState.chartInstance) {
-        treemapState.chartInstance.destroy();
-        treemapState.chartInstance = null;
-    }
 
     const chart = new ApexCharts(chartContainer, {
         series: [
@@ -831,7 +832,10 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
             enabled: true,
             offsetY: -2,
             formatter(text, opts) {
-                const point = opts.w.config.series[0].data[opts.dataPointIndex];
+                const point = treemapData[opts.dataPointIndex];
+                if (!point) {
+                    return [text, ''];
+                }
                 return [text, point.valueLabel];
             },
             style: {
@@ -851,7 +855,10 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
         },
         tooltip: {
             custom({seriesIndex, dataPointIndex, w}) {
-                const point = w.config.series[seriesIndex].data[dataPointIndex];
+                const point = treemapData[dataPointIndex];
+                if (!point) {
+                    return '';
+                }
                 const percent = Math.round((point.progress || 0) * 100);
                 return `
                     <div class="min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
@@ -867,7 +874,7 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
                             <span class="font-semibold">${formatRuNumber(point.totalCities)}</span>
                         </div>
                         <div class="flex items-center justify-between gap-4 py-1">
-                            <span>Покрытие</span>
+                            <span>Завершено</span>
                             <span class="font-semibold">${percent}%</span>
                         </div>
                     </div>
@@ -918,6 +925,10 @@ function initRegionsVisitedCitiesTreemap() {
         const currentRequestId = ++treemapState.requestId;
         if (treemapState.fetchController) {
             treemapState.fetchController.abort();
+        }
+        if (treemapState.chartInstance) {
+            treemapState.chartInstance.destroy();
+            treemapState.chartInstance = null;
         }
         treemapState.fetchController = new AbortController();
         loadingElement.classList.remove('hidden');

@@ -321,17 +321,48 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
             horizontalAlign: 'left',
         },
         tooltip: {
-            shared: true,
+            shared: false,
             intersect: false,
-            y: {
-                formatter(value) {
-                    return formatRuNumber(value);
-                },
+            custom({dataPointIndex, w}) {
+                const series = w.config.series || [];
+                const label = labels[dataPointIndex] || '';
+                const rows = series
+                    .map((seriesItem, idx) => {
+                        const value = Number(seriesItem?.data?.[dataPointIndex] ?? 0);
+                        const color = ['#10b981', '#f59e0b', '#0ea5e9'][idx] || '#6b7280';
+                        const name = String(seriesItem?.name || 'Показатель');
+                        return `
+                            <div class="flex items-center justify-between gap-4 py-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block h-2.5 w-2.5 rounded-full" style="background-color: ${color};"></span>
+                                    <span>${name}</span>
+                                </div>
+                                <span class="font-semibold">${formatRuNumber(value)}</span>
+                            </div>
+                        `;
+                    })
+                    .join('');
+
+                return `
+                    <div class="min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                        <div class="mb-1 border-b border-gray-200 pb-1.5 font-semibold text-gray-900 dark:border-neutral-700 dark:text-white">
+                            ${label}
+                        </div>
+                        ${rows}
+                    </div>
+                `;
             },
         },
     });
 
-    chart.render();
+    chart.render().then(() => {
+        const cursorElements = chartContainer.querySelectorAll(
+            '.apexcharts-canvas, .apexcharts-svg, .apexcharts-inner, .apexcharts-series path, .apexcharts-area-series, .apexcharts-line-series'
+        );
+        for (const element of cursorElements) {
+            element.style.cursor = 'default';
+        }
+    });
 }
 
 function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth) {
@@ -367,6 +398,18 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
             const [bMonth, bYear] = b.split('.').map(Number);
             return aYear * 100 + aMonth - (bYear * 100 + bMonth);
         });
+    const monthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
+    const displayLabels = labels.map((label) => {
+        const [month, year] = label.split('.').map(Number);
+        if (!month || !year) {
+            return label;
+        }
+        return monthYearFormatter.format(new Date(Date.UTC(year, month - 1, 1)));
+    });
 
     if (labels.length === 0) {
         loadingElement.innerHTML =
@@ -454,17 +497,48 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
             horizontalAlign: 'left',
         },
         tooltip: {
-            shared: true,
+            shared: false,
             intersect: false,
-            y: {
-                formatter(value) {
-                    return formatRuNumber(value);
-                },
+            custom({dataPointIndex, w}) {
+                const series = w.config.series || [];
+                const label = displayLabels[dataPointIndex] || '';
+                const rows = series
+                    .map((seriesItem, idx) => {
+                        const value = Number(seriesItem?.data?.[dataPointIndex] ?? 0);
+                        const color = ['#10b981', '#f59e0b', '#0ea5e9'][idx] || '#6b7280';
+                        const name = String(seriesItem?.name || 'Показатель');
+                        return `
+                            <div class="flex items-center justify-between gap-4 py-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block h-2.5 w-2.5 rounded-full" style="background-color: ${color};"></span>
+                                    <span>${name}</span>
+                                </div>
+                                <span class="font-semibold">${formatRuNumber(value)}</span>
+                            </div>
+                        `;
+                    })
+                    .join('');
+
+                return `
+                    <div class="min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                        <div class="mb-1 border-b border-gray-200 pb-1.5 font-semibold text-gray-900 dark:border-neutral-700 dark:text-white">
+                            ${label}
+                        </div>
+                        ${rows}
+                    </div>
+                `;
             },
         },
     });
 
-    chart.render();
+    chart.render().then(() => {
+        const cursorElements = chartContainer.querySelectorAll(
+            '.apexcharts-canvas, .apexcharts-svg, .apexcharts-inner, .apexcharts-series path, .apexcharts-area-series, .apexcharts-line-series'
+        );
+        for (const element of cursorElements) {
+            element.style.cursor = 'default';
+        }
+    });
 }
 
 async function fetchVisitedCitiesOverview() {

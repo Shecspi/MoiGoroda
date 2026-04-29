@@ -19,12 +19,14 @@ from region.models import Region
 from account.schemas import (
     DailyStatistics,
     PersonalVisitedCitiesCountriesCoverageResponse,
+    PersonalVisitedCitiesCountriesVisitsResponse,
     PersonalVisitedCitiesOverviewResponse,
     PersonalVisitedRegionsCountriesCoverageResponse,
     Quantity,
     RegionsVisitedCitiesTreemapResponse,
     RegionVisitedCitiesTreemapItem,
     VisitedCitiesCountryCoverage,
+    VisitedCitiesCountryVisits,
     VisitedRegionsCountryCoverage,
 )
 
@@ -222,6 +224,57 @@ class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSer
         return PersonalVisitedRegionsCountriesCoverageResponse(
             countries_coverage=countries_coverage
         )
+
+
+class GetPersonalVisitedCitiesCountriesVisitsController(Controller[MsgspecSerializer]):
+    def get(self) -> PersonalVisitedCitiesCountriesVisitsResponse:
+        user = self.request.user
+
+        if not user.is_authenticated:
+            raise PermissionDenied
+
+        countries_visits_queryset = (
+            VisitedCity.objects.filter(user_id=user.id)
+            .values('city__country_id', 'city__country__name')
+            .annotate(visits=Count('id'))
+            .order_by('-visits', 'city__country__name')
+        )
+        total_users_count = User.objects.count()
+        country_ids = [int(item['city__country_id']) for item in countries_visits_queryset]
+        rank_by_country_id: dict[int, int] = {}
+
+        if country_ids:
+            country_users_stats = (
+                VisitedCity.objects.filter(city__country_id__in=country_ids)
+                .values('city__country_id', 'user_id')
+                .annotate(visits=Count('id'))
+            )
+            visits_by_country_id: dict[int, list[int]] = {}
+            for item in country_users_stats:
+                country_id = int(item['city__country_id'])
+                visits_by_country_id.setdefault(country_id, []).append(int(item['visits']))
+
+            for country in countries_visits_queryset:
+                country_id = int(country['city__country_id'])
+                user_visits = int(country['visits'])
+                users_with_more_visits = sum(
+                    1
+                    for visits in visits_by_country_id.get(country_id, [])
+                    if visits > user_visits
+                )
+                rank_by_country_id[country_id] = users_with_more_visits + 1
+
+        countries_visits = [
+            VisitedCitiesCountryVisits(
+                name=str(country['city__country__name']),
+                visits=int(country['visits']),
+                rank=rank_by_country_id.get(int(country['city__country_id']), 1),
+                total_users_count=total_users_count,
+            )
+            for country in countries_visits_queryset
+        ]
+
+        return PersonalVisitedCitiesCountriesVisitsResponse(countries_visits=countries_visits)
 
 
 class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):

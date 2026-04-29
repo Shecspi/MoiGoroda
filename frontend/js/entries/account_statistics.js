@@ -4,6 +4,7 @@ import {getCookie} from '../components/get_cookie.js';
 const ACCOUNT_STATS_ROUTES = Object.freeze({
     getVisitedCitiesOverview: '/api/account/stats/visited_cities/overview/',
     getVisitedCitiesCountriesCoverage: '/api/account/stats/visited_cities/countries_coverage/',
+    getVisitedCitiesCountriesVisits: '/api/account/stats/visited_cities/countries_visits/',
     getVisitedRegionsCountriesCoverage: '/api/account/stats/regions/countries_coverage/',
     getRegionsVisitedCitiesTreemap: '/api/account/stats/regions/visited_cities_treemap/',
     getRegionsCountries: '/api/country/list_by_cities',
@@ -187,6 +188,61 @@ function renderRegionsCoverageCards(countries) {
                     </div>
                     <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
                         <div class="h-1.5 rounded-full bg-indigo-500" style="width: ${widthPercent}%"></div>
+                    </div>
+                </div>
+            `;
+        })
+        .join('');
+
+    loadingElement.classList.add('hidden');
+    cardsContainer.classList.remove('hidden');
+}
+
+function renderCountriesVisitsCards(countries) {
+    const loadingElement = document.getElementById('countries-visits-cards-loading');
+    const cardsContainer = document.getElementById('countries-visits-cards');
+    if (!loadingElement || !cardsContainer) {
+        return;
+    }
+
+    const items = Array.isArray(countries)
+        ? countries.filter((country) => Number(country?.visits || 0) > 0)
+        : [];
+    const sortedItems = [...items].sort(
+        (a, b) => Number(b?.visits || 0) - Number(a?.visits || 0)
+    );
+
+    if (sortedItems.length === 0) {
+        loadingElement.classList.remove('hidden');
+        cardsContainer.classList.add('hidden');
+        loadingElement.innerHTML = `
+            <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+                Пока нет данных по посещениям городов в странах.
+            </div>
+        `;
+        return;
+    }
+
+    cardsContainer.innerHTML = sortedItems
+        .map((country) => {
+            const visits = Number(country?.visits || 0);
+            const rank = Number(country?.rank || 0);
+            const totalUsersCount = Number(country?.total_users_count || 0);
+            const countryName = String(country?.name || '—');
+            const rankBadgeHtml =
+                Number.isFinite(rank) && rank > 0 && Number.isFinite(totalUsersCount) && totalUsersCount > 0
+                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="Вы занимаете ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещений городов в этой стране">${formatRuNumber(rank)} место</span>`
+                    : '';
+            return `
+                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                    <div class="mb-3 flex items-start justify-between gap-3">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${countryName}</p>
+                        ${rankBadgeHtml}
+                    </div>
+                    <div class="mb-3">
+                        <p class="dashboard-metric-number text-5xl font-extrabold leading-none text-gray-900 dark:text-white">
+                            ${formatRuNumber(visits)}
+                        </p>
                     </div>
                 </div>
             `;
@@ -649,6 +705,10 @@ async function fetchVisitedCitiesCountriesCoverage() {
     return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesCoverage);
 }
 
+async function fetchVisitedCitiesCountriesVisits() {
+    return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesVisits);
+}
+
 async function fetchVisitedRegionsCountriesCoverage() {
     return await apiGet(ACCOUNT_STATS_ROUTES.getVisitedRegionsCountriesCoverage);
 }
@@ -920,6 +980,8 @@ function initVisitedCitiesOverview() {
         document.getElementById('personal-visited-cities-by-month-chart'),
         document.getElementById('countries-coverage-cards-loading'),
         document.getElementById('countries-coverage-cards'),
+        document.getElementById('countries-visits-cards-loading'),
+        document.getElementById('countries-visits-cards'),
         document.getElementById('regions-coverage-cards-loading'),
         document.getElementById('regions-coverage-cards'),
     ];
@@ -1028,6 +1090,15 @@ function initVisitedCitiesOverview() {
         .catch((error) => {
             console.error('Failed to fetch regions coverage data', error);
             renderRegionsCoverageCards([]);
+        });
+
+    fetchVisitedCitiesCountriesVisits()
+        .then((data) => {
+            renderCountriesVisitsCards(data.countries_visits);
+        })
+        .catch((error) => {
+            console.error('Failed to fetch countries visits data', error);
+            renderCountriesVisitsCards([]);
         });
 }
 

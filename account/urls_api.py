@@ -3,6 +3,7 @@ from dmr.routing import Router, path
 
 from account.api import (
     GetPersonalVisitedCitiesCountriesCoverageController,
+    GetPersonalVisitedCitiesCountriesVisitsController,
     GetPersonalVisitedCitiesOverviewController,
     GetPersonalVisitedRegionsCountriesCoverageController,
     GetRegionsVisitedCitiesTreemapController,
@@ -18,6 +19,10 @@ router = Router(
         path(
             'stats/visited_cities/countries_coverage/',
             GetPersonalVisitedCitiesCountriesCoverageController.as_view(),
+        ),
+        path(
+            'stats/visited_cities/countries_visits/',
+            GetPersonalVisitedCitiesCountriesVisitsController.as_view(),
         ),
         path(
             'stats/regions/countries_coverage/',

@@ -20,6 +20,13 @@ class VisitedCitiesCountryCoverage(msgspec.Struct):
     total_users_count: int
 
 
+class VisitedCitiesCountryVisits(msgspec.Struct):
+    name: str
+    visits: int
+    rank: int
+    total_users_count: int
+
+
 class VisitedRegionsCountryCoverage(msgspec.Struct):
     name: str
     visited_regions: int
@@ -42,6 +49,10 @@ class PersonalVisitedCitiesOverviewResponse(msgspec.Struct):
 
 class PersonalVisitedCitiesCountriesCoverageResponse(msgspec.Struct):
     countries_coverage: list[VisitedCitiesCountryCoverage]
+
+
+class PersonalVisitedCitiesCountriesVisitsResponse(msgspec.Struct):
+    countries_visits: list[VisitedCitiesCountryVisits]
 
 
 class PersonalVisitedRegionsCountriesCoverageResponse(msgspec.Struct):

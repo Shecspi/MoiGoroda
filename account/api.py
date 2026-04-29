@@ -10,7 +10,9 @@ from django.db.models.functions import TruncMonth, TruncYear
 from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
 
+from city.models import City
 from city.models import VisitedCity
+from country.models import Country
 from country.repository import (
     get_countries_with_visited_city,
     get_list_of_countries_with_visited_regions,
@@ -285,7 +287,7 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
 
         requested_country_code = (self.request.GET.get('country_code') or 'RU').upper()
 
-        regions = (
+        regions_queryset = (
             Region.objects.filter(country__code=requested_country_code)
             .annotate(
                 total_cities=Count('city', distinct=True),
@@ -299,6 +301,33 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
             .order_by('-unique_visited_cities', 'full_name')
             .values('full_name', 'unique_visited_cities', 'total_cities')
         )
+        regions = list(regions_queryset)
+
+        if not regions:
+            country_name = Country.objects.filter(code=requested_country_code).values_list(
+                'name', flat=True
+            ).first()
+
+            if not country_name:
+                country_name = requested_country_code
+                
+            total_cities = City.objects.filter(country__code=requested_country_code).count()
+            unique_visited_cities = (
+                VisitedCity.objects.filter(
+                    user_id=user.id,
+                    city__country__code=requested_country_code,
+                )
+                .values('city_id')
+                .distinct()
+                .count()
+            )
+            regions = [
+                {
+                    'full_name': str(country_name),
+                    'unique_visited_cities': unique_visited_cities,
+                    'total_cities': total_cities,
+                }
+            ]
 
         items = [
             RegionVisitedCitiesTreemapItem(

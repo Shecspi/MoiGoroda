@@ -683,11 +683,22 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
                 const point = w.config.series[seriesIndex].data[dataPointIndex];
                 const percent = Math.round((point.progress || 0) * 100);
                 return `
-                    <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
-                        <div class="font-semibold">${point.fullname}</div>
-                        <div>Посещено: <span class="font-semibold">${point.y}</span></div>
-                        <div>Всего городов: <span class="font-semibold">${point.totalCities}</span></div>
-                        <div>Покрытие: <span class="font-semibold">${percent}%</span></div>
+                    <div class="min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                        <div class="mb-1 border-b border-gray-200 pb-1.5 font-semibold text-gray-900 dark:border-neutral-700 dark:text-white">
+                            ${point.fullname}
+                        </div>
+                        <div class="flex items-center justify-between gap-4 py-1">
+                            <span>Посещено</span>
+                            <span class="font-semibold">${formatRuNumber(point.y)}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 py-1">
+                            <span>Всего городов</span>
+                            <span class="font-semibold">${formatRuNumber(point.totalCities)}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 py-1">
+                            <span>Покрытие</span>
+                            <span class="font-semibold">${percent}%</span>
+                        </div>
                     </div>
                 `;
             },

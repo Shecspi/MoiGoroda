@@ -149,6 +149,13 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
             toolbar: {
                 show: false,
             },
+            zoom: {
+                enabled: false,
+                allowMouseWheelZoom: false,
+            },
+            selection: {
+                enabled: false,
+            },
             sparkline: {
                 enabled: true,
             },
@@ -270,6 +277,13 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
             height: 320,
             toolbar: {
                 show: false,
+            },
+            zoom: {
+                enabled: false,
+                allowMouseWheelZoom: false,
+            },
+            selection: {
+                enabled: false,
             },
         },
         stroke: {
@@ -446,6 +460,13 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
             height: 320,
             toolbar: {
                 show: false,
+            },
+            zoom: {
+                enabled: false,
+                allowMouseWheelZoom: false,
+            },
+            selection: {
+                enabled: false,
             },
         },
         stroke: {
@@ -635,6 +656,13 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
             height: 420,
             toolbar: {
                 show: false,
+            },
+            zoom: {
+                enabled: false,
+                allowMouseWheelZoom: false,
+            },
+            selection: {
+                enabled: false,
             },
         },
         states: {

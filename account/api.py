@@ -11,27 +11,28 @@ from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
 
 from account.models import ShareSettings
-from city.models import City
-from city.models import VisitedCity
-from country.models import Country
-from country.repository import (
-    get_countries_with_visited_city,
-    get_list_of_countries_with_visited_regions,
-)
-from region.models import Region
 from account.schemas import (
     DailyStatistics,
     PersonalVisitedCitiesCountriesCoverageResponse,
     PersonalVisitedCitiesCountriesVisitsResponse,
     PersonalVisitedCitiesOverviewResponse,
+    PersonalVisitedCountriesOverviewResponse,
     PersonalVisitedRegionsCountriesCoverageResponse,
     Quantity,
     RegionsVisitedCitiesTreemapResponse,
     RegionVisitedCitiesTreemapItem,
     VisitedCitiesCountryCoverage,
     VisitedCitiesCountryVisits,
+    VisitedCountriesByLocationItem,
     VisitedRegionsCountryCoverage,
 )
+from city.models import City, VisitedCity
+from country.models import Country, PartOfTheWorld, VisitedCountry
+from country.repository import (
+    get_countries_with_visited_city,
+    get_list_of_countries_with_visited_regions,
+)
+from region.models import Region
 
 
 def resolve_statistics_user_id(request_user: object, shared_user_id_raw: str | None) -> int:
@@ -230,9 +231,7 @@ class GetPersonalVisitedCitiesCountriesCoverageController(Controller[MsgspecSeri
             for country in countries
         ]
 
-        return PersonalVisitedCitiesCountriesCoverageResponse(
-            countries_coverage=countries_coverage
-        )
+        return PersonalVisitedCitiesCountriesCoverageResponse(countries_coverage=countries_coverage)
 
 
 class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSerializer]):
@@ -286,9 +285,7 @@ class GetPersonalVisitedCitiesCountriesVisitsController(Controller[MsgspecSerial
                 country_id = int(country['city__country_id'])
                 user_visits = int(country['visits'])
                 users_with_more_visits = sum(
-                    1
-                    for visits in visits_by_country_id.get(country_id, [])
-                    if visits > user_visits
+                    1 for visits in visits_by_country_id.get(country_id, []) if visits > user_visits
                 )
                 rank_by_country_id[country_id] = users_with_more_visits + 1
 
@@ -330,13 +327,15 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
         regions = list(regions_queryset)
 
         if not regions:
-            country_name = Country.objects.filter(code=requested_country_code).values_list(
-                'name', flat=True
-            ).first()
+            country_name = (
+                Country.objects.filter(code=requested_country_code)
+                .values_list('name', flat=True)
+                .first()
+            )
 
             if not country_name:
                 country_name = requested_country_code
-                
+
             total_cities = City.objects.filter(country__code=requested_country_code).count()
             unique_visited_cities = (
                 VisitedCity.objects.filter(
@@ -365,3 +364,42 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
         ]
 
         return RegionsVisitedCitiesTreemapResponse(items=items)
+
+
+class GetPersonalVisitedCountriesOverviewController(Controller[MsgspecSerializer]):
+    def get(self) -> PersonalVisitedCountriesOverviewResponse:
+        user_id = resolve_statistics_user_id(
+            self.request.user, self.request.GET.get('shared_user_id')
+        )
+
+        # Общее количество стран
+        total_countries = Country.objects.count()
+        visited_countries = VisitedCountry.objects.filter(user_id=user_id).count()
+
+        # По частям света
+        parts_of_the_world = PartOfTheWorld.objects.all().order_by('name')
+        by_location = []
+
+        for part in parts_of_the_world:
+            loc_total = Country.objects.filter(location__part_of_the_world=part).count()
+
+            if loc_total == 0:
+                continue
+
+            loc_visited = VisitedCountry.objects.filter(
+                user_id=user_id,
+                country__location__part_of_the_world=part,
+            ).count()
+            by_location.append(
+                VisitedCountriesByLocationItem(
+                    location_name=part.name,
+                    visited=loc_visited,
+                    total=loc_total,
+                )
+            )
+
+        return PersonalVisitedCountriesOverviewResponse(
+            visited=visited_countries,
+            total=total_countries,
+            by_location=by_location,
+        )

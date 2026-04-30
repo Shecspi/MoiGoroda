@@ -1,19 +1,25 @@
-import ApexCharts from 'apexcharts';
-import {getCookie} from '../components/get_cookie.js';
+import ApexCharts from "apexcharts";
+import { getCookie } from "../components/get_cookie.js";
 
 const ACCOUNT_STATS_ROUTES = Object.freeze({
-    getVisitedCitiesOverview: '/api/account/stats/visited_cities/overview/',
-    getVisitedCitiesCountriesCoverage: '/api/account/stats/visited_cities/countries_coverage/',
-    getVisitedCitiesCountriesVisits: '/api/account/stats/visited_cities/countries_visits/',
-    getVisitedRegionsCountriesCoverage: '/api/account/stats/regions/countries_coverage/',
-    getRegionsVisitedCitiesTreemap: '/api/account/stats/regions/visited_cities_treemap/',
-    getRegionsCountries: '/api/country/list_by_cities',
+    getVisitedCitiesOverview: "/api/account/stats/visited_cities/overview/",
+    getVisitedCitiesCountriesCoverage:
+        "/api/account/stats/visited_cities/countries_coverage/",
+    getVisitedCitiesCountriesVisits:
+        "/api/account/stats/visited_cities/countries_visits/",
+    getVisitedRegionsCountriesCoverage:
+        "/api/account/stats/regions/countries_coverage/",
+    getRegionsVisitedCitiesTreemap:
+        "/api/account/stats/regions/visited_cities_treemap/",
+    getRegionsCountries: "/api/country/list_by_cities",
+    getVisitedCountriesOverview:
+        "/api/account/stats/visited_countries/overview/",
 });
 
 function getStatisticsRequestContext() {
-    const root = document.getElementById('account-statistics-root');
-    const sharedUserIdRaw = root?.dataset?.statisticsUserId || '';
-    const isSharedMode = root?.dataset?.statisticsSharedMode === '1';
+    const root = document.getElementById("account-statistics-root");
+    const sharedUserIdRaw = root?.dataset?.statisticsUserId || "";
+    const isSharedMode = root?.dataset?.statisticsSharedMode === "1";
     const sharedUserId = Number(sharedUserIdRaw);
     const hasSharedUserId = Number.isInteger(sharedUserId) && sharedUserId > 0;
     return {
@@ -26,44 +32,44 @@ function buildStatsUrl(baseUrl, requestContext) {
     if (!requestContext?.isSharedMode || !requestContext?.sharedUserId) {
         return baseUrl;
     }
-    const separator = baseUrl.includes('?') ? '&' : '?';
+    const separator = baseUrl.includes("?") ? "&" : "?";
     return `${baseUrl}${separator}shared_user_id=${requestContext.sharedUserId}`;
 }
 
 const treemapState = {
-    selectedCountryCode: 'RU',
+    selectedCountryCode: "RU",
     requestId: 0,
     fetchController: null,
     chartInstance: null,
 };
 const TREEMAP_LABEL_MAX = 28;
 const TREEMAP_COLOR_BY_TEN_PERCENT = [
-    '#b91c1c', // 0-9%
-    '#dc2626', // 10-19%
-    '#ea580c', // 20-29%
-    '#f59e0b', // 30-39%
-    '#eab308', // 40-49%
-    '#84cc16', // 50-59%
-    '#22c55e', // 60-69%
-    '#14b8a6', // 70-79%
-    '#06b6d4', // 80-89%
-    '#3b82f6', // 90-99%
+    "#b91c1c", // 0-9%
+    "#dc2626", // 10-19%
+    "#ea580c", // 20-29%
+    "#f59e0b", // 30-39%
+    "#eab308", // 40-49%
+    "#84cc16", // 50-59%
+    "#22c55e", // 60-69%
+    "#14b8a6", // 70-79%
+    "#06b6d4", // 80-89%
+    "#3b82f6", // 90-99%
 ];
-const TREEMAP_FULL_COVERAGE_COLOR = '#8b5cf6'; // 100%
+const TREEMAP_FULL_COVERAGE_COLOR = "#8b5cf6"; // 100%
 const TREEMAP_LOADING_HTML = `
     <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-blue-600 dark:text-blue-400" role="status" aria-label="loading">
         <span class="sr-only">Загрузка...</span>
     </div>
 `;
 
-async function apiGet(url, {signal} = {}) {
+async function apiGet(url, { signal } = {}) {
     const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            Accept: 'application/json',
+            "X-CSRFToken": getCookie("csrftoken"),
+            Accept: "application/json",
         },
-        credentials: 'same-origin',
+        credentials: "same-origin",
         signal,
     });
     if (!response.ok) {
@@ -73,7 +79,7 @@ async function apiGet(url, {signal} = {}) {
 }
 
 function formatRuNumber(value) {
-    return new Intl.NumberFormat('ru-RU').format(value ?? 0);
+    return new Intl.NumberFormat("ru-RU").format(value ?? 0);
 }
 
 function updateNumberOnCard(elementId, value) {
@@ -89,16 +95,27 @@ function updateNumberOnCard(elementId, value) {
     `;
 }
 
-function updateRankBadge(elementId, rank, totalUsersCount, metricLabel, isSharedMode = false) {
+function updateRankBadge(
+    elementId,
+    rank,
+    totalUsersCount,
+    metricLabel,
+    isSharedMode = false,
+) {
     const badgeElement = document.getElementById(elementId);
     if (!badgeElement) {
         return;
     }
 
-    if (!Number.isFinite(rank) || rank <= 0 || !Number.isFinite(totalUsersCount) || totalUsersCount <= 0) {
-        badgeElement.classList.add('hidden');
-        badgeElement.innerHTML = '';
-        badgeElement.removeAttribute('title');
+    if (
+        !Number.isFinite(rank) ||
+        rank <= 0 ||
+        !Number.isFinite(totalUsersCount) ||
+        totalUsersCount <= 0
+    ) {
+        badgeElement.classList.add("hidden");
+        badgeElement.innerHTML = "";
+        badgeElement.removeAttribute("title");
         return;
     }
 
@@ -106,26 +123,31 @@ function updateRankBadge(elementId, rank, totalUsersCount, metricLabel, isShared
     badgeElement.title = isSharedMode
         ? `Пользователь занимает ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству ${metricLabel}`
         : `Вы занимаете ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству ${metricLabel}`;
-    badgeElement.classList.remove('hidden');
+    badgeElement.classList.remove("hidden");
 }
 
 function renderCountriesCoverageCards(countries, isSharedMode = false) {
-    const loadingElement = document.getElementById('countries-coverage-cards-loading');
-    const cardsContainer = document.getElementById('countries-coverage-cards');
+    const loadingElement = document.getElementById(
+        "countries-coverage-cards-loading",
+    );
+    const cardsContainer = document.getElementById("countries-coverage-cards");
     if (!loadingElement || !cardsContainer) {
         return;
     }
 
     const items = Array.isArray(countries)
-        ? countries.filter((country) => Number(country?.visited_cities || 0) > 0)
+        ? countries.filter(
+              (country) => Number(country?.visited_cities || 0) > 0,
+          )
         : [];
     const sortedItems = [...items].sort(
-        (a, b) => Number(b?.visited_cities || 0) - Number(a?.visited_cities || 0)
+        (a, b) =>
+            Number(b?.visited_cities || 0) - Number(a?.visited_cities || 0),
     );
 
     if (sortedItems.length === 0) {
-        loadingElement.classList.remove('hidden');
-        cardsContainer.classList.add('hidden');
+        loadingElement.classList.remove("hidden");
+        cardsContainer.classList.add("hidden");
         loadingElement.innerHTML = `
             <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
                 Пока нет данных по посещённым городам в странах.
@@ -140,12 +162,18 @@ function renderCountriesCoverageCards(countries, isSharedMode = false) {
             const totalCities = Number(country?.total_cities || 0);
             const rank = Number(country?.rank || 0);
             const totalUsersCount = Number(country?.total_users_count || 0);
-            const widthPercent = totalCities > 0 ? Math.round((visitedCities / totalCities) * 100) : 0;
-            const countryName = String(country?.name || '—');
+            const widthPercent =
+                totalCities > 0
+                    ? Math.round((visitedCities / totalCities) * 100)
+                    : 0;
+            const countryName = String(country?.name || "—");
             const rankBadgeHtml =
-                Number.isFinite(rank) && rank > 0 && Number.isFinite(totalUsersCount) && totalUsersCount > 0
-                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="${isSharedMode ? 'Пользователь занимает' : 'Вы занимаете'} ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещённых городов в этой стране">${formatRuNumber(rank)} место</span>`
-                    : '';
+                Number.isFinite(rank) &&
+                rank > 0 &&
+                Number.isFinite(totalUsersCount) &&
+                totalUsersCount > 0
+                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="${isSharedMode ? "Пользователь занимает" : "Вы занимаете"} ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещённых городов в этой стране">${formatRuNumber(rank)} место</span>`
+                    : "";
             return `
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                     <div class="mb-3 flex items-start justify-between gap-3">
@@ -163,29 +191,34 @@ function renderCountriesCoverageCards(countries, isSharedMode = false) {
                 </div>
             `;
         })
-        .join('');
+        .join("");
 
-    loadingElement.classList.add('hidden');
-    cardsContainer.classList.remove('hidden');
+    loadingElement.classList.add("hidden");
+    cardsContainer.classList.remove("hidden");
 }
 
 function renderRegionsCoverageCards(countries) {
-    const loadingElement = document.getElementById('regions-coverage-cards-loading');
-    const cardsContainer = document.getElementById('regions-coverage-cards');
+    const loadingElement = document.getElementById(
+        "regions-coverage-cards-loading",
+    );
+    const cardsContainer = document.getElementById("regions-coverage-cards");
     if (!loadingElement || !cardsContainer) {
         return;
     }
 
     const items = Array.isArray(countries)
-        ? countries.filter((country) => Number(country?.visited_regions || 0) > 0)
+        ? countries.filter(
+              (country) => Number(country?.visited_regions || 0) > 0,
+          )
         : [];
     const sortedItems = [...items].sort(
-        (a, b) => Number(b?.visited_regions || 0) - Number(a?.visited_regions || 0)
+        (a, b) =>
+            Number(b?.visited_regions || 0) - Number(a?.visited_regions || 0),
     );
 
     if (sortedItems.length === 0) {
-        loadingElement.classList.remove('hidden');
-        cardsContainer.classList.add('hidden');
+        loadingElement.classList.remove("hidden");
+        cardsContainer.classList.add("hidden");
         loadingElement.innerHTML = `
             <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
                 Пока нет данных по посещённым регионам в странах.
@@ -198,8 +231,11 @@ function renderRegionsCoverageCards(countries) {
         .map((country) => {
             const visitedRegions = Number(country?.visited_regions || 0);
             const totalRegions = Number(country?.total_regions || 0);
-            const widthPercent = totalRegions > 0 ? Math.round((visitedRegions / totalRegions) * 100) : 0;
-            const countryName = String(country?.name || '—');
+            const widthPercent =
+                totalRegions > 0
+                    ? Math.round((visitedRegions / totalRegions) * 100)
+                    : 0;
+            const countryName = String(country?.name || "—");
             return `
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                     <div class="mb-3 flex items-start justify-between gap-3">
@@ -214,15 +250,17 @@ function renderRegionsCoverageCards(countries) {
                 </div>
             `;
         })
-        .join('');
+        .join("");
 
-    loadingElement.classList.add('hidden');
-    cardsContainer.classList.remove('hidden');
+    loadingElement.classList.add("hidden");
+    cardsContainer.classList.remove("hidden");
 }
 
 function renderCountriesVisitsCards(countries, isSharedMode = false) {
-    const loadingElement = document.getElementById('countries-visits-cards-loading');
-    const cardsContainer = document.getElementById('countries-visits-cards');
+    const loadingElement = document.getElementById(
+        "countries-visits-cards-loading",
+    );
+    const cardsContainer = document.getElementById("countries-visits-cards");
     if (!loadingElement || !cardsContainer) {
         return;
     }
@@ -231,12 +269,12 @@ function renderCountriesVisitsCards(countries, isSharedMode = false) {
         ? countries.filter((country) => Number(country?.visits || 0) > 0)
         : [];
     const sortedItems = [...items].sort(
-        (a, b) => Number(b?.visits || 0) - Number(a?.visits || 0)
+        (a, b) => Number(b?.visits || 0) - Number(a?.visits || 0),
     );
 
     if (sortedItems.length === 0) {
-        loadingElement.classList.remove('hidden');
-        cardsContainer.classList.add('hidden');
+        loadingElement.classList.remove("hidden");
+        cardsContainer.classList.add("hidden");
         loadingElement.innerHTML = `
             <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
                 Пока нет данных по посещениям городов в странах.
@@ -250,11 +288,14 @@ function renderCountriesVisitsCards(countries, isSharedMode = false) {
             const visits = Number(country?.visits || 0);
             const rank = Number(country?.rank || 0);
             const totalUsersCount = Number(country?.total_users_count || 0);
-            const countryName = String(country?.name || '—');
+            const countryName = String(country?.name || "—");
             const rankBadgeHtml =
-                Number.isFinite(rank) && rank > 0 && Number.isFinite(totalUsersCount) && totalUsersCount > 0
-                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="${isSharedMode ? 'Пользователь занимает' : 'Вы занимаете'} ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещений городов в этой стране">${formatRuNumber(rank)} место</span>`
-                    : '';
+                Number.isFinite(rank) &&
+                rank > 0 &&
+                Number.isFinite(totalUsersCount) &&
+                totalUsersCount > 0
+                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="${isSharedMode ? "Пользователь занимает" : "Вы занимаете"} ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещений городов в этой стране">${formatRuNumber(rank)} место</span>`
+                    : "";
             return `
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                     <div class="mb-3 flex items-start justify-between gap-3">
@@ -269,10 +310,10 @@ function renderCountriesVisitsCards(countries, isSharedMode = false) {
                 </div>
             `;
         })
-        .join('');
+        .join("");
 
-    loadingElement.classList.add('hidden');
-    cardsContainer.classList.remove('hidden');
+    loadingElement.classList.add("hidden");
+    cardsContainer.classList.remove("hidden");
 }
 
 function renderTrendChart(containerId, chartData, seriesName, color) {
@@ -282,7 +323,8 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
     }
 
     if (!Array.isArray(chartData) || chartData.length === 0) {
-        chartContainer.innerHTML = '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
+        chartContainer.innerHTML =
+            '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
         return;
     }
 
@@ -291,7 +333,7 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
     const chartLabels = labels.length === 1 ? [labels[0], labels[0]] : labels;
     const chartValues = values.length === 1 ? [values[0], values[0]] : values;
 
-    chartContainer.innerHTML = '';
+    chartContainer.innerHTML = "";
 
     const chart = new ApexCharts(chartContainer, {
         series: [
@@ -301,8 +343,8 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
             },
         ],
         chart: {
-            type: 'area',
-            height: '100%',
+            type: "area",
+            height: "100%",
             toolbar: {
                 show: false,
             },
@@ -318,15 +360,15 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
             },
         },
         stroke: {
-            curve: 'straight',
+            curve: "straight",
             width: 2,
             colors: [color],
         },
         colors: [color],
         fill: {
-            type: 'gradient',
+            type: "gradient",
             gradient: {
-                shade: 'dark',
+                shade: "dark",
                 gradientToColors: [color],
                 shadeIntensity: 1,
                 opacityFrom: 0.6,
@@ -337,17 +379,17 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
         states: {
             normal: {
                 filter: {
-                    type: 'none',
+                    type: "none",
                 },
             },
             hover: {
                 filter: {
-                    type: 'none',
+                    type: "none",
                 },
             },
             active: {
                 filter: {
-                    type: 'none',
+                    type: "none",
                 },
             },
         },
@@ -355,8 +397,8 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
             categories: chartLabels,
         },
         tooltip: {
-            custom({series, seriesIndex, dataPointIndex}) {
-                const label = chartLabels[dataPointIndex] || '';
+            custom({ series, seriesIndex, dataPointIndex }) {
+                const label = chartLabels[dataPointIndex] || "";
                 const value = series[seriesIndex][dataPointIndex];
                 return `
                     <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
@@ -371,38 +413,44 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
 }
 
 function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
-    const loadingElement = document.getElementById('personal-visited-cities-by-year-loading');
-    const chartContainer = document.getElementById('personal-visited-cities-by-year-chart');
+    const loadingElement = document.getElementById(
+        "personal-visited-cities-by-year-loading",
+    );
+    const chartContainer = document.getElementById(
+        "personal-visited-cities-by-year-chart",
+    );
     if (!loadingElement || !chartContainer) {
         return;
     }
 
     const uniqueMap = new Map(
         (Array.isArray(uniqueByYear) ? uniqueByYear : []).map((item) => [
-            String(item?.label || ''),
+            String(item?.label || ""),
             Number(item?.count || 0),
-        ])
+        ]),
     );
     const totalMap = new Map(
         (Array.isArray(totalByYear) ? totalByYear : []).map((item) => [
-            String(item?.label || ''),
+            String(item?.label || ""),
             Number(item?.count || 0),
-        ])
+        ]),
     );
     const newMap = new Map(
         (Array.isArray(newByYear) ? newByYear : []).map((item) => [
-            String(item?.label || ''),
+            String(item?.label || ""),
             Number(item?.count || 0),
-        ])
+        ]),
     );
-    const labels = [...new Set([...uniqueMap.keys(), ...totalMap.keys(), ...newMap.keys()])]
+    const labels = [
+        ...new Set([...uniqueMap.keys(), ...totalMap.keys(), ...newMap.keys()]),
+    ]
         .filter((label) => label)
         .sort((a, b) => Number(a) - Number(b));
 
     if (labels.length === 0) {
         loadingElement.innerHTML =
             '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
-        chartContainer.classList.add('hidden');
+        chartContainer.classList.add("hidden");
         return;
     }
 
@@ -410,27 +458,27 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
     const totalValues = labels.map((label) => totalMap.get(label) ?? 0);
     const newValues = labels.map((label) => newMap.get(label) ?? 0);
 
-    loadingElement.classList.add('hidden');
-    chartContainer.classList.remove('hidden');
-    chartContainer.innerHTML = '';
+    loadingElement.classList.add("hidden");
+    chartContainer.classList.remove("hidden");
+    chartContainer.innerHTML = "";
 
     const chart = new ApexCharts(chartContainer, {
         series: [
             {
-                name: 'Всего посещений',
+                name: "Всего посещений",
                 data: totalValues,
             },
             {
-                name: 'Уникальные города',
+                name: "Уникальные города",
                 data: uniqueValues,
             },
             {
-                name: 'Новые города',
+                name: "Новые города",
                 data: newValues,
             },
         ],
         chart: {
-            type: 'area',
+            type: "area",
             height: 320,
             toolbar: {
                 show: false,
@@ -444,15 +492,15 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
             },
         },
         stroke: {
-            curve: 'smooth',
+            curve: "smooth",
             width: 3,
         },
-        colors: ['#10b981', '#f59e0b', '#0ea5e9'],
+        colors: ["#10b981", "#f59e0b", "#0ea5e9"],
         fill: {
-            type: 'gradient',
+            type: "gradient",
             gradient: {
-                shade: 'dark',
-                gradientToColors: ['#10b981', '#f59e0b', '#0ea5e9'],
+                shade: "dark",
+                gradientToColors: ["#10b981", "#f59e0b", "#0ea5e9"],
                 shadeIntensity: 1,
                 opacityFrom: 0.6,
                 opacityTo: 0,
@@ -472,7 +520,7 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
             categories: labels,
             labels: {
                 style: {
-                    colors: '#6b7280',
+                    colors: "#6b7280",
                 },
             },
         },
@@ -485,23 +533,26 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
             },
         },
         grid: {
-            borderColor: '#e5e7eb',
+            borderColor: "#e5e7eb",
         },
         legend: {
-            position: 'top',
-            horizontalAlign: 'left',
+            position: "top",
+            horizontalAlign: "left",
         },
         tooltip: {
             shared: false,
             intersect: false,
-            custom({dataPointIndex, w}) {
+            custom({ dataPointIndex, w }) {
                 const series = w.config.series || [];
-                const label = labels[dataPointIndex] || '';
+                const label = labels[dataPointIndex] || "";
                 const rows = series
                     .map((seriesItem, idx) => {
-                        const value = Number(seriesItem?.data?.[dataPointIndex] ?? 0);
-                        const color = ['#10b981', '#f59e0b', '#0ea5e9'][idx] || '#6b7280';
-                        const name = String(seriesItem?.name || 'Показатель');
+                        const value = Number(
+                            seriesItem?.data?.[dataPointIndex] ?? 0,
+                        );
+                        const color =
+                            ["#10b981", "#f59e0b", "#0ea5e9"][idx] || "#6b7280";
+                        const name = String(seriesItem?.name || "Показатель");
                         return `
                             <div class="flex items-center justify-between gap-4 py-1">
                                 <div class="flex items-center gap-2">
@@ -512,7 +563,7 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
                             </div>
                         `;
                     })
-                    .join('');
+                    .join("");
 
                 return `
                     <div class="min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
@@ -528,64 +579,76 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
 
     chart.render().then(() => {
         const cursorElements = chartContainer.querySelectorAll(
-            '.apexcharts-canvas, .apexcharts-svg, .apexcharts-inner, .apexcharts-series path, .apexcharts-area-series, .apexcharts-line-series'
+            ".apexcharts-canvas, .apexcharts-svg, .apexcharts-inner, .apexcharts-series path, .apexcharts-area-series, .apexcharts-line-series",
         );
         for (const element of cursorElements) {
-            element.style.cursor = 'default';
+            element.style.cursor = "default";
         }
     });
 }
 
-function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth) {
-    const loadingElement = document.getElementById('personal-visited-cities-by-month-loading');
-    const chartContainer = document.getElementById('personal-visited-cities-by-month-chart');
+function renderVisitedCitiesByMonthChart(
+    uniqueByMonth,
+    totalByMonth,
+    newByMonth,
+) {
+    const loadingElement = document.getElementById(
+        "personal-visited-cities-by-month-loading",
+    );
+    const chartContainer = document.getElementById(
+        "personal-visited-cities-by-month-chart",
+    );
     if (!loadingElement || !chartContainer) {
         return;
     }
 
     const uniqueMap = new Map(
         (Array.isArray(uniqueByMonth) ? uniqueByMonth : []).map((item) => [
-            String(item?.label || ''),
+            String(item?.label || ""),
             Number(item?.count || 0),
-        ])
+        ]),
     );
     const totalMap = new Map(
         (Array.isArray(totalByMonth) ? totalByMonth : []).map((item) => [
-            String(item?.label || ''),
+            String(item?.label || ""),
             Number(item?.count || 0),
-        ])
+        ]),
     );
     const newMap = new Map(
         (Array.isArray(newByMonth) ? newByMonth : []).map((item) => [
-            String(item?.label || ''),
+            String(item?.label || ""),
             Number(item?.count || 0),
-        ])
+        ]),
     );
 
-    const labels = [...new Set([...uniqueMap.keys(), ...totalMap.keys(), ...newMap.keys()])]
+    const labels = [
+        ...new Set([...uniqueMap.keys(), ...totalMap.keys(), ...newMap.keys()]),
+    ]
         .filter((label) => /^\d{2}\.\d{4}$/.test(label))
         .sort((a, b) => {
-            const [aMonth, aYear] = a.split('.').map(Number);
-            const [bMonth, bYear] = b.split('.').map(Number);
+            const [aMonth, aYear] = a.split(".").map(Number);
+            const [bMonth, bYear] = b.split(".").map(Number);
             return aYear * 100 + aMonth - (bYear * 100 + bMonth);
         });
-    const monthYearFormatter = new Intl.DateTimeFormat('ru-RU', {
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC',
+    const monthYearFormatter = new Intl.DateTimeFormat("ru-RU", {
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
     });
     const displayLabels = labels.map((label) => {
-        const [month, year] = label.split('.').map(Number);
+        const [month, year] = label.split(".").map(Number);
         if (!month || !year) {
             return label;
         }
-        return monthYearFormatter.format(new Date(Date.UTC(year, month - 1, 1)));
+        return monthYearFormatter.format(
+            new Date(Date.UTC(year, month - 1, 1)),
+        );
     });
 
     if (labels.length === 0) {
         loadingElement.innerHTML =
             '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
-        chartContainer.classList.add('hidden');
+        chartContainer.classList.add("hidden");
         return;
     }
 
@@ -593,27 +656,27 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
     const totalValues = labels.map((label) => totalMap.get(label) ?? 0);
     const newValues = labels.map((label) => newMap.get(label) ?? 0);
 
-    loadingElement.classList.add('hidden');
-    chartContainer.classList.remove('hidden');
-    chartContainer.innerHTML = '';
+    loadingElement.classList.add("hidden");
+    chartContainer.classList.remove("hidden");
+    chartContainer.innerHTML = "";
 
     const chart = new ApexCharts(chartContainer, {
         series: [
             {
-                name: 'Всего посещений',
+                name: "Всего посещений",
                 data: totalValues,
             },
             {
-                name: 'Уникальные города',
+                name: "Уникальные города",
                 data: uniqueValues,
             },
             {
-                name: 'Новые города',
+                name: "Новые города",
                 data: newValues,
             },
         ],
         chart: {
-            type: 'area',
+            type: "area",
             height: 320,
             toolbar: {
                 show: false,
@@ -627,15 +690,15 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
             },
         },
         stroke: {
-            curve: 'smooth',
+            curve: "smooth",
             width: 3,
         },
-        colors: ['#10b981', '#f59e0b', '#0ea5e9'],
+        colors: ["#10b981", "#f59e0b", "#0ea5e9"],
         fill: {
-            type: 'gradient',
+            type: "gradient",
             gradient: {
-                shade: 'dark',
-                gradientToColors: ['#10b981', '#f59e0b', '#0ea5e9'],
+                shade: "dark",
+                gradientToColors: ["#10b981", "#f59e0b", "#0ea5e9"],
                 shadeIntensity: 1,
                 opacityFrom: 0.6,
                 opacityTo: 0,
@@ -655,7 +718,7 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
             categories: labels,
             labels: {
                 style: {
-                    colors: '#6b7280',
+                    colors: "#6b7280",
                 },
             },
         },
@@ -668,23 +731,26 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
             },
         },
         grid: {
-            borderColor: '#e5e7eb',
+            borderColor: "#e5e7eb",
         },
         legend: {
-            position: 'top',
-            horizontalAlign: 'left',
+            position: "top",
+            horizontalAlign: "left",
         },
         tooltip: {
             shared: false,
             intersect: false,
-            custom({dataPointIndex, w}) {
+            custom({ dataPointIndex, w }) {
                 const series = w.config.series || [];
-                const label = displayLabels[dataPointIndex] || '';
+                const label = displayLabels[dataPointIndex] || "";
                 const rows = series
                     .map((seriesItem, idx) => {
-                        const value = Number(seriesItem?.data?.[dataPointIndex] ?? 0);
-                        const color = ['#10b981', '#f59e0b', '#0ea5e9'][idx] || '#6b7280';
-                        const name = String(seriesItem?.name || 'Показатель');
+                        const value = Number(
+                            seriesItem?.data?.[dataPointIndex] ?? 0,
+                        );
+                        const color =
+                            ["#10b981", "#f59e0b", "#0ea5e9"][idx] || "#6b7280";
+                        const name = String(seriesItem?.name || "Показатель");
                         return `
                             <div class="flex items-center justify-between gap-4 py-1">
                                 <div class="flex items-center gap-2">
@@ -695,7 +761,7 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
                             </div>
                         `;
                     })
-                    .join('');
+                    .join("");
 
                 return `
                     <div class="min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
@@ -711,44 +777,152 @@ function renderVisitedCitiesByMonthChart(uniqueByMonth, totalByMonth, newByMonth
 
     chart.render().then(() => {
         const cursorElements = chartContainer.querySelectorAll(
-            '.apexcharts-canvas, .apexcharts-svg, .apexcharts-inner, .apexcharts-series path, .apexcharts-area-series, .apexcharts-line-series'
+            ".apexcharts-canvas, .apexcharts-svg, .apexcharts-inner, .apexcharts-series path, .apexcharts-area-series, .apexcharts-line-series",
         );
         for (const element of cursorElements) {
-            element.style.cursor = 'default';
+            element.style.cursor = "default";
         }
     });
 }
 
 async function fetchVisitedCitiesOverview(requestContext) {
-    return await apiGet(buildStatsUrl(ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview, requestContext));
+    return await apiGet(
+        buildStatsUrl(
+            ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview,
+            requestContext,
+        ),
+    );
+}
+
+function renderVisitedCountriesOverviewCards(data, isSharedMode = false) {
+    const loadingElement = document.getElementById(
+        "visited-countries-overview-loading",
+    );
+    const totalContainer = document.getElementById(
+        "visited-countries-total-card",
+    );
+    const byPartContainer = document.getElementById(
+        "visited-countries-by-part-cards",
+    );
+    if (!loadingElement || !totalContainer || !byPartContainer) {
+        return;
+    }
+
+    const visited = Number(data?.visited ?? 0);
+    const total = Number(data?.total ?? 0);
+    const byLocation = Array.isArray(data?.by_location) ? data.by_location : [];
+
+    if (visited === 0) {
+        loadingElement.classList.remove("hidden");
+        totalContainer.classList.add("hidden");
+        byPartContainer.classList.add("hidden");
+        loadingElement.innerHTML = `
+            <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+                Пока нет данных по посещённым странам.
+            </div>
+        `;
+        return;
+    }
+
+    const totalWidthPercent =
+        total > 0 ? Math.round((visited / total) * 100) : 0;
+
+    // Первая строка — общая карточка
+    totalContainer.innerHTML = `
+        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="mb-3">
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">Всего стран</p>
+            </div>
+            <div class="mb-3">
+                <p class="dashboard-metric-number text-2xl font-extrabold leading-none text-gray-900 dark:text-white">
+                    ${formatRuNumber(visited)} из ${formatRuNumber(total)}
+                </p>
+            </div>
+            <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
+                <div class="h-1.5 rounded-full bg-teal-500" style="width: ${totalWidthPercent}%"></div>
+            </div>
+        </div>
+    `;
+
+    // Вторая строка — карточки по частям света
+    byPartContainer.innerHTML = byLocation
+        .map((item) => {
+            const locVisited = Number(item?.visited ?? 0);
+            const locTotal = Number(item?.total ?? 0);
+            const locWidthPercent =
+                locTotal > 0 ? Math.round((locVisited / locTotal) * 100) : 0;
+            const locationName = String(item?.location_name || "—");
+            return `
+                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                    <div class="mb-3">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${locationName}</p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="dashboard-metric-number text-2xl font-extrabold leading-none text-gray-900 dark:text-white">
+                            ${formatRuNumber(locVisited)} из ${formatRuNumber(locTotal)}
+                        </p>
+                    </div>
+                    <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
+                        <div class="h-1.5 rounded-full bg-teal-500" style="width: ${locWidthPercent}%"></div>
+                    </div>
+                </div>
+            `;
+        })
+        .join("");
+
+    loadingElement.classList.add("hidden");
+    totalContainer.classList.remove("hidden");
+    byPartContainer.classList.remove("hidden");
+}
+
+async function fetchVisitedCountriesOverview(requestContext) {
+    return await apiGet(
+        buildStatsUrl(
+            ACCOUNT_STATS_ROUTES.getVisitedCountriesOverview,
+            requestContext,
+        ),
+    );
 }
 
 async function fetchVisitedCitiesCountriesCoverage(requestContext) {
     return await apiGet(
-        buildStatsUrl(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesCoverage, requestContext)
+        buildStatsUrl(
+            ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesCoverage,
+            requestContext,
+        ),
     );
 }
 
 async function fetchVisitedCitiesCountriesVisits(requestContext) {
     return await apiGet(
-        buildStatsUrl(ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesVisits, requestContext)
+        buildStatsUrl(
+            ACCOUNT_STATS_ROUTES.getVisitedCitiesCountriesVisits,
+            requestContext,
+        ),
     );
 }
 
 async function fetchVisitedRegionsCountriesCoverage(requestContext) {
     return await apiGet(
-        buildStatsUrl(ACCOUNT_STATS_ROUTES.getVisitedRegionsCountriesCoverage, requestContext)
+        buildStatsUrl(
+            ACCOUNT_STATS_ROUTES.getVisitedRegionsCountriesCoverage,
+            requestContext,
+        ),
     );
 }
 
-async function fetchRegionsVisitedCitiesTreemap(countryCode, signal, requestContext) {
-    const query = new URLSearchParams({country_code: countryCode || 'RU'});
+async function fetchRegionsVisitedCitiesTreemap(
+    countryCode,
+    signal,
+    requestContext,
+) {
+    const query = new URLSearchParams({ country_code: countryCode || "RU" });
     return await apiGet(
         buildStatsUrl(
             `${ACCOUNT_STATS_ROUTES.getRegionsVisitedCitiesTreemap}?${query.toString()}`,
-            requestContext
+            requestContext,
         ),
-        {signal}
+        { signal },
     );
 }
 
@@ -774,9 +948,11 @@ function buildShortLabel(fullname) {
 function normalizeCountryOptions(data) {
     return data
         .map((country) => ({
-            code: String(country.code || ''),
-            name: String(country.name || country.code || ''),
-            numberOfVisitedCities: Number(country.number_of_visited_cities || 0),
+            code: String(country.code || ""),
+            name: String(country.name || country.code || ""),
+            numberOfVisitedCities: Number(
+                country.number_of_visited_cities || 0,
+            ),
         }))
         .filter((country) => country.code && country.numberOfVisitedCities > 0);
 }
@@ -790,17 +966,19 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
     if (items.length === 0) {
         loadingElement.innerHTML =
             '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
-        chartContainer.classList.add('hidden');
+        chartContainer.classList.add("hidden");
         return;
     }
 
     const sortedItems = [...items].sort(
-        (a, b) => (b.unique_visited_cities ?? 0) - (a.unique_visited_cities ?? 0)
+        (a, b) =>
+            (b.unique_visited_cities ?? 0) - (a.unique_visited_cities ?? 0),
     );
     const treemapData = sortedItems.map((item) => {
         const totalCities = item.total_cities ?? 0;
         const uniqueVisitedCities = item.unique_visited_cities ?? 0;
-        const progress = totalCities > 0 ? uniqueVisitedCities / totalCities : 0;
+        const progress =
+            totalCities > 0 ? uniqueVisitedCities / totalCities : 0;
         const percent = Math.round(progress * 100);
         return {
             x: buildShortLabel(item.fullname),
@@ -813,9 +991,9 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
         };
     });
 
-    loadingElement.classList.add('hidden');
-    chartContainer.classList.remove('hidden');
-    chartContainer.innerHTML = '';
+    loadingElement.classList.add("hidden");
+    chartContainer.classList.remove("hidden");
+    chartContainer.innerHTML = "";
 
     const chart = new ApexCharts(chartContainer, {
         series: [
@@ -827,7 +1005,7 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
             show: false,
         },
         chart: {
-            type: 'treemap',
+            type: "treemap",
             height: 420,
             toolbar: {
                 show: false,
@@ -843,18 +1021,18 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
         states: {
             normal: {
                 filter: {
-                    type: 'none',
+                    type: "none",
                 },
             },
             hover: {
                 filter: {
-                    type: 'darken',
+                    type: "darken",
                     value: 0.12,
                 },
             },
             active: {
                 filter: {
-                    type: 'darken',
+                    type: "darken",
                     value: 0.16,
                 },
             },
@@ -865,30 +1043,30 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
             formatter(text, opts) {
                 const point = treemapData[opts.dataPointIndex];
                 if (!point) {
-                    return [text, ''];
+                    return [text, ""];
                 }
                 return [text, point.valueLabel];
             },
             style: {
-                fontSize: '14px',
+                fontSize: "14px",
                 fontWeight: 700,
-                colors: ['#ffffff'],
+                colors: ["#ffffff"],
             },
-            textAnchor: 'middle',
+            textAnchor: "middle",
             dropShadow: {
                 enabled: true,
                 left: 0,
                 top: 1,
                 blur: 1,
-                color: '#0f172a',
+                color: "#0f172a",
                 opacity: 0.45,
             },
         },
         tooltip: {
-            custom({seriesIndex, dataPointIndex, w}) {
+            custom({ seriesIndex, dataPointIndex, w }) {
                 const point = treemapData[dataPointIndex];
                 if (!point) {
-                    return '';
+                    return "";
                 }
                 const percent = Math.round((point.progress || 0) * 100);
                 return `
@@ -918,15 +1096,17 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
 }
 
 function populateRegionsCountrySelect(items) {
-    const countrySelect = document.getElementById('personal-regions-country-select');
+    const countrySelect = document.getElementById(
+        "personal-regions-country-select",
+    );
     if (!countrySelect) {
         return;
     }
 
-    countrySelect.innerHTML = '';
+    countrySelect.innerHTML = "";
 
     for (const item of items) {
-        const option = document.createElement('option');
+        const option = document.createElement("option");
         option.value = item.code;
         option.textContent = item.name;
         if (item.code === treemapState.selectedCountryCode) {
@@ -935,7 +1115,10 @@ function populateRegionsCountrySelect(items) {
         countrySelect.appendChild(option);
     }
 
-    if (!items.some((item) => item.code === treemapState.selectedCountryCode) && items.length > 0) {
+    if (
+        !items.some((item) => item.code === treemapState.selectedCountryCode) &&
+        items.length > 0
+    ) {
         treemapState.selectedCountryCode = items[0].code;
         countrySelect.value = treemapState.selectedCountryCode;
     }
@@ -944,15 +1127,21 @@ function populateRegionsCountrySelect(items) {
 }
 
 function initRegionsVisitedCitiesTreemap(requestContext) {
-    const loadingElement = document.getElementById('personal-regions-treemap-loading');
-    const chartContainer = document.getElementById('personal-regions-treemap-chart');
-    const countrySelect = document.getElementById('personal-regions-country-select');
+    const loadingElement = document.getElementById(
+        "personal-regions-treemap-loading",
+    );
+    const chartContainer = document.getElementById(
+        "personal-regions-treemap-chart",
+    );
+    const countrySelect = document.getElementById(
+        "personal-regions-country-select",
+    );
     if (!loadingElement || !chartContainer || !countrySelect) {
         return;
     }
 
     const loadTreemap = (countryCode) => {
-        treemapState.selectedCountryCode = countryCode || 'RU';
+        treemapState.selectedCountryCode = countryCode || "RU";
         const currentRequestId = ++treemapState.requestId;
         if (treemapState.fetchController) {
             treemapState.fetchController.abort();
@@ -962,14 +1151,14 @@ function initRegionsVisitedCitiesTreemap(requestContext) {
             treemapState.chartInstance = null;
         }
         treemapState.fetchController = new AbortController();
-        loadingElement.classList.remove('hidden');
-        chartContainer.classList.add('hidden');
+        loadingElement.classList.remove("hidden");
+        chartContainer.classList.add("hidden");
         loadingElement.innerHTML = TREEMAP_LOADING_HTML;
 
         fetchRegionsVisitedCitiesTreemap(
             treemapState.selectedCountryCode,
             treemapState.fetchController.signal,
-            requestContext
+            requestContext,
         )
             .then((data) => {
                 if (currentRequestId !== treemapState.requestId) {
@@ -982,10 +1171,10 @@ function initRegionsVisitedCitiesTreemap(requestContext) {
                 if (currentRequestId !== treemapState.requestId) {
                     return;
                 }
-                if (error?.name === 'AbortError') {
+                if (error?.name === "AbortError") {
                     return;
                 }
-                console.error('Failed to fetch regions treemap data', error);
+                console.error("Failed to fetch regions treemap data", error);
                 loadingElement.innerHTML =
                     '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
             });
@@ -996,13 +1185,15 @@ function initRegionsVisitedCitiesTreemap(requestContext) {
             const items = normalizeCountryOptions(data);
             populateRegionsCountrySelect(items);
             countrySelect.onchange = (event) => {
-                const nextCountryCode = event.target.value || 'RU';
+                const nextCountryCode = event.target.value || "RU";
                 loadTreemap(nextCountryCode);
             };
-            loadTreemap(countrySelect.value || treemapState.selectedCountryCode);
+            loadTreemap(
+                countrySelect.value || treemapState.selectedCountryCode,
+            );
         })
         .catch((error) => {
-            console.error('Failed to fetch regions countries', error);
+            console.error("Failed to fetch regions countries", error);
             countrySelect.disabled = true;
             loadTreemap(treemapState.selectedCountryCode);
         });
@@ -1010,23 +1201,28 @@ function initRegionsVisitedCitiesTreemap(requestContext) {
 
 function initVisitedCitiesOverview(requestContext) {
     const requiredElements = [
-        document.getElementById('number-personal_unique_visited_cities'),
-        document.getElementById('badge-personal_unique_visited_cities_rank'),
-        document.getElementById('badge-personal_total_visited_cities_visits_rank'),
-        document.getElementById('number-personal_total_visited_cities_visits'),
-        document.getElementById('personal-unique-visited-cities-trend-chart'),
-        document.getElementById('personal-total-visited-cities-trend-chart'),
-        document.getElementById('personal-new-visited-cities-trend-chart'),
-        document.getElementById('personal-visited-cities-by-year-loading'),
-        document.getElementById('personal-visited-cities-by-year-chart'),
-        document.getElementById('personal-visited-cities-by-month-loading'),
-        document.getElementById('personal-visited-cities-by-month-chart'),
-        document.getElementById('countries-coverage-cards-loading'),
-        document.getElementById('countries-coverage-cards'),
-        document.getElementById('countries-visits-cards-loading'),
-        document.getElementById('countries-visits-cards'),
-        document.getElementById('regions-coverage-cards-loading'),
-        document.getElementById('regions-coverage-cards'),
+        document.getElementById("number-personal_unique_visited_cities"),
+        document.getElementById("badge-personal_unique_visited_cities_rank"),
+        document.getElementById(
+            "badge-personal_total_visited_cities_visits_rank",
+        ),
+        document.getElementById("number-personal_total_visited_cities_visits"),
+        document.getElementById("personal-unique-visited-cities-trend-chart"),
+        document.getElementById("personal-total-visited-cities-trend-chart"),
+        document.getElementById("personal-new-visited-cities-trend-chart"),
+        document.getElementById("personal-visited-cities-by-year-loading"),
+        document.getElementById("personal-visited-cities-by-year-chart"),
+        document.getElementById("personal-visited-cities-by-month-loading"),
+        document.getElementById("personal-visited-cities-by-month-chart"),
+        document.getElementById("countries-coverage-cards-loading"),
+        document.getElementById("countries-coverage-cards"),
+        document.getElementById("countries-visits-cards-loading"),
+        document.getElementById("countries-visits-cards"),
+        document.getElementById("regions-coverage-cards-loading"),
+        document.getElementById("regions-coverage-cards"),
+        document.getElementById("visited-countries-overview-loading"),
+        document.getElementById("visited-countries-total-card"),
+        document.getElementById("visited-countries-by-part-cards"),
     ];
 
     if (requiredElements.some((element) => !element)) {
@@ -1036,83 +1232,95 @@ function initVisitedCitiesOverview(requestContext) {
     fetchVisitedCitiesOverview(requestContext)
         .then((data) => {
             updateNumberOnCard(
-                'number-personal_unique_visited_cities',
-                data.unique_visited_cities?.count
+                "number-personal_unique_visited_cities",
+                data.unique_visited_cities?.count,
             );
             updateRankBadge(
-                'badge-personal_unique_visited_cities_rank',
+                "badge-personal_unique_visited_cities_rank",
                 Number(data.unique_visited_cities_rank),
                 Number(data.total_users_count),
-                'уникальных посещенных городов',
-                requestContext?.isSharedMode
+                "уникальных посещенных городов",
+                requestContext?.isSharedMode,
             );
             updateNumberOnCard(
-                'number-personal_total_visited_cities_visits',
-                data.total_visited_cities_visits?.count
+                "number-personal_total_visited_cities_visits",
+                data.total_visited_cities_visits?.count,
             );
             updateRankBadge(
-                'badge-personal_total_visited_cities_visits_rank',
+                "badge-personal_total_visited_cities_visits_rank",
                 Number(data.total_visited_cities_visits_rank),
                 Number(data.total_users_count),
-                'посещений городов',
-                requestContext?.isSharedMode
+                "посещений городов",
+                requestContext?.isSharedMode,
             );
 
             renderTrendChart(
-                'personal-unique-visited-cities-trend-chart',
+                "personal-unique-visited-cities-trend-chart",
                 data.unique_visited_cities_by_year,
-                'Уникальные города',
-                '#f59e0b'
+                "Уникальные города",
+                "#f59e0b",
             );
             renderTrendChart(
-                'personal-total-visited-cities-trend-chart',
+                "personal-total-visited-cities-trend-chart",
                 data.total_visited_cities_visits_by_year,
-                'Посещения',
-                '#10b981'
+                "Посещения",
+                "#10b981",
             );
             renderTrendChart(
-                'personal-new-visited-cities-trend-chart',
+                "personal-new-visited-cities-trend-chart",
                 data.new_visited_cities_by_year,
-                'Новые города',
-                '#0ea5e9'
+                "Новые города",
+                "#0ea5e9",
             );
             renderVisitedCitiesByYearChart(
                 data.unique_visited_cities_by_year,
                 data.total_visited_cities_visits_by_year,
-                data.new_visited_cities_by_year
+                data.new_visited_cities_by_year,
             );
             renderVisitedCitiesByMonthChart(
                 data.unique_visited_cities_by_month,
                 data.total_visited_cities_visits_by_month,
-                data.new_visited_cities_by_month
+                data.new_visited_cities_by_month,
             );
         })
         .catch((error) => {
-            console.error('Failed to fetch account visited cities overview', error);
+            console.error(
+                "Failed to fetch account visited cities overview",
+                error,
+            );
             const fallbackElements = [
-                'number-personal_unique_visited_cities',
-                'number-personal_total_visited_cities_visits',
-                'personal-new-visited-cities-trend-chart',
+                "number-personal_unique_visited_cities",
+                "number-personal_total_visited_cities_visits",
+                "personal-new-visited-cities-trend-chart",
             ];
             for (const elementId of fallbackElements) {
                 const element = document.getElementById(elementId);
                 if (element) {
-                    element.textContent = '—';
+                    element.textContent = "—";
                 }
             }
-            updateRankBadge('badge-personal_unique_visited_cities_rank', Number.NaN, Number.NaN, '');
             updateRankBadge(
-                'badge-personal_total_visited_cities_visits_rank',
+                "badge-personal_unique_visited_cities_rank",
                 Number.NaN,
                 Number.NaN,
-                ''
+                "",
             );
-            const loadingElement = document.getElementById('personal-visited-cities-by-year-loading');
+            updateRankBadge(
+                "badge-personal_total_visited_cities_visits_rank",
+                Number.NaN,
+                Number.NaN,
+                "",
+            );
+            const loadingElement = document.getElementById(
+                "personal-visited-cities-by-year-loading",
+            );
             if (loadingElement) {
                 loadingElement.innerHTML =
                     '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
             }
-            const monthLoadingElement = document.getElementById('personal-visited-cities-by-month-loading');
+            const monthLoadingElement = document.getElementById(
+                "personal-visited-cities-by-month-loading",
+            );
             if (monthLoadingElement) {
                 monthLoadingElement.innerHTML =
                     '<p class="text-gray-600 dark:text-neutral-400">Не удалось загрузить данные графика</p>';
@@ -1121,10 +1329,13 @@ function initVisitedCitiesOverview(requestContext) {
 
     fetchVisitedCitiesCountriesCoverage(requestContext)
         .then((data) => {
-            renderCountriesCoverageCards(data.countries_coverage, requestContext?.isSharedMode);
+            renderCountriesCoverageCards(
+                data.countries_coverage,
+                requestContext?.isSharedMode,
+            );
         })
         .catch((error) => {
-            console.error('Failed to fetch countries coverage data', error);
+            console.error("Failed to fetch countries coverage data", error);
             renderCountriesCoverageCards([], requestContext?.isSharedMode);
         });
 
@@ -1133,17 +1344,35 @@ function initVisitedCitiesOverview(requestContext) {
             renderRegionsCoverageCards(data.countries_coverage);
         })
         .catch((error) => {
-            console.error('Failed to fetch regions coverage data', error);
+            console.error("Failed to fetch regions coverage data", error);
             renderRegionsCoverageCards([]);
         });
 
     fetchVisitedCitiesCountriesVisits(requestContext)
         .then((data) => {
-            renderCountriesVisitsCards(data.countries_visits, requestContext?.isSharedMode);
+            renderCountriesVisitsCards(
+                data.countries_visits,
+                requestContext?.isSharedMode,
+            );
         })
         .catch((error) => {
-            console.error('Failed to fetch countries visits data', error);
+            console.error("Failed to fetch countries visits data", error);
             renderCountriesVisitsCards([], requestContext?.isSharedMode);
+        });
+
+    fetchVisitedCountriesOverview(requestContext)
+        .then((data) => {
+            renderVisitedCountriesOverviewCards(
+                data,
+                requestContext?.isSharedMode,
+            );
+        })
+        .catch((error) => {
+            console.error("Failed to fetch visited countries overview", error);
+            renderVisitedCountriesOverviewCards(
+                {},
+                requestContext?.isSharedMode,
+            );
         });
 }
 
@@ -1157,8 +1386,8 @@ function initAccountStatistics() {
     initRegionsVisitedCitiesTreemap(requestContext);
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccountStatistics);
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAccountStatistics);
 } else {
     initAccountStatistics();
 }

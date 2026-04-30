@@ -5,7 +5,7 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.db.models.functions import TruncMonth, TruncYear
 from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
@@ -33,6 +33,7 @@ from country.repository import (
     get_list_of_countries_with_visited_regions,
 )
 from region.models import Region
+from region.services.db import get_all_region_with_visited_cities
 
 
 def resolve_statistics_user_id(request_user: object, shared_user_id_raw: str | None) -> int:
@@ -240,11 +241,22 @@ class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSer
             self.request.user, self.request.GET.get('shared_user_id')
         )
 
+        finished_regions_by_country = {}
+        for country_name in (
+            get_all_region_with_visited_cities(user_id)
+            .filter(num_total=F('num_visited'), num_visited__gt=0)
+            .values_list('country__name', flat=True)
+        ):
+            finished_regions_by_country[country_name] = (
+                finished_regions_by_country.get(country_name, 0) + 1
+            )
+
         countries_coverage = [
             VisitedRegionsCountryCoverage(
                 name=country.name,
                 visited_regions=country.number_of_visited_regions,
                 total_regions=country.number_of_regions,
+                finished_regions=finished_regions_by_country.get(country.name, 0),
             )
             for country in get_list_of_countries_with_visited_regions(user_id)
         ]

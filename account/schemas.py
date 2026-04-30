@@ -31,6 +31,7 @@ class VisitedRegionsCountryCoverage(msgspec.Struct):
     name: str
     visited_regions: int
     total_regions: int
+    finished_regions: int
 
 
 class PersonalVisitedCitiesOverviewResponse(msgspec.Struct):

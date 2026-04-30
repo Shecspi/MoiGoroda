@@ -256,6 +256,65 @@ function renderRegionsCoverageCards(countries) {
     cardsContainer.classList.remove("hidden");
 }
 
+function renderFinishedRegionsCards(countries) {
+    const loadingElement = document.getElementById(
+        "finished-regions-cards-loading",
+    );
+    const cardsContainer = document.getElementById("finished-regions-cards");
+    if (!loadingElement || !cardsContainer) {
+        return;
+    }
+
+    const items = Array.isArray(countries)
+        ? countries.filter(
+              (country) => Number(country?.finished_regions || 0) > 0,
+          )
+        : [];
+    const sortedItems = [...items].sort(
+        (a, b) =>
+            Number(b?.finished_regions || 0) - Number(a?.finished_regions || 0),
+    );
+
+    if (sortedItems.length === 0) {
+        loadingElement.classList.remove("hidden");
+        cardsContainer.classList.add("hidden");
+        loadingElement.innerHTML = `
+            <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+                Пока нет полностью закрытых регионов.
+            </div>
+        `;
+        return;
+    }
+
+    cardsContainer.innerHTML = sortedItems
+        .map((country) => {
+            const finishedRegions = Number(country?.finished_regions || 0);
+            const totalRegions = Number(country?.total_regions || 0);
+            const widthPercent =
+                totalRegions > 0
+                    ? Math.round((finishedRegions / totalRegions) * 100)
+                    : 0;
+            const countryName = String(country?.name || "—");
+            return `
+                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                    <div class="mb-3 flex items-start justify-between gap-3">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${countryName}</p>
+                        <p class="whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-neutral-300">
+                            ${formatRuNumber(finishedRegions)} из ${formatRuNumber(totalRegions)}
+                        </p>
+                    </div>
+                    <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
+                        <div class="h-1.5 rounded-full bg-indigo-500" style="width: ${widthPercent}%"></div>
+                    </div>
+                </div>
+            `;
+        })
+        .join("");
+
+    loadingElement.classList.add("hidden");
+    cardsContainer.classList.remove("hidden");
+}
+
 function renderCountriesVisitsCards(countries, isSharedMode = false) {
     const loadingElement = document.getElementById(
         "countries-visits-cards-loading",
@@ -1220,6 +1279,8 @@ function initVisitedCitiesOverview(requestContext) {
         document.getElementById("countries-visits-cards"),
         document.getElementById("regions-coverage-cards-loading"),
         document.getElementById("regions-coverage-cards"),
+        document.getElementById("finished-regions-cards-loading"),
+        document.getElementById("finished-regions-cards"),
         document.getElementById("visited-countries-overview-loading"),
         document.getElementById("visited-countries-total-card"),
         document.getElementById("visited-countries-by-part-cards"),
@@ -1342,10 +1403,12 @@ function initVisitedCitiesOverview(requestContext) {
     fetchVisitedRegionsCountriesCoverage(requestContext)
         .then((data) => {
             renderRegionsCoverageCards(data.countries_coverage);
+            renderFinishedRegionsCards(data.countries_coverage);
         })
         .catch((error) => {
             console.error("Failed to fetch regions coverage data", error);
             renderRegionsCoverageCards([]);
+            renderFinishedRegionsCards([]);
         });
 
     fetchVisitedCitiesCountriesVisits(requestContext)

@@ -162,6 +162,18 @@
 
 <div class="mx-3 mb-12">
     <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+        Полностью закрытые регионы
+    </h2>
+    <div id="finished-regions-cards-loading" class="flex min-h-[80px] items-center justify-center">
+        <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-indigo-600 dark:text-indigo-400" role="status" aria-label="loading">
+            <span class="sr-only">Загрузка...</span>
+        </div>
+    </div>
+    <div id="finished-regions-cards" class="hidden grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
+</div>
+
+<div class="mx-3 mb-12">
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
         Посещённые страны
     </h2>
     <div id="visited-countries-overview-loading" class="flex min-h-[80px] items-center justify-center">

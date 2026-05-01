@@ -126,248 +126,171 @@ function updateRankBadge(
     badgeElement.classList.remove("hidden");
 }
 
-function renderCountriesCoverageCards(countries, isSharedMode = false) {
+function renderUnifiedCountryCards(
+    citiesCoverage,
+    regionsCoverage,
+    visits,
+    isSharedMode = false,
+) {
     const loadingElement = document.getElementById(
-        "countries-coverage-cards-loading",
+        "unified-country-cards-loading",
     );
-    const cardsContainer = document.getElementById("countries-coverage-cards");
-    if (!loadingElement || !cardsContainer) {
-        return;
+    const cardsContainer = document.getElementById("unified-country-cards");
+
+    if (!loadingElement || !cardsContainer) return;
+
+    const countryMap = new Map();
+
+    const safeCitiesCoverage = Array.isArray(citiesCoverage)
+        ? citiesCoverage
+        : [];
+    const safeRegionsCoverage = Array.isArray(regionsCoverage)
+        ? regionsCoverage
+        : [];
+    const safeVisits = Array.isArray(visits) ? visits : [];
+
+    for (const c of safeCitiesCoverage) {
+        if (!countryMap.has(c.name)) countryMap.set(c.name, { name: c.name });
+        const obj = countryMap.get(c.name);
+        obj.visitedCities = Number(c.visited_cities || 0);
+        obj.totalCities = Number(c.total_cities || 0);
+        obj.citiesRank = Number(c.rank || 0);
+        obj.citiesTotalUsers = Number(c.total_users_count || 0);
     }
 
-    const items = Array.isArray(countries)
-        ? countries.filter(
-              (country) => Number(country?.visited_cities || 0) > 0,
-          )
-        : [];
-    const sortedItems = [...items].sort(
-        (a, b) =>
-            Number(b?.visited_cities || 0) - Number(a?.visited_cities || 0),
+    for (const c of safeRegionsCoverage) {
+        if (!countryMap.has(c.name)) countryMap.set(c.name, { name: c.name });
+        const obj = countryMap.get(c.name);
+        obj.visitedRegions = Number(c.visited_regions || 0);
+        obj.totalRegions = Number(c.total_regions || 0);
+        obj.finishedRegions = Number(c.finished_regions || 0);
+    }
+
+    for (const c of safeVisits) {
+        if (!countryMap.has(c.name)) countryMap.set(c.name, { name: c.name });
+        const obj = countryMap.get(c.name);
+        obj.visits = Number(c.visits || 0);
+        obj.visitsRank = Number(c.rank || 0);
+        obj.visitsTotalUsers = Number(c.total_users_count || 0);
+    }
+
+    const items = Array.from(countryMap.values()).filter(
+        (c) => c.visitedCities > 0 || c.visitedRegions > 0 || c.visits > 0,
     );
 
-    if (sortedItems.length === 0) {
+    items.sort((a, b) => {
+        const vA = a.visitedCities || 0;
+        const vB = b.visitedCities || 0;
+        if (vB !== vA) return vB - vA;
+        return a.name.localeCompare(b.name);
+    });
+
+    if (items.length === 0) {
         loadingElement.classList.remove("hidden");
         cardsContainer.classList.add("hidden");
         loadingElement.innerHTML = `
             <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
-                Пока нет данных по посещённым городам в странах.
+                Пока нет данных по посещённым странам.
             </div>
         `;
         return;
     }
 
-    cardsContainer.innerHTML = sortedItems
-        .map((country) => {
-            const visitedCities = Number(country?.visited_cities || 0);
-            const totalCities = Number(country?.total_cities || 0);
-            const rank = Number(country?.rank || 0);
-            const totalUsersCount = Number(country?.total_users_count || 0);
-            const widthPercent =
+    cardsContainer.innerHTML = items
+        .map((c) => {
+            const countryName = c.name || "—";
+            const visitedCities = c.visitedCities || 0;
+            const totalCities = c.totalCities || 0;
+            const citiesWidth =
                 totalCities > 0
                     ? Math.round((visitedCities / totalCities) * 100)
                     : 0;
-            const countryName = String(country?.name || "—");
-            const rankBadgeHtml =
-                Number.isFinite(rank) &&
-                rank > 0 &&
-                Number.isFinite(totalUsersCount) &&
-                totalUsersCount > 0
-                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="${isSharedMode ? "Пользователь занимает" : "Вы занимаете"} ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещённых городов в этой стране">${formatRuNumber(rank)} место</span>`
+            const citiesRank = c.citiesRank || 0;
+            const citiesUsers = c.citiesTotalUsers || 0;
+
+            const citiesRankHtml =
+                citiesRank > 0 && citiesUsers > 0
+                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap ml-2" title="${isSharedMode ? "Пользователь занимает" : "Вы занимаете"} ${formatRuNumber(citiesRank)} место из ${formatRuNumber(citiesUsers)} пользователей сервиса по количеству посещённых городов в этой стране">${formatRuNumber(citiesRank)} место</span>`
                     : "";
-            return `
-                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
-                    <div class="mb-3 flex items-start justify-between gap-3">
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${countryName}</p>
-                        ${rankBadgeHtml}
-                    </div>
-                    <div class="mb-3">
-                        <p class="dashboard-metric-number text-2xl font-extrabold leading-none text-gray-900 dark:text-white">
-                            ${formatRuNumber(visitedCities)} из ${formatRuNumber(totalCities)}
-                        </p>
-                    </div>
-                    <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
-                        <div class="h-1.5 rounded-full bg-emerald-500" style="width: ${widthPercent}%"></div>
-                    </div>
-                </div>
-            `;
-        })
-        .join("");
 
-    loadingElement.classList.add("hidden");
-    cardsContainer.classList.remove("hidden");
-}
-
-function renderRegionsCoverageCards(countries) {
-    const loadingElement = document.getElementById(
-        "regions-coverage-cards-loading",
-    );
-    const cardsContainer = document.getElementById("regions-coverage-cards");
-    if (!loadingElement || !cardsContainer) {
-        return;
-    }
-
-    const items = Array.isArray(countries)
-        ? countries.filter(
-              (country) => Number(country?.visited_regions || 0) > 0,
-          )
-        : [];
-    const sortedItems = [...items].sort(
-        (a, b) =>
-            Number(b?.visited_regions || 0) - Number(a?.visited_regions || 0),
-    );
-
-    if (sortedItems.length === 0) {
-        loadingElement.classList.remove("hidden");
-        cardsContainer.classList.add("hidden");
-        loadingElement.innerHTML = `
-            <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
-                Пока нет данных по посещённым регионам в странах.
-            </div>
-        `;
-        return;
-    }
-
-    cardsContainer.innerHTML = sortedItems
-        .map((country) => {
-            const visitedRegions = Number(country?.visited_regions || 0);
-            const totalRegions = Number(country?.total_regions || 0);
-            const widthPercent =
+            const visitedRegions = c.visitedRegions || 0;
+            const totalRegions = c.totalRegions || 0;
+            const regionsWidth =
                 totalRegions > 0
                     ? Math.round((visitedRegions / totalRegions) * 100)
                     : 0;
-            const countryName = String(country?.name || "—");
-            return `
-                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
-                    <div class="mb-3 flex items-start justify-between gap-3">
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${countryName}</p>
-                        <p class="whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-neutral-300">
-                            ${formatRuNumber(visitedRegions)} из ${formatRuNumber(totalRegions)}
-                        </p>
-                    </div>
-                    <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
-                        <div class="h-1.5 rounded-full bg-indigo-500" style="width: ${widthPercent}%"></div>
-                    </div>
-                </div>
-            `;
-        })
-        .join("");
+            const finishedRegions = c.finishedRegions || 0;
 
-    loadingElement.classList.add("hidden");
-    cardsContainer.classList.remove("hidden");
-}
+            const totalVisits = c.visits || 0;
+            const visitsRank = c.visitsRank || 0;
+            const visitsUsers = c.visitsTotalUsers || 0;
 
-function renderFinishedRegionsCards(countries) {
-    const loadingElement = document.getElementById(
-        "finished-regions-cards-loading",
-    );
-    const cardsContainer = document.getElementById("finished-regions-cards");
-    if (!loadingElement || !cardsContainer) {
-        return;
-    }
-
-    const items = Array.isArray(countries)
-        ? countries.filter(
-              (country) => Number(country?.finished_regions || 0) > 0,
-          )
-        : [];
-    const sortedItems = [...items].sort(
-        (a, b) =>
-            Number(b?.finished_regions || 0) - Number(a?.finished_regions || 0),
-    );
-
-    if (sortedItems.length === 0) {
-        loadingElement.classList.remove("hidden");
-        cardsContainer.classList.add("hidden");
-        loadingElement.innerHTML = `
-            <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
-                Пока нет полностью закрытых регионов.
-            </div>
-        `;
-        return;
-    }
-
-    cardsContainer.innerHTML = sortedItems
-        .map((country) => {
-            const finishedRegions = Number(country?.finished_regions || 0);
-            const totalRegions = Number(country?.total_regions || 0);
-            const widthPercent =
-                totalRegions > 0
-                    ? Math.round((finishedRegions / totalRegions) * 100)
-                    : 0;
-            const countryName = String(country?.name || "—");
-            return `
-                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
-                    <div class="mb-3 flex items-start justify-between gap-3">
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${countryName}</p>
-                        <p class="whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-neutral-300">
-                            ${formatRuNumber(finishedRegions)} из ${formatRuNumber(totalRegions)}
-                        </p>
-                    </div>
-                    <div class="mt-6 h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
-                        <div class="h-1.5 rounded-full bg-indigo-500" style="width: ${widthPercent}%"></div>
-                    </div>
-                </div>
-            `;
-        })
-        .join("");
-
-    loadingElement.classList.add("hidden");
-    cardsContainer.classList.remove("hidden");
-}
-
-function renderCountriesVisitsCards(countries, isSharedMode = false) {
-    const loadingElement = document.getElementById(
-        "countries-visits-cards-loading",
-    );
-    const cardsContainer = document.getElementById("countries-visits-cards");
-    if (!loadingElement || !cardsContainer) {
-        return;
-    }
-
-    const items = Array.isArray(countries)
-        ? countries.filter((country) => Number(country?.visits || 0) > 0)
-        : [];
-    const sortedItems = [...items].sort(
-        (a, b) => Number(b?.visits || 0) - Number(a?.visits || 0),
-    );
-
-    if (sortedItems.length === 0) {
-        loadingElement.classList.remove("hidden");
-        cardsContainer.classList.add("hidden");
-        loadingElement.innerHTML = `
-            <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
-                Пока нет данных по посещениям городов в странах.
-            </div>
-        `;
-        return;
-    }
-
-    cardsContainer.innerHTML = sortedItems
-        .map((country) => {
-            const visits = Number(country?.visits || 0);
-            const rank = Number(country?.rank || 0);
-            const totalUsersCount = Number(country?.total_users_count || 0);
-            const countryName = String(country?.name || "—");
-            const rankBadgeHtml =
-                Number.isFinite(rank) &&
-                rank > 0 &&
-                Number.isFinite(totalUsersCount) &&
-                totalUsersCount > 0
-                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap" title="${isSharedMode ? "Пользователь занимает" : "Вы занимаете"} ${formatRuNumber(rank)} место из ${formatRuNumber(totalUsersCount)} пользователей сервиса по количеству посещений городов в этой стране">${formatRuNumber(rank)} место</span>`
+            const visitsRankHtml =
+                visitsRank > 0 && visitsUsers > 0
+                    ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap ml-2" title="${isSharedMode ? "Пользователь занимает" : "Вы занимаете"} ${formatRuNumber(visitsRank)} место из ${formatRuNumber(visitsUsers)} пользователей сервиса по общему количеству посещений городов в этой стране">${formatRuNumber(visitsRank)} место</span>`
                     : "";
+
             return `
-                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
-                    <div class="mb-3 flex items-start justify-between gap-3">
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${countryName}</p>
-                        ${rankBadgeHtml}
+            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">${countryName}</h3>
+                </div>
+
+                ${
+                    visitedCities > 0 || totalCities > 0
+                        ? `
+                <div>
+                    <div class="mb-1 flex items-center justify-between text-sm">
+                        <span class="font-medium text-gray-700 dark:text-neutral-300">Города ${citiesRankHtml}</span>
+                        <span class="font-bold text-gray-900 dark:text-white">${formatRuNumber(visitedCities)} из ${formatRuNumber(totalCities)}</span>
                     </div>
-                    <div class="mb-3">
-                        <p class="dashboard-metric-number text-5xl font-extrabold leading-none text-gray-900 dark:text-white">
-                            ${formatRuNumber(visits)}
-                        </p>
+                    <div class="h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
+                        <div class="h-1.5 rounded-full bg-emerald-500" style="width: ${citiesWidth}%"></div>
                     </div>
                 </div>
-            `;
+                `
+                        : ""
+                }
+
+                ${
+                    visitedRegions > 0 || totalRegions > 0
+                        ? `
+                <div>
+                    <div class="mb-1 flex items-center justify-between text-sm">
+                        <span class="font-medium text-gray-700 dark:text-neutral-300">Регионы</span>
+                        <span class="font-bold text-gray-900 dark:text-white">${formatRuNumber(visitedRegions)} из ${formatRuNumber(totalRegions)}</span>
+                    </div>
+                    <div class="h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
+                        <div class="h-1.5 rounded-full bg-indigo-500" style="width: ${regionsWidth}%"></div>
+                    </div>
+                </div>
+                `
+                        : ""
+                }
+
+                ${
+                    finishedRegions > 0
+                        ? `
+                <div class="flex items-center justify-between text-sm">
+                    <span class="font-medium text-gray-700 dark:text-neutral-300">Закрытые регионы</span>
+                    <span class="font-bold text-gray-900 dark:text-white">${formatRuNumber(finishedRegions)} из ${formatRuNumber(totalRegions)}</span>
+                </div>
+                `
+                        : ""
+                }
+
+                ${
+                    totalVisits > 0
+                        ? `
+                <div class="flex items-center justify-between text-sm border-t border-gray-100 dark:border-neutral-800 pt-3 mt-1">
+                    <span class="font-medium text-gray-700 dark:text-neutral-300">Всего визитов ${visitsRankHtml}</span>
+                    <span class="font-bold text-gray-900 dark:text-white">${formatRuNumber(totalVisits)}</span>
+                </div>
+                `
+                        : ""
+                }
+            </div>
+        `;
         })
         .join("");
 
@@ -1273,14 +1196,8 @@ function initVisitedCitiesOverview(requestContext) {
         document.getElementById("personal-visited-cities-by-year-chart"),
         document.getElementById("personal-visited-cities-by-month-loading"),
         document.getElementById("personal-visited-cities-by-month-chart"),
-        document.getElementById("countries-coverage-cards-loading"),
-        document.getElementById("countries-coverage-cards"),
-        document.getElementById("countries-visits-cards-loading"),
-        document.getElementById("countries-visits-cards"),
-        document.getElementById("regions-coverage-cards-loading"),
-        document.getElementById("regions-coverage-cards"),
-        document.getElementById("finished-regions-cards-loading"),
-        document.getElementById("finished-regions-cards"),
+        document.getElementById("unified-country-cards-loading"),
+        document.getElementById("unified-country-cards"),
         document.getElementById("visited-countries-overview-loading"),
         document.getElementById("visited-countries-total-card"),
         document.getElementById("visited-countries-by-part-cards"),
@@ -1388,39 +1305,22 @@ function initVisitedCitiesOverview(requestContext) {
             }
         });
 
-    fetchVisitedCitiesCountriesCoverage(requestContext)
-        .then((data) => {
-            renderCountriesCoverageCards(
-                data.countries_coverage,
+    Promise.all([
+        fetchVisitedCitiesCountriesCoverage(requestContext),
+        fetchVisitedRegionsCountriesCoverage(requestContext),
+        fetchVisitedCitiesCountriesVisits(requestContext),
+    ])
+        .then(([citiesCoverage, regionsCoverage, visits]) => {
+            renderUnifiedCountryCards(
+                citiesCoverage.countries_coverage,
+                regionsCoverage.countries_coverage,
+                visits.countries_visits,
                 requestContext?.isSharedMode,
             );
         })
         .catch((error) => {
-            console.error("Failed to fetch countries coverage data", error);
-            renderCountriesCoverageCards([], requestContext?.isSharedMode);
-        });
-
-    fetchVisitedRegionsCountriesCoverage(requestContext)
-        .then((data) => {
-            renderRegionsCoverageCards(data.countries_coverage);
-            renderFinishedRegionsCards(data.countries_coverage);
-        })
-        .catch((error) => {
-            console.error("Failed to fetch regions coverage data", error);
-            renderRegionsCoverageCards([]);
-            renderFinishedRegionsCards([]);
-        });
-
-    fetchVisitedCitiesCountriesVisits(requestContext)
-        .then((data) => {
-            renderCountriesVisitsCards(
-                data.countries_visits,
-                requestContext?.isSharedMode,
-            );
-        })
-        .catch((error) => {
-            console.error("Failed to fetch countries visits data", error);
-            renderCountriesVisitsCards([], requestContext?.isSharedMode);
+            console.error("Failed to fetch unified country data", error);
+            renderUnifiedCountryCards([], [], [], requestContext?.isSharedMode);
         });
 
     fetchVisitedCountriesOverview(requestContext)

@@ -13,8 +13,9 @@
 
 - `index.js` — экспортирует API ядра и хелперы регистрации компонентов.
 - `auto-init.js` — регистрирует компоненты по умолчанию и запускает `initAll(document)`.
-- `styles/index.css` — агрегатор: combobox, select-search, **badge** (классы `.badge*`, без JS-виджета).
+- `styles/index.css` — агрегатор: combobox, select-search, **badge**, **progress** (классы `.badge*`, `.progress*`, без JS-виджетов).
 - **Бейджи** — чисто CSS: `styles/badge.css`. Отдельного шаблона/JS в библиотеке нет: в разметке используйте классы `badge`, `badge-soft-*` и т.д. (см. демо в проекте).
+- **Прогресс-бары** — чисто CSS: `styles/progress.css`. Отдельного шаблона/JS в библиотеке нет: в разметке используйте классы `progress`, `progress-bar-*`, `progress-circular`, `progress-gauge` и т.д. (см. демо в проекте).
 
 ## Тесты (в каталоге `frontend/`)
 
@@ -227,3 +228,102 @@ node.addEventListener('mg:combobox:select', (event) => {
 window.MGUi.initAll(containerElement);
 window.MGUi.destroyAll(containerElement);
 ```
+
+## Progress bars (прогресс-бары)
+
+Чисто CSS-примитив без JavaScript-логики. Использует только классы Tailwind.
+
+### Базовый прогресс-бар (горизонтальный)
+
+```html
+<!-- Базовый прогресс-бар -->
+<div class="progress progress-md" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+  <div class="progress-bar progress-bar-primary" style="width: 75%">
+    <span class="sr-only">75% завершено</span>
+  </div>
+</div>
+
+<!-- С текстом внутри -->
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+  <div class="progress-bar progress-bar-primary" style="width: 50%">50%</div>
+</div>
+
+<!-- С лейблом справа -->
+<div class="progress-with-label">
+  <div class="progress progress-sm" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+    <div class="progress-bar progress-bar-primary" style="width: 75%">
+      <span class="sr-only">75% завершено</span>
+    </div>
+  </div>
+  <span class="progress-label">75%</span>
+</div>
+```
+
+### Размеры
+
+- `.progress-xs` — h-1.5
+- `.progress-sm` — h-2 (по умолчанию)
+- `.progress-md` — h-4
+- `.progress-lg` — h-6
+
+### Цвета
+
+- `.progress-bar-primary` — основной цвет
+- `.progress-bar-secondary` — вторичный
+- `.progress-bar-success` — зелёный (teal-500)
+- `.progress-bar-danger` — красный
+- `.progress-bar-warning` — жёлтый
+- `.progress-bar-info` — серый (surface-4)
+- `.progress-bar-plain` — нейтральный
+
+### Вертикальный прогресс-бар
+
+```html
+<div class="progress progress-vertical progress-vertical-sm h-32" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+  <div class="progress-bar progress-bar-primary" style="height: 75%">
+    <span class="sr-only">75% завершено</span>
+  </div>
+</div>
+```
+
+### Сегментированный
+
+```html
+<div class="progress-segmented" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+  <div class="progress-segment progress-segment-active"></div>
+  <div class="progress-segment progress-segment-active"></div>
+  <div class="progress-segment progress-segment-inactive"></div>
+  <div class="progress-segment progress-segment-inactive"></div>
+</div>
+```
+
+### Круглый (circular)
+
+```html
+<div class="progress-circular progress-circular-lg" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+  <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="18" cy="18" r="16" fill="none" class="progress-circular-bg" stroke-width="2"></circle>
+    <circle cx="18" cy="18" r="16" fill="none" class="progress-circular-bar" stroke-width="2" stroke-dasharray="100" stroke-dashoffset="25" stroke-linecap="round"></circle>
+  </svg>
+  <div class="progress-circular-text">75%</div>
+</div>
+```
+
+### Gauge (неполный круг)
+
+```html
+<div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+  <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg" stroke-width="1" stroke-dasharray="75 100" stroke-linecap="round"></circle>
+    <circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar" stroke-width="2" stroke-dasharray="56.25 100" stroke-linecap="round"></circle>
+  </svg>
+  <div class="progress-gauge-text">
+    <span class="progress-gauge-value">75</span>
+    <span class="progress-gauge-label">Score</span>
+  </div>
+</div>
+```
+
+Цветовые варианты gauge: `.progress-gauge-purple`, `.progress-gauge-green`, `.progress-gauge-orange`.
+
+Подробнее см. демо-страницу `/ui-demo/progress/`

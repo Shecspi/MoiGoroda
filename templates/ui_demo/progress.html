@@ -1,0 +1,632 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8">
+{% include 'ui_demo/_subnav.html' %}
+
+<h1 class="mb-4 text-3xl font-bold text-gray-900 dark:text-white">Прогресс-бары</h1>
+<div class="mb-8 rounded-lg bg-primary-50 p-4 dark:bg-primary-500/10">
+<p class="mb-2 text-sm text-gray-800 dark:text-neutral-200">
+<strong>Примитив:</strong> только CSS-классы из <code class="text-xs bg-white/50 px-1 py-0.5 rounded dark:bg-neutral-800/50">frontend/ui-lib/styles/progress.css</code>, без JavaScript.
+</p>
+<p class="text-xs text-gray-600 dark:text-neutral-400">
+Все прогресс-бары используют правильные ARIA-атрибуты и поддерживают тёмную тему. Значения прогресса устанавливаются через inline-стили (<code class="text-xs bg-white/50 px-1 py-0.5 rounded dark:bg-neutral-800/50">style="width: X%"</code> или <code class="text-xs bg-white/50 px-1 py-0.5 rounded dark:bg-neutral-800/50">style="height: X%"</code>).
+</p>
+</div>
+
+<section class="mb-10">
+<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Разные размеры</h2>
+<p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Используйте классы <code class="text-xs">progress-xs</code>, <code class="text-xs">progress-sm</code>, <code class="text-xs">progress-md</code>, <code class="text-xs">progress-lg</code> для управления высотой.</p>
+<div class="space-y-3">
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">XS (h-1.5)</p>
+<div class="progress progress-xs" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 25%">
+<span class="sr-only">25% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">SM (h-2, default)</p>
+<div class="progress progress-sm" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">MD (h-4)</p>
+<div class="progress progress-md" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 75%">
+<span class="sr-only">75% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">LG (h-6)</p>
+<div class="progress progress-lg" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 100%">
+<span class="sr-only">100% завершено</span>
+</div>
+</div>
+</div>
+</div>
+<details class="mt-4">
+<summary class="cursor-pointer text-sm font-medium text-primary-800 dark:text-primary-400 hover:underline">Показать код</summary>
+<pre class="mt-2 overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs dark:bg-neutral-800"><code>&lt;!-- XS --&gt;
+&lt;div class="progress progress-xs" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar progress-bar-primary" style="width: 25%"&gt;
+    &lt;span class="sr-only"&gt;25% завершено&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- SM (default) --&gt;
+&lt;div class="progress progress-sm" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar progress-bar-primary" style="width: 50%"&gt;
+    &lt;span class="sr-only"&gt;50% завершено&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- MD --&gt;
+&lt;div class="progress progress-md" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar progress-bar-primary" style="width: 75%"&gt;
+    &lt;span class="sr-only"&gt;75% завершено&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- LG --&gt;
+&lt;div class="progress progress-lg" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar progress-bar-primary" style="width: 100%"&gt;
+    &lt;span class="sr-only"&gt;100% завершено&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</details>
+</section>
+
+<section class="mb-10">
+<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">С процентами внутри</h2>
+<p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Для отображения текста внутри бара просто добавьте его в <code class="text-xs">progress-bar</code>. Рекомендуется <code class="text-xs">progress-md</code> или больше.</p>
+<div class="space-y-3">
+<div class="progress progress-md" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 25%">25%</div>
+</div>
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 50%">50%</div>
+</div>
+<div class="progress progress-md" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 75%">75%</div>
+</div>
+<div class="progress progress-md" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 100%">100%</div>
+</div>
+</div>
+<details class="mt-4">
+<summary class="cursor-pointer text-sm font-medium text-primary-800 dark:text-primary-400 hover:underline">Показать код</summary>
+<pre class="mt-2 overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs dark:bg-neutral-800"><code>&lt;div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar progress-bar-primary" style="width: 50%"&gt;50%&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</details>
+</section>
+
+<section class="mb-10">
+<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Ярлык в конце</h2>
+<p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Используйте <code class="text-xs">progress-with-label</code> для обёртывания и <code class="text-xs">progress-label</code> для текста справа. Можно использовать иконки с <code class="text-xs">progress-label-icon</code>.</p>
+<div class="space-y-3">
+<div class="progress-with-label">
+<div class="progress progress-md" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 25%">
+<span class="sr-only">25% завершено</span>
+</div>
+</div>
+<span class="progress-label">25%</span>
+</div>
+<div class="progress-with-label">
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+<span class="progress-label">50%</span>
+</div>
+<div class="progress-with-label">
+<div class="progress progress-md" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 75%">
+<span class="sr-only">75% завершено</span>
+</div>
+</div>
+<span class="progress-label">75%</span>
+</div>
+<div class="progress-with-label">
+<div class="progress progress-md" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 100%">
+<span class="sr-only">100% завершено</span>
+</div>
+</div>
+<span class="progress-label">100%</span>
+</div>
+<div class="progress-with-label">
+<div class="progress progress-md" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 80%">
+<span class="sr-only">80% завершено</span>
+</div>
+</div>
+<span class="progress-label-icon progress-label-icon-danger" aria-label="Ошибка">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+</span>
+</div>
+<div class="progress-with-label">
+<div class="progress progress-md" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 100%">
+<span class="sr-only">100% завершено</span>
+</div>
+</div>
+<span class="progress-label-icon progress-label-icon-success" aria-label="Успешно">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+</span>
+</div>
+</div>
+<details class="mt-4">
+<summary class="cursor-pointer text-sm font-medium text-primary-800 dark:text-primary-400 hover:underline">Показать код</summary>
+<pre class="mt-2 overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs dark:bg-neutral-800"><code>&lt;!-- С текстовым лейблом --&gt;
+&lt;div class="progress-with-label"&gt;
+  &lt;div class="progress progress-sm" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;
+    &lt;div class="progress-bar progress-bar-primary" style="width: 75%"&gt;
+      &lt;span class="sr-only"&gt;75% завершено&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;span class="progress-label"&gt;75%&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- С иконкой success --&gt;
+&lt;div class="progress-with-label"&gt;
+  &lt;div class="progress progress-md" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"&gt;
+    &lt;div class="progress-bar progress-bar-primary" style="width: 100%"&gt;
+      &lt;span class="sr-only"&gt;100% завершено&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;span class="progress-label-icon progress-label-icon-success" aria-label="Успешно"&gt;
+    &lt;svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- С иконкой danger --&gt;
+&lt;div class="progress-with-label"&gt;
+  &lt;div class="progress progress-md" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"&gt;
+    &lt;div class="progress-bar progress-bar-primary" style="width: 80%"&gt;
+      &lt;span class="sr-only"&gt;80% завершено&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;span class="progress-label-icon progress-label-icon-danger" aria-label="Ошибка"&gt;
+    &lt;svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"&gt;&lt;path d="M18 6 6 18"/&gt;&lt;path d="m6 6 12 12"/&gt;&lt;/svg&gt;
+  &lt;/span&gt;
+&lt;/div&gt;</code></pre>
+</details>
+</section>
+
+<section class="mb-10">
+<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Плавающий лейбл</h2>
+<p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Лейбл располагается над баром и позиционируется с помощью <code class="text-xs">ms-[calc(X%-20px)]</code>, где X - процент прогресса.</p>
+<div class="space-y-3">
+<div>
+<span class="progress-floating-label ms-[calc(25%-20px)]">25%</span>
+<div class="progress progress-md" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 25%">
+<span class="sr-only">25% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<span class="progress-floating-label ms-[calc(50%-20px)]">50%</span>
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<span class="progress-floating-label ms-[calc(75%-20px)]">75%</span>
+<div class="progress progress-md" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 75%">
+<span class="sr-only">75% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<span class="progress-floating-label ms-[calc(100%-20px)]">100%</span>
+<div class="progress progress-md" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="width: 100%">
+<span class="sr-only">100% завершено</span>
+</div>
+</div>
+</div>
+</div>
+<details class="mt-4">
+<summary class="cursor-pointer text-sm font-medium text-primary-800 dark:text-primary-400 hover:underline">Показать код</summary>
+<pre class="mt-2 overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs dark:bg-neutral-800"><code>&lt;div&gt;
+  &lt;span class="progress-floating-label ms-[calc(75%-20px)]"&gt;75%&lt;/span&gt;
+  &lt;div class="progress progress-md" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;
+    &lt;div class="progress-bar progress-bar-primary" style="width: 75%"&gt;
+      &lt;span class="sr-only"&gt;75% завершено&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</details>
+</section>
+
+<section class="mb-10">
+<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Цветовые варианты</h2>
+<p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Доступные цвета: <code class="text-xs">progress-bar-primary</code>, <code class="text-xs">-secondary</code>, <code class="text-xs">-success</code>, <code class="text-xs">-danger</code>, <code class="text-xs">-warning</code>, <code class="text-xs">-info</code>, <code class="text-xs">-plain</code>.</p>
+<div class="space-y-3">
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">Secondary</p>
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-secondary" style="width: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">Info</p>
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-info" style="width: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">Success</p>
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-success" style="width: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">Danger</p>
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-danger" style="width: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">Warning</p>
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-warning" style="width: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-1 text-sm text-gray-600 dark:text-neutral-400">Plain</p>
+<div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-plain" style="width: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+</div>
+</div>
+<details class="mt-4">
+<summary class="cursor-pointer text-sm font-medium text-primary-800 dark:text-primary-400 hover:underline">Показать код</summary>
+<pre class="mt-2 overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs dark:bg-neutral-800"><code>&lt;!-- Success --&gt;
+&lt;div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar progress-bar-success" style="width: 50%"&gt;
+    &lt;span class="sr-only"&gt;50% завершено&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Danger --&gt;
+&lt;div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar progress-bar-danger" style="width: 50%"&gt;
+    &lt;span class="sr-only"&gt;50% завершено&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Warning --&gt;
+&lt;div class="progress progress-md" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar progress-bar-warning" style="width: 50%"&gt;
+    &lt;span class="sr-only"&gt;50% завершено&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</details>
+</section>
+
+<section class="mb-10">
+<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Вертикальные</h2>
+<p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Используйте <code class="text-xs">progress-vertical</code> и указывайте высоту через <code class="text-xs">h-*</code>. Значение прогресса устанавливается через <code class="text-xs">style="height: X%"</code>.</p>
+<div class="flex gap-x-3">
+<div class="progress progress-vertical progress-vertical-sm h-32" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="height: 25%">
+<span class="sr-only">25% завершено</span>
+</div>
+</div>
+<div class="progress progress-vertical progress-vertical-sm h-32" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="height: 50%">
+<span class="sr-only">50% завершено</span>
+</div>
+</div>
+<div class="progress progress-vertical progress-vertical-sm h-32" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="height: 75%">
+<span class="sr-only">75% завершено</span>
+</div>
+</div>
+<div class="progress progress-vertical progress-vertical-sm h-32" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="height: 90%">
+<span class="sr-only">90% завершено</span>
+</div>
+</div>
+<div class="progress progress-vertical progress-vertical-sm h-32" role="progressbar" aria-valuenow="17" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-bar progress-bar-primary" style="height: 17%">
+<span class="sr-only">17% завершено</span>
+</div>
+</div>
+</div>
+<details class="mt-4">
+<summary class="cursor-pointer text-sm font-medium text-primary-800 dark:text-primary-400 hover:underline">Показать код</summary>
+<pre class="mt-2 overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs dark:bg-neutral-800"><code>&lt;div class="flex gap-x-3"&gt;
+  &lt;div class="progress progress-vertical progress-vertical-sm h-32" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;
+    &lt;div class="progress-bar progress-bar-primary" style="height: 75%"&gt;
+      &lt;span class="sr-only"&gt;75% завершено&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;!-- Другие вертикальные бары... --&gt;
+&lt;/div&gt;</code></pre>
+</details>
+</section>
+
+<section class="mb-10">
+<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Сегментированные (по шагам)</h2>
+<p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Используйте <code class="text-xs">progress-segmented</code> для контейнера и <code class="text-xs">progress-segment</code> с <code class="text-xs">-active</code> или <code class="text-xs">-inactive</code> для каждого сегмента.</p>
+<div class="space-y-4">
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">4 сегмента, 50% (2 активных)</p>
+<div class="progress progress-segmented" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-segment progress-segment-active"></div>
+<div class="progress-segment progress-segment-active"></div>
+<div class="progress-segment progress-segment-inactive"></div>
+<div class="progress-segment progress-segment-inactive"></div>
+</div>
+</div>
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">4 сегмента, 25% (1 активный) - danger</p>
+<div class="progress progress-segmented" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-segment progress-segment-danger"></div>
+<div class="progress-segment progress-segment-danger-inactive"></div>
+<div class="progress-segment progress-segment-danger-inactive"></div>
+<div class="progress-segment progress-segment-danger-inactive"></div>
+</div>
+</div>
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">4 сегмента, 100% - success</p>
+<div class="progress progress-segmented" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+</div>
+</div>
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">10 сегментов, 100% с иконкой</p>
+<div class="progress-with-label">
+<div class="progress progress-segmented" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+<div class="progress-segment progress-segment-success"></div>
+</div>
+<span class="progress-label-icon progress-label-icon-success" aria-label="Успешно">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+</span>
+</div>
+</div>
+</div>
+<details class="mt-4">
+<summary class="cursor-pointer text-sm font-medium text-primary-800 dark:text-primary-400 hover:underline">Показать код</summary>
+<pre class="mt-2 overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs dark:bg-neutral-800"><code>&lt;!-- 4 сегмента, 50% (2 активных) --&gt;
+&lt;div class="progress-segmented" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-segment progress-segment-active"&gt;&lt;/div&gt;
+  &lt;div class="progress-segment progress-segment-active"&gt;&lt;/div&gt;
+  &lt;div class="progress-segment progress-segment-inactive"&gt;&lt;/div&gt;
+  &lt;div class="progress-segment progress-segment-inactive"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- С лейблом и иконкой --&gt;
+&lt;div class="progress-with-label"&gt;
+  &lt;div class="progress progress-segmented" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"&gt;
+    &lt;div class="progress-segment progress-segment-success"&gt;&lt;/div&gt;
+    &lt;div class="progress-segment progress-segment-success"&gt;&lt;/div&gt;
+    &lt;div class="progress-segment progress-segment-success"&gt;&lt;/div&gt;
+    &lt;div class="progress-segment progress-segment-success"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;span class="progress-label-icon progress-label-icon-success" aria-label="Успешно"&gt;
+    &lt;svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Danger вариант --&gt;
+&lt;div class="progress-segmented" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-segment progress-segment-danger"&gt;&lt;/div&gt;
+  &lt;div class="progress-segment progress-segment-danger-inactive"&gt;&lt;/div&gt;
+  &lt;div class="progress-segment progress-segment-danger-inactive"&gt;&lt;/div&gt;
+  &lt;div class="progress-segment progress-segment-danger-inactive"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</details>
+</section>
+
+<section class="mb-10">
+<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Круглые (circular)</h2>
+<p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Используйте SVG с <code class="text-xs">progress-circular</code>. Значение устанавливается через <code class="text-xs">stroke-dashoffset</code>: для 75% используйте offset=25 (100-75).</p>
+<div class="flex flex-wrap gap-8">
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">75% без текста</p>
+<div class="progress-circular progress-circular-lg" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+<circle cx="18" cy="18" r="16" fill="none" class="progress-circular-bg" stroke-width="2"></circle>
+<circle cx="18" cy="18" r="16" fill="none" class="progress-circular-bar" stroke-width="2" stroke-dasharray="100" stroke-dashoffset="25" stroke-linecap="round"></circle>
+</svg>
+<span class="sr-only">75% завершено</span>
+</div>
+</div>
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">35% с текстом</p>
+<div class="progress-circular progress-circular-lg" role="progressbar" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100">
+<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+<circle cx="18" cy="18" r="16" fill="none" class="progress-circular-bg" stroke-width="2"></circle>
+<circle cx="18" cy="18" r="16" fill="none" class="progress-circular-bar" stroke-width="2" stroke-dasharray="100" stroke-dashoffset="65" stroke-linecap="round"></circle>
+</svg>
+<div class="progress-circular-text">35%</div>
+</div>
+</div>
+</div>
+<details class="mt-4">
+<summary class="cursor-pointer text-sm font-medium text-primary-800 dark:text-primary-400 hover:underline">Показать код</summary>
+<pre class="mt-2 overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs dark:bg-neutral-800"><code>&lt;!-- 75% с текстом в центре --&gt;
+&lt;div class="progress-circular progress-circular-lg" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"&gt;
+    &lt;circle cx="18" cy="18" r="16" fill="none" class="progress-circular-bg" stroke-width="2"&gt;&lt;/circle&gt;
+    &lt;circle cx="18" cy="18" r="16" fill="none" class="progress-circular-bar" stroke-width="2"
+            stroke-dasharray="100" stroke-dashoffset="25" stroke-linecap="round"&gt;&lt;/circle&gt;
+  &lt;/svg&gt;
+  &lt;div class="progress-circular-text"&gt;75%&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Расчёт stroke-dashoffset:
+     Для 75%: offset = 100 - 75 = 25
+     Для 50%: offset = 100 - 50 = 50
+     Для 35%: offset = 100 - 35 = 65 --&gt;</code></pre>
+</details>
+</section>
+
+<section class="mb-10">
+<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Gauge (неполный круг)</h2>
+<p class="mb-3 text-sm text-gray-600 dark:text-neutral-400">Используйте <code class="text-xs">progress-gauge</code> с <code class="text-xs">progress-gauge-rotate-135</code> или <code class="text-xs">-rotate-180</code>. Для цветовых вариантов добавьте <code class="text-xs">progress-gauge-purple/green/orange</code>.</p>
+<div class="flex flex-wrap gap-8">
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">50 Score</p>
+<div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg" stroke-width="1.5" stroke-dasharray="75 100" stroke-linecap="round"></circle>
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar" stroke-width="1.5" stroke-dasharray="37.5 100" stroke-linecap="round"></circle>
+</svg>
+<div class="progress-gauge-text">
+<span class="progress-gauge-value">50</span>
+<span class="progress-gauge-label">Score</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">75 Score</p>
+<div class="progress-gauge progress-gauge-lg progress-gauge-rotate-180" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg" stroke-width="1" stroke-dasharray="50 100" stroke-linecap="round"></circle>
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar" stroke-width="1.5" stroke-dasharray="37.5 100" stroke-linecap="round"></circle>
+</svg>
+<div class="progress-gauge-text-top">
+<span class="progress-gauge-value-md">75</span>
+<span class="progress-gauge-label-md">Score</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">Purple 25mph</p>
+<div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135 progress-gauge-purple" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg" stroke-width="1" stroke-dasharray="75 100"></circle>
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar" stroke-width="2" stroke-dasharray="18.75 100"></circle>
+</svg>
+<div class="progress-gauge-text">
+<span class="progress-gauge-value">25</span>
+<span class="progress-gauge-label">mph</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">Green 75 Score</p>
+<div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135 progress-gauge-green" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg" stroke-width="1" stroke-dasharray="75 100" stroke-linecap="round"></circle>
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar" stroke-width="2" stroke-dasharray="56.25 100" stroke-linecap="round"></circle>
+</svg>
+<div class="progress-gauge-text">
+<span class="progress-gauge-value">75</span>
+<span class="progress-gauge-label">Score</span>
+</div>
+</div>
+</div>
+<div>
+<p class="mb-2 text-sm text-gray-600 dark:text-neutral-400">Orange 50 Average</p>
+<div class="progress-gauge progress-gauge-lg progress-gauge-rotate-180 progress-gauge-orange" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg" stroke-width="3" stroke-dasharray="50 100" stroke-linecap="round"></circle>
+<circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar" stroke-width="1" stroke-dasharray="25 100" stroke-linecap="round"></circle>
+</svg>
+<div class="progress-gauge-text-top">
+<span class="progress-gauge-value-sm">50</span>
+<span class="progress-gauge-label-sm">Average</span>
+</div>
+</div>
+</div>
+</div>
+<details class="mt-4">
+<summary class="cursor-pointer text-sm font-medium text-primary-800 dark:text-primary-400 hover:underline">Показать код</summary>
+<pre class="mt-2 overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs dark:bg-neutral-800"><code>&lt;!-- Gauge 135° (50 Score) --&gt;
+&lt;div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"&gt;
+    &lt;circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg"
+            stroke-width="1.5" stroke-dasharray="75 100" stroke-linecap="round"&gt;&lt;/circle&gt;
+    &lt;circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar"
+            stroke-width="1.5" stroke-dasharray="37.5 100" stroke-linecap="round"&gt;&lt;/circle&gt;
+  &lt;/svg&gt;
+  &lt;div class="progress-gauge-text"&gt;
+    &lt;span class="progress-gauge-value"&gt;50&lt;/span&gt;
+    &lt;span class="progress-gauge-label"&gt;Score&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Gauge 180° (75 Score) --&gt;
+&lt;div class="progress-gauge progress-gauge-lg progress-gauge-rotate-180" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"&gt;
+    &lt;circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg"
+            stroke-width="1" stroke-dasharray="50 100" stroke-linecap="round"&gt;&lt;/circle&gt;
+    &lt;circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar"
+            stroke-width="1.5" stroke-dasharray="37.5 100" stroke-linecap="round"&gt;&lt;/circle&gt;
+  &lt;/svg&gt;
+  &lt;div class="progress-gauge-text-top"&gt;
+    &lt;span class="progress-gauge-value-md"&gt;75&lt;/span&gt;
+    &lt;span class="progress-gauge-label-md"&gt;Score&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Цветной вариант (purple) --&gt;
+&lt;div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135 progress-gauge-purple"&gt;
+  &lt;!-- ... SVG ... --&gt;
+&lt;/div&gt;
+
+&lt;!-- Расчёт stroke-dasharray для Gauge:
+     135° (75% от круга): dasharray="75 100"
+     180° (50% от круга): dasharray="50 100"
+
+     Расчёт stroke-dashoffset для прогресса:
+     50% из 75: dasharray="37.5 100" (75 * 0.5)
+     75% из 75: dasharray="56.25 100" (75 * 0.75) --&gt;</code></pre>
+</details>
+</section>
+
+<div class="mt-12 rounded-lg border border-gray-200 bg-gray-50 p-6 dark:border-neutral-700 dark:bg-neutral-800">
+<h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">📚 Полная документация</h3>
+<p class="mb-4 text-sm text-gray-600 dark:text-neutral-400">Подробная документация по всем классам и параметрам доступна в <code class="text-xs bg-white px-1.5 py-0.5 rounded dark:bg-neutral-900">frontend/ui-lib/README.md</code> (раздел "Progress bars").</p>
+<div class="mt-4 rounded bg-primary-50 p-3 dark:bg-primary-500/10">
+<p class="text-xs text-gray-700 dark:text-neutral-300">
+<strong>🔑 Важно:</strong> Все прогресс-бары работают без JavaScript. Значения можно динамически обновлять через изменение inline-стилей или ARIA-атрибутов.
+</p>
+</div>
+</div>
+
+</div>
+{% endblock %}

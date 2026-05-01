@@ -1,5 +1,6 @@
 @import "preline/variants.css";
 @import "./preline-datepicker-vc.css" layer(components);
+@import "../ui-lib/styles/index.css";
 
 @tailwind base;
 @tailwind components;

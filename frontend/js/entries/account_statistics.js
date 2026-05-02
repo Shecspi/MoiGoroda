@@ -230,6 +230,9 @@ function renderUnifiedCountryCards(
                     ? `<span class="badge badge-soft-outline-secondary badge-pill badge-compact whitespace-nowrap ml-2" title="${isSharedMode ? "Пользователь занимает" : "Вы занимаете"} ${formatRuNumber(visitsRank)} место из ${formatRuNumber(visitsUsers)} пользователей сервиса по общему количеству посещений городов в этой стране">${formatRuNumber(visitsRank)} место</span>`
                     : "";
 
+            const hasCities = visitedCities > 0 || totalCities > 0;
+            const hasRegions = visitedRegions > 0 || totalRegions > 0;
+
             return `
             <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 flex flex-col gap-4">
                 <div class="flex items-center justify-between">
@@ -237,32 +240,56 @@ function renderUnifiedCountryCards(
                 </div>
 
                 ${
-                    visitedCities > 0 || totalCities > 0
+                    hasCities || hasRegions
                         ? `
-                <div>
-                    <div class="mb-1 flex items-center justify-between text-sm">
-                        <span class="font-medium text-gray-700 dark:text-neutral-300">Города ${citiesRankHtml}</span>
-                        <span class="font-bold text-gray-900 dark:text-white">${formatRuNumber(visitedCities)} из ${formatRuNumber(totalCities)}</span>
+                <div class="flex flex-wrap justify-center gap-4">
+                    ${
+                        hasCities
+                            ? `
+                    <div class="flex flex-1 flex-col items-center min-w-[160px]">
+                        <div class="mb-2 text-center text-sm font-medium text-gray-700 dark:text-neutral-300">
+                            Города
+                        </div>
+                        <div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135 progress-gauge-green" role="progressbar" aria-valuenow="${citiesWidth}" aria-valuemin="0" aria-valuemax="100">
+                            <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg" stroke-width="1" stroke-dasharray="75 100" stroke-linecap="round"></circle>
+                                <circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar" stroke-width="2" stroke-dasharray="${citiesWidth * 0.75} 100" stroke-linecap="round"></circle>
+                            </svg>
+                            <div class="progress-gauge-text">
+                                <span class="progress-gauge-value">${formatRuNumber(visitedCities)}</span>
+                                <span class="progress-gauge-label text-xs">из ${formatRuNumber(totalCities)}</span>
+                            </div>
+                        </div>
+                        ${
+                            citiesRankHtml
+                                ? `<div class="mt-2 text-center">${citiesRankHtml}</div>`
+                                : ""
+                        }
                     </div>
-                    <div class="h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
-                        <div class="h-1.5 rounded-full bg-emerald-500" style="width: ${citiesWidth}%"></div>
+                    `
+                            : ""
+                    }
+                    ${
+                        hasRegions
+                            ? `
+                    <div class="flex flex-1 flex-col items-center min-w-[160px]">
+                        <div class="mb-2 text-center text-sm font-medium text-gray-700 dark:text-neutral-300">
+                            Регионы
+                        </div>
+                        <div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135 progress-gauge-purple" role="progressbar" aria-valuenow="${regionsWidth}" aria-valuemin="0" aria-valuemax="100">
+                            <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg" stroke-width="1" stroke-dasharray="75 100" stroke-linecap="round"></circle>
+                                <circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar" stroke-width="2" stroke-dasharray="${regionsWidth * 0.75} 100" stroke-linecap="round"></circle>
+                            </svg>
+                            <div class="progress-gauge-text">
+                                <span class="progress-gauge-value">${formatRuNumber(visitedRegions)}</span>
+                                <span class="progress-gauge-label text-xs">из ${formatRuNumber(totalRegions)}</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                `
-                        : ""
-                }
-
-                ${
-                    visitedRegions > 0 || totalRegions > 0
-                        ? `
-                <div>
-                    <div class="mb-1 flex items-center justify-between text-sm">
-                        <span class="font-medium text-gray-700 dark:text-neutral-300">Регионы</span>
-                        <span class="font-bold text-gray-900 dark:text-white">${formatRuNumber(visitedRegions)} из ${formatRuNumber(totalRegions)}</span>
-                    </div>
-                    <div class="h-1.5 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
-                        <div class="h-1.5 rounded-full bg-indigo-500" style="width: ${regionsWidth}%"></div>
-                    </div>
+                    `
+                            : ""
+                    }
                 </div>
                 `
                         : ""

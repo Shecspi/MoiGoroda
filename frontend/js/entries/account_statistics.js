@@ -250,7 +250,7 @@ function renderUnifiedCountryCards(
                         <div class="mb-2 text-center text-sm font-medium text-gray-700 dark:text-neutral-300">
                             Города
                         </div>
-                        <div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135 progress-gauge-green" role="progressbar" aria-valuenow="${citiesWidth}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-gauge progress-gauge-lg progress-gauge-rotate-135 progress-gauge-primary" role="progressbar" aria-valuenow="${citiesWidth}" aria-valuemin="0" aria-valuemax="100">
                             <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bg" stroke-width="1" stroke-dasharray="75 100" stroke-linecap="round"></circle>
                                 <circle cx="18" cy="18" r="16" fill="none" class="progress-gauge-bar" stroke-width="2" stroke-dasharray="${citiesWidth * 0.75} 100" stroke-linecap="round"></circle>

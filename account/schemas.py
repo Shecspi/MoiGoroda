@@ -44,6 +44,12 @@ class PersonalVisitedCitiesOverviewResponse(msgspec.Struct):
     new_visited_cities_by_year: list[DailyStatistics]
     unique_visited_cities_by_year: list[DailyStatistics]
     total_visited_cities_visits_by_year: list[DailyStatistics]
+    total_region_visits: Quantity
+    unique_visited_regions: Quantity
+    new_visited_regions: Quantity
+    total_region_visits_by_year: list[DailyStatistics]
+    unique_visited_regions_by_year: list[DailyStatistics]
+    new_visited_regions_by_year: list[DailyStatistics]
     new_visited_cities_by_month: list[DailyStatistics]
     unique_visited_cities_by_month: list[DailyStatistics]
     total_visited_cities_visits_by_month: list[DailyStatistics]

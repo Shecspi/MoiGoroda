@@ -37,6 +37,20 @@ function buildStatsUrl(baseUrl, requestContext) {
     return `${baseUrl}${separator}shared_user_id=${requestContext.sharedUserId}`;
 }
 
+/** Overview: общий URL + фильтр страны для блока «регионы по годам» (как в treemap). */
+function buildVisitedCitiesOverviewUrl(requestContext, regionsCountryCode) {
+    let url = buildStatsUrl(
+        ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview,
+        requestContext,
+    );
+    const code = regionsCountryCode != null ? String(regionsCountryCode).trim() : "";
+    if (code !== "") {
+        const sep = url.includes("?") ? "&" : "?";
+        url = `${url}${sep}regions_country_code=${encodeURIComponent(code)}`;
+    }
+    return url;
+}
+
 const treemapState = {
     selectedCountryCode: "RU",
     requestId: 0,
@@ -153,6 +167,49 @@ function countForCalendarYearFromSeries(series, year) {
         (item) => item != null && String(item.label) === label,
     );
     return Number(row?.count ?? 0);
+}
+
+/** Для sparkline по годам: все календарные годы от минимального в данных до текущего включительно, пропуски — 0. */
+function normalizeYearlySeriesThroughCurrentYear(chartData) {
+    const currentYear = new Date().getFullYear();
+    const map = new Map();
+    if (Array.isArray(chartData)) {
+        for (const item of chartData) {
+            if (item == null) {
+                continue;
+            }
+            const y = parseInt(String(item.label), 10);
+            if (Number.isFinite(y)) {
+                map.set(y, Number(item.count ?? 0));
+            }
+        }
+    }
+    if (map.size === 0) {
+        return [
+            { label: String(currentYear - 1), count: 0 },
+            { label: String(currentYear), count: 0 },
+        ];
+    }
+    const years = [...map.keys()];
+    const minYear = Math.min(...years);
+    const endYear = Math.max(currentYear, ...years);
+    const result = [];
+    for (let y = minYear; y <= endYear; y += 1) {
+        result.push({
+            label: String(y),
+            count: map.has(y) ? map.get(y) : 0,
+        });
+    }
+    return result;
+}
+
+function renderRegionTrendChart(containerId, chartData, seriesName, color) {
+    renderTrendChart(
+        containerId,
+        normalizeYearlySeriesThroughCurrentYear(chartData),
+        seriesName,
+        color,
+    );
 }
 
 /** Как на дашборде: процент изменения к прошлому периоду, округление до сотых. */
@@ -895,13 +952,73 @@ function renderVisitedCitiesByMonthChart(
     });
 }
 
-async function fetchVisitedCitiesOverview(requestContext) {
-    return await apiGet(
-        buildStatsUrl(
-            ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview,
-            requestContext,
-        ),
+async function fetchVisitedCitiesOverview(requestContext, regionsCountryCode) {
+    const url =
+        regionsCountryCode !== undefined && regionsCountryCode !== null
+            ? buildVisitedCitiesOverviewUrl(requestContext, regionsCountryCode)
+            : buildStatsUrl(
+                  ACCOUNT_STATS_ROUTES.getVisitedCitiesOverview,
+                  requestContext,
+              );
+    return await apiGet(url);
+}
+
+function applyVisitedRegionsOverviewData(data) {
+    if (!data) {
+        return;
+    }
+    updateNumberOnCard(
+        "number-personal_regions_total_visits",
+        data.total_region_visits?.count,
     );
+    updateNumberOnCard(
+        "number-personal_regions_unique",
+        data.unique_visited_regions?.count,
+    );
+    updateNumberOnCard(
+        "number-personal_regions_new",
+        data.new_visited_regions?.count,
+    );
+    applyPersonalYearRowsFromSeries(
+        "personal-regions-total-ytd",
+        data.total_region_visits_by_year,
+    );
+    applyPersonalYearRowsFromSeries(
+        "personal-regions-unique-ytd",
+        data.unique_visited_regions_by_year,
+    );
+    applyPersonalYearRowsFromSeries(
+        "personal-regions-new-ytd",
+        data.new_visited_regions_by_year,
+    );
+    renderRegionTrendChart(
+        "personal-regions-total-trend-chart",
+        data.total_region_visits_by_year,
+        "Посещения",
+        "#7c3aed",
+    );
+    renderRegionTrendChart(
+        "personal-regions-unique-trend-chart",
+        data.unique_visited_regions_by_year,
+        "Регионы",
+        "#10b981",
+    );
+    renderRegionTrendChart(
+        "personal-regions-new-trend-chart",
+        data.new_visited_regions_by_year,
+        "Новые регионы",
+        "#0ea5e9",
+    );
+}
+
+async function refreshVisitedRegionsYearRows(requestContext, countryCode) {
+    const code =
+        countryCode != null && String(countryCode).trim() !== ""
+            ? String(countryCode).trim()
+            : treemapState.selectedCountryCode;
+    const url = buildVisitedCitiesOverviewUrl(requestContext, code);
+    const data = await apiGet(url);
+    applyVisitedRegionsOverviewData(data);
 }
 
 function renderVisitedCountriesOverviewCards(data, isSharedMode = false) {
@@ -1305,18 +1422,44 @@ function initRegionsVisitedCitiesTreemap(requestContext) {
         .then((data) => {
             const items = normalizeCountryOptions(data);
             populateRegionsCountrySelect(items);
+            const selectedCode =
+                countrySelect.value || treemapState.selectedCountryCode;
             countrySelect.onchange = (event) => {
                 const nextCountryCode = event.target.value || "RU";
                 loadTreemap(nextCountryCode);
+                void refreshVisitedRegionsYearRows(
+                    requestContext,
+                    nextCountryCode,
+                ).catch((err) => {
+                    console.error(
+                        "Failed to refresh visited regions year stats",
+                        err,
+                    );
+                });
             };
-            loadTreemap(
-                countrySelect.value || treemapState.selectedCountryCode,
+            loadTreemap(selectedCode);
+            void refreshVisitedRegionsYearRows(requestContext, selectedCode).catch(
+                (err) => {
+                    console.error(
+                        "Failed to refresh visited regions year stats",
+                        err,
+                    );
+                },
             );
         })
         .catch((error) => {
             console.error("Failed to fetch regions countries", error);
             countrySelect.disabled = true;
             loadTreemap(treemapState.selectedCountryCode);
+            void refreshVisitedRegionsYearRows(
+                requestContext,
+                treemapState.selectedCountryCode,
+            ).catch((err) => {
+                console.error(
+                    "Failed to refresh visited regions year stats",
+                    err,
+                );
+            });
         });
 }
 
@@ -1335,6 +1478,18 @@ function initVisitedCitiesOverview(requestContext) {
         document.getElementById("personal-visits-ytd-current"),
         document.getElementById("personal-new-ytd-previous"),
         document.getElementById("personal-new-ytd-current"),
+        document.getElementById("number-personal_regions_total_visits"),
+        document.getElementById("number-personal_regions_unique"),
+        document.getElementById("number-personal_regions_new"),
+        document.getElementById("personal-regions-total-ytd-previous"),
+        document.getElementById("personal-regions-total-ytd-current"),
+        document.getElementById("personal-regions-unique-ytd-previous"),
+        document.getElementById("personal-regions-unique-ytd-current"),
+        document.getElementById("personal-regions-new-ytd-previous"),
+        document.getElementById("personal-regions-new-ytd-current"),
+        document.getElementById("personal-regions-total-trend-chart"),
+        document.getElementById("personal-regions-unique-trend-chart"),
+        document.getElementById("personal-regions-new-trend-chart"),
         document.getElementById("personal-unique-visited-cities-trend-chart"),
         document.getElementById("personal-total-visited-cities-trend-chart"),
         document.getElementById("personal-new-visited-cities-trend-chart"),
@@ -1353,7 +1508,7 @@ function initVisitedCitiesOverview(requestContext) {
         return;
     }
 
-    fetchVisitedCitiesOverview(requestContext)
+    fetchVisitedCitiesOverview(requestContext, treemapState.selectedCountryCode)
         .then((data) => {
             updateNumberOnCard(
                 "number-personal_unique_visited_cities",
@@ -1424,6 +1579,7 @@ function initVisitedCitiesOverview(requestContext) {
                 data.total_visited_cities_visits_by_month,
                 data.new_visited_cities_by_month,
             );
+            applyVisitedRegionsOverviewData(data);
         })
         .catch((error) => {
             console.error(
@@ -1440,6 +1596,18 @@ function initVisitedCitiesOverview(requestContext) {
                 "personal-visits-ytd-current",
                 "personal-new-ytd-previous",
                 "personal-new-ytd-current",
+                "number-personal_regions_total_visits",
+                "number-personal_regions_unique",
+                "number-personal_regions_new",
+                "personal-regions-total-ytd-previous",
+                "personal-regions-total-ytd-current",
+                "personal-regions-unique-ytd-previous",
+                "personal-regions-unique-ytd-current",
+                "personal-regions-new-ytd-previous",
+                "personal-regions-new-ytd-current",
+                "personal-regions-total-trend-chart",
+                "personal-regions-unique-trend-chart",
+                "personal-regions-new-trend-chart",
                 "personal-new-visited-cities-trend-chart",
             ];
             for (const elementId of fallbackElements) {

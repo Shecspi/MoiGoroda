@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import calendar
 import datetime
+from collections import defaultdict
 from typing import Protocol, cast
 
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, F, Q
+from django.db.models import Count, F, Min, Q
 from django.db.models.functions import TruncMonth, TruncYear
 from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
@@ -195,6 +196,54 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
             DailyStatistics(label=str(item['year'].year), count=item['qty'])
             for item in new_by_year_queryset
         ]
+        regions_scope_qs = visited_cities_queryset.filter(city__region_id__isnull=False)
+        regions_country_raw = self.request.GET.get('regions_country_code')
+
+        if regions_country_raw is not None:
+            country_code = normalize_treemap_country_code(regions_country_raw)
+            regions_scope_qs = regions_scope_qs.filter(city__country__code=country_code)
+
+        total_region_visits_count = int(regions_scope_qs.count())
+        unique_regions_distinct_qs = regions_scope_qs.values('city__region_id').distinct()
+        unique_regions_total_count = int(unique_regions_distinct_qs.count())
+        new_regions_total_count = unique_regions_total_count
+
+        total_region_visits_by_year_queryset = (
+            regions_scope_qs.annotate(year=TruncYear('date_of_visit'))
+            .exclude(year=None)
+            .values('year')
+            .annotate(qty=Count('id'))
+            .order_by('year')
+        )
+        total_region_visits_by_year = [
+            DailyStatistics(label=str(item['year'].year), count=item['qty'])
+            for item in total_region_visits_by_year_queryset
+        ]
+
+        unique_regions_by_year_queryset = (
+            regions_scope_qs.annotate(year=TruncYear('date_of_visit'))
+            .exclude(year=None)
+            .values('year')
+            .annotate(qty=Count('city__region_id', distinct=True))
+            .order_by('year')
+        )
+        unique_visited_regions_by_year = [
+            DailyStatistics(label=str(item['year'].year), count=item['qty'])
+            for item in unique_regions_by_year_queryset
+        ]
+
+        new_regions_by_year_map: defaultdict[int, int] = defaultdict(int)
+        for row in regions_scope_qs.values('city__region_id').annotate(
+            first_visit=Min('date_of_visit')
+        ):
+            first_visit = row['first_visit']
+            if first_visit is None:
+                continue
+            new_regions_by_year_map[int(first_visit.year)] += 1
+        new_visited_regions_by_year = [
+            DailyStatistics(label=str(year), count=qty)
+            for year, qty in sorted(new_regions_by_year_map.items())
+        ]
         now = datetime.datetime.now()
         if now.month == 12:
             month_start = datetime.date(now.year - 1, 1, 1)
@@ -251,6 +300,12 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
             new_visited_cities_by_year=new_by_year,
             unique_visited_cities_by_year=unique_by_year,
             total_visited_cities_visits_by_year=visits_by_year,
+            total_region_visits=Quantity(count=total_region_visits_count),
+            unique_visited_regions=Quantity(count=unique_regions_total_count),
+            new_visited_regions=Quantity(count=new_regions_total_count),
+            total_region_visits_by_year=total_region_visits_by_year,
+            unique_visited_regions_by_year=unique_visited_regions_by_year,
+            new_visited_regions_by_year=new_visited_regions_by_year,
             new_visited_cities_by_month=new_by_month,
             unique_visited_cities_by_month=unique_by_month,
             total_visited_cities_visits_by_month=visits_by_month,

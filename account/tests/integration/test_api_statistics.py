@@ -67,7 +67,7 @@ def test_personal_visited_cities_overview_returns_zero_ranks_without_data(
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     client.force_login(user)
 
-    response = client.get('/api/account/stats/visited-cities/overview/')
+    response = client.get('/api/account/stats/visited-cities/overview/?regions_country_code=RU')
 
     assert response.status_code == 200
     data = response.json()
@@ -76,6 +76,12 @@ def test_personal_visited_cities_overview_returns_zero_ranks_without_data(
     assert data['total_visited_cities_visits']['count'] == 0
     assert data['total_visited_cities_visits_rank'] == 0
     assert data['new_visited_cities']['count'] == 0
+    assert data['total_region_visits']['count'] == 0
+    assert data['unique_visited_regions']['count'] == 0
+    assert data['new_visited_regions']['count'] == 0
+    assert data['total_region_visits_by_year'] == []
+    assert data['unique_visited_regions_by_year'] == []
+    assert data['new_visited_regions_by_year'] == []
 
 
 @pytest.mark.integration
@@ -150,7 +156,14 @@ def test_visited_cities_overview_counts_visits_unique_new_series_and_ranks(
     leader = django_user_model.objects.create_user(username='leader', password='password123')
     equal_user = django_user_model.objects.create_user(username='equal', password='password123')
     country = create_country('Россия', 'RU')
-    cities = [create_city(f'Город {index}', country, index=index) for index in range(4)]
+    region_mos = create_region(country, 'Московская', 'RU-MOS')
+    region_tve = create_region(country, 'Тверская', 'RU-TVE')
+    cities = [
+        create_city('Город 0', country, region_mos, index=0),
+        create_city('Город 1', country, region_tve, index=1),
+        create_city('Город 2', country, None, index=2),
+        create_city('Город 3', country, None, index=3),
+    ]
 
     VisitedCity.objects.create(
         user=user, city=cities[0], rating=5, is_first_visit=True, date_of_visit=date(2025, 1, 1)
@@ -199,7 +212,7 @@ def test_visited_cities_overview_counts_visits_unique_new_series_and_ranks(
     )
 
     client.force_login(user)
-    response = client.get('/api/account/stats/visited-cities/overview/')
+    response = client.get('/api/account/stats/visited-cities/overview/?regions_country_code=RU')
 
     assert response.status_code == 200
     data = response.json()
@@ -211,6 +224,12 @@ def test_visited_cities_overview_counts_visits_unique_new_series_and_ranks(
     assert data['total_visited_cities_visits_by_year'] == [{'label': '2025', 'count': 3}]
     assert data['new_visited_cities_by_year'] == [{'label': '2025', 'count': 2}]
     assert data['new_visited_cities']['count'] == 2
+    assert data['total_region_visits']['count'] == 3
+    assert data['unique_visited_regions']['count'] == 2
+    assert data['new_visited_regions']['count'] == 2
+    assert data['total_region_visits_by_year'] == [{'label': '2025', 'count': 3}]
+    assert data['unique_visited_regions_by_year'] == [{'label': '2025', 'count': 2}]
+    assert data['new_visited_regions_by_year'] == [{'label': '2025', 'count': 2}]
     assert {'label': '01.2025', 'count': 1} in data['unique_visited_cities_by_month']
     assert {'label': '02.2025', 'count': 2} in data['unique_visited_cities_by_month']
     assert {'label': '02.2025', 'count': 2} in data['total_visited_cities_visits_by_month']

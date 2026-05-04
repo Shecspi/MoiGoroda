@@ -26,7 +26,7 @@ urlpatterns = [
             template_name='account/password/reset/form.html',
             extra_context={
                 'page_title': 'Восстановление пароля',
-                'page_description': 'Восстановленеи пароля',
+                'page_description': 'Восстановление пароля',
             },
         ),
         name='reset_password',
@@ -37,7 +37,7 @@ urlpatterns = [
             template_name='account/password/reset/email_sent.html',
             extra_context={
                 'page_title': 'Восстановление пароля',
-                'page_description': 'Восстановленеи пароля',
+                'page_description': 'Восстановление пароля',
             },
         ),
         name='password_reset_done',
@@ -48,7 +48,7 @@ urlpatterns = [
             template_name='account/password/reset/new_password_form.html',
             extra_context={
                 'page_title': 'Восстановление пароля',
-                'page_description': 'Восстановленеи пароля',
+                'page_description': 'Восстановление пароля',
             },
         ),
         name='password_reset_confirm',
@@ -59,7 +59,7 @@ urlpatterns = [
             template_name='account/password/reset/done.html',
             extra_context={
                 'page_title': 'Восстановление пароля',
-                'page_description': 'Восстановленеи пароля',
+                'page_description': 'Восстановление пароля',
             },
         ),
         name='password_reset_complete',

@@ -49,7 +49,7 @@ class Statistics(LoginRequiredMixin, TemplateView):
         context['page_title'] = 'Личная статистика'
         context['page_description'] = (
             'Здесь отображается подробная информация о результатах Ваших путешествий'
-            ' - посещённые города, регионы и федеральнаые округа'
+            ' - посещённые города, регионы и федеральные округа'
         )
         context['statistics_user_id'] = user_id
         context['statistics_shared_mode'] = False

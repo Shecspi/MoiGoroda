@@ -67,6 +67,29 @@ def resolve_statistics_user_id(request_user: object, shared_user_id_raw: str | N
     return int(user_id)
 
 
+TREEMAP_COUNTRY_CODE_MAX_LEN = 3  # ISO alpha-2 или alpha-3
+TREEMAP_COUNTRY_CODE_RAW_MAX_SCAN = 32  # лимит прохода по сырой строке из query
+
+
+def normalize_treemap_country_code(raw: str | None) -> str:
+    """
+    Из query: только латинские буквы с начала значения до первого иного символа,
+    не больше TREEMAP_COUNTRY_CODE_MAX_LEN; пустое — код по умолчанию RU.
+    """
+    if raw is None:
+        return 'RU'
+    chars: list[str] = []
+    for ch in raw.strip()[:TREEMAP_COUNTRY_CODE_RAW_MAX_SCAN].upper():
+        oc = ord(ch)
+        if ord('A') <= oc <= ord('Z'):
+            chars.append(ch)
+            if len(chars) >= TREEMAP_COUNTRY_CODE_MAX_LEN:
+                break
+        else:
+            break
+    return ''.join(chars) if chars else 'RU'
+
+
 def get_unique_visited_cities_country_rank(
     country_id: int, user_unique_visited_cities: int
 ) -> int:
@@ -311,7 +334,9 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
             self.request.user, self.request.GET.get('shared_user_id')
         )
 
-        requested_country_code = (self.request.GET.get('country_code') or 'RU').upper()
+        requested_country_code = normalize_treemap_country_code(
+            self.request.GET.get('country_code')
+        )
 
         regions_queryset = (
             Region.objects.filter(country__code=requested_country_code)

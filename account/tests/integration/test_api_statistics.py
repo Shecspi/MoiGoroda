@@ -3,6 +3,7 @@ from typing import Any
 
 import pytest
 
+from account.api import normalize_treemap_country_code
 from account.models import ShareSettings
 from city.models import City, VisitedCity
 from country.models import Country, Location, PartOfTheWorld, VisitedCountry
@@ -39,6 +40,23 @@ def create_region(country: Country, title: str, iso3166: str) -> Region:
         full_name=f'{title} область',
         iso3166=iso3166,
     )
+
+
+@pytest.mark.parametrize(
+    ('raw', 'expected'),
+    [
+        (None, 'RU'),
+        ('', 'RU'),
+        ('   ', 'RU'),
+        ('GE', 'GE'),
+        ('geo', 'GEO'),
+        ('RUML', 'RUM'),
+        ('RU-junk-extra', 'RU'),
+        ('12', 'RU'),
+    ],
+)
+def test_normalize_treemap_country_code(raw: str | None, expected: str) -> None:
+    assert normalize_treemap_country_code(raw) == expected
 
 
 @pytest.mark.integration
@@ -470,6 +488,31 @@ def test_regions_visited_cities_treemap_falls_back_to_country_without_regions(
             'total_cities': 2,
         }
     ]
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_regions_visited_cities_treemap_truncates_country_code_to_three_chars(
+    client: Any, django_user_model: Any
+) -> None:
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    country = create_country('Россия', 'RU')
+    region = create_region(country, 'Московская', 'RU-MOS')
+    moscow = create_city('Москва', country, region, index=1)
+    VisitedCity.objects.create(user=user, city=moscow, rating=5, is_first_visit=True)
+
+    client.force_login(user)
+    response_short = client.get(
+        '/api/account/stats/regions/visited-cities-treemap/?country_code=RU'
+    )
+    response_overflow = client.get(
+        '/api/account/stats/regions/visited-cities-treemap/'
+        '?country_code=RU-malicious-overflow-suffix-xxxxx'
+    )
+
+    assert response_short.status_code == 200
+    assert response_overflow.status_code == 200
+    assert response_short.json() == response_overflow.json()
 
 
 @pytest.mark.integration

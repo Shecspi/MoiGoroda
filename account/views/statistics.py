@@ -12,7 +12,7 @@ from typing import Any
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.http import JsonResponse, Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
@@ -77,12 +77,6 @@ class Statistics(LoginRequiredMixin, TemplateView):
             }
         context['share_settings'] = share_settings
 
-        ##################################
-        # --- Вспомогательные данные --- #
-        ##################################
-        # На этапе миграции /account/stats на django-modern-rest не грузим
-        # тяжёлые синхронные данные для legacy-секций страницы.
-        # return context | get_info_for_statistic_cards_and_charts(user_id)
         return context
 
 

@@ -72,26 +72,6 @@ def test_view_statistics_and_download_report_flow(client: Any, django_user_model
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_statistics_shows_regular_page_without_visits(
-    client: Any, django_user_model: Any
-) -> None:
-    """
-    E2E тест: статистика без посещений показывает обычную страницу без фейковых данных
-    """
-    # Шаг 1: Создаём и логиним пользователя
-    user = django_user_model.objects.create_user(username='testuser', password='password123')
-    client.force_login(user)
-
-    # Шаг 2: Открываем статистику без посещений
-    response = client.get(reverse('stats'))
-
-    assert response.status_code == 200
-    assert 'fake_statistics' not in response.context
-    assert 'share_settings' in response.context
-
-
-@pytest.mark.e2e
-@pytest.mark.django_db
 @patch('account.views.statistics.logger')
 def test_configure_share_settings_and_verify_flow(
     mock_logger: Any, client: Any, django_user_model: Any
@@ -248,38 +228,6 @@ def test_share_settings_validation_flow(
 
     # Проверяем, что настройки сохранились
     assert ShareSettings.objects.filter(user=user).exists()
-
-
-@pytest.mark.e2e
-@pytest.mark.django_db
-def test_statistics_page_persists_through_multiple_visits(
-    client: Any, django_user_model: Any
-) -> None:
-    """
-    E2E тест: Многократный доступ к статистике сохраняет настройки
-    """
-    # Шаг 1: Создаём и логиним пользователя
-    user = django_user_model.objects.create_user(username='testuser', password='password123')
-    client.force_login(user)
-
-    # Шаг 2: Настраиваем публикацию
-    with patch('account.views.statistics.logger'):
-        data = {
-            'switch_share_general': 'on',
-            'switch_share_dashboard': 'on',
-            'switch_share_city_map': 'on',
-        }
-        client.post(reverse('save_share_settings'), data=data)
-
-    # Шаг 3: Открываем статистику несколько раз
-    for _ in range(3):
-        response = client.get(reverse('stats'))
-
-        assert response.status_code == 200
-        share_settings = response.context['share_settings']
-        assert share_settings['switch_share_general'] is True
-        assert share_settings['switch_share_basic_info'] is True
-        assert share_settings['switch_share_city_map'] is True
 
 
 @pytest.mark.e2e

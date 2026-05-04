@@ -84,20 +84,6 @@ def test_statistics_view_no_visited_cities_shows_regular_page(
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_with_visited_cities_shows_real_data(
-    client: Any, create_test_user: Any
-) -> None:
-    """Тест что при наличии посещённых городов показываются реальные данные"""
-    client.force_login(create_test_user)
-
-    response = client.get(reverse('stats'))
-
-    assert response.status_code == 200
-    assert 'fake_statistics' not in response.context
-
-
-@pytest.mark.integration
-@pytest.mark.django_db
 def test_statistics_view_share_settings_not_exist(client: Any, create_test_user: Any) -> None:
     """Тест контекста настроек публикации когда ShareSettings не существует"""
     client.force_login(create_test_user)

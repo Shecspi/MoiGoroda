@@ -67,6 +67,30 @@ def resolve_statistics_user_id(request_user: object, shared_user_id_raw: str | N
     return int(user_id)
 
 
+def get_unique_visited_cities_country_rank(
+    country_id: int, user_unique_visited_cities: int
+) -> int:
+    users_with_more_visited_cities = (
+        VisitedCity.objects.filter(is_first_visit=True, city__country_id=country_id)
+        .values('user_id')
+        .annotate(unique_visited_cities=Count('city_id', distinct=True))
+        .filter(unique_visited_cities__gt=user_unique_visited_cities)
+        .count()
+    )
+    return users_with_more_visited_cities + 1
+
+
+def get_visited_cities_visits_country_rank(country_id: int, visits: int) -> int:
+    users_with_more_visits = (
+        VisitedCity.objects.filter(city__country_id=country_id)
+        .values('user_id')
+        .annotate(visits=Count('id'))
+        .filter(visits__gt=visits)
+        .count()
+    )
+    return users_with_more_visits + 1
+
+
 class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
     def get(self) -> PersonalVisitedCitiesOverviewResponse:
         user_id = resolve_statistics_user_id(
@@ -200,39 +224,17 @@ class GetPersonalVisitedCitiesCountriesCoverageController(Controller[MsgspecSeri
         )
 
         countries = list(get_countries_with_visited_city(user_id))
-        country_ids = [country.pk for country in countries]
         total_users_count = User.objects.count()
-        rank_by_country_id: dict[int, int] = {}
-
-        if country_ids:
-            country_users_stats = (
-                VisitedCity.objects.filter(is_first_visit=True, city__country_id__in=country_ids)
-                .values('city__country_id', 'user_id')
-                .annotate(unique_visited_cities=Count('city_id', distinct=True))
-            )
-            unique_counts_by_country_id: dict[int, list[int]] = {}
-            for item in country_users_stats:
-                country_id = int(item['city__country_id'])
-                unique_counts_by_country_id.setdefault(country_id, []).append(
-                    int(item['unique_visited_cities'])
-                )
-
-            for country in countries:
-                country_id = int(country.pk)
-                user_unique_visited_cities = int(country.visited_cities)
-                users_with_more_visited_cities = sum(
-                    1
-                    for unique_count in unique_counts_by_country_id.get(country_id, [])
-                    if unique_count > user_unique_visited_cities
-                )
-                rank_by_country_id[country_id] = users_with_more_visited_cities + 1
 
         countries_coverage = [
             VisitedCitiesCountryCoverage(
                 name=country.name,
                 visited_cities=country.visited_cities,
                 total_cities=country.total_cities,
-                rank=rank_by_country_id.get(int(country.pk), 1),
+                rank=get_unique_visited_cities_country_rank(
+                    country_id=int(country.pk),
+                    user_unique_visited_cities=int(country.visited_cities),
+                ),
                 total_users_count=total_users_count,
             )
             for country in countries
@@ -284,40 +286,23 @@ class GetPersonalVisitedCitiesCountriesVisitsController(Controller[MsgspecSerial
             .annotate(visits=Count('id'))
             .order_by('-visits', 'city__country__name')
         )
+        countries_visits = list(countries_visits_queryset)
         total_users_count = User.objects.count()
-        country_ids = [int(item['city__country_id']) for item in countries_visits_queryset]
-        rank_by_country_id: dict[int, int] = {}
 
-        if country_ids:
-            country_users_stats = (
-                VisitedCity.objects.filter(city__country_id__in=country_ids)
-                .values('city__country_id', 'user_id')
-                .annotate(visits=Count('id'))
-            )
-            visits_by_country_id: dict[int, list[int]] = {}
-            for item in country_users_stats:
-                country_id = int(item['city__country_id'])
-                visits_by_country_id.setdefault(country_id, []).append(int(item['visits']))
-
-            for country in countries_visits_queryset:
-                country_id = int(country['city__country_id'])
-                user_visits = int(country['visits'])
-                users_with_more_visits = sum(
-                    1 for visits in visits_by_country_id.get(country_id, []) if visits > user_visits
-                )
-                rank_by_country_id[country_id] = users_with_more_visits + 1
-
-        countries_visits = [
+        country_visits_items = [
             VisitedCitiesCountryVisits(
                 name=str(country['city__country__name']),
                 visits=int(country['visits']),
-                rank=rank_by_country_id.get(int(country['city__country_id']), 1),
+                rank=get_visited_cities_visits_country_rank(
+                    country_id=int(country['city__country_id']),
+                    visits=int(country['visits']),
+                ),
                 total_users_count=total_users_count,
             )
-            for country in countries_visits_queryset
+            for country in countries_visits
         ]
 
-        return PersonalVisitedCitiesCountriesVisitsResponse(countries_visits=countries_visits)
+        return PersonalVisitedCitiesCountriesVisitsResponse(countries_visits=country_visits_items)
 
 
 class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):

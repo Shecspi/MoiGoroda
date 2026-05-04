@@ -100,6 +100,7 @@ function updateRankBadge(
     rank,
     totalUsersCount,
     metricLabel,
+    metricValue,
     isSharedMode = false,
 ) {
     const badgeElement = document.getElementById(elementId);
@@ -111,7 +112,9 @@ function updateRankBadge(
         !Number.isFinite(rank) ||
         rank <= 0 ||
         !Number.isFinite(totalUsersCount) ||
-        totalUsersCount <= 0
+        totalUsersCount <= 0 ||
+        !Number.isFinite(metricValue) ||
+        metricValue <= 0
     ) {
         badgeElement.classList.add("hidden");
         badgeElement.innerHTML = "";
@@ -190,7 +193,7 @@ function renderUnifiedCountryCards(
         cardsContainer.classList.add("hidden");
         loadingElement.innerHTML = `
             <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
-                Пока нет данных по посещённым странам.
+                Пока нет данных по посещённым странам
             </div>
         `;
         return;
@@ -827,7 +830,7 @@ function renderVisitedCountriesOverviewCards(data, isSharedMode = false) {
         byPartContainer.classList.add("hidden");
         loadingElement.innerHTML = `
             <div class="col-span-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
-                Пока нет данных по посещённым странам.
+                Пока нет данных по посещённым странам
             </div>
         `;
         return;
@@ -972,14 +975,18 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
         treemapState.chartInstance = null;
     }
 
-    if (items.length === 0) {
+    const visitedItems = items.filter(
+        (item) => Number(item?.unique_visited_cities ?? 0) > 0,
+    );
+
+    if (visitedItems.length === 0) {
         loadingElement.innerHTML =
             '<p class="text-gray-600 dark:text-neutral-400">Нет данных</p>';
         chartContainer.classList.add("hidden");
         return;
     }
 
-    const sortedItems = [...items].sort(
+    const sortedItems = [...visitedItems].sort(
         (a, b) =>
             (b.unique_visited_cities ?? 0) - (a.unique_visited_cities ?? 0),
     );
@@ -1245,6 +1252,7 @@ function initVisitedCitiesOverview(requestContext) {
                 Number(data.unique_visited_cities_rank),
                 Number(data.total_users_count),
                 "уникальных посещенных городов",
+                Number(data.unique_visited_cities?.count),
                 requestContext?.isSharedMode,
             );
             updateNumberOnCard(
@@ -1256,6 +1264,7 @@ function initVisitedCitiesOverview(requestContext) {
                 Number(data.total_visited_cities_visits_rank),
                 Number(data.total_users_count),
                 "посещений городов",
+                Number(data.total_visited_cities_visits?.count),
                 requestContext?.isSharedMode,
             );
 
@@ -1309,12 +1318,14 @@ function initVisitedCitiesOverview(requestContext) {
                 Number.NaN,
                 Number.NaN,
                 "",
+                Number.NaN,
             );
             updateRankBadge(
                 "badge-personal_total_visited_cities_visits_rank",
                 Number.NaN,
                 Number.NaN,
                 "",
+                Number.NaN,
             );
             const loadingElement = document.getElementById(
                 "personal-visited-cities-by-year-loading",

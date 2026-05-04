@@ -18,8 +18,6 @@ from django.views.generic import TemplateView
 
 from account.models import ShareSettings
 from services import logger
-from services.db.statistics.fake_statistics import get_fake_statistics
-from services.db.statistics.visited_city import get_number_of_visited_cities
 
 
 class Statistics(LoginRequiredMixin, TemplateView):
@@ -55,13 +53,6 @@ class Statistics(LoginRequiredMixin, TemplateView):
         )
         context['statistics_user_id'] = user_id
         context['statistics_shared_mode'] = False
-
-        number_of_visited_cities = get_number_of_visited_cities(user_id)
-        if number_of_visited_cities == 0:
-            context['fake_statistics'] = True
-            context.update(get_fake_statistics())
-
-            return context
 
         ##############################################
         # --- Настройки "Поделиться статистикой" --- #

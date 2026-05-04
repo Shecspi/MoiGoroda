@@ -21,11 +21,7 @@
         </h1>
     </header>
 
-    {% if fake_statistics %}
-        {% include 'account/statistics/parts/info_about_fake_statistics.html' %}
-    {% else %}
-        {% include 'account/statistics/parts/toolbar.html' %}
-    {% endif %}
+    {% include 'account/statistics/parts/toolbar.html' %}
 
     {% include 'account/statistics/all_cards_and_charts.html' %}
 
@@ -33,8 +29,6 @@
 {% endblock %}
 
 {% block modals %}
-    {% if not fake_statistics %}
-        {% include 'account/statistics/parts/share_modal.html' %}
-        {% include 'account/statistics/parts/download_modal.html' %}
-    {% endif %}
+    {% include 'account/statistics/parts/share_modal.html' %}
+    {% include 'account/statistics/parts/download_modal.html' %}
 {% endblock %}

@@ -82,14 +82,18 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
             .filter(unique_visited_cities__gt=unique_total)
             .count()
         )
-        unique_visited_cities_rank = users_with_more_unique_visited_cities + 1
+        unique_visited_cities_rank = (
+            users_with_more_unique_visited_cities + 1 if unique_total > 0 else 0
+        )
         users_with_more_total_visited_cities_visits = (
             VisitedCity.objects.values('user_id')
             .annotate(total_visited_cities_visits=Count('id'))
             .filter(total_visited_cities_visits__gt=visits_total)
             .count()
         )
-        total_visited_cities_visits_rank = users_with_more_total_visited_cities_visits + 1
+        total_visited_cities_visits_rank = (
+            users_with_more_total_visited_cities_visits + 1 if visits_total > 0 else 0
+        )
 
         unique_by_year_queryset = (
             visited_cities_queryset.annotate(year=TruncYear('date_of_visit'))

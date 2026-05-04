@@ -15,31 +15,31 @@ router = Router(
     'api/account',
     [
         path(
-            'stats/visited_cities/overview/',
+            'stats/visited-cities/overview/',
             GetPersonalVisitedCitiesOverviewController.as_view(),
         ),
         path(
-            'stats/visited_cities/countries_coverage/',
+            'stats/visited-cities/countries-coverage/',
             GetPersonalVisitedCitiesCountriesCoverageController.as_view(),
         ),
         path(
-            'stats/visited_cities/countries_visits/',
+            'stats/visited-cities/countries-visits/',
             GetPersonalVisitedCitiesCountriesVisitsController.as_view(),
         ),
         path(
-            'stats/regions/countries_coverage/',
+            'stats/regions/countries-coverage/',
             GetPersonalVisitedRegionsCountriesCoverageController.as_view(),
         ),
         path(
-            'stats/regions/visited_cities_treemap/',
+            'stats/regions/visited-cities-treemap/',
             GetRegionsVisitedCitiesTreemapController.as_view(),
         ),
         path(
-            'stats/regions/visited_cities_countries/',
+            'stats/regions/visited-cities-countries/',
             GetRegionsVisitedCitiesCountriesController.as_view(),
         ),
         path(
-            'stats/visited_countries/overview/',
+            'stats/visited-countries/overview/',
             GetPersonalVisitedCountriesOverviewController.as_view(),
         ),
     ],

@@ -16,7 +16,7 @@ def test_personal_visited_cities_overview_returns_zero_ranks_without_data(
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     client.force_login(user)
 
-    response = client.get('/api/account/stats/visited_cities/overview/')
+    response = client.get('/api/account/stats/visited-cities/overview/')
 
     assert response.status_code == 200
     data = response.json()
@@ -24,6 +24,30 @@ def test_personal_visited_cities_overview_returns_zero_ranks_without_data(
     assert data['unique_visited_cities_rank'] == 0
     assert data['total_visited_cities_visits']['count'] == 0
     assert data['total_visited_cities_visits_rank'] == 0
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_account_statistics_api_uses_hyphenated_paths(
+    client: Any, django_user_model: Any
+) -> None:
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    client.force_login(user)
+
+    paths = [
+        '/api/account/stats/visited-cities/overview/',
+        '/api/account/stats/visited-cities/countries-coverage/',
+        '/api/account/stats/visited-cities/countries-visits/',
+        '/api/account/stats/regions/countries-coverage/',
+        '/api/account/stats/regions/visited-cities-treemap/',
+        '/api/account/stats/regions/visited-cities-countries/',
+        '/api/account/stats/visited-countries/overview/',
+    ]
+
+    for path in paths:
+        response = client.get(path)
+
+        assert response.status_code == 200, path
 
 
 @pytest.mark.integration
@@ -53,7 +77,7 @@ def test_regions_visited_cities_countries_returns_current_user_countries(
     VisitedCity.objects.create(user=other_user, city=tbilisi, rating=5, is_first_visit=True)
 
     client.force_login(user)
-    response = client.get('/api/account/stats/regions/visited_cities_countries/')
+    response = client.get('/api/account/stats/regions/visited-cities-countries/')
 
     assert response.status_code == 200
     data = response.json()
@@ -93,7 +117,7 @@ def test_regions_visited_cities_countries_uses_shared_user_id_for_public_dashboa
     VisitedCity.objects.create(user=viewer, city=tbilisi, rating=5, is_first_visit=True)
 
     response = client.get(
-        f'/api/account/stats/regions/visited_cities_countries/?shared_user_id={owner.id}'
+        f'/api/account/stats/regions/visited-cities-countries/?shared_user_id={owner.id}'
     )
 
     assert response.status_code == 200
@@ -128,7 +152,7 @@ def test_visited_cities_countries_coverage_rank_counts_only_users_with_more_uniq
     VisitedCity.objects.create(user=equal_user, city=cities[1], rating=5, is_first_visit=True)
 
     client.force_login(user)
-    response = client.get('/api/account/stats/visited_cities/countries_coverage/')
+    response = client.get('/api/account/stats/visited-cities/countries-coverage/')
 
     assert response.status_code == 200
     data = response.json()
@@ -174,7 +198,7 @@ def test_visited_cities_countries_visits_rank_counts_only_users_with_more_visits
     )
 
     client.force_login(user)
-    response = client.get('/api/account/stats/visited_cities/countries_visits/')
+    response = client.get('/api/account/stats/visited-cities/countries-visits/')
 
     assert response.status_code == 200
     data = response.json()

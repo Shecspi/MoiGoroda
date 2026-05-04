@@ -2,19 +2,19 @@ import ApexCharts from "apexcharts";
 import { getCookie } from "../components/get_cookie.js";
 
 const ACCOUNT_STATS_ROUTES = Object.freeze({
-    getVisitedCitiesOverview: "/api/account/stats/visited_cities/overview/",
+    getVisitedCitiesOverview: "/api/account/stats/visited-cities/overview/",
     getVisitedCitiesCountriesCoverage:
-        "/api/account/stats/visited_cities/countries_coverage/",
+        "/api/account/stats/visited-cities/countries-coverage/",
     getVisitedCitiesCountriesVisits:
-        "/api/account/stats/visited_cities/countries_visits/",
+        "/api/account/stats/visited-cities/countries-visits/",
     getVisitedRegionsCountriesCoverage:
-        "/api/account/stats/regions/countries_coverage/",
+        "/api/account/stats/regions/countries-coverage/",
     getRegionsVisitedCitiesTreemap:
-        "/api/account/stats/regions/visited_cities_treemap/",
+        "/api/account/stats/regions/visited-cities-treemap/",
     getRegionsVisitedCitiesCountries:
-        "/api/account/stats/regions/visited_cities_countries/",
+        "/api/account/stats/regions/visited-cities-countries/",
     getVisitedCountriesOverview:
-        "/api/account/stats/visited_countries/overview/",
+        "/api/account/stats/visited-countries/overview/",
 });
 
 function getStatisticsRequestContext() {

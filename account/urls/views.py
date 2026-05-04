@@ -11,8 +11,8 @@ from django.urls import path
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
 
-from .views import access, download, profile, statistics
-from .views.access import MyPasswordResetDoneView, MyPasswordChangeView
+from account.views import access, download, profile, statistics
+from account.views.access import MyPasswordResetDoneView, MyPasswordChangeView
 
 urlpatterns = [
     path('signin/', access.SignIn.as_view(), name='signin'),

@@ -11,7 +11,7 @@ from city.urls.api import city_user_photos_schema
 
 urlpatterns = [
     path('', include('main_page.urls')),
-    path('account/', include('account.urls')),
+    path('account/', include('account.urls.views')),
     path('city/', include('city.urls.views')),
     path('region/', include('region.urls.views')),
     path('country/', include('country.urls.views')),
@@ -29,7 +29,7 @@ urlpatterns = [
     path('sitemap.xml', TemplateView.as_view(template_name='sitemap.xml', content_type='text/xml')),
     # API
     path('api/city/', include('city.urls.api')),
-    path('api/account/', include('account.urls_api')),
+    path('api/account/', include('account.urls.api')),
     path('api/country/', include('country.urls.api')),
     path('api/dashboard/', include('dashboard.urls.api')),
     path('api/place/', include('place.urls.api')),

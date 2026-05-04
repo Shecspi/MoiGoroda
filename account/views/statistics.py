@@ -12,17 +12,12 @@ from typing import Any
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.http import JsonResponse, Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
 from account.models import ShareSettings
 from services import logger
-from services.db.statistics.fake_statistics import get_fake_statistics
-from services.db.statistics.get_info_for_statistic_cards_and_charts import (
-    get_info_for_statistic_cards_and_charts,
-)
-from services.db.statistics.visited_city import get_number_of_visited_cities
 
 
 class Statistics(LoginRequiredMixin, TemplateView):
@@ -54,15 +49,10 @@ class Statistics(LoginRequiredMixin, TemplateView):
         context['page_title'] = 'Личная статистика'
         context['page_description'] = (
             'Здесь отображается подробная информация о результатах Ваших путешествий'
-            ' - посещённые города, регионы и федеральнаые округа'
+            ' - посещённые города, регионы и федеральные округа'
         )
-
-        number_of_visited_cities = get_number_of_visited_cities(user_id)
-        if number_of_visited_cities == 0:
-            context['fake_statistics'] = True
-            context.update(get_fake_statistics())
-
-            return context
+        context['statistics_user_id'] = user_id
+        context['statistics_shared_mode'] = False
 
         ##############################################
         # --- Настройки "Поделиться статистикой" --- #
@@ -87,11 +77,7 @@ class Statistics(LoginRequiredMixin, TemplateView):
             }
         context['share_settings'] = share_settings
 
-        ##################################
-        # --- Вспомогательные данные --- #
-        ##################################
-
-        return context | get_info_for_statistic_cards_and_charts(user_id)
+        return context
 
 
 @login_required()

@@ -1,0 +1,307 @@
+@layer components {
+    /*
+     * Progress bars: горизонтальные, вертикальные, круговые, сегментированные
+     *
+     * Базовые размеры: .progress-xs, .progress-sm (default), .progress-md, .progress-lg
+     * Стили: .progress (горизонтальный), .progress-vertical (вертикальный)
+     * Цвета: .progress-bar-primary, .progress-bar-secondary, .progress-bar-success, и т.д.
+     */
+
+    /* ═══ Базовый прогресс-бар (горизонтальный) ═══ */
+    .progress {
+        @apply flex w-full bg-gray-200 rounded-full overflow-hidden dark:bg-neutral-700;
+    }
+
+    .progress-bar {
+        @apply flex flex-col justify-center rounded-full overflow-hidden text-xs text-center whitespace-nowrap transition duration-500;
+    }
+
+    /* Размеры */
+    .progress-xs {
+        @apply h-1.5;
+    }
+
+    .progress-sm {
+        @apply h-2;
+    }
+
+    .progress-md {
+        @apply h-4;
+    }
+
+    .progress-lg {
+        @apply h-6;
+    }
+
+    /* ═══ Цвета прогресс-бара ═══ */
+    .progress-bar-primary {
+        @apply bg-primary text-primary-foreground;
+    }
+
+    .progress-bar-secondary {
+        @apply bg-secondary text-white;
+    }
+
+    .progress-bar-success {
+        @apply bg-teal-500 text-white;
+    }
+
+    .progress-bar-danger {
+        @apply bg-red-500 text-white;
+    }
+
+    .progress-bar-warning {
+        @apply bg-yellow-500 text-white;
+    }
+
+    .progress-bar-info {
+        @apply bg-gray-400 text-white dark:bg-gray-500;
+    }
+
+    .progress-bar-plain {
+        @apply bg-plain text-white;
+    }
+
+    /* ═══ Прогресс с лейблом в конце ═══ */
+    .progress-with-label {
+        @apply flex items-center gap-x-3 whitespace-nowrap;
+    }
+
+    .progress-label {
+        @apply w-10 text-end text-sm text-gray-800 dark:text-neutral-200;
+    }
+
+    .progress-label-icon {
+        @apply shrink-0 ms-auto size-4 flex justify-center items-center rounded-full;
+    }
+
+    .progress-label-icon svg {
+        @apply shrink-0 size-3;
+    }
+
+    .progress-label-icon-success {
+        @apply bg-teal-500 text-white;
+    }
+
+    .progress-label-icon-danger {
+        @apply bg-red-500 text-white;
+    }
+
+    /* ═══ Плавающий лейбл ═══ */
+    .progress-floating-label {
+        @apply inline-block mb-2 py-0.5 px-1.5 bg-primary-100 border border-primary-200 text-xs font-medium text-primary-800 rounded-lg;
+        @apply dark:bg-primary-500/20 dark:border-primary-500 dark:text-primary-400;
+    }
+
+    /* ═══ Вертикальный прогресс-бар ═══ */
+    .progress-vertical {
+        @apply flex flex-col flex-nowrap justify-end bg-gray-200 rounded-full overflow-hidden dark:bg-neutral-700;
+    }
+
+    .progress-vertical .progress-bar {
+        @apply rounded-full overflow-hidden;
+    }
+
+    /* Размеры вертикального */
+    .progress-vertical-xs {
+        @apply w-1.5;
+    }
+
+    .progress-vertical-sm {
+        @apply w-2;
+    }
+
+    .progress-vertical-md {
+        @apply w-4;
+    }
+
+    .progress-vertical-lg {
+        @apply w-6;
+    }
+
+    /* ═══ Сегментированный прогресс-бар ═══ */
+    .progress-segmented {
+        @apply flex items-center gap-x-1;
+    }
+
+    .progress-segment {
+        @apply w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-center whitespace-nowrap transition duration-500;
+    }
+
+    .progress-segment-active {
+        @apply bg-primary text-primary-foreground;
+    }
+
+    .progress-segment-inactive {
+        @apply bg-gray-300 dark:bg-neutral-600;
+    }
+
+    /* Сегменты с кастомными цветами */
+    .progress-segment-success {
+        @apply bg-teal-500 text-white;
+    }
+
+    .progress-segment-danger {
+        @apply bg-red-600 text-white;
+    }
+
+    .progress-segment-danger-inactive {
+        @apply bg-red-100 dark:bg-red-500/30;
+    }
+
+    /* ═══ Круглый прогресс-бар (circular) ═══ */
+    .progress-circular {
+        @apply relative;
+    }
+
+    .progress-circular svg {
+        @apply size-full -rotate-90;
+    }
+
+    .progress-circular-bg {
+        @apply stroke-current text-gray-800/10 dark:text-neutral-200/10;
+    }
+
+    .progress-circular-bar {
+        @apply stroke-current text-primary;
+    }
+
+    .progress-circular-text {
+        @apply absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 text-center text-2xl font-bold text-primary;
+    }
+
+    /* Размеры круглого прогресса */
+    .progress-circular-sm {
+        @apply size-24;
+    }
+
+    .progress-circular-md {
+        @apply size-32;
+    }
+
+    .progress-circular-lg {
+        @apply size-40;
+    }
+
+    .progress-circular-xl {
+        @apply size-48;
+    }
+
+    /* ═══ Gauge (неполный круг) ═══ */
+    .progress-gauge {
+        @apply relative;
+    }
+
+    .progress-gauge svg {
+        @apply size-full;
+    }
+
+    .progress-gauge-rotate-135 svg {
+        @apply rotate-[135deg];
+    }
+
+    .progress-gauge-rotate-180 svg {
+        @apply rotate-180;
+    }
+
+    .progress-gauge-bg {
+        @apply stroke-current text-gray-800/10 dark:text-neutral-200/10;
+    }
+
+    .progress-gauge-bar {
+        @apply stroke-current text-primary;
+    }
+
+    .progress-gauge-text {
+        @apply absolute top-1/2 start-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center;
+    }
+
+    .progress-gauge-text-top {
+        @apply absolute top-9 start-1/2 transform -translate-x-1/2 text-center;
+    }
+
+    .progress-gauge-value {
+        @apply text-4xl font-bold text-primary;
+    }
+
+    .progress-gauge-label {
+        @apply text-primary block;
+    }
+
+    /* Цветовые варианты для gauge */
+    .progress-gauge-purple .progress-gauge-bg {
+        @apply text-purple-200 dark:text-purple-700;
+    }
+
+    .progress-gauge-purple .progress-gauge-bar {
+        @apply text-purple-600 dark:text-purple-500;
+    }
+
+    .progress-gauge-purple .progress-gauge-value,
+    .progress-gauge-purple .progress-gauge-label {
+        @apply text-purple-600 dark:text-purple-500;
+    }
+
+    .progress-gauge-green .progress-gauge-bg {
+        @apply text-green-200 dark:text-green-700;
+    }
+
+    .progress-gauge-green .progress-gauge-bar {
+        @apply text-green-500;
+    }
+
+    .progress-gauge-green .progress-gauge-value,
+    .progress-gauge-green .progress-gauge-label {
+        @apply text-green-600 dark:text-green-500;
+    }
+
+    .progress-gauge-orange .progress-gauge-bg {
+        @apply text-orange-100 dark:text-orange-700;
+    }
+
+    .progress-gauge-orange .progress-gauge-bar {
+        @apply text-orange-600 dark:text-orange-500;
+    }
+
+    .progress-gauge-orange .progress-gauge-value,
+    .progress-gauge-orange .progress-gauge-label {
+        @apply text-orange-600 dark:text-orange-500;
+    }
+
+    .progress-gauge-value-sm {
+        @apply text-2xl;
+    }
+
+    .progress-gauge-value-md {
+        @apply text-3xl;
+    }
+
+    .progress-gauge-value-lg {
+        @apply text-4xl;
+    }
+
+    .progress-gauge-label-sm {
+        @apply text-xs;
+    }
+
+    .progress-gauge-label-md {
+        @apply text-sm;
+    }
+
+    /* Размеры gauge */
+    .progress-gauge-sm {
+        @apply size-24;
+    }
+
+    .progress-gauge-md {
+        @apply size-32;
+    }
+
+    .progress-gauge-lg {
+        @apply size-40;
+    }
+
+    .progress-gauge-xl {
+        @apply size-48;
+    }
+}

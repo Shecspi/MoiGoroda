@@ -35,11 +35,7 @@ def test_statistics_view_get_request_authenticated(client: Any, create_test_user
     """Тест GET запроса на страницу статистики для авторизованного пользователя"""
     client.force_login(create_test_user)
 
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.status_code == 200
     assert 'account/statistics/statistics.html' in (t.name for t in response.templates)
@@ -63,11 +59,7 @@ def test_statistics_view_logs_access(mock_logger: Any, client: Any, create_test_
     """Тест что доступ к статистике логируется"""
     client.force_login(create_test_user)
 
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            client.get(reverse('stats'))
+    client.get(reverse('stats'))
 
     mock_logger.info.assert_called_once()
     call_args = mock_logger.info.call_args[0]
@@ -77,42 +69,17 @@ def test_statistics_view_logs_access(mock_logger: Any, client: Any, create_test_
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_statistics_view_no_visited_cities_shows_fake_data(
+def test_statistics_view_no_visited_cities_shows_regular_page(
     client: Any, create_test_user: Any
 ) -> None:
-    """Тест что при отсутствии посещённых городов показываются фейковые данные"""
+    """Тест что при отсутствии посещённых городов показывается обычная страница статистики"""
     client.force_login(create_test_user)
 
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=0):
-        with patch('account.views.statistics.get_fake_statistics', return_value={'fake': True}):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.status_code == 200
-    assert response.context['fake_statistics'] is True
-    assert 'fake' in response.context
-
-
-@pytest.mark.integration
-@pytest.mark.django_db
-def test_statistics_view_with_visited_cities_shows_real_data(
-    client: Any, create_test_user: Any
-) -> None:
-    """Тест что при наличии посещённых городов показываются реальные данные"""
-    client.force_login(create_test_user)
-
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts',
-            return_value={'real_data': 'value'},
-        ):
-            response = client.get(reverse('stats'))
-
-    assert response.status_code == 200
-    assert (
-        'fake_statistics' not in response.context
-        or response.context.get('fake_statistics') is not True
-    )
-    assert 'real_data' in response.context
+    assert 'fake_statistics' not in response.context
+    assert 'share_settings' in response.context
 
 
 @pytest.mark.integration
@@ -121,11 +88,7 @@ def test_statistics_view_share_settings_not_exist(client: Any, create_test_user:
     """Тест контекста настроек публикации когда ShareSettings не существует"""
     client.force_login(create_test_user)
 
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.status_code == 200
     assert 'share_settings' in response.context
@@ -154,11 +117,7 @@ def test_statistics_view_share_settings_exist_all_false(client: Any, create_test
         can_subscribe=False,
     )
 
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.status_code == 200
     share_settings = response.context['share_settings']
@@ -186,11 +145,7 @@ def test_statistics_view_share_settings_exist_all_true(client: Any, create_test_
         can_subscribe=True,
     )
 
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.status_code == 200
     share_settings = response.context['share_settings']
@@ -208,11 +163,7 @@ def test_statistics_view_context_data(client: Any, create_test_user: Any) -> Non
     """Тест наличия необходимых данных в контексте"""
     client.force_login(create_test_user)
 
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.status_code == 200
     assert 'active_page' in response.context

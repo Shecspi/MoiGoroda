@@ -18,6 +18,7 @@ urlpatterns = [
     path('buttons/', views.buttons, name='buttons'),
     path('badges/', views.badges, name='badges'),
     path('forms/', views.forms, name='forms'),
+    path('progress/', views.progress, name='progress'),
     path('misc/', views.misc, name='misc'),
     path('city-popup/', views.city_popup, name='city_popup'),
 ]

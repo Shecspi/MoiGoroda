@@ -42,11 +42,7 @@ def test_enable_all_share_settings_flow(
     user = django_user_model.objects.get(username='testuser')
 
     # Шаг 2: Открываем статистику
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     # Проверяем начальное состояние настроек (все выключены)
     share_settings = response.context['share_settings']
@@ -74,11 +70,7 @@ def test_enable_all_share_settings_flow(
     assert db_settings.can_subscribe is True
 
     # Шаг 5: Обновляем страницу статистики
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     # Проверяем, что настройки отображаются как включённые
     share_settings = response.context['share_settings']
@@ -120,11 +112,7 @@ def test_partial_share_settings_flow(mock_logger: Any, client: Any, django_user_
     assert db_settings.can_subscribe is False
 
     # Шаг 4: Проверяем на странице
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     share_settings = response.context['share_settings']
     assert share_settings['switch_share_general'] is True
@@ -274,11 +262,7 @@ def test_share_settings_persist_after_logout_and_login(
     client.post(reverse('signin'), data={'username': 'testuser', 'password': 'password123'})
 
     # Шаг 5: Проверяем, что настройки сохранились
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     share_settings = response.context['share_settings']
     assert share_settings['switch_share_general'] is True
@@ -305,11 +289,7 @@ def test_multiple_users_independent_share_settings(
     client.post(reverse('save_share_settings'), data=data)
 
     # Шаг 3: Проверяем настройки user1
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.context['share_settings']['switch_share_general'] is True
 
@@ -317,11 +297,7 @@ def test_multiple_users_independent_share_settings(
     client.force_login(user2)
 
     # Шаг 5: Проверяем, что у user2 настройки по умолчанию (выключены)
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.context['share_settings']['switch_share_general'] is False
 
@@ -415,11 +391,7 @@ def test_complete_share_settings_journey(mock_logger: Any, client: Any) -> None:
         client.post(reverse('signup'), data=signup_data, follow=True)
 
     # Шаг 2: Просмотр статистики (по умолчанию всё выключено)
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.context['share_settings']['switch_share_general'] is False
 
@@ -434,11 +406,7 @@ def test_complete_share_settings_journey(mock_logger: Any, client: Any) -> None:
     client.post(reverse('save_share_settings'), data=data)
 
     # Шаг 4: Проверяем, что всё включено
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     share_settings = response.context['share_settings']
     assert all(share_settings.values())
@@ -448,11 +416,7 @@ def test_complete_share_settings_journey(mock_logger: Any, client: Any) -> None:
     client.post(reverse('save_share_settings'), data=data)
 
     # Шаг 6: Проверяем изменения
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     share_settings = response.context['share_settings']
     assert share_settings['switch_share_general'] is True
@@ -464,11 +428,7 @@ def test_complete_share_settings_journey(mock_logger: Any, client: Any) -> None:
     client.post(reverse('save_share_settings'), data={})
 
     # Шаг 8: Проверяем, что всё выключено
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     share_settings = response.context['share_settings']
     assert all(not value for value in share_settings.values())

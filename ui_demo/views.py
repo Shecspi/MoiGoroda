@@ -92,6 +92,11 @@ def forms(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
+def progress(request: HttpRequest) -> HttpResponse:
+    return _render(request, 'ui_demo/progress.html', 'Прогресс-бары')
+
+
+@login_required
 def misc(request: HttpRequest) -> HttpResponse:
     return _render(request, 'ui_demo/misc.html', 'Прочее')
 

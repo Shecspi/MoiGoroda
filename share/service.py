@@ -11,9 +11,6 @@ from account.models import ShareSettings
 from city.services.db import get_unique_visited_cities
 from country.models import Country
 from region.services.db import get_all_region_with_visited_cities
-from services.db.statistics.get_info_for_statistic_cards_and_charts import (
-    get_info_for_statistic_cards_and_charts,
-)
 from share.structs import TypeOfSharedPage
 from subscribe.repository import is_subscribed
 
@@ -99,11 +96,11 @@ class ShareService:
             'is_subscribed': is_subscribed(current_user_id, self.user_id),
             'page_title': f'Статистика пользователя {user.username}',
             'page_description': f'Статистика посещённых городов и регионов пользователя {user.username}',
+            'statistics_user_id': self.user_id,
+            'statistics_shared_mode': True,
         }
 
-        if self.displayed_page == TypeOfSharedPage.dashboard:
-            context |= get_info_for_statistic_cards_and_charts(self.user_id)
-        elif self.displayed_page == TypeOfSharedPage.city_map:
+        if self.displayed_page == TypeOfSharedPage.city_map:
             cities = get_unique_visited_cities(self.user_id)
             cities_data = [
                 {

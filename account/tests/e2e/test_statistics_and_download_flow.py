@@ -29,16 +29,11 @@ def test_view_statistics_and_download_report_flow(client: Any, django_user_model
     client.force_login(user)
 
     # Шаг 2: Открываем страницу статистики
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts',
-            return_value={'cities_count': 5},
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.status_code == 200
     assert 'account/statistics/statistics.html' in (t.name for t in response.templates)
-    assert 'cities_count' in response.context
+    assert 'fake_statistics' not in response.context
 
     # Шаг 3: Скачиваем отчёт в формате TXT
     with patch('account.views.download.CityReport') as mock_report:
@@ -77,39 +72,6 @@ def test_view_statistics_and_download_report_flow(client: Any, django_user_model
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_statistics_shows_fake_data_then_real_data_after_visit(
-    client: Any, django_user_model: Any
-) -> None:
-    """
-    E2E тест: Статистика без посещений показывает фейковые данные -> После добавления посещения показывает реальные данные
-    """
-    # Шаг 1: Создаём и логиним пользователя
-    user = django_user_model.objects.create_user(username='testuser', password='password123')
-    client.force_login(user)
-
-    # Шаг 2: Открываем статистику без посещений
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=0):
-        with patch('account.views.statistics.get_fake_statistics', return_value={'fake': True}):
-            response = client.get(reverse('stats'))
-
-    assert response.status_code == 200
-    assert response.context.get('fake_statistics') is True
-
-    # Шаг 3: Симулируем добавление посещения и открываем статистику снова
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=1):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts',
-            return_value={'cities_count': 1},
-        ):
-            response = client.get(reverse('stats'))
-
-    assert response.status_code == 200
-    assert response.context.get('fake_statistics') is not True
-    assert 'cities_count' in response.context
-
-
-@pytest.mark.e2e
-@pytest.mark.django_db
 @patch('account.views.statistics.logger')
 def test_configure_share_settings_and_verify_flow(
     mock_logger: Any, client: Any, django_user_model: Any
@@ -122,11 +84,7 @@ def test_configure_share_settings_and_verify_flow(
     client.force_login(user)
 
     # Шаг 2: Открываем статистику и проверяем начальные настройки
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.status_code == 200
     share_settings = response.context['share_settings']
@@ -145,11 +103,7 @@ def test_configure_share_settings_and_verify_flow(
     assert response.json()['status'] == 'ok'
 
     # Шаг 4: Открываем статистику снова и проверяем, что настройки сохранились
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     assert response.status_code == 200
     share_settings = response.context['share_settings']
@@ -164,11 +118,7 @@ def test_configure_share_settings_and_verify_flow(
     assert response.json()['status'] == 'ok'
 
     # Шаг 6: Проверяем, что настройки выключились
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    response = client.get(reverse('stats'))
 
     share_settings = response.context['share_settings']
     assert share_settings['switch_share_general'] is False
@@ -282,42 +232,6 @@ def test_share_settings_validation_flow(
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-def test_statistics_page_persists_through_multiple_visits(
-    client: Any, django_user_model: Any
-) -> None:
-    """
-    E2E тест: Многократный доступ к статистике сохраняет настройки
-    """
-    # Шаг 1: Создаём и логиним пользователя
-    user = django_user_model.objects.create_user(username='testuser', password='password123')
-    client.force_login(user)
-
-    # Шаг 2: Настраиваем публикацию
-    with patch('account.views.statistics.logger'):
-        data = {
-            'switch_share_general': 'on',
-            'switch_share_dashboard': 'on',
-            'switch_share_city_map': 'on',
-        }
-        client.post(reverse('save_share_settings'), data=data)
-
-    # Шаг 3: Открываем статистику несколько раз
-    for _ in range(3):
-        with patch('account.views.statistics.get_number_of_visited_cities', return_value=5):
-            with patch(
-                'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-            ):
-                response = client.get(reverse('stats'))
-
-                assert response.status_code == 200
-                share_settings = response.context['share_settings']
-                assert share_settings['switch_share_general'] is True
-                assert share_settings['switch_share_basic_info'] is True
-                assert share_settings['switch_share_city_map'] is True
-
-
-@pytest.mark.e2e
-@pytest.mark.django_db
 def test_download_after_logout_redirects_to_signin(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: После выхода попытка скачивания перенаправляет на вход
@@ -351,7 +265,7 @@ def test_download_after_logout_redirects_to_signin(client: Any, django_user_mode
 def test_full_statistics_workflow(mock_logger: Any, client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Полный рабочий процесс со статистикой
-    Вход -> Просмотр фейковой статистики -> Настройка публикации -> Скачивание отчётов
+    Вход -> Просмотр статистики -> Настройка публикации -> Скачивание отчётов
     """
     # Шаг 1: Регистрация
     with patch('account.views.access.logger_email'):
@@ -365,11 +279,10 @@ def test_full_statistics_workflow(mock_logger: Any, client: Any, django_user_mod
         }
         client.post(reverse('signup'), data=signup_data, follow=True)
 
-    # Шаг 2: Просмотр фейковой статистики (нет посещений)
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=0):
-        with patch('account.views.statistics.get_fake_statistics', return_value={'fake': True}):
-            response = client.get(reverse('stats'))
-    assert response.context.get('fake_statistics') is True
+    # Шаг 2: Просмотр статистики без посещений
+    response = client.get(reverse('stats'))
+    assert response.status_code == 200
+    assert 'fake_statistics' not in response.context
 
     # Шаг 3: Настройка публикации
     data = {
@@ -380,12 +293,8 @@ def test_full_statistics_workflow(mock_logger: Any, client: Any, django_user_mod
     response = client.post(reverse('save_share_settings'), data=data)
     assert response.json()['status'] == 'ok'
 
-    # Шаг 4: Проверяем настройки (имитируем, что теперь есть посещённые города)
-    with patch('account.views.statistics.get_number_of_visited_cities', return_value=1):
-        with patch(
-            'account.views.statistics.get_info_for_statistic_cards_and_charts', return_value={}
-        ):
-            response = client.get(reverse('stats'))
+    # Шаг 4: Проверяем настройки
+    response = client.get(reverse('stats'))
 
     share_settings = response.context['share_settings']
     assert share_settings['switch_share_general'] is True

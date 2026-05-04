@@ -1,5 +1,6 @@
 @import "preline/variants.css";
 @import "./preline-datepicker-vc.css" layer(components);
+@import "../ui-lib/styles/index.css";
 
 @tailwind base;
 @tailwind components;
@@ -121,7 +122,7 @@
 
     /* До sm — на всю ширину строки; с sm — ширина по содержимому (тулбар списка городов и т.п.) */
     .btn-full-until-sm {
-        @apply w-full justify-center sm:w-auto;
+        @apply w-full min-w-0 justify-center sm:w-auto;
     }
 
     /* Группа кнопок: колонка на всю ширину до sm, с sm — в ряд */

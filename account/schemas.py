@@ -66,6 +66,17 @@ class RegionVisitedCitiesTreemapItem(msgspec.Struct):
     total_cities: int
 
 
+class RegionsVisitedCitiesCountryOption(msgspec.Struct):
+    code: str
+    name: str
+    number_of_visited_cities: int
+    number_of_cities: int
+
+
+class RegionsVisitedCitiesCountriesResponse(msgspec.Struct):
+    countries: list[RegionsVisitedCitiesCountryOption]
+
+
 class RegionsVisitedCitiesTreemapResponse(msgspec.Struct):
     items: list[RegionVisitedCitiesTreemapItem]
 

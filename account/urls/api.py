@@ -7,6 +7,7 @@ from account.api import (
     GetPersonalVisitedCitiesOverviewController,
     GetPersonalVisitedCountriesOverviewController,
     GetPersonalVisitedRegionsCountriesCoverageController,
+    GetRegionsVisitedCitiesCountriesController,
     GetRegionsVisitedCitiesTreemapController,
 )
 
@@ -32,6 +33,10 @@ router = Router(
         path(
             'stats/regions/visited_cities_treemap/',
             GetRegionsVisitedCitiesTreemapController.as_view(),
+        ),
+        path(
+            'stats/regions/visited_cities_countries/',
+            GetRegionsVisitedCitiesCountriesController.as_view(),
         ),
         path(
             'stats/visited_countries/overview/',

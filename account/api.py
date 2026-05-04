@@ -19,7 +19,9 @@ from account.schemas import (
     PersonalVisitedCountriesOverviewResponse,
     PersonalVisitedRegionsCountriesCoverageResponse,
     Quantity,
+    RegionsVisitedCitiesCountriesResponse,
     RegionsVisitedCitiesTreemapResponse,
+    RegionsVisitedCitiesCountryOption,
     RegionVisitedCitiesTreemapItem,
     VisitedCitiesCountryCoverage,
     VisitedCitiesCountryVisits,
@@ -380,6 +382,40 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
         ]
 
         return RegionsVisitedCitiesTreemapResponse(items=items)
+
+
+class GetRegionsVisitedCitiesCountriesController(Controller[MsgspecSerializer]):
+    def get(self) -> RegionsVisitedCitiesCountriesResponse:
+        user_id = resolve_statistics_user_id(
+            self.request.user, self.request.GET.get('shared_user_id')
+        )
+
+        countries_queryset = (
+            Country.objects.filter(city__isnull=False)
+            .annotate(
+                number_of_visited_cities=Count(
+                    'city',
+                    filter=Q(city__visitedcity__user_id=user_id),
+                    distinct=True,
+                ),
+                number_of_cities=Count('city', distinct=True),
+            )
+            .filter(number_of_visited_cities__gt=0)
+            .order_by('-number_of_visited_cities', 'name')
+            .values('code', 'name', 'number_of_visited_cities', 'number_of_cities')
+        )
+
+        countries = [
+            RegionsVisitedCitiesCountryOption(
+                code=str(country['code']),
+                name=str(country['name']),
+                number_of_visited_cities=int(country['number_of_visited_cities']),
+                number_of_cities=int(country['number_of_cities']),
+            )
+            for country in countries_queryset
+        ]
+
+        return RegionsVisitedCitiesCountriesResponse(countries=countries)
 
 
 class GetPersonalVisitedCountriesOverviewController(Controller[MsgspecSerializer]):

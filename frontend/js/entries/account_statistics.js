@@ -11,7 +11,8 @@ const ACCOUNT_STATS_ROUTES = Object.freeze({
         "/api/account/stats/regions/countries_coverage/",
     getRegionsVisitedCitiesTreemap:
         "/api/account/stats/regions/visited_cities_treemap/",
-    getRegionsCountries: "/api/country/list_by_cities",
+    getRegionsVisitedCitiesCountries:
+        "/api/account/stats/regions/visited_cities_countries/",
     getVisitedCountriesOverview:
         "/api/account/stats/visited_countries/overview/",
 });
@@ -949,9 +950,14 @@ async function fetchRegionsVisitedCitiesTreemap(
     );
 }
 
-async function fetchRegionsCountries() {
-    const data = await apiGet(ACCOUNT_STATS_ROUTES.getRegionsCountries);
-    return Array.isArray(data) ? data : [];
+async function fetchRegionsCountries(requestContext) {
+    const data = await apiGet(
+        buildStatsUrl(
+            ACCOUNT_STATS_ROUTES.getRegionsVisitedCitiesCountries,
+            requestContext,
+        ),
+    );
+    return Array.isArray(data?.countries) ? data.countries : [];
 }
 
 function getTreemapFillColor(percent) {
@@ -1207,7 +1213,7 @@ function initRegionsVisitedCitiesTreemap(requestContext) {
             });
     };
 
-    fetchRegionsCountries()
+    fetchRegionsCountries(requestContext)
         .then((data) => {
             const items = normalizeCountryOptions(data);
             populateRegionsCountrySelect(items);

@@ -303,7 +303,7 @@ function renderUnifiedCountryCards(
                         ? `
                 <div class="flex items-center justify-between text-sm">
                     <span class="font-medium text-gray-700 dark:text-neutral-300">Закрытые регионы</span>
-                    <span class="font-bold text-gray-900 dark:text-white">${formatRuNumber(finishedRegions)} из ${formatRuNumber(totalRegions)}</span>
+                    <span class="badge badge-soft-outline-success badge-pill whitespace-nowrap">${formatRuNumber(finishedRegions)} из ${formatRuNumber(totalRegions)}</span>
                 </div>
                 `
                         : ""
@@ -314,7 +314,7 @@ function renderUnifiedCountryCards(
                         ? `
                 <div class="flex items-center justify-between text-sm border-t border-gray-100 dark:border-neutral-800 pt-3 mt-1">
                     <span class="font-medium text-gray-700 dark:text-neutral-300">Всего визитов ${visitsRankHtml}</span>
-                    <span class="font-bold text-gray-900 dark:text-white">${formatRuNumber(totalVisits)}</span>
+                    <span class="badge badge-soft-outline-info badge-pill whitespace-nowrap">${formatRuNumber(totalVisits)}</span>
                 </div>
                 `
                         : ""

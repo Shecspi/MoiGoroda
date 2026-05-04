@@ -129,6 +129,17 @@ function updateRankBadge(
     badgeElement.classList.remove("hidden");
 }
 
+function hideNewVisitedCitiesLoading() {
+    const loadingElement = document.getElementById(
+        "personal-new-visited-cities-loading",
+    );
+    if (!loadingElement) {
+        return;
+    }
+
+    loadingElement.innerHTML = "";
+}
+
 function renderUnifiedCountryCards(
     citiesCoverage,
     regionsCoverage,
@@ -1286,6 +1297,7 @@ function initVisitedCitiesOverview(requestContext) {
                 "Новые города",
                 "#0ea5e9",
             );
+            hideNewVisitedCitiesLoading();
             renderVisitedCitiesByYearChart(
                 data.unique_visited_cities_by_year,
                 data.total_visited_cities_visits_by_year,
@@ -1313,6 +1325,7 @@ function initVisitedCitiesOverview(requestContext) {
                     element.textContent = "—";
                 }
             }
+            hideNewVisitedCitiesLoading();
             updateRankBadge(
                 "badge-personal_unique_visited_cities_rank",
                 Number.NaN,

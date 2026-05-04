@@ -37,17 +37,13 @@
         <div class="mb-5">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Количество новых городов</h2>
         </div>
-        <div aria-hidden="true" class="invisible text-4xl font-bold leading-none">
-            <span class="dashboard-metric-number text-5xl font-extrabold leading-none">0</span>
+        <div id="personal-new-visited-cities-loading" aria-hidden="true" class="min-h-[3rem] text-4xl font-bold leading-none">
+            <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
+                <span class="sr-only">Загрузка...</span>
+            </div>
         </div>
         <div class="mt-5 h-20">
-            <div id="personal-new-visited-cities-trend-chart" class="h-full w-full">
-                <div class="flex h-full items-center justify-center">
-                    <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
-                        <span class="sr-only">Загрузка...</span>
-                    </div>
-                </div>
-            </div>
+            <div id="personal-new-visited-cities-trend-chart" class="h-full w-full"></div>
         </div>
     </div>
 </div>

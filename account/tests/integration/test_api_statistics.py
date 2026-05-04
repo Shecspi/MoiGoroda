@@ -79,9 +79,7 @@ def test_personal_visited_cities_overview_returns_zero_ranks_without_data(
 
 @pytest.mark.integration
 @pytest.mark.django_db
-def test_account_statistics_api_uses_hyphenated_paths(
-    client: Any, django_user_model: Any
-) -> None:
+def test_account_statistics_api_uses_hyphenated_paths(client: Any, django_user_model: Any) -> None:
     user = django_user_model.objects.create_user(username='testuser', password='password123')
     client.force_login(user)
 
@@ -137,9 +135,7 @@ def test_account_statistics_api_rejects_not_public_shared_dashboard(
     if share_settings is not None:
         ShareSettings.objects.create(user=user, **share_settings)
 
-    response = client.get(
-        f'/api/account/stats/visited-cities/overview/?shared_user_id={user.id}'
-    )
+    response = client.get(f'/api/account/stats/visited-cities/overview/?shared_user_id={user.id}')
 
     assert response.status_code == 403
 
@@ -225,9 +221,7 @@ def test_regions_visited_cities_countries_returns_current_user_countries(
     client: Any, django_user_model: Any
 ) -> None:
     user = django_user_model.objects.create_user(username='testuser', password='password123')
-    other_user = django_user_model.objects.create_user(
-        username='otheruser', password='password123'
-    )
+    other_user = django_user_model.objects.create_user(username='otheruser', password='password123')
     russia = Country.objects.create(name='Россия', code='RU')
     georgia = Country.objects.create(name='Грузия', code='GE')
     moscow = City.objects.create(
@@ -402,27 +396,13 @@ def test_visited_cities_countries_visits_rank_counts_only_users_with_more_visits
         coordinate_width=55.7558,
         coordinate_longitude=37.6173,
     )
-    VisitedCity.objects.create(
-        user=user, city=city, rating=5, date_of_visit=date(2024, 1, 1)
-    )
-    VisitedCity.objects.create(
-        user=user, city=city, rating=5, date_of_visit=date(2024, 1, 2)
-    )
-    VisitedCity.objects.create(
-        user=leader, city=city, rating=5, date_of_visit=date(2024, 1, 1)
-    )
-    VisitedCity.objects.create(
-        user=leader, city=city, rating=5, date_of_visit=date(2024, 1, 2)
-    )
-    VisitedCity.objects.create(
-        user=leader, city=city, rating=5, date_of_visit=date(2024, 1, 3)
-    )
-    VisitedCity.objects.create(
-        user=equal_user, city=city, rating=5, date_of_visit=date(2024, 1, 1)
-    )
-    VisitedCity.objects.create(
-        user=equal_user, city=city, rating=5, date_of_visit=date(2024, 1, 2)
-    )
+    VisitedCity.objects.create(user=user, city=city, rating=5, date_of_visit=date(2024, 1, 1))
+    VisitedCity.objects.create(user=user, city=city, rating=5, date_of_visit=date(2024, 1, 2))
+    VisitedCity.objects.create(user=leader, city=city, rating=5, date_of_visit=date(2024, 1, 1))
+    VisitedCity.objects.create(user=leader, city=city, rating=5, date_of_visit=date(2024, 1, 2))
+    VisitedCity.objects.create(user=leader, city=city, rating=5, date_of_visit=date(2024, 1, 3))
+    VisitedCity.objects.create(user=equal_user, city=city, rating=5, date_of_visit=date(2024, 1, 1))
+    VisitedCity.objects.create(user=equal_user, city=city, rating=5, date_of_visit=date(2024, 1, 2))
 
     client.force_login(user)
     response = client.get('/api/account/stats/visited-cities/countries-visits/')

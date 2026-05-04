@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import calendar
 import datetime
+from typing import Protocol, cast
 
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -36,6 +37,23 @@ from country.repository import (
 )
 from region.models import Region
 from region.services.db import get_all_region_with_visited_cities
+
+
+class CountryWithVisitedCityCounts(Protocol):
+    """Подмена типа для `Country`, аннотированного в `get_countries_with_visited_city`."""
+
+    pk: int
+    name: str
+    visited_cities: int
+    total_cities: int
+
+
+class CountryWithVisitedRegionsCounts(Protocol):
+    """Подмена типа для `Country` из `get_list_of_countries_with_visited_regions`."""
+
+    name: str
+    number_of_visited_regions: int
+    number_of_regions: int
 
 
 def resolve_statistics_user_id(request_user: object, shared_user_id_raw: str | None) -> int:
@@ -90,9 +108,7 @@ def normalize_treemap_country_code(raw: str | None) -> str:
     return ''.join(chars) if chars else 'RU'
 
 
-def get_unique_visited_cities_country_rank(
-    country_id: int, user_unique_visited_cities: int
-) -> int:
+def get_unique_visited_cities_country_rank(country_id: int, user_unique_visited_cities: int) -> int:
     users_with_more_visited_cities = (
         VisitedCity.objects.filter(is_first_visit=True, city__country_id=country_id)
         .values('user_id')
@@ -246,7 +262,10 @@ class GetPersonalVisitedCitiesCountriesCoverageController(Controller[MsgspecSeri
             self.request.user, self.request.GET.get('shared_user_id')
         )
 
-        countries = list(get_countries_with_visited_city(user_id))
+        countries = cast(
+            list[CountryWithVisitedCityCounts],
+            list(get_countries_with_visited_city(user_id)),
+        )
         total_users_count = User.objects.count()
 
         countries_coverage = [
@@ -272,16 +291,20 @@ class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSer
             self.request.user, self.request.GET.get('shared_user_id')
         )
 
-        finished_regions_by_country = {}
-        for country_name in (
-            get_all_region_with_visited_cities(user_id)
-            .filter(num_total=F('num_visited'), num_visited__gt=0)
-            .values_list('country__name', flat=True)
-        ):
+        finished_regions_by_country: dict[str, int] = {}
+        finished_region_rows = get_all_region_with_visited_cities(user_id).filter(
+            num_total=F('num_visited'),
+            num_visited__gt=0,
+        )  # type: ignore[misc]
+        for country_name in finished_region_rows.values_list('country__name', flat=True):
             finished_regions_by_country[country_name] = (
                 finished_regions_by_country.get(country_name, 0) + 1
             )
 
+        regions_countries = cast(
+            list[CountryWithVisitedRegionsCounts],
+            list(get_list_of_countries_with_visited_regions(user_id)),
+        )
         countries_coverage = [
             VisitedRegionsCountryCoverage(
                 name=country.name,
@@ -289,7 +312,7 @@ class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSer
                 total_regions=country.number_of_regions,
                 finished_regions=finished_regions_by_country.get(country.name, 0),
             )
-            for country in get_list_of_countries_with_visited_regions(user_id)
+            for country in regions_countries
         ]
 
         return PersonalVisitedRegionsCountriesCoverageResponse(

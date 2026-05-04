@@ -247,6 +247,7 @@ class GetPersonalVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
             unique_visited_cities_rank=unique_visited_cities_rank,
             total_visited_cities_visits=Quantity(count=visits_total),
             total_visited_cities_visits_rank=total_visited_cities_visits_rank,
+            new_visited_cities=Quantity(count=unique_total),
             new_visited_cities_by_year=new_by_year,
             unique_visited_cities_by_year=unique_by_year,
             total_visited_cities_visits_by_year=visits_by_year,

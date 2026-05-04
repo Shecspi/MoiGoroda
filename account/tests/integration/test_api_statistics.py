@@ -75,6 +75,7 @@ def test_personal_visited_cities_overview_returns_zero_ranks_without_data(
     assert data['unique_visited_cities_rank'] == 0
     assert data['total_visited_cities_visits']['count'] == 0
     assert data['total_visited_cities_visits_rank'] == 0
+    assert data['new_visited_cities']['count'] == 0
 
 
 @pytest.mark.integration
@@ -209,6 +210,7 @@ def test_visited_cities_overview_counts_visits_unique_new_series_and_ranks(
     assert data['unique_visited_cities_by_year'] == [{'label': '2025', 'count': 2}]
     assert data['total_visited_cities_visits_by_year'] == [{'label': '2025', 'count': 3}]
     assert data['new_visited_cities_by_year'] == [{'label': '2025', 'count': 2}]
+    assert data['new_visited_cities']['count'] == 2
     assert {'label': '01.2025', 'count': 1} in data['unique_visited_cities_by_month']
     assert {'label': '02.2025', 'count': 2} in data['unique_visited_cities_by_month']
     assert {'label': '02.2025', 'count': 2} in data['total_visited_cities_visits_by_month']

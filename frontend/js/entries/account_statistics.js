@@ -144,15 +144,84 @@ function updateRankBadge(
     badgeElement.classList.remove("hidden");
 }
 
-function hideNewVisitedCitiesLoading() {
-    const loadingElement = document.getElementById(
-        "personal-new-visited-cities-loading",
+function countForCalendarYearFromSeries(series, year) {
+    if (!Array.isArray(series)) {
+        return 0;
+    }
+    const label = String(year);
+    const row = series.find(
+        (item) => item != null && String(item.label) === label,
     );
-    if (!loadingElement) {
+    return Number(row?.count ?? 0);
+}
+
+/** Как на дашборде: процент изменения к прошлому периоду, округление до сотых. */
+function buildCalendarYearComparison(currentCount, previousCount) {
+    const current = Number(currentCount) || 0;
+    const previous = Number(previousCount) || 0;
+    const delta = current - previous;
+    const deltaPercent =
+        previous === 0
+            ? 0
+            : Math.round((delta / previous) * 10000) / 100;
+    return {
+        current_count: current,
+        previous_count: previous,
+        delta,
+        delta_percent: deltaPercent,
+    };
+}
+
+function updatePersonalYearPreviousRow(elementId, value) {
+    const element = document.getElementById(elementId);
+    if (!element) {
         return;
     }
+    element.innerHTML = `<span class="dashboard-metric-number text-base font-semibold text-gray-900 dark:text-white">${formatRuNumber(value)}</span>`;
+}
 
-    loadingElement.innerHTML = "";
+function updatePersonalYearCurrentRow(elementId, comparison) {
+    const element = document.getElementById(elementId);
+    if (!element || !comparison) {
+        return;
+    }
+    const deltaNumber = Number(comparison.delta);
+    const deltaClass =
+        deltaNumber >= 0
+            ? "text-emerald-600 dark:text-emerald-400"
+            : "text-red-600 dark:text-red-400";
+    const trendIcon =
+        deltaNumber >= 0
+            ? `
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H9M17 7v8"/>
+            </svg>
+        `
+            : `
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7l10 10M17 17H9M17 17V9"/>
+            </svg>
+        `;
+    const absPercent = Math.abs(Number(comparison.delta_percent));
+    element.innerHTML = `
+        <span class="dashboard-metric-number inline-flex flex-wrap items-center justify-end gap-x-2 gap-y-1 text-base font-semibold text-gray-900 dark:text-white">
+            <span>${formatRuNumber(comparison.current_count)}</span>
+            <span class="inline-flex items-center gap-1 ${deltaClass}">
+                ${trendIcon}
+                <span>${absPercent}%</span>
+            </span>
+        </span>
+    `;
+}
+
+/** Годовые значения из тех же серий, что и мини-графики карточек (`*_by_year`). */
+function applyPersonalYearRowsFromSeries(idPrefix, byYearSeries) {
+    const year = new Date().getFullYear();
+    const current = countForCalendarYearFromSeries(byYearSeries, year);
+    const previous = countForCalendarYearFromSeries(byYearSeries, year - 1);
+    const comparison = buildCalendarYearComparison(current, previous);
+    updatePersonalYearCurrentRow(`${idPrefix}-current`, comparison);
+    updatePersonalYearPreviousRow(`${idPrefix}-previous`, previous);
 }
 
 function renderUnifiedCountryCards(
@@ -1259,6 +1328,13 @@ function initVisitedCitiesOverview(requestContext) {
             "badge-personal_total_visited_cities_visits_rank",
         ),
         document.getElementById("number-personal_total_visited_cities_visits"),
+        document.getElementById("number-personal_new_visited_cities"),
+        document.getElementById("personal-unique-ytd-previous"),
+        document.getElementById("personal-unique-ytd-current"),
+        document.getElementById("personal-visits-ytd-previous"),
+        document.getElementById("personal-visits-ytd-current"),
+        document.getElementById("personal-new-ytd-previous"),
+        document.getElementById("personal-new-ytd-current"),
         document.getElementById("personal-unique-visited-cities-trend-chart"),
         document.getElementById("personal-total-visited-cities-trend-chart"),
         document.getElementById("personal-new-visited-cities-trend-chart"),
@@ -1303,6 +1379,22 @@ function initVisitedCitiesOverview(requestContext) {
                 Number(data.total_visited_cities_visits?.count),
                 requestContext?.isSharedMode,
             );
+            updateNumberOnCard(
+                "number-personal_new_visited_cities",
+                data.new_visited_cities?.count,
+            );
+            applyPersonalYearRowsFromSeries(
+                "personal-unique-ytd",
+                data.unique_visited_cities_by_year,
+            );
+            applyPersonalYearRowsFromSeries(
+                "personal-visits-ytd",
+                data.total_visited_cities_visits_by_year,
+            );
+            applyPersonalYearRowsFromSeries(
+                "personal-new-ytd",
+                data.new_visited_cities_by_year,
+            );
 
             renderTrendChart(
                 "personal-unique-visited-cities-trend-chart",
@@ -1322,7 +1414,6 @@ function initVisitedCitiesOverview(requestContext) {
                 "Новые города",
                 "#0ea5e9",
             );
-            hideNewVisitedCitiesLoading();
             renderVisitedCitiesByYearChart(
                 data.unique_visited_cities_by_year,
                 data.total_visited_cities_visits_by_year,
@@ -1342,6 +1433,13 @@ function initVisitedCitiesOverview(requestContext) {
             const fallbackElements = [
                 "number-personal_unique_visited_cities",
                 "number-personal_total_visited_cities_visits",
+                "number-personal_new_visited_cities",
+                "personal-unique-ytd-previous",
+                "personal-unique-ytd-current",
+                "personal-visits-ytd-previous",
+                "personal-visits-ytd-current",
+                "personal-new-ytd-previous",
+                "personal-new-ytd-current",
                 "personal-new-visited-cities-trend-chart",
             ];
             for (const elementId of fallbackElements) {
@@ -1350,7 +1448,6 @@ function initVisitedCitiesOverview(requestContext) {
                     element.textContent = "—";
                 }
             }
-            hideNewVisitedCitiesLoading();
             updateRankBadge(
                 "badge-personal_unique_visited_cities_rank",
                 Number.NaN,

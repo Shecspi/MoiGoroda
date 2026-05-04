@@ -14,6 +14,24 @@
                 <span class="sr-only">Загрузка...</span>
             </div>
         </div>
+        <ul class="mt-5 space-y-2">
+            <li class="flex items-center justify-between text-sm">
+                <span class="text-gray-600 dark:text-neutral-400">В текущем году</span>
+                <div id="personal-unique-ytd-current" class="font-semibold text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading">
+                        <span class="sr-only">Загрузка...</span>
+                    </div>
+                </div>
+            </li>
+            <li class="flex items-center justify-between text-sm">
+                <span class="text-gray-600 dark:text-neutral-400">В прошлом году</span>
+                <div id="personal-unique-ytd-previous" class="font-semibold text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-amber-600 dark:text-amber-400" role="status" aria-label="loading">
+                        <span class="sr-only">Загрузка...</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
         <div class="mt-5 h-20">
             <div id="personal-unique-visited-cities-trend-chart" class="h-full w-full"></div>
         </div>
@@ -29,6 +47,24 @@
                 <span class="sr-only">Загрузка...</span>
             </div>
         </div>
+        <ul class="mt-5 space-y-2">
+            <li class="flex items-center justify-between text-sm">
+                <span class="text-gray-600 dark:text-neutral-400">В текущем году</span>
+                <div id="personal-visits-ytd-current" class="font-semibold text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-emerald-600 dark:text-emerald-400" role="status" aria-label="loading">
+                        <span class="sr-only">Загрузка...</span>
+                    </div>
+                </div>
+            </li>
+            <li class="flex items-center justify-between text-sm">
+                <span class="text-gray-600 dark:text-neutral-400">В прошлом году</span>
+                <div id="personal-visits-ytd-previous" class="font-semibold text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-emerald-600 dark:text-emerald-400" role="status" aria-label="loading">
+                        <span class="sr-only">Загрузка...</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
         <div class="mt-5 h-20">
             <div id="personal-total-visited-cities-trend-chart" class="h-full w-full"></div>
         </div>
@@ -37,11 +73,29 @@
         <div class="mb-5">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Количество новых городов</h2>
         </div>
-        <div id="personal-new-visited-cities-loading" aria-hidden="true" class="min-h-[3rem] text-4xl font-bold leading-none">
+        <div id="number-personal_new_visited_cities" class="text-4xl font-bold leading-none text-gray-900 dark:text-white">
             <div class="animate-spin inline-block h-7 w-7 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
                 <span class="sr-only">Загрузка...</span>
             </div>
         </div>
+        <ul class="mt-5 space-y-2">
+            <li class="flex items-center justify-between text-sm">
+                <span class="text-gray-600 dark:text-neutral-400">В текущем году</span>
+                <div id="personal-new-ytd-current" class="font-semibold text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
+                        <span class="sr-only">Загрузка...</span>
+                    </div>
+                </div>
+            </li>
+            <li class="flex items-center justify-between text-sm">
+                <span class="text-gray-600 dark:text-neutral-400">В прошлом году</span>
+                <div id="personal-new-ytd-previous" class="font-semibold text-gray-900 dark:text-white">
+                    <div class="animate-spin inline-block h-4 w-4 rounded-full border-[3px] border-current border-t-transparent text-sky-600 dark:text-sky-400" role="status" aria-label="loading">
+                        <span class="sr-only">Загрузка...</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
         <div class="mt-5 h-20">
             <div id="personal-new-visited-cities-trend-chart" class="h-full w-full"></div>
         </div>

@@ -83,6 +83,20 @@ function formatRuNumber(value) {
     return new Intl.NumberFormat("ru-RU").format(value ?? 0);
 }
 
+function escapeHtml(value) {
+    return String(value ?? "").replace(
+        /[&<>"']/g,
+        (char) =>
+            ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+            })[char],
+    );
+}
+
 function updateNumberOnCard(elementId, value) {
     const element = document.getElementById(elementId);
     if (!element) {
@@ -214,6 +228,7 @@ function renderUnifiedCountryCards(
     cardsContainer.innerHTML = items
         .map((c) => {
             const countryName = c.name || "—";
+            const safeCountryName = escapeHtml(countryName);
             const visitedCities = c.visitedCities || 0;
             const totalCities = c.totalCities || 0;
             const citiesWidth =
@@ -251,7 +266,7 @@ function renderUnifiedCountryCards(
             return `
             <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 flex flex-col gap-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">${countryName}</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">${safeCountryName}</h3>
                 </div>
 
                 ${
@@ -426,7 +441,7 @@ function renderTrendChart(containerId, chartData, seriesName, color) {
                 const value = series[seriesIndex][dataPointIndex];
                 return `
                     <div class="px-2 py-1 text-sm text-gray-700 dark:text-neutral-200">
-                        ${label}: <span class="font-semibold">${value}</span>
+                        ${escapeHtml(label)}: <span class="font-semibold">${formatRuNumber(value)}</span>
                     </div>
                 `;
             },
@@ -577,11 +592,12 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
                         const color =
                             ["#10b981", "#f59e0b", "#0ea5e9"][idx] || "#6b7280";
                         const name = String(seriesItem?.name || "Показатель");
+                        const safeName = escapeHtml(name);
                         return `
                             <div class="flex items-center justify-between gap-4 py-1">
                                 <div class="flex items-center gap-2">
                                     <span class="inline-block h-2.5 w-2.5 rounded-full" style="background-color: ${color};"></span>
-                                    <span>${name}</span>
+                                    <span>${safeName}</span>
                                 </div>
                                 <span class="font-semibold">${formatRuNumber(value)}</span>
                             </div>
@@ -592,7 +608,7 @@ function renderVisitedCitiesByYearChart(uniqueByYear, totalByYear, newByYear) {
                 return `
                     <div class="min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
                         <div class="mb-1 border-b border-gray-200 pb-1.5 font-semibold text-gray-900 dark:border-neutral-700 dark:text-white">
-                            ${label}
+                            ${escapeHtml(label)}
                         </div>
                         ${rows}
                     </div>
@@ -775,11 +791,12 @@ function renderVisitedCitiesByMonthChart(
                         const color =
                             ["#10b981", "#f59e0b", "#0ea5e9"][idx] || "#6b7280";
                         const name = String(seriesItem?.name || "Показатель");
+                        const safeName = escapeHtml(name);
                         return `
                             <div class="flex items-center justify-between gap-4 py-1">
                                 <div class="flex items-center gap-2">
                                     <span class="inline-block h-2.5 w-2.5 rounded-full" style="background-color: ${color};"></span>
-                                    <span>${name}</span>
+                                    <span>${safeName}</span>
                                 </div>
                                 <span class="font-semibold">${formatRuNumber(value)}</span>
                             </div>
@@ -790,7 +807,7 @@ function renderVisitedCitiesByMonthChart(
                 return `
                     <div class="min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
                         <div class="mb-1 border-b border-gray-200 pb-1.5 font-semibold text-gray-900 dark:border-neutral-700 dark:text-white">
-                            ${label}
+                            ${escapeHtml(label)}
                         </div>
                         ${rows}
                     </div>
@@ -876,10 +893,11 @@ function renderVisitedCountriesOverviewCards(data, isSharedMode = false) {
             const locWidthPercent =
                 locTotal > 0 ? Math.round((locVisited / locTotal) * 100) : 0;
             const locationName = String(item?.location_name || "—");
+            const safeLocationName = escapeHtml(locationName);
             return `
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                     <div class="mb-3">
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${locationName}</p>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${safeLocationName}</p>
                     </div>
                     <div class="mb-3">
                         <p class="dashboard-metric-number text-2xl font-extrabold leading-none text-gray-900 dark:text-white">
@@ -1010,12 +1028,13 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
     const treemapData = sortedItems.map((item) => {
         const totalCities = item.total_cities ?? 0;
         const uniqueVisitedCities = item.unique_visited_cities ?? 0;
+        const fullname = String(item.fullname || "—");
         const progress =
             totalCities > 0 ? uniqueVisitedCities / totalCities : 0;
         const percent = Math.round(progress * 100);
         return {
-            x: buildShortLabel(item.fullname),
-            fullname: item.fullname,
+            x: buildShortLabel(fullname),
+            fullname,
             y: uniqueVisitedCities,
             valueLabel: `${uniqueVisitedCities} из ${totalCities}`,
             totalCities,
@@ -1105,7 +1124,7 @@ function renderRegionsTreemap(items, loadingElement, chartContainer) {
                 return `
                     <div class="min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
                         <div class="mb-1 border-b border-gray-200 pb-1.5 font-semibold text-gray-900 dark:border-neutral-700 dark:text-white">
-                            ${point.fullname}
+                            ${escapeHtml(point.fullname)}
                         </div>
                         <div class="flex items-center justify-between gap-4 py-1">
                             <span>Посещено</span>

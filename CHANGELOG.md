@@ -120,6 +120,8 @@
 
 - *(region-map)* Исправлено позиционирование модального окна "Помощь" на карте городов региона ([26d953b](https://github.com/Shecspi/MoiGoroda/commit/26d953b5756dc67346274e1baf7dfe841e1011be))
 
+- Обновлён дизайн страницы «Личная статистика» ([3753eca](https://github.com/Shecspi/MoiGoroda/commit/3753ecadcc69281b0dcc4e9c4f9f9334e6eec8c0))
+
 
 #### 🧪 Тестирование
 

@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'premium',
     'dmr',
     'ui_demo.apps.UiDemoConfig',
+    'analytics.apps.AnalyticsConfig',
 ]
 
 

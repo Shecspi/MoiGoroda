@@ -14,13 +14,20 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 
-from city.models import VisitedCity, City
+from analytics.services import normalize_html_surface
+from city.models import City, VisitedCity
 from country.models import Country
 from region.models import Region
 from utils.preline_select import hs_select_search_single_config
 
 
 class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
+    analytics_surface = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(),
+        max_length=64,
+    )
+
     CHOICES = [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5')]
     rating = forms.ChoiceField(
         label='Оценка города',
@@ -53,6 +60,12 @@ class VisitedCity_Create_Form(ModelForm):  # type: ignore[type-arg]
             'impression',
             'rating',
         ]
+
+    def clean_analytics_surface(self) -> str:
+        raw = self.cleaned_data.get('analytics_surface', '') or ''
+        surface = normalize_html_surface(raw.strip() or None)
+
+        return surface.value
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.request = kwargs.pop('request', None)

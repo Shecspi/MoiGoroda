@@ -31,7 +31,7 @@
 
     {% include 'city/map/modals/subscriptions.html' %}
     {% include 'city/map/modals/help.html' %}
-    {% include 'city/map/modals/add_city.html' %}
+    {% include 'city/map/modals/add_city.html' with add_city_from_raw='visited_cities_map' %}
 
     <!-- Карта -->
     <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>

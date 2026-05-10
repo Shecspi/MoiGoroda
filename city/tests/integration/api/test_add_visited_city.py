@@ -91,6 +91,7 @@ class TestAddVisitedCity:
         with (
             patch('city.api.common.VisitedCity.objects.create') as mock_create,
             patch('city.api.common.AddVisitedCitySerializer') as mock_serializer_class,
+            patch('city.api.common.record_visited_city_add') as mock_record_analytics,
         ):
             # Мокаем сериализатор
             mock_serializer = MagicMock()
@@ -102,7 +103,15 @@ class TestAddVisitedCity:
                 'has_magnet': True,
                 'impression': 'Great city!',
             }
-            mock_serializer.save.return_value = None
+
+            mock_created = MagicMock()
+            mock_created.id = 1
+            mock_created.city = mock_city
+            mock_created.date_of_visit = date(2024, 1, 15)
+            mock_created.rating = 5
+            mock_created.has_magnet = True
+            mock_created.impression = 'Great city!'
+            mock_serializer.save.return_value = mock_created
             # Используем простые строковые значения для избежания рекурсии
             mock_serializer.data = {
                 'id': 1,
@@ -119,13 +128,6 @@ class TestAddVisitedCity:
             }
             mock_serializer_class.return_value = mock_serializer
 
-            mock_created = MagicMock()
-            mock_created.id = 1
-            mock_created.city = mock_city
-            mock_created.date_of_visit = date(2024, 1, 15)
-            mock_created.rating = 5
-            mock_created.has_magnet = True
-            mock_created.impression = 'Great city!'
             mock_create.return_value = mock_created
 
             response = api_client.post(self.url, data)
@@ -135,6 +137,7 @@ class TestAddVisitedCity:
         assert response_data['status'] == 'success'
         assert 'city' in response_data
         mock_logger.info.assert_called_once()
+        mock_record_analytics.assert_called_once()
 
     @patch('city.api.common.VisitedCity.objects.filter')
     @patch('city.api.common.City.objects.get')

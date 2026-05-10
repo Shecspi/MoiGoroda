@@ -31,6 +31,8 @@ from city.models import (
     VisitedCity,
     VisitedCityDistrict,
 )
+from analytics.services import normalize_api_from_raw, record_visited_city_add
+
 from city.serializers import (
     AddVisitedCityDistrictSerializer,
     AddVisitedCitySerializer,
@@ -241,7 +243,10 @@ class AddVisitedCity(generics.CreateAPIView):  # type: ignore[type-arg]
                 status=status.HTTP_409_CONFLICT,
             )
 
-        serializer.save(user=user)
+        visited = serializer.save(user=user)
+
+        api_surface, raw_hint = normalize_api_from_raw(request.data.get('from'))
+        record_visited_city_add(visited_city=visited, surface=api_surface, raw_hint=raw_hint)
 
         logger.info(
             self.request,

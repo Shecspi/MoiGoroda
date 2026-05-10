@@ -46,6 +46,8 @@ from city.services.db import (
     set_is_visit_first_for_all_visited_cities,
     get_number_of_visited_countries,
 )
+from analytics.models import VisitedCityAddSource
+from analytics.services import record_visited_city_add
 from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
 from city.services.interfaces import AbstractVisitedCityService
 from city.services.sort import apply_sort_to_queryset
@@ -101,6 +103,10 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):  # type: ignore[type-a
                 if city.region:
                     initial['region'] = city.region.id
 
+        surface = self.request.GET.get('surface')
+        if isinstance(surface, str) and surface.strip():
+            initial.setdefault('analytics_surface', surface.strip())
+
         return initial
 
     def get_form_kwargs(self) -> dict[str, Any]:
@@ -117,6 +123,14 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):  # type: ignore[type-a
 
         if self.object and isinstance(self.request.user, AbstractBaseUser):
             set_is_visit_first_for_all_visited_cities(self.object.city_id, self.request.user)
+
+        if self.object:
+            analytics_code = form.cleaned_data.get('analytics_surface')
+            try:
+                surface = VisitedCityAddSource.Surface(analytics_code)
+            except ValueError:
+                surface = VisitedCityAddSource.Surface.UNKNOWN
+            record_visited_city_add(visited_city=self.object, surface=surface)
 
         logger.info(self.request, '(Visited city) Adding a visited city')
         return response

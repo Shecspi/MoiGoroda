@@ -43,7 +43,7 @@ Licensed under the Apache License, Version 2.0
         <ul class="space-y-1">
             {% if user.is_authenticated %}
                 <li>
-                    <a href="{% url 'city-create' %}"
+                    <a href="{% url 'city-create' %}?surface=sidebar"
                        class="flex items-center gap-x-2 py-2 pl-4 pr-2 text-start text-sm text-green-700 rounded-md bg-green-50 border border-green-200 hover:bg-green-100 hover:text-green-800 hover:border-green-300 focus:outline-none focus:bg-green-100 focus:border-green-300 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 dark:hover:bg-green-500/20 dark:hover:border-green-500/30 dark:focus:bg-green-500/20 dark:focus:border-green-500/30{% if active_page == 'add_city' %} ring-2 ring-green-500 ring-offset-2 dark:ring-green-400{% endif %}">
                         <svg class="shrink-0 size-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />

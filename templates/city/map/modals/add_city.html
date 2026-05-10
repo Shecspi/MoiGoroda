@@ -40,7 +40,7 @@ Licensed under the Apache License, Version 2.0
                     </div>
 
                     <input type="hidden" id="city-id" name="city" value="">
-                    <input type="hidden" name="from" value="general map">
+                    <input type="hidden" name="from" value="{{ add_city_from_raw|default:'visited_cities_map' }}">
 
                     <div class="space-y-6">
                         <!-- Дата посещения (тот же виджет, что на странице создания города) -->

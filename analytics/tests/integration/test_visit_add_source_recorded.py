@@ -4,6 +4,8 @@ from datetime import date
 from unittest.mock import patch
 
 import pytest
+from django.contrib.auth.models import User
+from django.test import Client
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -22,7 +24,7 @@ def api_client() -> APIClient:
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_api_add_visit_writes_region_map_surface(
-    api_client: APIClient, django_user_model
+    api_client: APIClient, django_user_model: type[User]
 ) -> None:
     user = django_user_model.objects.create_user(username='u1', password='pw')
     api_client.force_authenticate(user=user)
@@ -55,7 +57,7 @@ def test_api_add_visit_writes_region_map_surface(
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_api_add_visit_unknown_from_records_api_unknown_with_raw_hint(
-    api_client: APIClient, django_user_model
+    api_client: APIClient, django_user_model: type[User]
 ) -> None:
     user = django_user_model.objects.create_user(username='u2', password='pw')
     api_client.force_authenticate(user=user)
@@ -88,7 +90,7 @@ def test_api_add_visit_unknown_from_records_api_unknown_with_raw_hint(
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_api_country_map_string_is_api_unknown_with_hint(
-    api_client: APIClient, django_user_model
+    api_client: APIClient, django_user_model: type[User]
 ) -> None:
     """Строка с карты стран относится к другому API; для города — api_unknown + raw_hint."""
     user = django_user_model.objects.create_user(username='u4', password='pw')
@@ -122,7 +124,7 @@ def test_api_country_map_string_is_api_unknown_with_hint(
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_api_general_map_alias_maps_to_visited_cities_map(
-    api_client: APIClient, django_user_model
+    api_client: APIClient, django_user_model: type[User]
 ) -> None:
     user = django_user_model.objects.create_user(username='u3', password='pw')
     api_client.force_authenticate(user=user)
@@ -158,8 +160,8 @@ def test_api_general_map_alias_maps_to_visited_cities_map(
 def test_city_create_html_records_sidebar_surface(
     mock_set_first: object,
     mock_signal: object,
-    client,
-    django_user_model,
+    client: Client,
+    django_user_model: type[User],
 ) -> None:
     user = django_user_model.objects.create_user(username='htm', password='pw')
 

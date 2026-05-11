@@ -126,9 +126,12 @@ class VisitedCity_Create(LoginRequiredMixin, CreateView):  # type: ignore[type-a
 
         if self.object:
             analytics_code = form.cleaned_data.get('analytics_surface')
-            try:
-                surface = VisitedCityAddSource.Surface(analytics_code)
-            except ValueError:
+            if isinstance(analytics_code, str):
+                try:
+                    surface = VisitedCityAddSource.Surface(analytics_code)
+                except ValueError:
+                    surface = VisitedCityAddSource.Surface.UNKNOWN
+            else:
                 surface = VisitedCityAddSource.Surface.UNKNOWN
             record_visited_city_add(visited_city=self.object, surface=surface)
 

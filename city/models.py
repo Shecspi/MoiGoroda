@@ -132,6 +132,7 @@ class VisitedCity(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата и время создания',
+        db_index=True,
     )
     updated_at = models.DateTimeField(
         auto_now=True,

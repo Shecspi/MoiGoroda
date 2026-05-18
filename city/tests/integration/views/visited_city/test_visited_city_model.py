@@ -186,10 +186,12 @@ def test_visited_city_has_db_indexes() -> None:
     date_field = VisitedCity._meta.get_field('date_of_visit')
     rating_field = VisitedCity._meta.get_field('rating')
     is_first_visit_field = VisitedCity._meta.get_field('is_first_visit')
+    created_at_field = VisitedCity._meta.get_field('created_at')
 
     assert date_field.db_index is True  # type: ignore[attr-defined]
     assert rating_field.db_index is True  # type: ignore[attr-defined]
     assert is_first_visit_field.db_index is True  # type: ignore[attr-defined]
+    assert created_at_field.db_index is True  # type: ignore[attr-defined]
 
 
 # Тесты методов модели

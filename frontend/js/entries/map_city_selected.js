@@ -1,8 +1,30 @@
 import {create_map} from "../components/map";
-import {icon_visited_pin} from "../components/icons";
+import {icon_blue_pin, icon_not_visited_pin, icon_visited_pin} from "../components/icons";
+import {buildCityPolygonUrl, getCityPolygonStyle} from "../components/region_city_polygons";
 import L from "leaflet";
 
 let map;
+
+/** Стиль полигона города на странице деталей (без зелёного/красного для гостей). */
+function getCityDetailPolygonStyle() {
+    if (!window.IS_AUTHENTICATED) {
+        return {
+            fillColor: "rgb(99, 130, 255)",
+            fillOpacity: 0.4,
+            color: "rgb(0, 51, 255)",
+            weight: 2,
+            opacity: 0.8,
+        };
+    }
+    return getCityPolygonStyle({isVisited: window.IS_VISITED});
+}
+
+function getCityDetailMarkerIcon() {
+    if (!window.IS_AUTHENTICATED) {
+        return icon_blue_pin;
+    }
+    return window.IS_VISITED ? icon_visited_pin : icon_not_visited_pin;
+}
 
 function setupDeleteModal(url, cityTitle) {
     document.getElementById('cityTitleOnModal').textContent = cityTitle;
@@ -14,23 +36,23 @@ function initMap() {
     const lon = parseFloat(window.LON.replace(',', '.'));
 
     map = create_map();
-    // map.setView([lat, lon], 7);
-    const marker = L.marker([lat, lon], {icon: icon_visited_pin}).addTo(map);
+
+    const marker = L.marker([lat, lon], {icon: getCityDetailMarkerIcon()});
     marker.bindTooltip(window.CITY_TITLE, {
         direction: 'top',
         permanent: true,
     });
 
-    // Загружаем полигон региона или страны
-    let url;
+    // Загружаем полигон региона или страны (фон)
+    let regionUrl;
     if (window.ISO3166) {
         const [country, region] = window.ISO3166.split('-');
-        url = `${URL_GEO_POLYGONS}/region/hq/${country}/${region}`;
+        regionUrl = `${URL_GEO_POLYGONS}/region/hq/${country}/${region}`;
     } else {
-        url = `${URL_GEO_POLYGONS}/country/hq/${window.COUNTRY_CODE}`;
+        regionUrl = `${URL_GEO_POLYGONS}/country/hq/${window.COUNTRY_CODE}`;
     }
 
-    fetch(url)
+    const regionPolygonPromise = fetch(regionUrl)
         .then(response => {
             if (!response.ok) {
                 throw new Error(response.statusText);
@@ -45,14 +67,51 @@ function initMap() {
                 color: '#0033ff',
                 opacity: 0.3
             };
-            const polygon = L.geoJSON(geoJson, { style: myStyle }).addTo(map);
-            const group = new L.featureGroup([polygon]);
-            map.fitBounds(group.getBounds());
+            return L.geoJSON(geoJson, {style: myStyle}).addTo(map);
         })
         .catch(error => {
-            const group = new L.featureGroup([marker]);
-            map.fitBounds(group.getBounds());
             console.log('Произошла ошибка при загрузке границ региона:\n' + error);
+            return null;
+        });
+
+    // Загружаем полигон города
+    const hasRegion = window.ISO3166 && window.ISO3166.includes('-');
+    let cityPolygonPromise = null;
+
+    if (hasRegion) {
+        const [countryCode, regionCode] = window.ISO3166.split('-');
+        const cityUrl = buildCityPolygonUrl(window.CITY_TITLE, countryCode, regionCode);
+        cityPolygonPromise = fetch(cityUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then(geoJson => {
+                const style = getCityDetailPolygonStyle();
+                return L.geoJSON(geoJson, {style: style}).addTo(map);
+            })
+            .catch(error => {
+                console.log('Произошла ошибка при загрузке границ города:\n' + error);
+                return null;
+            });
+    }
+
+    // Масштабируем карту: полигон города или маркер как fallback
+    Promise.all([regionPolygonPromise, cityPolygonPromise])
+        .then(([regionPolygon, cityPolygon]) => {
+            if (cityPolygon) {
+                map.fitBounds(cityPolygon.getBounds());
+                return;
+            }
+
+            marker.addTo(map);
+            const fitLayers = [marker];
+            if (regionPolygon) {
+                fitLayers.unshift(regionPolygon);
+            }
+            map.fitBounds(L.featureGroup(fitLayers).getBounds());
         });
 }
 

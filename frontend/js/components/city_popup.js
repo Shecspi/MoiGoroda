@@ -271,29 +271,50 @@ export const buildPopupContent = (cityData, options = {}) => {
 };
 
 /**
- * Привязывает popup к маркеру Leaflet
- * @param {L.Marker} marker - Маркер Leaflet
+ * Привязывает popup и подсказку к слою Leaflet (маркер, полигон и т.д.)
+ * @param {L.Layer} layer - Слой Leaflet
  * @param {Object} cityData - Данные о городе
  * @param {Object} options - Опции для popup (см. buildPopupContent)
  */
-export const bindPopupToMarker = (marker, cityData, options = {}) => {
-    marker.bindPopup(buildPopupContent(cityData, options), {maxWidth: 400, minWidth: 280});
-    marker.on('popupopen', () => {
+export const bindPopupToLayer = (layer, cityData, options = {}) => {
+    layer.bindPopup(buildPopupContent(cityData, options), {maxWidth: 400, minWidth: 280});
+    layer.on('popupopen', () => {
         if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
             window.HSStaticMethods.autoInit();
         }
     });
-    marker.bindTooltip(cityData.name, {direction: 'top'});
-    marker.on('mouseover', function () {
+    const tooltipOptions = {direction: 'top'};
+    // Полигоны: подсказка у курсора, а не в центре (у MultiPolygon центр может попасть в «дырку»)
+    if (layer instanceof L.Path) {
+        tooltipOptions.sticky = true;
+    }
+    layer.bindTooltip(cityData.name, tooltipOptions);
+    layer.on('mouseover', function () {
         const tooltip = this.getTooltip();
+        if (!tooltip) {
+            return;
+        }
         if (this.isPopupOpen()) {
             tooltip.setOpacity(0.0);
         } else {
             tooltip.setOpacity(0.9);
         }
     });
-    marker.on('click', function () {
-        this.getTooltip().setOpacity(0.0);
+    layer.on('click', function () {
+        const tooltip = this.getTooltip();
+        if (tooltip) {
+            tooltip.setOpacity(0.0);
+        }
     });
+};
+
+/**
+ * Привязывает popup к маркеру Leaflet
+ * @param {L.Marker} marker - Маркер Leaflet
+ * @param {Object} cityData - Данные о городе
+ * @param {Object} options - Опции для popup (см. buildPopupContent)
+ */
+export const bindPopupToMarker = (marker, cityData, options = {}) => {
+    bindPopupToLayer(marker, cityData, options);
 };
 

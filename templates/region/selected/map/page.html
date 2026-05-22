@@ -47,6 +47,7 @@
     <script>
         window.TILE_LAYER = "{{ TILE_LAYER }}";
         window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
+        window.URL_S3_GEO_POLYGONS = "{{ URL_S3_GEO_POLYGONS|escapejs }}";
         window.REGION_NAME = "{{ region_name|escapejs }}";
         window.COUNTRY_NAME = "{{ country_name|escapejs }}";
         window.IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};

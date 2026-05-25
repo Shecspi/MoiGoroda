@@ -630,6 +630,25 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
     background-color: #404040;
 }
 
+#map .custom-control-for-map--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+#map .custom-control-for-map--disabled:hover,
+#map .custom-control-for-map--disabled:active {
+    background-color: inherit;
+    border-color: inherit;
+    transform: none;
+}
+
+.dark #map .custom-control-for-map--disabled:hover,
+.dark #map .custom-control-for-map--disabled:active {
+    background-color: inherit;
+    border-color: inherit;
+}
+
 #map .custom-control-for-map--active {
     background-color: #eff6ff;
     border-color: #93c5fd;

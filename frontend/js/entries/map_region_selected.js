@@ -19,7 +19,7 @@ import { initAddCityForm } from "../components/add_city_modal.js";
 import { icon_visited_pin, icon_not_visited_pin } from "../components/icons.js";
 import { bindPopupToMarker } from "../components/city_popup.js";
 import { pluralize } from "../components/search_services.js";
-import { addRegionCityDisplayControl } from "../components/region_city_display_control.js";
+import { addRegionCityDisplayControl, syncRegionCityDisplayControl } from "../components/region_city_display_control.js";
 import {
     loadCityPolygonLayers,
     updateCityPolygonLayer,
@@ -66,6 +66,7 @@ const popupOptions = {
 let displayMode = "markers";
 let polygonsLoaded = false;
 let polygonsLoading = false;
+let polygonsUnavailable = false;
 /** @type {L.LayerGroup | null} */
 let cityPolygonsGroup = null;
 /** @type {Map<number, { layer: L.GeoJSON, cityData: Object }>} */
@@ -92,10 +93,11 @@ markersGroup.addTo(map);
 const cityDisplayControl = addRegionCityDisplayControl(map, {
     getMode: () => displayMode,
     onToggle: () => toggleCityDisplayMode(),
+    getDisabled: () => polygonsUnavailable,
 });
 
 async function toggleCityDisplayMode() {
-    if (polygonsLoading) {
+    if (polygonsLoading || polygonsUnavailable) {
         return;
     }
 
@@ -133,6 +135,9 @@ async function showCityPolygons() {
 
             if (cityPolygonLayersById.size === 0) {
                 addErrorControl(map, "Не удалось загрузить границы городов");
+                polygonsUnavailable = true;
+                polygonsLoaded = false;
+                syncRegionCityDisplayControl(cityDisplayControl);
                 return;
             }
         } catch (error) {
@@ -143,6 +148,9 @@ async function showCityPolygons() {
                 map,
                 "Произошла ошибка при загрузке границ городов",
             );
+            polygonsUnavailable = true;
+            polygonsLoaded = false;
+            syncRegionCityDisplayControl(cityDisplayControl);
             return;
         } finally {
             map.removeControl(load);

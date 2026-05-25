@@ -26,9 +26,9 @@ const ICON_POLYGONS =
 
 /**
  * @param {L.Map} map
- * @param {{ getMode: () => string, onToggle: () => void | Promise<void> }} handlers
+ * @param {{ getMode: () => string, onToggle: () => void | Promise<void>, getDisabled?: () => boolean }} handlers
  */
-export function addRegionCityDisplayControl(map, {getMode, onToggle}) {
+export function addRegionCityDisplayControl(map, {getMode, onToggle, getDisabled}) {
     const Control = L.Control.extend({
         onAdd() {
             const bar = L.DomUtil.create('div', 'leaflet-bar leaflet-control-region-city-display');
@@ -38,17 +38,23 @@ export function addRegionCityDisplayControl(map, {getMode, onToggle}) {
             btn.setAttribute('tabindex', '0');
 
             const syncUi = () => {
+                const disabled = getDisabled ? getDisabled() : false;
                 const polygonsMode = getMode() === 'polygons';
                 btn.classList.toggle('custom-control-for-map--active', polygonsMode);
+                btn.classList.toggle('custom-control-for-map--disabled', disabled);
+                btn.disabled = disabled;
                 btn.innerHTML = polygonsMode ? ICON_MARKERS : ICON_POLYGONS;
-                btn.title = polygonsMode
-                    ? 'Показать маркеры городов'
-                    : 'Показать границы городов';
+                btn.title = disabled
+                    ? 'Границы городов недоступны'
+                    : polygonsMode
+                        ? 'Показать маркеры городов'
+                        : 'Показать границы городов';
                 btn.setAttribute('aria-label', btn.title);
                 btn.setAttribute('aria-pressed', polygonsMode ? 'true' : 'false');
             };
 
             const activate = (e) => {
+                if (btn.disabled) return;
                 L.DomEvent.preventDefault(e);
                 L.DomEvent.stopPropagation(e);
                 void Promise.resolve(onToggle()).then(syncUi);

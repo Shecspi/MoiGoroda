@@ -47,9 +47,9 @@ function initMap() {
     let regionUrl;
     if (window.ISO3166) {
         const [country, region] = window.ISO3166.split('-');
-        regionUrl = `${URL_GEO_POLYGONS}/region/hq/${country}/${region}`;
+        regionUrl = `${window.URL_GEO_POLYGONS}/region/hq/${country}/${region}`;
     } else {
-        regionUrl = `${URL_GEO_POLYGONS}/country/hq/${window.COUNTRY_CODE}`;
+        regionUrl = `${window.URL_GEO_POLYGONS}/country/hq/${window.COUNTRY_CODE}`;
     }
 
     const regionPolygonPromise = fetch(regionUrl)
@@ -101,12 +101,13 @@ function initMap() {
     // Масштабируем карту: полигон города или маркер как fallback
     Promise.all([regionPolygonPromise, cityPolygonPromise])
         .then(([regionPolygon, cityPolygon]) => {
+            marker.addTo(map);
+
             if (cityPolygon) {
                 map.fitBounds(cityPolygon.getBounds());
                 return;
             }
 
-            marker.addTo(map);
             const fitLayers = [marker];
             if (regionPolygon) {
                 fitLayers.unshift(regionPolygon);

@@ -44,7 +44,10 @@ export function getCityPolygonStyle(city) {
  * @returns {string}
  */
 export function buildCityPolygonUrl(cityName, countryCode, regionCode) {
-    const base = (window.URL_S3_GEO_POLYGONS || "").replace(/\/$/, "");
+    if (!window.URL_S3_GEO_POLYGONS) {
+        throw new Error("URL_S3_GEO_POLYGONS is not set");
+    }
+    const base = window.URL_S3_GEO_POLYGONS.replace(/\/$/, "");
     const fileName = `${encodeURIComponent(cityName)}.geojson`;
     return `${base}/cities/${countryCode}/${regionCode}/${fileName}`;
 }

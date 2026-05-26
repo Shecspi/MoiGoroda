@@ -112,6 +112,13 @@ function showCityMarkers() {
     if (cityPolygonsGroup && map.hasLayer(cityPolygonsGroup)) {
         map.removeLayer(cityPolygonsGroup);
     }
+
+    // Возвращаем на карту все маркеры
+    for (const { marker } of markersByCityId.values()) {
+        if (!markersGroup.hasLayer(marker)) {
+            markersGroup.addLayer(marker);
+        }
+    }
     if (!map.hasLayer(markersGroup)) {
         markersGroup.addTo(map);
     }
@@ -158,12 +165,18 @@ async function showCityPolygons() {
         }
     }
 
-    if (map.hasLayer(markersGroup)) {
-        map.removeLayer(markersGroup);
-    }
     if (cityPolygonsGroup && !map.hasLayer(cityPolygonsGroup)) {
         cityPolygonsGroup.addTo(map);
     }
+
+    // Скрываем маркеры только для городов, у которых загрузились полигоны
+    for (const cityId of cityPolygonLayersById.keys()) {
+        const stored = markersByCityId.get(cityId);
+        if (stored) {
+            markersGroup.removeLayer(stored.marker);
+        }
+    }
+
     displayMode = "polygons";
 }
 

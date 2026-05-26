@@ -70,6 +70,7 @@ def general_settings(request: HttpRequest) -> dict[str, Any]:
         'active_subscription_level': active_subscription_level,
         'DONATE_LINK': os.getenv('DONATE_LINK'),
         'URL_GEO_POLYGONS': os.getenv('URL_GEO_POLYGONS'),
+        'URL_S3_GEO_POLYGONS': os.getenv('URL_S3_GEO_POLYGONS'),
         'TILE_LAYER': os.getenv('TILE_LAYER'),
         'SIDEBAR_LINK_URL': os.getenv('SIDEBAR_LINK_URL'),
         'SIDEBAR_LINK_TEXT': os.getenv('SIDEBAR_LINK_TEXT'),

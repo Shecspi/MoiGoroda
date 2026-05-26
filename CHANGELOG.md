@@ -48,6 +48,8 @@
 
 - Стандартизированы popup-окна маркеров городов на всех картах ([84d39d0](https://github.com/Shecspi/MoiGoroda/commit/84d39d0981913f579419225cf9b1304f8fec9235))
 
+- *(map)* Добавлена поддержка полигонов городов на картах ([7ccb5a1](https://github.com/Shecspi/MoiGoroda/commit/7ccb5a145ba0ef196c15f85142be3e6b0839431e))
+
 
 #### 🐛 Исправление ошибок
 

@@ -60,3 +60,49 @@ class VisitedCityAddSource(models.Model):
 
     def __str__(self) -> str:
         return f'{self.surface} → {self.visited_city_id}'
+
+
+class ModeSwitchLog(models.Model):
+    """
+    Лог переключения режима отображения городов: маркеры / полигоны.
+    """
+
+    user = models.ForeignKey(
+        'account.User',
+        on_delete=CASCADE,
+        null=True,
+        blank=True,
+        related_name='mode_switch_logs',
+        verbose_name='Пользователь',
+    )
+    region_slug = models.CharField(
+        max_length=100,
+        db_index=True,
+        verbose_name='Slug региона',
+    )
+    mode_from = models.CharField(
+        max_length=20,
+        verbose_name='Режим ДО',
+    )
+    mode_to = models.CharField(
+        max_length=20,
+        verbose_name='Режим ПОСЛЕ',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+        verbose_name='Создано',
+    )
+
+    class Meta:
+        verbose_name = 'Переключение режима отображения'
+        verbose_name_plural = 'Переключения режима отображения'
+        indexes = [
+            models.Index(fields=['region_slug', 'created_at']),
+            models.Index(fields=['user', 'created_at']),
+            models.Index(fields=['mode_to', 'mode_from', 'created_at']),
+        ]
+
+    def __str__(self) -> str:
+        user_str = self.user.username if self.user else 'anonymous'
+        return f'{user_str}: {self.mode_from} → {self.mode_to} ({self.region_slug})'

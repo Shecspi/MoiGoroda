@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/place/', include('place.urls.api')),
     path('api/region/', include('region.urls.api')),
     path('api/collection/', include('collection.urls.api')),
+    path('api/analytics/', include('analytics.urls.api')),
     # Plugins
     path('tinymce/upload-image/', upload_image, name='tinymce-upload-image'),
     path('tinymce/', include('tinymce.urls')),

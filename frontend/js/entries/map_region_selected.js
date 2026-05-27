@@ -51,6 +51,26 @@ const isAuthenticated =
     typeof window.IS_AUTHENTICATED !== "undefined" &&
     window.IS_AUTHENTICATED === true;
 
+function logModeSwitch(modeFrom, modeTo) {
+    const regionSlug = iso3166_code || "";
+    if (!regionSlug) {
+        return;
+    }
+
+    fetch("/api/analytics/mode-switch/", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            region_slug: regionSlug,
+            mode_from: modeFrom,
+            mode_to: modeTo,
+        }),
+    }).catch((err) => console.warn("Mode switch log failed:", err));
+}
+
 const popupOptions = {
     regionName: regionName,
     countryName: countryName,
@@ -122,6 +142,7 @@ function showCityMarkers() {
     if (!map.hasLayer(markersGroup)) {
         markersGroup.addTo(map);
     }
+    logModeSwitch("polygons", "markers");
     displayMode = "markers";
 }
 
@@ -177,6 +198,7 @@ async function showCityPolygons() {
         }
     }
 
+    logModeSwitch("markers", "polygons");
     displayMode = "polygons";
 }
 

@@ -36,6 +36,8 @@ urlpatterns = [
     path('api/region/', include('region.urls.api')),
     path('api/collection/', include('collection.urls.api')),
     path('api/analytics/', include('analytics.urls.api')),
+    path('geo-polygons/', include('geo_polygons.urls')),
+    path('api/geo-polygons/', include('geo_polygons.urls_api')),
     # Plugins
     path('tinymce/upload-image/', upload_image, name='tinymce-upload-image'),
     path('tinymce/', include('tinymce.urls')),

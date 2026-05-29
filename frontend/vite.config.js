@@ -69,6 +69,7 @@ export default defineConfig({
         preline: path.resolve(entriesDir, 'preline.js'),
         ui_core: path.resolve(entriesDir, 'ui_core.js'),
         premium_promo_modal: path.resolve(entriesDir, 'premium_promo_modal.js'),
+        geo_polygons: path.resolve(entriesDir, 'geo_polygons.js'),
         
         // CSS entries
         'css/tailwind': path.resolve(__dirname, 'css/tailwind.css'),

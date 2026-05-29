@@ -39,24 +39,103 @@ export function initOSMViewer(containerId, sidebarId) {
     const adminLevelIcons = {
         country: '🌍', state: '🗺️', region: '🗺️', county: '📍',
         city: '🏙️', town: '🏘️', village: '🏡', suburb: '🏘️',
-        neighbourhood: '📍', district: '📌', municipality: '🏛️', postcode: '📮', default: '📍'
+        neighbourhood: '📍', district: '📌', municipality: '🏛️', postcode: '📮',
+        island: '🏝️', islet: '🏝️', locality: '📍', quarter: '🏘️',
     }
 
     const adminLevelMap = {
         '2': 'country', '3': 'region', '4': 'state', '5': 'region',
-        '6': 'county', '7': 'district', '8': 'city', '9': 'suburb', '10': 'village'
+        '6': 'county', '7': 'district', '8': 'city', '9': 'suburb', '10': 'village',
     }
 
-    const typeIcons = {
-        building: '🏢', road: '🛣️', residential: '🏘️', house: '🏠',
-        shop: '🛍️', restaurant: '🍽️', cafe: '☕', amenity: '📍',
-        park: '🌳', natural: '🌿', water: '💧', place: '📌',
-        highway: '🛤️', landuse: '🗺️', default: '📍'
+    /** Иконки по значению OSM-тега (boundary, landuse, natural и т.д.) */
+    const osmValueIcons = {
+        // boundary
+        protected_area: '🛡️', national_park: '🏞️', postal_code: '📮',
+        forest: '🌲', forest_compartment: '🌲', place: '📌', timezone: '🕐',
+        census: '📊', aboriginal_lands: '🪶', maritime: '⚓',
+        // landuse
+        residential: '🏘️', industrial: '🏭', commercial: '🏬', retail: '🛍️',
+        farmland: '🌾', meadow: '🌾', grass: '🌿', orchard: '🍎', vineyard: '🍇',
+        military: '🪖', quarry: '⛏️', basin: '💧', recreation_ground: '⚽',
+        cemetery: '⚰️', allotments: '🌱', construction: '🚧',
+        // natural
+        water: '💧', wood: '🌲', wetland: '🦆', grassland: '🌿', heath: '🌿',
+        scrub: '🌿', bare_rock: '🪨', beach: '🏖️', glacier: '🏔️', peak: '⛰️',
+        bay: '🌊', strait: '🌊', spring: '💧',
+        // leisure
+        park: '🌳', garden: '🌸', nature_reserve: '🦌', playground: '🛝',
+        sports_centre: '🏟️', pitch: '⚽', golf_course: '⛳', stadium: '🏟️',
+        // water / waterway
+        lake: '🏞️', pond: '💧', river: '🌊', reservoir: '💧', canal: '🚣',
+        stream: '🌊', ditch: '〰️',
+        // tourism / historic / amenity
+        theme_park: '🎢', attraction: '🎡', museum: '🏛️', zoo: '🦁',
+        ruins: '🏚️', castle: '🏰', monument: '🗿',
+        school: '🏫', university: '🎓', hospital: '🏥', place_of_worship: '⛪',
+        // building / man_made / aeroway
+        yes: '🏢', tower: '🗼', bridge: '🌉', dam: '🧱',
+        aerodrome: '✈️', helipad: '🚁',
     }
 
-    function getIcon(type) {
-        if (type === 'other') return '📍'
-        return adminLevelIcons[type] || typeIcons[type] || typeIcons.default
+    /** Иконка по ключу тега, если значение не найдено в osmValueIcons */
+    const osmTagKeyIcons = {
+        boundary: '🏷️', landuse: '🗺️', natural: '🌿', leisure: '🎯',
+        water: '💧', waterway: '🌊', tourism: '📸', historic: '🏛️',
+        amenity: '📍', building: '🏢', military: '🪖', man_made: '🏗️',
+        aeroway: '✈️', zone: '🔲', geocode: '📊',
+    }
+
+    const placeTypeMap = {
+        city: 'city', town: 'town', village: 'village', hamlet: 'village',
+        suburb: 'suburb', neighbourhood: 'neighbourhood', island: 'island',
+        islet: 'islet', locality: 'locality', quarter: 'quarter',
+    }
+
+    /**
+     * Определяет тип объекта и исходный OSM-тег для иконки и подписи.
+     * @returns {{ adminType: string, categoryKey: string|null, categoryValue: string|null }}
+     */
+    function resolveAreaType(tags) {
+        const adminLevel = tags.admin_level ? String(tags.admin_level) : null
+        if (adminLevel && adminLevelMap[adminLevel]) {
+            return { adminType: adminLevelMap[adminLevel], categoryKey: 'admin_level', categoryValue: adminLevel }
+        }
+
+        const place = tags.place
+        if (place && placeTypeMap[place]) {
+            return { adminType: placeTypeMap[place], categoryKey: 'place', categoryValue: place }
+        }
+
+        if (tags.boundary === 'administrative') {
+            return { adminType: 'district', categoryKey: 'boundary', categoryValue: 'administrative' }
+        }
+
+        const tagPriority = [
+            'boundary', 'landuse', 'natural', 'leisure', 'water', 'waterway',
+            'tourism', 'historic', 'amenity', 'building', 'military', 'man_made', 'aeroway', 'zone',
+        ]
+        for (const key of tagPriority) {
+            const value = tags[key]
+            if (value) {
+                return { adminType: value, categoryKey: key, categoryValue: value }
+            }
+        }
+
+        return { adminType: 'other', categoryKey: null, categoryValue: null }
+    }
+
+    function getIcon(obj) {
+        const type = obj._adminType
+        if (type && type !== 'other') {
+            const icon = adminLevelIcons[type] || osmValueIcons[type]
+            if (icon) return icon
+        }
+        if (obj._categoryKey && obj._categoryValue) {
+            const icon = osmValueIcons[obj._categoryValue] || osmTagKeyIcons[obj._categoryKey]
+            if (icon) return icon
+        }
+        return '📍'
     }
 
     function getElementName(element) {
@@ -65,9 +144,12 @@ export function initOSMViewer(containerId, sidebarId) {
     }
 
     function getElementDetails(element) {
-        const tags = element.tags || {}
         const details = []
-        if (element._adminType) details.push(`admin_level: ${element._adminLevel}`)
+        if (element._adminLevel && element._adminLevel !== 'unknown') {
+            details.push(`admin_level: ${element._adminLevel}`)
+        } else if (element._categoryKey && element._categoryValue) {
+            details.push(`${element._categoryKey}: ${element._categoryValue}`)
+        }
         return details.join(' · ') || element.type
     }
 
@@ -146,7 +228,7 @@ export function initOSMViewer(containerId, sidebarId) {
             const item = document.createElement('div')
             item.className = 'list-item'
             item.dataset.index = index
-            const icon = getIcon(obj._adminType)
+            const icon = getIcon(obj)
             const name = getElementName(obj)
             const details = getElementDetails(obj)
             item.innerHTML = `<div class="item-name">${icon} ${name}</div><div class="item-details">${details}</div>`
@@ -283,30 +365,15 @@ export function initOSMViewer(containerId, sidebarId) {
                         const name = area.tags.name || area.tags['name:en'] || area.tags['name:ru'] || area.tags.ref
                         if (!name) return
                         const adminLevel = area.tags.admin_level ? String(area.tags.admin_level) : null
-                        let adminType = adminLevel ? adminLevelMap[adminLevel] : null
-                        if (!adminType) {
-                            const p = area.tags.place
-                            if (p === 'city') adminType = 'city'
-                            else if (p === 'town') adminType = 'town'
-                            else if (p === 'village' || p === 'hamlet') adminType = 'village'
-                            else if (p === 'suburb') adminType = 'suburb'
-                            else if (p === 'neighbourhood') adminType = 'neighbourhood'
-                            else if (area.tags.boundary === 'administrative') adminType = 'district'
-                            else if (area.tags.boundary) adminType = area.tags.boundary
-                            else if (area.tags.landuse) adminType = area.tags.landuse
-                            else if (area.tags.natural) adminType = area.tags.natural
-                            else if (area.tags.leisure) adminType = area.tags.leisure
-                            else if (area.tags.tourism) adminType = area.tags.tourism
-                            else if (area.tags.historic) adminType = area.tags.historic
-                            else if (area.tags.amenity) adminType = area.tags.amenity
-                            else adminType = 'other'
-                        }
+                        const { adminType, categoryKey, categoryValue } = resolveAreaType(area.tags)
                         const uniqueKey = area.id
                         if (!seen.has(uniqueKey)) {
                             seen.add(uniqueKey)
                             adminBoundaries.push({
                                 _adminType: adminType,
                                 _adminLevel: adminLevel || 'unknown',
+                                _categoryKey: categoryKey,
+                                _categoryValue: categoryValue,
                                 _relationId: area.id - 3600000000,
                                 _originalIndex: idx,
                                 id: `area-${area.id}`,

@@ -1,7 +1,7 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import './style.css'
 import { showDangerToast } from '../toast.js'
+import { initMobileSidebar } from './mobileSidebar.js'
 
 export function initOSMViewer(containerId, sidebarId) {
     const map = L.map(containerId, {
@@ -32,6 +32,11 @@ export function initOSMViewer(containerId, sidebarId) {
     }).addTo(map)
 
     L.control.attribution({position: 'bottomright', prefix: false}).addTo(map)
+
+    const mobileSidebar = initMobileSidebar(
+        document.getElementById('geo-viewer'),
+        document.getElementById(sidebarId),
+    )
 
     let currentObjects = []
     let selectedObject = null
@@ -252,6 +257,7 @@ export function initOSMViewer(containerId, sidebarId) {
         const obj = currentObjects[index]
         if (!obj) return
         selectedObject = obj
+        mobileSidebar.close()
         document.querySelectorAll('.list-item').forEach(item => {
             item.classList.toggle('selected', parseInt(item.dataset.index) === index)
         })
@@ -338,7 +344,7 @@ export function initOSMViewer(containerId, sidebarId) {
     }
 
     function setupInitialUI() {
-        document.getElementById('sidebar-title').textContent = 'Объекты OSM'
+        document.getElementById('geo-sidebar-title').textContent = 'Объекты OSM'
         document.getElementById('coords').textContent = 'Кликните на карту для поиска'
         setCopyButtonVisible(false)
         document.getElementById('object-list').innerHTML = '<div class="status-message">Кликните на карту для поиска</div>'
@@ -357,6 +363,7 @@ export function initOSMViewer(containerId, sidebarId) {
         lastClickLng = lng
         if (clickMarker) { map.removeLayer(clickMarker); clickMarker = null }
         clickMarker = L.marker([lat, lng], { icon: icon_click_pin, zIndexOffset: 1000 }).addTo(map)
+        mobileSidebar.openIfMobile()
         document.getElementById('coords').textContent = `Lat: ${lat.toFixed(6)} · Lon: ${lng.toFixed(6)}`
         setCopyButtonVisible(true)
         const list = document.getElementById('object-list')

@@ -19,7 +19,22 @@
     </header>
 
     <div id="geo-viewer" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]">
-        <div id="map"></div>
+        <div id="geo-map-panel" class="geo-map-panel">
+            <div id="map"></div>
+            <button
+                type="button"
+                id="geo-sidebar-open-btn"
+                class="geo-sidebar-open-btn btn btn-elevated btn-sm"
+                aria-controls="geo-sidebar"
+                aria-expanded="false"
+            >
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/>
+                </svg>
+                Объекты
+            </button>
+        </div>
+        <div id="geo-sidebar-backdrop" class="geo-sidebar-backdrop" hidden></div>
         <div id="geo-sidebar" class="bg-white dark:bg-neutral-900 flex flex-col">
             <div id="geo-sidebar-header" class="p-4 border-b border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 flex-shrink-0">
                 <div class="flex items-center justify-between gap-2 mb-2">
@@ -47,19 +62,6 @@
                 <button id="download-btn" class="btn btn-solid-primary btn-default btn-block" disabled>Скачать GeoJSON</button>
             </div>
         </div>
-        <button
-            type="button"
-            id="geo-sidebar-open-btn"
-            class="geo-sidebar-open-btn btn btn-elevated btn-sm"
-            aria-controls="geo-sidebar"
-            aria-expanded="false"
-        >
-            <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/>
-            </svg>
-            Объекты
-        </button>
-        <div id="geo-sidebar-backdrop" class="geo-sidebar-backdrop"></div>
     </div>
 
     <script>

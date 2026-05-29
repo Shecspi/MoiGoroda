@@ -174,4 +174,19 @@ def test_help_index_page_accessible(client: Client) -> None:
     assert 'help/index.html' in [t.name for t in response.templates]
     content = response.content.decode('utf-8')
     assert 'Все статьи справки' in content
+    assert '/help/osm-polygons/' in content
     assert '/help/users-city-photos/' in content
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_help_osm_polygons_page_accessible(client: Client) -> None:
+    """Тест что страница справки по полигонам OSM доступна."""
+    response = client.get(reverse('help-osm-polygons'))
+
+    assert response.status_code == 200
+    assert 'help/osm_polygons.html' in [t.name for t in response.templates]
+    content = response.content.decode('utf-8')
+    assert 'Полигоны OpenStreetMap' in content
+    assert 'Слава России' in content
+    assert 'Overpass API' in content

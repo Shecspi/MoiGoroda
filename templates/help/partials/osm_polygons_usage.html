@@ -1,0 +1,62 @@
+<p>
+    <strong class="text-gray-900 dark:text-white">Полигоны OpenStreetMap</strong> — инструмент для просмотра объектов OpenStreetMap в выбранной точке на карте:
+    административные границы, зоны landuse, природные территории и другие полигоны. Данные подгружаются из OSM через Overpass API.
+</p>
+
+<h3 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Как пользоваться</h3>
+<ol class="list-decimal list-inside space-y-2">
+    <li>Кликните по нужному месту на карте — появится красная метка, в панели справа отобразятся координаты и список найденных объектов.</li>
+    <li>Выберите объект в списке — на карте подсветится его контур фиолетовым цветом, карта приблизится к границам.</li>
+    <li>При необходимости скопируйте координаты клика кнопкой рядом с ними.</li>
+    <li>Чтобы сохранить геометрию выбранного объекта, нажмите «Скачать GeoJSON» внизу панели (доступно при
+        <a href="{% url 'premium_promo' %}" class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">расширенной подписке Premium</a>).
+    </li>
+</ol>
+
+<h3 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Панель объектов</h3>
+<ul class="list-disc list-inside space-y-2">
+    <li>На больших экранах панель всегда видна справа от карты.</li>
+    <li>На телефоне нажмите кнопку «Объекты» на карте, чтобы открыть панель на весь экран по высоте; закройте крестиком или тапом по затемнению.</li>
+    <li>В списке показаны название, тип объекта и при наличии — уровень admin_level или relation_id.</li>
+</ul>
+
+<h3 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Управление картой</h3>
+<p>
+    Кнопки приближения и отдаления — в левом верхнем углу карты. Под картой указана атрибуция OpenStreetMap.
+</p>
+
+<h3 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Доступ</h3>
+{% if user.is_authenticated %}
+    <ul class="list-disc list-inside space-y-2">
+        <li>Просмотр контура объекта на карте доступен после входа в аккаунт.</li>
+        <li>
+            Скачивание GeoJSON — при
+            <a href="{% url 'premium_promo' %}" class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">расширенной подписке Premium</a>.
+        </li>
+    </ul>
+{% else %}
+    <ul class="list-disc list-inside space-y-2">
+        <li>
+            Список объектов по клику на карту доступен всем; чтобы открыть контур на карте,
+            <a href="{% url 'signin' %}" class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">войдите</a>
+            или
+            <a href="{% url 'signup' %}" class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">зарегистрируйтесь</a>.
+        </li>
+        <li>
+            Скачивание GeoJSON — при
+            <a href="{% url 'premium_promo' %}" class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300">расширенной подписке Premium</a>
+            для авторизованных пользователей.
+        </li>
+    </ul>
+{% endif %}
+
+<h3 class="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Источники данных</h3>
+<p>
+    Карта — тайлы
+    <a href="https://www.openstreetmap.org/copyright" class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>.
+    Список объектов в точке и геометрия полигонов — через
+    <a href="https://wiki.openstreetmap.org/wiki/Overpass_API" class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300" target="_blank" rel="noopener noreferrer">Overpass API</a>.
+    Полигоны объектов распространяются под лицензией
+    <a href="https://opendatacommons.org/licenses/odbl/" class="text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300" target="_blank" rel="noopener noreferrer">ODbL</a>.
+    Запросы к внешним сервисам могут занимать несколько секунд при высокой нагрузке.
+</p>

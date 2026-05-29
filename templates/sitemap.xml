@@ -46,6 +46,21 @@
 	<priority>0.8</priority>
 </url>
 <url>
+	<loc>https://moi-goroda.ru/geo-polygons/</loc>
+	<lastmod>2026-05-29T12:00:00+03:00</lastmod>
+	<priority>0.8</priority>
+</url>
+<url>
+	<loc>https://moi-goroda.ru/help/</loc>
+	<lastmod>2026-05-29T12:00:00+03:00</lastmod>
+	<priority>0.6</priority>
+</url>
+<url>
+	<loc>https://moi-goroda.ru/help/osm-polygons/</loc>
+	<lastmod>2026-05-29T12:00:00+03:00</lastmod>
+	<priority>0.6</priority>
+</url>
+<url>
 	<loc>https://moi-goroda.ru/region/30/list</loc>
 	<lastmod>2023-09-14T16:24:30+01:00</lastmod>
 	<priority>0.6</priority>

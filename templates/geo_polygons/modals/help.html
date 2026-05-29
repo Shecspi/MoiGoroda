@@ -1,0 +1,102 @@
+<div id="geo-polygons-help-modal"
+     class="hs-overlay hidden size-full fixed top-0 start-0 z-[1060] overflow-x-hidden overflow-y-auto pointer-events-none flex items-center justify-center p-3 sm:p-4"
+     role="dialog"
+     tabindex="-1"
+     aria-labelledby="geo-polygons-help-modal-label">
+    <div class="hs-overlay-animation-target !mt-0 hs-overlay-open:!mt-0 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full w-full"
+         style="margin-top: 0 !important;">
+        <div class="flex flex-col max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-4rem)] overflow-hidden bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700">
+            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2" id="geo-polygons-help-modal-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                        <path d="M528 320C528 205.1 434.9 112 320 112C205.1 112 112 205.1 112 320C112 434.9 205.1 528 320 528C434.9 528 528 434.9 528 320zM64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576C178.6 576 64 461.4 64 320zM320 240C302.3 240 288 254.3 288 272C288 285.3 277.3 296 264 296C250.7 296 240 285.3 240 272C240 227.8 275.8 192 320 192C364.2 192 400 227.8 400 272C400 319.2 364 339.2 344 346.5L344 350.3C344 363.6 333.3 374.3 320 374.3C306.7 374.3 296 363.6 296 350.3L296 342.2C296 321.7 310.8 307 326.1 302C332.5 299.9 339.3 296.5 344.3 291.7C348.6 287.5 352 281.7 352 272.1C352 254.4 337.7 240.1 320 240.1zM288 432C288 414.3 302.3 400 320 400C337.7 400 352 414.3 352 432C352 449.7 337.7 464 320 464C302.3 464 288 449.7 288 432z"/>
+                    </svg>
+                    Помощь
+                </h3>
+                <button type="button"
+                        class="btn btn-ghost-secondary"
+                        data-hs-overlay="#geo-polygons-help-modal">
+                    <span class="sr-only">Закрыть</span>
+                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m18 6-12 12"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-4 overflow-y-auto min-h-0 flex-1 text-gray-800 dark:text-neutral-400">
+                <p class="mb-4">
+                    <strong class="text-gray-900 dark:text-white">Полигоны OpenStreetMap</strong> — инструмент для просмотра объектов OpenStreetMap в выбранной точке на карте:
+                    административные границы, зоны landuse, природные территории и другие полигоны. Данные подгружаются из OSM через Overpass API.
+                </p>
+
+                <p class="font-semibold text-gray-900 dark:text-white mb-2">Как пользоваться</p>
+                <ol class="list-decimal list-inside space-y-2 mb-4">
+                    <li>Кликните по нужному месту на карте — появится красная метка, в панели справа отобразятся координаты и список найденных объектов.</li>
+                    <li>Выберите объект в списке — на карте подсветится его контур фиолетовым цветом, карта приблизится к границам.</li>
+                    <li>При необходимости скопируйте координаты клика кнопкой рядом с ними.</li>
+                    <li>Чтобы сохранить геометрию выбранного объекта, нажмите «Скачать GeoJSON» внизу панели (доступно при
+                        <a href="{% url 'premium_promo' %}" class="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300">расширенной подписке Premium</a>).
+                    </li>
+                </ol>
+
+                <p class="font-semibold text-gray-900 dark:text-white mb-2">Панель объектов</p>
+                <ul class="list-disc list-inside space-y-2 mb-4">
+                    <li>На больших экранах панель всегда видна справа от карты.</li>
+                    <li>На телефоне нажмите кнопку «Объекты» на карте, чтобы открыть панель на весь экран по высоте; закройте крестиком или тапом по затемнению.</li>
+                    <li>В списке показаны название, тип объекта и при наличии — уровень admin_level или relation_id.</li>
+                </ul>
+
+                <p class="font-semibold text-gray-900 dark:text-white mb-2">Управление картой</p>
+                <p class="mb-4">
+                    Кнопки приближения и отдаления — в левом верхнем углу карты. Под картой указана атрибуция OpenStreetMap.
+                </p>
+
+                {% if user.is_authenticated %}
+                    <p class="font-semibold text-gray-900 dark:text-white mb-2">Доступ</p>
+                    <ul class="list-disc list-inside space-y-2 mb-4">
+                        <li>Просмотр контура объекта на карте доступен после входа в аккаунт.</li>
+                        <li>
+                            Скачивание GeoJSON — при
+                            <a href="{% url 'premium_promo' %}" class="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300">расширенной подписке Premium</a>.
+                        </li>
+                    </ul>
+                {% else %}
+                    <p class="font-semibold text-gray-900 dark:text-white mb-2">Доступ</p>
+                    <ul class="list-disc list-inside space-y-2 mb-4">
+                        <li>
+                            Список объектов по клику на карту доступен всем; чтобы открыть контур на карте,
+                            <a href="{% url 'signin' %}" class="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300">войдите</a>
+                            или
+                            <a href="{% url 'signup' %}" class="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300">зарегистрируйтесь</a>.
+                        </li>
+                        <li>
+                            Скачивание GeoJSON — при
+                            <a href="{% url 'premium_promo' %}" class="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300">расширенной подписке Premium</a>
+                            для авторизованных пользователей.
+                        </li>
+                    </ul>
+                {% endif %}
+
+                <p class="font-semibold text-gray-900 dark:text-white mb-2">Источники данных</p>
+                <p class="text-sm">
+                    Карта — тайлы
+                    <a href="https://www.openstreetmap.org/copyright" class="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>.
+                    Список объектов в точке и геометрия полигонов — через
+                    <a href="https://wiki.openstreetmap.org/wiki/Overpass_API" class="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300" target="_blank" rel="noopener noreferrer">Overpass API</a>.
+                    Полигоны объектов распространяются под лицензией
+                    <a href="https://opendatacommons.org/licenses/odbl/" class="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300" target="_blank" rel="noopener noreferrer">ODbL</a>.
+                    Запросы к внешним сервисам могут занимать несколько секунд при высокой нагрузке.
+                </p>
+            </div>
+
+            <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t dark:border-neutral-700">
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        data-hs-overlay="#geo-polygons-help-modal">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

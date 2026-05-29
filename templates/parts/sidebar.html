@@ -157,6 +157,16 @@ Licensed under the Apache License, Version 2.0
                             Карта стран
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'geo-polygons' %}"
+                           class="flex items-center gap-x-2 py-2 pl-8 pr-2 text-start text-sm text-gray-800 rounded-md hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700{% if active_page == 'geo_polygons' %} bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{% endif %}"
+                           title="Полигоны OpenStreetMap">
+                            <svg class="shrink-0 size-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+                            </svg>
+                            <span class="truncate">Полигоны OSM</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
 

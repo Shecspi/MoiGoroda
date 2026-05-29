@@ -5,9 +5,14 @@ import { showDangerToast } from '../toast.js'
 
 export function initOSMViewer(containerId, sidebarId) {
     const map = L.map(containerId, {
-        zoomControl: true,
+        zoomControl: false,
         attributionControl: false
     }).setView([55.7558, 37.6173], 13)
+
+    L.control.zoom({
+        zoomInTitle: 'Приблизить карту',
+        zoomOutTitle: 'Отдалить карту',
+    }).addTo(map)
 
     const locationPinSvg = (color) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="21" height="28" style="filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));">
         <path fill="${color}" stroke="rgba(0, 0, 0, 0.3)" stroke-width="1.5" stroke-linejoin="round" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
@@ -144,13 +149,14 @@ export function initOSMViewer(containerId, sidebarId) {
     }
 
     function getElementDetails(element) {
-        const details = []
+        const parts = []
         if (element._adminLevel && element._adminLevel !== 'unknown') {
-            details.push(`admin_level: ${element._adminLevel}`)
-        } else if (element._categoryKey && element._categoryValue) {
-            details.push(`${element._categoryKey}: ${element._categoryValue}`)
+            parts.push(`admin_level: ${element._adminLevel}`)
         }
-        return details.join(' · ') || element.type
+        if (element._relationId != null) {
+            parts.push(`relation_id: ${element._relationId}`)
+        }
+        return parts.join(' · ')
     }
 
     const OVERPASS_ENDPOINTS = [
@@ -324,9 +330,17 @@ export function initOSMViewer(containerId, sidebarId) {
         URL.revokeObjectURL(url)
     }
 
+    function setCopyButtonVisible(visible) {
+        const copyBtn = document.getElementById('copy-btn')
+        copyBtn.classList.toggle('is-hidden', !visible)
+        copyBtn.setAttribute('aria-hidden', visible ? 'false' : 'true')
+        copyBtn.tabIndex = visible ? 0 : -1
+    }
+
     function setupInitialUI() {
         document.getElementById('sidebar-title').textContent = 'Объекты OSM'
         document.getElementById('coords').textContent = 'Кликните на карту для поиска'
+        setCopyButtonVisible(false)
         document.getElementById('object-list').innerHTML = '<div class="status-message">Кликните на карту для поиска</div>'
         const btn = document.getElementById('download-btn')
         if (window.OSM_VIEWER_HAS_ADVANCED_PREMIUM) {
@@ -343,8 +357,8 @@ export function initOSMViewer(containerId, sidebarId) {
         lastClickLng = lng
         if (clickMarker) { map.removeLayer(clickMarker); clickMarker = null }
         clickMarker = L.marker([lat, lng], { icon: icon_click_pin, zIndexOffset: 1000 }).addTo(map)
-        document.getElementById('coords').innerHTML = `Lat: <span>${lat.toFixed(6)}</span> · Lon: <span>${lng.toFixed(6)}</span>`
-        document.getElementById('copy-btn').style.display = 'flex'
+        document.getElementById('coords').textContent = `Lat: ${lat.toFixed(6)} · Lon: ${lng.toFixed(6)}`
+        setCopyButtonVisible(true)
         const list = document.getElementById('object-list')
         list.innerHTML = '<div class="loading"></div>'
         if (geojsonLayer) { map.removeLayer(geojsonLayer); geojsonLayer = null }

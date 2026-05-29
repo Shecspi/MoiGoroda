@@ -12,14 +12,67 @@
 #sidebar {
     width: 320px;
     height: 100%;
+    min-height: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     z-index: 2;
+}
+
+#sidebar-header {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.08),
+        0 2px 4px -2px rgba(0, 0, 0, 0.06);
+}
+
+.sidebar-header-coords {
+    height: 1.75rem;
+}
+
+#coords {
+    white-space: nowrap;
+}
+
+.sidebar-copy-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+}
+
+.sidebar-copy-btn.is-hidden {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.dark #sidebar-header {
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.35),
+        0 2px 4px -2px rgba(0, 0, 0, 0.25);
+}
+
+#sidebar-footer {
+    position: relative;
+    z-index: 2;
+    box-shadow:
+        0 -4px 6px -1px rgba(0, 0, 0, 0.08),
+        0 -2px 4px -2px rgba(0, 0, 0, 0.06);
+}
+
+.dark #sidebar-footer {
+    box-shadow:
+        0 -4px 6px -1px rgba(0, 0, 0, 0.35),
+        0 -2px 4px -2px rgba(0, 0, 0, 0.25);
 }
 
 #object-list {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 12px;
 }
 

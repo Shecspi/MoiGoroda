@@ -1,11 +1,12 @@
-from django.http import HttpRequest
+from typing import Any
+
 from django.views.generic import TemplateView
 
 
 class GeoPolygonsViewer(TemplateView):
     template_name = 'geo_polygons/page.html'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Полигоны OpenStreetMap'
         context['page_description'] = (
@@ -13,6 +14,3 @@ class GeoPolygonsViewer(TemplateView):
         )
         context['active_page'] = 'geo_polygons'
         return context
-
-    def get(self, request: HttpRequest, *args, **kwargs):
-        return super().get(request, *args, **kwargs)

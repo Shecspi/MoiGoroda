@@ -15,8 +15,9 @@ class DjangoPolygonRepository(IPolygonRepository):
     """Django ORM реализация репозитория полигонов."""
 
     def get_by_relation_id(self, relation_id: int) -> OSMPolygon | None:
-        cached = OSMPolygonCache.objects.filter(relation_id=relation_id).first()
-        if cached is None:
+        try:
+            cached = OSMPolygonCache.objects.get(relation_id=relation_id)
+        except OSMPolygonCache.DoesNotExist:
             return None
         return OSMPolygon(
             relation_id=cached.relation_id,

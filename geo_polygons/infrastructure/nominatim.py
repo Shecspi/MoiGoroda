@@ -82,7 +82,7 @@ class NominatimPolygonService(IExternalPolygonService):
                     name=result.get('display_name', '')[:500],
                     geometry=geometry,
                 )
-            except requests.RequestException as e:
+            except (requests.RequestException, ValueError) as e:
                 logger.warning('Nominatim API error (%s) for relation %s: %s', endpoint, relation_id, e)
                 continue
 

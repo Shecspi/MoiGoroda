@@ -27,7 +27,7 @@ def _normalize_geometry(geometry: dict[str, Any]) -> dict[str, Any] | None:
     if geometry.get('type') in ('Point', 'Polygon', 'MultiPolygon'):
         return geometry
     if geometry.get('type') == 'LineString':
-        coords = geometry['coordinates']
+        coords = [list(c) for c in geometry['coordinates']]
         if len(coords) > 2:
             first, last = coords[0], coords[-1]
             if first[0] != last[0] or first[1] != last[1]:
@@ -36,11 +36,12 @@ def _normalize_geometry(geometry: dict[str, Any]) -> dict[str, Any] | None:
     if geometry.get('type') == 'MultiLineString':
         polygons = []
         for line in geometry['coordinates']:
-            if len(line) > 2:
-                first, last = line[0], line[-1]
+            copied_line = [list(c) for c in line]
+            if len(copied_line) > 2:
+                first, last = copied_line[0], copied_line[-1]
                 if first[0] != last[0] or first[1] != last[1]:
-                    line.append([first[0], first[1]])
-            polygons.append([line])
+                    copied_line.append([first[0], first[1]])
+            polygons.append([copied_line])
         return {'type': 'MultiPolygon', 'coordinates': polygons}
     return geometry
 

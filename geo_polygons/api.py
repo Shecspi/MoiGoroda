@@ -6,7 +6,7 @@ from http import HTTPStatus
 from typing import Any
 
 from django.http import HttpResponse
-from dmr import Controller
+from dmr import Controller, ResponseSpec, modify
 from dmr.plugins.msgspec import MsgspecSerializer
 
 from geo_polygons.domain.services import GetPolygonService
@@ -33,6 +33,12 @@ class GetOSMPolygonController(Controller[MsgspecSerializer]):
     возвращает HTTP-ответ для просмотра полигона на карте.
     """
 
+    @modify(
+        extra_responses=[
+            ResponseSpec(dict[str, str], status_code=HTTPStatus.UNAUTHORIZED),
+            ResponseSpec(dict[str, str], status_code=HTTPStatus.NOT_FOUND),
+        ],
+    )
     def get(self) -> Any:
         if not self.request.user.is_authenticated:
             return self.to_response(
@@ -59,6 +65,14 @@ class GetOSMPolygonController(Controller[MsgspecSerializer]):
 class DownloadOSMPolygonController(Controller[MsgspecSerializer]):
     """Скачивание GeoJSON полигона — только для пользователей с расширенной подпиской."""
 
+    @modify(
+        extra_responses=[
+            ResponseSpec(dict[str, str], status_code=HTTPStatus.UNAUTHORIZED),
+            ResponseSpec(dict[str, str], status_code=HTTPStatus.FORBIDDEN),
+            ResponseSpec(dict[str, str], status_code=HTTPStatus.NOT_FOUND),
+        ],
+        validate_responses=False,
+    )
     def get(self) -> Any:
         if not self.request.user.is_authenticated:
             return self.to_response(

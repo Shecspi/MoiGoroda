@@ -35,6 +35,23 @@ def _make_polygon(
 
 @pytest.mark.unit
 @pytest.mark.django_db
+def test_get_by_relation_id_returns_none_when_missing() -> None:
+    assert DjangoPolygonRepository().get_by_relation_id(RELATION_ID) is None
+
+
+@pytest.mark.unit
+@pytest.mark.django_db
+def test_get_by_relation_id_returns_domain_polygon(cached_polygon: OSMPolygonCache) -> None:
+    polygon = DjangoPolygonRepository().get_by_relation_id(cached_polygon.relation_id)
+
+    assert polygon is not None
+    assert polygon.relation_id == cached_polygon.relation_id
+    assert polygon.name == cached_polygon.name
+    assert polygon.geometry == cached_polygon.geojson
+
+
+@pytest.mark.unit
+@pytest.mark.django_db
 def test_save_updates_name_and_geojson_when_record_exists() -> None:
     repository = DjangoPolygonRepository()
     repository.save(_make_polygon(name='Initial name'))

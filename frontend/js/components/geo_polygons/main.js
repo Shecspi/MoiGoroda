@@ -1,6 +1,7 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { showDangerToast } from '../toast.js'
+import { trackGeoPolygonsGoal } from './analytics.js'
 import { initMobileSidebar } from './mobileSidebar.js'
 
 export function initOSMViewer(containerId, sidebarId) {
@@ -251,11 +252,17 @@ export function initOSMViewer(containerId, sidebarId) {
     async function selectObject(index) {
         if (isSelectionLoading) return
         if (!window.OSM_VIEWER_IS_AUTHENTICATED) {
+            trackGeoPolygonsGoal('geo_polygons_list_item_blocked_auth')
             showAuthToast()
             return
         }
         const obj = currentObjects[index]
         if (!obj) return
+        trackGeoPolygonsGoal('geo_polygons_list_item_click', {
+            admin_type: obj._adminType || 'other',
+            has_cached_polygon: Boolean(obj._geojson),
+            has_relation_id: obj._relationId != null,
+        })
         selectedObject = obj
         mobileSidebar.close()
         document.querySelectorAll('.list-item').forEach(item => {
@@ -319,10 +326,14 @@ export function initOSMViewer(containerId, sidebarId) {
 
     function downloadGeoJSON() {
         if (!window.OSM_VIEWER_HAS_ADVANCED_PREMIUM) {
+            trackGeoPolygonsGoal('geo_polygons_download_blocked_premium')
             showPremiumToast()
             return
         }
         if (!selectedObject || !selectedObject._geojson) return
+        trackGeoPolygonsGoal('geo_polygons_download_click', {
+            admin_type: selectedObject._adminType || 'other',
+        })
         const data = JSON.stringify(selectedObject._geojson, null, 2)
         const blob = new Blob([data], { type: 'application/json' })
         const url = URL.createObjectURL(blob)
@@ -359,6 +370,7 @@ export function initOSMViewer(containerId, sidebarId) {
 
     map.on('click', async (e) => {
         const { lat, lng } = e.latlng
+        trackGeoPolygonsGoal('geo_polygons_map_click')
         lastClickLat = lat
         lastClickLng = lng
         if (clickMarker) { map.removeLayer(clickMarker); clickMarker = null }
@@ -408,8 +420,12 @@ export function initOSMViewer(containerId, sidebarId) {
             adminBoundaries.sort((a, b) => b._originalIndex - a._originalIndex)
             adminBoundaries.forEach(o => delete o._originalIndex)
             displayObjects(adminBoundaries)
+            trackGeoPolygonsGoal('geo_polygons_map_query_success', {
+                objects_count: adminBoundaries.length,
+            })
         } catch (error) {
             list.innerHTML = '<div class="status-message error">Ошибка загрузки данных</div>'
+            trackGeoPolygonsGoal('geo_polygons_map_query_error')
         }
     })
 
@@ -420,6 +436,7 @@ export function initOSMViewer(containerId, sidebarId) {
     const copyBtn = document.getElementById('copy-btn')
     copyBtn.addEventListener('click', async () => {
         if (lastClickLat === null) return
+        trackGeoPolygonsGoal('geo_polygons_copy_coords_click')
         const text = `${lastClickLat.toFixed(6)}, ${lastClickLng.toFixed(6)}`
         try {
             await navigator.clipboard.writeText(text)

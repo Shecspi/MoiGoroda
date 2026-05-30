@@ -305,15 +305,24 @@ export function initOSMViewer(containerId, sidebarId) {
         }
     }
 
-    function updateDownloadButton() {
+    function syncDownloadButton({ enabled = false } = {}) {
         const btn = document.getElementById('download-btn')
-        if (window.OSM_VIEWER_HAS_ADVANCED_PREMIUM) {
+        if (!window.OSM_VIEWER_IS_AUTHENTICATED) {
             btn.textContent = 'Скачать GeoJSON'
-            btn.disabled = false
-        } else {
+            btn.disabled = true
+            return
+        }
+        if (!window.OSM_VIEWER_HAS_ADVANCED_PREMIUM) {
             btn.textContent = 'Нужен Premium'
             btn.disabled = true
+            return
         }
+        btn.textContent = 'Скачать GeoJSON'
+        btn.disabled = !enabled
+    }
+
+    function updateDownloadButton() {
+        syncDownloadButton({ enabled: true })
     }
 
     function showAuthToast() {
@@ -324,23 +333,47 @@ export function initOSMViewer(containerId, sidebarId) {
         showDangerToast('Требуется Premium', 'Для скачивания GeoJSON необходима <a href="/premium/plans/" class="font-semibold underline">расширенная подписка</a>.')
     }
 
-    function downloadGeoJSON() {
+    async function downloadGeoJSON() {
+        if (!window.OSM_VIEWER_IS_AUTHENTICATED) {
+            showAuthToast()
+            return
+        }
         if (!window.OSM_VIEWER_HAS_ADVANCED_PREMIUM) {
             trackGeoPolygonsGoal('geo_polygons_download_blocked_premium')
             showPremiumToast()
             return
         }
-        if (!selectedObject || !selectedObject._geojson) return
+        if (!selectedObject || selectedObject._relationId == null) return
+
         trackGeoPolygonsGoal('geo_polygons_download_click', {
             admin_type: selectedObject._adminType || 'other',
         })
-        const data = JSON.stringify(selectedObject._geojson, null, 2)
-        const blob = new Blob([data], { type: 'application/json' })
+
+        const response = await fetch(
+            `/api/geo-polygons/polygon/${selectedObject._relationId}/download/`,
+        )
+
+        if (response.status === 401) {
+            showAuthToast()
+            return
+        }
+        if (response.status === 403) {
+            trackGeoPolygonsGoal('geo_polygons_download_blocked_premium')
+            showPremiumToast()
+            return
+        }
+        if (!response.ok) return
+
+        const blob = await response.blob()
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
-        const name = getElementName(selectedObject).replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim() || 'osm_object'
+        const fallbackName = getElementName(selectedObject)
+            .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_')
+            .trim() || 'osm_object'
+        const disposition = response.headers.get('Content-Disposition')
+        const filenameMatch = disposition?.match(/filename="([^"]+)"/)
         a.href = url
-        a.download = `${name}.geojson`
+        a.download = filenameMatch?.[1] || `${fallbackName}.geojson`
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
@@ -359,13 +392,7 @@ export function initOSMViewer(containerId, sidebarId) {
         document.getElementById('coords').textContent = 'Кликните на карту для поиска'
         setCopyButtonVisible(false)
         document.getElementById('object-list').innerHTML = '<div class="status-message">Кликните на карту для поиска</div>'
-        const btn = document.getElementById('download-btn')
-        if (window.OSM_VIEWER_HAS_ADVANCED_PREMIUM) {
-            btn.textContent = 'Скачать GeoJSON'
-        } else {
-            btn.textContent = 'Нужен Premium'
-        }
-        btn.disabled = true
+        syncDownloadButton()
     }
 
     map.on('click', async (e) => {
@@ -382,12 +409,7 @@ export function initOSMViewer(containerId, sidebarId) {
         list.innerHTML = '<div class="loading"></div>'
         if (geojsonLayer) { map.removeLayer(geojsonLayer); geojsonLayer = null }
         selectedObject = null
-        document.getElementById('download-btn').disabled = true
-        if (window.OSM_VIEWER_HAS_ADVANCED_PREMIUM) {
-            document.getElementById('download-btn').textContent = 'Скачать GeoJSON'
-        } else {
-            document.getElementById('download-btn').textContent = 'Нужен Premium'
-        }
+        syncDownloadButton()
         try {
             const isInResult = await queryOverpassIsIn(lat, lng)
             let adminBoundaries = []

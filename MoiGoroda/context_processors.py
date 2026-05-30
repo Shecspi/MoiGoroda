@@ -23,6 +23,22 @@ from premium.models import PremiumSubscription
 load_dotenv()
 
 
+def build_canonical_url(request: HttpRequest) -> str:
+    """
+    Собирает абсолютный canonical URL для текущей страницы.
+
+    Использует SITE_URL как базу и путь запроса без query-параметров.
+    Если SITE_URL не задан, fallback на request.build_absolute_uri().
+    """
+    path = request.path
+    site_url = os.getenv('SITE_URL')
+
+    if site_url:
+        return f'{site_url.rstrip("/")}{path}'
+
+    return request.build_absolute_uri(path)
+
+
 def general_settings(request: HttpRequest) -> dict[str, Any]:
     """
     Контекстный процессор для общих настроек приложения.
@@ -77,6 +93,7 @@ def general_settings(request: HttpRequest) -> dict[str, Any]:
         'SIDEBAR_LINK_ADV_INFO': os.getenv('SIDEBAR_LINK_ADV_INFO'),
         'DEBUG': settings.DEBUG,
         'PRIVACY_POLICY_VERSION': settings.PRIVACY_POLICY_VERSION,
+        'canonical_url': build_canonical_url(request),
     }
 
     return context

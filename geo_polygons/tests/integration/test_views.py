@@ -17,6 +17,7 @@ def test_geo_polygons_page_renders_for_anonymous(client: Client) -> None:
     assert 'Полигоны OpenStreetMap' in content
     assert 'id="geo-viewer"' in content
     assert 'id="download-btn"' in content
+    assert 'id="clear-btn"' in content
     assert 'window.OSM_VIEWER_IS_AUTHENTICATED = false' in content
     assert 'window.OSM_VIEWER_HAS_ADVANCED_PREMIUM = false' in content
 

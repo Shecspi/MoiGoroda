@@ -182,6 +182,11 @@ body.is-geo-mobile-sidebar-open {
     pointer-events: none;
 }
 
+#clear-btn.is-hidden {
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .dark #geo-sidebar-header {
     box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.35),

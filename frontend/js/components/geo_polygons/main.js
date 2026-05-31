@@ -46,6 +46,7 @@ export function initOSMViewer(containerId, sidebarId) {
     let isSelectionLoading = false
     let lastClickLat = null
     let lastClickLng = null
+    let searchGeneration = 0
 
     const adminLevelIcons = {
         country: '🌍', state: '🗺️', region: '🗺️', county: '📍',
@@ -232,6 +233,7 @@ export function initOSMViewer(containerId, sidebarId) {
         list.innerHTML = ''
         if (adminBoundaries.length === 0) {
             list.innerHTML = '<div class="status-message">Границы не найдены</div>'
+            setClearButtonVisible(false)
             return
         }
         currentObjects = []
@@ -247,6 +249,7 @@ export function initOSMViewer(containerId, sidebarId) {
             item.addEventListener('click', () => selectObject(index))
             list.appendChild(item)
         })
+        setClearButtonVisible(true)
     }
 
     async function selectObject(index) {
@@ -387,16 +390,38 @@ export function initOSMViewer(containerId, sidebarId) {
         copyBtn.tabIndex = visible ? 0 : -1
     }
 
+    function setClearButtonVisible(visible) {
+        const clearBtn = document.getElementById('clear-btn')
+        clearBtn.classList.toggle('is-hidden', !visible)
+        clearBtn.setAttribute('aria-hidden', visible ? 'false' : 'true')
+        clearBtn.tabIndex = visible ? 0 : -1
+    }
+
     function setupInitialUI() {
         document.getElementById('geo-sidebar-title').textContent = 'Объекты OSM'
         document.getElementById('coords').textContent = 'Кликните на карту для поиска'
         setCopyButtonVisible(false)
+        setClearButtonVisible(false)
         document.getElementById('object-list').innerHTML = '<div class="status-message">Кликните на карту для поиска</div>'
         syncDownloadButton()
     }
 
+    function resetViewer() {
+        searchGeneration += 1
+        if (geojsonLayer) { map.removeLayer(geojsonLayer); geojsonLayer = null }
+        if (clickMarker) { map.removeLayer(clickMarker); clickMarker = null }
+        currentObjects = []
+        selectedObject = null
+        lastClickLat = null
+        lastClickLng = null
+        isSelectionLoading = false
+        setupInitialUI()
+        trackGeoPolygonsGoal('geo_polygons_reset_click')
+    }
+
     map.on('click', async (e) => {
         const { lat, lng } = e.latlng
+        const generation = ++searchGeneration
         trackGeoPolygonsGoal('geo_polygons_map_click')
         lastClickLat = lat
         lastClickLng = lng
@@ -405,6 +430,7 @@ export function initOSMViewer(containerId, sidebarId) {
         mobileSidebar.openIfMobile()
         document.getElementById('coords').textContent = `Lat: ${lat.toFixed(6)} · Lon: ${lng.toFixed(6)}`
         setCopyButtonVisible(true)
+        setClearButtonVisible(false)
         const list = document.getElementById('object-list')
         list.innerHTML = '<div class="loading"></div>'
         if (geojsonLayer) { map.removeLayer(geojsonLayer); geojsonLayer = null }
@@ -412,6 +438,7 @@ export function initOSMViewer(containerId, sidebarId) {
         syncDownloadButton()
         try {
             const isInResult = await queryOverpassIsIn(lat, lng)
+            if (generation !== searchGeneration) return
             let adminBoundaries = []
             const seen = new Set()
             if (isInResult) {
@@ -446,11 +473,14 @@ export function initOSMViewer(containerId, sidebarId) {
                 objects_count: adminBoundaries.length,
             })
         } catch (error) {
+            if (generation !== searchGeneration) return
             list.innerHTML = '<div class="status-message error">Ошибка загрузки данных</div>'
+            setClearButtonVisible(false)
             trackGeoPolygonsGoal('geo_polygons_map_query_error')
         }
     })
 
+    document.getElementById('clear-btn').addEventListener('click', resetViewer)
     document.getElementById('download-btn').addEventListener('click', downloadGeoJSON)
 
     setupInitialUI()

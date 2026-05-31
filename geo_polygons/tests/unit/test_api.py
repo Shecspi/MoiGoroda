@@ -12,6 +12,8 @@ from geo_polygons.api import _safe_geojson_filename
         ('Moscow Oblast', 'Moscow Oblast'),
         ('  Trimmed  ', 'Trimmed'),
         ('Bad<>:"/\\|?*name', 'Bad_________name'),
+        ('evil\r\nHeader', 'evil__Header'),
+        ('line\u2028sep', 'line_sep'),
         ('', 'osm_object'),
         ('   ', 'osm_object'),
     ],

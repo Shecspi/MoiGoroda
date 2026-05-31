@@ -6,6 +6,7 @@ from http import HTTPStatus
 from typing import Any
 
 from django.http import HttpResponse
+from django.utils.http import content_disposition_header
 from dmr import Controller, ResponseSpec, modify
 from dmr.plugins.msgspec import MsgspecSerializer
 
@@ -23,7 +24,7 @@ def _get_polygon_service() -> GetPolygonService:
 
 
 def _safe_geojson_filename(name: str) -> str:
-    sanitized = re.sub(r'[<>:"/\\|?*\x00-\x1f]', '_', name).strip()
+    sanitized = re.sub(r'[<>:"/\\|?*\x00-\x1f\r\n\u2028\u2029]', '_', name).strip()
     return sanitized or 'osm_object'
 
 
@@ -98,5 +99,8 @@ class DownloadOSMPolygonController(Controller[MsgspecSerializer]):
         filename = f'{_safe_geojson_filename(polygon.name)}.geojson'
         content = json.dumps(polygon.to_geojson_feature(), ensure_ascii=False)
         response = HttpResponse(content, content_type='application/geo+json')
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Disposition'] = content_disposition_header(
+            as_attachment=True,
+            filename=filename,
+        )
         return response

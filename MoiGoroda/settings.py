@@ -71,7 +71,7 @@ INSTALLED_APPS = [
     'dmr',
     'ui_demo.apps.UiDemoConfig',
     'analytics.apps.AnalyticsConfig',
-    'geo_polygons',
+    'geo_polygons.apps.GeoPolygonsConfig',
 ]
 
 

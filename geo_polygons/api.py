@@ -99,8 +99,10 @@ class DownloadOSMPolygonController(Controller[MsgspecSerializer]):
         filename = f'{_safe_geojson_filename(polygon.name)}.geojson'
         content = json.dumps(polygon.to_geojson_feature(), ensure_ascii=False)
         response = HttpResponse(content, content_type='application/geo+json')
-        response['Content-Disposition'] = content_disposition_header(
+        disposition = content_disposition_header(
             as_attachment=True,
             filename=filename,
         )
+        assert disposition is not None
+        response['Content-Disposition'] = disposition
         return response

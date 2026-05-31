@@ -76,7 +76,8 @@ class NominatimPolygonService(IExternalPolygonService):
                 results = response.json()
                 if not results:
                     NOMINATIM_REQUEST_SECONDS.labels(
-                        endpoint=endpoint, status='empty',
+                        endpoint=endpoint,
+                        status='empty',
                     ).observe(time.monotonic() - start)
                     return None
 
@@ -84,19 +85,22 @@ class NominatimPolygonService(IExternalPolygonService):
                 raw_geometry = result.get('geojson')
                 if not raw_geometry:
                     NOMINATIM_REQUEST_SECONDS.labels(
-                        endpoint=endpoint, status='no_geojson',
+                        endpoint=endpoint,
+                        status='no_geojson',
                     ).observe(time.monotonic() - start)
                     return None
 
                 geometry = _normalize_geometry(raw_geometry)
                 if geometry is None:
                     NOMINATIM_REQUEST_SECONDS.labels(
-                        endpoint=endpoint, status='invalid_geometry',
+                        endpoint=endpoint,
+                        status='invalid_geometry',
                     ).observe(time.monotonic() - start)
                     return None
 
                 NOMINATIM_REQUEST_SECONDS.labels(
-                    endpoint=endpoint, status='success',
+                    endpoint=endpoint,
+                    status='success',
                 ).observe(time.monotonic() - start)
                 return OSMPolygon(
                     relation_id=relation_id,
@@ -105,9 +109,12 @@ class NominatimPolygonService(IExternalPolygonService):
                 )
             except (requests.RequestException, ValueError) as e:
                 NOMINATIM_REQUEST_SECONDS.labels(
-                    endpoint=endpoint, status='error',
+                    endpoint=endpoint,
+                    status='error',
                 ).observe(time.monotonic() - start)
-                logger.warning('Nominatim API error (%s) for relation %s: %s', endpoint, relation_id, e)
+                logger.warning(
+                    'Nominatim API error (%s) for relation %s: %s', endpoint, relation_id, e
+                )
                 continue
 
         logger.error('All Nominatim endpoints failed for relation %s', relation_id)

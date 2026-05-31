@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
 from datetime import timedelta
 from decimal import Decimal
 from typing import Any, cast
@@ -88,13 +87,13 @@ def cached_polygon(db: None) -> OSMPolygonCache:
 
 
 @pytest.fixture
-def mock_polygon_service(mocker: Any) -> Callable[[OSMPolygon | None], Any]:
+def mock_polygon_service(mocker: Any) -> Any:
     service = mocker.Mock()
     service.execute.return_value = None
 
     def configure(polygon: OSMPolygon | None) -> None:
         service.execute.return_value = polygon
 
-    service.configure = configure  # type: ignore[attr-defined]
+    service.configure = configure
     mocker.patch('geo_polygons.api._get_polygon_service', return_value=service)
     return service

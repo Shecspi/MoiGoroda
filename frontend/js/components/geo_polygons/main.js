@@ -496,19 +496,8 @@ export function initOSMViewer(containerId, sidebarId) {
                 copyBtn.classList.remove('btn-ghost-success')
                 copyBtn.classList.add('btn-ghost')
             }, 1500)
-        } catch {
-            const input = document.createElement('input')
-            input.value = text
-            document.body.appendChild(input)
-            input.select()
-            document.execCommand('copy')
-            document.body.removeChild(input)
-            copyBtn.classList.remove('btn-ghost')
-            copyBtn.classList.add('btn-ghost-success')
-            setTimeout(() => {
-                copyBtn.classList.remove('btn-ghost-success')
-                copyBtn.classList.add('btn-ghost')
-            }, 1500)
+        } catch (error) {
+            console.error('Не удалось скопировать координаты:', error)
         }
     })
 

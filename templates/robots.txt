@@ -1,5 +1,6 @@
 User-agent: *
 Disallow: /admin/
+Disallow: /api/geo-polygons/
 Allow: *.css
 Allow: *.js
 Allow: *.png

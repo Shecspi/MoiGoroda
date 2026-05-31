@@ -316,8 +316,3 @@ body.is-geo-mobile-sidebar-open {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
-
-.leaflet-popup-content {
-    font-family: system-ui, -apple-system, sans-serif;
-    font-size: 0.875rem;
-}

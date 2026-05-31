@@ -276,7 +276,6 @@ export function initOSMViewer(containerId, sidebarId) {
             geojsonLayer = L.geoJSON(obj._geojson, {
                 style: { color: '#7c5cff', weight: 3, fillOpacity: 0.15, fillColor: '#7c5cff' }
             }).addTo(map)
-            geojsonLayer.bindPopup(getElementName(obj))
             map.fitBounds(geojsonLayer.getBounds().pad(0.1))
             updateDownloadButton()
         } else if (obj._relationId) {
@@ -291,7 +290,6 @@ export function initOSMViewer(containerId, sidebarId) {
                     geojsonLayer = L.geoJSON(geojson, {
                         style: { color: '#7c5cff', weight: 3, fillOpacity: 0.15, fillColor: '#7c5cff' }
                     }).addTo(map)
-                    geojsonLayer.bindPopup(getElementName(obj))
                     map.fitBounds(geojsonLayer.getBounds().pad(0.1))
                     updateDownloadButton()
                 } else {

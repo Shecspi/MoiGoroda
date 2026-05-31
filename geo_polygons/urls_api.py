@@ -11,7 +11,9 @@ router = Router(
             DownloadOSMPolygonController.as_view(),
             name='api__geo_polygon_download',
         ),
-        path('polygon/<int:relation_id>/', GetOSMPolygonController.as_view(), name='api__geo_polygon'),
+        path(
+            'polygon/<int:relation_id>/', GetOSMPolygonController.as_view(), name='api__geo_polygon'
+        ),
     ],
 )
 

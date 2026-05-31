@@ -19,9 +19,8 @@ class OSMPolygonCacheAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     ordering = ('-created_at',)
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[OSMPolygonCache]:
-        return super().get_queryset(request).annotate(
-            geojson_size=Length(Cast('geojson', TextField()))
-        )
+        qs = super().get_queryset(request)
+        return qs.annotate(geojson_size=Length(Cast('geojson', TextField())))  # type: ignore[no-any-return]
 
     def changelist_view(
         self,

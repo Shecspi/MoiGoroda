@@ -96,6 +96,7 @@ def test_normalize_geometry_linestring_already_closed_does_not_duplicate_point()
 
     result = _normalize_geometry(geometry)
 
+    assert result is not None
     assert len(result['coordinates'][0]) == 4
 
 

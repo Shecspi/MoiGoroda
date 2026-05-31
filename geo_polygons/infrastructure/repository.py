@@ -3,12 +3,19 @@ from __future__ import annotations
 import logging
 
 from django.db import IntegrityError
+from prometheus_client import Counter
 
 from geo_polygons.domain.entities import OSMPolygon
 from geo_polygons.domain.interfaces import IPolygonRepository
 from geo_polygons.infrastructure.models import OSMPolygonCache
 
 logger = logging.getLogger(__name__)
+
+POLYGON_CACHE_REQUESTS = Counter(
+    'geo_polygons_cache_requests_total',
+    'OSM polygon cache lookups',
+    ['result'],
+)
 
 
 class DjangoPolygonRepository(IPolygonRepository):
@@ -18,7 +25,9 @@ class DjangoPolygonRepository(IPolygonRepository):
         try:
             cached = OSMPolygonCache.objects.get(relation_id=relation_id)
         except OSMPolygonCache.DoesNotExist:
+            POLYGON_CACHE_REQUESTS.labels(result='miss').inc()
             return None
+        POLYGON_CACHE_REQUESTS.labels(result='hit').inc()
         return OSMPolygon(
             relation_id=cached.relation_id,
             name=cached.name,

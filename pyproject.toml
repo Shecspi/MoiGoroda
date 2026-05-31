@@ -26,6 +26,7 @@ django-modern-rest = {extras = ["msgspec"], version = "^0.3.0"}
 Pillow = "^11.3.0"
 pillow-heif = "^1.1.1"
 requests = "^2.31.0"
+django-prometheus = "^2.3.1"
 
 
 [tool.poetry.group.dev.dependencies]

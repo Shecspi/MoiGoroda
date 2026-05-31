@@ -1,14 +1,22 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 import requests
+from prometheus_client import Histogram
 
 from geo_polygons.domain.entities import OSMPolygon
 from geo_polygons.domain.interfaces import IExternalPolygonService
 
 logger = logging.getLogger(__name__)
+
+NOMINATIM_REQUEST_SECONDS = Histogram(
+    'geo_polygons_nominatim_request_seconds',
+    'Nominatim external API call latency',
+    ['endpoint', 'status'],
+)
 
 NOMINATIM_ENDPOINTS = [
     'https://nominatim.openstreetmap.org/lookup',
@@ -56,6 +64,7 @@ class NominatimPolygonService(IExternalPolygonService):
             'polygon_geojson': '1',
         }
         for endpoint in NOMINATIM_ENDPOINTS:
+            start = time.monotonic()
             try:
                 response = requests.get(
                     endpoint,
@@ -66,23 +75,38 @@ class NominatimPolygonService(IExternalPolygonService):
                 response.raise_for_status()
                 results = response.json()
                 if not results:
+                    NOMINATIM_REQUEST_SECONDS.labels(
+                        endpoint=endpoint, status='empty',
+                    ).observe(time.monotonic() - start)
                     return None
 
                 result = results[0]
                 raw_geometry = result.get('geojson')
                 if not raw_geometry:
+                    NOMINATIM_REQUEST_SECONDS.labels(
+                        endpoint=endpoint, status='no_geojson',
+                    ).observe(time.monotonic() - start)
                     return None
 
                 geometry = _normalize_geometry(raw_geometry)
                 if geometry is None:
+                    NOMINATIM_REQUEST_SECONDS.labels(
+                        endpoint=endpoint, status='invalid_geometry',
+                    ).observe(time.monotonic() - start)
                     return None
 
+                NOMINATIM_REQUEST_SECONDS.labels(
+                    endpoint=endpoint, status='success',
+                ).observe(time.monotonic() - start)
                 return OSMPolygon(
                     relation_id=relation_id,
                     name=result.get('display_name', '')[:500],
                     geometry=geometry,
                 )
             except (requests.RequestException, ValueError) as e:
+                NOMINATIM_REQUEST_SECONDS.labels(
+                    endpoint=endpoint, status='error',
+                ).observe(time.monotonic() - start)
                 logger.warning('Nominatim API error (%s) for relation %s: %s', endpoint, relation_id, e)
                 continue
 

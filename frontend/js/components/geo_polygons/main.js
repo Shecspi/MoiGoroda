@@ -207,7 +207,7 @@ export function initOSMViewer(containerId, sidebarId) {
         if (!geometry) return null
         if (geometry.type === 'Point' || geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') return geometry
         if (geometry.type === 'LineString') {
-            const coords = geometry.coordinates
+            const coords = geometry.coordinates.map(c => [...c])
             if (coords.length > 2) {
                 const first = coords[0], last = coords[coords.length - 1]
                 if (first[0] !== last[0] || first[1] !== last[1]) coords.push([first[0], first[1]])
@@ -216,13 +216,14 @@ export function initOSMViewer(containerId, sidebarId) {
         }
         if (geometry.type === 'MultiLineString') {
             const polygons = geometry.coordinates.map(line => {
-                if (line.length > 2) {
-                    const first = line[0], last = line[line.length - 1]
-                    if (first[0] !== last[0] || first[1] !== last[1]) line.push([first[0], first[1]])
+                const copiedLine = line.map(c => [...c])
+                if (copiedLine.length > 2) {
+                    const first = copiedLine[0], last = copiedLine[copiedLine.length - 1]
+                    if (first[0] !== last[0] || first[1] !== last[1]) copiedLine.push([first[0], first[1]])
                 }
-                return line
+                return [copiedLine]
             })
-            return { type: 'MultiPolygon', coordinates: polygons.map(p => [p]) }
+            return { type: 'MultiPolygon', coordinates: polygons }
         }
         return geometry
     }

@@ -50,6 +50,8 @@
 
 - *(map)* Добавлена поддержка полигонов городов на картах ([7ccb5a1](https://github.com/Shecspi/MoiGoroda/commit/7ccb5a145ba0ef196c15f85142be3e6b0839431e))
 
+- *(geo-polygons)* Появился модуль просмотра и загрузки полигонов OpenStreetMap ([b3ed214](https://github.com/Shecspi/MoiGoroda/commit/b3ed214cd033ea0bbb18503b23a992267a42b879))
+
 
 #### 🐛 Исправление ошибок
 

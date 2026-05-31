@@ -61,7 +61,7 @@ class NominatimPolygonService(IExternalPolygonService):
                     endpoint,
                     params=params,
                     headers=NOMINATIM_HEADERS,
-                    timeout=15,
+                    timeout=8,
                 )
                 response.raise_for_status()
                 results = response.json()

@@ -14,5 +14,6 @@ from . import views
 urlpatterns = [
     path('', views.index, name='main_page'),
     path('help/', views.help_index, name='help-index'),
+    path('help/osm-polygons/', views.help_osm_polygons, name='help-osm-polygons'),
     path('help/users-city-photos/', views.help_premium_photos, name='help-users-city-photos'),
 ]

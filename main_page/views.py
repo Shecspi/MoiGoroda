@@ -39,6 +39,21 @@ def index(request: HttpRequest) -> HttpResponse:
         )
 
 
+def help_osm_polygons(request: HttpRequest) -> HttpResponse:
+    """Справка по инструменту «Полигоны OpenStreetMap»."""
+    return render(
+        request,
+        'help/osm_polygons.html',
+        context={
+            'page_title': 'Справка: полигоны OpenStreetMap',
+            'page_description': (
+                'Как пользоваться просмотром полигонов OSM, условия доступа '
+                'и важная информация о территориальной принадлежности в данных картографов'
+            ),
+        },
+    )
+
+
 def help_premium_photos(request: HttpRequest) -> HttpResponse:
     """Отображает справку по загрузке фото в расширенной подписке."""
     return render(
@@ -56,6 +71,14 @@ def help_premium_photos(request: HttpRequest) -> HttpResponse:
 def help_index(request: HttpRequest) -> HttpResponse:
     """Отображает главную страницу раздела справки."""
     help_articles = [
+        {
+            'title': 'Полигоны OpenStreetMap',
+            'description': (
+                'Как пользоваться просмотром полигонов OSM, условия доступа '
+                'и важная информация о территориальной принадлежности в данных картографов.'
+            ),
+            'url': '/help/osm-polygons/',
+        },
         {
             'title': 'Фотографии в премиум-доступе',
             'description': 'Как загружать фотографии, выбирать основное изображение и как работает хранение после окончания периода доступа.',

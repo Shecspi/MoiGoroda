@@ -71,10 +71,13 @@ INSTALLED_APPS = [
     'dmr',
     'ui_demo.apps.UiDemoConfig',
     'analytics.apps.AnalyticsConfig',
+    'geo_polygons.apps.GeoPolygonsConfig',
+    'django_prometheus',
 ]
 
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -82,6 +85,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 # Debug toolbar находится в DEV-зависимостях, поэтому на продакшене он не устанавливается.
@@ -418,6 +422,19 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = 'unsafe-none'
 
 URL_GEO_POLYGONS = os.getenv('URL_GEO_POLYGONS')
 URL_S3_GEO_POLYGONS = os.getenv('URL_S3_GEO_POLYGONS')
+
+_DEFAULT_OVERPASS_ENDPOINTS = (
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.openstreetmap.ru/api/interpreter',
+)
+_overpass_endpoints_env = os.getenv('OVERPASS_ENDPOINTS', '')
+OVERPASS_ENDPOINTS = (
+    [item.strip() for item in _overpass_endpoints_env.split(',') if item.strip()]
+    if _overpass_endpoints_env.strip()
+    else list(_DEFAULT_OVERPASS_ENDPOINTS)
+)
+
 PRIVACY_POLICY_VERSION = os.getenv('PRIVACY_POLICY_VERSION')
 
 ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS = (

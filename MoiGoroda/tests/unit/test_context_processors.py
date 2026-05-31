@@ -14,7 +14,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory
 
-from MoiGoroda.context_processors import general_settings
+from MoiGoroda.context_processors import build_canonical_url, general_settings
 
 
 # ===== Unit тесты для context_processors =====
@@ -82,6 +82,7 @@ def test_general_settings_contains_all_required_keys(request_factory: RequestFac
         'SIDEBAR_LINK_ADV_INFO',
         'DEBUG',
         'PRIVACY_POLICY_VERSION',
+        'canonical_url',
     ]
 
     for key in required_keys:
@@ -294,6 +295,53 @@ def test_general_settings_subscription_true_for_authenticated_with_active_subscr
 
     assert context['has_active_subscription'] is True
     assert context['active_subscription_level'] == 'basic'
+
+
+@pytest.mark.unit
+def test_build_canonical_url_uses_site_url_without_query(
+    request_factory: RequestFactory,
+) -> None:
+    """Canonical URL строится из SITE_URL и пути без query-параметров."""
+    request = request_factory.get('/city/list/?page=2&filter=visited')
+
+    with patch('MoiGoroda.context_processors.os.getenv', return_value='https://moi-goroda.ru'):
+        assert build_canonical_url(request) == 'https://moi-goroda.ru/city/list/'
+
+
+@pytest.mark.unit
+def test_build_canonical_url_strips_trailing_slash_from_site_url(
+    request_factory: RequestFactory,
+) -> None:
+    """Trailing slash в SITE_URL не дублируется в canonical URL."""
+    request = request_factory.get('/news/')
+
+    with patch('MoiGoroda.context_processors.os.getenv', return_value='https://moi-goroda.ru/'):
+        assert build_canonical_url(request) == 'https://moi-goroda.ru/news/'
+
+
+@pytest.mark.unit
+def test_build_canonical_url_falls_back_to_request_when_site_url_missing(
+    request_factory: RequestFactory,
+) -> None:
+    """Без SITE_URL canonical строится через request.build_absolute_uri()."""
+    request = request_factory.get('/help/')
+
+    with patch('MoiGoroda.context_processors.os.getenv', return_value=None):
+        assert build_canonical_url(request) == 'http://testserver/help/'
+
+
+@pytest.mark.unit
+def test_general_settings_includes_canonical_url(
+    request_factory: RequestFactory,
+) -> None:
+    """Контекст содержит canonical_url для шаблонов."""
+    request = request_factory.get('/geo-polygons/?lat=55.75')
+    request.user = AnonymousUser()
+
+    with patch('MoiGoroda.context_processors.os.getenv', return_value='https://moi-goroda.ru'):
+        context = general_settings(request)
+
+    assert context['canonical_url'] == 'https://moi-goroda.ru/geo-polygons/'
 
 
 @pytest.mark.unit

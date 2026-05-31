@@ -85,11 +85,13 @@
 
     {% include 'geo_polygons/partials/page_intro.html' %}
 
+    {{ OVERPASS_ENDPOINTS|json_script:"overpass-endpoints-config" }}
     <script>
         window.YANDEX_METRIKA_ID = "{{ YANDEX_METRIKA|default:''|escapejs }}";
         window.OSM_VIEWER_IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
         window.OSM_VIEWER_HAS_ACTIVE_SUBSCRIPTION = {{ has_active_subscription|yesno:"true,false" }};
         window.OSM_VIEWER_HAS_ADVANCED_PREMIUM = {% if user.is_authenticated and active_subscription_level == 'advanced' %}true{% else %}false{% endif %};
+        window.OVERPASS_ENDPOINTS = JSON.parse(document.getElementById('overpass-endpoints-config').textContent);
     </script>
 
     {% vite_asset 'js/entries/leaflet_css.js' %}

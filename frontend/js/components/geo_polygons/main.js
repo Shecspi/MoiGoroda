@@ -166,11 +166,7 @@ export function initOSMViewer(containerId, sidebarId) {
         return parts.join(' · ')
     }
 
-    const OVERPASS_ENDPOINTS = [
-        'https://overpass-api.de/api/interpreter',
-        'https://overpass.kumi.systems/api/interpreter',
-        'https://overpass.openstreetmap.ru/api/interpreter',
-    ]
+    const OVERPASS_ENDPOINTS = Array.isArray(window.OVERPASS_ENDPOINTS) ? window.OVERPASS_ENDPOINTS : []
 
     async function queryOverpassIsIn(lat, lon) {
         const query = `[out:json][timeout:15];is_in(${lat},${lon})->.a;area.a;out body;`

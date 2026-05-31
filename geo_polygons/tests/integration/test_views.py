@@ -20,6 +20,8 @@ def test_geo_polygons_page_renders_for_anonymous(client: Client) -> None:
     assert 'id="clear-btn"' in content
     assert 'window.OSM_VIEWER_IS_AUTHENTICATED = false' in content
     assert 'window.OSM_VIEWER_HAS_ADVANCED_PREMIUM = false' in content
+    assert 'overpass-endpoints-config' in content
+    assert 'https://overpass-api.de/api/interpreter' in content
 
 
 @pytest.mark.integration

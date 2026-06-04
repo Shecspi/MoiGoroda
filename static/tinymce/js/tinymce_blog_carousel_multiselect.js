@@ -1,6 +1,6 @@
 /**
  * Кнопка TinyMCE «Карусель» в админке статей блога.
- * Зона загрузки повторяет разметку dropzone TinyMCE, input — свой с multiple.
+ * Вставка и редактирование блока .mg-blog-carousel.
  */
 (function () {
   'use strict';
@@ -27,6 +27,7 @@
 
   function buildCarouselHtml(urls, alt) {
     var altAttr = alt ? ' alt="' + escapeAttr(alt) + '"' : '';
+    var captionAttr = alt ? ' data-mg-caption="' + escapeAttr(alt) + '"' : '';
     var imgs = urls
       .map(function (url) {
         return (
@@ -43,10 +44,38 @@
     return (
       '<div class="' +
       CAROUSEL_CLASS +
-      '" contenteditable="false" data-mg-blog-carousel>' +
+      '" contenteditable="false" data-mg-blog-carousel' +
+      captionAttr +
+      '>' +
       imgs +
       '</div><p></p>'
     );
+  }
+
+  function parseCarouselElement(carouselEl) {
+    var urls = [];
+    var imgs = carouselEl.getElementsByTagName('img');
+    for (var i = 0; i < imgs.length; i++) {
+      var src = imgs[i].getAttribute('src');
+      if (src) {
+        urls.push(src);
+      }
+    }
+    var alt = carouselEl.getAttribute('data-mg-caption') || '';
+    if (!alt && imgs.length > 0) {
+      alt = imgs[0].getAttribute('alt') || '';
+    }
+    return { urls: urls, alt: alt };
+  }
+
+  function findCarouselNode(node, editor) {
+    if (!node) {
+      return null;
+    }
+    if (node.nodeType === 1 && editor.dom.hasClass(node, CAROUSEL_CLASS)) {
+      return node;
+    }
+    return editor.dom.getParent(node, '.' + CAROUSEL_CLASS);
   }
 
   function reportOverallProgress(done, total, filePercent, onProgress) {
@@ -135,6 +164,35 @@
     return result;
   }
 
+  function buildExistingSlidesHtml(urls) {
+    if (!urls.length) {
+      return '';
+    }
+    var items = urls
+      .map(function (url) {
+        return (
+          '<div class="mg-carousel-existing" data-mg-url="' +
+          escapeAttr(url) +
+          '" style="display:flex;align-items:center;gap:8px;margin:6px 0;">' +
+          '<img src="' +
+          escapeAttr(url) +
+          '" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0;">' +
+          '<span style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(34,47,62,.75);">' +
+          escapeHtml(url) +
+          '</span>' +
+          '<button type="button" class="tox-button tox-button--secondary tox-button--naked" data-mg-remove-slide>Удалить</button>' +
+          '</div>'
+        );
+      })
+      .join('');
+    return (
+      '<div data-mg-existing-slides style="margin-bottom:12px;">' +
+      '<p style="margin:0 0 6px;font-size:13px;font-weight:600;color:rgba(34,47,62,.85);">Текущие фото</p>' +
+      items +
+      '</div>'
+    );
+  }
+
   function buildDropzoneHtml(editor, inputId) {
     return (
       '<div class="tox-form__group tox-form__group--stretched">' +
@@ -156,13 +214,13 @@
       '</div>' +
       '</div>' +
       '<p data-mg-carousel-file-count style="margin:8px 0 0;font-size:13px;color:rgba(34,47,62,.7);">' +
-      'Выбрано файлов: 0</p>' +
+      'Новых файлов: 0</p>' +
       '<p style="margin:4px 0 0;font-size:12px;color:rgba(34,47,62,.55);">' +
       'От ' +
       MIN_IMAGES +
       ' до ' +
       MAX_IMAGES +
-      ' изображений. Можно выбрать несколько сразу (Ctrl+клик) или перетащить.</p>'
+      ' изображений в карусели. Можно выбрать несколько сразу (Ctrl+клик) или перетащить.</p>'
     );
   }
 
@@ -177,7 +235,7 @@
       if (!countEl) {
         return;
       }
-      countEl.textContent = 'Выбрано файлов: ' + selectedFiles.length + ' (макс. ' + MAX_IMAGES + ')';
+      countEl.textContent = 'Новых файлов: ' + selectedFiles.length;
     }
 
     function addFiles(fileList) {
@@ -247,93 +305,231 @@
     return Boolean(holder.state);
   }
 
+  function findNodeUp(startNode, rootEl, attrName) {
+    var node = startNode;
+    while (node && node !== rootEl) {
+      if (node.nodeType === 1 && node.getAttribute && node.getAttribute(attrName) !== null) {
+        return node;
+      }
+      node = node.parentNode;
+    }
+    return null;
+  }
+
+  function collectExistingUrls(panelEl) {
+    if (!panelEl) {
+      return [];
+    }
+    var container = panelEl.querySelector('[data-mg-existing-slides]') || panelEl;
+    var urls = [];
+    var rows = container.querySelectorAll('[data-mg-url]');
+    for (var i = 0; i < rows.length; i++) {
+      var url = rows[i].getAttribute('data-mg-url');
+      if (url) {
+        urls.push(url);
+      }
+    }
+    return urls;
+  }
+
+  function bindExistingSlides(panelEl) {
+    if (!panelEl || panelEl.getAttribute('data-mg-slides-bound') === 'true') {
+      return;
+    }
+    panelEl.setAttribute('data-mg-slides-bound', 'true');
+
+    panelEl.addEventListener('click', function (e) {
+      var btn = findNodeUp(e.target, panelEl, 'data-mg-remove-slide');
+      if (!btn) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+
+      var row = findNodeUp(btn, panelEl, 'data-mg-url');
+      if (row && row.parentNode) {
+        row.parentNode.removeChild(row);
+      }
+    });
+  }
+
+  function openCarouselDialog(editor, options) {
+    options = options || {};
+    var isEdit = Boolean(options.editNode);
+    var editNode = options.editNode || null;
+    var parsed = isEdit && editNode ? parseCarouselElement(editNode) : { urls: [], alt: '' };
+
+    var fileHolder = { state: null };
+    var dialogUi = { existingPanelEl: null, dropzonePanelEl: null };
+    var inputId = 'mg-carousel-input-' + String(Date.now());
+    var panelItems = [];
+
+    if (isEdit) {
+      panelItems.push({
+        type: 'htmlpanel',
+        html: buildExistingSlidesHtml(parsed.urls),
+        onInit: function (el) {
+          dialogUi.existingPanelEl = el;
+          bindExistingSlides(el);
+        }
+      });
+    }
+
+    panelItems.push(
+      {
+        type: 'htmlpanel',
+        html: buildDropzoneHtml(editor, inputId),
+        onInit: function (el) {
+          dialogUi.dropzonePanelEl = el;
+          bindFileSelection(el, fileHolder);
+        }
+      },
+      {
+        type: 'input',
+        name: 'alt',
+        label: 'Подпись (для всех фото)'
+      }
+    );
+
+    editor.windowManager.open({
+      title: isEdit ? 'Изменить карусель' : 'Карусель фотографий',
+      size: 'normal',
+      body: {
+        type: 'panel',
+        items: panelItems
+      },
+      initialData: {
+        alt: parsed.alt
+      },
+      buttons: [
+        { type: 'cancel', text: 'Отмена' },
+        {
+          type: 'submit',
+          text: isEdit ? 'Сохранить' : 'Загрузить и вставить',
+          primary: true
+        }
+      ],
+      onOpen: function () {
+        window.setTimeout(function () {
+          if (!fileHolder.state && dialogUi.dropzonePanelEl) {
+            bindFileSelection(dialogUi.dropzonePanelEl, fileHolder);
+          }
+          if (isEdit && dialogUi.existingPanelEl) {
+            bindExistingSlides(dialogUi.existingPanelEl);
+          }
+        }, 0);
+      },
+      onClose: function () {
+        fileHolder.state = null;
+        dialogUi.existingPanelEl = null;
+        dialogUi.dropzonePanelEl = null;
+      },
+      onSubmit: function (api) {
+        if (!fileHolder.state && dialogUi.dropzonePanelEl) {
+          bindFileSelection(dialogUi.dropzonePanelEl, fileHolder);
+        }
+
+        var existingUrls = isEdit ? collectExistingUrls(dialogUi.existingPanelEl) : [];
+        var newFiles = fileHolder.state ? fileHolder.state.getFiles() : [];
+        var totalCount = existingUrls.length + newFiles.length;
+
+        if (totalCount < MIN_IMAGES) {
+          editor.windowManager.alert(
+            'В карусели должно быть минимум ' + MIN_IMAGES + ' изображения.'
+          );
+          return;
+        }
+
+        if (totalCount > MAX_IMAGES) {
+          editor.windowManager.alert(
+            'В карусели может быть не более ' + MAX_IMAGES + ' изображений.'
+          );
+          return;
+        }
+
+        if (fileHolder.state && fileHolder.state.wasLimitExceeded()) {
+          editor.windowManager.alert(
+            'Выбрано больше ' +
+              MAX_IMAGES +
+              ' новых файлов — будут загружены только первые ' +
+              MAX_IMAGES +
+              '.'
+          );
+        }
+
+        var alt = (api.getData().alt || '').trim();
+
+        function setUploadProgress(percent) {
+          api.block(isEdit ? 'Сохранение… ' + percent + '%' : 'Загрузка… ' + percent + '%');
+        }
+
+        function finish(urls) {
+          if (isEdit && editNode) {
+            editor.undoManager.transact(function () {
+              editor.dom.setOuterHTML(editNode, buildCarouselHtml(urls, alt));
+            });
+          } else {
+            editor.insertContent(buildCarouselHtml(urls, alt));
+          }
+          api.close();
+        }
+
+        if (!newFiles.length) {
+          finish(existingUrls);
+          return;
+        }
+
+        setUploadProgress(0);
+        uploadFiles(newFiles, setUploadProgress)
+          .then(function (uploadedUrls) {
+            finish(existingUrls.concat(uploadedUrls));
+          })
+          .catch(function (err) {
+            api.unblock();
+            var message =
+              typeof err === 'string' ? err : err && err.message ? err.message : 'Ошибка загрузки';
+            editor.windowManager.alert(message);
+          });
+      }
+    });
+  }
+
   function djangoTinyMCESetupBlogCarousel(editor) {
     editor.ui.registry.addButton('blog_carousel', {
       text: 'Карусель',
-      tooltip:
-        'Вставить карусель из ' + MIN_IMAGES + '–' + MAX_IMAGES + ' фотографий',
+      tooltip: 'Вставить карусель из ' + MIN_IMAGES + '–' + MAX_IMAGES + ' фотографий',
       onAction: function () {
-        var fileHolder = { state: null };
-        var inputId = 'mg-carousel-input-' + String(Date.now());
+        openCarouselDialog(editor, {});
+      }
+    });
 
-        editor.windowManager.open({
-          title: 'Карусель фотографий',
-          size: 'normal',
-          body: {
-            type: 'panel',
-            items: [
-              {
-                type: 'htmlpanel',
-                html: buildDropzoneHtml(editor, inputId),
-                onInit: function (el) {
-                  bindFileSelection(el, fileHolder);
-                }
-              },
-              {
-                type: 'input',
-                name: 'alt',
-                label: 'Подпись (для всех фото)'
-              }
-            ]
-          },
-          buttons: [
-            { type: 'cancel', text: 'Отмена' },
-            { type: 'submit', text: 'Загрузить и вставить', primary: true }
-          ],
-          onOpen: function (api) {
-            window.setTimeout(function () {
-              if (!fileHolder.state) {
-                bindFileSelection(api.getEl(), fileHolder);
-              }
-            }, 0);
-          },
-          onClose: function () {
-            fileHolder.state = null;
-          },
-          onSubmit: function (api) {
-            if (!fileHolder.state) {
-              bindFileSelection(api.getEl(), fileHolder);
-            }
+    editor.ui.registry.addButton('blog_carousel_edit', {
+      text: 'Изменить карусель',
+      tooltip: 'Изменить выбранную карусель фотографий',
+      onAction: function () {
+        var carousel = findCarouselNode(editor.selection.getNode(), editor);
+        if (!carousel) {
+          editor.windowManager.alert('Выберите карусель в тексте статьи.');
+          return;
+        }
+        openCarouselDialog(editor, { editNode: carousel });
+      }
+    });
 
-            var fileinput = fileHolder.state ? fileHolder.state.getFiles() : [];
+    editor.ui.registry.addContextToolbar('mgBlogCarouselToolbar', {
+      predicate: function (node) {
+        return Boolean(findCarouselNode(node, editor));
+      },
+      items: 'blog_carousel_edit',
+      position: 'node',
+      scope: 'node'
+    });
 
-            if (!fileinput.length || fileinput.length < MIN_IMAGES) {
-              editor.windowManager.alert(
-                'Нужно выбрать минимум ' + MIN_IMAGES + ' изображения.'
-              );
-              return;
-            }
-
-            if (fileHolder.state && fileHolder.state.wasLimitExceeded()) {
-              editor.windowManager.alert(
-                'Выбрано больше ' +
-                  MAX_IMAGES +
-                  ' файлов — в карусель попадут только первые ' +
-                  MAX_IMAGES +
-                  '.'
-              );
-            }
-
-            var alt = (api.getData().alt || '').trim();
-
-            function setUploadProgress(percent) {
-              api.block('Загрузка… ' + percent + '%');
-            }
-
-            setUploadProgress(0);
-            uploadFiles(fileinput, setUploadProgress)
-              .then(function (urls) {
-                editor.insertContent(buildCarouselHtml(urls, alt));
-                api.close();
-              })
-              .catch(function (err) {
-                api.unblock();
-                var message =
-                  typeof err === 'string' ? err : err && err.message ? err.message : 'Ошибка загрузки';
-                editor.windowManager.alert(message);
-              });
-          }
-        });
+    editor.on('dblclick', function (event) {
+      var carousel = findCarouselNode(event.target, editor);
+      if (carousel) {
+        event.preventDefault();
+        openCarouselDialog(editor, { editNode: carousel });
       }
     });
   }

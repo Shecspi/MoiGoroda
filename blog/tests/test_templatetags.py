@@ -95,9 +95,9 @@ class ContentWithAdsTagTests(TestCase):
     def test_preserves_blog_carousel_markup(self) -> None:
         html = (
             '<p>Текст</p>'
-            '<div class="mg-blog-carousel" data-mg-blog-carousel>'
-            '<img src="https://example.com/a.jpg" alt="Фото 1">'
-            '<img src="https://example.com/b.jpg" alt="Фото 2">'
+            '<div class="mg-blog-carousel" data-mg-blog-carousel data-mg-caption="Подпись">'
+            '<img src="https://example.com/a.jpg" alt="Подпись">'
+            '<img src="https://example.com/b.jpg" alt="Подпись">'
             '</div>'
         )
         result = content_ads.content_with_ads(self.context, html, 'dummy.html')
@@ -105,6 +105,7 @@ class ContentWithAdsTagTests(TestCase):
 
         self.assertIn('mg-blog-carousel', rendered)
         self.assertIn('data-mg-blog-carousel', rendered)
+        self.assertIn('data-mg-caption="Подпись"', rendered)
         self.assertIn('https://example.com/a.jpg', rendered)
         self.assertIn('https://example.com/b.jpg', rendered)
 

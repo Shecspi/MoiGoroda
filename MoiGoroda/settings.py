@@ -460,6 +460,11 @@ TINYMCE_DEFAULT_CONFIG = {
         '.mg-blog-carousel img { '
         'display: inline-block; max-width: 120px; max-height: 80px; '
         'object-fit: cover; margin: 0 4px 4px 0; border-radius: 4px; vertical-align: top; '
+        '} '
+        '.mg-blog-carousel[data-mg-caption]::after { '
+        'content: attr(data-mg-caption); display: block; clear: both; '
+        'text-align: center; font-size: 12px; line-height: 1.25; color: #6b7280; '
+        'margin-top: 0.5em; padding: 0 0.25em; '
         '}'
     ),
     'images_upload_url': '/tinymce/upload-image/',
@@ -467,7 +472,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'automatic_uploads': True,
     'setup': 'djangoTinyMCESetup',
     # Сохранять div-маркеры рекламы и карусели
-    'extended_valid_elements': 'div[class|data-ad|contenteditable|data-mg-blog-carousel]',
+    'extended_valid_elements': 'div[class|data-ad|contenteditable|data-mg-blog-carousel|data-mg-caption]',
 }
 
 TINYMCE_EXTRA_MEDIA = {

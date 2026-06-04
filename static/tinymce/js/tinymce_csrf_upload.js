@@ -48,15 +48,11 @@
       };
 
       xhr.onload = function () {
-        parseUploadResponse(xhr)
-          .then(function (url) {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              resolve(url);
-              return;
-            }
-            return Promise.reject('Upload failed: ' + xhr.status);
-          })
-          .catch(reject);
+        if (xhr.status < 200 || xhr.status >= 300) {
+          reject('Upload failed: ' + xhr.status);
+          return;
+        }
+        parseUploadResponse(xhr).then(resolve).catch(reject);
       };
 
       xhr.onerror = function () {

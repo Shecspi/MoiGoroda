@@ -436,7 +436,8 @@ TINYMCE_DEFAULT_CONFIG = {
     'plugins': 'advlist autolink lists link image charmap anchor searchreplace visualblocks code '
     'fullscreen insertdatetime media table help wordcount',
     'toolbar': 'undo redo | blocks | bold italic | alignleft aligncenter alignright | '
-    'bullist numlist outdent indent | link image | rtb_banner_inside_article_1 rtb_banner_inside_article_2 rtb_banner_inside_article_3 | removeformat | help',
+    'bullist numlist outdent indent | link image blog_carousel | '
+    'rtb_banner_inside_article_1 rtb_banner_inside_article_2 rtb_banner_inside_article_3 | removeformat | help',
     'content_style': (
         'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } '
         '.ad-placeholder-rtb-banner { '
@@ -447,20 +448,34 @@ TINYMCE_DEFAULT_CONFIG = {
         '.ad-placeholder-rtb-banner[data-ad="rtb_banner_inside_article_1"]::before { content: "Рекламный блок 1"; font-weight: 600; } '
         '.ad-placeholder-rtb-banner[data-ad="rtb_banner_inside_article_2"]::before { content: "Рекламный блок 2"; font-weight: 600; } '
         '.ad-placeholder-rtb-banner[data-ad="rtb_banner_inside_article_3"]::before { content: "Рекламный блок 3"; font-weight: 600; } '
-        '.ad-placeholder-rtb-banner:not([data-ad])::before { content: "Рекламный блок"; font-weight: 600; }'
+        '.ad-placeholder-rtb-banner:not([data-ad])::before { content: "Рекламный блок"; font-weight: 600; } '
+        '.mg-blog-carousel { '
+        'display: block; margin: 1em 0; padding: 0.75em; '
+        'background: #e8f4fd; border: 1px dashed #0d6efd; border-radius: 6px; '
+        '} '
+        '.mg-blog-carousel::before { '
+        'content: "Карусель фотографий"; display: block; font-weight: 600; '
+        'font-size: 13px; color: #0d6efd; margin-bottom: 0.5em; '
+        '} '
+        '.mg-blog-carousel img { '
+        'display: inline-block; max-width: 120px; max-height: 80px; '
+        'object-fit: cover; margin: 0 4px 4px 0; border-radius: 4px; vertical-align: top; '
+        '}'
     ),
     'images_upload_url': '/tinymce/upload-image/',
     'images_upload_handler': 'djangoTinyMCEImagesUploadHandler',
     'automatic_uploads': True,
-    'setup': 'djangoTinyMCESetupRtbBanner',
-    # Сохранять div-маркер рекламы (кнопка «Рекламный блок»)
-    'extended_valid_elements': 'div[class|data-ad]',
+    'setup': 'djangoTinyMCESetup',
+    # Сохранять div-маркеры рекламы и карусели
+    'extended_valid_elements': 'div[class|data-ad|contenteditable|data-mg-blog-carousel]',
 }
 
 TINYMCE_EXTRA_MEDIA = {
     'js': [
         'tinymce/js/tinymce_csrf_upload.js',
         'tinymce/js/tinymce_rtb_button.js',
+        'tinymce/js/tinymce_blog_carousel_multiselect.js',
+        'tinymce/js/tinymce_setup.js',
     ],
 }
 

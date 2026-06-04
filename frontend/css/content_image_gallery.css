@@ -15,15 +15,18 @@
     box-shadow: none !important;
 }
 
-.content-with-image-gallery img {
-    max-width: 100%;
-    max-height: 70vh;
+.content-with-image-gallery img:not(.mg-blog-carousel-thumb-img):not(.mg-blog-carousel-main-img) {
+    /* Как в редакторе: до 500px по большей стороне, на узком экране — 100% */
+    max-width: min(100%, 500px);
+    max-height: min(70vh, 500px);
+    width: auto;
     height: auto;
     object-fit: contain;
     display: block;
     margin: 1rem auto 0.5rem;
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
     border-radius: 0.75rem;
+    cursor: pointer;
 }
 
 .content-with-image-gallery .content-image-caption {
@@ -43,4 +46,39 @@
 /* В полноэкранной галерее показываем только изображение, без подписи */
 .glightbox-container .gdesc {
     display: none !important;
+}
+
+/**
+ * Стрелки карусели в превью — те же, что .gprev / .gnext в GLightbox (тема glightbox-clean).
+ */
+.content-with-image-gallery .content-gallery-lightbox-nav {
+    width: 40px;
+    height: 50px;
+    min-width: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.32);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-shadow: none;
+}
+
+.content-with-image-gallery .content-gallery-lightbox-nav:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.content-with-image-gallery .content-gallery-lightbox-nav svg {
+    display: block;
+    width: 25px;
+    height: auto;
+    margin: 0;
+}
+
+.content-with-image-gallery .content-gallery-lightbox-nav svg path {
+    fill: currentColor;
 }

@@ -78,6 +78,7 @@ export default defineConfig({
         'css/leaflet-controls': path.resolve(__dirname, 'css/leaflet-controls.css'),
         'css/geo_polygons': path.resolve(__dirname, 'css/geo_polygons.css'),
         'css/content_image_gallery': path.resolve(__dirname, 'css/content_image_gallery.css'),
+        'css/blog_content_carousel': path.resolve(__dirname, 'css/blog_content_carousel.css'),
         'css/ui-lib': path.resolve(__dirname, 'ui-lib/styles/index.css'),
       }
     }

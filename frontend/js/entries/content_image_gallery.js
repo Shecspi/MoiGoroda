@@ -1,16 +1,26 @@
 /**
  * Галерея изображений для контента статей и новостей.
  * При клике на изображение открывается лайтбокс GLightbox для просмотра в полном размере.
+ * Изображения внутри .mg-blog-carousel обрабатываются в blog_content_carousel.js.
  */
 import GLightbox from 'glightbox';
+import { initBlogContentCarousels } from './blog_content_carousel.js';
+
+function isStandaloneContentImage(img) {
+  if (img.closest('.mg-blog-carousel')) return false;
+  if (img.closest('.glightbox-content')) return false;
+  return true;
+}
 
 function initContentImageGallery() {
+  initBlogContentCarousels();
+
   const containers = document.querySelectorAll('.content-with-image-gallery');
   if (containers.length === 0) return;
 
   let galleryIndex = 0;
   containers.forEach((container) => {
-    const images = container.querySelectorAll('img[src]');
+    const images = [...container.querySelectorAll('img[src]')].filter(isStandaloneContentImage);
     if (images.length === 0) return;
 
     const galleryId = `content-gallery-${galleryIndex++}`;

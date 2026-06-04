@@ -91,3 +91,39 @@ class ContentWithAdsTagTests(TestCase):
 
         self.assertEqual(rendered.count('[AD]'), 2)
         self.assertEqual(rendered.count('ad-insert-in-content'), 2)
+
+    def test_preserves_blog_carousel_markup(self) -> None:
+        html = (
+            '<p>Текст</p>'
+            '<div class="mg-blog-carousel" data-mg-blog-carousel>'
+            '<img src="https://example.com/a.jpg" alt="Фото 1">'
+            '<img src="https://example.com/b.jpg" alt="Фото 2">'
+            '</div>'
+        )
+        result = content_ads.content_with_ads(self.context, html, 'dummy.html')
+        rendered = str(result)
+
+        self.assertIn('mg-blog-carousel', rendered)
+        self.assertIn('data-mg-blog-carousel', rendered)
+        self.assertIn('https://example.com/a.jpg', rendered)
+        self.assertIn('https://example.com/b.jpg', rendered)
+
+    @patch('blog.templatetags.content_ads.loader.get_template')
+    def test_preserves_blog_carousel_with_ad_placeholder(self, mock_get_template: Mock) -> None:
+        mock_tpl = Mock()
+        mock_tpl.render.return_value = '[AD]'
+        mock_get_template.return_value = mock_tpl
+
+        html = (
+            '<div class="mg-blog-carousel" data-mg-blog-carousel>'
+            '<img src="https://example.com/1.jpg" alt="">'
+            '<img src="https://example.com/2.jpg" alt="">'
+            '</div>'
+            '<div class="ad-placeholder-rtb-banner" data-ad="rtb_banner_inside_article_1"></div>'
+        )
+        result = content_ads.content_with_ads(self.context, html, 'advertisement/rtb_banner.html')
+        rendered = str(result)
+
+        self.assertIn('mg-blog-carousel', rendered)
+        self.assertIn('[AD]', rendered)
+        self.assertNotIn('ad-placeholder-rtb-banner', rendered)

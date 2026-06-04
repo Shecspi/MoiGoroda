@@ -149,10 +149,50 @@
     pointer-events: none;
 }
 
-/* Превью в редакторе до инициализации на сайте */
-.content-with-image-gallery .mg-blog-carousel:not(.mg-blog-carousel--initialized) img {
-    display: inline-block;
-    max-width: 48%;
-    margin: 0.25rem;
-    vertical-align: top;
+/**
+ * До инициализации JS — только первое фото (без «сетки» из всех картинок).
+ * Стили совпадают с активным слайдом карусели, чтобы переход был незаметным.
+ */
+.content-with-image-gallery .mg-blog-carousel:not(.mg-blog-carousel--initialized) {
+    overflow: hidden;
+    text-align: center;
+}
+
+.content-with-image-gallery .mg-blog-carousel:not(.mg-blog-carousel--initialized) > img {
+    display: none;
+    max-width: min(100%, 500px);
+    max-height: min(70vh, 500px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin: 1rem auto 0.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+    cursor: pointer;
+}
+
+.content-with-image-gallery .mg-blog-carousel:not(.mg-blog-carousel--initialized) > img:first-of-type {
+    display: block;
+}
+
+.content-with-image-gallery .mg-blog-carousel[data-mg-caption]:not(.mg-blog-carousel--initialized)::after {
+    content: attr(data-mg-caption);
+    display: block;
+    margin: 0 auto 1rem;
+    font-size: 0.8rem;
+    line-height: 1rem;
+    color: var(--caption-color, #6b7280);
+    text-align: center;
+}
+
+.dark .content-with-image-gallery .mg-blog-carousel[data-mg-caption]:not(.mg-blog-carousel--initialized)::after {
+    --caption-color: #9ca3af;
+}
+
+.content-with-image-gallery .mg-blog-carousel.mg-blog-carousel--initializing {
+    min-height: var(--mg-blog-carousel-min-height, auto);
+}
+
+.content-with-image-gallery .mg-blog-carousel.mg-blog-carousel--initializing .mg-blog-carousel-widget {
+    visibility: hidden;
 }

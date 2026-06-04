@@ -12,9 +12,7 @@ function isStandaloneContentImage(img) {
   return true;
 }
 
-function initContentImageGallery() {
-  initBlogContentCarousels();
-
+function initStandaloneImageLightbox() {
   const containers = document.querySelectorAll('.content-with-image-gallery');
   if (containers.length === 0) return;
 
@@ -54,9 +52,17 @@ function initContentImageGallery() {
   });
 }
 
+function bootContentImageGallery() {
+  initBlogContentCarousels();
+  initStandaloneImageLightbox();
+}
+
+/** Карусели — сразу при загрузке модуля, чтобы не мелькали все фото. */
+initBlogContentCarousels();
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initContentImageGallery);
+  document.addEventListener('DOMContentLoaded', bootContentImageGallery);
 } else {
-  initContentImageGallery();
+  bootContentImageGallery();
 }
 

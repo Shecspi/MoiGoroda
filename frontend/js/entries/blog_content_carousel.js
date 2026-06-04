@@ -244,8 +244,12 @@ function initBlogCarousel(carouselEl, index) {
   thumbsPanel.appendChild(thumbsRoot);
   widget.appendChild(thumbsPanel);
 
+  const reservedHeight = carouselEl.offsetHeight;
+  if (reservedHeight > 0) {
+    carouselEl.style.setProperty('--mg-blog-carousel-min-height', `${reservedHeight}px`);
+  }
+  carouselEl.classList.add('mg-blog-carousel--initializing');
   carouselEl.replaceChildren(widget);
-  carouselEl.classList.add('mg-blog-carousel--initialized');
   carouselEl.dataset.mgBlogCarouselReady = 'true';
 
   const thumbsSwiper = new Swiper(thumbsRoot, {
@@ -285,6 +289,10 @@ function initBlogCarousel(carouselEl, index) {
 
   announceSlide(swiper, liveRegion, totalSlides);
   swiper.on('slideChange', onSlideChange);
+
+  carouselEl.classList.remove('mg-blog-carousel--initializing');
+  carouselEl.classList.add('mg-blog-carousel--initialized');
+  carouselEl.style.removeProperty('--mg-blog-carousel-min-height');
 
   swiperRoot.querySelectorAll('img').forEach((img) => {
     const bump = () => swiper.updateAutoHeight(swiper.params.speed ?? 300);

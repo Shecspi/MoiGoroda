@@ -16,7 +16,7 @@
 }
 
 .content-with-image-gallery img:not(.mg-blog-carousel-thumb-img):not(.mg-blog-carousel-main-img) {
-    /* Как в редакторе: до 500px по большей стороне, на узком экране — 100% */
+    /* На странице статьи: до 500px по большей стороне, на узком экране — 100% */
     max-width: min(100%, 500px);
     max-height: min(70vh, 500px);
     width: auto;

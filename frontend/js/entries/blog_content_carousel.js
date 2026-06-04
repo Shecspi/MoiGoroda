@@ -22,7 +22,7 @@ const GLIGHTBOX_NEXT_ICON =
 const THUMB_SLIDE_CLASS =
   'swiper-slide mg-blog-carousel-thumb block p-0 appearance-none relative !w-20 !h-14 rounded-md overflow-hidden border border-gray-200 dark:border-neutral-700 bg-gray-100 dark:bg-neutral-800 cursor-pointer opacity-50 transition-opacity duration-200 ease-out [&.swiper-slide-thumb-active]:opacity-100';
 
-/** Как в редакторе: горизонтальные — width 500, вертикальные — height 500. */
+/** На странице статьи: горизонтальные — width 500, вертикальные — height 500. */
 export function applyStandardContentImageSize(img) {
   const apply = () => {
     const w = img.naturalWidth;

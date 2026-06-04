@@ -465,14 +465,22 @@ TINYMCE_DEFAULT_CONFIG = {
         'content: attr(data-mg-caption); display: block; clear: both; '
         'text-align: center; font-size: 12px; line-height: 1.25; color: #6b7280; '
         'margin-top: 0.5em; padding: 0 0.25em; '
-        '}'
+        '} '
+        'body img:not(.mg-blog-carousel img) { '
+        'max-width: 200px !important; max-height: 200px !important; '
+        'width: auto !important; height: auto !important; '
+        '} '
+        'img[data-mg-content-sized] { max-width: 100%; height: auto; }'
     ),
     'images_upload_url': '/tinymce/upload-image/',
     'images_upload_handler': 'djangoTinyMCEImagesUploadHandler',
     'automatic_uploads': True,
     'setup': 'djangoTinyMCESetup',
     # Сохранять div-маркеры рекламы и карусели
-    'extended_valid_elements': 'div[class|data-ad|contenteditable|data-mg-blog-carousel|data-mg-caption]',
+    'extended_valid_elements': (
+        'div[class|data-ad|contenteditable|data-mg-blog-carousel|data-mg-caption],'
+        'img[class|src|alt|width|height|data-mg-content-sized]'
+    ),
 }
 
 TINYMCE_EXTRA_MEDIA = {
@@ -480,6 +488,7 @@ TINYMCE_EXTRA_MEDIA = {
         'tinymce/js/tinymce_csrf_upload.js',
         'tinymce/js/tinymce_rtb_button.js',
         'tinymce/js/tinymce_blog_carousel_multiselect.js',
+        'tinymce/js/tinymce_content_image.js',
         'tinymce/js/tinymce_setup.js',
     ],
 }

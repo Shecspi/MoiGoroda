@@ -4,7 +4,10 @@
  * Изображения внутри .mg-blog-carousel обрабатываются в blog_content_carousel.js.
  */
 import GLightbox from 'glightbox';
-import { initBlogContentCarousels } from './blog_content_carousel.js';
+import {
+  applyStandardContentImageSize,
+  initBlogContentCarousels,
+} from './blog_content_carousel.js';
 
 function isStandaloneContentImage(img) {
   if (img.closest('.mg-blog-carousel')) return false;
@@ -25,6 +28,8 @@ function initStandaloneImageLightbox() {
     images.forEach((img) => {
       const href = img.src || img.getAttribute('src');
       if (!href) return;
+
+      applyStandardContentImageSize(img);
 
       const anchor = document.createElement('a');
       anchor.href = href;

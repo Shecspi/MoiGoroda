@@ -11,6 +11,9 @@
     if (typeof window.djangoTinyMCESetupBlogCarousel === 'function') {
       window.djangoTinyMCESetupBlogCarousel(editor);
     }
+    if (typeof window.djangoTinyMCESetupContentImage === 'function') {
+      window.djangoTinyMCESetupContentImage(editor);
+    }
   }
 
   window.djangoTinyMCESetup = djangoTinyMCESetup;

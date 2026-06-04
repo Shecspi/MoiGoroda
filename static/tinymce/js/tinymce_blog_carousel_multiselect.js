@@ -9,7 +9,8 @@
   var MIN_IMAGES = 2;
   var MAX_IMAGES = 10;
   var UPLOAD_CONCURRENCY = 3;
-  var CONTENT_IMAGE_WIDTH = 500;
+  /** Превью в админке; на сайте — 500px (blog_content_carousel.js). */
+  var CONTENT_IMAGE_WIDTH = 200;
 
   function escapeAttr(str) {
     return String(str)

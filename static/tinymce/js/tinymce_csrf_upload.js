@@ -20,7 +20,7 @@
       return Promise.reject('Upload failed: invalid response');
     }
     if (data.location) {
-      return data.location;
+      return Promise.resolve(data.location);
     }
     return Promise.reject(data.error || 'No location in response');
   }
@@ -48,13 +48,15 @@
       };
 
       xhr.onload = function () {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          parseUploadResponse(xhr).then(resolve).catch(reject);
-          return;
-        }
-        parseUploadResponse(xhr).catch(function (err) {
-          reject(typeof err === 'string' ? err : 'Upload failed: ' + xhr.status);
-        });
+        parseUploadResponse(xhr)
+          .then(function (url) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(url);
+              return;
+            }
+            return Promise.reject('Upload failed: ' + xhr.status);
+          })
+          .catch(reject);
       };
 
       xhr.onerror = function () {

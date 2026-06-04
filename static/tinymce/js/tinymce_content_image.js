@@ -319,14 +319,9 @@
   }
 
   function schedulePostUploadResize(editor, uploadedUrl, knownWidth, knownHeight) {
-    var delays = [0, 30, 100, 250, 500, 1000];
-    for (var d = 0; d < delays.length; d++) {
-      (function (delay) {
-        window.setTimeout(function () {
-          scanUnsizedImages(editor, uploadedUrl, knownWidth, knownHeight);
-        }, delay);
-      })(delays[d]);
-    }
+    window.setTimeout(function () {
+      scanUnsizedImages(editor, uploadedUrl, knownWidth, knownHeight);
+    }, 100);
   }
 
   function getOriginalUploadHandler() {

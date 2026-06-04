@@ -7,6 +7,7 @@
 
   var CONTENT_IMAGE_SIZE = 200;
   var SIZED_ATTR = 'data-mg-content-sized';
+  var CAPTION_ATTR = 'data-mg-caption';
 
   function shouldResize(img, editor) {
     if (!img || img.nodeName !== 'IMG') {
@@ -92,6 +93,214 @@
     }
   }
 
+  function isStandaloneContentImage(img, editor) {
+    return img && img.nodeName === 'IMG' && !editor.dom.getParent(img, '.mg-blog-carousel');
+  }
+
+  function clearImageFloatStyles(editor, img) {
+    editor.dom.setStyle(img, 'float', null);
+    editor.dom.setStyle(img, 'margin-left', null);
+    editor.dom.setStyle(img, 'margin-right', null);
+    var cls = img.className;
+    if (!cls) {
+      return;
+    }
+    var next = cls
+      .replace(/\balign(left|center|right)\b/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (next) {
+      img.className = next;
+    } else {
+      img.removeAttribute('class');
+    }
+  }
+
+  function isLayoutBlock(node) {
+    return node && (node.nodeName === 'P' || node.nodeName === 'DIV');
+  }
+
+  function isExcludedImageBlock(node) {
+    if (!node || !node.classList) {
+      return false;
+    }
+    return (
+      node.classList.contains('mg-blog-carousel') ||
+      node.classList.contains('ad-placeholder-rtb-banner')
+    );
+  }
+
+  function getImageOnlyBlockImages(block, editor) {
+    var imgs = [];
+    var c;
+    var node;
+
+    for (c = 0; c < block.childNodes.length; c++) {
+      node = block.childNodes[c];
+      if (node.nodeType === 3) {
+        if (node.nodeValue && node.nodeValue.trim()) {
+          return null;
+        }
+        continue;
+      }
+      if (node.nodeType !== 1) {
+        continue;
+      }
+      if (node.nodeName === 'BR') {
+        continue;
+      }
+      if (node.nodeName === 'IMG' && isStandaloneContentImage(node, editor)) {
+        imgs.push(node);
+        continue;
+      }
+      return null;
+    }
+
+    return imgs.length ? imgs : null;
+  }
+
+  function wrapStandaloneImageInParagraph(editor, img) {
+    if (!isStandaloneContentImage(img, editor)) {
+      return false;
+    }
+    if (editor.dom.getParent(img, 'p,figure', true)) {
+      return false;
+    }
+
+    var p = editor.dom.create('p');
+    img.parentNode.insertBefore(p, img);
+    p.appendChild(img);
+    return true;
+  }
+
+  function splitStackedImagesInBlock(editor, block, imgs) {
+    if (imgs.length <= 1) {
+      return false;
+    }
+
+    var insertAfter = block;
+    var i;
+    var newP;
+
+    if (block.nodeName === 'DIV') {
+      var firstP = editor.dom.create('p');
+      editor.dom.insertBefore(firstP, block);
+      firstP.appendChild(imgs[0]);
+      insertAfter = firstP;
+    }
+
+    for (i = 1; i < imgs.length; i++) {
+      newP = editor.dom.create('p');
+      editor.dom.insertAfter(newP, insertAfter);
+      newP.appendChild(imgs[i]);
+      insertAfter = newP;
+    }
+
+    if (block.nodeName === 'DIV') {
+      editor.dom.remove(block);
+    }
+
+    return true;
+  }
+
+  function normalizeStandaloneImageLayout(editor) {
+    var body = editor.getBody();
+    if (!body) {
+      return false;
+    }
+
+    var changed = false;
+    var imgs = body.getElementsByTagName('img');
+    var i;
+
+    for (i = 0; i < imgs.length; i++) {
+      var img = imgs[i];
+      if (!isStandaloneContentImage(img, editor)) {
+        continue;
+      }
+      clearImageFloatStyles(editor, img);
+      if (wrapStandaloneImageInParagraph(editor, img)) {
+        changed = true;
+      }
+    }
+
+    var blockList = [];
+    var blocks = body.querySelectorAll('p, div');
+    for (i = 0; i < blocks.length; i++) {
+      if (!isLayoutBlock(blocks[i]) || isExcludedImageBlock(blocks[i])) {
+        continue;
+      }
+      if (editor.dom.getParent(blocks[i], '.mg-blog-carousel')) {
+        continue;
+      }
+      blockList.push(blocks[i]);
+    }
+
+    for (i = 0; i < blockList.length; i++) {
+      var block = blockList[i];
+      var blockImgs = getImageOnlyBlockImages(block, editor);
+      if (!blockImgs) {
+        continue;
+      }
+      var k;
+      for (k = 0; k < blockImgs.length; k++) {
+        clearImageFloatStyles(editor, blockImgs[k]);
+      }
+      if (splitStackedImagesInBlock(editor, block, blockImgs)) {
+        changed = true;
+      }
+    }
+
+    return changed;
+  }
+
+  function scanImageLayout(editor) {
+    if (normalizeStandaloneImageLayout(editor)) {
+      editor.nodeChanged();
+      scanCaptionPreviews(editor);
+    }
+  }
+
+  function syncCaptionPreview(editor, img) {
+    if (!img || img.nodeName !== 'IMG') {
+      return;
+    }
+    if (editor.dom.getParent(img, '.mg-blog-carousel')) {
+      return;
+    }
+
+    var alt = (img.getAttribute('alt') || '').trim();
+    var wrapper = editor.dom.getParent(img, 'p,figure', true);
+
+    if (wrapper && !editor.dom.getParent(wrapper, '.mg-blog-carousel')) {
+      if (alt) {
+        editor.dom.setAttrib(wrapper, CAPTION_ATTR, alt);
+      } else {
+        editor.dom.setAttrib(wrapper, CAPTION_ATTR, null);
+      }
+      editor.dom.setAttrib(img, CAPTION_ATTR, null);
+      return;
+    }
+
+    if (alt) {
+      editor.dom.setAttrib(img, CAPTION_ATTR, alt);
+    } else {
+      editor.dom.setAttrib(img, CAPTION_ATTR, null);
+    }
+  }
+
+  function scanCaptionPreviews(editor) {
+    var body = editor.getBody();
+    if (!body) {
+      return;
+    }
+
+    var imgs = body.getElementsByTagName('img');
+    for (var i = 0; i < imgs.length; i++) {
+      syncCaptionPreview(editor, imgs[i]);
+    }
+  }
+
   function scanUnsizedImages(editor, matchUrl, knownWidth, knownHeight) {
     var body = editor.getBody();
     if (!body) {
@@ -105,6 +314,7 @@
         continue;
       }
       applyStandardSize(editor, img, knownWidth, knownHeight);
+      syncCaptionPreview(editor, img);
     }
   }
 
@@ -158,10 +368,12 @@
             }
             if (node.nodeName === 'IMG') {
               applyStandardSize(editor, node);
+              syncCaptionPreview(editor, node);
             } else if (node.querySelectorAll) {
               var addedImgs = node.querySelectorAll('img');
               for (var k = 0; k < addedImgs.length; k++) {
                 applyStandardSize(editor, addedImgs[k]);
+                syncCaptionPreview(editor, addedImgs[k]);
               }
             }
           }
@@ -171,7 +383,13 @@
           if (mutation.attributeName === SIZED_ATTR) {
             continue;
           }
+          if (mutation.attributeName === CAPTION_ATTR) {
+            continue;
+          }
           applyStandardSize(editor, mutation.target);
+          if (mutation.attributeName === 'alt') {
+            syncCaptionPreview(editor, mutation.target);
+          }
         }
       }
     });
@@ -180,7 +398,7 @@
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['src', 'width', 'height', 'style']
+      attributeFilter: ['src', 'width', 'height', 'style', 'alt']
     });
   }
 
@@ -201,9 +419,38 @@
     }
   }
 
+  function stripStandaloneCaptionAttrs(html) {
+    var parser = new DOMParser();
+    var doc = parser.parseFromString('<div id="mg-root">' + html + '</div>', 'text/html');
+    var root = doc.getElementById('mg-root');
+    if (!root) {
+      return html;
+    }
+
+    var marked = root.querySelectorAll('[' + CAPTION_ATTR + ']');
+    for (var i = 0; i < marked.length; i++) {
+      var node = marked[i];
+      if (node.classList && node.classList.contains('mg-blog-carousel')) {
+        continue;
+      }
+      if (node.closest && node.closest('.mg-blog-carousel')) {
+        continue;
+      }
+      node.removeAttribute(CAPTION_ATTR);
+    }
+
+    return root.innerHTML;
+  }
+
   function djangoTinyMCESetupContentImage(editor) {
     installUploadHandlerOnEditor(editor);
     bindImageSizeObserver(editor);
+
+    editor.on('PostProcess', function (e) {
+      if (e.get && e.content) {
+        e.content = stripStandaloneCaptionAttrs(e.content);
+      }
+    });
 
     var scanTimer = null;
     function scheduleScan() {
@@ -213,6 +460,8 @@
       scanTimer = window.setTimeout(function () {
         scanTimer = null;
         scanUnsizedImages(editor);
+        scanImageLayout(editor);
+        scanCaptionPreviews(editor);
       }, 30);
     }
 

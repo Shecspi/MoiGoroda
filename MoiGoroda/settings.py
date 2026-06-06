@@ -14,10 +14,9 @@ import os
 import sys
 from pathlib import Path
 
+from dmr.settings import Settings
 from dotenv import load_dotenv
 from typing_extensions import TypedDict
-
-from dmr.settings import Settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -135,15 +134,8 @@ if TESTING:
     # Django test runner переопределит DEBUG=False, поэтому vite_asset проверяет TESTING напрямую
     DEBUG = True
 
-    # Используем SQLite для тестов, если не указана другая БД в .env
-    if (
-        not os.getenv('DATABASE_ENGINE')
-        or os.getenv('DATABASE_ENGINE') == 'django.db.backends.sqlite3'
-    ):
-        DATABASES['default'] = {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'mydatabase',
-        }
+# django-prometheus: экспорт метрик БД в Prometheus
+PROMETHEUS_METRICS_EXPORT_DATABASE_METRICS = True
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

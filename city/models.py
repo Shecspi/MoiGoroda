@@ -144,6 +144,9 @@ class VisitedCity(models.Model):
         verbose_name = 'Посещённый город'
         verbose_name_plural = 'Посещённые города'
         unique_together = ['user', 'city', 'date_of_visit']
+        indexes = [
+            models.Index(fields=['user', 'city']),
+        ]
 
     def __str__(self) -> str:
         return self.city.title

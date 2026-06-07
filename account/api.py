@@ -3,11 +3,11 @@ from __future__ import annotations
 import calendar
 import datetime
 from collections import defaultdict
-from typing import Protocol, cast
+from typing import Any, Protocol, cast
 
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, F, Min, Q
+from django.db.models import Count, F, Min
 from django.db.models.functions import TruncMonth, TruncYear
 from dmr import Controller
 from dmr.plugins.msgspec import MsgspecSerializer
@@ -417,23 +417,31 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
             self.request.GET.get('country_code')
         )
 
-        regions_queryset = (
-            Region.objects.filter(country__code=requested_country_code)
-            .annotate(
-                total_cities=Count('city', distinct=True),
-                unique_visited_cities=Count(
-                    'city',
-                    filter=Q(city__visitedcity__user_id=user_id),
-                    distinct=True,
-                ),
+        visited_by_region = dict(
+            VisitedCity.objects.filter(
+                user_id=user_id,
+                city__region__country__code=requested_country_code,
             )
-            .filter(total_cities__gt=0)
-            .order_by('-unique_visited_cities', 'full_name')
-            .values('full_name', 'unique_visited_cities', 'total_cities')
+            .values('city__region_id')
+            .annotate(count=Count('city_id', distinct=True))
+            .values_list('city__region_id', 'count')
         )
-        regions = list(regions_queryset)
 
-        if not regions:
+        total_by_region = dict(
+            City.objects.filter(region__country__code=requested_country_code)
+            .values('region_id')
+            .annotate(count=Count('id'))
+            .values_list('region_id', 'count')
+        )
+
+        regions_qs = list(
+            Region.objects.filter(country__code=requested_country_code)
+            .filter(id__in=total_by_region.keys())
+            .order_by('full_name')
+            .values('id', 'full_name')
+        )
+
+        if not regions_qs:
             country_name = (
                 Country.objects.filter(code=requested_country_code)
                 .values_list('name', flat=True)
@@ -453,13 +461,23 @@ class GetRegionsVisitedCitiesTreemapController(Controller[MsgspecSerializer]):
                 .distinct()
                 .count()
             )
-            regions = [
+            regions: list[dict[str, Any]] = [
                 {
                     'full_name': str(country_name),
                     'unique_visited_cities': unique_visited_cities,
                     'total_cities': total_cities,
                 }
             ]
+        else:
+            regions = [
+                {
+                    'full_name': r['full_name'],
+                    'unique_visited_cities': visited_by_region.get(r['id'], 0),
+                    'total_cities': total_by_region.get(r['id'], 0),
+                }
+                for r in regions_qs
+            ]
+            regions.sort(key=lambda r: -r['unique_visited_cities'])
 
         items = [
             RegionVisitedCitiesTreemapItem(
@@ -479,29 +497,51 @@ class GetRegionsVisitedCitiesCountriesController(Controller[MsgspecSerializer]):
             self.request.user, self.request.GET.get('shared_user_id')
         )
 
-        countries_queryset = (
-            Country.objects.filter(city__isnull=False)
-            .annotate(
-                number_of_visited_cities=Count(
-                    'city',
-                    filter=Q(city__visitedcity__user_id=user_id),
-                    distinct=True,
-                ),
-                number_of_cities=Count('city', distinct=True),
-            )
-            .filter(number_of_visited_cities__gt=0)
-            .order_by('-number_of_visited_cities', 'name')
-            .values('code', 'name', 'number_of_visited_cities', 'number_of_cities')
+        visited_by_country = dict(
+            VisitedCity.objects.filter(user_id=user_id)
+            .values('city__country_id')
+            .annotate(count=Count('city_id', distinct=True))
+            .values_list('city__country_id', 'count')
         )
+
+        total_by_country = dict(
+            City.objects.values('country_id')
+            .annotate(count=Count('id'))
+            .values_list('country_id', 'count')
+        )
+
+        country_ids_with_visits = {
+            cid
+            for cid, count in visited_by_country.items()
+            if count > 0 and total_by_country.get(cid, 0) > 0
+        }
+
+        countries_qs = list(
+            Country.objects.filter(id__in=country_ids_with_visits)
+            .order_by('name')
+            .values('id', 'code', 'name')
+        )
+
+        countries_data: list[dict[str, Any]] = [
+            {
+                'code': c['code'],
+                'name': c['name'],
+                'number_of_visited_cities': visited_by_country.get(c['id'], 0),
+                'number_of_cities': total_by_country.get(c['id'], 0),
+            }
+            for c in countries_qs
+        ]
+
+        countries_data.sort(key=lambda c: -c['number_of_visited_cities'])
 
         countries = [
             RegionsVisitedCitiesCountryOption(
                 code=str(country['code']),
                 name=str(country['name']),
-                number_of_visited_cities=int(country['number_of_visited_cities']),
-                number_of_cities=int(country['number_of_cities']),
+                number_of_visited_cities=country['number_of_visited_cities'],
+                number_of_cities=country['number_of_cities'],
             )
-            for country in countries_queryset
+            for country in countries_data
         ]
 
         return RegionsVisitedCitiesCountriesResponse(countries=countries)

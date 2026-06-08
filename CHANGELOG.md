@@ -118,6 +118,11 @@
 - *(vountry)* Корректно передаётся источник добавления страны (#192) ([df73656](https://github.com/Shecspi/MoiGoroda/commit/df73656ac624d3df0dbf721cb4bdbb9c0d7c7265))
 
 
+#### ⚡ Производительность
+
+- Реализована ленивая загрузка тяжёлых данных на странице города ([22c2b67](https://github.com/Shecspi/MoiGoroda/commit/22c2b67799eaa308478d1dd1d70fc103ee997793))
+
+
 #### 🎨 Дизайн
 
 - Стандартизирован дизайн всех тулбаров ([0a866b6](https://github.com/Shecspi/MoiGoroda/commit/0a866b64d5ce63f37d414a87ed568936e885bc8e))

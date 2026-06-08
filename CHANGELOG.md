@@ -122,6 +122,8 @@
 
 - Реализована ленивая загрузка тяжёлых данных на странице города ([22c2b67](https://github.com/Shecspi/MoiGoroda/commit/22c2b67799eaa308478d1dd1d70fc103ee997793))
 
+- Удалена отправка email администратору о регистрации пользователей ([f7ba79a](https://github.com/Shecspi/MoiGoroda/commit/f7ba79af1c5e41554b61f988d266613ee8353bae))
+
 
 #### 🎨 Дизайн
 

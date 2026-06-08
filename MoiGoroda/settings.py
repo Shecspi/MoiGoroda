@@ -263,14 +263,6 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
         },
-        # Отправка регистрационного письма на почту
-        # Только при DEBUG=False
-        'to_email_signup': {
-            'level': 'INFO',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler',
-            'include_html': True,
-        },
         # Вывод в консоль логов приложения
         # только при DEBUG=True
         'to_console_app': {
@@ -327,11 +319,11 @@ LOGGING = {
             'propogate': True,
             'handlers': ['to_console_app', 'to_file_app', 'to_email_general'],
         },
-        # Логгер, который срабатывает при регистрации пользователей
+        # Логгер для account.views (в т.ч. регистрация пользователей)
         'account.views': {
             'level': 'INFO',
             'propogate': True,
-            'handlers': ['to_file_app', 'to_email_signup'],
+            'handlers': ['to_console_app', 'to_file_app'],
         },
         # Логгер для перехватывания логирования Django
         'django': {

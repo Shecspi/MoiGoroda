@@ -1,16 +1,36 @@
-const neighboringCitiesByUsers = JSON.parse(document.getElementById('neighboringCitiesDataByUsers').textContent);
-const neighboringCitiesByVisits = JSON.parse(document.getElementById('neighboringCitiesDataByVisits').textContent);
-const neighboringCitiesInRegionByUsers = JSON.parse(document.getElementById('neighboringCitiesInRegionDataByUsers').textContent);
-const neighboringCitiesInRegionByVisits = JSON.parse(document.getElementById('neighboringCitiesInRegionDataByVisits').textContent);
+// Загрузка статистики города через AJAX при открытии модального окна
 
 const isDarkMode = document.documentElement.classList.contains('dark');
 const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
 const textColor = isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
 
-function createMultiBarChart(dataObj) {
-  const ctx = document.getElementById(dataObj.elementId).getContext('2d');
+// Хранилище для Chart объектов (для корректного уничтожения)
+const chartInstances = {};
+// Кэш загруженных данных
+let cachedStatisticsData = null;
 
-  new Chart(ctx, {
+function createMultiBarChart(dataObj) {
+  const canvas = document.getElementById(dataObj.elementId);
+  if (!canvas) {
+    console.warn(`Canvas element not found: ${dataObj.elementId}`);
+    return null;
+  }
+
+  // Скрываем спиннер и показываем canvas
+  const spinner = canvas.parentElement.querySelector('.chart-spinner');
+  if (spinner) {
+    spinner.classList.add('hidden');
+  }
+  canvas.classList.remove('hidden');
+
+  // Уничтожаем старый график, если он существует
+  if (chartInstances[dataObj.elementId]) {
+    chartInstances[dataObj.elementId].destroy();
+  }
+
+  const ctx = canvas.getContext('2d');
+
+  const chart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: dataObj.labels,
@@ -88,85 +108,164 @@ function createMultiBarChart(dataObj) {
       }
     }
   });
+
+  // Сохраняем ссылку на график
+  chartInstances[dataObj.elementId] = chart;
+  return chart;
 }
 
-const chartRankByUsers = {
-  elementId: 'rankBarChartByUsers',
-  data: neighboringCitiesByUsers.map(city => city.visits),
-  labels: neighboringCitiesByUsers.map(city => city.title),
-  label: 'Количество пользователей',
-  backgroundColors: neighboringCitiesByUsers.map(city => {
-    if (city.id === window.CITY_ID) {
-      return isDarkMode ? 'rgba(37, 99, 235, 0.8)' : 'rgba(37, 99, 235, 0.6)';
-    }
-    return isDarkMode ? 'rgba(37, 99, 235, 0.2)' : 'rgba(37, 99, 235, 0.15)';
-  }),
-  borderColors: neighboringCitiesByUsers.map(city => {
-    if (city.id === window.CITY_ID) {
-      return isDarkMode ? 'rgba(37, 99, 235, 1)' : 'rgba(37, 99, 235, 0.8)';
-    }
-    return isDarkMode ? 'rgba(37, 99, 235, 0.4)' : 'rgba(37, 99, 235, 0.3)';
-  })
-}
-const chartRankByVisits = {
-  elementId: 'rankBarChartByVisits',
-  data: neighboringCitiesByVisits.map(city => city.visits),
-  labels: neighboringCitiesByVisits.map(city => city.title),
-  label: 'Количество посещений',
-  backgroundColors: neighboringCitiesByVisits.map(city => {
-    if (city.id === window.CITY_ID) {
-      return isDarkMode ? 'rgba(37, 99, 235, 0.8)' : 'rgba(37, 99, 235, 0.6)';
-    }
-    return isDarkMode ? 'rgba(37, 99, 235, 0.2)' : 'rgba(37, 99, 235, 0.15)';
-  }),
-  borderColors: neighboringCitiesByVisits.map(city => {
-    if (city.id === window.CITY_ID) {
-      return isDarkMode ? 'rgba(37, 99, 235, 1)' : 'rgba(37, 99, 235, 0.8)';
-    }
-    return isDarkMode ? 'rgba(37, 99, 235, 0.4)' : 'rgba(37, 99, 235, 0.3)';
-  })
-}
-
-createMultiBarChart(chartRankByUsers);
-createMultiBarChart(chartRankByVisits);
-
-if (window.HAS_REGION) {
-  const chartRankInRegionByVisits = {
-    elementId: 'rankBarInRegionChartByVisits',
-    data: neighboringCitiesInRegionByVisits.map(city => city.visits),
-    labels: neighboringCitiesInRegionByVisits.map(city => city.title),
-    label: 'Количество посещений',
-    backgroundColors: neighboringCitiesInRegionByVisits.map(city => {
+function createChartConfig(elementId, neighboringCities, label, baseColorRgb) {
+  return {
+    elementId: elementId,
+    data: neighboringCities.map(city => city.visits),
+    labels: neighboringCities.map(city => city.title),
+    label: label,
+    backgroundColors: neighboringCities.map(city => {
       if (city.id === window.CITY_ID) {
-        return isDarkMode ? 'rgba(16, 185, 129, 0.8)' : 'rgba(16, 185, 129, 0.6)';
+        return isDarkMode ? `rgba(${baseColorRgb}, 0.8)` : `rgba(${baseColorRgb}, 0.6)`;
       }
-      return isDarkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.15)';
+      return isDarkMode ? `rgba(${baseColorRgb}, 0.2)` : `rgba(${baseColorRgb}, 0.15)`;
     }),
-    borderColors: neighboringCitiesInRegionByVisits.map(city => {
+    borderColors: neighboringCities.map(city => {
       if (city.id === window.CITY_ID) {
-        return isDarkMode ? 'rgba(16, 185, 129, 1)' : 'rgba(16, 185, 129, 0.8)';
+        return isDarkMode ? `rgba(${baseColorRgb}, 1)` : `rgba(${baseColorRgb}, 0.8)`;
       }
-      return isDarkMode ? 'rgba(16, 185, 129, 0.4)' : 'rgba(16, 185, 129, 0.3)';
+      return isDarkMode ? `rgba(${baseColorRgb}, 0.4)` : `rgba(${baseColorRgb}, 0.3)`;
     })
-  }
-  const chartRankInRegionByUsers = {
-    elementId: 'rankBarInRegionChartByUsers',
-    data: neighboringCitiesInRegionByUsers.map(city => city.visits),
-    labels: neighboringCitiesInRegionByUsers.map(city => city.title),
-    label: 'Количество пользователей',
-    backgroundColors: neighboringCitiesInRegionByUsers.map(city => {
-      if (city.id === window.CITY_ID) {
-        return isDarkMode ? 'rgba(16, 185, 129, 0.8)' : 'rgba(16, 185, 129, 0.6)';
-      }
-      return isDarkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.15)';
-    }),
-    borderColors: neighboringCitiesInRegionByUsers.map(city => {
-      if (city.id === window.CITY_ID) {
-        return isDarkMode ? 'rgba(16, 185, 129, 1)' : 'rgba(16, 185, 129, 0.8)';
-      }
-      return isDarkMode ? 'rgba(16, 185, 129, 0.4)' : 'rgba(16, 185, 129, 0.3)';
-    })
-  }
-  createMultiBarChart(chartRankInRegionByVisits);
-  createMultiBarChart(chartRankInRegionByUsers);
+  };
 }
+
+function updateStatisticsUI(data) {
+  // Сохраняем данные в кэш
+  cachedStatisticsData = data;
+
+  const rankInCountryByUsersEl = document.getElementById('rankInCountryByUsers');
+  const rankInCountryByVisitsEl = document.getElementById('rankInCountryByVisits');
+
+  // Обновляем ранги в стране
+  if (rankInCountryByUsersEl) {
+    rankInCountryByUsersEl.textContent = 
+      `${data.rank_in_country_by_users} из ${data.number_of_cities_in_country}`;
+  }
+  if (rankInCountryByVisitsEl) {
+    rankInCountryByVisitsEl.textContent = 
+      `${data.rank_in_country_by_visits} из ${data.number_of_cities_in_country}`;
+  }
+  
+  // Создаём графики для страны
+  const chartRankByUsers = createChartConfig(
+    'rankBarChartByUsers',
+    data.neighboring_cities_by_rank_in_country_by_users,
+    'Количество пользователей',
+    '37, 99, 235'
+  );
+  const chartRankByVisits = createChartConfig(
+    'rankBarChartByVisits',
+    data.neighboring_cities_by_rank_in_country_by_visits,
+    'Количество посещений',
+    '37, 99, 235'
+  );
+  
+  createMultiBarChart(chartRankByUsers);
+  createMultiBarChart(chartRankByVisits);
+  
+  // Обновляем ранги в регионе (если есть)
+  if (window.HAS_REGION) {
+    const rankInRegionByUsersEl = document.getElementById('rankInRegionByUsers');
+    const rankInRegionByVisitsEl = document.getElementById('rankInRegionByVisits');
+
+    if (rankInRegionByUsersEl) {
+      rankInRegionByUsersEl.textContent = 
+        `${data.rank_in_region_by_users} из ${data.number_of_cities_in_region}`;
+    }
+    if (rankInRegionByVisitsEl) {
+      rankInRegionByVisitsEl.textContent = 
+        `${data.rank_in_region_by_visits} из ${data.number_of_cities_in_region}`;
+    }
+    
+    const chartRankInRegionByUsers = createChartConfig(
+      'rankBarInRegionChartByUsers',
+      data.neighboring_cities_by_rank_in_region_by_users,
+      'Количество пользователей',
+      '16, 185, 129'
+    );
+    const chartRankInRegionByVisits = createChartConfig(
+      'rankBarInRegionChartByVisits',
+      data.neighboring_cities_by_rank_in_region_by_visits,
+      'Количество посещений',
+      '16, 185, 129'
+    );
+    
+    createMultiBarChart(chartRankInRegionByUsers);
+    createMultiBarChart(chartRankInRegionByVisits);
+  }
+}
+
+async function loadStatistics() {
+  // Если данные уже загружены, просто перерисовываем графики
+  if (cachedStatisticsData) {
+    updateStatisticsUI(cachedStatisticsData);
+    return;
+  }
+
+  try {
+    const response = await fetch(window.CITY_STATISTICS_API_URL);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    updateStatisticsUI(data);
+  } catch (error) {
+    console.error('Ошибка загрузки статистики:', error);
+    const statisticsContent = document.getElementById('statisticsContent');
+    if (statisticsContent) {
+      statisticsContent.innerHTML = 
+        '<div class="text-center text-red-500 py-8">Ошибка загрузки статистики. Попробуйте позже.</div>';
+    }
+  }
+}
+
+// Слушаем событие открытия модального окна
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('cityStatisticModal');
+  if (!modal) {
+    return;
+  }
+
+  let statisticsLoaded = false;
+  
+  // Preline UI использует класс hs-overlay-open для открытых модалок
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        if (modal.classList.contains('open') || modal.classList.contains('hs-overlay-open')) {
+          if (!statisticsLoaded) {
+            loadStatistics();
+            statisticsLoaded = true;
+          } else if (cachedStatisticsData) {
+            // При повторном открытии просто перерисовываем графики
+            updateStatisticsUI(cachedStatisticsData);
+          }
+        }
+        // НЕ сбрасываем statisticsLoaded при закрытии — данные уже загружены
+      }
+    });
+  });
+  
+  observer.observe(modal, { attributes: true });
+  
+  // Альтернативный способ — через клик на кнопку открытия
+  const openButtons = document.querySelectorAll('[data-hs-overlay="#cityStatisticModal"]');
+  openButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      if (!statisticsLoaded) {
+        // Небольшая задержка, чтобы модалка успела открыться
+        setTimeout(loadStatistics, 100);
+        statisticsLoaded = true;
+      } else if (cachedStatisticsData) {
+        // При повторном открытии просто перерисовываем графики
+        setTimeout(() => updateStatisticsUI(cachedStatisticsData), 100);
+      }
+    });
+  });
+});

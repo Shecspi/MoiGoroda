@@ -73,16 +73,6 @@ class TestVisitedCityServiceGetCityDetails:
 
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
-        mock_city_repo.get_number_of_cities.return_value = 100
-        mock_city_repo.get_number_of_cities_in_region_by_city.return_value = 50
-        mock_city_repo.get_rank_in_country_by_visits.return_value = 10
-        mock_city_repo.get_rank_in_country_by_users.return_value = 15
-        mock_city_repo.get_rank_in_region_by_visits.return_value = 5
-        mock_city_repo.get_rank_in_region_by_users.return_value = 7
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
 
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 4.5
@@ -104,7 +94,7 @@ class TestVisitedCityServiceGetCityDetails:
         assert isinstance(result, CityDetailsDTO)
         assert result.city == mock_city
         assert result.average_rating == 4.5
-        assert result.number_of_cities_in_country == 100
+        assert result.number_of_users_who_visit_city == 50
 
     @patch('city.services.visited_city_service.logger')
     @patch('city.services.visited_city_service.Collection.objects')
@@ -117,16 +107,6 @@ class TestVisitedCityServiceGetCityDetails:
 
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
-        mock_city_repo.get_number_of_cities.return_value = 100
-        mock_city_repo.get_number_of_cities_in_region_by_city.return_value = 50
-        mock_city_repo.get_rank_in_country_by_visits.return_value = 10
-        mock_city_repo.get_rank_in_country_by_users.return_value = 15
-        mock_city_repo.get_rank_in_region_by_visits.return_value = 5
-        mock_city_repo.get_rank_in_region_by_users.return_value = 7
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
 
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 0
@@ -159,16 +139,6 @@ class TestVisitedCityServiceGetCityDetails:
 
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
-        mock_city_repo.get_number_of_cities.return_value = 100
-        mock_city_repo.get_number_of_cities_in_region_by_city.return_value = 50
-        mock_city_repo.get_rank_in_country_by_visits.return_value = 10
-        mock_city_repo.get_rank_in_country_by_users.return_value = 15
-        mock_city_repo.get_rank_in_region_by_visits.return_value = 5
-        mock_city_repo.get_rank_in_region_by_users.return_value = 7
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
 
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 0
@@ -201,16 +171,6 @@ class TestVisitedCityServiceGetCityDetails:
 
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
-        mock_city_repo.get_number_of_cities.return_value = 100
-        mock_city_repo.get_number_of_cities_in_region_by_city.return_value = 50
-        mock_city_repo.get_rank_in_country_by_visits.return_value = 10
-        mock_city_repo.get_rank_in_country_by_users.return_value = 15
-        mock_city_repo.get_rank_in_region_by_visits.return_value = 5
-        mock_city_repo.get_rank_in_region_by_users.return_value = 7
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
 
         mock_visits = [Mock(), Mock()]
         mock_vc_repo = Mock()
@@ -333,19 +293,8 @@ class TestVisitedCityServicePopularMonths:
         assert result.popular_months == ['Май', 'Декабрь']
 
     def _create_mock_city_repo(self, mock_city: Mock) -> Mock:
-        """Вспомогательный метод для создания мока city_repo."""
         mock_repo = Mock()
         mock_repo.get_by_id.return_value = mock_city
-        mock_repo.get_number_of_cities.return_value = 0
-        mock_repo.get_number_of_cities_in_region_by_city.return_value = 0
-        mock_repo.get_rank_in_country_by_visits.return_value = 0
-        mock_repo.get_rank_in_country_by_users.return_value = 0
-        mock_repo.get_rank_in_region_by_visits.return_value = 0
-        mock_repo.get_rank_in_region_by_users.return_value = 0
-        mock_repo.get_neighboring_cities_by_rank_in_region_by_users.return_value = []
-        mock_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
-        mock_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
-        mock_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
         return mock_repo
 
 
@@ -364,16 +313,6 @@ class TestVisitedCityServiceCollections:
 
         mock_city_repo = Mock()
         mock_city_repo.get_by_id.return_value = mock_city
-        mock_city_repo.get_number_of_cities.return_value = 0
-        mock_city_repo.get_number_of_cities_in_region_by_city.return_value = 0
-        mock_city_repo.get_rank_in_country_by_visits.return_value = 0
-        mock_city_repo.get_rank_in_country_by_users.return_value = 0
-        mock_city_repo.get_rank_in_region_by_visits.return_value = 0
-        mock_city_repo.get_rank_in_region_by_users.return_value = 0
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_region_by_visits.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_users.return_value = []
-        mock_city_repo.get_neighboring_cities_by_rank_in_country_by_visits.return_value = []
 
         mock_vc_repo = Mock()
         mock_vc_repo.get_average_rating.return_value = 0

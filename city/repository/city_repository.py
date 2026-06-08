@@ -8,11 +8,17 @@ from city.repository.interfaces import AbstractCityRepository
 
 
 class CityRepository(AbstractCityRepository):
+    def __init__(self) -> None:
+        self._city_cache: dict[int, City] = {}
+        self._rank_cache: dict[str, list[dict[str, Any]]] = {}
+
     def get_by_id(self, city_id: int) -> City:
         """
         Возвращает экземпляр модели City, соответствующий указанному city_id.
         """
-        return City.objects.get(id=city_id)
+        if city_id not in self._city_cache:
+            self._city_cache[city_id] = City.objects.get(id=city_id)
+        return self._city_cache[city_id]
 
     def get_number_of_cities(self, country_code: str | None = None) -> int:
         """
@@ -28,50 +34,19 @@ class CityRepository(AbstractCityRepository):
         Возвращает количество городов в том же регионе, в котором находится город с city_id.
         """
         try:
-            city = City.objects.get(id=city_id)
+            city = self.get_by_id(city_id)
         except (City.DoesNotExist, City.MultipleObjectsReturned):
             return 0
 
         return City.objects.filter(region=city.region).count()
 
     def get_rank_in_country_by_visits(self, city_id: int) -> int:
-        city = self.get_by_id(city_id)
-        queryset = City.objects.filter(country_id=city.country.id)
-
-        ranked_cities = list(
-            queryset.annotate(
-                visits=Count('visitedcity'),
-                rank=Window(expression=Rank(), order_by=F('visits').desc()),
-            )
-            .values('id', 'title', 'visits', 'rank')
-            .order_by('rank')
-        )
-
-        for item in ranked_cities:
-            if isinstance(item, dict) and item.get('id') == city_id:
-                rank = item.get('rank')
-                return int(rank) if rank is not None else 0
-
-        return 0
+        ranked_cities = self._get_ranked_cities_by_country_visits(city_id)
+        return self._extract_rank(ranked_cities, city_id)
 
     def get_rank_in_country_by_users(self, city_id: int) -> int:
-        ranked_cities = list(
-            City.objects.annotate(
-                visits=Count('visitedcity__user', distinct=True),
-                rank=Window(
-                    expression=Rank(), partition_by=F('country'), order_by=F('visits').desc()
-                ),
-            )
-            .values('id', 'title', 'visits', 'rank')
-            .order_by('rank')
-        )
-
-        for city_dict in ranked_cities:
-            if isinstance(city_dict, dict) and city_dict.get('id') == city_id:
-                rank = city_dict.get('rank')
-                return int(rank) if rank is not None else 0
-
-        return 0
+        ranked_cities = self._get_ranked_cities_by_country_users(city_id)
+        return self._extract_rank(ranked_cities, city_id)
 
     def get_rank_in_region_by_visits(self, city_id: int) -> int:
         """
@@ -79,31 +54,8 @@ class CityRepository(AbstractCityRepository):
         Если в стране есть разбивка на регионы, то показывает рейтинг в этом регионе.
         Если такой разбивки нет, то в рейтинг пойдут все города страны.
         """
-        try:
-            city = City.objects.get(id=city_id)
-        except (City.DoesNotExist, City.MultipleObjectsReturned):
-            return 0
-
-        if city.region:
-            queryset = City.objects.select_related('region').filter(region=city.region)
-        else:
-            queryset = City.objects.select_related('country').filter(country=city.country)
-
-        ranked_cities = list(
-            queryset.annotate(
-                visits=Count('visitedcity'),
-                rank=Window(expression=Rank(), order_by=F('visits').desc()),
-            )
-            .values('id', 'title', 'visits', 'rank')
-            .order_by('rank')
-        )
-
-        for city_dict in ranked_cities:
-            if isinstance(city_dict, dict) and city_dict.get('id') == city_id:
-                rank = city_dict.get('rank')
-                return int(rank) if rank is not None else 0
-
-        return 0
+        ranked_cities = self._get_ranked_cities_by_region_visits(city_id)
+        return self._extract_rank(ranked_cities, city_id)
 
     def get_rank_in_region_by_users(self, city_id: int) -> int:
         """
@@ -111,31 +63,8 @@ class CityRepository(AbstractCityRepository):
         Если в стране есть разбивка на регионы, то показывает рейтинг в этом регионе.
         Если такой разбивки нет, то в рейтинг пойдут все города страны.
         """
-        try:
-            city = City.objects.get(id=city_id)
-        except (City.DoesNotExist, City.MultipleObjectsReturned):
-            return 0
-
-        if city.region:
-            queryset = City.objects.select_related('region').filter(region=city.region)
-        else:
-            queryset = City.objects.select_related('country').filter(country=city.country)
-
-        ranked_cities = list(
-            queryset.annotate(
-                visits=Count('visitedcity__user', distinct=True),
-                rank=Window(expression=Rank(), order_by=F('visits').desc()),
-            )
-            .values('id', 'title', 'visits', 'rank')
-            .order_by('rank')
-        )
-
-        for city_dict in ranked_cities:
-            if isinstance(city_dict, dict) and city_dict.get('id') == city_id:
-                rank = city_dict.get('rank')
-                return int(rank) if rank is not None else 0
-
-        return 0
+        ranked_cities = self._get_ranked_cities_by_region_users(city_id)
+        return self._extract_rank(ranked_cities, city_id)
 
     def get_neighboring_cities_by_rank_in_region_by_users(
         self, city_id: int
@@ -144,24 +73,7 @@ class CityRepository(AbstractCityRepository):
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по общему количеству пользователей, посетивших город.
         """
-        try:
-            city = City.objects.get(id=city_id)
-        except (City.DoesNotExist, City.MultipleObjectsReturned):
-            return []
-
-        if city.region:
-            queryset = City.objects.select_related('region').filter(region_id=city.region.id)
-        else:
-            queryset = City.objects.select_related('country').filter(country_id=city.country.id)
-
-        ranked_cities = list(
-            queryset.annotate(
-                visits=Count('visitedcity'),
-                rank=Window(expression=Rank(), order_by=F('visits').desc()),
-            )
-            .values('id', 'title', 'visits', 'rank')
-            .order_by('rank')
-        )
+        ranked_cities = self._get_ranked_cities_by_region_users(city_id)
         return self._get_cities_near_index(ranked_cities, city_id)
 
     def get_neighboring_cities_by_rank_in_region_by_visits(
@@ -171,24 +83,7 @@ class CityRepository(AbstractCityRepository):
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по количеству посещений города всеми пользователями.
         """
-        try:
-            city = City.objects.get(id=city_id)
-        except (City.DoesNotExist, City.MultipleObjectsReturned):
-            return []
-
-        if city.region:
-            queryset = City.objects.select_related('region').filter(region_id=city.region.id)
-        else:
-            queryset = City.objects.select_related('country').filter(country_id=city.country.id)
-
-        ranked_cities = list(
-            queryset.annotate(
-                visits=Count('visitedcity__user', distinct=True),
-                rank=Window(expression=Rank(), order_by=F('visits').desc()),
-            )
-            .values('id', 'title', 'visits', 'rank')
-            .order_by('rank')
-        )
+        ranked_cities = self._get_ranked_cities_by_region_visits(city_id)
         return self._get_cities_near_index(ranked_cities, city_id)
 
     def get_neighboring_cities_by_rank_in_country_by_visits(
@@ -198,21 +93,7 @@ class CityRepository(AbstractCityRepository):
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по количеству посещений города всеми пользователями.
         """
-        try:
-            city = City.objects.get(id=city_id)
-        except (City.DoesNotExist, City.MultipleObjectsReturned):
-            return []
-
-        ranked_cities = list(
-            City.objects.all()
-            .filter(country_id=city.country.id)
-            .annotate(
-                visits=Count('visitedcity'),
-                rank=Window(expression=Rank(), order_by=F('visits').desc()),
-            )
-            .values('id', 'title', 'visits', 'rank')
-            .order_by('rank')
-        )
+        ranked_cities = self._get_ranked_cities_by_country_visits(city_id)
         return self._get_cities_near_index(ranked_cities, city_id)
 
     def get_neighboring_cities_by_rank_in_country_by_users(
@@ -222,20 +103,7 @@ class CityRepository(AbstractCityRepository):
         Возвращает список 10 городов по стране, которые располагаются близко к искомому городу.
         Выборка происходит по общему количеству пользователей, посетивших город.
         """
-        try:
-            city = City.objects.get(id=city_id)
-        except (City.DoesNotExist, City.MultipleObjectsReturned):
-            return []
-
-        ranked_cities = list(
-            City.objects.filter(country_id=city.country.id)
-            .annotate(
-                visits=Count('visitedcity__user', distinct=True),
-                rank=Window(expression=Rank(), order_by=F('visits').desc()),
-            )
-            .values('id', 'title', 'visits', 'rank')
-            .order_by('rank')
-        )
+        ranked_cities = self._get_ranked_cities_by_country_users(city_id)
         return self._get_cities_near_index(ranked_cities, city_id)
 
     @staticmethod
@@ -253,3 +121,96 @@ class CityRepository(AbstractCityRepository):
             start = max(0, end - 10)
 
         return items[start:end]
+
+    @staticmethod
+    def _extract_rank(ranked_cities: list[dict[str, Any]], city_id: int) -> int:
+        for city_dict in ranked_cities:
+            if isinstance(city_dict, dict) and city_dict.get('id') == city_id:
+                rank = city_dict.get('rank')
+                return int(rank) if rank is not None else 0
+        return 0
+
+    def _get_ranked_cities_by_country_visits(self, city_id: int) -> list[dict[str, Any]]:
+        cache_key = f'country_visits_{city_id}'
+        if cache_key not in self._rank_cache:
+            try:
+                city = self.get_by_id(city_id)
+            except (City.DoesNotExist, City.MultipleObjectsReturned):
+                return []
+
+            self._rank_cache[cache_key] = list(
+                City.objects.all()
+                .filter(country_id=city.country.id)
+                .annotate(
+                    visits=Count('visitedcity'),
+                    rank=Window(expression=Rank(), order_by=F('visits').desc()),
+                )
+                .values('id', 'title', 'visits', 'rank')
+                .order_by('rank')
+            )
+        return self._rank_cache[cache_key]
+
+    def _get_ranked_cities_by_country_users(self, city_id: int) -> list[dict[str, Any]]:
+        cache_key = f'country_users_{city_id}'
+        if cache_key not in self._rank_cache:
+            try:
+                city = self.get_by_id(city_id)
+            except (City.DoesNotExist, City.MultipleObjectsReturned):
+                return []
+
+            self._rank_cache[cache_key] = list(
+                City.objects.filter(country_id=city.country.id)
+                .annotate(
+                    visits=Count('visitedcity__user', distinct=True),
+                    rank=Window(expression=Rank(), order_by=F('visits').desc()),
+                )
+                .values('id', 'title', 'visits', 'rank')
+                .order_by('rank')
+            )
+        return self._rank_cache[cache_key]
+
+    def _get_ranked_cities_by_region_visits(self, city_id: int) -> list[dict[str, Any]]:
+        cache_key = f'region_visits_{city_id}'
+        if cache_key not in self._rank_cache:
+            try:
+                city = self.get_by_id(city_id)
+            except (City.DoesNotExist, City.MultipleObjectsReturned):
+                return []
+
+            if city.region:
+                queryset = City.objects.select_related('region').filter(region=city.region)
+            else:
+                queryset = City.objects.select_related('country').filter(country=city.country)
+
+            self._rank_cache[cache_key] = list(
+                queryset.annotate(
+                    visits=Count('visitedcity'),
+                    rank=Window(expression=Rank(), order_by=F('visits').desc()),
+                )
+                .values('id', 'title', 'visits', 'rank')
+                .order_by('rank')
+            )
+        return self._rank_cache[cache_key]
+
+    def _get_ranked_cities_by_region_users(self, city_id: int) -> list[dict[str, Any]]:
+        cache_key = f'region_users_{city_id}'
+        if cache_key not in self._rank_cache:
+            try:
+                city = self.get_by_id(city_id)
+            except (City.DoesNotExist, City.MultipleObjectsReturned):
+                return []
+
+            if city.region:
+                queryset = City.objects.select_related('region').filter(region=city.region)
+            else:
+                queryset = City.objects.select_related('country').filter(country=city.country)
+
+            self._rank_cache[cache_key] = list(
+                queryset.annotate(
+                    visits=Count('visitedcity__user', distinct=True),
+                    rank=Window(expression=Rank(), order_by=F('visits').desc()),
+                )
+                .values('id', 'title', 'visits', 'rank')
+                .order_by('rank')
+            )
+        return self._rank_cache[cache_key]

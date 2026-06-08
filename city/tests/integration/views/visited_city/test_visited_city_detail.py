@@ -68,16 +68,6 @@ def test_visited_city_detail_calls_service_get_city_details() -> None:
         number_of_visits=1,
         number_of_visits_all_users=10,
         number_of_users_who_visit_city=5,
-        number_of_cities_in_country=100,
-        number_of_cities_in_region=20,
-        rank_in_country_by_visits=5,
-        rank_in_country_by_users=3,
-        rank_in_region_by_visits=2,
-        rank_in_region_by_users=1,
-        neighboring_cities_by_rank_in_country_by_visits=[],
-        neighboring_cities_by_rank_in_country_by_users=[],
-        neighboring_cities_by_rank_in_region_by_visits=[],
-        neighboring_cities_by_rank_in_region_by_users=[],
     )
     mock_service.get_city_details.return_value = mock_dto
 
@@ -117,16 +107,6 @@ def test_visited_city_detail_dto_properties() -> None:
         number_of_visits=3,
         number_of_visits_all_users=10,
         number_of_users_who_visit_city=5,
-        number_of_cities_in_country=100,
-        number_of_cities_in_region=20,
-        rank_in_country_by_visits=5,
-        rank_in_country_by_users=3,
-        rank_in_region_by_visits=2,
-        rank_in_region_by_users=1,
-        neighboring_cities_by_rank_in_country_by_visits=[],
-        neighboring_cities_by_rank_in_country_by_users=[],
-        neighboring_cities_by_rank_in_region_by_visits=[],
-        neighboring_cities_by_rank_in_region_by_users=[],
     )
 
     # Проверяем свойства DTO

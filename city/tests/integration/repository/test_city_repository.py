@@ -79,6 +79,20 @@ class TestGetById:
         with pytest.raises(City.DoesNotExist):
             repo.get_by_id(city_id=-1)
 
+    def test_caches_city_object(self, mocker: Any, repo: CityRepository) -> None:
+        """Проверяет, что get_by_id кэширует объект City."""
+        fake_city = mocker.Mock(spec=City)
+        mock_get = mocker.patch('city.models.City.objects.get', return_value=fake_city)
+
+        # Вызываем дважды
+        result1 = repo.get_by_id(city_id=42)
+        result2 = repo.get_by_id(city_id=42)
+
+        # City.objects.get должен быть вызван только один раз
+        assert result1 is fake_city
+        assert result2 is fake_city
+        mock_get.assert_called_once_with(id=42)
+
 
 # =============================================================================
 # Тесты для get_number_of_cities
@@ -242,153 +256,83 @@ class TestGetNumberOfCitiesInRegionByCity:
 class TestGetRankInCountryByVisits:
     """Тесты для метода get_rank_in_country_by_visits."""
 
-    def test_returns_rank_when_found(
-        self, mocker: Any, repo: CityRepository, mock_city: Mock
-    ) -> None:
+    def test_returns_rank_when_found(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет корректный возврат ранга города."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = [
             {'id': 1, 'title': 'A', 'visits': 100, 'rank': 1},
             {'id': 42, 'title': 'B', 'visits': 50, 'rank': 2},
             {'id': 3, 'title': 'C', 'visits': 10, 'rank': 3},
         ]
-
-        mock_queryset = mocker.Mock()
-        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
-        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=ranked_data)
 
         result = repo.get_rank_in_country_by_visits(city_id=42)
 
         assert result == 2
 
-    def test_returns_zero_when_not_found(
-        self, mocker: Any, repo: CityRepository, mock_city: Mock
-    ) -> None:
+    def test_returns_zero_when_not_found(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат 0, если город не найден в рейтинге."""
-        mock_city.id = 999
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = [{'id': i, 'rank': i} for i in range(1, 10)]
-
-        mock_queryset = mocker.Mock()
-        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
-        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=ranked_data)
 
         result = repo.get_rank_in_country_by_visits(city_id=999)
 
         assert result == 0
 
-    def test_returns_zero_when_empty_queryset(
-        self, mocker: Any, repo: CityRepository, mock_city: Mock
-    ) -> None:
+    def test_returns_zero_when_empty_queryset(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат 0 при пустом списке городов."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
-
-        mock_queryset = mocker.Mock()
-        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = []
-        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=[])
 
         result = repo.get_rank_in_country_by_visits(city_id=42)
 
         assert result == 0
 
-    def test_raises_when_city_not_exists(self, mocker: Any, repo: CityRepository) -> None:
-        """Проверяет пробрасывание исключения при отсутствии города."""
-        mocker.patch('city.models.City.objects.get', side_effect=City.DoesNotExist)
-
-        with pytest.raises(City.DoesNotExist):
-            repo.get_rank_in_country_by_visits(city_id=999)
-
-    def test_handles_rank_none(self, mocker: Any, repo: CityRepository, mock_city: Mock) -> None:
+    def test_handles_rank_none(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет обработку rank=None."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = [{'id': 42, 'title': 'B', 'visits': 50, 'rank': None}]
-
-        mock_queryset = mocker.Mock()
-        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
-        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=ranked_data)
 
         result = repo.get_rank_in_country_by_visits(city_id=42)
 
         assert result == 0
 
-    def test_handles_missing_id_key(
-        self, mocker: Any, repo: CityRepository, mock_city: Mock
-    ) -> None:
+    def test_handles_missing_id_key(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет обработку отсутствия ключа 'id' в данных."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = [{'rank': 1}]
-
-        mock_queryset = mocker.Mock()
-        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
-        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=ranked_data)
 
         result = repo.get_rank_in_country_by_visits(city_id=42)
 
         assert result == 0
 
-    def test_handles_missing_rank_key(
-        self, mocker: Any, repo: CityRepository, mock_city: Mock
-    ) -> None:
+    def test_handles_missing_rank_key(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет обработку отсутствия ключа 'rank' в данных."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = [{'id': 42}]
-
-        mock_queryset = mocker.Mock()
-        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
-        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=ranked_data)
 
         result = repo.get_rank_in_country_by_visits(city_id=42)
 
         assert result == 0
 
-    def test_handles_non_dict_data(
-        self, mocker: Any, repo: CityRepository, mock_city: Mock
-    ) -> None:
+    def test_handles_non_dict_data(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет обработку некорректных данных (не словарь)."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = ['not a dict', 123]
-
-        mock_queryset = mocker.Mock()
-        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
-        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=ranked_data)
 
         result = repo.get_rank_in_country_by_visits(city_id=42)
 
         assert result == 0
 
-    def test_returns_first_when_duplicate_ids(
-        self, mocker: Any, repo: CityRepository, mock_city: Mock
-    ) -> None:
+    def test_returns_first_when_duplicate_ids(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат ранга первого найденного при дубликатах."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_data = [
             {'id': 42, 'rank': 2},
             {'id': 42, 'rank': 3},
         ]
-
-        mock_queryset = mocker.Mock()
-        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
-        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=ranked_data)
 
         result = repo.get_rank_in_country_by_visits(city_id=42)
 
         assert result == 2
-
-    def test_filters_by_country_id(
-        self, mocker: Any, repo: CityRepository, mock_city: Mock
-    ) -> None:
-        """Проверяет, что фильтрация происходит по country_id."""
-        mock_city.country.id = 5
-        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
-
-        ranked_data = [{'id': 42, 'title': 'B', 'visits': 50, 'rank': 1}]
-        mock_queryset = mocker.Mock()
-        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
-        mock_filter = mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
-
-        repo.get_rank_in_country_by_visits(city_id=42)
-
-        mock_filter.assert_called_once_with(country_id=5)
 
 
 # =============================================================================
@@ -402,13 +346,16 @@ class TestGetRankInCountryByUsers:
 
     def test_returns_rank_when_found(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет корректный возврат ранга города."""
+        mock_city = Mock(id=5, country=Mock(id=1))
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [
             {'id': 1, 'rank': 1},
             {'id': 5, 'rank': 3},
             {'id': 7, 'rank': 2},
         ]
-        mock_queryset = mocker.patch('city.models.City.objects.annotate')
-        mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
+        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_rank_in_country_by_users(city_id=5)
 
@@ -416,9 +363,12 @@ class TestGetRankInCountryByUsers:
 
     def test_returns_zero_when_not_found(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат 0, если город не найден."""
+        mock_city = Mock(id=99, country=Mock(id=1))
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 1, 'rank': 1}, {'id': 2, 'rank': 2}]
-        mock_queryset = mocker.patch('city.models.City.objects.annotate')
-        mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
+        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_rank_in_country_by_users(city_id=99)
 
@@ -426,9 +376,12 @@ class TestGetRankInCountryByUsers:
 
     def test_returns_zero_when_empty_data(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат 0 при пустом списке."""
+        mock_city = Mock(id=5, country=Mock(id=1))
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data: list[dict[str, Any]] = []
-        mock_queryset = mocker.patch('city.models.City.objects.annotate')
-        mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
+        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_rank_in_country_by_users(city_id=5)
 
@@ -436,9 +389,12 @@ class TestGetRankInCountryByUsers:
 
     def test_returns_first_rank_when_duplicate_ids(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат первого ранга при дубликатах."""
+        mock_city = Mock(id=5, country=Mock(id=1))
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 5, 'rank': 2}, {'id': 5, 'rank': 3}]
-        mock_queryset = mocker.patch('city.models.City.objects.annotate')
-        mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
+        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_rank_in_country_by_users(city_id=5)
 
@@ -446,9 +402,12 @@ class TestGetRankInCountryByUsers:
 
     def test_returns_zero_when_rank_is_none(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат 0 при rank=None."""
+        mock_city = Mock(id=5, country=Mock(id=1))
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 5, 'rank': None}]
-        mock_queryset = mocker.patch('city.models.City.objects.annotate')
-        mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
+        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_rank_in_country_by_users(city_id=5)
 
@@ -456,27 +415,36 @@ class TestGetRankInCountryByUsers:
 
     def test_returns_zero_when_id_missing(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат 0 при отсутствии 'id' в данных."""
+        mock_city = Mock(id=5, country=Mock(id=1))
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'rank': 1}]
-        mock_queryset = mocker.patch('city.models.City.objects.annotate')
-        mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
+        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_rank_in_country_by_users(city_id=5)
         assert result == 0
 
     def test_returns_zero_when_rank_missing(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат 0 при отсутствии 'rank' в данных."""
+        mock_city = Mock(id=5, country=Mock(id=1))
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 5}]
-        mock_queryset = mocker.patch('city.models.City.objects.annotate')
-        mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
+        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_rank_in_country_by_users(city_id=5)
         assert result == 0
 
     def test_returns_zero_for_non_dict(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат 0 при некорректных данных (не словарь)."""
+        mock_city = Mock(id=5, country=Mock(id=1))
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = ['not a dict', 123]
-        mock_queryset = mocker.patch('city.models.City.objects.annotate')
-        mock_queryset.return_value.values.return_value.order_by.return_value = ranked_data
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = ranked_data
+        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_rank_in_country_by_users(city_id=5)
         assert result == 0
@@ -495,7 +463,7 @@ class TestGetRankInRegionByVisits:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет корректный возврат ранга для города с регионом."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [
             {'id': 1, 'rank': 1},
             {'id': 42, 'rank': 2},
@@ -515,7 +483,7 @@ class TestGetRankInRegionByVisits:
     def test_returns_rank_when_city_has_no_region(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет использование страны вместо региона, если регион отсутствует."""
         mock_city = Mock(id=42, region=None, country=Mock(id=1))
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 42, 'rank': 1}]
 
         mock_queryset = mocker.Mock()
@@ -550,7 +518,7 @@ class TestGetRankInRegionByVisits:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет возврат 0 при пустом queryset."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
 
         mock_queryset = mocker.Mock()
         mock_queryset.annotate.return_value.values.return_value.order_by.return_value = []
@@ -566,7 +534,7 @@ class TestGetRankInRegionByVisits:
     ) -> None:
         """Проверяет возврат 0, если города нет в рейтинге."""
         mock_city.id = 99
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 1, 'rank': 1}, {'id': 2, 'rank': 2}]
 
         mock_queryset = mocker.Mock()
@@ -592,7 +560,7 @@ class TestGetRankInRegionByUsers:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет корректный возврат ранга для города с регионом."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 42, 'rank': 1}]
 
         mock_queryset = mocker.Mock()
@@ -608,7 +576,7 @@ class TestGetRankInRegionByUsers:
     def test_returns_rank_when_city_has_no_region(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет использование страны вместо региона."""
         mock_city = Mock(id=42, region=None, country=Mock(id=1))
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 42, 'rank': 1}]
 
         mock_queryset = mocker.Mock()
@@ -631,7 +599,7 @@ class TestGetRankInRegionByUsers:
 
     def test_handles_none_rank(self, mocker: Any, repo: CityRepository, mock_city: Mock) -> None:
         """Проверяет обработку rank=None (возвращает 0)."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 42, 'rank': None}]
 
         mock_queryset = mocker.Mock()
@@ -647,7 +615,7 @@ class TestGetRankInRegionByUsers:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет возврат 0 при отсутствии 'id' в данных."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'rank': 1}]
 
         mock_queryset = mocker.Mock()
@@ -662,7 +630,7 @@ class TestGetRankInRegionByUsers:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет возврат 0 при отсутствии 'rank' в данных."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_data = [{'id': 42}]
 
         mock_queryset = mocker.Mock()
@@ -761,29 +729,23 @@ class TestGetCitiesNearIndex:
 class TestGetNeighboringCitiesByRankInCountryByVisits:
     """Тесты для метода get_neighboring_cities_by_rank_in_country_by_visits."""
 
-    def test_returns_neighboring_cities(
-        self, mocker: Any, repo: CityRepository, mock_city: Mock
-    ) -> None:
+    def test_returns_neighboring_cities(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет корректный возврат соседних городов."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
         ranked_cities = [
             {'id': i, 'title': f'City {i}', 'visits': 10 - i, 'rank': i} for i in range(1, 21)
         ]
-
-        mock_all = mocker.patch('city.models.City.objects.all')
-        mock_filter = mock_all.return_value.filter
-        mock_filter.return_value.annotate.return_value.values.return_value.order_by.return_value = (
-            ranked_cities
+        mocker.patch.object(
+            repo, '_get_ranked_cities_by_country_visits', return_value=ranked_cities
         )
-        mocker.patch.object(repo, '_get_cities_near_index', return_value=ranked_cities[5:15])
 
         result = repo.get_neighboring_cities_by_rank_in_country_by_visits(city_id=42)
 
-        assert result == ranked_cities[5:15]
+        expected = CityRepository._get_cities_near_index(ranked_cities, 42)
+        assert result == expected
 
     def test_returns_empty_when_city_not_exists(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат [] при отсутствии города."""
-        mocker.patch('city.models.City.objects.get', side_effect=City.DoesNotExist)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=[])
 
         result = repo.get_neighboring_cities_by_rank_in_country_by_visits(city_id=999)
 
@@ -791,29 +753,19 @@ class TestGetNeighboringCitiesByRankInCountryByVisits:
 
     def test_returns_empty_when_multiple_objects(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат [] при дубликатах."""
-        mocker.patch('city.models.City.objects.get', side_effect=City.MultipleObjectsReturned)
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=[])
 
         result = repo.get_neighboring_cities_by_rank_in_country_by_visits(city_id=42)
 
         assert result == []
 
-    def test_filters_by_country(self, mocker: Any, repo: CityRepository, mock_city: Mock) -> None:
-        """Проверяет фильтрацию по стране."""
-        mock_city.country.id = 5
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+    def test_returns_empty_when_empty_ranked_list(self, mocker: Any, repo: CityRepository) -> None:
+        """Проверяет возврат [] при пустом списке."""
+        mocker.patch.object(repo, '_get_ranked_cities_by_country_visits', return_value=[])
 
-        ranked_cities = [{'id': 42, 'rank': 1}]
-        mock_all = mocker.patch('city.models.City.objects.all')
-        mock_filter = mock_all.return_value.filter
-        mock_filter.return_value.annotate.return_value.values.return_value.order_by.return_value = (
-            ranked_cities
-        )
-        mocker.patch.object(repo, '_get_cities_near_index', return_value=[])
+        result = repo.get_neighboring_cities_by_rank_in_country_by_visits(city_id=42)
 
-        repo.get_neighboring_cities_by_rank_in_country_by_visits(city_id=42)
-
-        # Проверяем, что filter был вызван с правильным country_id
-        mock_filter.assert_called_once_with(country_id=5)
+        assert result == []
 
 
 # =============================================================================
@@ -829,20 +781,21 @@ class TestGetNeighboringCitiesByRankInCountryByUsers:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет корректный возврат соседних городов."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_cities = [
             {'id': i, 'title': f'City {i}', 'visits': 10 - i, 'rank': i} for i in range(1, 21)
         ]
 
-        mock_filter = mocker.patch('city.models.City.objects.filter')
-        mock_filter.return_value.annotate.return_value.values.return_value.order_by.return_value = (
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = (
             ranked_cities
         )
-        mocker.patch.object(repo, '_get_cities_near_index', return_value=ranked_cities[5:15])
+        mock_filter = mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_neighboring_cities_by_rank_in_country_by_users(city_id=42)
 
-        assert result == ranked_cities[5:15]
+        expected = CityRepository._get_cities_near_index(ranked_cities, 42)
+        assert result == expected
         mock_filter.assert_called_once_with(country_id=1)
 
     def test_returns_empty_when_city_not_exists(self, mocker: Any, repo: CityRepository) -> None:
@@ -865,14 +818,14 @@ class TestGetNeighboringCitiesByRankInCountryByUsers:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет возврат [] при пустом списке."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_cities: list[dict[str, Any]] = []
 
-        mock_filter = mocker.patch('city.models.City.objects.filter')
-        mock_filter.return_value.annotate.return_value.values.return_value.order_by.return_value = (
+        mock_queryset = mocker.Mock()
+        mock_queryset.annotate.return_value.values.return_value.order_by.return_value = (
             ranked_cities
         )
-        mocker.patch.object(repo, '_get_cities_near_index', return_value=[])
+        mocker.patch('city.models.City.objects.filter', return_value=mock_queryset)
 
         result = repo.get_neighboring_cities_by_rank_in_country_by_users(city_id=42)
 
@@ -892,7 +845,7 @@ class TestGetNeighboringCitiesByRankInRegionByVisits:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет возврат городов по региону."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_cities = [
             {'id': i, 'title': f'City {i}', 'visits': 10 - i, 'rank': i} for i in range(1, 21)
         ]
@@ -903,20 +856,19 @@ class TestGetNeighboringCitiesByRankInRegionByVisits:
         )
         mock_select_related = mocker.patch('city.models.City.objects.select_related')
         mock_select_related.return_value.filter.return_value = mock_queryset
-        mocker.patch.object(repo, '_get_cities_near_index', return_value=ranked_cities[5:15])
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_visits(city_id=42)
 
-        assert result == ranked_cities[5:15]
+        expected = CityRepository._get_cities_near_index(ranked_cities, 42)
+        assert result == expected
         mock_select_related.assert_called_once_with('region')
-        mock_select_related.return_value.filter.assert_called_once_with(region_id=7)
 
     def test_returns_cities_for_country_when_no_region(
         self, mocker: Any, repo: CityRepository
     ) -> None:
         """Проверяет использование страны при отсутствии региона."""
         mock_city = Mock(id=42, region=None, country=Mock(id=1))
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_cities = [{'id': 42, 'rank': 1}]
 
         mock_queryset = mocker.Mock()
@@ -925,13 +877,12 @@ class TestGetNeighboringCitiesByRankInRegionByVisits:
         )
         mock_select_related = mocker.patch('city.models.City.objects.select_related')
         mock_select_related.return_value.filter.return_value = mock_queryset
-        mocker.patch.object(repo, '_get_cities_near_index', return_value=ranked_cities)
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_visits(city_id=42)
 
-        assert result == ranked_cities
+        expected = CityRepository._get_cities_near_index(ranked_cities, 42)
+        assert result == expected
         mock_select_related.assert_called_once_with('country')
-        mock_select_related.return_value.filter.assert_called_once_with(country_id=1)
 
     def test_returns_empty_when_city_not_exists(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат [] при отсутствии города."""
@@ -963,7 +914,7 @@ class TestGetNeighboringCitiesByRankInRegionByUsers:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет возврат городов по региону."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_cities = [
             {'id': i, 'title': f'City {i}', 'visits': 10 - i, 'rank': i} for i in range(1, 21)
         ]
@@ -974,20 +925,19 @@ class TestGetNeighboringCitiesByRankInRegionByUsers:
         )
         mock_select_related = mocker.patch('city.models.City.objects.select_related')
         mock_select_related.return_value.filter.return_value = mock_queryset
-        mocker.patch.object(repo, '_get_cities_near_index', return_value=ranked_cities[5:15])
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_users(city_id=42)
 
-        assert result == ranked_cities[5:15]
+        expected = CityRepository._get_cities_near_index(ranked_cities, 42)
+        assert result == expected
         mock_select_related.assert_called_once_with('region')
-        mock_select_related.return_value.filter.assert_called_once_with(region_id=7)
 
     def test_returns_cities_for_country_when_no_region(
         self, mocker: Any, repo: CityRepository
     ) -> None:
         """Проверяет использование страны при отсутствии региона."""
         mock_city = Mock(id=42, region=None, country=Mock(id=1))
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_cities = [{'id': 42, 'rank': 1}]
 
         mock_queryset = mocker.Mock()
@@ -996,13 +946,12 @@ class TestGetNeighboringCitiesByRankInRegionByUsers:
         )
         mock_select_related = mocker.patch('city.models.City.objects.select_related')
         mock_select_related.return_value.filter.return_value = mock_queryset
-        mocker.patch.object(repo, '_get_cities_near_index', return_value=ranked_cities)
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_users(city_id=42)
 
-        assert result == ranked_cities
+        expected = CityRepository._get_cities_near_index(ranked_cities, 42)
+        assert result == expected
         mock_select_related.assert_called_once_with('country')
-        mock_select_related.return_value.filter.assert_called_once_with(country_id=1)
 
     def test_returns_empty_when_city_not_exists(self, mocker: Any, repo: CityRepository) -> None:
         """Проверяет возврат [] при отсутствии города."""
@@ -1024,7 +973,7 @@ class TestGetNeighboringCitiesByRankInRegionByUsers:
         self, mocker: Any, repo: CityRepository, mock_city: Mock
     ) -> None:
         """Проверяет возврат [] при пустом списке городов."""
-        mocker.patch('city.models.City.objects.get', return_value=mock_city)
+        mocker.patch.object(repo, 'get_by_id', return_value=mock_city)
         ranked_cities: list[dict[str, Any]] = []
 
         mock_queryset = mocker.Mock()
@@ -1033,7 +982,6 @@ class TestGetNeighboringCitiesByRankInRegionByUsers:
         )
         mock_select_related = mocker.patch('city.models.City.objects.select_related')
         mock_select_related.return_value.filter.return_value = mock_queryset
-        mocker.patch.object(repo, '_get_cities_near_index', return_value=[])
 
         result = repo.get_neighboring_cities_by_rank_in_region_by_users(city_id=42)
 

@@ -16,17 +16,6 @@ class CityDetailsDTO:
     number_of_visits: int
     number_of_visits_all_users: int
     number_of_users_who_visit_city: int
-    number_of_cities_in_country: int
-    number_of_cities_in_region: int
-    # Ранги
-    rank_in_country_by_visits: int
-    rank_in_country_by_users: int
-    rank_in_region_by_visits: int
-    rank_in_region_by_users: int
-    neighboring_cities_by_rank_in_country_by_visits: list[dict[str, Any]]
-    neighboring_cities_by_rank_in_country_by_users: list[dict[str, Any]]
-    neighboring_cities_by_rank_in_region_by_visits: list[dict[str, Any]]
-    neighboring_cities_by_rank_in_region_by_users: list[dict[str, Any]]
 
     @property
     def page_title(self) -> str:

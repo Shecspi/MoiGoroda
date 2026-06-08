@@ -28,16 +28,6 @@ def make_city_details_dto(
     number_of_visits: int = 0,
     number_of_visits_all_users: int = 0,
     number_of_users_who_visit_city: int = 0,
-    number_of_cities_in_country: int = 0,
-    number_of_cities_in_region: int = 0,
-    rank_in_country_by_visits: int = 0,
-    rank_in_country_by_users: int = 0,
-    rank_in_region_by_visits: int = 0,
-    rank_in_region_by_users: int = 0,
-    neighboring_cities_by_rank_in_country_by_visits: list[Any] | None = None,
-    neighboring_cities_by_rank_in_country_by_users: list[Any] | None = None,
-    neighboring_cities_by_rank_in_region_by_visits: list[Any] | None = None,
-    neighboring_cities_by_rank_in_region_by_users: list[Any] | None = None,
 ) -> CityDetailsDTO:
     if city is None:
         city = make_city()
@@ -47,14 +37,6 @@ def make_city_details_dto(
         visits = []
     if collections is None:
         collections = []
-    if neighboring_cities_by_rank_in_country_by_visits is None:
-        neighboring_cities_by_rank_in_country_by_visits = []
-    if neighboring_cities_by_rank_in_country_by_users is None:
-        neighboring_cities_by_rank_in_country_by_users = []
-    if neighboring_cities_by_rank_in_region_by_visits is None:
-        neighboring_cities_by_rank_in_region_by_visits = []
-    if neighboring_cities_by_rank_in_region_by_users is None:
-        neighboring_cities_by_rank_in_region_by_users = []
 
     return CityDetailsDTO(
         city=city,  # type: ignore
@@ -65,16 +47,6 @@ def make_city_details_dto(
         number_of_visits=number_of_visits,
         number_of_visits_all_users=number_of_visits_all_users,
         number_of_users_who_visit_city=number_of_users_who_visit_city,
-        number_of_cities_in_country=number_of_cities_in_country,
-        number_of_cities_in_region=number_of_cities_in_region,
-        rank_in_country_by_visits=rank_in_country_by_visits,
-        rank_in_country_by_users=rank_in_country_by_users,
-        rank_in_region_by_visits=rank_in_region_by_visits,
-        rank_in_region_by_users=rank_in_region_by_users,
-        neighboring_cities_by_rank_in_country_by_visits=neighboring_cities_by_rank_in_country_by_visits,
-        neighboring_cities_by_rank_in_country_by_users=neighboring_cities_by_rank_in_country_by_users,
-        neighboring_cities_by_rank_in_region_by_visits=neighboring_cities_by_rank_in_region_by_visits,
-        neighboring_cities_by_rank_in_region_by_users=neighboring_cities_by_rank_in_region_by_users,
     )
 
 
@@ -303,23 +275,12 @@ def test_fields_are_set_correctly() -> None:
         number_of_visits=10,
         number_of_visits_all_users=100,
         number_of_users_who_visit_city=20,
-        number_of_cities_in_country=500,
-        number_of_cities_in_region=50,
-        rank_in_country_by_visits=5,
-        rank_in_country_by_users=7,
-        rank_in_region_by_visits=3,
-        rank_in_region_by_users=4,
-        neighboring_cities_by_rank_in_country_by_visits=[city],
-        neighboring_cities_by_rank_in_country_by_users=[city],
-        neighboring_cities_by_rank_in_region_by_visits=[city],
-        neighboring_cities_by_rank_in_region_by_users=[city],
     )
 
     assert dto.number_of_visits == 10
     assert dto.visits[0]['user'] == 'A'
     assert dto.average_rating == 4.0
     assert dto.popular_months == ['Март']
-    assert dto.neighboring_cities_by_rank_in_country_by_visits == [city]
 
 
 # Проверка, что page_title корректно работает с пустой строкой в регионе

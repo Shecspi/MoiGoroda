@@ -24,7 +24,7 @@
             <!-- End Header -->
 
             <!-- Body -->
-            <div class="flex-1 overflow-y-auto p-4">
+            <div class="flex-1 overflow-y-auto p-4" id="statisticsContent">
                 <!-- Статистические карточки -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                     <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
@@ -35,48 +35,72 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm text-gray-600 dark:text-neutral-400">Пользователей, посетивших город</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_of_users_who_visit_city }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white" id="numberOfUsersWhoVisitCity">
+                                {{ number_of_users_who_visit_city }}
+                            </p>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
                         <div class="flex-shrink-0 w-10 h-10 rounded-lg border border-emerald-200 bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/20 flex items-center justify-center">
                             <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 012-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                             </svg>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm text-gray-600 dark:text-neutral-400">Всего посещений города</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_of_visits_all_users }}</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white" id="numberOfVisitsAllUsers">
+                                {{ number_of_visits_all_users }}
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Популярность в стране -->
-                <div class="mb-6">
+                <div class="mb-6" id="countryRankSection">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white text-center mb-4">Популярность города в стране</h3>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600 dark:text-neutral-400">По пользователям</span>
-                                <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-blue-600 dark:bg-blue-500">
-                                    {{ rank_in_country_by_users }} из {{ number_of_cities_in_country }}
+                                <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-blue-600 dark:bg-blue-500 flex items-center" id="rankInCountryByUsers">
+                                    <span class="loading-dots loading-dots-sm">
+                                        <span class="dot"></span>
+                                        <span class="dot"></span>
+                                        <span class="dot"></span>
+                                    </span>
                                 </span>
                             </div>
-                            <div class="flex items-center justify-center">
-                                <canvas id="rankBarChartByUsers" class="w-full"></canvas>
+                            <div class="flex items-center justify-center min-h-[200px]">
+                                <div class="chart-spinner">
+                                    <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </div>
+                                <canvas id="rankBarChartByUsers" class="w-full hidden"></canvas>
                             </div>
                         </div>
 
                         <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600 dark:text-neutral-400">По посещениям</span>
-                                <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-blue-600 dark:bg-blue-500">
-                                    {{ rank_in_country_by_visits }} из {{ number_of_cities_in_country }}
+                                <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-blue-600 dark:bg-blue-500 flex items-center" id="rankInCountryByVisits">
+                                    <span class="loading-dots loading-dots-sm">
+                                        <span class="dot"></span>
+                                        <span class="dot"></span>
+                                        <span class="dot"></span>
+                                    </span>
                                 </span>
                             </div>
-                            <div class="flex items-center justify-center">
-                                <canvas id="rankBarChartByVisits" class="w-full"></canvas>
+                            <div class="flex items-center justify-center min-h-[200px]">
+                                <div class="chart-spinner">
+                                    <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </div>
+                                <canvas id="rankBarChartByVisits" class="w-full hidden"></canvas>
                             </div>
                         </div>
                     </div>
@@ -84,30 +108,50 @@
 
                 <!-- Популярность в регионе -->
                 {% if city.region %}
-                    <div>
+                    <div id="regionRankSection">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white text-center mb-4">Популярность города в регионе</h3>
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-600 dark:text-neutral-400">По пользователям</span>
-                                    <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-emerald-600 dark:bg-emerald-500">
-                                        {{ rank_in_region_by_users }} из {{ number_of_cities_in_region }}
+                                    <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-emerald-600 dark:bg-emerald-500 flex items-center" id="rankInRegionByUsers">
+                                        <span class="loading-dots loading-dots-sm">
+                                            <span class="dot"></span>
+                                            <span class="dot"></span>
+                                            <span class="dot"></span>
+                                        </span>
                                     </span>
                                 </div>
-                                <div class="flex items-center justify-center">
-                                    <canvas id="rankBarInRegionChartByUsers" class="w-full"></canvas>
+                                <div class="flex items-center justify-center min-h-[200px]">
+                                    <div class="chart-spinner">
+                                        <svg class="animate-spin h-8 w-8 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                    <canvas id="rankBarInRegionChartByUsers" class="w-full hidden"></canvas>
                                 </div>
                             </div>
 
                             <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-600 dark:text-neutral-400">По посещениям</span>
-                                    <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-emerald-600 dark:bg-emerald-500">
-                                        {{ rank_in_region_by_visits }} из {{ number_of_cities_in_region }}
+                                    <span class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-emerald-600 dark:bg-emerald-500 flex items-center" id="rankInRegionByVisits">
+                                        <span class="loading-dots loading-dots-sm">
+                                            <span class="dot"></span>
+                                            <span class="dot"></span>
+                                            <span class="dot"></span>
+                                        </span>
                                     </span>
                                 </div>
-                                <div class="flex items-center justify-center">
-                                    <canvas id="rankBarInRegionChartByVisits" class="w-full"></canvas>
+                                <div class="flex items-center justify-center min-h-[200px]">
+                                    <div class="chart-spinner">
+                                        <svg class="animate-spin h-8 w-8 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                    <canvas id="rankBarInRegionChartByVisits" class="w-full hidden"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -119,12 +163,59 @@
     </div>
 </div>
 
-{{ neighboring_cities_by_rank_in_country_by_users|json_script:"neighboringCitiesDataByUsers" }}
-{{ neighboring_cities_by_rank_in_country_by_visits|json_script:"neighboringCitiesDataByVisits" }}
-{{ neighboring_cities_by_rank_in_region_by_users|json_script:"neighboringCitiesInRegionDataByVisits" }}
-{{ neighboring_cities_by_rank_in_region_by_visits|json_script:"neighboringCitiesInRegionDataByUsers" }}
+<style>
+    /* Прыгающие точки загрузки */
+    .loading-dots {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .loading-dots .dot {
+        width: 8px;
+        height: 8px;
+        background-color: currentColor;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out both;
+    }
+    
+    .loading-dots .dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+    
+    .loading-dots .dot:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+    
+    .loading-dots-sm .dot {
+        width: 6px;
+        height: 6px;
+    }
+    
+    @keyframes bounce {
+        0%, 80%, 100% { 
+            transform: scale(0);
+        }
+        40% { 
+            transform: scale(1.0);
+        }
+    }
+    
+    /* Спиннер для графиков */
+    .chart-spinner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .chart-spinner.hidden {
+        display: none;
+    }
+</style>
+
 <script>
     window.CITY_ID = {{ city.id }};
+    window.CITY_STATISTICS_API_URL = "/api/city/statistics/{{ city.id }}/";
     {% if city.region %}
     window.HAS_REGION = true;
     {% else %}
@@ -132,4 +223,3 @@
     {% endif %}
 </script>
 {% vite_asset 'js/entries/city_statistics.js' %}
-

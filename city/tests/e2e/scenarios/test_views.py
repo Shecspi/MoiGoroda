@@ -33,16 +33,6 @@ def fake_service(mocker: Any) -> Any:
         number_of_visits=1,
         number_of_visits_all_users=2,
         number_of_users_who_visit_city=1,
-        number_of_cities_in_country=10,
-        number_of_cities_in_region=5,
-        rank_in_country_by_visits=1,
-        rank_in_country_by_users=1,
-        rank_in_region_by_visits=1,
-        rank_in_region_by_users=1,
-        neighboring_cities_by_rank_in_country_by_visits=[],
-        neighboring_cities_by_rank_in_country_by_users=[],
-        neighboring_cities_by_rank_in_region_by_visits=[],
-        neighboring_cities_by_rank_in_region_by_users=[],
     )
     service.get_city_details.return_value = dto
     return service

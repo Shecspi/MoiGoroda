@@ -2,6 +2,7 @@ from django.urls import path, include
 from dmr.routing import path as dmr_path, Router
 from dmr.openapi import build_schema
 import city.api as api
+from city.api.statistics import CityStatisticsController
 
 # Формируем роутеры Django-modern-rest
 city_user_photos_router = Router(
@@ -76,6 +77,11 @@ urlpatterns = [
         'districts/map_colors/save/',
         api.save_district_map_colors,
         name='api__save_district_map_colors',
+    ),
+    path(
+        'statistics/<int:city_id>/',
+        CityStatisticsController.as_view(),
+        name='api__get_city_statistics',
     ),
     path(city_user_photos_router.prefix, include(city_user_photos_router.urls)),
     path(

@@ -142,21 +142,21 @@ class TestCollectionFullWorkflow:
         # 1. Просмотр коллекций - нет посещенных
         response = client.get(reverse('collection-list'))
         assert response.status_code == 200
-        assert response.context['qty_of_started_colelctions'] == 0
+        assert response.context['qty_of_started_collections'] == 0
 
         # 2. Посещаем Москву
         VisitedCity.objects.create(user=user, city=moscow, rating=5, is_first_visit=True)
 
         # 3. Проверяем что коллекция стала "начатой"
         response = client.get(reverse('collection-list'))
-        assert response.context['qty_of_started_colelctions'] >= 1
+        assert response.context['qty_of_started_collections'] >= 1
 
         # 4. Посещаем Санкт-Петербург
         VisitedCity.objects.create(user=user, city=spb, rating=4, is_first_visit=True)
 
         # 5. Проверяем что коллекция "Столицы" завершена
         response = client.get(reverse('collection-list'))
-        assert response.context['qty_of_finished_colelctions'] >= 1
+        assert response.context['qty_of_finished_collections'] >= 1
 
         # 6. Проверяем детали коллекции с фильтром
         response = client.get(
@@ -249,9 +249,9 @@ class TestCollectionFullWorkflow:
         response = client.get(reverse('collection-list'))
 
         # Коллекция "миллионники" начата, но не завершена
-        assert response.context['qty_of_started_colelctions'] >= 1
+        assert response.context['qty_of_started_collections'] >= 1
         # "Столицы" завершена полностью
-        assert response.context['qty_of_finished_colelctions'] >= 1
+        assert response.context['qty_of_finished_collections'] >= 1
 
     def test_multiple_visits_to_same_city_in_collection(
         self, client: Client, setup_collections: dict[str, Any]

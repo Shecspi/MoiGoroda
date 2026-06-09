@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.db.models import F, QuerySet
+
 from utils.SortFilterMixin import SortFilterMixin
 
 
@@ -10,10 +11,13 @@ class CollectionListMixin(SortFilterMixin):
         """
         Производит фильтрацию 'queryset' на основе значения 'filter'.
 
+        Метод только добавляет условия в QuerySet (lazy) — SQL выполняется
+        при первой оценке queryset пагинатором, без повторных запросов здесь.
+
         @param queryset: QuerySet, к которому необходимо применить фильтр.
         @param filter_value: Параметр, на основе которого производится фильтрация.
             Может принимать одно из 2 значение:
-                - 'not_started' - коллекции, в которых нет ни одного опсещённого города;
+                - 'not_started' - коллекции, в которых нет ни одного посещённого города;
                 - 'finished' - коллекции, в которых посещены все города.
         @return: Отфильтрованный QuerySet или KeyError, если передан некорректный параметр `filter_value`.
         """
@@ -32,13 +36,15 @@ class CollectionListMixin(SortFilterMixin):
         """
         Производит сортировку QuerySet на основе данных в 'sort_value'.
 
+        Как и фильтрация — только order_by в QuerySet, без дополнительного SQL.
+
         @param queryset: QuerySet, который необходимо отсортировать.
         @param sort_value: Параметр, на основе которого происходит сортировка.
             Может принимать одно из 6 значений:
                 - 'name_down' - по названию по возрастанию
                 - 'name_up' - по названию по убыванию
                 - 'progress_down' - сначала начатые
-                - 'progress_up'. - сначала завершённые
+                - 'progress_up' - сначала завершённые
                 - 'default_auth' - по-умолчанию для авторизованного пользователя
                 - 'default_guest' - по-умолчанию для неавторизованного пользователя
         @return: Отсортированный QuerySet или KeyError, если передан некорректный параметр `sort_value`.

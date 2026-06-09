@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0
 
 import json
 import uuid
-from typing import Any
+from typing import Any, Iterable
 
 from django.contrib.auth.models import User
 from django.contrib.postgres.aggregates import ArrayAgg
@@ -34,9 +34,12 @@ from django.utils.safestring import mark_safe
 from city.models import City, VisitedCity
 from collection.filter import apply_filter_to_queryset
 from collection.models import Collection, PersonalCollection
-from collection.repository import CollectionRepository
+from collection.repository import COLLECTION_LIST_PREVIEW_CITIES_LIMIT, CollectionRepository
 from services import logger
 from utils.CollectionListMixin import CollectionListMixin
+
+# Сортировки, требующие qty_of_visited_cities / is_favorite — только для авторизованных.
+AUTH_ONLY_COLLECTION_SORTS = frozenset({'progress_down', 'progress_up', 'default_auth'})
 
 
 class CollectionListService:
@@ -64,31 +67,23 @@ class CollectionListService:
         :param request: HTTP request для логирования (опционально).
         :return: Кортеж из QuerySet коллекций и словаря со статистикой.
         """
-        # Получаем коллекции с аннотациями
+        # Получаем коллекции с аннотациями (без prefetch всех городов).
         queryset = self.repository.get_collections_with_annotations(user)
 
-        # Получаем список посещённых городов для пользователя
-        visited_cities = None
-        if user and user.is_authenticated:
-            visited_cities = self.repository.get_visited_city_ids(user)
+        # Статистика по всем коллекциям — один агрегирующий SQL вместо count() + цикла.
+        statistics: dict[str, Any] = {
+            **self.repository.get_collection_list_statistics(user),
+            'filter': '',
+            'sort': '',
+        }
 
-        # Подсчитываем статистику
-        qty_of_collections = queryset.count()
-        qty_of_started_collections = 0
-        qty_of_finished_collections = 0
-
-        if user and user.is_authenticated:
-            for collection in queryset:
-                if collection.qty_of_visited_cities > 0:
-                    qty_of_started_collections += 1
-                if collection.qty_of_visited_cities == collection.qty_of_cities:
-                    qty_of_finished_collections += 1
-
-        # Применяем фильтр
+        # Фильтры not_started/finished требуют qty_of_visited_cities — только для авторизованных.
         filter_param = filter_value if filter_value else ''
-        if filter_param:
+        if filter_param and user and user.is_authenticated:
             try:
                 queryset = self.mixin.apply_filter_to_queryset(queryset, filter_param)
+                if request:
+                    logger.info(request, f"(Collections) Using the filter '{filter_param}'")
             except KeyError:
                 filter_param = ''
                 if request:
@@ -96,15 +91,25 @@ class CollectionListService:
                         request,
                         f"(Collections) Unexpected value of the filter '{filter_value}'",
                     )
+        elif filter_param:
+            filter_param = ''
 
-        # Применяем сортировку
+        # Применяем сортировку (тоже лениво — только order_by в QuerySet).
         if user and user.is_authenticated:
             sort_param = sort_value if sort_value else 'default_auth'
         else:
             sort_param = sort_value if sort_value else 'default_guest'
+            if sort_param in AUTH_ONLY_COLLECTION_SORTS:
+                if request:
+                    logger.warning(
+                        request, f"(Collections) Unexpected value of the sort '{sort_value}'"
+                    )
+                sort_param = 'default_guest'
 
         try:
             queryset = self.mixin.apply_sort_to_queryset(queryset, sort_param)
+            if sort_value and request and sort_value == sort_param:
+                logger.info(request, f"(Collections) Using the sort '{sort_param}'")
         except KeyError:
             if request:
                 logger.warning(
@@ -113,16 +118,20 @@ class CollectionListService:
             sort_param = 'default_auth' if user and user.is_authenticated else 'default_guest'
             queryset = self.mixin.apply_sort_to_queryset(queryset, sort_param)
 
-        statistics = {
-            'qty_of_collections': qty_of_collections,
-            'qty_of_started_collections': qty_of_started_collections,
-            'qty_of_finished_collections': qty_of_finished_collections,
-            'visited_cities': visited_cities,
-            'filter': filter_param,
-            'sort': sort_param,
-        }
+        statistics['filter'] = filter_param
+        statistics['sort'] = sort_param
 
         return queryset, statistics
+
+    def attach_preview_cities(
+        self,
+        collections: Iterable[Collection],
+        user: User | None = None,
+    ) -> None:
+        """
+        Подгружает preview-города для карточек коллекций на текущей странице.
+        """
+        self.repository.attach_preview_cities(collections, user)
 
     def get_personal_collections(self, user: User) -> QuerySet[PersonalCollection, Any]:
         """
@@ -157,8 +166,9 @@ class CollectionListService:
             'sort': sort,
             'filter': filter_param,
             'qty_of_collections': qty_of_collections,
-            'qty_of_started_colelctions': qty_of_started_collections,
-            'qty_of_finished_colelctions': qty_of_finished_collections,
+            'qty_of_started_collections': qty_of_started_collections,
+            'qty_of_finished_collections': qty_of_finished_collections,
+            'collection_list_preview_cities_limit': COLLECTION_LIST_PREVIEW_CITIES_LIMIT,
             'active_page': 'collection',
             'page_title': 'Коллекции городов',
             'page_description': (

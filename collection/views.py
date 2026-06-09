@@ -14,12 +14,6 @@ from typing import Any, cast
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import (
-    Count,
-    Exists,
-    OuterRef,
-    Q,
-)
 from django.http import Http404
 from django.utils.safestring import mark_safe
 from django.views.generic import ListView, TemplateView
@@ -28,134 +22,68 @@ from city.models import VisitedCity
 from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
 from city.services.db import annotate_city_default_user_photo_for_list
 from collection.filter import apply_filter_to_queryset
-from collection.models import Collection, FavoriteCollection, PersonalCollection
+from collection.models import Collection, PersonalCollection
 from collection.repository import CollectionRepository
 from premium.services.access import has_advanced_premium
-from collection.services import PersonalCollectionService, get_all_cities_from_collection
+from collection.services import (
+    CollectionListService,
+    PersonalCollectionService,
+    get_all_cities_from_collection,
+)
 from services import logger
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
-from utils.CollectionListMixin import CollectionListMixin
 
 
-class CollectionList(CollectionListMixin, ListView):  # type: ignore[type-arg]
+class CollectionList(ListView):  # type: ignore[type-arg]
     model = Collection
     paginate_by = 16
     template_name = 'collection/list/page.html'
 
     def __init__(self) -> None:
         super().__init__()
-
-        # Список ID городов из таблицы City, которые посещены пользователем
-        self.visited_cities: Any = None
+        self.list_service = CollectionListService()
         self.sort: str = ''
         self.filter: str = ''
         self.qty_of_collections: int = 0
-        self.qty_of_started_colelctions: int = 0
-        self.qty_of_finished_colelctions: int = 0
+        self.qty_of_started_collections: int = 0
+        self.qty_of_finished_collections: int = 0
 
     def get_queryset(self) -> Any:
-        if self.request.user.is_authenticated:
-            # Создаём подзапрос для проверки, находится ли коллекция в избранном
-            favorite_subquery = FavoriteCollection.objects.filter(
-                user=self.request.user, collection=OuterRef('pk')
-            )
+        user = self.request.user if self.request.user.is_authenticated else None
 
-            queryset = Collection.objects.prefetch_related('city').annotate(
-                qty_of_cities=Count('city', distinct=True),
-                qty_of_visited_cities=Count(
-                    'city__visitedcity',
-                    filter=Q(
-                        city__visitedcity__user=self.request.user,
-                        city__visitedcity__is_first_visit=True,
-                    ),
-                ),
-                is_favorite=Exists(favorite_subquery),
-            )
+        queryset, statistics = self.list_service.get_collections(
+            user=user,
+            filter_value=self.request.GET.get('filter'),
+            sort_value=self.request.GET.get('sort'),
+            request=self.request,
+        )
 
-            self.visited_cities = VisitedCity.objects.filter(user=self.request.user).values_list(
-                'city__id', flat=True
-            )
-        else:
-            queryset = Collection.objects.prefetch_related('city').annotate(
-                qty_of_cities=Count('city', distinct=True)
-            )  # type: ignore[assignment]
+        self.filter = statistics['filter']
+        self.sort = statistics['sort']
+        self.qty_of_collections = statistics['qty_of_collections']
+        self.qty_of_started_collections = statistics['qty_of_started_collections']
+        self.qty_of_finished_collections = statistics['qty_of_finished_collections']
 
         logger.info(self.request, '(Collections) Viewing the collection list')
-
-        # Обновление счётчиков коллекций
-        self.qty_of_collections = queryset.count()
-        if self.request.user.is_authenticated:
-            for collection in queryset:
-                if collection.qty_of_visited_cities > 0:
-                    self.qty_of_started_colelctions += 1
-                if collection.qty_of_visited_cities == collection.qty_of_cities:
-                    self.qty_of_finished_colelctions += 1
-
-        # Применение фильтра
-        filter_value = self.request.GET.get('filter')
-        self.filter = filter_value if filter_value else ''
-        if self.filter:
-            try:
-                queryset = self.apply_filter_to_queryset(queryset, self.filter)
-                logger.info(self.request, f"(Collections) Using the filter '{self.filter}'")
-            except KeyError:
-                self.filter = ''
-                logger.warning(
-                    self.request, f"(Collections) Unexpected value of the filter '{filter_value}'"
-                )
-
-        # Применение сортировки
-        sort_value = self.request.GET.get('sort')
-        if self.request.user.is_authenticated:
-            self.sort = sort_value if sort_value else 'default_auth'
-        else:
-            self.sort = sort_value if sort_value else 'default_guest'
-
-        try:
-            queryset = self.apply_sort_to_queryset(queryset, self.sort)
-            if sort_value:
-                logger.info(self.request, f"(Collections) Using the sort '{self.sort}'")
-        except KeyError:
-            logger.warning(
-                self.request, f"(Collections) Unexpected value of the sort '{sort_value}'"
-            )
-            self.sort = 'default_auth' if self.request.user.is_authenticated else 'default_guest'
-            queryset = self.apply_sort_to_queryset(queryset, self.sort)
 
         return queryset
 
     def get_context_data(self, *, object_list: Any = None, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        context['sort'] = self.sort
-        context['filter'] = self.filter
-        context['visited_cities'] = self.visited_cities  # Все коллекции, в которых находится город
-        context['qty_of_collections'] = self.qty_of_collections
-        context['qty_of_started_colelctions'] = self.qty_of_started_colelctions
-        context['qty_of_finished_colelctions'] = self.qty_of_finished_colelctions
+        user = self.request.user if self.request.user.is_authenticated else None
+        self.list_service.attach_preview_cities(context.get('object_list', []), user)
 
-        context['active_page'] = 'collection'
-
-        url_params_for_sort = (
-            '' if self.sort == 'default_auth' or self.sort == 'default_guest' else self.sort
-        )
-
-        context['url_for_filter_not_started'] = self.get_url_params(
-            'not_started' if self.filter != 'not_started' else '',
-            url_params_for_sort,
-        )
-        context['url_for_filter_finished'] = self.get_url_params(
-            'finished' if self.filter != 'finished' else '', url_params_for_sort
-        )
-        context['url_for_sort_name_down'] = self.get_url_params(self.filter, 'name_down')
-        context['url_for_sort_name_up'] = self.get_url_params(self.filter, 'name_up')
-        context['url_for_sort_progress_down'] = self.get_url_params(self.filter, 'progress_down')
-        context['url_for_sort_progress_up'] = self.get_url_params(self.filter, 'progress_up')
-
-        context['page_title'] = 'Коллекции городов'
-        context['page_description'] = (
-            'Города России, распределённые по различным коллекциям. Путешествуйте по России и закрывайте коллекции.'
+        context.update(
+            self.list_service.get_context_data(
+                user=user,
+                sort=self.sort,
+                filter_param=self.filter,
+                qty_of_collections=self.qty_of_collections,
+                qty_of_started_collections=self.qty_of_started_collections,
+                qty_of_finished_collections=self.qty_of_finished_collections,
+            )
         )
 
         return context

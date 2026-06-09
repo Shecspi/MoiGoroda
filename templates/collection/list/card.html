@@ -16,8 +16,8 @@
                 <!-- Список городов -->
                 <div class="flex flex-1 flex-col justify-center">
                     <div class="flex flex-wrap items-center justify-center gap-2">
-                        {% for city in collection.city.all|slice:"0:10" %}
-                            {% if city.id in visited_cities %}
+                        {% for city in collection.preview_cities %}
+                            {% if user.is_authenticated and city.is_visited %}
                                 <a href="{% url 'city-selected' city.id %}" class="inline-flex items-center gap-x-0.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30">
                                     {{ city }}
                                 </a>
@@ -27,7 +27,7 @@
                                 </a>
                             {% endif %}
                         {% endfor %}
-                        {% if collection.qty_of_cities > 10 %}
+                        {% if collection.qty_of_cities > collection_list_preview_cities_limit %}
                             <span class="inline-flex items-center gap-x-0.5 rounded-full border border-gray-300 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
                                 и другие...
                             </span>

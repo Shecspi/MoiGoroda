@@ -38,18 +38,60 @@ export function getCityPolygonStyle(city) {
 }
 
 /**
+ * @returns {string}
+ */
+function getS3BaseUrl() {
+    if (!window.URL_S3_GEO_POLYGONS) {
+        throw new Error("URL_S3_GEO_POLYGONS is not set");
+    }
+    return window.URL_S3_GEO_POLYGONS.replace(/\/$/, "");
+}
+
+/**
  * @param {string} cityName
  * @param {string} countryCode
  * @param {string} regionCode
  * @returns {string}
  */
 export function buildCityPolygonUrl(cityName, countryCode, regionCode) {
-    if (!window.URL_S3_GEO_POLYGONS) {
-        throw new Error("URL_S3_GEO_POLYGONS is not set");
-    }
-    const base = window.URL_S3_GEO_POLYGONS.replace(/\/$/, "");
+    const base = getS3BaseUrl();
     const fileName = `${encodeURIComponent(cityName)}.geojson`;
     return `${base}/cities/${countryCode}/${regionCode}/${fileName}`;
+}
+
+/**
+ * @param {string} countryCode
+ * @param {string} regionCode
+ * @param {'hq' | 'lq'} quality
+ * @returns {string}
+ */
+export function buildRegionPolygonUrl(countryCode, regionCode, quality = "hq") {
+    const base = getS3BaseUrl();
+    return `${base}/regions/${quality}/${countryCode}/${regionCode}.geojson`;
+}
+
+/**
+ * @param {string} countryCode
+ * @param {'hq' | 'lq'} quality
+ * @returns {string}
+ */
+export function buildCountryPolygonUrl(countryCode, quality = "hq") {
+    const base = getS3BaseUrl();
+    return `${base}/countries/${quality}/${countryCode}.geojson`;
+}
+
+/**
+ * @param {string} countryCode
+ * @param {string} regionCode
+ * @param {string} cityName
+ * @param {string} districtName
+ * @returns {string}
+ */
+export function buildCityDistrictPolygonUrl(countryCode, regionCode, cityName, districtName) {
+    const base = getS3BaseUrl();
+    const cityFolder = encodeURIComponent(cityName);
+    const fileName = `${encodeURIComponent(districtName)}.geojson`;
+    return `${base}/city-districts/hq/${countryCode}/${regionCode}/${cityFolder}/${fileName}`;
 }
 
 /**

@@ -10,6 +10,8 @@
  * ----------------------------------------------
  */
 
+import { buildRegionPolygonUrl } from "../components/region_city_polygons.js";
+
 const iso3166El = document.getElementById('iso3166_code');
 if (!iso3166El) throw new Error('iso3166_code element not found');
 const iso3166_code = iso3166El.dataset.iso3166_code;
@@ -1499,7 +1501,7 @@ function setLoading(loading) {
     loader.classList.toggle('hidden', !loading);
 }
 
-const polygonUrl = `${window.URL_GEO_POLYGONS}/region/hq/${country_code}/${region_code}`;
+const polygonUrl = buildRegionPolygonUrl(country_code, region_code, 'hq');
 let geoJsonData = null;
 const polygonController = new AbortController();
 const polygonTimeoutId = setTimeout(() => polygonController.abort(), POLYGON_FETCH_TIMEOUT_MS);

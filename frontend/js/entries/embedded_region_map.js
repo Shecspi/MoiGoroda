@@ -1,9 +1,12 @@
 import * as L from "leaflet";
 import {create_map} from "../components/map";
+import { buildRegionPolygonUrl } from "../components/region_city_polygons";
 
 (async function initMap() {
     const map = create_map();
-    const url = `${URL_GEO_POLYGONS}/region/${window.QUALITY}/RU/${window.REGION_CODE}`;
+    
+    const countryCode = window.REGION_CODE.includes('-') ? window.REGION_CODE.split('-')[0] : 'RU';
+    const url = buildRegionPolygonUrl(countryCode, window.REGION_CODE, window.QUALITY);
 
     const polygonStyle = {
         fillOpacity: 0.1,

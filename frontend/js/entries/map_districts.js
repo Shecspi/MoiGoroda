@@ -10,6 +10,7 @@
  */
 import L from 'leaflet';
 import {create_map, addLoadControl, addErrorControl} from '../components/map.js';
+import { buildCityDistrictPolygonUrl } from "../components/region_city_polygons.js";
 import {showDangerToast, showSuccessToast} from '../components/toast.js';
 import {getCookie} from '../components/get_cookie.js';
 import {pluralize} from '../components/search_services.js';
@@ -655,29 +656,11 @@ async function loadDistrictsData(cityId, countryCode, cityName, regionCode) {
     const loadControl = addLoadControl(map, 'Загружаю данные о районах...');
     
     try {
-        // Формируем тело запроса для GeoJSON
-        const geoJsonBody = {
-            country_code: countryCode,
-            city_name: cityName,
-            region_code: regionCode,
-        };
+        // Сначала загружаем список районов из БД сайта
+        const districtsResponse = await fetch(`${window.API_DISTRICTS_URL}`);
         
-        // Параллельная загрузка данных о районах и GeoJSON
-        const [districtsResponse, geoJsonResponse] = await Promise.all([
-            fetch(`${window.API_DISTRICTS_URL}`),
-            fetch(`${window.URL_GEO_POLYGONS}/city-district/hq`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(geoJsonBody),
-            }),
-        ]);
-        
-        map.removeControl(loadControl);
-        
-        // Обработка ответа с данными о районах
         if (!districtsResponse.ok) {
+            map.removeControl(loadControl);
             if (districtsResponse.status === 404) {
                 addErrorControl(map, 'Для этого города нет районов в базе данных');
                 return;
@@ -697,21 +680,38 @@ async function loadDistrictsData(cityId, countryCode, cityName, regionCode) {
                 population: district.population,
             });
         });
-        
-        // Обработка ответа с GeoJSON
-        if (!geoJsonResponse.ok) {
-            if (geoJsonResponse.status === 404) {
-                addErrorControl(map, 'Для этого города нет полигонов районов');
-                return;
+
+        // Теперь загружаем GeoJSON для каждого района из S3
+        const settled = await Promise.allSettled(
+            districts.map(async (district) => {
+                const url = buildCityDistrictPolygonUrl(countryCode, regionCode, cityName, district.title);
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`${response.status} ${district.title}`);
+                }
+                return await response.json();
+            })
+        );
+
+        map.removeControl(loadControl);
+
+        const geoJsonDataArray = [];
+        settled.forEach((result, index) => {
+            if (result.status === 'fulfilled') {
+                geoJsonDataArray.push(result.value);
+            } else {
+                console.warn(`Не удалось загрузить полигон для района "${districts[index].title}":`, result.reason);
             }
-            throw new Error(`HTTP error! status: ${geoJsonResponse.status}`);
+        });
+
+        cachedGeoJson = geoJsonDataArray;
+        
+        if (geoJsonDataArray.length === 0) {
+            addErrorControl(map, 'Для этого города нет полигонов районов в S3');
         }
-        
-        const geoJsonData = await geoJsonResponse.json();
-        cachedGeoJson = geoJsonData;
-        
+
         // Отображаем полигоны на карте
-        displayDistrictsOnMap(geoJsonData, districtsData);
+        displayDistrictsOnMap(geoJsonDataArray, districtsData);
         
         // Обновляем бейджик со статистикой
         updateStatsBadge();
@@ -723,7 +723,7 @@ async function loadDistrictsData(cityId, countryCode, cityName, regionCode) {
         }
         
     } catch (error) {
-        map.removeControl(loadControl);
+        if (loadControl) map.removeControl(loadControl);
         console.error('Ошибка загрузки данных:', error);
         addErrorControl(map, 'Произошла ошибка при загрузке данных о районах');
         showDangerToast('Ошибка соединения с сервером', 'Не получилось загрузить данные о районах.');

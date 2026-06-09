@@ -23,6 +23,7 @@ import { addRegionCityDisplayControl, syncRegionCityDisplayControl } from "../co
 import {
     loadCityPolygonLayers,
     updateCityPolygonLayer,
+    buildRegionPolygonUrl,
 } from "../components/region_city_polygons.js";
 
 // Стили для полигона региона
@@ -203,7 +204,7 @@ async function showCityPolygons() {
 }
 
 // Загружаем полигон региона
-const url = `${window.URL_GEO_POLYGONS}/region/hq/${country_code}/${region_code}`;
+const url = buildRegionPolygonUrl(country_code, region_code, 'hq');
 fetch(url)
     .then((response) => {
         if (!response.ok) {

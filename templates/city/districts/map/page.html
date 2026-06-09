@@ -38,6 +38,7 @@
         window.CITY_NAME = "{{ city_name }}";
         window.REGION_CODE = {% if region_code %}"{{ region_code }}"{% else %}null{% endif %};
         window.URL_GEO_POLYGONS = "{{ url_geo_polygons }}";
+        window.URL_S3_GEO_POLYGONS = "{{ URL_S3_GEO_POLYGONS }}";
         window.TILE_LAYER = "{{ TILE_LAYER }}";
         window.IS_AUTHENTICATED = {{ is_authenticated|yesno:"true,false" }};
         window.API_DISTRICTS_URL = "{{ api_districts_url }}";

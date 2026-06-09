@@ -1,5 +1,6 @@
 import * as L from 'leaflet';
 import 'leaflet-fullscreen';
+import { buildAllCountriesPolygonUrl } from "../components/region_city_polygons.js";
 
 import {getCookie} from '../components/get_cookie.js';
 import {showSuccessToast} from "../components/toast";
@@ -64,37 +65,20 @@ init();
 
 // ----------------------------- Функции -----------------------------
 
-function init() {
+async function init() {
     map = create_map([50, 60], 4)
 
-    // Загружаем всю необходимую информацию
-    const allPromises = [];
-    if (isAuthenticated === true) {
-        allPromises.push(getAllPolygons());
-        allPromises.push(getPartsOfTheWorld());
-        allPromises.push(getLocations());
-        allPromises.push(getAllCountries());
-        allPromises.push(getVisitedCountries());
-    } else {
-        allPromises.push(getAllPolygons());
-        allPromises.push(getPartsOfTheWorld());
-        allPromises.push(getLocations());
-        allPromises.push(getAllCountries());
-    }
+    try {
+        // Загружаем всю необходимую информацию
+        const [partsOfTheWorld, locations, allCountries, visitedCountries] = await Promise.all([
+            getPartsOfTheWorld(),
+            getLocations(),
+            getAllCountries(),
+            isAuthenticated ? getVisitedCountries() : Promise.resolve([]),
+        ]);
 
-    // Если пользователь авторизован, то в allPromises будет храниться 5 массивов,
-    // а в случае неавторизованного пользователя - только 4 (последнего visitedCountries не будет).
-    Promise.all([...allPromises]).then(([
-                                            polygons,
-                                            partsOfTheWorld,
-                                            getLocations,
-                                            allCountries,
-                                            visitedCountries,
-                                        ]) => {
         if (isAuthenticated === true) {
-            allVisitedCountries = new Set(visitedCountries.map(country => {
-                return country.code
-            }));
+            allVisitedCountries = new Set(visitedCountries.map(country => country.code));
         }
 
         allCountriesFromDB = new Map(allCountries.map(country => {
@@ -110,9 +94,28 @@ function init() {
                     }]
         }));
 
-        // Добавляем страны на карту, закрашивая по-разному посещённые и не посещённые.
-        // За основу списка стран берутся загруженные полигоны,
-        // но вся информация о стране (кроме iso3166_1_alpha2) - из БД сервиса.
+        // Теперь загружаем полигоны для всех стран из S3
+        const settledPolygons = await Promise.allSettled(
+            allCountries.map(async (country) => {
+                const url = buildCountryPolygonUrl(country.code, 'lq');
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`${response.status} ${country.code}`);
+                }
+                return await response.json();
+            })
+        );
+
+        const polygons = [];
+        settledPolygons.forEach((result, index) => {
+            if (result.status === 'fulfilled') {
+                polygons.push(result.value);
+            } else {
+                console.warn(`Не удалось загрузить полигон для страны "${allCountries[index].name}":`, result.reason);
+            }
+        });
+
+        // Добавляем страны на карту
         polygons.forEach((polygon) => {
             const iso3166_1_alpha2 = polygon.features[0].properties['ISO3166-1:alpha2'];
 
@@ -127,28 +130,12 @@ function init() {
             allGeoJsons.set(iso3166_1_alpha2, geoJSON);
         });
 
-        let not_found_polygons = 0;
-        allCountriesFromDB.forEach((country) => {
-            const code = country.code;
-            let found = false;
-            polygons.forEach((polygon) => {
-                if (polygon.features[0].properties['ISO3166-1:alpha2'] === code) {
-                    found = true;
-                }
-            });
-            if (!found) {
-                console.log('Нет полигона ', code, country.name_ru);
-                not_found_polygons += 1;
-            }
-        })
-        if (not_found_polygons > 0) {
-            console.log('Всего нет полигонов: ', not_found_polygons);
-        }
-
         showQtyCountries(allCountriesFromDB.size, isAuthenticated ? allVisitedCountries.size : null);
         enablePartOfTheWorldButton(partsOfTheWorld);
-        enableLocationsButton(getLocations);
-    });
+        enableLocationsButton(locations);
+    } catch (error) {
+        console.error('Ошибка при инициализации карты стран:', error);
+    }
 }
 
 /**
@@ -428,11 +415,6 @@ function getDataFromServer(url) {
         .then((data) => {
             return data;
         });
-}
-
-function getAllPolygons() {
-    const url = `${document.getElementById('url_get_polygons').dataset.url}/country/all`;
-    return getDataFromServer(url);
 }
 
 function getAllCountries() {

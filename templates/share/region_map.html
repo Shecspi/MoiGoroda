@@ -39,7 +39,8 @@
         window.TILE_LAYER = "{{ TILE_LAYER }}";
         window.COUNTRY_CODE = "{{ country_code }}";
         window.NUMBER_OF_REGIONS = {{ number_of_regions }};
-        window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}"
+        window.URL_GEO_POLYGONS = "{{ URL_GEO_POLYGONS }}";
+        window.URL_S3_GEO_POLYGONS = "{{ URL_S3_GEO_POLYGONS }}";
         window.REGION_LIST = new Map();
         {% for item in all_regions %}
             window.REGION_LIST.set('{{ item.iso3166 }}', {

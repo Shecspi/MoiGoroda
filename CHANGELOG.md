@@ -124,6 +124,8 @@
 
 - Удалена отправка email администратору о регистрации пользователей ([f7ba79a](https://github.com/Shecspi/MoiGoroda/commit/f7ba79af1c5e41554b61f988d266613ee8353bae))
 
+- Оптимизирована страница списка коллекций ([abad69e](https://github.com/Shecspi/MoiGoroda/commit/abad69e3a2d008cc9ac1605b5215285f2c866764))
+
 
 #### 🎨 Дизайн
 

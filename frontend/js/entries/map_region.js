@@ -3,6 +3,7 @@ import 'leaflet-fullscreen';
 import {addLoadControl, addErrorControl, create_map} from "../components/map";
 import {waitForHSSelect, attachCountrySelectHSSelect} from "../components/initCountrySelect";
 import { buildRegionPolygonUrl, buildCountryPolygonUrl } from "../components/region_city_polygons";
+import { showDangerToast } from "../components/toast";
 
 const fillOpacity = 0.7;
 const fillOpacityHighlight = 0.9;
@@ -24,9 +25,6 @@ document.addEventListener('DOMContentLoaded', async (event) => {
 
 async function init() {
     map = create_map();
-    if (window.NUMBER_OF_REGIONS > 0) {
-        createLegendControl(map);
-    }
     const load = addLoadControl(map, 'Загружаю регионы...');
 
     const allMarkers = [];
@@ -47,6 +45,13 @@ async function init() {
         );
 
         map.removeControl(load);
+
+        settled.forEach((result, index) => {
+            if (result.status === 'rejected') {
+                const iso3166 = regionCodes[index];
+                console.warn(`Не удалось загрузить полигон региона "${iso3166}":`, result.reason);
+            }
+        });
 
         settled.forEach((result) => {
             if (result.status === 'fulfilled') {
@@ -120,6 +125,14 @@ async function init() {
                 allMarkers.push(geojson);
             }
         });
+
+        if (allMarkers.length === 0) {
+            showDangerToast('Карта регионов', 'Не получилось загрузить регионы страны');
+            await centerMapOnCountry(map);
+            return;
+        }
+
+        createLegendControl(map);
         const group = new L.featureGroup([...allMarkers]);
         map.fitBounds(group.getBounds());
     } else {
@@ -143,10 +156,31 @@ async function init() {
                 map.fitBounds(geoJsonLayer.getBounds());
                 map.removeControl(load);
             })
-            .catch(error => {
+            .catch(async (error) => {
                 map.removeControl(load);
                 addErrorControl(map, 'Произошла ошибка при загрузке границ страны');
+                await centerMapOnCountry(map);
             });
+    }
+}
+
+/**
+ * Центрирует пустую карту по границам страны (без отрисовки полигона) или по умолчанию.
+ */
+async function centerMapOnCountry(map) {
+    map.invalidateSize();
+
+    try {
+        const url = buildCountryPolygonUrl(window.COUNTRY_CODE, 'hq');
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(response.statusText);
+        }
+        const data = await response.json();
+        const bounds = L.geoJSON(data).getBounds();
+        map.fitBounds(bounds);
+    } catch (error) {
+        map.setView([60, 50], 4);
     }
 }
 

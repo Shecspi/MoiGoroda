@@ -11,7 +11,7 @@
 
 import * as L from 'leaflet';
 import 'leaflet-fullscreen';
-import { buildRegionPolygonUrl } from "./region_city_polygons.js";
+import { buildCountryPolygonUrl, buildRegionPolygonUrl } from "./region_city_polygons.js";
 
 /**
  * Создаёт и возвращает объект карты с подложкой (OpenStreetMap), кнопками зума,
@@ -162,7 +162,7 @@ export function addExternalBorderControl(map, countryCode) {
             if (downloadedExternalBorder === undefined) {
                 const load = addLoadControl(map, 'Загружаю внешние границы страны...');
 
-                fetch(`https://geo-polygons.ru/country/hq/${countryCode}`)
+                fetch(buildCountryPolygonUrl(countryCode, 'hq'))
                     .then(response => {
                         if (!response.ok) {
                             map.removeControl(load);

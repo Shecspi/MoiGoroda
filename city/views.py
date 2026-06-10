@@ -658,7 +658,6 @@ class CityDistrictMapView(TemplateView):
         context['country_code'] = city.country.code
         context['city_name'] = city.title
         context['region_code'] = self._get_region_code(city)
-        context['url_geo_polygons'] = settings.URL_GEO_POLYGONS
         context['is_authenticated'] = self.request.user.is_authenticated
         context['qty_of_districts'] = qty_of_districts
         context['qty_of_visited_districts'] = qty_of_visited_districts

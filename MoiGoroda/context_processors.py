@@ -85,7 +85,6 @@ def general_settings(request: HttpRequest) -> dict[str, Any]:
         'has_active_subscription': has_active_subscription,
         'active_subscription_level': active_subscription_level,
         'DONATE_LINK': os.getenv('DONATE_LINK'),
-        'URL_GEO_POLYGONS': os.getenv('URL_GEO_POLYGONS'),
         'URL_S3_GEO_POLYGONS': os.getenv('URL_S3_GEO_POLYGONS'),
         'OVERPASS_ENDPOINTS': settings.OVERPASS_ENDPOINTS,
         'TILE_LAYER': os.getenv('TILE_LAYER'),

@@ -376,7 +376,6 @@ class CitiesByRegionList(ListView):
                 'region_id': self.region_id,
                 'region_name': self.region_name,
                 'iso3166_code': self.region_iso3166,
-                'url_geo_polygons': settings.URL_GEO_POLYGONS,
                 'number_of_cities': self.number_of_cities,
                 'number_of_visited_cities': self.number_of_visited_cities,
                 # TODO(2026-04-02): Удалить после завершения кампании анонса новой функции.

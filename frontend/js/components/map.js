@@ -223,12 +223,12 @@ export function addInternalBorderControl(map, countryCode) {
 
                 try {
                     // 1. Получаем список регионов страны через API
-                    const countryId = window.COUNTRY_ID || null;
-                    if (!countryId) {
-                        throw new Error('ID страны не определён');
+                    if (!countryCode) {
+                        throw new Error('Код страны не определён');
                     }
 
-                    const regionsResponse = await fetch(`/api/region/list?country_id=${countryId}`);
+                    const url = `/api/region/list/${countryCode}/`;
+                    const regionsResponse = await fetch(url);
                     if (!regionsResponse.ok) {
                         throw new Error('Не удалось загрузить список регионов');
                     }

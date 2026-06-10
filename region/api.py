@@ -1,10 +1,18 @@
+from __future__ import annotations
+
+from http import HTTPStatus
+from typing import Any
+
+import msgspec
+from dmr import Controller, ResponseSpec, modify
+from dmr.plugins.msgspec import MsgspecSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from region.models import Region
-from region.serializers import RegionSerializer, RegionSearchParamsSerializer
+from region.serializers import RegionSearchParamsSerializer, RegionSerializer
 
 
 @api_view(['GET'])
@@ -68,6 +76,45 @@ def region_list_by_country(request: Request) -> Response:
     serializer = RegionSerializer(regions, many=True)
 
     return Response(serializer.data)
+
+
+class RegionDMR(msgspec.Struct):
+    id: int
+    title: str
+    country_name: str
+    country_id: int
+    iso3166: str
+    country_code: str
+
+
+class GetRegionsByCountryController(Controller[MsgspecSerializer]):
+    @modify(
+        extra_responses=[
+            ResponseSpec(dict[str, str], status_code=HTTPStatus.BAD_REQUEST),
+        ],
+        tags=['Регионы'],
+    )
+    def get(self) -> Any:
+        country_code = self.kwargs['country_code']
+        regions = (
+            Region.objects.filter(country__code=country_code)
+            .select_related('country')
+            .order_by('full_name')
+        )
+
+        data = [
+            RegionDMR(
+                id=region.id,
+                title=region.full_name,
+                country_name=region.country.name,
+                country_id=region.country.id,
+                iso3166=region.iso3166,
+                country_code=region.country.code,
+            )
+            for region in regions
+        ]
+
+        return self.to_response(raw_data=data)
 
 
 @api_view(['GET'])

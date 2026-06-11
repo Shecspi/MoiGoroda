@@ -27,6 +27,8 @@ class TestRegionSerializer:
         assert 'title' in serializer.fields
         assert 'country_name' in serializer.fields
         assert 'country_id' in serializer.fields
+        assert 'iso3166' in serializer.fields
+        assert 'country_code' in serializer.fields
 
     def test_serializer_field_types(self) -> None:
         """Тест типов полей сериализатора"""
@@ -40,7 +42,14 @@ class TestRegionSerializer:
 
     def test_serializer_meta_fields(self) -> None:
         """Тест что указаны правильные поля в Meta"""
-        assert RegionSerializer.Meta.fields == ['id', 'title', 'country_name', 'country_id']
+        assert RegionSerializer.Meta.fields == [
+            'id',
+            'title',
+            'country_name',
+            'country_id',
+            'iso3166',
+            'country_code',
+        ]
 
     @pytest.mark.django_db
     def test_get_title_returns_full_name(
@@ -80,6 +89,8 @@ class TestRegionSerializer:
         assert data['title'] == 'Московская область'
         assert data['country_name'] == test_country.name
         assert data['country_id'] == test_country.id
+        assert data['iso3166'] == 'RU-MOS'
+        assert data['country_code'] == test_country.code
 
     @pytest.mark.django_db
     def test_serializer_serializes_list_of_regions(

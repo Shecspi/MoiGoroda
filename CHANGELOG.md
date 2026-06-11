@@ -52,6 +52,10 @@
 
 - *(geo-polygons)* Появился модуль просмотра и загрузки полигонов OpenStreetMap ([b3ed214](https://github.com/Shecspi/MoiGoroda/commit/b3ed214cd033ea0bbb18503b23a992267a42b879))
 
+- Centralize geo-polygons loading from S3 and support individual files ([772a15b](https://github.com/Shecspi/MoiGoroda/commit/772a15b5cad1a9485e49843de911f0fa7047e0a2))
+
+- Централизация загрузки geo-полигонов из S ([65902a1](https://github.com/Shecspi/MoiGoroda/commit/65902a1a5e95f28c7233c0179bc4f6ba477df0ff))
+
 
 #### 🐛 Исправление ошибок
 

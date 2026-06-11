@@ -81,6 +81,15 @@ export function buildCountryPolygonUrl(countryCode, quality = "hq") {
 }
 
 /**
+ * @param {'hq' | 'lq'} quality
+ * @returns {string}
+ */
+export function buildAllCountriesPolygonUrl(quality = "lq") {
+    const base = getS3BaseUrl();
+    return `${base}/countries/${quality}/all.geojson`;
+}
+
+/**
  * @param {string} countryCode
  * @param {string} regionCode
  * @param {string} cityName

@@ -1,6 +1,6 @@
 import * as L from 'leaflet';
 import 'leaflet-fullscreen';
-import { buildCountryPolygonUrl } from "../components/region_city_polygons.js";
+import { buildAllCountriesPolygonUrl } from "../components/region_city_polygons.js";
 
 import {getCookie} from '../components/get_cookie.js';
 import {showSuccessToast} from "../components/toast";
@@ -70,11 +70,12 @@ async function init() {
 
     try {
         // Загружаем всю необходимую информацию
-        const [partsOfTheWorld, locations, allCountries, visitedCountries] = await Promise.all([
+        const [partsOfTheWorld, locations, allCountries, visitedCountries, polygons] = await Promise.all([
             getPartsOfTheWorld(),
             getLocations(),
             getAllCountries(),
             isAuthenticated ? getVisitedCountries() : Promise.resolve([]),
+            getAllPolygons(),
         ]);
 
         if (isAuthenticated === true) {
@@ -93,27 +94,6 @@ async function init() {
                         owner: country.owner
                     }]
         }));
-
-        // Теперь загружаем полигоны для всех стран из S3
-        const settledPolygons = await Promise.allSettled(
-            allCountries.map(async (country) => {
-                const url = buildCountryPolygonUrl(country.code, 'lq');
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`${response.status} ${country.code}`);
-                }
-                return await response.json();
-            })
-        );
-
-        const polygons = [];
-        settledPolygons.forEach((result, index) => {
-            if (result.status === 'fulfilled') {
-                polygons.push(result.value);
-            } else {
-                console.warn(`Не удалось загрузить полигон для страны "${allCountries[index].name}":`, result.reason);
-            }
-        });
 
         // Добавляем страны на карту
         polygons.forEach((polygon) => {
@@ -415,6 +395,37 @@ function getDataFromServer(url) {
         .then((data) => {
             return data;
         });
+}
+
+function getAllPolygons() {
+    return fetch(buildAllCountriesPolygonUrl('lq'))
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            return response.json();
+        })
+        .then((data) => normalizeCountryPolygons(data));
+}
+
+/**
+ * Приводит ответ S3 к массиву FeatureCollection (по одной стране в каждом).
+ * @param {Object|Array<Object>} data
+ * @returns {Array<Object>}
+ */
+function normalizeCountryPolygons(data) {
+    if (Array.isArray(data)) {
+        return data;
+    }
+
+    if (data?.type === 'FeatureCollection' && Array.isArray(data.features)) {
+        return data.features.map((feature) => ({
+            type: 'FeatureCollection',
+            features: [feature],
+        }));
+    }
+
+    throw new Error('Неожиданный формат GeoJSON с полигонами стран');
 }
 
 function getAllCountries() {

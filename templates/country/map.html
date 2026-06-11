@@ -31,7 +31,10 @@
     <div id="url_revieve_unknown_countries" data-url="{% url 'api__revieve_unknown_countries' %}" hidden></div>
     <div id="url_get_parts_of_the_world" data-url="{% url 'api__get_parts_of_the_world' %}" hidden></div>
     <div id="url_get_locations" data-url="{% url 'api__get_locations' %}" hidden></div>
-    <div id="url_get_polygons" data-url="{{ URL_GEO_POLYGONS }}" hidden></div>
+    <script>
+        window.URL_S3_GEO_POLYGONS = "{{ URL_S3_GEO_POLYGONS }}";
+        window.TILE_LAYER = "{{ TILE_LAYER }}";
+    </script>
 
     <!-- Карта -->
     <div id="map" class="mx-3 mb-12 h-[560px] min-h-[75dvh] rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900 z-[1]"></div>

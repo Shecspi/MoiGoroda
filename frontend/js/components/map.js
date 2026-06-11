@@ -11,6 +11,7 @@
 
 import * as L from 'leaflet';
 import 'leaflet-fullscreen';
+import { buildCountryPolygonUrl, buildRegionPolygonUrl } from "./region_city_polygons.js";
 
 /**
  * Создаёт и возвращает объект карты с подложкой (OpenStreetMap), кнопками зума,
@@ -161,7 +162,7 @@ export function addExternalBorderControl(map, countryCode) {
             if (downloadedExternalBorder === undefined) {
                 const load = addLoadControl(map, 'Загружаю внешние границы страны...');
 
-                fetch(`https://geo-polygons.ru/country/hq/${countryCode}`)
+                fetch(buildCountryPolygonUrl(countryCode, 'hq'))
                     .then(response => {
                         if (!response.ok) {
                             map.removeControl(load);
@@ -216,37 +217,72 @@ export function addInternalBorderControl(map, countryCode) {
     external_border.onAdd = function (map) {
         container.title = 'Отобразить границы регионов страны';
 
-        container.addEventListener('click', () => {
+        container.addEventListener('click', async () => {
             if (downloadedInternalBorder === undefined) {
                 const load = addLoadControl(map, 'Загружаю границы регионов страны...');
 
-                fetch(`${URL_GEO_POLYGONS}/region/lq/${countryCode}/all`)
-                    .then(response => {
-                        if (!response.ok) {
-                            map.removeControl(load);
+                try {
+                    // 1. Получаем список регионов страны через API
+                    if (!countryCode) {
+                        throw new Error('Код страны не определён');
+                    }
 
-                            if (response.status === 404) {
-                                addErrorControl(map, 'В выбранной Вами стране нет территориального деления на регионы');
-                                throw new Error('В выбранной Вами стране нет территориального деления на регионы');
-                            }
-                                addErrorControl(map, 'Произошла ошибка при загрузке границ регионов страны');
-                            throw new Error('Ошибка при получении границ регионов страны');
-                        }
-                        return response.json();
-                    })
-                    .then(polygons => {
-                        removeBorderFromMap(externalBorder, internalBorder);
+                    const url = `/api/region/list/${countryCode}/`;
+                    const regionsResponse = await fetch(url);
+                    if (!regionsResponse.ok) {
+                        throw new Error('Не удалось загрузить список регионов');
+                    }
+                    const regions = await regionsResponse.json();
 
-                        polygons.forEach(polygon => {
-                            const layer = L.geoJSON(polygon, {
-                                style: myStyle,
-                            }).addTo(map);
-                            internalBorder.push(layer);
-                        });
-                        downloadedInternalBorder = polygons;
-
+                    if (regions.length === 0) {
                         map.removeControl(load);
-                    })
+                        addErrorControl(map, 'В этой стране нет регионов');
+                        return;
+                    }
+
+                    // 2. Параллельно загружаем GeoJSON для каждого региона из S3
+                    const settled = await Promise.allSettled(
+                        regions.map(async (region) => {
+                            const regionCode = region.iso3166.split('-')[1];
+                            const url = buildRegionPolygonUrl(region.country_code, regionCode, 'lq');
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                throw new Error(`${response.status} ${region.iso3166}`);
+                            }
+                            return await response.json();
+                        })
+                    );
+
+                    map.removeControl(load);
+
+                    const polygons = [];
+                    settled.forEach((result, index) => {
+                        if (result.status === 'fulfilled') {
+                            polygons.push(result.value);
+                        } else {
+                            console.warn(`Не удалось загрузить полигон для региона "${regions[index].title}":`, result.reason);
+                        }
+                    });
+
+                    if (polygons.length === 0) {
+                        addErrorControl(map, 'Не удалось загрузить ни одного полигона региона');
+                        return;
+                    }
+
+                    removeBorderFromMap(externalBorder, internalBorder);
+
+                    polygons.forEach(polygon => {
+                        const layer = L.geoJSON(polygon, {
+                            style: myStyle,
+                        }).addTo(map);
+                        internalBorder.push(layer);
+                    });
+                    downloadedInternalBorder = polygons;
+                } catch (error) {
+                    map.removeControl(load);
+                    console.error('Ошибка при загрузке границ регионов:', error);
+                    addErrorControl(map, error.message || 'Произошла ошибка при загрузке границ регионов');
+                }
             } else {
                 removeBorderFromMap(externalBorder, internalBorder);
 

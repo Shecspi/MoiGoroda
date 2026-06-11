@@ -1,6 +1,11 @@
 import {create_map} from "../components/map";
 import {icon_blue_pin, icon_not_visited_pin, icon_visited_pin} from "../components/icons";
-import {buildCityPolygonUrl, getCityPolygonStyle} from "../components/region_city_polygons";
+import {
+    buildCityPolygonUrl,
+    getCityPolygonStyle,
+    buildRegionPolygonUrl,
+    buildCountryPolygonUrl,
+} from "../components/region_city_polygons";
 import L from "leaflet";
 
 let map;
@@ -47,9 +52,9 @@ function initMap() {
     let regionUrl;
     if (window.ISO3166) {
         const [country, region] = window.ISO3166.split('-');
-        regionUrl = `${window.URL_GEO_POLYGONS}/region/hq/${country}/${region}`;
+        regionUrl = buildRegionPolygonUrl(country, region, 'hq');
     } else {
-        regionUrl = `${window.URL_GEO_POLYGONS}/country/hq/${window.COUNTRY_CODE}`;
+        regionUrl = buildCountryPolygonUrl(window.COUNTRY_CODE, 'hq');
     }
 
     const regionPolygonPromise = fetch(regionUrl)

@@ -2,6 +2,8 @@ import * as L from 'leaflet';
 import 'leaflet-fullscreen';
 import {addLoadControl, addErrorControl, create_map} from "../components/map";
 import {waitForHSSelect, attachCountrySelectHSSelect} from "../components/initCountrySelect";
+import { buildRegionPolygonUrl, buildCountryPolygonUrl } from "../components/region_city_polygons";
+import { showDangerToast } from "../components/toast";
 
 const fillOpacity = 0.7;
 const fillOpacityHighlight = 0.9;
@@ -16,108 +18,133 @@ let map;
 const regionPolygons = new Map();
 
 document.addEventListener('DOMContentLoaded', async (event) => {
-    initCountryFilter();
+    await initCountryFilter();
     initYearFilter();
+    await init();
 });
 
-function init() {
+async function init() {
     map = create_map();
-    if (window.NUMBER_OF_REGIONS > 0) {
-        createLegendControl(map);
-    }
     const load = addLoadControl(map, 'Загружаю регионы...');
 
     const allMarkers = [];
 
-    let url_all_geo_polygons;
     if (window.NUMBER_OF_REGIONS > 0) {
-        url_all_geo_polygons = `${window.URL_GEO_POLYGONS}/region/lq/${window.COUNTRY_CODE}/all`;
-    } else {
-        url_all_geo_polygons = `${window.URL_GEO_POLYGONS}/country/hq/${window.COUNTRY_CODE}`;
-    }
+        const regionCodes = Array.from(window.REGION_LIST.keys());
+        const settled = await Promise.allSettled(
+            regionCodes.map(async (iso3166) => {
+                const regionCode = iso3166.split('-')[1];
+                const url = buildRegionPolygonUrl(window.COUNTRY_CODE, regionCode, 'lq');
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`${response.status} ${iso3166}`);
+                }
+                const geoJson = await response.json();
+                return { iso3166, geoJson };
+            })
+        );
 
-    fetch(url_all_geo_polygons)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(response.statusText)
+        map.removeControl(load);
+
+        settled.forEach((result, index) => {
+            if (result.status === 'rejected') {
+                const iso3166 = regionCodes[index];
+                console.warn(`Не удалось загрузить полигон региона "${iso3166}":`, result.reason);
             }
-            return response.json();
-        })
-        .then(data => {
-            // Добавляем полигоны на карту
-            if (window.NUMBER_OF_REGIONS > 0) {
-                data.forEach(region => {
-                    const iso3166 = region.features[0].properties.iso3166;
-                    const title = window.REGION_LIST.get(iso3166).title;
-                    const num_visited = window.REGION_LIST.get(iso3166).num_visited;
-                    const ratio_visited = window.REGION_LIST.get(iso3166).ratio_visited;
+        });
 
-                    let color;
-                    if (ratio_visited === undefined || ratio_visited === 0) {
-                        color = '#bbbbbb';
-                    } else if (ratio_visited > 0 && ratio_visited <= 20) {
-                        color = '#b8e2b8';
-                    } else if (ratio_visited > 20 && ratio_visited <= 40) {
-                        color = '#7fd07f';
-                    } else if (ratio_visited > 40 && ratio_visited <= 60) {
-                        color = '#4fbf4f';
-                    } else if (ratio_visited > 60 && ratio_visited <= 80) {
-                        color = '#30b200';
-                    } else if (ratio_visited > 80 && ratio_visited < 100) {
-                        color = '#228000';
-                    } else {
-                        color = '#006400';
-                    }
+        settled.forEach((result) => {
+            if (result.status === 'fulfilled') {
+                const { iso3166, geoJson } = result.value;
+                const regionData = window.REGION_LIST.get(iso3166);
+                const title = regionData.title;
+                const num_visited = regionData.num_visited;
+                const ratio_visited = regionData.ratio_visited;
 
-                    const myStyle = {
-                        "fillColor": color,
-                        "fillOpacity": fillOpacity,
-                        "weight": strokeWidth,
-                        "color": strokeColor,
-                        "opacity": strokeOpacity
-                    };
-                    const geojson = L.geoJSON(region, {
-                        style: myStyle,
-                        onEachFeature: onEachFeature
-                    }).addTo(map);
+                let color;
+                if (ratio_visited === undefined || ratio_visited === 0) {
+                    color = '#bbbbbb';
+                } else if (ratio_visited > 0 && ratio_visited <= 20) {
+                    color = '#b8e2b8';
+                } else if (ratio_visited > 20 && ratio_visited <= 40) {
+                    color = '#7fd07f';
+                } else if (ratio_visited > 40 && ratio_visited <= 60) {
+                    color = '#4fbf4f';
+                } else if (ratio_visited > 60 && ratio_visited <= 80) {
+                    color = '#30b200';
+                } else if (ratio_visited > 80 && ratio_visited < 100) {
+                    color = '#228000';
+                } else {
+                    color = '#006400';
+                }
 
-                    // Сохраняем ссылку на полигон для фильтрации по годам
-                    regionPolygons.set(iso3166, geojson);
+                const myStyle = {
+                    "fillColor": color,
+                    "fillOpacity": fillOpacity,
+                    "weight": strokeWidth,
+                    "color": strokeColor,
+                    "opacity": strokeOpacity
+                };
+                const geojson = L.geoJSON(geoJson, {
+                    style: myStyle,
+                    onEachFeature: onEachFeature
+                }).addTo(map);
 
-                    let description = '';
-                    if (num_visited > 0) {
-                        description += `Посещено городов: ${num_visited}`;
-                    } else {
-                        description += 'Вы ещё не посетили ни одного города в этом регионе';
-                    }
-                    description += `<br><br><a href="/region/${window.REGION_LIST.get(iso3166)['id']}/map" `
-                        + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
-                        + `link-underline-opacity-75 link-opacity-100-hover">Карта городов</a><br>`
-                        + `<a href="/region/${window.REGION_LIST.get(iso3166)['id']}/list" `
-                        + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
-                        + `link-underline-opacity-75 link-opacity-100-hover">Список городов</a>`
-                    geojson.bindPopup(`<h4>${title}</h4><br>${description}`);
-                    geojson.bindTooltip(title, {
-                        direction: 'top',
-                        sticky: true
-                    });
-                    geojson.on('mouseover', function () {
-                        const tooltip = this.getTooltip();
-                        if (this.isPopupOpen()) {
-                            tooltip.setOpacity(0.0);
-                        } else {
-                            tooltip.setOpacity(0.9);
-                        }
-                    });
-                    geojson.on('click', function () {
-                        this.getTooltip().setOpacity(0.0);
-                    });
+                // Сохраняем ссылку на полигон для фильтрации по годам
+                regionPolygons.set(iso3166, geojson);
 
-                    allMarkers.push(geojson);
+                let description = '';
+                if (num_visited > 0) {
+                    description += `Посещено городов: ${num_visited}`;
+                } else {
+                    description += 'Вы ещё не посетили ни одного города в этом регионе';
+                }
+                description += `<br><br><a href="/region/${regionData['id']}/map" `
+                    + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
+                    + `link-underline-opacity-75 link-opacity-100-hover">Карта городов</a><br>`
+                    + `<a href="/region/${regionData['id']}/list" `
+                    + `class="link-offset-2 link-underline-dark link-dark link-opacity-75 `
+                    + `link-underline-opacity-75 link-opacity-100-hover">Список городов</a>`
+                geojson.bindPopup(`<h4>${title}</h4><br>${description}`);
+                geojson.bindTooltip(title, {
+                    direction: 'top',
+                    sticky: true
                 });
-                const group = new L.featureGroup([...allMarkers]);
-                map.fitBounds(group.getBounds());
-            } else {
+                geojson.on('mouseover', function () {
+                    const tooltip = this.getTooltip();
+                    if (this.isPopupOpen()) {
+                        tooltip.setOpacity(0.0);
+                    } else {
+                        tooltip.setOpacity(0.9);
+                    }
+                });
+                geojson.on('click', function () {
+                    this.getTooltip().setOpacity(0.0);
+                });
+
+                allMarkers.push(geojson);
+            }
+        });
+
+        if (allMarkers.length === 0) {
+            showDangerToast('Карта регионов', 'Не получилось загрузить регионы страны');
+            await centerMapOnCountry(map);
+            return;
+        }
+
+        createLegendControl(map);
+        const group = new L.featureGroup([...allMarkers]);
+        map.fitBounds(group.getBounds());
+    } else {
+        const url = buildCountryPolygonUrl(window.COUNTRY_CODE, 'hq');
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+                return response.json();
+            })
+            .then(data => {
                 const myStyle = {
                     fillOpacity: 0.1,
                     fillColor: '#6382ff',
@@ -127,13 +154,34 @@ function init() {
                 };
                 const geoJsonLayer = L.geoJSON(data, { style: myStyle }).addTo(map);
                 map.fitBounds(geoJsonLayer.getBounds());
-            }
-            map.removeControl(load);
-        })
-        .catch(error => {
-            map.removeControl(load);
-            addErrorControl(map, 'Произошла ошибка при загрузке регионов');
-        });
+                map.removeControl(load);
+            })
+            .catch(async (error) => {
+                map.removeControl(load);
+                addErrorControl(map, 'Произошла ошибка при загрузке границ страны');
+                await centerMapOnCountry(map);
+            });
+    }
+}
+
+/**
+ * Центрирует пустую карту по границам страны (без отрисовки полигона) или по умолчанию.
+ */
+async function centerMapOnCountry(map) {
+    map.invalidateSize();
+
+    try {
+        const url = buildCountryPolygonUrl(window.COUNTRY_CODE, 'hq');
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(response.statusText);
+        }
+        const data = await response.json();
+        const bounds = L.geoJSON(data).getBounds();
+        map.fitBounds(bounds);
+    } catch (error) {
+        map.setView([60, 50], 4);
+    }
 }
 
 /**
@@ -386,6 +434,3 @@ function filterRegionsByYear(selectedYear) {
         map.fitBounds(group.getBounds());
     }
 }
-
-
-init();

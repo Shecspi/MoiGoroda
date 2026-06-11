@@ -6,10 +6,11 @@ class RegionSerializer(serializers.ModelSerializer):  # type: ignore[type-arg]
     title = serializers.SerializerMethodField()
     country_name = serializers.SerializerMethodField()
     country_id = serializers.IntegerField(source='country.id', read_only=True)
+    country_code = serializers.CharField(source='country.code', read_only=True)
 
     class Meta:
         model = Region
-        fields = ['id', 'title', 'country_name', 'country_id']
+        fields = ['id', 'title', 'country_name', 'country_id', 'iso3166', 'country_code']
 
     def get_title(self, obj: Region) -> str:
         """

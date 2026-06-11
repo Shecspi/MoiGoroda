@@ -6,7 +6,8 @@ import { buildRegionPolygonUrl } from "../components/region_city_polygons";
     const map = create_map();
     
     const countryCode = window.REGION_CODE.includes('-') ? window.REGION_CODE.split('-')[0] : 'RU';
-    const url = buildRegionPolygonUrl(countryCode, window.REGION_CODE, window.QUALITY);
+    const regionCode = window.REGION_CODE.includes('-') ? window.REGION_CODE.split('-')[1] : window.REGION_CODE;
+    const url = buildRegionPolygonUrl(countryCode, regionCode, window.QUALITY);
 
     const polygonStyle = {
         fillOpacity: 0.1,

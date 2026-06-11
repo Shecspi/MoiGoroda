@@ -1,6 +1,6 @@
 import * as L from 'leaflet';
 import 'leaflet-fullscreen';
-import { buildAllCountriesPolygonUrl } from "../components/region_city_polygons.js";
+import { buildCountryPolygonUrl } from "../components/region_city_polygons.js";
 
 import {getCookie} from '../components/get_cookie.js';
 import {showSuccessToast} from "../components/toast";

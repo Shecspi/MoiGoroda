@@ -24,7 +24,6 @@ from django.views.generic import ListView, View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet, Subquery, IntegerField, OuterRef, Count, Exists
 
-from MoiGoroda import settings
 from MoiGoroda.settings import ALLOWED_HOSTS_FOR_EMBEDDED_REGION_MAPS
 from country.models import Country
 from region.models import Region

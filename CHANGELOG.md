@@ -123,6 +123,8 @@
 
 - *(vountry)* Корректно передаётся источник добавления страны (#192) ([df73656](https://github.com/Shecspi/MoiGoroda/commit/df73656ac624d3df0dbf721cb4bdbb9c0d7c7265))
 
+- *(prometheus)* Реализован сбор метрик в мультипроцессном режиме для Gunicorn ([cd73f79](https://github.com/Shecspi/MoiGoroda/commit/cd73f79202aabd1292a3980807e8cf98e0661ec1))
+
 
 #### ⚡ Производительность
 

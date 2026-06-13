@@ -42,7 +42,7 @@ urlpatterns = [
     path('tinymce/upload-image/', upload_image, name='tinymce-upload-image'),
     path('tinymce/', include('tinymce.urls')),
     path('ckeditor5/', include('django_ckeditor_5.urls')),
-    path('', include('django_prometheus.urls')),
+    path('metrics', include('analytics.urls')),
 ]
 
 handler403 = 'MoiGoroda.error_handlers.page403'

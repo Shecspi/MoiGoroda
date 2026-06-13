@@ -56,6 +56,8 @@
 
 - Централизация загрузки geo-полигонов из S ([65902a1](https://github.com/Shecspi/MoiGoroda/commit/65902a1a5e95f28c7233c0179bc4f6ba477df0ff))
 
+- Карусель изображений в статьях блога ([316d17e](https://github.com/Shecspi/MoiGoroda/commit/316d17ea25c548b627521a4616483d1a5ca122b9))
+
 
 #### 🐛 Исправление ошибок
 

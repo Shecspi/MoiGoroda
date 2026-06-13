@@ -1,15 +1,7 @@
 /**
  * Карусель в контенте блога — тот же блок, что у одиночного изображения (500px, по центру).
- * Стили img и подписи наследуются из content_image_gallery.css.
+ * Базовые отступы — в content_image_gallery.css (подключается и в списке статей).
  */
-.content-with-image-gallery .mg-blog-carousel {
-    display: block;
-    width: 100%;
-    margin-bottom: 1rem;
-    text-align: center;
-    box-shadow: none !important;
-}
-
 .content-with-image-gallery .mg-blog-carousel-widget {
     box-shadow: none;
 }
@@ -63,18 +55,6 @@
     .mg-blog-carousel-slide-inner
     img.mg-blog-carousel-main-img {
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
-}
-
-.content-with-image-gallery .mg-blog-carousel-live {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
 }
 
 .content-with-image-gallery .mg-blog-carousel-prev,

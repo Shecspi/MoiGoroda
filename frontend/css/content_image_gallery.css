@@ -4,6 +4,15 @@
  */
 @import 'glightbox/dist/css/glightbox.min.css';
 
+.content-with-image-gallery .mg-blog-carousel {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    box-shadow: none !important;
+}
+
 .content-with-image-gallery p:has(> img),
 .content-with-image-gallery p:has(> a > img),
 .content-with-image-gallery figure:has(> img) {
@@ -46,6 +55,19 @@
 /* В полноэкранной галерее показываем только изображение, без подписи */
 .glightbox-container .gdesc {
     display: none !important;
+}
+
+/** Скрытый live region карусели (aria-live); стили здесь, т.к. CSS подключается и в списке статей. */
+.content-with-image-gallery .mg-blog-carousel-live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 /**

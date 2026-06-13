@@ -1,22 +1,35 @@
 /**
  * Галерея изображений для контента статей и новостей.
  * При клике на изображение открывается лайтбокс GLightbox для просмотра в полном размере.
+ * Изображения внутри .mg-blog-carousel обрабатываются в blog_content_carousel.js.
  */
 import GLightbox from 'glightbox';
+import {
+  applyStandardContentImageSize,
+  initBlogContentCarousels,
+} from './blog_content_carousel.js';
 
-function initContentImageGallery() {
+function isStandaloneContentImage(img) {
+  if (img.closest('.mg-blog-carousel')) return false;
+  if (img.closest('.glightbox-content')) return false;
+  return true;
+}
+
+function initStandaloneImageLightbox() {
   const containers = document.querySelectorAll('.content-with-image-gallery');
   if (containers.length === 0) return;
 
   let galleryIndex = 0;
   containers.forEach((container) => {
-    const images = container.querySelectorAll('img[src]');
+    const images = [...container.querySelectorAll('img[src]')].filter(isStandaloneContentImage);
     if (images.length === 0) return;
 
     const galleryId = `content-gallery-${galleryIndex++}`;
     images.forEach((img) => {
       const href = img.src || img.getAttribute('src');
       if (!href) return;
+
+      applyStandardContentImageSize(img);
 
       const anchor = document.createElement('a');
       anchor.href = href;
@@ -44,9 +57,17 @@ function initContentImageGallery() {
   });
 }
 
+function bootContentImageGallery() {
+  initBlogContentCarousels();
+  initStandaloneImageLightbox();
+}
+
+/** Карусели — сразу при загрузке модуля, чтобы не мелькали все фото. */
+initBlogContentCarousels();
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initContentImageGallery);
+  document.addEventListener('DOMContentLoaded', bootContentImageGallery);
 } else {
-  initContentImageGallery();
+  bootContentImageGallery();
 }
 

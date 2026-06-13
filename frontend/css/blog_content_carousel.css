@@ -1,0 +1,178 @@
+/**
+ * Карусель в контенте блога — тот же блок, что у одиночного изображения (500px, по центру).
+ * Базовые отступы — в content_image_gallery.css (подключается и в списке статей).
+ */
+.content-with-image-gallery .mg-blog-carousel-widget {
+    box-shadow: none;
+}
+
+.content-with-image-gallery .mg-blog-carousel-swiper {
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.dark .content-with-image-gallery .mg-blog-carousel-swiper {
+    background-color: rgb(23 23 23);
+}
+
+.content-with-image-gallery .mg-blog-carousel-swiper .swiper-slide {
+    overflow: hidden;
+}
+
+.content-with-image-gallery .mg-blog-carousel-slide-inner {
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-shadow: none !important;
+    background-color: #fff;
+}
+
+.dark .content-with-image-gallery .mg-blog-carousel-slide-inner {
+    background-color: rgb(23 23 23);
+}
+
+.content-with-image-gallery .mg-blog-carousel-slide-inner > a {
+    display: inline-block;
+    max-width: 100%;
+}
+
+.content-with-image-gallery .mg-blog-carousel-slide-inner img.mg-blog-carousel-main-img {
+    display: block;
+    max-width: min(100%, 500px);
+    max-height: min(70vh, 500px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin: 1rem auto 0.5rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.content-with-image-gallery
+    .mg-blog-carousel-swiper
+    .swiper-slide-active
+    .mg-blog-carousel-slide-inner
+    img.mg-blog-carousel-main-img {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+}
+
+.content-with-image-gallery .mg-blog-carousel-prev,
+.content-with-image-gallery .mg-blog-carousel-next {
+    position: absolute;
+    top: 45%;
+    z-index: 10;
+    margin-top: 0 !important;
+    transform: translateY(-50%);
+}
+
+.content-with-image-gallery .mg-blog-carousel-prev::after,
+.content-with-image-gallery .mg-blog-carousel-next::after {
+    display: none !important;
+}
+
+.content-with-image-gallery .mg-blog-carousel-prev {
+    left: 0.25rem;
+}
+
+.content-with-image-gallery .mg-blog-carousel-next {
+    right: 0.25rem;
+}
+
+.content-with-image-gallery .mg-blog-carousel-thumbs-panel {
+    padding: 0.5rem 0.75rem 0;
+}
+
+.content-with-image-gallery .mg-blog-carousel-thumb img.mg-blog-carousel-thumb-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.content-with-image-gallery .mg-blog-carousel-thumb {
+    line-height: 0;
+    vertical-align: top;
+}
+
+.content-with-image-gallery .mg-blog-carousel-thumbs:not(.swiper-initialized) {
+    display: none;
+}
+
+.content-with-image-gallery .mg-blog-carousel-main .mg-blog-carousel-swiper:not(.swiper-initialized) .swiper-slide {
+    display: none;
+}
+
+.content-with-image-gallery
+    .mg-blog-carousel-main
+    .mg-blog-carousel-swiper:not(.swiper-initialized)
+    .swiper-slide:first-child {
+    display: block;
+}
+
+.content-with-image-gallery
+    .mg-blog-carousel-main
+    .mg-blog-carousel-swiper:not(.swiper-initialized)
+    ~ .mg-blog-carousel-prev,
+.content-with-image-gallery
+    .mg-blog-carousel-main
+    .mg-blog-carousel-swiper:not(.swiper-initialized)
+    ~ .mg-blog-carousel-next {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/**
+ * До инициализации JS — только первое фото (без «сетки» из всех картинок).
+ * Стили совпадают с активным слайдом карусели, чтобы переход был незаметным.
+ */
+.content-with-image-gallery .mg-blog-carousel:not(.mg-blog-carousel--initialized) {
+    overflow: hidden;
+    text-align: center;
+}
+
+.content-with-image-gallery .mg-blog-carousel:not(.mg-blog-carousel--initialized) > img {
+    display: none;
+    max-width: min(100%, 500px);
+    max-height: min(70vh, 500px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin: 1rem auto 0.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+    cursor: pointer;
+}
+
+.content-with-image-gallery .mg-blog-carousel:not(.mg-blog-carousel--initialized) > img:first-of-type {
+    display: block;
+}
+
+.content-with-image-gallery .mg-blog-carousel[data-mg-caption]:not(.mg-blog-carousel--initialized)::after {
+    content: attr(data-mg-caption);
+    display: block;
+    margin: 0 auto 1rem;
+    font-size: 0.8rem;
+    line-height: 1rem;
+    color: var(--caption-color, #6b7280);
+    text-align: center;
+}
+
+.dark .content-with-image-gallery .mg-blog-carousel[data-mg-caption]:not(.mg-blog-carousel--initialized)::after {
+    --caption-color: #9ca3af;
+}
+
+.content-with-image-gallery .mg-blog-carousel.mg-blog-carousel--initializing {
+    min-height: var(--mg-blog-carousel-min-height, auto);
+}
+
+.content-with-image-gallery .mg-blog-carousel.mg-blog-carousel--initializing .mg-blog-carousel-widget {
+    visibility: hidden;
+}

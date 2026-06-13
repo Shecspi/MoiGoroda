@@ -1,4 +1,3 @@
-import os
 from django.http import HttpRequest, HttpResponse
 from prometheus_client import CollectorRegistry, generate_latest, multiprocess, CONTENT_TYPE_LATEST
 

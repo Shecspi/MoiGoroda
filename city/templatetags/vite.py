@@ -80,6 +80,42 @@ def get_manifest() -> dict[str, Any]:
     return _manifest
 
 
+def collect_entry_css_files(manifest: dict[str, Any], entry_name: str) -> list[str]:
+    """
+    Собирает CSS-файлы entry и всех его import-chunk'ов из manifest Vite.
+
+    Vite выносит CSS из JS-зависимостей в отдельные chunk-файлы и связывает их
+    с import-записями, а не с корневым entry. Без обхода imports эти стили
+    не попадают на страницу в production.
+    """
+    css_files: list[str] = []
+    seen_entries: set[str] = set()
+
+    def walk(name: str) -> None:
+        if name in seen_entries:
+            return
+        seen_entries.add(name)
+
+        entry = manifest.get(name)
+        if not entry:
+            return
+
+        css_files.extend(entry.get('css', []))
+        for import_name in entry.get('imports', []):
+            walk(import_name)
+
+    walk(entry_name)
+
+    unique_css: list[str] = []
+    seen_css: set[str] = set()
+    for css_file in css_files:
+        if css_file not in seen_css:
+            seen_css.add(css_file)
+            unique_css.append(css_file)
+
+    return unique_css
+
+
 @register.simple_tag
 def vite_asset(name: str) -> SafeString:
     # Django test runner принудительно устанавливает DEBUG=False, проверяем TESTING
@@ -93,8 +129,8 @@ def vite_asset(name: str) -> SafeString:
 
     tags = []
 
-    # Подключаем CSS-файлы
-    for css_file in entry.get('css', []):
+    # Подключаем CSS-файлы entry и import-chunk'ов
+    for css_file in collect_entry_css_files(manifest, name):
         tags.append(f'<link rel="stylesheet" href="{settings.STATIC_URL}js/{css_file}">')
 
     # Подключаем JS-файл

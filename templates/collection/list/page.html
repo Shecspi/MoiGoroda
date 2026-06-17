@@ -25,7 +25,7 @@
     {# Карточки с коллекциями #}
     {% if object_list %}
         {# Поисковый тулбар #}
-        <div class="mx-3 mb-6 flex justify-center relative z-[11050]" id="toolbar">
+        <div class="mx-3 mb-6 flex justify-center relative z-40" id="toolbar">
             <div class="w-full max-w-xl">
                 {% include "components/ui/combobox_remote.html" with combobox_id="collection-search-combobox" input_id="collection-search" hidden_name="collection_search_id" placeholder="Начните вводить название коллекции..." show_leading_icon=True input_class="mg-input mg-input-default" source_url="/api/collection/search" value_key="id" label_key="title" min_chars="1" max_items="20" debounce="300" loading_text="Загрузка..." empty_text="Ничего не найдено" listbox_class="!z-50" %}
             </div>
@@ -34,7 +34,7 @@
         {# Overlay для затемнения страницы во время поиска #}
         <div
             id="search-overlay"
-            class="fixed inset-0 z-[11000] bg-gray-900/40 opacity-0 pointer-events-none transition-opacity duration-200"
+            class="fixed inset-0 z-30 bg-gray-900/40 opacity-0 pointer-events-none transition-opacity duration-200"
         ></div>
 
         {# Сетка карточек коллекций #}

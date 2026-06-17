@@ -125,6 +125,8 @@
 
 - *(prometheus)* Реализован сбор метрик в мультипроцессном режиме для Gunicorn ([cd73f79](https://github.com/Shecspi/MoiGoroda/commit/cd73f79202aabd1292a3980807e8cf98e0661ec1))
 
+- *(collection)* Понижен z-index поля поиска на странице списка коллекций ([6f70afd](https://github.com/Shecspi/MoiGoroda/commit/6f70afde1a91ed0ae97be719df08a7f5bf507212))
+
 
 #### ⚡ Производительность
 

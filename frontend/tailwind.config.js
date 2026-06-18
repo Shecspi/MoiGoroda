@@ -14,9 +14,17 @@ module.exports = {
         roboto: ['Roboto', 'sans-serif'],
       },
       colors: {
+        layer: {
+          DEFAULT: '#ffffff',
+          foreground: '#111827',
+          hover: '#f3f4f6',
+          focus: '#f3f4f6',
+          line: '#e5e7eb',
+        },
         primary: {
           DEFAULT: '#2563eb',
           foreground: '#ffffff',
+          focus: '#3b82f6',
           100: '#dbeafe',
           200: '#bfdbfe',
           400: '#60a5fa',
@@ -89,6 +97,9 @@ module.exports = {
           500: '#ef4444',
           800: '#991b1b',
         },
+      },
+      boxShadow: {
+        '2xs': '0 1px 2px 0 rgb(0 0 0 / 0.04)',
       },
     },
   },

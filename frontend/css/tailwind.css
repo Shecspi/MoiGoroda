@@ -69,21 +69,9 @@
         pointer-events: none;
     }
 
-    /* Стрелки карусели фото города — поверх изображения, на базе .btn */
-    #section-city_image .city-carousel-nav {
-        @apply btn-sm btn-pilled absolute top-1/2 z-10 !mt-0 -translate-y-1/2 size-10 shrink-0 border border-white/25 bg-black/35 p-0 text-white/95 shadow-md backdrop-blur-sm enabled:hover:bg-black/50;
-    }
-
-    #section-city_image .city-carousel-nav::after {
-        content: none !important;
-    }
-
-    #section-city_image .city-carousel-nav.city-swiper-prev {
-        @apply !left-3;
-    }
-
-    #section-city_image .city-carousel-nav.city-swiper-next {
-        @apply !right-3;
+    /* Кнопка «Выберите файл» в input[type="file"] — стилизуем как проектную кнопку */
+    input[type="file"]::file-selector-button {
+        @apply appearance-none btn btn-sm bg-secondary-100 text-secondary-800 border border-line-8 shadow-none me-4 cursor-pointer enabled:hover:bg-secondary enabled:active:shadow-none enabled:active:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed;
     }
 
     /* Стили для Preline UI tooltip */

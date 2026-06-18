@@ -49,7 +49,7 @@
                                              alt="Фото города {{ city.title }}"
                                              loading="lazy"
                                              decoding="async"
-                                             class="absolute inset-0 h-full w-full object-contain">
+                                              class="city-photo-main-img absolute inset-0 h-full w-full object-contain">
                                     </div>
                                 </a>
                             </div>
@@ -75,8 +75,8 @@
             </div>
             {# Превью только при реальном изображении (фото пользователя или картинка сервиса). Один плейсхолдер в карусели — панель скрыта; после загрузки фото показывает city_photos.js #}
             <div id="city-photo-thumbs-panel"
-                 class="px-3 py-2{% if city_user_photos or city.image %}{% else %} hidden{% endif %}"
-                 aria-hidden="{% if city_user_photos or city.image %}false{% else %}true{% endif %}">
+                 class="px-3 py-2{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"
+                 aria-hidden="{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}false{% else %}true{% endif %}">
                 <div class="swiper city-photo-thumbs">
                     <div class="swiper-wrapper">
                         {% for photo in city_user_photos %}

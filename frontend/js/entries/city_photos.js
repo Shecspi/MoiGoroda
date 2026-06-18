@@ -233,10 +233,7 @@ function syncCityActiveThumbWithMain(citySwiper, thumbsSwiper) {
     slide.classList.toggle('swiper-slide-thumb-active', slide === activeThumb);
   });
 
-  // Обновляем внутреннее состояние модулей после ручной синхронизации класса.
-  thumbsSwiper.updateSlidesClasses();
   citySwiper.updateSlidesClasses();
-  citySwiper.thumbs?.update?.(true);
 }
 
 /** Индекс слайда с фото по умолчанию (`data-is-default`), иначе 0. */
@@ -679,12 +676,9 @@ function initCityPhotoManager() {
     const serviceSlideIndex = Array.from(citySwiper.slides).findIndex(
       (slide) => slide.getAttribute('data-is-service-image') === 'true',
     );
-    if (serviceSlideIndex >= 0) {
-      citySwiper.addSlide(serviceSlideIndex, createMainSlideElement());
-    } else {
-      citySwiper.appendSlide(createMainSlideElement());
-    }
 
+    // Добавляем миниатюру ДО главного слайда, чтобы модуль Thumbs не ловил
+    // промежуточное состояние с несовпадающим количеством слайдов.
     if (
       thumbsWasHidden &&
       thumbsElement instanceof HTMLElement &&
@@ -693,7 +687,12 @@ function initCityPhotoManager() {
       showCityPhotoThumbsPanel(thumbsPanel);
       const thumbsWrapper = thumbsElement.querySelector('.swiper-wrapper');
       if (thumbsWrapper) {
-        thumbsWrapper.appendChild(createThumbSlideElement());
+        const serviceThumbEl = thumbsWrapper.querySelector('[data-is-service-image="true"]');
+        if (serviceThumbEl) {
+          thumbsWrapper.insertBefore(createThumbSlideElement(), serviceThumbEl);
+        } else {
+          thumbsWrapper.appendChild(createThumbSlideElement());
+        }
       }
       thumbsSwiper = new Swiper(thumbsElement, {
         modules: [FreeMode, Manipulation],
@@ -705,7 +704,11 @@ function initCityPhotoManager() {
       });
       citySwiper.params.thumbs = { swiper: thumbsSwiper, multipleActiveThumbs: false };
       citySwiper.thumbs.init();
-      citySwiper.thumbs.update(true);
+      citySwiper.on('slideChange', () => {
+        if (thumbsSwiper && !thumbsSwiper.destroyed) {
+          syncCityActiveThumbWithMain(citySwiper, thumbsSwiper);
+        }
+      });
     } else if (thumbsSwiper) {
       const placeholderThumbIndex = Array.from(thumbsSwiper.slides).findIndex(
         (slide) => slide.getAttribute('data-is-placeholder') === 'true',
@@ -721,7 +724,13 @@ function initCityPhotoManager() {
       } else {
         thumbsSwiper.appendSlide(createThumbSlideElement());
       }
-      thumbsSwiper.update();
+    }
+
+    // Главный слайд — после миниатюры, оба swiper'а уже синхронизированы
+    if (serviceSlideIndex >= 0) {
+      citySwiper.addSlide(serviceSlideIndex, createMainSlideElement());
+    } else {
+      citySwiper.appendSlide(createMainSlideElement());
     }
 
     citySwiper.update();
@@ -734,14 +743,12 @@ function initCityPhotoManager() {
       citySwiper.slideTo(newSlideIndex, 0);
     }
     if (thumbsSwiper) {
-      const syncThumbsWithMain = () => {
-        const i = citySwiper.activeIndex;
-        thumbsSwiper.slideTo(i, 0);
+      syncCityActiveThumbWithMain(citySwiper, thumbsSwiper);
+      citySwiper.thumbs?.update?.(true);
+      requestAnimationFrame(() => {
         syncCityActiveThumbWithMain(citySwiper, thumbsSwiper);
         citySwiper.thumbs?.update?.(true);
-      };
-      syncThumbsWithMain();
-      requestAnimationFrame(syncThumbsWithMain);
+      });
     }
     syncControlsWithActiveSlide();
     initCityGallery();
@@ -922,14 +929,12 @@ function initCityPhotoManager() {
             }
             citySwiper.slideTo(targetIndex, 0);
             if (thumbsSwiper) {
-              const syncThumbsWithMain = () => {
-                const i = citySwiper.activeIndex;
-                thumbsSwiper.slideTo(i, 0);
+              syncCityActiveThumbWithMain(citySwiper, thumbsSwiper);
+              citySwiper.thumbs?.update?.(true);
+              requestAnimationFrame(() => {
                 syncCityActiveThumbWithMain(citySwiper, thumbsSwiper);
                 citySwiper.thumbs?.update?.(true);
-              };
-              syncThumbsWithMain();
-              requestAnimationFrame(syncThumbsWithMain);
+              });
             }
             setCityCarouselNavVisible(citySwiper.slides.length > 1, prevButton, nextButton, pagination);
           }

@@ -58,16 +58,16 @@
                 </div>
 
                 <button type="button"
-                        class="swiper-button-prev city-swiper-prev absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !left-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"
+                        class="btn city-carousel-nav swiper-button-prev city-swiper-prev{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"
                         aria-label="Предыдущее фото">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4 -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
                         <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
                     </svg>
                 </button>
                 <button type="button"
-                        class="swiper-button-next city-swiper-next absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !right-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"
+                        class="btn city-carousel-nav swiper-button-next city-swiper-next{% if city_user_photos|length > 1 or city_user_photos|length > 0 and city.image %}{% else %} hidden{% endif %}"
                         aria-label="Следующее фото">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
                         <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
                     </svg>
                 </button>
@@ -177,16 +177,16 @@
                     </div>
                 </div>
                 <button type="button"
-                        class="swiper-button-prev city-swiper-prev absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !left-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden hidden"
+                        class="btn city-carousel-nav swiper-button-prev city-swiper-prev hidden"
                         aria-label="Предыдущее фото">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4 -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon -scale-x-100" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
                         <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
                     </svg>
                 </button>
                 <button type="button"
-                        class="swiper-button-next city-swiper-next absolute !top-1/2 !mt-0 -translate-y-1/2 z-10 !w-10 !h-10 !rounded-full !right-3 !text-white/95 !bg-black/35 hover:!bg-black/50 !border !border-white/25 !shadow-md !backdrop-blur-sm transition-all duration-200 [&::after]:!hidden hidden"
+                        class="btn city-carousel-nav swiper-button-next city-swiper-next hidden"
                         aria-label="Следующее фото">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="!w-4 !h-4" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true">
                         <path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/>
                     </svg>
                 </button>
@@ -253,7 +253,7 @@
                            class="w-full bg-layer border border-layer-line rounded-lg px-3 py-2 text-sm">
                 </div>
                 <div class="flex items-center gap-2">
-                    <button type="submit" id="city-standard-photo-submit" class="btn btn-solid-warning btn-default inline-flex w-full items-center justify-center gap-x-2 sm:w-auto">
+                    <button type="submit" id="city-standard-photo-submit" class="btn btn-solid-warning btn-default btn-full-until-sm">
                         <svg id="city-standard-photo-spinner" class="hidden size-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
@@ -288,7 +288,7 @@
                        multiple
                        class="block w-full bg-layer border border-layer-line rounded-lg text-sm text-foreground placeholder:text-muted-foreground-1 focus:z-10 focus:outline-hidden focus:border-primary-focus focus:ring-1 focus:ring-primary-focus disabled:opacity-50 disabled:bg-layer/60 disabled:cursor-not-allowed disabled:pointer-events-none file:bg-surface file:border-0 file:me-4 file:py-3 file:px-4 disabled:file:opacity-50 disabled:file:cursor-not-allowed sm:min-w-0 sm:flex-1"
                        aria-label="Изображения города, можно выбрать несколько файлов">
-                <button type="submit" id="city-photo-upload-submit" class="btn btn-solid-primary btn-default inline-flex w-full items-center justify-center gap-x-2 sm:w-auto sm:shrink-0">
+                <button type="submit" id="city-photo-upload-submit" class="btn btn-solid-primary btn-default btn-full-until-sm sm:shrink-0">
                     <svg id="city-photo-upload-spinner" class="hidden size-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
@@ -322,9 +322,9 @@
                     на этой странице появится возможность загружать свои фотографии города в сервис (до
                     {{ city_user_photos_limit }}&nbsp;снимков).
                 </p>
-                <p class="mt-2">
+                <p class="mt-3">
                     <a href="{% url 'premium_promo' %}"
-                    class="font-semibold text-sky-800 underline decoration-sky-300 underline-offset-2 transition-colors hover:text-sky-950 hover:decoration-sky-500 dark:text-sky-200 dark:decoration-sky-600/80 dark:hover:text-white dark:hover:decoration-sky-400">
+                       class="btn btn-soft-outline-info btn-sm">
                         Оформить подписку
                     </a>
                 </p>

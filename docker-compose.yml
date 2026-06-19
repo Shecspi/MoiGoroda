@@ -1,14 +1,11 @@
 services:
-  mg-postgres:
-    container_name: mg-postgres
-    image: postgres:14-alpine
-    environment:
-      PGDATA: /var/lib/postgresql/data/some/
-      POSTGRES_PASSWORD: password
-    volumes:
-       - moi-goroda-psql:/var/lib/postgresql/data/
-    ports:
-      - "5432:5432"
+    moi-goroda-redis:
+        container_name: moi-goroda-redis
+        image: redis:8.8-alpine
+        ports:
+            - "${REDIS_PORT:-6379}:6379"
+        volumes:
+            - moi-goroda-redis:/data
 
 volumes:
-  moi-goroda-psql:
+    moi-goroda-redis:

@@ -1,7 +1,17 @@
-from django.db.models import QuerySet, OuterRef, Count, Subquery, IntegerField, Value, Q
+# ----------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
+"""Репозиторные функции для стран и агрегатов по посещённым городам/регионам."""
+
+from django.db.models import Count, IntegerField, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce
 
-from city.models import VisitedCity
+from city.models import City, VisitedCity
+from country.dto import CountryVisitedCityCounts
 from country.models import Country
 from region.models import Region
 
@@ -42,6 +52,78 @@ def get_countries_with_visited_city(user_id: int) -> QuerySet[Country, Country]:
     """
     queryset = VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
     return _annotate_countries_with_visited_city_counts(queryset)
+
+
+def get_countries_visited_city_counts(user_id: int) -> list[CountryVisitedCityCounts]:
+    """
+    Возвращает страны, где пользователь посещал города, с количеством посещённых
+    и общим количеством городов в каждой стране. Учитываются только города с is_first_visit.
+
+    Метод используется в статистическом endpoint и намеренно выполняет два узких агрегата:
+    отдельно по посещениям пользователя и отдельно по городам найденных стран. Это быстрее
+    старого запроса с аннотацией всех стран и correlated subquery.
+    """
+    visited_rows = list(
+        VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
+        .values('city__country_id', 'city__country__name')
+        .annotate(visited_cities=Count('city_id'))
+        .order_by('-visited_cities', 'city__country_id')
+    )
+    country_ids = [row['city__country_id'] for row in visited_rows]
+    total_cities_by_country = dict(
+        City.objects.filter(country_id__in=country_ids)
+        .values('country_id')
+        .annotate(total_cities=Count('id'))
+        .values_list('country_id', 'total_cities')
+    )
+
+    return [
+        CountryVisitedCityCounts(
+            pk=int(row['city__country_id']),
+            name=str(row['city__country__name']),
+            visited_cities=int(row['visited_cities']),
+            total_cities=int(total_cities_by_country.get(row['city__country_id'], 0)),
+        )
+        for row in visited_rows
+    ]
+
+
+def get_unique_visited_cities_country_ranks(
+    country_visit_counts: dict[int, int],
+) -> dict[int, int]:
+    """
+    Возвращает рейтинги пользователя по количеству уникально посещённых городов
+    для переданных стран.
+
+    На вход передаётся словарь `{country_id: visited_cities}` для одного пользователя.
+    Rank считается как количество пользователей, посетивших в этой стране больше городов,
+    плюс один. Это повторяет прежнюю формулу endpoint, но делает один bulk-запрос вместо
+    отдельного запроса на каждую страну.
+    """
+    if not country_visit_counts:
+        return {}
+
+    user_counts_by_country = (
+        VisitedCity.objects.filter(
+            is_first_visit=True,
+            city__country_id__in=country_visit_counts.keys(),
+        )
+        .values('city__country_id', 'user_id')
+        .annotate(unique_visited_cities=Count('city_id', distinct=True))
+        .values('city__country_id', 'unique_visited_cities')
+    )
+
+    users_with_more_by_country = dict.fromkeys(country_visit_counts.keys(), 0)
+    for row in user_counts_by_country:
+        country_id = int(row['city__country_id'])
+        unique_visited_cities = int(row['unique_visited_cities'])
+        if unique_visited_cities > country_visit_counts[country_id]:
+            users_with_more_by_country[country_id] += 1
+
+    return {
+        country_id: users_with_more + 1
+        for country_id, users_with_more in users_with_more_by_country.items()
+    }
 
 
 def get_countries_with_visited_city_in_year(user_id: int, year: int) -> QuerySet[Country, Country]:

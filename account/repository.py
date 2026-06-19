@@ -1,6 +1,22 @@
+# ----------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
+"""Репозиторные функции аккаунта и связанных пользовательских данных."""
+
+from django.contrib.auth.models import User
+
 from account.dto import SubscribedUserDTO, SubscriberUserDTO
 from account.models import ShareSettings
 from subscribe.infrastructure.models import Subscribe
+
+
+def get_total_users_count() -> int:
+    """Возвращает общее количество зарегистрированных пользователей."""
+    return User.objects.count()
 
 
 def get_subscribed_users(user_id: int) -> list[SubscribedUserDTO]:

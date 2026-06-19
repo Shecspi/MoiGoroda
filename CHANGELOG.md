@@ -127,6 +127,8 @@
 
 - *(collection)* Понижен z-index поля поиска на странице списка коллекций ([6f70afd](https://github.com/Shecspi/MoiGoroda/commit/6f70afde1a91ed0ae97be719df08a7f5bf507212))
 
+- *(city)* Исправлено обновление счётчика посещённых городов в стране на карте ([34ec728](https://github.com/Shecspi/MoiGoroda/commit/34ec7288857b667dd751ef6e5d36c0c4a3afd5ce))
+
 
 #### ⚡ Производительность
 

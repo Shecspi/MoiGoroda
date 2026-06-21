@@ -10,7 +10,7 @@
 """
 
 from datetime import date
-from typing import Any
+from typing import Any, Iterable, Protocol, TypedDict, cast
 
 import pytest
 from django.contrib.auth.models import User
@@ -19,13 +19,26 @@ from city.models import City, VisitedCity
 from country.models import Country
 from country.repository import (
     get_countries_visited_city_counts,
+    get_countries_with_new_visited_city_in_year,
     get_countries_with_visited_city,
     get_countries_with_visited_city_in_year,
-    get_countries_with_new_visited_city_in_year,
-    get_unique_visited_cities_country_ranks,
     get_list_of_countries_with_visited_regions,
+    get_unique_visited_cities_country_ranks,
 )
 from region.models import Region
+
+
+class CountryWithVisitedCityCounts(Protocol):
+    pk: int
+    name: str
+    visited_cities: int
+    total_cities: int
+
+
+class CountryCounts(TypedDict):
+    name: str
+    visited_cities: int
+    total_cities: int
 
 
 @pytest.mark.django_db
@@ -206,12 +219,8 @@ class TestVisitedCitiesCountriesCoverageRepositories:
         tied_user = User.objects.create_user(username='coverage-tied')
         germany_leader = User.objects.create_user(username='coverage-germany-leader')
 
-        VisitedCity.objects.create(
-            user=user, city=moscow, date_of_visit=date(2024, 1, 1), rating=5
-        )
-        VisitedCity.objects.create(
-            user=user, city=spb, date_of_visit=date(2024, 1, 2), rating=4
-        )
+        VisitedCity.objects.create(user=user, city=moscow, date_of_visit=date(2024, 1, 1), rating=5)
+        VisitedCity.objects.create(user=user, city=spb, date_of_visit=date(2024, 1, 2), rating=4)
         VisitedCity.objects.create(
             user=user,
             city=moscow,
@@ -219,9 +228,7 @@ class TestVisitedCitiesCountriesCoverageRepositories:
             rating=5,
             is_first_visit=False,
         )
-        VisitedCity.objects.create(
-            user=user, city=berlin, date_of_visit=date(2024, 1, 3), rating=5
-        )
+        VisitedCity.objects.create(user=user, city=berlin, date_of_visit=date(2024, 1, 3), rating=5)
         VisitedCity.objects.create(
             user=user,
             city=berlin,
@@ -275,15 +282,19 @@ class TestVisitedCitiesCountriesCoverageRepositories:
         germany = setup_data['germany']
         france = setup_data['france']
 
-        legacy_counts = {
+        legacy_countries = cast(
+            Iterable[CountryWithVisitedCityCounts],
+            get_countries_with_visited_city(user.id),
+        )
+        legacy_counts: dict[int, CountryCounts] = {
             country.pk: {
                 'name': country.name,
                 'visited_cities': country.visited_cities,
                 'total_cities': country.total_cities,
             }
-            for country in get_countries_with_visited_city(user.id)
+            for country in legacy_countries
         }
-        optimized_counts = {
+        optimized_counts: dict[int, CountryCounts] = {
             country.pk: {
                 'name': country.name,
                 'visited_cities': country.visited_cities,
@@ -300,8 +311,7 @@ class TestVisitedCitiesCountriesCoverageRepositories:
         assert france.pk not in optimized_counts
 
         country_visit_counts = {
-            country_id: values['visited_cities']
-            for country_id, values in optimized_counts.items()
+            country_id: values['visited_cities'] for country_id, values in optimized_counts.items()
         }
 
         assert get_unique_visited_cities_country_ranks(country_visit_counts) == {

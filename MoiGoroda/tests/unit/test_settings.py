@@ -9,6 +9,7 @@ import pytest
 from django.conf import settings
 from logging import Formatter
 from logging import LogRecord
+from typing import Any, cast
 
 
 @pytest.mark.unit
@@ -27,9 +28,10 @@ def test_sessions_use_database_backed_cache_backend() -> None:
 @pytest.mark.unit
 def test_cache_logger_uses_formatter_without_request_fields() -> None:
     """DEBUG-логи cache helper'ов не должны требовать поля request-контекста."""
-    cache_handler = settings.LOGGING['loggers']['services.cache']['handlers'][0]
-    formatter_name = settings.LOGGING['handlers'][cache_handler]['formatter']
-    formatter_format = settings.LOGGING['formatters'][formatter_name]['format']
+    logging_settings = cast(dict[str, Any], settings.LOGGING)
+    cache_handler = logging_settings['loggers']['services.cache']['handlers'][0]
+    formatter_name = logging_settings['handlers'][cache_handler]['formatter']
+    formatter_format = logging_settings['formatters'][formatter_name]['format']
 
     record = LogRecord(
         name='services.cache',

@@ -6,7 +6,6 @@
 # ----------------------------------------------
 
 from typing import Any, Type
-from django.db.models import QuerySet
 from django.db.models.signals import post_delete, post_save
 from django.db import transaction
 from django.dispatch import receiver
@@ -46,9 +45,7 @@ def notify_subscribers_on_city_add(
         return
 
     user = instance.user
-    subscribers: 'QuerySet[Subscribe]' = Subscribe.objects.select_related('subscribe_from').filter(
-        subscribe_to=user
-    )
+    subscribers = Subscribe.objects.select_related('subscribe_from').filter(subscribe_to=user)
     city: 'City' = (
         VisitedCity.objects.select_related('city', 'city__country').get(pk=instance.pk).city
     )

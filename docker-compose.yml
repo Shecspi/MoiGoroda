@@ -1,11 +1,25 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 services:
     moi-goroda-redis:
         container_name: moi-goroda-redis
         image: redis:8.8-alpine
+        command: redis-server --appendonly yes
+        restart: unless-stopped
         ports:
             - "${REDIS_PORT:-6379}:6379"
         volumes:
             - moi-goroda-redis:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
     moi-goroda-redis:

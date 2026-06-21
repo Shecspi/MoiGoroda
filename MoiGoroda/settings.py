@@ -159,6 +159,12 @@ TESTING = 'test' in sys.argv or 'pytest' in sys.modules or os.getenv('TESTING') 
 if TESTING:
     # Django test runner переопределит DEBUG=False, поэтому vite_asset проверяет TESTING напрямую
     DEBUG = True
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-cache',
+        }
+    }
 
 # django-prometheus: экспорт метрик БД в Prometheus
 PROMETHEUS_METRICS_EXPORT_DATABASE_METRICS = True

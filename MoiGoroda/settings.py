@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Django settings for djangoProject project.
 
@@ -285,7 +292,7 @@ LOGGING = {
         # Вывод в консоль логов приложения
         # только при DEBUG=True
         'to_console_app': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'detail_app',
@@ -349,6 +356,12 @@ LOGGING = {
             'level': 'INFO',
             'propogate': True,
             'handlers': ['to_console_django', 'to_file_django'],
+        },
+        # DEBUG-логи cache helper'ов только в консоль при DEBUG=True
+        'services.cache': {
+            'level': 'DEBUG',
+            'propagate': False,
+            'handlers': ['to_console_app'],
         },
         # Только платежи (вебхук YooKassa) — файл и в консоль при DEBUG
         'premium.webhook': {

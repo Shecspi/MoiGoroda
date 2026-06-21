@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 from typing import Any
 import pytest
 
@@ -18,6 +25,42 @@ def mock_instance(mocker: Any) -> Any:
 # =============================================================================
 # Unit-тесты с моками (проверка логики функции)
 # =============================================================================
+
+
+@pytest.mark.unit
+def test_visited_city_save_registers_statistics_cache_invalidation(mocker: Any) -> None:
+    """При сохранении посещённого города регистрируется инвалидация кеша статистики."""
+    on_commit = mocker.patch('city.signals.transaction.on_commit')
+    invalidate_cache = mocker.patch(
+        'city.signals.invalidate_personal_visited_cities_countries_coverage_cache'
+    )
+    instance = mocker.Mock(user_id=42)
+
+    from city.signals import invalidate_visited_city_statistics_cache_on_save
+
+    invalidate_visited_city_statistics_cache_on_save(sender=VisitedCity, instance=instance)
+
+    on_commit.assert_called_once()
+    on_commit.call_args.args[0]()
+    invalidate_cache.assert_called_once_with(42)
+
+
+@pytest.mark.unit
+def test_visited_city_delete_registers_statistics_cache_invalidation(mocker: Any) -> None:
+    """При удалении посещённого города регистрируется инвалидация кеша статистики."""
+    on_commit = mocker.patch('city.signals.transaction.on_commit')
+    invalidate_cache = mocker.patch(
+        'city.signals.invalidate_personal_visited_cities_countries_coverage_cache'
+    )
+    instance = mocker.Mock(user_id=42)
+
+    from city.signals import invalidate_visited_city_statistics_cache_on_delete
+
+    invalidate_visited_city_statistics_cache_on_delete(sender=VisitedCity, instance=instance)
+
+    on_commit.assert_called_once()
+    on_commit.call_args.args[0]()
+    invalidate_cache.assert_called_once_with(42)
 
 
 @pytest.mark.unit

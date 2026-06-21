@@ -311,6 +311,13 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'detail_django',
         },
+        # DEBUG-логи cache helper'ов не имеют request-контекста (IP/user)
+        'to_console_cache': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
         # Файл только с информацией о платежах (вебхук YooKassa)
         'to_file_premium_payments': {
             'level': 'INFO',
@@ -367,7 +374,7 @@ LOGGING = {
         'services.cache': {
             'level': 'DEBUG',
             'propagate': False,
-            'handlers': ['to_console_app'],
+            'handlers': ['to_console_cache'],
         },
         # Только платежи (вебхук YooKassa) — файл и в консоль при DEBUG
         'premium.webhook': {

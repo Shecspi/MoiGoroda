@@ -7,6 +7,7 @@
 
 """Репозиторные функции для стран и агрегатов по посещённым городам/регионам."""
 
+from django.db import connection
 from django.db.models import Count, IntegerField, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce
 
@@ -103,22 +104,45 @@ def get_unique_visited_cities_country_ranks(
     if not country_visit_counts:
         return {}
 
-    user_counts_by_country = (
-        VisitedCity.objects.filter(
-            is_first_visit=True,
-            city__country_id__in=country_visit_counts.keys(),
-        )
-        .values('city__country_id', 'user_id')
-        .annotate(unique_visited_cities=Count('city_id', distinct=True))
-        .values('city__country_id', 'unique_visited_cities')
-    )
-
     users_with_more_by_country = dict.fromkeys(country_visit_counts.keys(), 0)
-    for row in user_counts_by_country:
-        country_id = int(row['city__country_id'])
-        unique_visited_cities = int(row['unique_visited_cities'])
-        if unique_visited_cities > country_visit_counts[country_id]:
-            users_with_more_by_country[country_id] += 1
+    threshold_values_sql = ', '.join(['(%s, %s)'] * len(country_visit_counts))
+    query_params: list[int | bool] = []
+    for country_id, visited_cities in country_visit_counts.items():
+        query_params.extend([country_id, visited_cities])
+    query_params.append(True)
+
+    visited_city_table = connection.ops.quote_name(VisitedCity._meta.db_table)
+    city_table = connection.ops.quote_name(City._meta.db_table)
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            WITH thresholds(country_id, visited_cities) AS (
+                VALUES {threshold_values_sql}
+            ),
+            user_country_counts AS (
+                SELECT
+                    city.country_id,
+                    visited_city.user_id,
+                    COUNT(DISTINCT visited_city.city_id) AS unique_visited_cities
+                FROM {visited_city_table} AS visited_city
+                INNER JOIN {city_table} AS city ON city.id = visited_city.city_id
+                INNER JOIN thresholds ON thresholds.country_id = city.country_id
+                WHERE visited_city.is_first_visit = %s
+                GROUP BY city.country_id, visited_city.user_id
+            )
+            SELECT
+                user_country_counts.country_id,
+                COUNT(*) AS users_with_more
+            FROM user_country_counts
+            INNER JOIN thresholds ON thresholds.country_id = user_country_counts.country_id
+            WHERE user_country_counts.unique_visited_cities > thresholds.visited_cities
+            GROUP BY user_country_counts.country_id
+            """,
+            query_params,
+        )
+        for country_id, users_with_more in cursor.fetchall():
+            users_with_more_by_country[int(country_id)] = int(users_with_more)
 
     return {
         country_id: users_with_more + 1

@@ -23,6 +23,8 @@ from country.repository import (
 )
 from services.cache import delete_cache, get_or_set_cache
 
+# Rank и total_users_count допускают задержку актуализации до TTL:
+# эти данные являются приблизительной статистикой, а не строгим leaderboard.
 CACHE_TTL_SECONDS = 60 * 60
 CACHE_KEY_TEMPLATE = 'account:stats:visited-cities:countries-coverage:v1:user:{user_id}'
 

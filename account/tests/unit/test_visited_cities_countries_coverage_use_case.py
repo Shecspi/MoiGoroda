@@ -8,15 +8,17 @@
 from typing import Any
 
 import pytest
-from django.core.cache import cache
+from django.core.cache import caches
 
 from account.use_cases import visited_cities_countries_coverage as use_case
 from country.dto import CountryVisitedCityCounts
 
+stats_cache = caches['stats']
+
 
 @pytest.fixture(autouse=True)
 def clear_cache() -> None:
-    cache.clear()
+    stats_cache.clear()
 
 
 @pytest.mark.unit
@@ -58,8 +60,8 @@ def test_invalidate_personal_visited_cities_countries_coverage_cache(mocker: Any
     mocker.patch.object(use_case, 'get_unique_visited_cities_country_ranks', return_value={})
 
     use_case.get_personal_visited_cities_countries_coverage(user_id=10)
-    assert cache.get(use_case.CACHE_KEY_TEMPLATE.format(user_id=10)) == []
+    assert stats_cache.get(use_case.CACHE_KEY_TEMPLATE.format(user_id=10)) == []
 
     use_case.invalidate_personal_visited_cities_countries_coverage_cache(user_id=10)
 
-    assert cache.get(use_case.CACHE_KEY_TEMPLATE.format(user_id=10)) is None
+    assert stats_cache.get(use_case.CACHE_KEY_TEMPLATE.format(user_id=10)) is None

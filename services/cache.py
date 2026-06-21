@@ -7,13 +7,14 @@
 
 """Общие helper-функции для cache-aside сценариев."""
 
-from collections.abc import Callable
 import logging
+from collections.abc import Callable
 from typing import TypeVar, cast
 
-from django.core.cache import cache
+from django.core.cache import caches
 
 T = TypeVar('T')
+STATS_CACHE_ALIAS = 'stats'
 logger = logging.getLogger(__name__)
 
 
@@ -24,19 +25,22 @@ def get_or_set_cache(key: str, ttl_seconds: int, factory: Callable[[], T]) -> T:
     Factory вызывается только при cache miss. Значение `None` считается отсутствием кеша,
     поэтому для кеширования пустых результатов лучше использовать пустые коллекции.
     """
-    cached = cache.get(key)
+    stats_cache = caches[STATS_CACHE_ALIAS]
+    cached = stats_cache.get(key)
+
     if cached is not None:
         logger.debug('Cache hit: %s', key)
         return cast(T, cached)
 
     logger.debug('Cache miss: %s', key)
     value = factory()
-    cache.set(key, value, timeout=ttl_seconds)
+    stats_cache.set(key, value, timeout=ttl_seconds)
     logger.debug('Cache set: %s ttl=%s', key, ttl_seconds)
+
     return value
 
 
 def delete_cache(key: str) -> None:
     """Удаляет значение из кеша по ключу."""
-    cache.delete(key)
+    caches[STATS_CACHE_ALIAS].delete(key)
     logger.debug('Cache delete: %s', key)

@@ -137,20 +137,44 @@ DATABASES = {
 # Redis Cache
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+REDIS_SOCKET_TIMEOUT_SECONDS = 1
+
+
+def build_redis_cache_config(
+    *,
+    location: str,
+    ignore_exceptions: bool = False,
+) -> dict[str, object]:
+    """Возвращает конфигурацию django-redis с явной failure policy."""
+    options: dict[str, object] = {
+        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        'SOCKET_CONNECT_TIMEOUT': REDIS_SOCKET_TIMEOUT_SECONDS,
+        'SOCKET_TIMEOUT': REDIS_SOCKET_TIMEOUT_SECONDS,
+    }
+    if ignore_exceptions:
+        options['IGNORE_EXCEPTIONS'] = True
+
+    return {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': location,
+        'OPTIONS': options,
+    }
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
-    }
+    'default': build_redis_cache_config(
+        location=f'redis://{REDIS_HOST}:{REDIS_PORT}/1',
+        ignore_exceptions=True,
+    ),
+    'sessions': build_redis_cache_config(location=f'redis://{REDIS_HOST}:{REDIS_PORT}/2'),
+    'stats': build_redis_cache_config(
+        location=f'redis://{REDIS_HOST}:{REDIS_PORT}/3',
+        ignore_exceptions=True,
+    ),
 }
 
 # Session backend
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-SESSION_CACHE_ALIAS = 'default'
+SESSION_CACHE_ALIAS = 'sessions'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 неделя
 
 # Определяем, запущены ли тесты
@@ -163,7 +187,15 @@ if TESTING:
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'LOCATION': 'test-cache',
-        }
+        },
+        'sessions': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-sessions-cache',
+        },
+        'stats': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-stats-cache',
+        },
     }
 
 # django-prometheus: экспорт метрик БД в Prometheus

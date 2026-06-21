@@ -8,14 +8,17 @@
 from typing import Any
 
 import pytest
-from django.core.cache import cache
+from django.core.cache import caches
 
 from services.cache import delete_cache, get_or_set_cache
+
+stats_cache = caches['stats']
 
 
 @pytest.fixture(autouse=True)
 def clear_cache() -> None:
-    cache.clear()
+    caches['default'].clear()
+    stats_cache.clear()
 
 
 @pytest.mark.unit
@@ -25,7 +28,7 @@ def test_get_or_set_cache_calls_factory_on_miss(mocker: Any) -> None:
     result = get_or_set_cache('test-key', ttl_seconds=60, factory=factory)
 
     assert result == {'value': 1}
-    assert cache.get('test-key') == {'value': 1}
+    assert stats_cache.get('test-key') == {'value': 1}
     factory.assert_called_once_with()
 
 
@@ -33,7 +36,7 @@ def test_get_or_set_cache_calls_factory_on_miss(mocker: Any) -> None:
 def test_get_or_set_cache_returns_cached_value_without_factory(
     mocker: Any,
 ) -> None:
-    cache.set('test-key', {'value': 1}, timeout=60)
+    stats_cache.set('test-key', {'value': 1}, timeout=60)
     factory = mocker.Mock(return_value={'value': 2})
     logger_debug = mocker.patch('services.cache.logger.debug')
 
@@ -63,10 +66,20 @@ def test_get_or_set_cache_logs_miss_and_set(
 
 @pytest.mark.unit
 def test_delete_cache_removes_cached_value(mocker: Any) -> None:
-    cache.set('test-key', {'value': 1}, timeout=60)
+    stats_cache.set('test-key', {'value': 1}, timeout=60)
     logger_debug = mocker.patch('services.cache.logger.debug')
 
     delete_cache('test-key')
 
-    assert cache.get('test-key') is None
+    assert stats_cache.get('test-key') is None
     logger_debug.assert_called_once_with('Cache delete: %s', 'test-key')
+
+
+@pytest.mark.unit
+def test_cache_helpers_do_not_write_to_default_cache(mocker: Any) -> None:
+    factory = mocker.Mock(return_value={'value': 1})
+
+    get_or_set_cache('test-key', ttl_seconds=60, factory=factory)
+
+    assert caches['default'].get('test-key') is None
+    assert stats_cache.get('test-key') == {'value': 1}

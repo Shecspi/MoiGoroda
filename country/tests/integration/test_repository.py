@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Интеграционные тесты для repository приложения country.
 """
@@ -11,9 +18,11 @@ from django.contrib.auth.models import User
 from city.models import City, VisitedCity
 from country.models import Country
 from country.repository import (
+    get_countries_visited_city_counts,
     get_countries_with_visited_city,
     get_countries_with_visited_city_in_year,
     get_countries_with_new_visited_city_in_year,
+    get_unique_visited_cities_country_ranks,
     get_list_of_countries_with_visited_regions,
 )
 from region.models import Region
@@ -115,6 +124,190 @@ class TestGetCountriesWithVisitedCity:
 
         # Россия должна быть первой (2 посещенных города)
         assert countries.first() == russia
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+class TestVisitedCitiesCountriesCoverageRepositories:
+    """Интеграционные тесты для ORM-семантики покрытия стран посещёнными городами."""
+
+    @pytest.fixture
+    def setup_data(self, user: User, region_type: Any) -> dict[str, Any]:
+        russia = Country.objects.create(name='Россия', code='RU')
+        germany = Country.objects.create(name='Германия', code='DE')
+        france = Country.objects.create(name='Франция', code='FR')
+
+        region_ru = Region.objects.create(
+            title='Россия coverage',
+            country=russia,
+            type=region_type,
+            iso3166='RU-COV',
+            full_name='Россия coverage',
+        )
+        region_de = Region.objects.create(
+            title='Германия coverage',
+            country=germany,
+            type=region_type,
+            iso3166='DE-COV',
+            full_name='Германия coverage',
+        )
+        region_fr = Region.objects.create(
+            title='Франция coverage',
+            country=france,
+            type=region_type,
+            iso3166='FR-COV',
+            full_name='Франция coverage',
+        )
+
+        moscow = City.objects.create(
+            title='Москва coverage',
+            region=region_ru,
+            country=russia,
+            coordinate_width='55.7558',
+            coordinate_longitude='37.6173',
+        )
+        spb = City.objects.create(
+            title='Санкт-Петербург coverage',
+            region=region_ru,
+            country=russia,
+            coordinate_width='59.9343',
+            coordinate_longitude='30.3351',
+        )
+        kazan = City.objects.create(
+            title='Казань coverage',
+            region=region_ru,
+            country=russia,
+            coordinate_width='55.7887',
+            coordinate_longitude='49.1221',
+        )
+        berlin = City.objects.create(
+            title='Берлин coverage',
+            region=region_de,
+            country=germany,
+            coordinate_width='52.5200',
+            coordinate_longitude='13.4050',
+        )
+        munich = City.objects.create(
+            title='Мюнхен coverage',
+            region=region_de,
+            country=germany,
+            coordinate_width='48.1351',
+            coordinate_longitude='11.5820',
+        )
+        paris = City.objects.create(
+            title='Париж coverage',
+            region=region_fr,
+            country=france,
+            coordinate_width='48.8566',
+            coordinate_longitude='2.3522',
+        )
+
+        leader = User.objects.create_user(username='coverage-leader')
+        tied_user = User.objects.create_user(username='coverage-tied')
+        germany_leader = User.objects.create_user(username='coverage-germany-leader')
+
+        VisitedCity.objects.create(
+            user=user, city=moscow, date_of_visit=date(2024, 1, 1), rating=5
+        )
+        VisitedCity.objects.create(
+            user=user, city=spb, date_of_visit=date(2024, 1, 2), rating=4
+        )
+        VisitedCity.objects.create(
+            user=user,
+            city=moscow,
+            date_of_visit=date(2024, 2, 1),
+            rating=5,
+            is_first_visit=False,
+        )
+        VisitedCity.objects.create(
+            user=user, city=berlin, date_of_visit=date(2024, 1, 3), rating=5
+        )
+        VisitedCity.objects.create(
+            user=user,
+            city=berlin,
+            date_of_visit=date(2024, 2, 3),
+            rating=5,
+            is_first_visit=False,
+        )
+
+        for city, visit_date in (
+            (moscow, date(2024, 3, 1)),
+            (spb, date(2024, 3, 2)),
+            (kazan, date(2024, 3, 3)),
+            (berlin, date(2024, 3, 4)),
+        ):
+            VisitedCity.objects.create(user=leader, city=city, date_of_visit=visit_date, rating=5)
+
+        for city, visit_date in (
+            (moscow, date(2024, 4, 1)),
+            (spb, date(2024, 4, 2)),
+            (berlin, date(2024, 4, 3)),
+        ):
+            VisitedCity.objects.create(
+                user=tied_user, city=city, date_of_visit=visit_date, rating=4
+            )
+
+        VisitedCity.objects.create(
+            user=germany_leader, city=berlin, date_of_visit=date(2024, 5, 1), rating=5
+        )
+        VisitedCity.objects.create(
+            user=germany_leader, city=munich, date_of_visit=date(2024, 5, 2), rating=5
+        )
+        VisitedCity.objects.create(
+            user=germany_leader,
+            city=paris,
+            date_of_visit=date(2024, 5, 3),
+            rating=5,
+        )
+
+        return {
+            'user': user,
+            'russia': russia,
+            'germany': germany,
+            'france': france,
+        }
+
+    def test_coverage_counts_and_ranks_match_legacy_orm_semantics(
+        self, setup_data: dict[str, Any]
+    ) -> None:
+        user = setup_data['user']
+        russia = setup_data['russia']
+        germany = setup_data['germany']
+        france = setup_data['france']
+
+        legacy_counts = {
+            country.pk: {
+                'name': country.name,
+                'visited_cities': country.visited_cities,
+                'total_cities': country.total_cities,
+            }
+            for country in get_countries_with_visited_city(user.id)
+        }
+        optimized_counts = {
+            country.pk: {
+                'name': country.name,
+                'visited_cities': country.visited_cities,
+                'total_cities': country.total_cities,
+            }
+            for country in get_countries_visited_city_counts(user.id)
+        }
+
+        assert optimized_counts == legacy_counts
+        assert optimized_counts == {
+            russia.pk: {'name': 'Россия', 'visited_cities': 2, 'total_cities': 3},
+            germany.pk: {'name': 'Германия', 'visited_cities': 1, 'total_cities': 2},
+        }
+        assert france.pk not in optimized_counts
+
+        country_visit_counts = {
+            country_id: values['visited_cities']
+            for country_id, values in optimized_counts.items()
+        }
+
+        assert get_unique_visited_cities_country_ranks(country_visit_counts) == {
+            russia.pk: 2,
+            germany.pk: 2,
+        }
 
 
 @pytest.mark.django_db

@@ -7,6 +7,7 @@
 
 import pytest
 from django.conf import settings
+from django.utils.module_loading import import_string
 from logging import Formatter
 from logging import LogRecord
 from typing import Any, cast
@@ -48,11 +49,15 @@ def test_redis_cache_config_sets_timeouts_and_optional_exception_policy() -> Non
 
 @pytest.mark.unit
 def test_cache_logger_uses_formatter_without_request_fields() -> None:
-    """DEBUG-логи cache helper'ов не должны требовать поля request-контекста."""
+    """DEBUG-логи cache helper'ов используют общий формат с fallback-контекстом."""
     logging_settings = cast(dict[str, Any], settings.LOGGING)
     cache_handler = logging_settings['loggers']['services.cache']['handlers'][0]
+    cache_handler_config = logging_settings['handlers'][cache_handler]
+    cache_filters = cache_handler_config['filters']
     formatter_name = logging_settings['handlers'][cache_handler]['formatter']
     formatter_format = logging_settings['formatters'][formatter_name]['format']
+    log_filter_class = import_string(logging_settings['filters']['add_default_log_context']['()'])
+    log_filter = log_filter_class()
 
     record = LogRecord(
         name='services.cache',
@@ -64,6 +69,14 @@ def test_cache_logger_uses_formatter_without_request_fields() -> None:
         exc_info=None,
     )
 
-    assert '%(IP)' not in formatter_format
-    assert '%(user)' not in formatter_format
-    assert Formatter(formatter_format).format(record).endswith('Cache miss: test-key')
+    assert formatter_name == 'detail_app'
+    assert 'add_default_log_context' in cache_filters
+    assert '%(IP)' in formatter_format
+    assert '%(user)' in formatter_format
+
+    assert log_filter.filter(record) is True
+    formatted_record = Formatter(formatter_format).format(record)
+
+    assert 'INTERNAL' in formatted_record
+    assert 'CACHE' in formatted_record
+    assert formatted_record.endswith('Cache miss: test-key')

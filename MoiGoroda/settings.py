@@ -282,6 +282,9 @@ LOGGING = {
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },
+        'add_default_log_context': {
+            '()': 'services.logging_filters.DefaultLogContextFilter',
+        },
     },
     'formatters': {
         'detail_app': {
@@ -343,12 +346,12 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'detail_django',
         },
-        # DEBUG-логи cache helper'ов не имеют request-контекста (IP/user)
+        # DEBUG-логи cache helper'ов используют общий формат с fallback IP/user.
         'to_console_cache': {
             'level': 'DEBUG',
-            'filters': ['require_debug_true'],
+            'filters': ['require_debug_true', 'add_default_log_context'],
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'detail_app',
         },
         # Файл только с информацией о платежах (вебхук YooKassa)
         'to_file_premium_payments': {

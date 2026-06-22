@@ -133,6 +133,10 @@
 
 - *(signup)* Удалено логирование регистрации пользователя ([5c2359c](https://github.com/Shecspi/MoiGoroda/commit/5c2359c0c342ee04e6e96cef8ea3ad86ed74b3f3))
 
+- *(cache)* Использование django-prometheus для экспорта метрик кеша ([87a06c4](https://github.com/Shecspi/MoiGoroda/commit/87a06c476a1692aa222a4a230917bd1d68d0f02d))
+
+- *(cache)* Использование django-prometheus для экспорта метрик кеша ([88dccb3](https://github.com/Shecspi/MoiGoroda/commit/88dccb313be54460936b6e4c5660a9b2f57fc8a0))
+
 
 #### ⚡ Производительность
 

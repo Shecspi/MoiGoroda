@@ -329,7 +329,7 @@ LOGGING = {
             'level': 'WARNING',
             'filters': ['require_debug_false'],
             'class': 'logging.FileHandler',
-            'formatter': 'detail_django',
+            'formatter': 'json_simple',
             'filename': LOG_FIlE_PATH,
         },
         # Отправка писем с ошибками на почту

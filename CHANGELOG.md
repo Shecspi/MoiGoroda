@@ -131,6 +131,8 @@
 
 - *(city)* Исправлено обновление счётчика посещённых городов в стране на карте ([34ec728](https://github.com/Shecspi/MoiGoroda/commit/34ec7288857b667dd751ef6e5d36c0c4a3afd5ce))
 
+- *(signup)* Удалено логирование регистрации пользователя ([5c2359c](https://github.com/Shecspi/MoiGoroda/commit/5c2359c0c342ee04e6e96cef8ea3ad86ed74b3f3))
+
 
 #### ⚡ Производительность
 

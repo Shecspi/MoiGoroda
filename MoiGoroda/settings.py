@@ -160,6 +160,7 @@ def build_redis_cache_config(
         'OPTIONS': options,
     }
 
+
 CACHES = {
     'default': build_redis_cache_config(
         location=f'redis://{REDIS_HOST}:{REDIS_PORT}/1',

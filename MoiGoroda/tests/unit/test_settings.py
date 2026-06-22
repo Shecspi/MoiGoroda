@@ -43,10 +43,11 @@ def test_redis_cache_config_sets_timeouts_and_optional_exception_policy() -> Non
 
     assert cache_config['BACKEND'] == 'django_redis.cache.RedisCache'
     assert cache_config['LOCATION'] == 'redis://redis:6379/9'
-    assert cache_config['OPTIONS']['CLIENT_CLASS'] == 'django_redis.client.DefaultClient'
-    assert cache_config['OPTIONS']['SOCKET_CONNECT_TIMEOUT'] == 1
-    assert cache_config['OPTIONS']['SOCKET_TIMEOUT'] == 1
-    assert cache_config['OPTIONS']['IGNORE_EXCEPTIONS'] is True
+    cache_options = cast(dict[str, Any], cache_config['OPTIONS'])
+    assert cache_options['CLIENT_CLASS'] == 'django_redis.client.DefaultClient'
+    assert cache_options['SOCKET_CONNECT_TIMEOUT'] == 1
+    assert cache_options['SOCKET_TIMEOUT'] == 1
+    assert cache_options['IGNORE_EXCEPTIONS'] is True
 
 
 @pytest.mark.unit

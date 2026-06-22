@@ -60,6 +60,10 @@
 
 - Добавлено кеширование Redis для одного эндпоинта ([95aa285](https://github.com/Shecspi/MoiGoroda/commit/95aa285740a61711dfeb1dbe82df911de8208c78))
 
+- Switch production log handlers to JSON format ([9b1016e](https://github.com/Shecspi/MoiGoroda/commit/9b1016ee61c92a5359dec4ed112eb1039a87ef3f))
+
+- *(logs)* В обработчике логов теперь используется JSON формат ([dc5cc10](https://github.com/Shecspi/MoiGoroda/commit/dc5cc10782fbbe4ea5c1c796afa418114a25d49a))
+
 
 #### 🐛 Исправление ошибок
 

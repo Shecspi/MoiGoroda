@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 name: Deploy to the server
 on:
     push:
@@ -223,6 +230,9 @@ jobs:
 
                   git pull origin ${{ steps.vars.outputs.short_ref }}
                   git checkout ${{ steps.vars.outputs.short_ref }}
+
+                  : # Запускаем инфраструктурные контейнеры
+                  docker compose up -d moi-goroda-redis
 
                   : # Устанавливаем необходимую версию Python, если она ещё не установлена
                   if [[ "$(pyenv versions 2> /dev/null)" != *"$(cat .python-version )"* ]]; then pyenv install $(cat .python-version); fi

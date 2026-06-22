@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Django settings for djangoProject project.
 
@@ -127,12 +134,69 @@ DATABASES = {
     }
 }
 
+# Redis Cache
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+REDIS_SOCKET_TIMEOUT_SECONDS = float(os.getenv('REDIS_SOCKET_TIMEOUT_SECONDS', '1'))
+
+
+def build_redis_cache_config(
+    *,
+    location: str,
+    ignore_exceptions: bool = False,
+) -> dict[str, object]:
+    """Возвращает конфигурацию django-redis с явной failure policy."""
+    options: dict[str, object] = {
+        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        'SOCKET_CONNECT_TIMEOUT': REDIS_SOCKET_TIMEOUT_SECONDS,
+        'SOCKET_TIMEOUT': REDIS_SOCKET_TIMEOUT_SECONDS,
+    }
+    if ignore_exceptions:
+        options['IGNORE_EXCEPTIONS'] = True
+
+    return {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': location,
+        'OPTIONS': options,
+    }
+
+CACHES = {
+    'default': build_redis_cache_config(
+        location=f'redis://{REDIS_HOST}:{REDIS_PORT}/1',
+        ignore_exceptions=True,
+    ),
+    'sessions': build_redis_cache_config(location=f'redis://{REDIS_HOST}:{REDIS_PORT}/2'),
+    'stats': build_redis_cache_config(
+        location=f'redis://{REDIS_HOST}:{REDIS_PORT}/3',
+        ignore_exceptions=True,
+    ),
+}
+
+# Session backend
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_CACHE_ALIAS = 'sessions'
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 неделя
+
 # Определяем, запущены ли тесты
 TESTING = 'test' in sys.argv or 'pytest' in sys.modules or os.getenv('TESTING') == 'True'
 
 if TESTING:
     # Django test runner переопределит DEBUG=False, поэтому vite_asset проверяет TESTING напрямую
     DEBUG = True
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-cache',
+        },
+        'sessions': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-sessions-cache',
+        },
+        'stats': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'test-stats-cache',
+        },
+    }
 
 # django-prometheus: экспорт метрик БД в Prometheus
 PROMETHEUS_METRICS_EXPORT_DATABASE_METRICS = True
@@ -218,6 +282,9 @@ LOGGING = {
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },
+        'add_default_log_context': {
+            '()': 'services.logging_filters.DefaultLogContextFilter',
+        },
     },
     'formatters': {
         'detail_app': {
@@ -266,7 +333,7 @@ LOGGING = {
         # Вывод в консоль логов приложения
         # только при DEBUG=True
         'to_console_app': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'detail_app',
@@ -278,6 +345,13 @@ LOGGING = {
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'detail_django',
+        },
+        # DEBUG-логи cache helper'ов используют общий формат с fallback IP/user.
+        'to_console_cache': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true', 'add_default_log_context'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'detail_app',
         },
         # Файл только с информацией о платежах (вебхук YooKassa)
         'to_file_premium_payments': {
@@ -330,6 +404,12 @@ LOGGING = {
             'level': 'INFO',
             'propogate': True,
             'handlers': ['to_console_django', 'to_file_django'],
+        },
+        # DEBUG-логи cache helper'ов только в консоль при DEBUG=True
+        'services.cache': {
+            'level': 'DEBUG',
+            'propagate': False,
+            'handlers': ['to_console_cache'],
         },
         # Только платежи (вебхук YooKassa) — файл и в консоль при DEBUG
         'premium.webhook': {

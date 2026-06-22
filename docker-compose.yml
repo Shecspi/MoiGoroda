@@ -1,14 +1,25 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 services:
-  mg-postgres:
-    container_name: mg-postgres
-    image: postgres:14-alpine
-    environment:
-      PGDATA: /var/lib/postgresql/data/some/
-      POSTGRES_PASSWORD: password
-    volumes:
-       - moi-goroda-psql:/var/lib/postgresql/data/
-    ports:
-      - "5432:5432"
+    moi-goroda-redis:
+        container_name: moi-goroda-redis
+        image: redis:8.8-alpine
+        command: redis-server --appendonly yes
+        restart: unless-stopped
+        ports:
+            - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+        volumes:
+            - moi-goroda-redis:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
-  moi-goroda-psql:
+    moi-goroda-redis:

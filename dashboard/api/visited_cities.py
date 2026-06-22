@@ -1,13 +1,11 @@
-"""
-----------------------------------------------
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
-
-from datetime import datetime, timezone
+from django.utils import timezone
 
 from dashboard.schemas import VisitedCitiesOverviewResponse
 from dmr import Controller
@@ -27,7 +25,7 @@ from dashboard.statistics_helpers import (
 @is_superuser_json
 class GetVisitedCitiesOverviewController(Controller[MsgspecSerializer]):
     def get(self) -> VisitedCitiesOverviewResponse:
-        now_date = datetime.now(timezone.utc).date()
+        now_date = timezone.now().date()
 
         return VisitedCitiesOverviewResponse(
             total_visited_cities_visits=collect_total_visited_cities_visits(),

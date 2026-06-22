@@ -25,28 +25,18 @@ from account.schemas import (
     RegionsVisitedCitiesTreemapResponse,
     RegionsVisitedCitiesCountryOption,
     RegionVisitedCitiesTreemapItem,
-    VisitedCitiesCountryCoverage,
     VisitedCitiesCountryVisits,
     VisitedCountriesByLocationItem,
     VisitedRegionsCountryCoverage,
 )
+from account.use_cases.visited_cities_countries_coverage import (
+    get_personal_visited_cities_countries_coverage,
+)
 from city.models import City, VisitedCity
 from country.models import Country, PartOfTheWorld, VisitedCountry
-from country.repository import (
-    get_countries_with_visited_city,
-    get_list_of_countries_with_visited_regions,
-)
+from country.repository import get_list_of_countries_with_visited_regions
 from region.models import Region
 from region.services.db import get_all_region_with_visited_cities
-
-
-class CountryWithVisitedCityCounts(Protocol):
-    """Подмена типа для `Country`, аннотированного в `get_countries_with_visited_city`."""
-
-    pk: int
-    name: str
-    visited_cities: int
-    total_cities: int
 
 
 class CountryWithVisitedRegionsCounts(Protocol):
@@ -107,17 +97,6 @@ def normalize_treemap_country_code(raw: str | None) -> str:
         else:
             break
     return ''.join(chars) if chars else 'RU'
-
-
-def get_unique_visited_cities_country_rank(country_id: int, user_unique_visited_cities: int) -> int:
-    users_with_more_visited_cities = (
-        VisitedCity.objects.filter(is_first_visit=True, city__country_id=country_id)
-        .values('user_id')
-        .annotate(unique_visited_cities=Count('city_id', distinct=True))
-        .filter(unique_visited_cities__gt=user_unique_visited_cities)
-        .count()
-    )
-    return users_with_more_visited_cities + 1
 
 
 def get_visited_cities_visits_country_rank(country_id: int, visits: int) -> int:
@@ -318,27 +297,7 @@ class GetPersonalVisitedCitiesCountriesCoverageController(Controller[MsgspecSeri
             self.request.user, self.request.GET.get('shared_user_id')
         )
 
-        countries = cast(
-            list[CountryWithVisitedCityCounts],
-            list(get_countries_with_visited_city(user_id)),
-        )
-        total_users_count = User.objects.count()
-
-        countries_coverage = [
-            VisitedCitiesCountryCoverage(
-                name=country.name,
-                visited_cities=country.visited_cities,
-                total_cities=country.total_cities,
-                rank=get_unique_visited_cities_country_rank(
-                    country_id=int(country.pk),
-                    user_unique_visited_cities=int(country.visited_cities),
-                ),
-                total_users_count=total_users_count,
-            )
-            for country in countries
-        ]
-
-        return PersonalVisitedCitiesCountriesCoverageResponse(countries_coverage=countries_coverage)
+        return get_personal_visited_cities_countries_coverage(user_id)
 
 
 class GetPersonalVisitedRegionsCountriesCoverageController(Controller[MsgspecSerializer]):

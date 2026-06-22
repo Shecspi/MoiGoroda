@@ -1,11 +1,9 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 import pytest
 from typing import Any
@@ -21,8 +19,7 @@ from account.models import UserConsent
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-@patch('account.views.access.logger_email')
-def test_complete_user_registration_and_profile_update_flow(mock_logger: Any, client: Any) -> None:
+def test_complete_user_registration_and_profile_update_flow(client: Any) -> None:
     """
     E2E тест: Регистрация пользователя -> Вход -> Обновление профиля -> Выход
     """
@@ -100,8 +97,7 @@ def test_complete_user_registration_and_profile_update_flow(mock_logger: Any, cl
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-@patch('account.views.access.logger_email')
-def test_registration_with_invalid_data_then_correction(mock_logger: Any, client: Any) -> None:
+def test_registration_with_invalid_data_then_correction(client: Any) -> None:
     """
     E2E тест: Попытка регистрации с невалидными данными -> Исправление -> Успешная регистрация
     """
@@ -177,10 +173,7 @@ def test_change_password_flow(client: Any, django_user_model: Any) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-@patch('account.views.access.logger_email')
-def test_registration_duplicate_email_handling(
-    mock_logger: Any, client: Any, django_user_model: Any
-) -> None:
+def test_registration_duplicate_email_handling(client: Any, django_user_model: Any) -> None:
     """
     E2E тест: Регистрация пользователя -> Попытка регистрации с тем же email
     """
@@ -300,8 +293,7 @@ def test_unauthenticated_user_redirected_to_signin_from_profile(client: Any) -> 
 
 @pytest.mark.e2e
 @pytest.mark.django_db
-@patch('account.views.access.logger_email')
-def test_full_user_journey_with_password_change(mock_logger: Any, client: Any) -> None:
+def test_full_user_journey_with_password_change(client: Any) -> None:
     """
     E2E тест: Полный путь пользователя - регистрация -> профиль -> изменение пароля -> выход -> вход
     """

@@ -1,11 +1,9 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 import pytest
 from typing import Any
@@ -28,16 +26,15 @@ def test_enable_all_share_settings_flow(
     E2E тест: Включение всех настроек публикации -> Проверка -> Скачивание отчёта
     """
     # Шаг 1: Регистрируем пользователя
-    with patch('account.views.access.logger_email'):
-        signup_data = {
-            'username': 'testuser',
-            'email': 'test@example.com',
-            'password1': 'TestPass123!',
-            'password2': 'TestPass123!',
-            'personal_data_consent': True,
-            'personal_data_version': '1.0',
-        }
-        client.post(reverse('signup'), data=signup_data, follow=True)
+    signup_data = {
+        'username': 'testuser',
+        'email': 'test@example.com',
+        'password1': 'TestPass123!',
+        'password2': 'TestPass123!',
+        'personal_data_consent': True,
+        'personal_data_version': '1.0',
+    }
+    client.post(reverse('signup'), data=signup_data, follow=True)
 
     user = django_user_model.objects.get(username='testuser')
 
@@ -379,16 +376,15 @@ def test_complete_share_settings_journey(mock_logger: Any, client: Any) -> None:
     Регистрация -> Просмотр статистики -> Включение настроек -> Изменение -> Выключение
     """
     # Шаг 1: Регистрация
-    with patch('account.views.access.logger_email'):
-        signup_data = {
-            'username': 'journeyuser',
-            'email': 'journey@example.com',
-            'password1': 'JourneyPass123!',
-            'password2': 'JourneyPass123!',
-            'personal_data_consent': True,
-            'personal_data_version': '1.0',
-        }
-        client.post(reverse('signup'), data=signup_data, follow=True)
+    signup_data = {
+        'username': 'journeyuser',
+        'email': 'journey@example.com',
+        'password1': 'JourneyPass123!',
+        'password2': 'JourneyPass123!',
+        'personal_data_consent': True,
+        'personal_data_version': '1.0',
+    }
+    client.post(reverse('signup'), data=signup_data, follow=True)
 
     # Шаг 2: Просмотр статистики (по умолчанию всё выключено)
     response = client.get(reverse('stats'))

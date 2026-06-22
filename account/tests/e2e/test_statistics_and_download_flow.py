@@ -1,11 +1,9 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 import pytest
 from typing import Any
@@ -268,16 +266,15 @@ def test_full_statistics_workflow(mock_logger: Any, client: Any, django_user_mod
     Вход -> Просмотр статистики -> Настройка публикации -> Скачивание отчётов
     """
     # Шаг 1: Регистрация
-    with patch('account.views.access.logger_email'):
-        signup_data = {
-            'username': 'statsuser',
-            'email': 'stats@example.com',
-            'password1': 'TestPass123!',
-            'password2': 'TestPass123!',
-            'personal_data_consent': True,
-            'personal_data_version': '1.0',
-        }
-        client.post(reverse('signup'), data=signup_data, follow=True)
+    signup_data = {
+        'username': 'statsuser',
+        'email': 'stats@example.com',
+        'password1': 'TestPass123!',
+        'password2': 'TestPass123!',
+        'personal_data_consent': True,
+        'personal_data_version': '1.0',
+    }
+    client.post(reverse('signup'), data=signup_data, follow=True)
 
     # Шаг 2: Просмотр статистики без посещений
     response = client.get(reverse('stats'))

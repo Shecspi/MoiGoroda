@@ -41,7 +41,7 @@ def test_redis_cache_config_sets_timeouts_and_optional_exception_policy() -> Non
         ignore_exceptions=True,
     )
 
-    assert cache_config['BACKEND'] == 'django_redis.cache.RedisCache'
+    assert cache_config['BACKEND'] == 'django_prometheus.cache.backends.redis.RedisCache'
     assert cache_config['LOCATION'] == 'redis://redis:6379/9'
     cache_options = cast(dict[str, Any], cache_config['OPTIONS'])
     assert cache_options['CLIENT_CLASS'] == 'django_redis.client.DefaultClient'

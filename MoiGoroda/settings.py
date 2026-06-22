@@ -155,7 +155,7 @@ def build_redis_cache_config(
         options['IGNORE_EXCEPTIONS'] = True
 
     return {
-        'BACKEND': 'django_redis.cache.RedisCache',
+        'BACKEND': 'django_prometheus.cache.backends.redis.RedisCache',
         'LOCATION': location,
         'OPTIONS': options,
     }

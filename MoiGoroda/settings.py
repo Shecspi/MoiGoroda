@@ -301,6 +301,15 @@ LOGGING = {
             'format': '%(levelname)-8s %(asctime)-22s %(IP)-18s %(user)-10s %(message)-s',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
+        'json_app': {
+            'class': 'pythonjsonlogger.json.JsonFormatter',
+            'format': '%(levelname)s %(asctime)s %(IP)s %(user)s %(name)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'json_simple': {
+            'class': 'pythonjsonlogger.json.JsonFormatter',
+            'format': '%(levelname)s %(asctime)s %(message)s',
+        },
     },
     'handlers': {
         # Запись в файл логов приложения
@@ -309,7 +318,7 @@ LOGGING = {
             'level': 'INFO',
             'filters': ['require_debug_false'],
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'detail_app',
+            'formatter': 'json_app',
             'filename': LOG_FIlE_PATH,
             'maxBytes': 1024 * 1024 * 10,
             'backupCount': 5,
@@ -358,7 +367,7 @@ LOGGING = {
         'to_file_premium_payments': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'premium_payments',
+            'formatter': 'json_app',
             'filename': LOG_PREMIUM_PAYMENTS_PATH,
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 3,
@@ -373,8 +382,9 @@ LOGGING = {
         # Файл только с логами периодических задач (cron)
         'to_file_cron': {
             'level': 'INFO',
+            'filters': ['add_default_log_context'],
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'simple',
+            'formatter': 'json_app',
             'filename': LOG_CRON_PATH,
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 3,

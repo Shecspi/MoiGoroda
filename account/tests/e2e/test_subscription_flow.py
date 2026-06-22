@@ -1,11 +1,9 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 import pytest
 from typing import Any
@@ -315,35 +313,34 @@ def test_complete_subscription_lifecycle(client: Any, django_user_model: Any) ->
     Регистрация -> Подписка -> Настройка публикации -> Проверка -> Отписка
     """
     # Шаг 1: Регистрируем двух пользователей
-    with patch('account.views.access.logger_email'):
-        # Первый пользователь
-        client.post(
-            reverse('signup'),
-            data={
-                'username': 'alice',
-                'email': 'alice@example.com',
-                'password1': 'AlicePass123!',
-                'password2': 'AlicePass123!',
-                'personal_data_consent': True,
-                'personal_data_version': '1.0',
-            },
-            follow=True,
-        )
-        client.post(reverse('logout'))
+    # Первый пользователь
+    client.post(
+        reverse('signup'),
+        data={
+            'username': 'alice',
+            'email': 'alice@example.com',
+            'password1': 'AlicePass123!',
+            'password2': 'AlicePass123!',
+            'personal_data_consent': True,
+            'personal_data_version': '1.0',
+        },
+        follow=True,
+    )
+    client.post(reverse('logout'))
 
-        # Второй пользователь
-        client.post(
-            reverse('signup'),
-            data={
-                'username': 'bob',
-                'email': 'bob@example.com',
-                'password1': 'BobPass123!',
-                'password2': 'BobPass123!',
-                'personal_data_consent': True,
-                'personal_data_version': '1.0',
-            },
-            follow=True,
-        )
+    # Второй пользователь
+    client.post(
+        reverse('signup'),
+        data={
+            'username': 'bob',
+            'email': 'bob@example.com',
+            'password1': 'BobPass123!',
+            'password2': 'BobPass123!',
+            'personal_data_consent': True,
+            'personal_data_version': '1.0',
+        },
+        follow=True,
+    )
 
     alice = django_user_model.objects.get(username='alice')
     bob = django_user_model.objects.get(username='bob')

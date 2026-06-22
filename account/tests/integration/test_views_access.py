@@ -1,14 +1,14 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 import pytest
 from typing import Any
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.contrib.auth.models import User
 from unittest.mock import patch
@@ -61,10 +61,7 @@ def test_signup_view_authenticated_user_redirect(client: Any, django_user_model:
 
 @pytest.mark.integration
 @pytest.mark.django_db
-@patch('account.views.access.logger_email')
-def test_signup_view_post_valid_data(
-    mock_logger: Any, client: Any, user_data: dict[str, Any]
-) -> None:
+def test_signup_view_post_valid_data(client: Any, user_data: dict[str, Any]) -> None:
     """Тест успешной регистрации пользователя"""
     response = client.post(reverse('signup'), data=user_data, follow=True)
 
@@ -86,8 +83,44 @@ def test_signup_view_post_valid_data(
     assert response.status_code == 200
     assert response.redirect_chain[-1][0] == reverse('city-all-list')
 
-    # Проверяем, что логирование произошло
-    mock_logger.info.assert_called_once()
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_signup_view_post_valid_data_does_not_count_users_for_logging(
+    client: Any, user_data: dict[str, Any]
+) -> None:
+    """Тест что регистрация не делает COUNT(*) по auth_user."""
+    with CaptureQueriesContext(connection) as queries:
+        response = client.post(reverse('signup'), data=user_data)
+
+    assert response.status_code == 302
+    assert response.url == reverse('city-all-list')
+
+    auth_user_count_queries = [
+        query['sql']
+        for query in queries.captured_queries
+        if 'COUNT' in query['sql'].upper() and 'auth_user' in query['sql']
+    ]
+    assert auth_user_count_queries == []
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_signup_view_post_valid_data_does_not_log_registration(
+    client: Any, user_data: dict[str, Any]
+) -> None:
+    """Тест что регистрация пользователя не пишет отдельный info-лог."""
+    with patch('logging.Logger.info') as logger_info:
+        response = client.post(reverse('signup'), data=user_data)
+
+    assert response.status_code == 302
+    assert response.url == reverse('city-all-list')
+    registration_log_calls = [
+        call
+        for call in logger_info.call_args_list
+        if call.args and str(call.args[0]).startswith('Registration of a new user:')
+    ]
+    assert registration_log_calls == []
 
 
 @pytest.mark.integration
@@ -129,10 +162,7 @@ def test_signup_view_duplicate_email(
 
 @pytest.mark.integration
 @pytest.mark.django_db
-@patch('account.views.access.logger_email')
-def test_signup_view_ip_address_saved(
-    mock_logger: Any, client: Any, user_data: dict[str, Any]
-) -> None:
+def test_signup_view_ip_address_saved(client: Any, user_data: dict[str, Any]) -> None:
     """Тест что IP адрес сохраняется при регистрации"""
     # Устанавливаем IP адрес через заголовок
     client.post(reverse('signup'), data=user_data, HTTP_X_FORWARDED_FOR='192.168.1.1,10.0.0.1')
@@ -146,10 +176,7 @@ def test_signup_view_ip_address_saved(
 
 @pytest.mark.integration
 @pytest.mark.django_db
-@patch('account.views.access.logger_email')
-def test_signup_view_ip_address_remote_addr(
-    mock_logger: Any, client: Any, user_data: dict[str, Any]
-) -> None:
+def test_signup_view_ip_address_remote_addr(client: Any, user_data: dict[str, Any]) -> None:
     """Тест что IP адрес сохраняется из REMOTE_ADDR если нет X-Forwarded-For"""
     client.post(reverse('signup'), data=user_data, REMOTE_ADDR='10.0.0.2')
 

@@ -1,15 +1,12 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 from django.contrib.auth import login
@@ -23,8 +20,6 @@ from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from MoiGoroda.settings import PRIVACY_POLICY_VERSION
 from account.forms import SignUpForm, SignInForm
 from account.models import UserConsent
-
-logger_email = logging.getLogger(__name__)
 
 
 class SignUp(CreateView):  # type: ignore[type-arg]
@@ -64,10 +59,6 @@ class SignUp(CreateView):  # type: ignore[type-arg]
             policy_version=PRIVACY_POLICY_VERSION or '1.0',
         )
 
-        logger_email.info(
-            f'Registration of a new user: {form.cleaned_data["username"]} ({form.cleaned_data["email"]}). '
-            f'Total numbers of users: {User.objects.count()}'
-        )
         login(self.request, user)
 
         return redirect('city-all-list')

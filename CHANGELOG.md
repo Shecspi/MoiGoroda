@@ -58,6 +58,8 @@
 
 - Карусель изображений в статьях блога ([316d17e](https://github.com/Shecspi/MoiGoroda/commit/316d17ea25c548b627521a4616483d1a5ca122b9))
 
+- Добавлено кеширование Redis для одного эндпоинта ([95aa285](https://github.com/Shecspi/MoiGoroda/commit/95aa285740a61711dfeb1dbe82df911de8208c78))
+
 
 #### 🐛 Исправление ошибок
 

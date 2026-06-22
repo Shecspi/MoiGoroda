@@ -5,6 +5,8 @@
 #
 # ----------------------------------------------
 
+from importlib import reload
+
 import pytest
 from django.conf import settings
 from django.utils.module_loading import import_string
@@ -45,6 +47,22 @@ def test_redis_cache_config_sets_timeouts_and_optional_exception_policy() -> Non
     assert cache_config['OPTIONS']['SOCKET_CONNECT_TIMEOUT'] == 1
     assert cache_config['OPTIONS']['SOCKET_TIMEOUT'] == 1
     assert cache_config['OPTIONS']['IGNORE_EXCEPTIONS'] is True
+
+
+@pytest.mark.unit
+def test_redis_socket_timeout_seconds_uses_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Redis socket timeout должен настраиваться через переменные окружения."""
+    monkeypatch.setenv('REDIS_SOCKET_TIMEOUT_SECONDS', '0.5')
+    reloaded_settings = reload(project_settings)
+
+    try:
+        cache_config = reloaded_settings.build_redis_cache_config(location='redis://redis:6379/9')
+
+        assert reloaded_settings.REDIS_SOCKET_TIMEOUT_SECONDS == 0.5
+        assert cache_config['OPTIONS']['SOCKET_CONNECT_TIMEOUT'] == 0.5
+        assert cache_config['OPTIONS']['SOCKET_TIMEOUT'] == 0.5
+    finally:
+        reload(project_settings)
 
 
 @pytest.mark.unit

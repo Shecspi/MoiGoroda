@@ -137,7 +137,7 @@ DATABASES = {
 # Redis Cache
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = os.getenv('REDIS_PORT', '6379')
-REDIS_SOCKET_TIMEOUT_SECONDS = 1
+REDIS_SOCKET_TIMEOUT_SECONDS = float(os.getenv('REDIS_SOCKET_TIMEOUT_SECONDS', '1'))
 
 
 def build_redis_cache_config(

@@ -1,13 +1,11 @@
-"""
-----------------------------------------------
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
-
-from datetime import datetime, timezone
+from django.utils import timezone
 
 from dashboard.schemas import BlogArticlesOverviewResponse
 from dmr import Controller
@@ -30,7 +28,7 @@ class GetBlogArticlesOverviewController(Controller[MsgspecSerializer]):
     """
 
     def get(self) -> BlogArticlesOverviewResponse:
-        now_date = datetime.now(timezone.utc).date()
+        now_date = timezone.now().date()
         added_card = collect_blog_last_added_card_overview(now_date=now_date, days=30)
         top_card = collect_blog_top_viewed_card_overview(now_date=now_date, days=60)
 

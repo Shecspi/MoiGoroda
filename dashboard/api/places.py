@@ -1,13 +1,11 @@
-"""
-----------------------------------------------
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
-
-from datetime import datetime, timezone
+from django.utils import timezone
 
 from dashboard.schemas import (
     PersonalCollectionsOverviewResponse,
@@ -31,7 +29,7 @@ from dashboard.statistics_helpers import (
 @is_superuser_json
 class GetPlacesOverviewController(Controller[MsgspecSerializer]):
     def get(self) -> PlacesOverviewResponse:
-        now_date = datetime.now(timezone.utc).date()
+        now_date = timezone.now().date()
 
         return PlacesOverviewResponse(
             total_visited_places=collect_places_total(),
@@ -49,7 +47,7 @@ class GetPlacesOverviewController(Controller[MsgspecSerializer]):
 @is_superuser_json
 class GetPersonalCollectionsOverviewController(Controller[MsgspecSerializer]):
     def get(self) -> PersonalCollectionsOverviewResponse:
-        now_date = datetime.now(timezone.utc).date()
+        now_date = timezone.now().date()
 
         return PersonalCollectionsOverviewResponse(
             total_personal_collections=collect_personal_collections_total(),

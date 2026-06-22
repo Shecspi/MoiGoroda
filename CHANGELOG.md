@@ -141,6 +141,8 @@
 
 - *(cache)* Использование django-prometheus для экспорта метрик кеша ([88dccb3](https://github.com/Shecspi/MoiGoroda/commit/88dccb313be54460936b6e4c5660a9b2f57fc8a0))
 
+- Switch to_file_django handler to json_simple formatter ([8b08865](https://github.com/Shecspi/MoiGoroda/commit/8b088655ae16e296e194f233bed1c7cdd6915cc6))
+
 
 #### ⚡ Производительность
 

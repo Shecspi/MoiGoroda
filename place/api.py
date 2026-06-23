@@ -1,22 +1,68 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 import json
 import uuid
+from datetime import datetime
+from http import HTTPStatus
 from typing import Any, cast
 
 from django.contrib.auth.models import User
+from dmr import Controller, ResponseSpec, modify
+from dmr.plugins.msgspec import MsgspecSerializer
 from rest_framework import generics
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
-from rest_framework.exceptions import PermissionDenied
 
 from place.models import Place, Category, PlaceCollection
+from place.schemas import CategoryItem, PlaceCollectionItem, PlaceItem, TagOSMItem
 from place.serializers import (
     PlaceSerializer,
     CategorySerializer,
     PlaceCollectionSerializer,
 )
 from services import logger
+
+
+def _format_datetime(value: datetime) -> str:
+    value_as_string = value.isoformat()
+    if value_as_string.endswith('+00:00'):
+        return f'{value_as_string[:-6]}Z'
+    return value_as_string
+
+
+def _serialize_place(place: Place) -> PlaceItem:
+    collection = place.collection
+    return PlaceItem(
+        id=place.id,
+        name=place.name,
+        latitude=place.latitude,
+        longitude=place.longitude,
+        category_detail=CategoryItem(
+            id=place.category.id,
+            name=place.category.name,
+            tags_detail=[TagOSMItem(id=tag.id, name=tag.name) for tag in place.category.tags.all()],
+        ),
+        created_at=_format_datetime(place.created_at),
+        updated_at=_format_datetime(place.updated_at),
+        is_visited=place.is_visited,
+        collection_detail=(
+            PlaceCollectionItem(
+                id=str(collection.id),
+                title=collection.title,
+                is_public=collection.is_public,
+                user=collection.user_id,
+            )
+            if collection is not None
+            else None
+        ),
+    )
 
 
 class GetCategory(generics.ListAPIView[Category]):
@@ -33,17 +79,29 @@ class GetCategory(generics.ListAPIView[Category]):
         return super(GetCategory, self).get(request, *args, **kwargs)
 
 
-class GetPlaces(generics.ListAPIView[Place]):
-    permission_classes = (AllowAny,)
-    http_method_names = ['get']
-    serializer_class = PlaceSerializer
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+class GetPlaces(Controller[MsgspecSerializer]):
+    @modify(
+        status_code=HTTPStatus.OK,
+        extra_responses=[
+            ResponseSpec(dict[str, str], status_code=HTTPStatus.FORBIDDEN),
+        ],
+        tags=['Места'],
+    )
+    def get(self) -> Any:
+        request = self.request
         logger.info(
             request,
             '(API: Place): Getting a list of places',
         )
-        return super(GetPlaces, self).get(request, *args, **kwargs)
+
+        queryset = self.get_queryset()
+        if queryset is None:
+            return self.to_response(
+                raw_data={'detail': 'Необходима авторизация.'},
+                status_code=HTTPStatus.FORBIDDEN,
+            )
+        data = [_serialize_place(place) for place in queryset]
+        return self.to_response(raw_data=data, status_code=HTTPStatus.OK)
 
     def get_queryset(self) -> Any:
         request = self.request
@@ -52,8 +110,8 @@ class GetPlaces(generics.ListAPIView[Place]):
 
         if not collection_uuid_raw:
             if not request.user.is_authenticated:
-                raise PermissionDenied('Необходима авторизация.')
-            qs = Place.objects.filter(user=cast(User, request.user))
+                return None
+            qs = Place.objects.filter(user=request.user)
         else:
             try:
                 collection_uuid = uuid.UUID(collection_uuid_raw)
@@ -72,7 +130,7 @@ class GetPlaces(generics.ListAPIView[Place]):
             # Владельцу отдаём все его места: можно переключаться между коллекциями и редактировать их,
             # по умолчанию отображается выбранная коллекция на фронте.
             if request.user.is_authenticated and request.user == collection.user:
-                qs = Place.objects.filter(user=cast(User, request.user))
+                qs = Place.objects.filter(user=request.user)
             else:
                 qs = Place.objects.filter(collection=collection)
 

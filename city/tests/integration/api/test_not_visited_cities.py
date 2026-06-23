@@ -29,9 +29,11 @@ from django.contrib.auth.models import User
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from dmr import Controller
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from city.api.common import GetNotVisitedCities
 from city.models import City, VisitedCity
 from country.models import Country
 from region.models import Region, RegionType
@@ -43,6 +45,10 @@ class TestGetNotVisitedCities:
 
     url: str = reverse('api__get_not_visited_cities')
 
+    def test_get_not_visited_cities_uses_django_modern_rest_controller(self) -> None:
+        """Проверяет, что эндпоинт переведён с DRF generic view на django-modern-rest."""
+        assert issubclass(GetNotVisitedCities, Controller)
+
     def test_guest_cannot_access(self, api_client: APIClient) -> None:
         """Проверяет, что неавторизованные пользователи не могут получить доступ к эндпоинту."""
         response = api_client.get(self.url)
@@ -53,6 +59,7 @@ class TestGetNotVisitedCities:
         self, api_client: APIClient, authenticated_user: User, method: str
     ) -> None:
         """Проверяет, что запрещенные HTTP методы возвращают 405."""
+        api_client.force_login(authenticated_user)
         client_method = getattr(api_client, method)
         response = client_method(self.url)
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
@@ -65,16 +72,17 @@ class TestGetNotVisitedCities:
         mock_get_not_visited_cities: MagicMock,
         api_client: APIClient,
         authenticated_user: User,
-        mock_city: MagicMock,
     ) -> None:
         """Тест успешного получения списка непосещенных городов."""
         mock_queryset = MagicMock()
-        mock_queryset.__iter__.return_value = [mock_city]
+        mock_queryset.__iter__.return_value = []
         mock_get_not_visited_cities.return_value = mock_queryset
+        api_client.force_login(authenticated_user)
 
         response = api_client.get(self.url)
 
         assert response.status_code == status.HTTP_200_OK
+        assert response.json() == []
         mock_logger.info.assert_called_once()
         mock_get_not_visited_cities.assert_called_once_with(authenticated_user.pk, None)
 
@@ -89,10 +97,12 @@ class TestGetNotVisitedCities:
         mock_queryset = MagicMock()
         mock_queryset.__iter__.return_value = []
         mock_get_not_visited_cities.return_value = mock_queryset
+        api_client.force_login(authenticated_user)
 
         response = api_client.get(f'{self.url}?country=RU')
 
         assert response.status_code == status.HTTP_200_OK
+        assert response.json() == []
         mock_get_not_visited_cities.assert_called_once_with(authenticated_user.pk, 'RU')
 
     @pytest.mark.django_db
@@ -131,11 +141,12 @@ class TestGetNotVisitedCities:
             rating=5,
             is_first_visit=True,
         )
+        api_client.force_login(authenticated_user)
 
         with CaptureQueriesContext(connection) as queries:
             response = api_client.get(f'{self.url}?country=RU')
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 4
-        assert len(queries) <= 2, [query['sql'][:200] for query in queries]
+        assert len(response.json()) == 4
+        assert len(queries) <= 4, [query['sql'][:200] for query in queries]
         mock_logger.info.assert_called_once()

@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Реализует API для получения информации о посещённых и непосещённых городах.
 
@@ -9,6 +16,7 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from http import HTTPStatus
 from typing import Any, cast
 
 from django.contrib.auth.models import User
@@ -16,6 +24,8 @@ import rest_framework.exceptions as drf_exc
 from django.db import IntegrityError
 from django.db.models import QuerySet
 from django.db.models.functions import ExtractYear
+from dmr import Controller, ResponseSpec, modify
+from dmr.plugins.msgspec import MsgspecSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
@@ -39,9 +49,9 @@ from city.serializers import (
     CityDistrictSerializer,
     CitySearchParamsSerializer,
     CitySerializer,
-    NotVisitedCitySerializer,
     VisitedCitySerializer,
 )
+from city.schemas import NotVisitedCityItem
 from country.models import Country
 from city.services.db import (
     get_first_visit_date_by_city,
@@ -193,26 +203,43 @@ class GetVisitedCitiesFromSubscriptions(generics.ListAPIView):  # type: ignore[t
         return combined_queryset
 
 
-class GetNotVisitedCities(generics.ListAPIView):  # type: ignore[type-arg]
-    serializer_class = NotVisitedCitySerializer
-    permission_classes = (IsAuthenticated,)
-    http_method_names = ['get']
-
-    def get(self, *args: Any, **kwargs: Any) -> Response:
+class GetNotVisitedCities(Controller[MsgspecSerializer]):
+    @modify(
+        status_code=HTTPStatus.OK,
+        extra_responses=[
+            ResponseSpec(dict[str, str], status_code=HTTPStatus.FORBIDDEN),
+        ],
+        tags=['Города'],
+    )
+    def get(self) -> Any:
         user = self.request.user
+        if not user.is_authenticated:
+            return self.to_response(
+                raw_data={'detail': 'Учетные данные не были предоставлены.'},
+                status_code=HTTPStatus.FORBIDDEN,
+            )
+
         user_id = user.id if isinstance(user, User) else None
         logger.info(
             self.request,
             f'(API) Successful request for a list of not visited cities (user #{user_id})',
         )
-        return super().get(*args, **kwargs)
-
-    def get_queryset(self) -> QuerySet[City, City]:  # type: ignore[override]
-        user_pk = self.request.user.pk
-        if user_pk is None:
-            return City.objects.none()
         country_code = self.request.GET.get('country')
-        return get_not_visited_cities(user_pk, country_code)
+        queryset = get_not_visited_cities(user.pk, country_code)
+        data = [
+            NotVisitedCityItem(
+                id=city.id,
+                title=city.title,
+                region=str(city.region) if city.region_id is not None else None,
+                region_id=city.region_id,
+                country=city.country.name,
+                country_code=city.country.code,
+                lat=str(city.coordinate_width),
+                lon=str(city.coordinate_longitude),
+            )
+            for city in queryset
+        ]
+        return self.to_response(raw_data=data, status_code=HTTPStatus.OK)
 
 
 class AddVisitedCity(generics.CreateAPIView):  # type: ignore[type-arg]

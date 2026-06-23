@@ -1,6 +1,24 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 from __future__ import annotations
 
 import msgspec
+
+
+class NotVisitedCityItem(msgspec.Struct):
+    id: int
+    title: str
+    region: str | None
+    region_id: int | None
+    country: str
+    country_code: str
+    lat: str
+    lon: str
 
 
 class NeighboringCityItem(msgspec.Struct):

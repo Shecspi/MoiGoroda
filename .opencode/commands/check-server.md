@@ -46,5 +46,23 @@ Datasource: prometheus (uid: ffkhfvqyeyzuob)
 - Transactions: `irate(pg_stat_database_xact_commit[5m])` и rollback
 - Conflicts/deadlocks: `pg_stat_database_conflicts`
 
+### 4. Loki (логи)
+- datasource: Loki (uid: dfpwlwxt5x1q8b)
+- Доступность: проверь, что Loki отвечает (любой простой запрос)
+- Статистика по уровням за 24h:
+  - ERROR: `sum(count_over_time({level="ERROR"} [24h]))`
+  - WARNING: `sum(count_over_time({level="WARNING"} [24h]))`
+  - INFO: `sum(count_over_time({level="INFO"} [24h]))`
+  - Распределение по уровням: `sum(count_over_time({job=~".+"} [24h])) by (level)`
+- Error rate по источникам (5m):
+  - app: `rate({level="ERROR",job="moigoroda-app"} [5m])`
+  - payments: `rate({level="ERROR",job="moigoroda-payments"} [5m])`
+  - cron: `rate({level="ERROR",job="moigoroda-cron"} [5m])`
+- Последние ошибки (последние 10): `{level="ERROR"}` (limit=10)
+- Медленные запросы из логов (обязательно):
+  - django.request WARNING с duration: `{job="moigoroda-app"} |= "duration" | logfmt`
+  - Если logfmt не поддерживается: `{job="moigoroda-app"} |~ "(slow|duration|timeout)"`
+  - Критерий: duration > 500ms считается медленным
+
 ### Формат вывода
 Предоставь таблицу метрик со статусами (✅ / ⚠️ / ❌) и краткую сводку с проблемами и рекомендациями.

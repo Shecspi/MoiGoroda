@@ -154,6 +154,8 @@
 
 - *(city)* Оптимизирован эндпоинт `api__get_not_visited_cities` ([2bfb8ad](https://github.com/Shecspi/MoiGoroda/commit/2bfb8ade6d91ddb4ca8c356efe18fe62c1ae0244))
 
+- *(place)* Оптимизирован эндпоинт `get_places` ([870fddd](https://github.com/Shecspi/MoiGoroda/commit/870fddd552b3d11b91fb85e30e2192ed1018731f))
+
 
 #### 🎨 Дизайн
 

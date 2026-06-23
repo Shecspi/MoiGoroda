@@ -78,7 +78,7 @@ class GetPlaces(generics.ListAPIView[Place]):
 
         if visited_only:
             qs = qs.filter(is_visited=True)
-        return qs
+        return qs.select_related('category', 'collection').prefetch_related('category__tags')
 
 
 class GetPlaceCollections(generics.ListAPIView[PlaceCollection]):

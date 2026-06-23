@@ -9,6 +9,8 @@ Licensed under the Apache License, Version 2.0
 
 import pytest
 from typing import Any
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
 
@@ -183,6 +185,39 @@ def test_get_places_list_empty(api_client: Any, django_user_model: Any) -> None:
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 0
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_places_list_prefetches_nested_serializer_relations(
+    api_client: Any, django_user_model: Any
+) -> None:
+    """Проверяет, что список мест не делает N+1 для category, tags и collection."""
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    api_client.force_authenticate(user=user)
+
+    tag = TagOSM.objects.create(name='amenity')
+    categories = [Category.objects.create(name=f'Категория {index}') for index in range(3)]
+    for category in categories:
+        category.tags.add(tag)
+    collection = PlaceCollection.objects.create(user=user, title='Коллекция', is_public=False)
+
+    for index in range(6):
+        Place.objects.create(
+            name=f'Место {index}',
+            latitude=55.0 + index,
+            longitude=37.0 + index,
+            category=categories[index % len(categories)],
+            user=user,
+            collection=collection if index % 2 == 0 else None,
+        )
+
+    with CaptureQueriesContext(connection) as queries:
+        response = api_client.get(reverse('get_places'))
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 6
+    assert len(queries) <= 3, [query['sql'][:200] for query in queries]
 
 
 @pytest.mark.integration

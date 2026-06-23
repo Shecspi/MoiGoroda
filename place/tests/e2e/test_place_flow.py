@@ -27,7 +27,7 @@ def test_complete_place_management_flow(api_client: Any, django_user_model: Any)
     """
     # Шаг 1: Создаём пользователя
     user = django_user_model.objects.create_user(username='testuser', password='password123')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
 
     # Шаг 2: Создаём теги и категорию
     tag1 = TagOSM.objects.create(name='amenity')
@@ -59,8 +59,9 @@ def test_complete_place_management_flow(api_client: Any, django_user_model: Any)
     url = reverse('get_places')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['name'] == 'Кафе "Уютное"'
+    response_data = response.json()
+    assert len(response_data) == 1
+    assert response_data[0]['name'] == 'Кафе "Уютное"'
 
     # Шаг 6: Обновляем место
     url = reverse('update_place', kwargs={'pk': place_id})
@@ -78,7 +79,7 @@ def test_complete_place_management_flow(api_client: Any, django_user_model: Any)
     url = reverse('get_places')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 0
+    assert len(response.json()) == 0
 
 
 @pytest.mark.e2e
@@ -96,7 +97,7 @@ def test_multiple_users_places_isolation(api_client: Any, django_user_model: Any
     category = Category.objects.create(name='Кафе')
 
     # Шаг 3: Пользователь 1 создаёт место
-    api_client.force_authenticate(user=user1)
+    api_client.force_login(user1)
     url = reverse('create_place')
     data = {
         'name': 'Место пользователя 1',
@@ -111,11 +112,12 @@ def test_multiple_users_places_isolation(api_client: Any, django_user_model: Any
     url = reverse('get_places')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['name'] == 'Место пользователя 1'
+    response_data = response.json()
+    assert len(response_data) == 1
+    assert response_data[0]['name'] == 'Место пользователя 1'
 
     # Шаг 5: Пользователь 2 создаёт место
-    api_client.force_authenticate(user=user2)
+    api_client.force_login(user2)
     url = reverse('create_place')
     data = {
         'name': 'Место пользователя 2',
@@ -130,8 +132,9 @@ def test_multiple_users_places_isolation(api_client: Any, django_user_model: Any
     url = reverse('get_places')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['name'] == 'Место пользователя 2'
+    response_data = response.json()
+    assert len(response_data) == 1
+    assert response_data[0]['name'] == 'Место пользователя 2'
 
     # Шаг 7: Пользователь 2 не может обновить место пользователя 1
     user1_place = Place.objects.filter(user=user1).first()
@@ -151,7 +154,7 @@ def test_place_category_workflow(api_client: Any, django_user_model: Any) -> Non
     """
     # Шаг 1: Создаём пользователя
     user = django_user_model.objects.create_user(username='testuser', password='password123')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
 
     # Шаг 2: Создаём несколько категорий
     category1 = Category.objects.create(name='Кафе')
@@ -162,7 +165,7 @@ def test_place_category_workflow(api_client: Any, django_user_model: Any) -> Non
     url = reverse('category_of_place')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 3
+    assert len(response.json()) == 3
 
     # Шаг 4: Создаём места в разных категориях
     places_data = [
@@ -185,7 +188,7 @@ def test_place_category_workflow(api_client: Any, django_user_model: Any) -> Non
     url = reverse('get_places')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 3
+    assert len(response.json()) == 3
 
     # Шаг 6: Меняем категорию у одного места
     place = Place.objects.filter(name='Кафе 1').first()
@@ -209,7 +212,7 @@ def test_place_with_tags_workflow(api_client: Any, django_user_model: Any) -> No
     """
     # Шаг 1: Создаём пользователя
     user = django_user_model.objects.create_user(username='testuser', password='password123')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
 
     # Шаг 2: Создаём теги
     tag1 = TagOSM.objects.create(name='amenity')
@@ -242,8 +245,9 @@ def test_place_with_tags_workflow(api_client: Any, django_user_model: Any) -> No
     url = reverse('get_places')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert response.data[0]['category_detail']['name'] == 'Кафе'
-    assert len(response.data[0]['category_detail']['tags_detail']) == 3
+    response_data = response.json()
+    assert response_data[0]['category_detail']['name'] == 'Кафе'
+    assert len(response_data[0]['category_detail']['tags_detail']) == 3
 
 
 @pytest.mark.e2e
@@ -270,7 +274,7 @@ def test_place_view_and_api_integration(
     category = Category.objects.create(name='Кафе')
 
     # Шаг 5: Создаём место через API
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
     url = reverse('create_place')
     data = {
         'name': 'Кафе через API',
@@ -285,8 +289,9 @@ def test_place_view_and_api_integration(
     url = reverse('get_places')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['name'] == 'Кафе через API'
+    response_data = response.json()
+    assert len(response_data) == 1
+    assert response_data[0]['name'] == 'Кафе через API'
 
     # Шаг 7: Выходим из системы
     client.logout()
@@ -307,7 +312,7 @@ def test_place_error_handling(api_client: Any, django_user_model: Any) -> None:
     """
     # Шаг 1: Создаём пользователя
     user = django_user_model.objects.create_user(username='testuser', password='password123')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
 
     # Шаг 2: Попытка создать место без категории
     url = reverse('create_place')
@@ -356,7 +361,7 @@ def test_place_bulk_operations(api_client: Any, django_user_model: Any) -> None:
     """
     # Шаг 1: Создаём пользователя
     user = django_user_model.objects.create_user(username='testuser', password='password123')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
 
     # Шаг 2: Создаём категорию
     category = Category.objects.create(name='Кафе')
@@ -382,7 +387,7 @@ def test_place_bulk_operations(api_client: Any, django_user_model: Any) -> None:
     url = reverse('get_places')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 5
+    assert len(response.json()) == 5
 
     # Шаг 5: Обновляем несколько мест
     for i, place_id in enumerate(place_ids[:3]):
@@ -401,4 +406,4 @@ def test_place_bulk_operations(api_client: Any, django_user_model: Any) -> None:
     url = reverse('get_places')
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 3
+    assert len(response.json()) == 3

@@ -9,9 +9,13 @@ Licensed under the Apache License, Version 2.0
 
 import pytest
 from typing import Any
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from dmr import Controller
 from rest_framework import status
 
+from place.api import GetPlaces
 from place.models import TagOSM, Category, Place, PlaceCollection
 
 
@@ -95,12 +99,17 @@ def test_get_category_list_sorted_by_name(api_client: Any, django_user_model: An
 # ===== Тесты для GetPlaces =====
 
 
+def test_get_places_uses_django_modern_rest_controller() -> None:
+    """Проверяет, что список мест переведён с DRF generic view на django-modern-rest."""
+    assert issubclass(GetPlaces, Controller)
+
+
 @pytest.mark.integration
 @pytest.mark.django_db
 def test_get_places_list_authenticated(api_client: Any, django_user_model: Any) -> None:
     """Тест получения списка мест авторизованным пользователем"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
 
     category = Category.objects.create(name='Кафе')
 
@@ -124,7 +133,7 @@ def test_get_places_list_authenticated(api_client: Any, django_user_model: Any) 
     response = api_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 2
+    assert len(response.json()) == 2
 
 
 @pytest.mark.integration
@@ -143,7 +152,7 @@ def test_get_places_list_only_own_places(api_client: Any, django_user_model: Any
     """Тест что пользователь видит только свои места"""
     user1 = django_user_model.objects.create_user(username='user1', password='password123')
     user2 = django_user_model.objects.create_user(username='user2', password='password123')
-    api_client.force_authenticate(user=user1)
+    api_client.force_login(user1)
 
     category = Category.objects.create(name='Кафе')
 
@@ -167,8 +176,9 @@ def test_get_places_list_only_own_places(api_client: Any, django_user_model: Any
     response = api_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['name'] == 'Место пользователя 1'
+    response_data = response.json()
+    assert len(response_data) == 1
+    assert response_data[0]['name'] == 'Место пользователя 1'
 
 
 @pytest.mark.integration
@@ -176,13 +186,46 @@ def test_get_places_list_only_own_places(api_client: Any, django_user_model: Any
 def test_get_places_list_empty(api_client: Any, django_user_model: Any) -> None:
     """Тест получения пустого списка мест"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
 
     url = reverse('get_places')
     response = api_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 0
+    assert len(response.json()) == 0
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_get_places_list_prefetches_nested_serializer_relations(
+    api_client: Any, django_user_model: Any
+) -> None:
+    """Проверяет, что список мест не делает N+1 для category, tags и collection."""
+    user = django_user_model.objects.create_user(username='testuser', password='password123')
+    api_client.force_login(user)
+
+    tag = TagOSM.objects.create(name='amenity')
+    categories = [Category.objects.create(name=f'Категория {index}') for index in range(3)]
+    for category in categories:
+        category.tags.add(tag)
+    collection = PlaceCollection.objects.create(user=user, title='Коллекция', is_public=False)
+
+    for index in range(6):
+        Place.objects.create(
+            name=f'Место {index}',
+            latitude=55.0 + index,
+            longitude=37.0 + index,
+            category=categories[index % len(categories)],
+            user=user,
+            collection=collection if index % 2 == 0 else None,
+        )
+
+    with CaptureQueriesContext(connection) as queries:
+        response = api_client.get(reverse('get_places'))
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 6
+    assert len(queries) <= 5, [query['sql'][:200] for query in queries]
 
 
 @pytest.mark.integration
@@ -209,8 +252,9 @@ def test_get_places_public_collection_unauthenticated(
     response = api_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['name'] == 'Место в публичной коллекции'
+    response_data = response.json()
+    assert len(response_data) == 1
+    assert response_data[0]['name'] == 'Место в публичной коллекции'
 
 
 @pytest.mark.integration
@@ -237,7 +281,7 @@ def test_get_places_private_collection_unauthenticated(
     response = api_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 0
+    assert len(response.json()) == 0
 
 
 @pytest.mark.integration
@@ -248,7 +292,7 @@ def test_get_places_public_collection_authenticated_other_user(
     """Авторизованный пользователь получает места из чужой публичной коллекции"""
     owner = django_user_model.objects.create_user(username='owner', password='pass')
     other = django_user_model.objects.create_user(username='other', password='pass')
-    api_client.force_authenticate(user=other)
+    api_client.force_login(other)
 
     category = Category.objects.create(name='Кафе')
     collection = PlaceCollection.objects.create(
@@ -267,8 +311,9 @@ def test_get_places_public_collection_authenticated_other_user(
     response = api_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['name'] == 'Место владельца'
+    response_data = response.json()
+    assert len(response_data) == 1
+    assert response_data[0]['name'] == 'Место владельца'
 
 
 @pytest.mark.integration
@@ -279,7 +324,7 @@ def test_get_places_private_collection_authenticated_other_user(
     """Авторизованный пользователь получает пустой список при запросе чужой приватной коллекции"""
     owner = django_user_model.objects.create_user(username='owner', password='pass')
     other = django_user_model.objects.create_user(username='other', password='pass')
-    api_client.force_authenticate(user=other)
+    api_client.force_login(other)
 
     category = Category.objects.create(name='Кафе')
     collection = PlaceCollection.objects.create(
@@ -298,7 +343,7 @@ def test_get_places_private_collection_authenticated_other_user(
     response = api_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 0
+    assert len(response.json()) == 0
 
 
 @pytest.mark.integration
@@ -306,7 +351,7 @@ def test_get_places_private_collection_authenticated_other_user(
 def test_get_places_visited_only_filter(api_client: Any, django_user_model: Any) -> None:
     """При visited_only=true возвращаются только посещённые места (для карты городов)"""
     user = django_user_model.objects.create_user(username='testuser', password='password123')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
 
     category = Category.objects.create(name='Кафе')
 
@@ -331,8 +376,9 @@ def test_get_places_visited_only_filter(api_client: Any, django_user_model: Any)
     response = api_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]['name'] == 'Посещённое место'
+    response_data = response.json()
+    assert len(response_data) == 1
+    assert response_data[0]['name'] == 'Посещённое место'
 
 
 # ===== Тесты для CreatePlace =====

@@ -152,6 +152,8 @@
 
 - Оптимизирована страница списка коллекций ([abad69e](https://github.com/Shecspi/MoiGoroda/commit/abad69e3a2d008cc9ac1605b5215285f2c866764))
 
+- *(city)* Оптимизирован эндпоинт `api__get_not_visited_cities` ([2bfb8ad](https://github.com/Shecspi/MoiGoroda/commit/2bfb8ade6d91ddb4ca8c356efe18fe62c1ae0244))
+
 
 #### 🎨 Дизайн
 

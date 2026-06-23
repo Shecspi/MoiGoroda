@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 import calendar
 import datetime
 from typing import Any, cast
@@ -740,13 +747,14 @@ def get_not_visited_cities(user_id: int, country_code: str | None = None) -> Que
     Возвращает QuerySet объектов City, которые пользователь с ID user_id не отметил, как посещённые.
     Для этого берётся список всех городов, которые есть в БД, и из него убираются уже посещённые пользователем города.
     """
-    queryset = City.objects.all()
+    queryset = City.objects.select_related('region', 'country')
+    visited_city_ids = VisitedCity.objects.filter(user_id=user_id, is_first_visit=True)
 
     if country_code:
         queryset = queryset.filter(country__code=country_code)
+        visited_city_ids = visited_city_ids.filter(city__country__code=country_code)
 
-    visited_cities = [city.city.id for city in get_unique_visited_cities(user_id, country_code)]
-    return queryset.exclude(id__in=visited_cities)
+    return queryset.exclude(id__in=visited_city_ids.values('city_id'))
 
 
 def get_number_of_visited_countries(user_id: int) -> int:

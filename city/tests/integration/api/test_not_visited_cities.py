@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Тесты для эндпоинта /api/city/not_visited (GetNotVisitedCities).
 
@@ -14,12 +21,20 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 """
 
+from datetime import date
 from unittest.mock import MagicMock, patch
+
 import pytest
 from django.contrib.auth.models import User
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from django.urls import reverse
+
+from city.models import City, VisitedCity
+from country.models import Country
+from region.models import Region, RegionType
 
 
 @pytest.mark.integration
@@ -79,3 +94,48 @@ class TestGetNotVisitedCities:
 
         assert response.status_code == status.HTTP_200_OK
         mock_get_not_visited_cities.assert_called_once_with(authenticated_user.pk, 'RU')
+
+    @pytest.mark.django_db
+    @patch('city.api.common.logger')
+    def test_get_not_visited_cities_with_country_uses_constant_query_count(
+        self,
+        mock_logger: MagicMock,
+        api_client: APIClient,
+        authenticated_user: User,
+    ) -> None:
+        """Проверяет, что сериализация непосещённых городов не делает N+1 запросы."""
+        country = Country.objects.create(name='Russia', fullname='Russia', code='RU')
+        region_type = RegionType.objects.create(title='область')
+        region = Region.objects.create(
+            country=country,
+            title='Test Region',
+            type=region_type,
+            full_name='Test Region',
+            iso3166='RU-TEST',
+        )
+        cities = [
+            City.objects.create(
+                title=f'City {index}',
+                country=country,
+                region=region,
+                coordinate_width=55.0 + index,
+                coordinate_longitude=37.0 + index,
+                image='',
+            )
+            for index in range(5)
+        ]
+        VisitedCity.objects.create(
+            user=authenticated_user,
+            city=cities[0],
+            date_of_visit=date(2024, 1, 1),
+            rating=5,
+            is_first_visit=True,
+        )
+
+        with CaptureQueriesContext(connection) as queries:
+            response = api_client.get(f'{self.url}?country=RU')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 4
+        assert len(queries) <= 2, [query['sql'][:200] for query in queries]
+        mock_logger.info.assert_called_once()

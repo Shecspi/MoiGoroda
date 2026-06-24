@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 ----------------------------------------------
 
@@ -191,6 +198,43 @@ class TestGetAllRegionWithVisitedCities:
         region = queryset.filter(id=test_region.id).first()
 
         assert region.num_visited == 0
+
+    def test_list_path_counts_unique_visited_cities(
+        self,
+        test_user: User,
+        test_country: Any,
+        test_region: Region,
+        test_city: City,
+    ) -> None:
+        """List-optimized path keeps the same count semantics as aggregate path."""
+        from datetime import date
+
+        City.objects.create(
+            title='City2',
+            region=test_region,
+            country=test_country,
+            coordinate_width=56.0,
+            coordinate_longitude=38.0,
+        )
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2023, 1, 1)
+        )
+        VisitedCity.objects.create(
+            user=test_user, city=test_city, rating=5, date_of_visit=date(2024, 1, 1)
+        )
+
+        queryset = get_all_region_with_visited_cities(
+            test_user.id,
+            test_country.id,
+            include_visit_years=False,
+            include_ratio=False,
+        )
+        region = queryset.filter(id=test_region.id).first()
+
+        assert region.num_total == 2
+        assert region.num_visited == 1
+        assert not hasattr(region, 'ratio_visited')
+        assert not hasattr(region, 'visit_years')
 
     def test_annotates_ratio_visited(
         self, test_user: User, test_country: Any, test_region: Region, test_city: City

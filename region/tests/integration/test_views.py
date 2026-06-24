@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 ----------------------------------------------
 
@@ -11,7 +18,9 @@ Licensed under the Apache License, Version 2.0
 from typing import Any
 
 import pytest
+from django.db import connection
 from django.test import Client
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from city.models import City, VisitedCity
@@ -95,7 +104,7 @@ class TestRegionListView:
         assert 'qty_of_visited_regions' in response.context
         assert response.context['qty_of_visited_regions'] >= 0
 
-    def test_authenticated_user_sees_visit_years_in_context(
+    def test_authenticated_user_sees_visit_years_in_map_context(
         self,
         client: Client,
         test_user: Any,
@@ -103,7 +112,7 @@ class TestRegionListView:
         test_region: Region,
         test_city: City,
     ) -> None:
-        """Тест что авторизованный пользователь видит поле visit_years в контексте"""
+        """Тест что авторизованный пользователь видит поле visit_years на карте"""
         from datetime import date
 
         VisitedCity.objects.create(
@@ -111,7 +120,7 @@ class TestRegionListView:
         )
 
         client.force_login(test_user)
-        response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
+        response = client.get(reverse('region-all-map') + f'?country={test_country.code}')
 
         assert response.status_code == 200
         assert 'all_regions' in response.context
@@ -143,7 +152,7 @@ class TestRegionListView:
         )
 
         client.force_login(test_user)
-        response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
+        response = client.get(reverse('region-all-map') + f'?country={test_country.code}')
 
         assert response.status_code == 200
         region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
@@ -162,13 +171,50 @@ class TestRegionListView:
     ) -> None:
         """Тест что visit_years пустой для региона без посещений"""
         client.force_login(test_user)
-        response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
+        response = client.get(reverse('region-all-map') + f'?country={test_country.code}')
 
         assert response.status_code == 200
         region = next((r for r in response.context['all_regions'] if r.id == test_region.id), None)
         assert region is not None
         assert hasattr(region, 'visit_years')
         assert region.visit_years == []
+
+    def test_authenticated_list_does_not_query_visit_years(
+        self,
+        client: Client,
+        test_user: Any,
+        test_country: Any,
+        test_region: Region,
+        test_city: City,
+    ) -> None:
+        """List view must not run map-only visit year aggregation."""
+        VisitedCity.objects.create(user=test_user, city=test_city, rating=5)
+
+        client.force_login(test_user)
+        with CaptureQueriesContext(connection) as queries:
+            response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
+
+        assert response.status_code == 200
+        sql = '\n'.join(query['sql'] for query in queries.captured_queries).upper()
+        assert 'ARRAY_AGG' not in sql
+
+    def test_authenticated_list_does_not_join_all_cities_for_region_counts(
+        self,
+        client: Client,
+        test_user: Any,
+        test_country: Any,
+        test_city: City,
+    ) -> None:
+        """List view must avoid the full Region -> City aggregate join."""
+        VisitedCity.objects.create(user=test_user, city=test_city, rating=5)
+
+        client.force_login(test_user)
+        with CaptureQueriesContext(connection) as queries:
+            response = client.get(reverse('region-all-list') + f'?country={test_country.code}')
+
+        assert response.status_code == 200
+        sql = '\n'.join(query['sql'] for query in queries.captured_queries).upper()
+        assert 'LEFT OUTER JOIN "CITY_CITY"' not in sql
 
 
 @pytest.mark.integration

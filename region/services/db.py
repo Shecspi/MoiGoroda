@@ -125,12 +125,9 @@ def get_all_region_with_visited_cities(
             .order_by('-num_visited', 'title')
         )
 
-    queryset = (
-        queryset.select_related('area')
-        .annotate(
-            num_total=Count('city', distinct=True),
-            num_visited=Count('city', filter=Q(city__visitedcity__user_id=user_id), distinct=True),
-        )
+    queryset = queryset.select_related('area').annotate(
+        num_total=Count('city', distinct=True),
+        num_visited=Count('city', filter=Q(city__visitedcity__user_id=user_id), distinct=True),
     )
 
     if include_ratio:

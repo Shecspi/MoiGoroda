@@ -156,6 +156,10 @@
 
 - *(place)* Оптимизирован эндпоинт `get_places` ([870fddd](https://github.com/Shecspi/MoiGoroda/commit/870fddd552b3d11b91fb85e30e2192ed1018731f))
 
+- *(region)* Optimize region all list ([460b7ac](https://github.com/Shecspi/MoiGoroda/commit/460b7ac204967608e679ed868c4a46513f7bcd68))
+
+- *(region)* Оптимизирован эндпоинт `region-all-list` ([40a261c](https://github.com/Shecspi/MoiGoroda/commit/40a261ce8a86d873c43c7fd43930b5352a813ce9))
+
 
 #### 🎨 Дизайн
 

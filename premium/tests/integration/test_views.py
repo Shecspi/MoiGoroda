@@ -1,11 +1,11 @@
-"""
-----------------------------------------------
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+from datetime import timedelta
 
 from unittest.mock import MagicMock, patch
 
@@ -13,6 +13,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 
 from premium.models import PremiumPlan, PremiumSubscription
 
@@ -147,3 +148,75 @@ class TestMySubscriptionView:
         assert 'premium/my_subscription.html' in [t.name for t in response.templates]
         assert 'payments' in response.context
         assert 'active_subscription' in response.context
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+class TestSubscriptionsManagementView:
+    """Тесты страницы управления premium-подписками."""
+
+    def test_management_page_requires_login(self, client: Client) -> None:
+        response = client.get(reverse('premium_subscriptions_management'))
+
+        assert response.status_code == 302
+        assert '/account/signin' in str(response.url)  # type: ignore[attr-defined]
+
+    def test_management_page_denies_non_superuser(self, client: Client, user: User) -> None:
+        client.force_login(user)
+
+        response = client.get(reverse('premium_subscriptions_management'))
+
+        assert response.status_code == 403
+
+    def test_management_page_shows_active_and_expired_subscriptions(
+        self,
+        client: Client,
+        django_user_model: type[User],
+        active_subscription: PremiumSubscription,
+        premium_plan: PremiumPlan,
+    ) -> None:
+        admin = django_user_model.objects.create_superuser(
+            username='admin',
+            password='adminpass',
+            email='admin@example.com',
+        )
+        expired_user = django_user_model.objects.create_user(
+            username='expired_user',
+            password='testpass123',
+            email='expired@example.com',
+        )
+        PremiumSubscription.objects.create(
+            user=active_subscription.user,
+            plan=premium_plan,
+            billing_period=PremiumSubscription.BillingPeriod.MONTHLY,
+            status=PremiumSubscription.Status.EXPIRED,
+            started_at=timezone.now() - timedelta(days=80),
+            expires_at=timezone.now() - timedelta(days=50),
+        )
+        PremiumSubscription.objects.create(
+            user=expired_user,
+            plan=premium_plan,
+            billing_period=PremiumSubscription.BillingPeriod.MONTHLY,
+            status=PremiumSubscription.Status.EXPIRED,
+            started_at=timezone.now() - timedelta(days=90),
+            expires_at=timezone.now() - timedelta(days=60),
+        )
+        PremiumSubscription.objects.create(
+            user=expired_user,
+            plan=premium_plan,
+            billing_period=PremiumSubscription.BillingPeriod.MONTHLY,
+            status=PremiumSubscription.Status.EXPIRED,
+            started_at=timezone.now() - timedelta(days=40),
+            expires_at=timezone.now() - timedelta(days=10),
+        )
+        client.force_login(admin)
+
+        response = client.get(reverse('premium_subscriptions_management'))
+
+        assert response.status_code == 200
+        assert 'premium/subscriptions_management.html' in [t.name for t in response.templates]
+        assert response.context['active_subscriptions'][0].subscription.pk == active_subscription.pk
+        assert len(response.context['active_subscriptions'][0].previous_subscriptions) == 1
+        assert response.context['expired_subscriptions'][0].days_since_expired == 10
+        assert len(response.context['expired_subscriptions']) == 1
+        assert len(response.context['expired_subscriptions'][0].previous_subscriptions) == 1

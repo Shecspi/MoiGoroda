@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+
+{% load vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
+
+{% block content %}
+<style>
+  .subscriptions-management-surface {
+    background: rgb(248 250 252);
+  }
+
+  .dark .subscriptions-management-surface {
+    background: rgb(23 23 23);
+  }
+
+  .billing-gridline {
+    background-image:
+      linear-gradient(rgb(15 23 42 / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(15 23 42 / 0.045) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  .dark .billing-gridline {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  }
+
+  .billing-figure {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+</style>
+
+<div class="subscriptions-management-surface w-full">
+  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+    <header class="billing-gridline relative mb-6 overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/90 shadow-xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-neutral-950/80 dark:shadow-black/30">
+      <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-slate-950 via-blue-600 to-teal-400 dark:from-white dark:via-blue-400 dark:to-teal-300"></div>
+      <div class="relative px-5 py-6 sm:px-7 lg:px-8 lg:py-8">
+        <div class="flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
+          <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-gradient-to-r from-emerald-50 via-sky-50 to-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800 shadow-sm dark:border-emerald-400/30 dark:from-emerald-400/15 dark:via-sky-400/10 dark:to-blue-400/15 dark:text-emerald-100">
+              <span class="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgb(16_185_129_/_0.18)]"></span>
+              ПРИМИУМ-ПОДПИСКИ
+            </div>
+            <h1 class="mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl dark:text-white">
+              Управление подписками
+            </h1>
+            <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base dark:text-neutral-300">
+              Операционная панель premium-доступа: активные клиенты, истёкшие периоды и история тарифов в одном рабочем контуре.
+            </p>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2 xl:min-w-[26rem]">
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50/90 p-4 shadow-sm shadow-emerald-100/70 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:shadow-black/20">
+              <p class="text-xs font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-200">Активно</p>
+              <p class="billing-figure mt-2 text-3xl font-semibold text-emerald-950 dark:text-emerald-100">{{ active_subscriptions|length }}</p>
+              <p class="mt-1 text-xs text-emerald-700 dark:text-emerald-300">Под контролем</p>
+            </div>
+            <div class="rounded-2xl border border-amber-200 bg-amber-50/90 p-4 shadow-sm dark:border-amber-400/30 dark:bg-amber-400/10">
+              <p class="text-xs font-medium uppercase tracking-wide text-amber-700 dark:text-amber-200">Истекло</p>
+              <p class="billing-figure mt-2 text-3xl font-semibold text-amber-950 dark:text-amber-100">{{ expired_subscriptions|length }}</p>
+              <p class="mt-1 text-xs text-amber-700 dark:text-amber-200">Доступ завершён</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+      <div class="space-y-4">
+        <div data-subscriptions-heading="active" class="flex flex-col gap-4 rounded-[1.5rem] border border-emerald-200 bg-emerald-50/80 px-5 py-5 shadow-sm dark:border-emerald-400/25 dark:bg-emerald-400/10 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgb(16_185_129_/_0.14)]"></span>
+              <h3 class="text-lg font-semibold text-slate-950 dark:text-white">Активные подписки</h3>
+            </div>
+            <p class="mt-1 text-sm text-slate-500 dark:text-neutral-400">Пользователи, у которых premium-доступ действует сейчас.</p>
+          </div>
+          <span class="badge badge-soft-outline-success badge-rounded-md billing-figure">{{ active_subscriptions|length }} активно</span>
+        </div>
+
+        <div data-subscriptions-list="active" class="space-y-3">
+          {% for row in active_subscriptions %}
+            <article class="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm dark:border-emerald-400/25 dark:bg-neutral-900 sm:p-5">
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <p class="truncate text-base font-semibold text-slate-950 dark:text-white">{{ row.subscription.user.username }}</p>
+                    <span class="badge badge-soft-outline-success badge-rounded-md">Активна</span>
+                  </div>
+                  <p class="mt-1 truncate text-sm text-slate-500 dark:text-neutral-400">{{ row.subscription.user.email|default:'Email не указан' }}</p>
+                </div>
+                <span class="badge badge-soft-outline-success badge-rounded-md billing-figure lg:ml-auto">
+                  {% if row.days_until_expired is not None %}Осталось {{ row.days_until_expired_text }}{% else %}Без даты окончания{% endif %}
+                </span>
+              </div>
+
+              <div class="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+                <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 dark:border-white/10 dark:bg-white/[0.04]">
+                  <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-neutral-500">Тариф</p>
+                  <p class="mt-1 font-semibold text-slate-900 dark:text-neutral-100">{{ row.subscription.plan.name }}</p>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 dark:border-white/10 dark:bg-white/[0.04]">
+                  <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-neutral-500">Дата окончания</p>
+                  <p class="billing-figure mt-1 font-semibold text-slate-900 dark:text-neutral-100">
+                    {% if row.subscription.expires_at %}
+                      {{ row.subscription.expires_at|date:"d.m.Y" }}
+                    {% else %}
+                      Без даты окончания
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+
+              {% if row.previous_subscriptions %}
+                <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-3 dark:border-white/10 dark:bg-white/[0.04]">
+                  <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-neutral-400">Предыдущие подписки</p>
+                  <ul class="mt-3 space-y-2 text-sm text-slate-700 dark:text-neutral-200">
+                    {% for previous in row.previous_subscriptions %}
+                      <li class="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-neutral-950/70 sm:flex-row sm:items-center sm:justify-between">
+                        <span class="font-medium">{{ previous.plan.name }} · {{ previous.get_status_display }}</span>
+                        <span class="badge badge-soft-outline-plain badge-rounded-md billing-figure">
+                          {% if previous.expires_at %}{{ previous.expires_at|date:"d.m.Y" }}{% else %}без даты окончания{% endif %}
+                        </span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+            </article>
+          {% empty %}
+            <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 px-5 py-8 text-center dark:border-white/15 dark:bg-white/[0.04]">
+              <p class="font-semibold text-slate-900 dark:text-white">Активных подписок нет.</p>
+              <p class="mt-1 text-sm text-slate-500 dark:text-neutral-400">Когда появятся оплаченные клиенты, они будут отображаться в этом списке.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div data-subscriptions-heading="expired" class="flex flex-col gap-4 rounded-[1.5rem] border border-amber-200 bg-amber-50/80 px-5 py-5 shadow-sm dark:border-amber-400/25 dark:bg-amber-400/10 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-amber-500 shadow-[0_0_0_4px_rgb(245_158_11_/_0.16)]"></span>
+              <h3 class="text-lg font-semibold text-slate-950 dark:text-white">Истекшие подписки</h3>
+            </div>
+            <p class="mt-1 text-sm text-amber-800/80 dark:text-amber-100/80">Пользователи, у которых premium-доступ уже закончился.</p>
+          </div>
+          <span class="badge badge-soft-outline-warning badge-rounded-md billing-figure">{{ expired_subscriptions|length }} истекло</span>
+        </div>
+
+        <div data-subscriptions-list="expired" class="space-y-3">
+          {% for row in expired_subscriptions %}
+            <article class="rounded-2xl border border-amber-200 bg-white p-4 shadow-sm dark:border-amber-400/25 dark:bg-neutral-900 sm:p-5">
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <p class="truncate text-base font-semibold text-slate-950 dark:text-white">{{ row.subscription.user.username }}</p>
+                    <span class="badge badge-soft-outline-warning badge-rounded-md">Истекла</span>
+                  </div>
+                  <p class="mt-1 truncate text-sm text-slate-500 dark:text-neutral-400">{{ row.subscription.user.email|default:'Email не указан' }}</p>
+                </div>
+                <span class="badge badge-soft-outline-warning badge-rounded-md billing-figure lg:ml-auto">
+                  {{ row.days_since_expired_text }} назад
+                </span>
+              </div>
+
+              <div class="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+                <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 dark:border-white/10 dark:bg-white/[0.04]">
+                  <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-neutral-500">Тариф</p>
+                  <p class="mt-1 font-semibold text-slate-900 dark:text-neutral-100">{{ row.subscription.plan.name }}</p>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 dark:border-white/10 dark:bg-white/[0.04]">
+                  <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-neutral-500">Дата окончания</p>
+                  <p class="billing-figure mt-1 font-semibold text-slate-900 dark:text-neutral-100">{{ row.subscription.expires_at|date:"d.m.Y" }}</p>
+                </div>
+              </div>
+
+              {% if row.previous_subscriptions %}
+                <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-3 dark:border-white/10 dark:bg-white/[0.04]">
+                  <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-neutral-400">Предыдущие подписки</p>
+                  <ul class="mt-3 space-y-2 text-sm text-slate-700 dark:text-neutral-200">
+                    {% for previous in row.previous_subscriptions %}
+                      <li class="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-neutral-950/70 sm:flex-row sm:items-center sm:justify-between">
+                        <span class="font-medium">{{ previous.plan.name }} · {{ previous.get_status_display }}</span>
+                        <span class="badge badge-soft-outline-plain badge-rounded-md billing-figure">
+                          {% if previous.expires_at %}{{ previous.expires_at|date:"d.m.Y" }}{% else %}без даты окончания{% endif %}
+                        </span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+            </article>
+          {% empty %}
+            <div class="rounded-2xl border border-dashed border-amber-300 bg-amber-50/80 px-5 py-8 text-center dark:border-amber-400/30 dark:bg-amber-400/10">
+              <p class="font-semibold text-amber-950 dark:text-amber-100">Истекших подписок нет.</p>
+              <p class="mt-1 text-sm text-amber-800/80 dark:text-amber-100/75">Список истёкших premium-подписок пуст.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

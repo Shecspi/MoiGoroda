@@ -26,19 +26,6 @@ Licensed under the Apache License, Version 2.0
     background: rgb(23 23 23);
   }
 
-  .billing-gridline {
-    background-image:
-      linear-gradient(rgb(15 23 42 / 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(15 23 42 / 0.045) 1px, transparent 1px);
-    background-size: 26px 26px;
-  }
-
-  .dark .billing-gridline {
-    background-image:
-      linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px);
-  }
-
   .billing-figure {
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum' 1, 'lnum' 1;
@@ -47,14 +34,21 @@ Licensed under the Apache License, Version 2.0
 
 <div class="subscriptions-management-surface w-full">
   <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
-    <header class="billing-gridline relative mb-6 overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/90 shadow-xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-neutral-950/80 dark:shadow-black/30">
-      <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-slate-950 via-blue-600 to-teal-400 dark:from-white dark:via-blue-400 dark:to-teal-300"></div>
-      <div class="relative px-5 py-6 sm:px-7 lg:px-8 lg:py-8">
+    <header class="relative mb-6 overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/90 shadow-xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-neutral-950/80 dark:shadow-black/30">
+      <div class="absolute inset-x-0 top-0 z-10 h-1 bg-gradient-to-r from-slate-950 via-blue-600 to-teal-400 dark:from-white dark:via-blue-400 dark:to-teal-300"></div>
+      <div class="relative z-10 px-5 py-6 sm:px-7 lg:px-8 lg:py-8">
         <div class="flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
           <div class="max-w-3xl">
-            <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-gradient-to-r from-emerald-50 via-sky-50 to-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800 shadow-sm dark:border-emerald-400/30 dark:from-emerald-400/15 dark:via-sky-400/10 dark:to-blue-400/15 dark:text-emerald-100">
-              <span class="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgb(16_185_129_/_0.18)]"></span>
-              ПРИМИУМ-ПОДПИСКИ
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="inline-flex items-center rounded-full border border-emerald-200 bg-gradient-to-r from-emerald-50 via-sky-50 to-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800 shadow-sm dark:border-emerald-400/30 dark:from-emerald-400/15 dark:via-sky-400/10 dark:to-blue-400/15 dark:text-emerald-100">
+                ПРИМИУМ-ПОДПИСКИ
+              </div>
+              <svg class="h-4 w-12 shrink-0 text-emerald-700 dark:text-emerald-200" viewBox="0 0 48 16" fill="none" aria-hidden="true">
+                <path d="M5 11 C14 2 22 14 31 6 S41 4 43 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.65" />
+                <circle cx="5" cy="11" r="2.5" class="fill-emerald-500" />
+                <circle cx="31" cy="6" r="2.5" class="fill-sky-500" />
+                <circle cx="43" cy="9" r="2.5" class="fill-amber-500" />
+              </svg>
             </div>
             <h1 class="mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl dark:text-white">
               Управление подписками
@@ -186,16 +180,7 @@ Licensed under the Apache License, Version 2.0
                 </div>
                 <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 dark:border-white/10 dark:bg-white/[0.04]">
                   <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-neutral-500">Дата окончания</p>
-                  <p class="billing-figure mt-1 font-semibold text-slate-900 dark:text-neutral-100">{{ row.subscription.expires_at|date:"d.m.Y" }}</p>
-                </div>
-              </div>
-
-              {% if row.previous_subscriptions %}
-                <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-3 dark:border-white/10 dark:bg-white/[0.04]">
-                  <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-neutral-400">Предыдущие подписки</p>
-                  <ul class="mt-3 space-y-2 text-sm text-slate-700 dark:text-neutral-200">
-                    {% for previous in row.previous_subscriptions %}
-                      <li class="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-neutral-950/70 sm:flex-row sm:items-center sm:justify-between">
+                  <p chite/10 dark:bg-neutral-950/70 sm:flex-row sm:items-center sm:justify-between">
                         <span class="font-medium">{{ previous.plan.name }} · {{ previous.get_status_display }}</span>
                         <span class="badge badge-soft-outline-plain badge-rounded-md billing-figure">
                           {% if previous.expires_at %}{{ previous.expires_at|date:"d.m.Y" }}{% else %}без даты окончания{% endif %}

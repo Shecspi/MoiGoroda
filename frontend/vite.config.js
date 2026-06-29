@@ -1,3 +1,10 @@
+// ---------------------------------------------
+//
+// Copyright © Egor Vavilov (Shecspi)
+// Licensed under the Apache License, Version 2.0
+//
+// ----------------------------------------------
+
 import { defineConfig } from 'vite';
 import path from 'path';
 import fs from 'fs';
@@ -79,7 +86,6 @@ export default defineConfig({
         'css/geo_polygons': path.resolve(__dirname, 'css/geo_polygons.css'),
         'css/content_image_gallery': path.resolve(__dirname, 'css/content_image_gallery.css'),
         'css/blog_content_carousel': path.resolve(__dirname, 'css/blog_content_carousel.css'),
-        'css/ui-lib': path.resolve(__dirname, 'ui-lib/styles/index.css'),
       }
     }
   }

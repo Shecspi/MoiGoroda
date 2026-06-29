@@ -16,29 +16,39 @@ Licensed under the Apache License, Version 2.0
 
 ## Overview
 
-Use daisyUI as the preferred compact component layer for Tailwind UI work in this project, while preserving the current Django templates + Tailwind 3 + Vite architecture.
+Use daisyUI as the preferred compact component layer for Tailwind UI work in this project, while preserving the current Django templates + Vite architecture.
 
 The authoritative local reference is `frontend/llms.txt`. Read it before non-trivial daisyUI work, especially when choosing components or class names.
 
 ## Project Rules
 
-- This project currently uses Tailwind CSS `3.4.x`, not Tailwind CSS 4.
-- This project uses `daisyui@4.12.x` because daisyUI 5 requires Tailwind CSS 4 and does not generate `dui-*` CSS in this Tailwind 3 build pipeline.
-- `frontend/llms.txt` is daisyUI 5 documentation. Use it for component discovery and class concepts, but do not apply Tailwind 4 installation instructions literally.
-- daisyUI is configured through `frontend/tailwind.config.js`.
+- On stable Tailwind 3 branches, use `daisyui@4.12.x`; daisyUI 5 requires Tailwind CSS 4 and does not generate `dui-*` CSS in the Tailwind 3 build pipeline.
+- On Tailwind 4 migration branches, use `daisyui@5.x` and configure it from `frontend/css/tailwind.css` with `@plugin "daisyui"`.
+- `frontend/llms.txt` is daisyUI 5 documentation. Use it directly on Tailwind 4 branches; on Tailwind 3 branches use it for component discovery only.
 - All daisyUI classes must use the configured prefix: `dui-`.
 - Use `dui-card`, not `card`; `dui-btn`, not `btn`; `dui-badge`, not `badge`.
 - Keep the prefix because the project already has custom `.btn`, `.badge`, and `.progress` classes.
 - Prefer daisyUI components plus Tailwind layout utilities over custom CSS.
 - Use custom CSS only when component classes and utilities are insufficient.
 
-## Current Install Shape
+## Install Shapes
+
+Tailwind 3 stable branches:
 
 ```js
 plugins: [require('daisyui')],
 daisyui: {
   prefix: 'dui-',
 },
+```
+
+Tailwind 4 migration branches:
+
+```css
+@import "tailwindcss";
+@plugin "daisyui" {
+    prefix: dui-;
+}
 ```
 
 ## Component Selection

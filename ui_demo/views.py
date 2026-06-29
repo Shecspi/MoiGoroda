@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 ----------------------------------------------
 
@@ -94,6 +101,16 @@ def forms(request: HttpRequest) -> HttpResponse:
 @login_required
 def progress(request: HttpRequest) -> HttpResponse:
     return _render(request, 'ui_demo/progress.html', 'Прогресс-бары')
+
+
+@login_required
+def daisyui(request: HttpRequest) -> HttpResponse:
+    return _render(
+        request,
+        'ui_demo/daisyui.html',
+        'DaisyUI',
+        'Проверочная витрина daisyUI 5 с проектным префиксом dui-*.',
+    )
 
 
 @login_required

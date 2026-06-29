@@ -84,3 +84,5 @@ def test_ui_demo_daisyui_page_shows_prefixed_components(
     assert 'dui-btn-accent' in content
     assert 'dui-card' in content
     assert 'dui-alert' in content
+    assert 'dui-timeline dui-timeline-vertical dui-timeline-compact' in content
+    assert 'dui-timeline dui-timeline-vertical timeline-compact' not in content

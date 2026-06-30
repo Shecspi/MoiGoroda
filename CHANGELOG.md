@@ -144,6 +144,11 @@
 - Switch to_file_django handler to json_simple formatter ([8b08865](https://github.com/Shecspi/MoiGoroda/commit/8b088655ae16e296e194f233bed1c7cdd6915cc6))
 
 
+#### 🚜 Рефакторинг
+
+- Переход с Tailwind 4 на Tailwind 5 ([b66ed8a](https://github.com/Shecspi/MoiGoroda/commit/b66ed8aae67427251842f57a277226ddf832fcd6))
+
+
 #### ⚡ Производительность
 
 - Реализована ленивая загрузка тяжёлых данных на странице города ([22c2b67](https://github.com/Shecspi/MoiGoroda/commit/22c2b67799eaa308478d1dd1d70fc103ee997793))

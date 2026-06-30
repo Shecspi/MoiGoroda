@@ -3,6 +3,15 @@ description: Бейджи в UI — стили в ui-lib (классы без и
 alwaysApply: true
 ---
 
+<!--
+---------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+-->
+
 # Бейджи
 
 Если нужно **добавить, изменить или стилизовать бейджи** (в шаблонах, разметке из JS и т.п.), применяй **только готовую систему классов** из [`frontend/ui-lib/styles/badge.css`](frontend/ui-lib/styles/badge.css) (подключается вместе с библиотекой через [`frontend/ui-lib/styles/index.css`](frontend/ui-lib/styles/index.css). Отдельного Django-include или JS-компонента нет. Не копируй дизайн с нуля утилитами Tailwind. Старые `stat-badge*` сняты — в тулбарах обычные `badge` (см. [`templates/ui_demo/badges.html`](templates/ui_demo/badges.html)).
@@ -11,6 +20,6 @@ alwaysApply: true
 - Семантика и вид: `badge-solid-*`, `badge-soft-*`, `badge-outline-*`, `badge-soft-outline-*`, где `*` — `secondary`, `primary`, `info`, `success`, `warning`, `danger`, `plain`.
 - Дополнительно: `badge-dot`, `badge-icon`.
 
-Цвета задаются токенами темы в [`frontend/tailwind.config.js`](frontend/tailwind.config.js); не дублируй палитру инлайном для бейджей.
+Цвета задаются токенами темы в `@theme` внутри [`frontend/css/tailwind.css`](frontend/css/tailwind.css); не дублируй палитру инлайном для бейджей.
 
 Демо-образцы: [`templates/ui_demo/badges.html`](templates/ui_demo/badges.html).

@@ -12,7 +12,75 @@ Licensed under the Apache License, Version 2.0
 @import "./preline-datepicker-vc.css" layer(components);
 @import "../ui-lib/styles/index.css";
 
-@config "../tailwind.config.js";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-pacifico: "Pacifico", cursive;
+    --font-roboto: "Roboto", sans-serif;
+
+    --color-layer: #ffffff;
+    --color-layer-foreground: #111827;
+    --color-layer-hover: #f3f4f6;
+    --color-layer-focus: #f3f4f6;
+    --color-layer-line: #e5e7eb;
+    --color-primary: #2563eb;
+    --color-primary-foreground: #ffffff;
+    --color-primary-focus: #3b82f6;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdbfe;
+    --color-primary-400: #60a5fa;
+    --color-primary-500: #3b82f6;
+    --color-primary-800: #1e40af;
+    --color-secondary: #e5e7eb;
+    --color-secondary-foreground: #1f2937;
+    --color-secondary-100: #f3f4f6;
+    --color-secondary-400: #9ca3af;
+    --color-secondary-500: #6b7280;
+    --color-secondary-800: #1f2937;
+    --color-surface: #ffffff;
+    --color-surface-foreground: #111827;
+    --color-surface-4: #f3f4f6;
+    --color-muted: #f3f4f6;
+    --color-muted-foreground-1: #6b7280;
+    --color-plain: #111827;
+    --color-inverse: #ffffff;
+    --color-foreground: #111827;
+    --color-foreground-inverse: #ffffff;
+    --color-line-5: #d1d5db;
+    --color-line-8: #e5e7eb;
+    --color-line-inverse: rgba(255, 255, 255, 0.25);
+    --color-success: #10b981;
+    --color-success-foreground: #ffffff;
+    --color-success-100: #d1fae5;
+    --color-success-200: #a7f3d0;
+    --color-success-400: #34d399;
+    --color-success-500: #10b981;
+    --color-success-800: #065f46;
+    --color-info: #0ea5e9;
+    --color-info-foreground: #ffffff;
+    --color-info-100: #e0f2fe;
+    --color-info-200: #bae6fd;
+    --color-info-400: #38bdf8;
+    --color-info-500: #0ea5e9;
+    --color-info-800: #075985;
+    --color-warning: #f59e0b;
+    --color-warning-foreground: #ffffff;
+    --color-warning-100: #fef3c7;
+    --color-warning-200: #fde68a;
+    --color-warning-400: #fbbf24;
+    --color-warning-500: #f59e0b;
+    --color-warning-800: #92400e;
+    --color-danger: #ef4444;
+    --color-danger-foreground: #ffffff;
+    --color-danger-100: #fee2e2;
+    --color-danger-200: #fecaca;
+    --color-danger-400: #f87171;
+    --color-danger-500: #ef4444;
+    --color-danger-800: #991b1b;
+
+    --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+}
+
 @source "../js";
 @source "../css";
 @source "../../templates";
@@ -167,7 +235,7 @@ Licensed under the Apache License, Version 2.0
 
     /*
      * Кнопки: та же семантика, что у бейджей — secondary | primary | info | success | warning | danger | plain
-     * (только токены темы в tailwind.config.js). Светлая тема.
+     * (только токены темы в @theme выше). Светлая тема.
      *
      * База: .btn + размер (btn-xs | btn-sm | btn-default | btn-lg)
      * Варианты: btn-solid-* | btn-soft-* | btn-outline-* | btn-soft-outline-*

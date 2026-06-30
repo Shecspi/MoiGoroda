@@ -3,6 +3,15 @@ description: Кнопки в UI — только компоненты из tailw
 alwaysApply: true
 ---
 
+<!--
+---------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+-->
+
 # Кнопки
 
 Если нужно **добавить, изменить или стилизовать кнопки** (в шаблонах, разметке из JS и т.п.), используй **готовую систему классов** из [`frontend/css/tailwind.css`](frontend/css/tailwind.css), а не произвольные утилиты Tailwind для цветов и состояний с нуля. Стили рассчитаны на **светлую тему**.
@@ -15,6 +24,6 @@ alwaysApply: true
 - Ссылки-кнопки: `btn-link`, `btn-link-secondary`, `btn-link-primary`.
 - Иконка: `btn-icon` на `svg` внутри кнопки.
 
-Цвета задаются токенами темы в [`frontend/tailwind.config.js`](frontend/tailwind.config.js); не дублируй палитру инлайном для кнопок.
+Цвета задаются токенами темы в `@theme` внутри [`frontend/css/tailwind.css`](frontend/css/tailwind.css); не дублируй палитру инлайном для кнопок.
 
 Демо-образцы: [`templates/ui_demo/buttons.html`](templates/ui_demo/buttons.html).

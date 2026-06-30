@@ -22,8 +22,8 @@ The authoritative reference is `https://daisyui.com/llms.txt`. Fetch it before n
 
 ## Project Rules
 
-- On stable Tailwind 3 branches, use `daisyui@4.12.x`; daisyUI 5 requires Tailwind CSS 4 and does not generate `dui-*` CSS in the Tailwind 3 build pipeline.
-- On Tailwind 4 migration branches, use `daisyui@5.x` and configure it from `frontend/css/tailwind.css` with `@plugin "daisyui"`.
+- Use `daisyui@5.x` with Tailwind CSS 4 and configure it from `frontend/css/tailwind.css` with `@plugin "daisyui"`.
+- Keep Tailwind theme tokens in `@theme` inside `frontend/css/tailwind.css`; do not add or restore `tailwind.config.js` unless there is a concrete compatibility need.
 - `https://daisyui.com/llms.txt` is daisyUI 5 documentation. Use it directly on Tailwind 4 branches; on Tailwind 3 branches use it for component discovery only.
 - All daisyUI classes must use the configured prefix: `dui-`.
 - Use `dui-card`, not `card`; `dui-btn`, not `btn`; `dui-badge`, not `badge`.
@@ -31,18 +31,7 @@ The authoritative reference is `https://daisyui.com/llms.txt`. Fetch it before n
 - Prefer daisyUI components plus Tailwind layout utilities over custom CSS.
 - Use custom CSS only when component classes and utilities are insufficient.
 
-## Install Shapes
-
-Tailwind 3 stable branches:
-
-```js
-plugins: [require('daisyui')],
-daisyui: {
-  prefix: 'dui-',
-},
-```
-
-Tailwind 4 migration branches:
+## Install Shape
 
 ```css
 @import "tailwindcss";
@@ -93,7 +82,7 @@ poetry run pytest premium/tests -q
 | Mistake | Fix |
 | --- | --- |
 | Using unprefixed `btn`, `badge`, `card` | Use `dui-btn`, `dui-badge`, `dui-card` |
-| Following Tailwind 4 install docs in this Tailwind 3 project | Keep `tailwind.config.js` plugin config |
+| Restoring `tailwind.config.js` for theme tokens | Keep tokens in `@theme` inside `frontend/css/tailwind.css` |
 | Rebuilding Bootstrap-style layouts with excessive utility classes | Start from daisyUI components |
 | Mixing many semantic colors in one screen | Use one primary action color and status colors only where meaningful |
 | Adding custom CSS for ordinary component styling | Use daisyUI classes or Tailwind utilities first |

@@ -30,7 +30,7 @@ export default defineConfig({
   build: {
     outDir: '../static/js', // папка, куда попадёт сборка
     emptyOutDir: true,
-    manifest: true, // нужен для Django
+    manifest: 'manifest.json', // нужен для Django templatetag loader
     rollupOptions: {
       input: {
         // JS entries

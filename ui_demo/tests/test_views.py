@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 import pytest
 from typing import Any
 
@@ -52,3 +59,30 @@ def test_ui_demo_allows_superuser_when_debug(client: Client, django_user_model: 
     with override_settings(DEBUG=True):
         r3 = client.get(reverse('ui_demo:city_popup'))
     assert r3.status_code == 200
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_ui_demo_daisyui_page_shows_prefixed_components(
+    client: Client,
+    django_user_model: Any,
+) -> None:
+    admin = django_user_model.objects.create_superuser(username='a', email='a@a.com', password='p')
+    client.force_login(admin)
+
+    with override_settings(DEBUG=True):
+        response = client.get(reverse('ui_demo:daisyui'))
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'DaisyUI' in content
+    assert 'Маршрут выходного дня' in content
+    assert 'Цветная карта компонентов' in content
+    assert 'Казань' in content
+    assert 'Индекс прогулки' in content
+    assert 'dui-btn' in content
+    assert 'dui-btn-accent' in content
+    assert 'dui-card' in content
+    assert 'dui-alert' in content
+    assert 'dui-timeline dui-timeline-vertical dui-timeline-compact' in content
+    assert 'dui-timeline dui-timeline-vertical timeline-compact' not in content

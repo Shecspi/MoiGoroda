@@ -18,13 +18,13 @@ Licensed under the Apache License, Version 2.0
 
 Use daisyUI as the preferred compact component layer for Tailwind UI work in this project, while preserving the current Django templates + Vite architecture.
 
-The authoritative local reference is `frontend/llms.txt`. Read it before non-trivial daisyUI work, especially when choosing components or class names.
+The authoritative reference is `https://daisyui.com/llms.txt`. Fetch it before non-trivial daisyUI work, especially when choosing components or class names.
 
 ## Project Rules
 
 - On stable Tailwind 3 branches, use `daisyui@4.12.x`; daisyUI 5 requires Tailwind CSS 4 and does not generate `dui-*` CSS in the Tailwind 3 build pipeline.
 - On Tailwind 4 migration branches, use `daisyui@5.x` and configure it from `frontend/css/tailwind.css` with `@plugin "daisyui"`.
-- `frontend/llms.txt` is daisyUI 5 documentation. Use it directly on Tailwind 4 branches; on Tailwind 3 branches use it for component discovery only.
+- `https://daisyui.com/llms.txt` is daisyUI 5 documentation. Use it directly on Tailwind 4 branches; on Tailwind 3 branches use it for component discovery only.
 - All daisyUI classes must use the configured prefix: `dui-`.
 - Use `dui-card`, not `card`; `dui-btn`, not `btn`; `dui-badge`, not `badge`.
 - Keep the prefix because the project already has custom `.btn`, `.badge`, and `.progress` classes.
@@ -56,7 +56,7 @@ Tailwind 4 migration branches:
 Before writing daisyUI markup:
 
 1. Identify the UI intent: navigation, data display, action, feedback, disclosure, form, layout.
-2. Check `frontend/llms.txt` for matching components and rules.
+2. Fetch `https://daisyui.com/llms.txt` and check it for matching components and rules.
 3. Prefer the simplest daisyUI component that matches the behavior.
 4. Add Tailwind utilities only for spacing, responsive layout, and small project-specific adjustments.
 5. Avoid stacking many nested decorative cards unless the information hierarchy requires it.

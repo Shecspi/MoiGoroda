@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Реализует функции, взаимодействующие с моделью Region.
 Любая работа с этой моделью должна происходить только через описанные в этом файле функции.
@@ -67,26 +74,64 @@ def get_number_of_regions(country_id: int | None) -> int:
 
 
 def get_all_region_with_visited_cities(
-    user_id: int, country_id: int | None = None
+    user_id: int,
+    country_id: int | None = None,
+    *,
+    include_visit_years: bool = True,
+    include_ratio: bool = True,
 ) -> QuerySet[Region, Region]:
     """
     Возвращает QuerySet со всеми регионами, количеством городов в каждом из них и
     количеством посещённых городов пользователем с ID равным user_id.
-    Для каждого региона также добавляется поле visit_years - список уникальных годов,
-    в которые пользователь посещал города данного региона.
+    Если include_visit_years=True, для каждого региона также добавляется поле visit_years -
+    список уникальных годов, в которые пользователь посещал города данного региона.
+    Если include_ratio=False, поле ratio_visited не добавляется.
     """
     queryset = Region.objects.all()
 
     if country_id:
         queryset = queryset.filter(country_id=country_id)
 
-    return (
-        queryset.select_related('area')
-        .annotate(
-            num_total=Count('city', distinct=True),
-            num_visited=Count('city', filter=Q(city__visitedcity__user_id=user_id), distinct=True),
+    if not include_visit_years and not include_ratio:
+        total_cities = (
+            City.objects.filter(region_id=OuterRef('pk'))
+            .order_by()
+            .values('region_id')
+            .annotate(count=Count('id'))
+            .values('count')[:1]
         )
-        .annotate(
+        visited_cities = (
+            VisitedCity.objects.filter(user_id=user_id, city__region_id=OuterRef('pk'))
+            .order_by()
+            .values('city__region_id')
+            .annotate(count=Count('city_id', distinct=True))
+            .values('count')[:1]
+        )
+
+        return (
+            queryset.select_related('area')
+            .annotate(
+                num_total=Coalesce(
+                    Subquery(total_cities, output_field=IntegerField()),
+                    Value(0),
+                    output_field=IntegerField(),
+                ),
+                num_visited=Coalesce(
+                    Subquery(visited_cities, output_field=IntegerField()),
+                    Value(0),
+                    output_field=IntegerField(),
+                ),
+            )
+            .order_by('-num_visited', 'title')
+        )
+
+    queryset = queryset.select_related('area').annotate(
+        num_total=Count('city', distinct=True),
+        num_visited=Count('city', filter=Q(city__visitedcity__user_id=user_id), distinct=True),
+    )
+
+    if include_ratio:
+        queryset = queryset.annotate(
             ratio_visited=Round(
                 ExpressionWrapper(
                     Case(
@@ -97,6 +142,10 @@ def get_all_region_with_visited_cities(
                     output_field=FloatField(),
                 )
             ),
+        )
+
+    if include_visit_years:
+        queryset = queryset.annotate(
             visit_years=Coalesce(
                 ArrayAgg(
                     ExtractYear('city__visitedcity__date_of_visit'),
@@ -105,10 +154,10 @@ def get_all_region_with_visited_cities(
                     distinct=True,
                 ),
                 Value([], output_field=ArrayField(IntegerField())),
-            ),
+            )
         )
-        .order_by('-num_visited', 'title')
-    )
+
+    return queryset.order_by('-num_visited', 'title')
 
 
 def get_all_cities_in_region(
@@ -209,11 +258,12 @@ def get_number_of_visited_regions(user_id: int, country_id: int | None = None) -
     """
     Возвращает количество посещённых регионов пользователя с ID user_id.
     """
+    queryset = VisitedCity.objects.filter(user_id=user_id, city__region_id__isnull=False)
+
     if country_id:
-        queryset = get_all_region_with_visited_cities(user_id, country_id)
-    else:
-        queryset = get_all_region_with_visited_cities(user_id)
-    return queryset.filter(num_visited__gt=0).count()
+        queryset = queryset.filter(city__region__country_id=country_id)
+
+    return queryset.values('city__region_id').distinct().count()
 
 
 def get_number_of_finished_regions(user_id: int, country_id: int | None = None) -> int:

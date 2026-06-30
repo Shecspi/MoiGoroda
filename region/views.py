@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Реализует классы для отображения списка регионов и городов конкретного региона.
 
@@ -35,6 +42,7 @@ from region.services.db import (
     get_all_region_with_visited_cities,
     get_all_cities_in_region,
     get_all_regions,
+    get_number_of_visited_regions,
 )
 from region.services.filter import apply_filter_to_queryset
 from region.services.sort import apply_sort_to_queryset
@@ -93,8 +101,15 @@ class RegionList(ListView):
         self.qty_of_regions = Region.objects.filter(country=country.id).count()
 
         if self.request.user.is_authenticated:
-            queryset = get_all_region_with_visited_cities(self.request.user.pk, country.id)
-            self.qty_of_visited_regions = queryset.filter(num_visited__gt=0).count()
+            queryset = get_all_region_with_visited_cities(
+                self.request.user.pk,
+                country.id,
+                include_visit_years=self.list_or_map == 'map',
+                include_ratio=self.list_or_map == 'map',
+            )
+            self.qty_of_visited_regions = get_number_of_visited_regions(
+                self.request.user.pk, country.id
+            )
         else:
             queryset = get_all_regions(country.id)
 

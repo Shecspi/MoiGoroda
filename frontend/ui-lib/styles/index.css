@@ -1,11 +1,17 @@
 /*
- * Единая точка входа стилей UI-библиотеки.
- * Добавляйте сюда стили: виджеты (combobox, select-search) и примитивы вроде badge.css (только классы, без JS),
- * чтобы в приложении по-прежнему подключался только один entry: css/ui-lib.
+---------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+*/
+
+/*
+ * Единая точка входа стилей UI-библиотеки. В Tailwind 4 этот файл импортируется
+ * только из css/tailwind.css, чтобы @apply работал в одном Tailwind context.
  */
 @import "./combobox.css" layer(components);
 @import "./select-search.css" layer(components);
 @import "./badge.css" layer(components);
 @import "./progress.css" layer(components);
-
-@tailwind components;

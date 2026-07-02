@@ -16,29 +16,28 @@ Licensed under the Apache License, Version 2.0
 
 ## Overview
 
-Use daisyUI as the preferred compact component layer for Tailwind UI work in this project, while preserving the current Django templates + Tailwind 3 + Vite architecture.
+Use daisyUI as the preferred compact component layer for Tailwind UI work in this project, while preserving the current Django templates + Vite architecture.
 
-The authoritative local reference is `frontend/llms.txt`. Read it before non-trivial daisyUI work, especially when choosing components or class names.
+The authoritative reference is `https://daisyui.com/llms.txt`. Fetch it before non-trivial daisyUI work, especially when choosing components or class names.
 
 ## Project Rules
 
-- This project currently uses Tailwind CSS `3.4.x`, not Tailwind CSS 4.
-- This project uses `daisyui@4.12.x` because daisyUI 5 requires Tailwind CSS 4 and does not generate `dui-*` CSS in this Tailwind 3 build pipeline.
-- `frontend/llms.txt` is daisyUI 5 documentation. Use it for component discovery and class concepts, but do not apply Tailwind 4 installation instructions literally.
-- daisyUI is configured through `frontend/tailwind.config.js`.
+- Use `daisyui@5.x` with Tailwind CSS 4 and configure it from `frontend/css/tailwind.css` with `@plugin "daisyui"`.
+- Keep Tailwind theme tokens in `@theme` inside `frontend/css/tailwind.css`; do not add or restore `tailwind.config.js` unless there is a concrete compatibility need.
+- `https://daisyui.com/llms.txt` is daisyUI 5 documentation. Use it directly on Tailwind 4 branches; on Tailwind 3 branches use it for component discovery only.
 - All daisyUI classes must use the configured prefix: `dui-`.
 - Use `dui-card`, not `card`; `dui-btn`, not `btn`; `dui-badge`, not `badge`.
 - Keep the prefix because the project already has custom `.btn`, `.badge`, and `.progress` classes.
 - Prefer daisyUI components plus Tailwind layout utilities over custom CSS.
 - Use custom CSS only when component classes and utilities are insufficient.
 
-## Current Install Shape
+## Install Shape
 
-```js
-plugins: [require('daisyui')],
-daisyui: {
-  prefix: 'dui-',
-},
+```css
+@import "tailwindcss";
+@plugin "daisyui" {
+    prefix: dui-;
+}
 ```
 
 ## Component Selection
@@ -46,7 +45,7 @@ daisyui: {
 Before writing daisyUI markup:
 
 1. Identify the UI intent: navigation, data display, action, feedback, disclosure, form, layout.
-2. Check `frontend/llms.txt` for matching components and rules.
+2. Fetch `https://daisyui.com/llms.txt` and check it for matching components and rules.
 3. Prefer the simplest daisyUI component that matches the behavior.
 4. Add Tailwind utilities only for spacing, responsive layout, and small project-specific adjustments.
 5. Avoid stacking many nested decorative cards unless the information hierarchy requires it.
@@ -83,7 +82,7 @@ poetry run pytest premium/tests -q
 | Mistake | Fix |
 | --- | --- |
 | Using unprefixed `btn`, `badge`, `card` | Use `dui-btn`, `dui-badge`, `dui-card` |
-| Following Tailwind 4 install docs in this Tailwind 3 project | Keep `tailwind.config.js` plugin config |
+| Restoring `tailwind.config.js` for theme tokens | Keep tokens in `@theme` inside `frontend/css/tailwind.css` |
 | Rebuilding Bootstrap-style layouts with excessive utility classes | Start from daisyUI components |
 | Mixing many semantic colors in one screen | Use one primary action color and status colors only where meaningful |
 | Adding custom CSS for ordinary component styling | Use daisyUI classes or Tailwind utilities first |

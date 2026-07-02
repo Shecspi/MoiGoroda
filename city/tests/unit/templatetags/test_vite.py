@@ -1,7 +1,14 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 import pytest
 from django.test import override_settings
 
-from city.templatetags.vite import collect_entry_css_files, vite_asset
+from city.templatetags.vite import collect_entry_css_files, vite_asset, vite_css
 
 
 @pytest.mark.unit
@@ -43,6 +50,22 @@ def test_collect_entry_css_files_deduplicates_css() -> None:
     css_files = collect_entry_css_files(manifest, 'entry.js')
 
     assert css_files == ['assets/shared.css', 'assets/a.css', 'assets/b.css']
+
+
+@pytest.mark.unit
+@override_settings(DEBUG=True, TESTING=False)
+def test_vite_asset_uses_vite_base_path_in_development() -> None:
+    html = str(vite_asset('js/entries/notification.js'))
+
+    assert 'src="http://localhost:5173/static/js/js/entries/notification.js"' in html
+
+
+@pytest.mark.unit
+@override_settings(DEBUG=True, TESTING=False)
+def test_vite_css_uses_vite_base_path_in_development() -> None:
+    html = str(vite_css('css/tailwind'))
+
+    assert 'href="http://localhost:5173/static/js/css/tailwind.css"' in html
 
 
 @pytest.mark.unit

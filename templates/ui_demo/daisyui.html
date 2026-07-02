@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+
+{% block content %}
+<div class="mx-auto max-w-6xl px-4 pb-10 pt-12 sm:px-6 sm:pt-14 lg:px-8">
+    {% include 'ui_demo/_subnav.html' %}
+
+    <header class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-primary">DaisyUI travel lab</p>
+            <h1 class="text-3xl font-bold tracking-tight text-base-content sm:text-4xl">Маршрут выходного дня</h1>
+            <p class="mt-3 max-w-3xl text-sm leading-relaxed text-base-content/70">
+                Витрина компонентов daisyUI 5 для интерфейса путешествий по городам: фильтры, карточки маршрутов,
+                статусы, формы и уведомления. Все классы используют проектный префикс
+                <code class="rounded bg-base-300 px-1 font-mono text-xs">dui-</code>.
+            </p>
+        </div>
+        <div class="dui-alert dui-alert-info max-w-sm shadow-sm">
+            <span class="text-sm font-medium">9 новых городских идей готовы к просмотру</span>
+        </div>
+    </header>
+
+    <section class="dui-card mb-5 bg-base-100 shadow-sm ring-1 ring-base-300">
+        <div class="dui-card-body gap-4">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="dui-card-title text-base">Цветная карта компонентов</h2>
+                    <p class="text-sm text-base-content/60">Палитра daisyUI на городских сценариях: кнопки, бейджи, статусы и поверхности.</p>
+                </div>
+                <button type="button" class="dui-btn dui-btn-accent">Добавить город</button>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+                <div class="rounded-box bg-primary text-primary-content p-4">
+                    <p class="font-semibold">Primary</p>
+                    <p class="text-xs">Основной маршрут</p>
+                </div>
+                <div class="rounded-box bg-secondary p-4 text-secondary-content"><p class="font-semibold">Secondary</p><p class="text-xs opacity-80">Служебный слой</p></div>
+                <div class="rounded-box bg-accent p-4 text-accent-content"><p class="font-semibold">Accent</p><p class="text-xs opacity-80">Новое место</p></div>
+                <div class="rounded-box bg-info p-4 text-info-content">
+                    <p class="font-semibold">Info</p>
+                    <p class="text-xs opacity-80">Подсказка</p>
+                </div>
+                <div class="rounded-box bg-success p-4 text-success-content"><p class="font-semibold">Success</p><p class="text-xs opacity-80">Посещено</p></div>
+                <div class="rounded-box bg-warning p-4 text-warning-content"><p class="font-semibold">Warning</p><p class="text-xs opacity-80">В планах</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="grid gap-5 lg:grid-cols-3">
+        <section class="dui-card bg-base-100 shadow-sm ring-1 ring-base-300">
+            <div class="dui-card-body gap-5">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 class="dui-card-title text-base">Подборка мест</h2>
+                    <a href="#" class="dui-link text-sm">ещё</a>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="dui-badge dui-badge-primary gap-1">Казань <span aria-hidden="true">×</span></span>
+                    <span class="dui-badge dui-badge-secondary gap-1">Псков <span aria-hidden="true">×</span></span>
+                    <span class="dui-badge dui-badge-accent gap-1">набережные <span aria-hidden="true">×</span></span>
+                </div>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-center gap-3 border-b border-base-300 pb-3">
+                        <input type="checkbox" class="dui-checkbox dui-checkbox-primary dui-checkbox-sm" checked aria-label="Выбрать музеи" />
+                        <span class="flex-1">Музеи и локальные истории</span>
+                        <span class="dui-badge dui-badge-primary">25</span>
+                    </li>
+                    <li class="flex items-center gap-3 border-b border-base-300 pb-3">
+                        <input type="checkbox" class="dui-checkbox dui-checkbox-primary dui-checkbox-sm" checked aria-label="Выбрать прогулки" />
+                        <span class="flex-1">Пешие прогулки</span>
+                        <span class="dui-badge dui-badge-success">8</span>
+                    </li>
+                    <li class="flex items-center gap-3 border-b border-base-300 pb-3">
+                        <input type="checkbox" class="dui-checkbox dui-checkbox-sm" aria-label="Выбрать смотровые" />
+                        <span class="flex-1">Смотровые точки</span>
+                        <span class="dui-badge dui-badge-warning">3</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <input type="checkbox" class="dui-checkbox dui-checkbox-sm" aria-label="Выбрать кофейни" />
+                        <span class="flex-1">Кофейни у вокзала</span>
+                        <span class="dui-badge dui-badge-secondary">4</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="dui-card bg-base-100 shadow-sm ring-1 ring-base-300 lg:row-span-2">
+            <div class="dui-card-body gap-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.18em] text-base-content/50">июнь</p>
+                    <h2 class="mt-1 text-3xl font-black text-base-content">12 городов</h2>
+                    <p class="mt-1 text-sm text-success">+3 к прошлому месяцу</p>
+                </div>
+                <div class="flex h-28 items-end gap-2 rounded-box bg-primary/10 p-4" aria-label="График посещений городов">
+                    <span class="h-5 w-full rounded-t bg-info"></span>
+                    <span class="h-9 w-full rounded-t bg-secondary"></span>
+                    <span class="h-4 w-full rounded-t bg-accent"></span>
+                    <span class="h-12 w-full rounded-t bg-success"></span>
+                    <span class="h-8 w-full rounded-t bg-warning"></span>
+                    <span class="h-16 w-full rounded-t bg-primary"></span>
+                    <span class="h-20 w-full rounded-t bg-primary"></span>
+                    <span class="h-24 w-full rounded-t bg-primary"></span>
+                </div>
+                <p class="text-sm leading-relaxed text-base-content/70">
+                    Самый насыщенный маршрут: Казань, Йошкар-Ола и Нижний Новгород за один длинный уикенд.
+                </p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" class="dui-btn dui-btn-primary">Маршрут</button>
+                    <button type="button" class="dui-btn dui-btn-accent">Детали</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="dui-card bg-base-100 shadow-sm ring-1 ring-base-300">
+            <div class="dui-card-body gap-4">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-sm text-base-content/60">Индекс прогулки</p>
+                        <p class="mt-2 text-4xl font-black text-base-content">91<span class="text-base font-bold">/100</span></p>
+                        <p class="mt-1 text-sm text-success">Все хорошо: маршрут без крутых подъёмов</p>
+                    </div>
+                    <div class="dui-radial-progress text-success" style="--value:91;" role="progressbar" aria-valuenow="91" aria-valuemin="0" aria-valuemax="100">91</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="dui-card bg-base-100 shadow-sm ring-1 ring-base-300">
+            <div class="dui-card-body gap-5">
+                <div class="grid grid-cols-7 gap-2 text-center text-sm">
+                    <span><strong class="block">12</strong><small>Пн</small></span>
+                    <span><strong class="block">13</strong><small>Вт</small></span>
+                    <span class="rounded-box bg-warning px-2 py-1 text-warning-content"><strong class="block">14</strong><small>Ср</small></span>
+                    <span><strong class="block">15</strong><small>Чт</small></span>
+                    <span><strong class="block">16</strong><small>Пт</small></span>
+                    <span><strong class="block">17</strong><small>Сб</small></span>
+                    <span><strong class="block">18</strong><small>Вс</small></span>
+                </div>
+                <label class="dui-input dui-input-bordered flex items-center gap-2">
+                    <span class="text-base-content/40">⌕</span>
+                    <input type="search" class="grow" placeholder="Найти событие" aria-label="Найти событие" />
+                </label>
+                <label class="dui-label cursor-pointer justify-start gap-3">
+                    <input type="checkbox" class="dui-toggle dui-toggle-sm" checked />
+                    <span class="dui-label-text">Показывать события на весь день</span>
+                </label>
+                <div class="rounded-box border border-warning/30 bg-warning/10 p-4">
+                    <p class="font-semibold">Встреча с гидом</p>
+                    <p class="mt-1 text-sm text-base-content/60">Кремлёвская набережная, 11:00</p>
+                    <span class="dui-badge dui-badge-primary mt-3">1 ч</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="dui-card bg-base-100 shadow-sm ring-1 ring-base-300">
+            <div class="dui-card-body gap-4">
+                <h2 class="dui-card-title text-base">Аудиогид</h2>
+                <div class="flex items-center justify-between rounded-box border border-accent/30 bg-accent/10 p-4">
+                    <button type="button" class="dui-btn dui-btn-square dui-btn-secondary dui-btn-sm">↶</button>
+                    <button type="button" class="dui-btn dui-btn-circle dui-btn-primary">▶</button>
+                    <button type="button" class="dui-btn dui-btn-square dui-btn-secondary dui-btn-sm">↷</button>
+                </div>
+                <div>
+                    <p class="font-semibold">Прогулка по старому городу</p>
+                    <p class="text-sm text-base-content/60">Историк рассказывает про торговые ряды</p>
+                </div>
+                <progress class="dui-progress dui-progress-primary w-full" value="32" max="100">32%</progress>
+                <div class="flex justify-between text-xs text-base-content/50"><span>13:39</span><span>42:00</span></div>
+                <div class="grid grid-cols-4 gap-3">
+                    <button type="button" class="dui-btn dui-btn-info dui-btn-sm">звук</button>
+                    <button type="button" class="dui-btn dui-btn-secondary dui-btn-sm">mix</button>
+                    <button type="button" class="dui-btn dui-btn-success dui-btn-sm">loop</button>
+                    <button type="button" class="dui-btn dui-btn-warning dui-btn-sm">off</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="dui-card bg-base-100 shadow-sm ring-1 ring-base-300 lg:col-span-2">
+            <div class="dui-card-body gap-4">
+                <h2 class="dui-card-title text-base">Последние отметки</h2>
+                <div class="overflow-x-auto">
+                    <table class="dui-table dui-table-zebra">
+                        <tbody>
+                            <tr><td>Казань</td><td><span class="dui-badge dui-badge-success">посещён</span></td><td>14 июня</td></tr>
+                            <tr><td>Псков</td><td><span class="dui-badge dui-badge-warning">в планах</span></td><td>21 июня</td></tr>
+                            <tr><td>Калининград</td><td><span class="dui-badge dui-badge-primary">маршрут</span></td><td>июль</td></tr>
+                            <tr><td>Суздаль</td><td><span class="dui-badge dui-badge-neutral">архив</span></td><td>май</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="dui-card bg-base-100 shadow-sm ring-1 ring-base-300">
+            <div class="dui-card-body gap-4">
+                <h2 class="dui-card-title text-base">Добавить заметку</h2>
+                <div class="dui-join">
+                    <button type="button" class="dui-btn dui-join-item dui-btn-primary dui-btn-sm">B</button>
+                    <button type="button" class="dui-btn dui-join-item dui-btn-info dui-btn-sm">I</button>
+                    <button type="button" class="dui-btn dui-join-item dui-btn-accent dui-btn-sm">U</button>
+                    <button type="button" class="dui-btn dui-join-item dui-btn-secondary dui-btn-sm">Файл</button>
+                </div>
+                <textarea class="dui-textarea dui-textarea-bordered min-h-24" placeholder="Что запомнилось в городе?" aria-label="Что запомнилось в городе"></textarea>
+                <p class="text-xs text-base-content/50">1200 символов доступно</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" class="dui-btn dui-btn-info">Черновик</button>
+                    <button type="button" class="dui-btn dui-btn-primary">Опубликовать</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="dui-card bg-base-100 shadow-sm ring-1 ring-base-300">
+            <div class="dui-card-body gap-4">
+                <h2 class="dui-card-title text-base">Линия маршрута</h2>
+                <ul class="dui-timeline dui-timeline-vertical dui-timeline-compact">
+                    <li><div class="dui-timeline-start text-xs">09:40</div><div class="dui-timeline-middle text-primary">●</div><div class="dui-timeline-end rounded-box bg-primary px-3 py-2 text-sm text-primary-content">Вокзал</div><hr /></li>
+                    <li><hr /><div class="dui-timeline-start text-xs">10:30</div><div class="dui-timeline-middle text-info">●</div><div class="dui-timeline-end rounded-box bg-info px-3 py-2 text-sm text-info-content">Исторический центр</div><hr /></li>
+                    <li><hr /><div class="dui-timeline-start text-xs">13:00</div><div class="dui-timeline-middle text-accent">●</div><div class="dui-timeline-end rounded-box bg-accent px-3 py-2 text-sm text-accent-content">Музей города</div><hr /></li>
+                    <li><hr /><div class="dui-timeline-start text-xs">17:20</div><div class="dui-timeline-middle text-success">●</div><div class="dui-timeline-end rounded-box bg-success px-3 py-2 text-sm text-success-content">Смотровая площадка</div></li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <div class="dui-alert dui-alert-success">
+                <span>Маршрут сохранён в личной коллекции</span>
+            </div>
+            <div class="dui-alert dui-alert-warning">
+                <span>Подтвердите email, чтобы делиться публичной картой</span>
+            </div>
+            <div class="dui-alert dui-alert-error">
+                <span>Нет доступа к закрытым рекомендациям</span>
+            </div>
+        </section>
+
+        <section class="dui-card bg-base-100 shadow-sm ring-1 ring-base-300">
+            <div class="dui-card-body gap-5">
+                <div class="dui-tabs dui-tabs-boxed w-fit">
+                    <button type="button" class="dui-tab">Месяц</button>
+                    <button type="button" class="dui-tab dui-tab-active">Год</button>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-base-content/60">Премиум путешественника</p>
+                    <p class="mt-2 text-4xl font-black">2 000 ₽<span class="text-sm font-normal text-base-content/50">/год</span></p>
+                </div>
+                <ul class="space-y-2 text-sm">
+                    <li><span class="text-success">●</span> 20 приватных маршрутов</li>
+                    <li><span class="text-success">●</span> Экспорт карты поездок</li>
+                    <li><span class="text-success">●</span> Расширенная статистика</li>
+                    <li><span class="text-error">●</span> Без офлайн-гидов</li>
+                </ul>
+                <button type="button" class="dui-btn dui-btn-warning">Открыть доступ</button>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

@@ -1,11 +1,9 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 import json
 from pathlib import Path
@@ -19,6 +17,11 @@ register = template.Library()
 
 _manifest: dict[str, Any] | None = None
 _manifest_mtime: float | None = None
+_DEV_SERVER_BASE = 'http://localhost:5173/static/js'
+
+
+def get_dev_server_url(path: str) -> str:
+    return f'{_DEV_SERVER_BASE}/{path.lstrip("/")}'
 
 
 def get_manifest() -> dict[str, Any]:
@@ -120,7 +123,7 @@ def collect_entry_css_files(manifest: dict[str, Any], entry_name: str) -> list[s
 def vite_asset(name: str) -> SafeString:
     # Django test runner принудительно устанавливает DEBUG=False, проверяем TESTING
     if settings.DEBUG or settings.TESTING:
-        return mark_safe(f'<script type="module" src="http://localhost:5173/{name}"></script>')
+        return mark_safe(f'<script type="module" src="{get_dev_server_url(name)}"></script>')
 
     manifest = get_manifest()
     entry = manifest.get(name)
@@ -155,7 +158,7 @@ def vite_css(name: str) -> SafeString:
     is_testing = getattr(settings, 'TESTING', False)
 
     if settings.DEBUG or is_testing:
-        return mark_safe(f'<link rel="stylesheet" href="http://localhost:5173/{name}.css">')
+        return mark_safe(f'<link rel="stylesheet" href="{get_dev_server_url(f"{name}.css")}">')
 
     manifest = get_manifest()
     entry = manifest.get(f'{name}.css')

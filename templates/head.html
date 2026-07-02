@@ -1,6 +1,15 @@
 {% load vite %}
 {% load static %}
 
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -46,7 +55,6 @@
 
     {# Tailwind CSS с Preline UI #}
     {% vite_css 'css/tailwind' %}
-    {% vite_css 'ui-lib/styles/index' %}
     {% block extra_css %}{% endblock %}
     
     {# Иконка сайта #}

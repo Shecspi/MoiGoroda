@@ -1,11 +1,9 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 from decimal import Decimal
 
@@ -111,7 +109,6 @@ class TestPremiumSubscription:
         assert PremiumSubscription.Status.PENDING.value == 'pending'
         assert PremiumSubscription.Status.ACTIVE.value == 'active'
         assert PremiumSubscription.Status.EXPIRED.value == 'expired'
-
 
 @pytest.mark.unit
 @pytest.mark.django_db

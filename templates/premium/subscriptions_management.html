@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+
+{% load morphology vite %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% vite_css 'css/tailwind' %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <div class="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <section class="dui-hero rounded-box bg-white shadow-md ring-1 ring-base-300">
+      <div class="dui-hero-content w-full flex-col items-stretch gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div class="max-w-2xl">
+          <div class="mb-4 flex flex-wrap items-center gap-2">
+              <span class="dui-badge dui-badge-soft dui-badge-outline dui-badge-secondary">Premium</span>
+            <span class="dui-badge dui-badge-dash dui-badge-primary">Админ-панель</span>
+          </div>
+          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Управление подписками</h1>
+          <p class="mt-3 text-base-content/70">
+            Быстрый обзор активных клиентов, завершённых периодов и истории premium-доступа.
+          </p>
+        </div>
+        <div class="dui-stats dui-stats-vertical bg-white shadow ring-1 ring-base-300 sm:dui-stats-horizontal">
+          <div class="dui-stat bg-success/10 text-center">
+            <div class="dui-stat-title">Активные</div>
+            <div class="dui-stat-value text-success tabular-nums">{{ active_subscriptions|length }}</div>
+          </div>
+          <div class="dui-stat bg-warning/10 text-center">
+            <div class="dui-stat-title">Истёкшие</div>
+            <div class="dui-stat-value text-warning tabular-nums">{{ expired_subscriptions|length }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="dui-card bg-white shadow-md ring-1 ring-base-300">
+      <div class="dui-card-body gap-5">
+        <div>
+            <h2 class="dui-card-title">Активные подписки</h2>
+            <p class="text-sm text-base-content/60">Пользователи с действующим premium-доступом.</p>
+        </div>
+
+        {% if active_subscriptions %}
+          <div class="grid gap-3 md:hidden">
+            {% for row in active_subscriptions %}
+              <article class="dui-card bg-white ring-1 ring-base-300">
+                <div class="dui-card-body gap-4 p-4">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                      <h3 class="font-semibold">{{ row.subscription.user.username }}</h3>
+                      <p class="truncate text-xs text-base-content/60">{{ row.subscription.user.email|default:'Email не указан' }}</p>
+                    </div>
+                    <div class="inline-flex items-center gap-2 text-sm font-medium text-success">
+                      <div class="dui-status dui-status-success animate-bounce"></div>
+                      <span>Активна</span>
+                      <span class="text-xs font-normal text-base-content/60">{% if row.days_until_expired is not None %}(ещё {{ row.days_until_expired_text }}){% else %}(бессрочно){% endif %}</span>
+                    </div>
+                  </div>
+
+                  <div class="grid gap-3 text-sm">
+                    <div>
+                      <div class="text-xs text-base-content/60">Тариф</div>
+                      <div class="font-medium">{{ row.subscription.plan.name }}</div>
+                    </div>
+                    <div>
+                      <div class="text-xs text-base-content/60">Окончание</div>
+                      <div class="font-medium tabular-nums">
+                        {% if row.subscription.expires_at %}
+                          {{ row.subscription.expires_at|date:"d.m.Y" }}
+                        {% else %}
+                          Без даты окончания
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+
+                  {% if row.previous_subscriptions %}
+                    {% with history_count=row.previous_subscriptions|length %}
+                      <button type="button" class="dui-btn" onclick="document.getElementById('active-mobile-history-{{ row.subscription.pk }}').showModal()">
+                        История: {{ history_count }} {{ "запись"|plural_by_num:history_count }}
+                      </button>
+                    {% endwith %}
+                    {% include 'premium/includes/subscription_history_modal.html' with modal_id_prefix='active-mobile-history-' %}
+                  {% else %}
+                    <span class="text-base-content/60">-</span>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+
+          <div class="hidden md:block">
+            <table class="dui-table dui-table-zebra">
+              <thead>
+                <tr>
+                  <th>Пользователь</th>
+                  <th>Тариф</th>
+                  <th>Окончание</th>
+                  <th>Статус</th>
+                  <th>История</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in active_subscriptions %}
+                  <tr>
+                    <td>
+                      <div class="font-medium">{{ row.subscription.user.username }}</div>
+                      <div class="text-xs text-base-content/60">{{ row.subscription.user.email|default:'Email не указан' }}</div>
+                    </td>
+                    <td>{{ row.subscription.plan.name }}</td>
+                    <td class="tabular-nums">
+                      {% if row.subscription.expires_at %}
+                        {{ row.subscription.expires_at|date:"d.m.Y" }}
+                      {% else %}
+                        Без даты окончания
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="inline-flex items-center gap-2 text-sm font-medium text-success">
+                        <div class="dui-status dui-status-success animate-bounce"></div>
+                        <span>Активна</span>
+                        <span class="text-xs font-normal text-base-content/60">{% if row.days_until_expired is not None %}(ещё {{ row.days_until_expired_text }}){% else %}(бессрочно){% endif %}</span>
+                      </div>
+                    </td>
+                    <td>
+                      {% if row.previous_subscriptions %}
+                        {% with history_count=row.previous_subscriptions|length %}
+                          <button type="button" class="dui-btn" onclick="document.getElementById('active-desktop-history-{{ row.subscription.pk }}').showModal()">
+                            {{ history_count }} {{ "запись"|plural_by_num:history_count }}
+                          </button>
+                        {% endwith %}
+                        {% include 'premium/includes/subscription_history_modal.html' with modal_id_prefix='active-desktop-history-' %}
+                      {% else %}
+                        <span class="text-base-content/60">-</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="dui-alert">
+            <span>Активных подписок пока нет.</span>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="dui-card bg-white shadow-md ring-1 ring-base-300">
+      <div class="dui-card-body gap-5">
+        <div>
+        <h2 class="dui-card-title">Истекшие подписки</h2>
+        <p class="text-sm text-base-content/60">Последняя завершённая подписка по каждому пользователю без активного доступа.</p>
+        </div>
+
+        {% if expired_subscriptions %}
+          <div class="grid gap-3 md:hidden">
+            {% for row in expired_subscriptions %}
+              <article class="dui-card bg-white ring-1 ring-base-300">
+                <div class="dui-card-body gap-4 p-4">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                      <h3 class="font-semibold">{{ row.subscription.user.username }}</h3>
+                      <p class="truncate text-xs text-base-content/60">{{ row.subscription.user.email|default:'Email не указан' }}</p>
+                    </div>
+                    <div class="inline-flex items-center gap-2 text-sm font-medium text-warning">
+                      <div class="dui-status dui-status-warning animate-bounce"></div>
+                      <span>Истекла</span>
+                      <span class="text-xs font-normal text-base-content/60">({{ row.days_since_expired_text }} назад)</span>
+                    </div>
+                  </div>
+
+                  <div class="grid gap-3 text-sm">
+                    <div>
+                      <div class="text-xs text-base-content/60">Тариф</div>
+                      <div class="font-medium">{{ row.subscription.plan.name }}</div>
+                    </div>
+                    <div>
+                      <div class="text-xs text-base-content/60">Окончание</div>
+                      <div class="font-medium tabular-nums">{{ row.subscription.expires_at|date:"d.m.Y" }}</div>
+                    </div>
+                  </div>
+
+                  {% if row.previous_subscriptions %}
+                    {% with history_count=row.previous_subscriptions|length %}
+                      <button type="button" class="dui-btn" onclick="document.getElementById('expired-mobile-history-{{ row.subscription.pk }}').showModal()">
+                        История: {{ history_count }} {{ "запись"|plural_by_num:history_count }}
+                      </button>
+                    {% endwith %}
+                    {% include 'premium/includes/subscription_history_modal.html' with modal_id_prefix='expired-mobile-history-' %}
+                  {% else %}
+                    <span class="text-base-content/60">-</span>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+
+          <div class="hidden md:block">
+            <table class="dui-table dui-table-zebra">
+              <thead>
+                <tr>
+                  <th>Пользователь</th>
+                  <th>Тариф</th>
+                  <th>Окончание</th>
+                  <th>Статус</th>
+                  <th>История</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in expired_subscriptions %}
+                  <tr>
+                    <td>
+                      <div class="font-medium">{{ row.subscription.user.username }}</div>
+                      <div class="text-xs text-base-content/60">{{ row.subscription.user.email|default:'Email не указан' }}</div>
+                    </td>
+                    <td>{{ row.subscription.plan.name }}</td>
+                    <td class="tabular-nums">{{ row.subscription.expires_at|date:"d.m.Y" }}</td>
+                    <td>
+                      <div class="inline-flex items-center gap-2 text-sm font-medium text-warning">
+                        <div class="dui-status dui-status-warning animate-bounce"></div>
+                        <span>Истекла</span>
+                        <span class="text-xs font-normal text-base-content/60">({{ row.days_since_expired_text }} назад)</span>
+                      </div>
+                    </td>
+                    <td>
+                      {% if row.previous_subscriptions %}
+                        {% with history_count=row.previous_subscriptions|length %}
+                          <button type="button" class="dui-btn" onclick="document.getElementById('expired-desktop-history-{{ row.subscription.pk }}').showModal()">
+                            {{ history_count }} {{ "запись"|plural_by_num:history_count }}
+                          </button>
+                        {% endwith %}
+                        {% include 'premium/includes/subscription_history_modal.html' with modal_id_prefix='expired-desktop-history-' %}
+                      {% else %}
+                        <span class="text-base-content/60">-</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="dui-alert dui-alert-success">
+            <span>Истекших подписок нет.</span>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

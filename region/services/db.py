@@ -8,42 +8,37 @@
 """
 Реализует функции, взаимодействующие с моделью Region.
 Любая работа с этой моделью должна происходить только через описанные в этом файле функции.
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
 """
 # mypy: disable-error-code="misc,arg-type,type-arg"
 
 from typing import Any
+
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
 from django.db.models import (
-    QuerySet,
-    Count,
-    Q,
-    OuterRef,
     Avg,
-    Exists,
-    Subquery,
-    IntegerField,
+    Case,
+    Count,
     DateField,
-    Value,
-    Min,
-    Max,
+    Exists,
+    ExpressionWrapper,
     F,
     FloatField,
-    ExpressionWrapper,
-    Case,
+    IntegerField,
+    Max,
+    Min,
+    OuterRef,
+    Q,
+    QuerySet,
+    Subquery,
+    Value,
     When,
 )
-from django.db.models.functions import Coalesce, Cast, Round, ExtractYear
+from django.db.models.functions import Cast, Coalesce, ExtractYear, Round
 
 from city.models import City, VisitedCity
-from region.models import Region, Area
+from region.models import Area, Region
 
 
 def get_all_regions(country_id: int | None = None) -> QuerySet[Region, Region]:

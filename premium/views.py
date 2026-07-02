@@ -1,17 +1,16 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 from __future__ import annotations
 
 from typing import cast
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -23,7 +22,13 @@ from premium.models import PremiumPlan, PremiumSubscription
 from premium.repositories.subscription_page import SubscriptionPageRepository
 from premium.services.checkout import CheckoutService
 from premium.services.subscription_page import SubscriptionPageService
+from premium.services.subscriptions_management import SubscriptionManagementService
 from premium.webhook.logging import log_yookassa_create_response
+
+
+def _require_superuser(request: HttpRequest) -> None:
+    if not request.user.is_superuser:
+        raise PermissionDenied()
 
 
 def promo(request: HttpRequest) -> HttpResponse:
@@ -129,5 +134,24 @@ def my_subscription(request: HttpRequest) -> HttpResponse:
             'active_subscription': page_data.active_subscription,
             'paused_subscriptions': page_data.paused_subscriptions,
             'payment_result': page_data.payment_result,
+        },
+    )
+
+
+@login_required
+def subscriptions_management(request: HttpRequest) -> HttpResponse:
+    """Страница управления premium-подписками пользователей."""
+    _require_superuser(request)
+    page_data = SubscriptionManagementService().get_page_data()
+
+    return render(
+        request,
+        'premium/subscriptions_management.html',
+        context={
+            'page_title': 'Управление подписками',
+            'page_description': 'Активные и истекшие premium-подписки пользователей',
+            'active_page': 'premium_subscriptions_management',
+            'active_subscriptions': page_data.active_subscriptions,
+            'expired_subscriptions': page_data.expired_subscriptions,
         },
     )

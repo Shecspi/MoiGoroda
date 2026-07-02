@@ -103,41 +103,6 @@ Licensed under the Apache License, Version 2.0
     prefix: dui-;
 }
 
-@plugin "daisyui/theme" {
-    name: "light";
-    default: true;
-    prefersdark: false;
-    color-scheme: "light";
-    --color-base-100: oklch(98% 0.001 106.423);
-    --color-base-200: oklch(97% 0.001 106.424);
-    --color-base-300: oklch(92% 0.003 48.717);
-    --color-base-content: oklch(21% 0.006 56.043);
-    --color-primary: oklch(54% 0.245 262.881);
-    --color-primary-content: oklch(97% 0.014 254.604);
-    --color-secondary: oklch(87% 0 0);
-    --color-secondary-content: oklch(14% 0 0);
-    --color-accent: oklch(89% 0.196 126.665);
-    --color-accent-content: oklch(27% 0.072 132.109);
-    --color-neutral: oklch(26% 0.007 34.298);
-    --color-neutral-content: oklch(98% 0.001 106.423);
-    --color-info: oklch(82% 0.111 230.318);
-    --color-info-content: oklch(29% 0.066 243.157);
-    --color-success: oklch(64% 0.2 131.684);
-    --color-success-content: oklch(98% 0.031 120.757);
-    --color-warning: oklch(68% 0.162 75.834);
-    --color-warning-content: oklch(98% 0.026 102.212);
-    --color-error: oklch(57% 0.245 27.325);
-    --color-error-content: oklch(97% 0.013 17.38);
-    --radius-selector: 2rem;
-    --radius-field: 0.5rem;
-    --radius-box: 1rem;
-    --size-selector: 0.25rem;
-    --size-field: 0.25rem;
-    --border: 1px;
-    --depth: 1;
-    --noise: 0;
-}
-
 @layer base {
     /* Основной скролл окна: те же размер/цвета, что у #sidebar-nav (overflow-y) */
     html {

@@ -98,7 +98,8 @@ class SubscriptionManagementService:
             key=lambda sub: (sub.expires_at is None, sub.expires_at),
             reverse=True,
         ):
-            assert subscription.expires_at is not None
+            if subscription.expires_at is None:
+                raise ValueError('Expired subscription must have expires_at set.')
             days_since_expired = max((today - subscription.expires_at.date()).days, 0)
             previous_subscriptions = [
                 item

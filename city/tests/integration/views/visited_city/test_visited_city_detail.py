@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Тесты детальной страницы посещенного города.
 
@@ -196,6 +203,47 @@ def test_visited_city_detail_without_region_hides_region_section(
 
     assert response.status_code == 200
     assert b'id="section-region"' not in response.content
+
+
+@pytest.mark.django_db
+@pytest.mark.integration
+def test_visited_city_detail_photo_badges_do_not_combine_hidden_with_inline_flex(
+    django_user_model: Any, client: Client, mocker: Any
+) -> None:
+    """Tailwind 4 не должен показывать скрытые управляющие бейджи из-за display-конфликта."""
+    from country.models import PartOfTheWorld, Location, Country
+    from city.models import CityUserPhoto, VisitedCity
+
+    mocker.patch('city.views.has_advanced_premium', return_value=True)
+    user = django_user_model.objects.create_user(username='photo_badge_user', password='testpass')
+    part = PartOfTheWorld.objects.create(name='PB')
+    loc = Location.objects.create(name='PB', part_of_the_world=part)
+    country = Country.objects.create(name='PB', code='P', fullname='PB', location=loc)
+    city = City.objects.create(
+        title='Photo Badge City',
+        country=country,
+        region=None,
+        coordinate_width=10.0,
+        coordinate_longitude=20.0,
+        image='https://example.test/service.jpg',
+    )
+    VisitedCity.objects.create(user=user, city=city, date_of_visit=date(2024, 2, 1), rating=4)
+    CityUserPhoto.objects.create(
+        user=user,
+        city=city,
+        image='city_photos/user.jpg',
+        is_default=True,
+    )
+
+    client.login(username='photo_badge_user', password='testpass')
+    response = client.get(reverse('city-selected', kwargs={'pk': city.pk}))
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'id="city-photo-default-label" class="hidden inline-flex' not in content
+    assert 'id="city-photo-service-label" class="hidden inline-flex' not in content
+    assert 'id="city-photo-default-label" class="hidden [&:not(.hidden)]:inline-flex' in content
+    assert 'id="city-photo-service-label" class="hidden [&:not(.hidden)]:inline-flex' in content
 
 
 @pytest.mark.django_db

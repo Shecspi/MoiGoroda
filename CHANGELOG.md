@@ -145,6 +145,12 @@
 
 - Switch to_file_django handler to json_simple formatter ([8b08865](https://github.com/Shecspi/MoiGoroda/commit/8b088655ae16e296e194f233bed1c7cdd6915cc6))
 
+- Исправить бейджи фото города после Tailwind 4 ([a276337](https://github.com/Shecspi/MoiGoroda/commit/a276337974a6e118dc59d422dd54bca066bee40a))
+
+- Исправить кнопки popup мест после Tailwind 4 ([20333f6](https://github.com/Shecspi/MoiGoroda/commit/20333f6efadc0399d103583cf2a32946e8618d9f))
+
+- Исправлены ошибки перехода на Tailwind 4 ([9620233](https://github.com/Shecspi/MoiGoroda/commit/9620233743a1a29b9b627da061a61bf07fb50c7f))
+
 
 #### 🚜 Рефакторинг
 

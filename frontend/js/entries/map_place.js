@@ -503,7 +503,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
         li.setAttribute('data-value', category.name);
         const filter_by_category_item = document.createElement('a');
         filter_by_category_item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-        filter_by_category_item.innerHTML = `<span class="flex items-center min-h-5">${escapeHtml(category.name)}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
+        filter_by_category_item.innerHTML = `<span class="flex items-center min-h-5">${escapeHtml(category.name)}</span><span class="place-filter-check hidden [&:not(.hidden)]:inline-flex shrink-0 items-center">${CHECK_ICON_HTML}</span>`;
         filter_by_category_item.style.cursor = 'pointer';
         filter_by_category_item.addEventListener('click', () => {
             selectedCategoryName = category.name;
@@ -526,7 +526,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
     allCategoriesLi.setAttribute('data-value', '__all__');
     const all_categories = document.createElement('a');
     all_categories.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-    all_categories.innerHTML = '<span class="flex items-center min-h-5">Показать все категории</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">' + CHECK_ICON_HTML + '</span>';
+    all_categories.innerHTML = '<span class="flex items-center min-h-5">Показать все категории</span><span class="place-filter-check hidden [&:not(.hidden)]:inline-flex shrink-0 items-center">' + CHECK_ICON_HTML + '</span>';
     all_categories.style.cursor = 'pointer';
     allCategoriesLi.appendChild(all_categories);
     select_filter_by_category.appendChild(allCategoriesLi);
@@ -555,7 +555,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
         allCollectionsLi.setAttribute('data-value', '');
         const allCollectionsItem = document.createElement('a');
         allCollectionsItem.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-        allCollectionsItem.innerHTML = '<span class="flex items-center min-h-5">Все коллекции</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">' + CHECK_ICON_HTML + '</span>';
+        allCollectionsItem.innerHTML = '<span class="flex items-center min-h-5">Все коллекции</span><span class="place-filter-check hidden [&:not(.hidden)]:inline-flex shrink-0 items-center">' + CHECK_ICON_HTML + '</span>';
         allCollectionsItem.style.cursor = 'pointer';
         allCollectionsLi.appendChild(allCollectionsItem);
         dropdownMenuCollection.appendChild(allCollectionsLi);
@@ -572,7 +572,7 @@ Promise.all([...allPromises]).then(([places, categories, collections]) => {
             li.setAttribute('data-value', String(coll.id));
             const item = document.createElement('a');
             item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-            item.innerHTML = `<span class="flex items-center min-h-5">${escapeHtml(coll.title)}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
+            item.innerHTML = `<span class="flex items-center min-h-5">${escapeHtml(coll.title)}</span><span class="place-filter-check hidden [&:not(.hidden)]:inline-flex shrink-0 items-center">${CHECK_ICON_HTML}</span>`;
             item.style.cursor = 'pointer';
             li.appendChild(item);
             dropdownMenuCollection.appendChild(li);
@@ -797,7 +797,7 @@ function appendCollectionToDropdown(coll) {
     li.setAttribute('data-value', String(coll.id));
     const item = document.createElement('a');
     item.classList.add('flex', 'items-center', 'justify-between', 'gap-x-2', 'rounded-lg', 'px-3', 'py-2', 'text-sm', 'text-gray-800', 'hover:bg-gray-100', 'dark:text-neutral-200', 'dark:hover:bg-neutral-700');
-    item.innerHTML = `<span class="flex items-center min-h-5">${escapeHtml(coll.title)}</span><span class="place-filter-check hidden shrink-0 inline-flex items-center">${CHECK_ICON_HTML}</span>`;
+    item.innerHTML = `<span class="flex items-center min-h-5">${escapeHtml(coll.title)}</span><span class="place-filter-check hidden [&:not(.hidden)]:inline-flex shrink-0 items-center">${CHECK_ICON_HTML}</span>`;
     item.style.cursor = 'pointer';
     li.appendChild(item);
     dropdownMenuCollection.appendChild(li);
@@ -1293,10 +1293,10 @@ function addMarkers() {
                 let content = '<form id="place-form">';
                 content += generatePopupContent(place);
                 content += '<p class="mt-3 flex gap-2">';
-                content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-edit-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Изменить</button>`;
-                content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-neutral-200 text-gray-800 hover:bg-neutral-300 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-cancel-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Отменить</button>`;
-                content += `<button type="button" class="hidden py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-update-place" onclick="update_place(${place.id}); return false;">Сохранить</button>`;
-                content += `<button type="button" class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-delete-place" onclick="delete_place(${place.id}); return false;">Удалить</button>`;
+                content += `<button type="button" class="[&:not(.hidden)]:inline-flex py-2 px-4 items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-edit-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Изменить</button>`;
+                content += `<button type="button" class="hidden [&:not(.hidden)]:inline-flex py-2 px-4 items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-neutral-200 text-gray-800 hover:bg-neutral-300 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-cancel-place" onclick="event.preventDefault(); switch_popup_elements(); return false;">Отменить</button>`;
+                content += `<button type="button" class="hidden [&:not(.hidden)]:inline-flex py-2 px-4 items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-update-place" onclick="update_place(${place.id}); return false;">Сохранить</button>`;
+                content += `<button type="button" class="[&:not(.hidden)]:inline-flex py-2 px-4 items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800" id="btn-delete-place" onclick="delete_place(${place.id}); return false;">Удалить</button>`;
                 content += '</p>';
                 content += '</form>';
                 marker.bindPopup(content, { minWidth: POPUP_WIDTH, maxWidth: POPUP_WIDTH });

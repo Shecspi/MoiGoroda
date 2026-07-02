@@ -220,3 +220,13 @@ class TestSubscriptionsManagementView:
         assert response.context['expired_subscriptions'][0].days_since_expired == 10
         assert len(response.context['expired_subscriptions']) == 1
         assert len(response.context['expired_subscriptions'][0].previous_subscriptions) == 1
+
+        content = response.content.decode()
+        assert 'dui-status dui-status-success animate-bounce' in content
+        assert 'dui-status dui-status-warning animate-bounce' in content
+        assert 'dui-table dui-table-zebra' in content
+        assert 'text-xs font-normal text-base-content/60' in content
+        assert 'animate-ping' not in content
+        assert 'Активна' in content
+        assert '(ещё 30 дней)' in content
+        assert 'dui-badge dui-badge-success">Активна' not in content

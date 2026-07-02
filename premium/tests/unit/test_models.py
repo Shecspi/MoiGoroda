@@ -110,6 +110,7 @@ class TestPremiumSubscription:
         assert PremiumSubscription.Status.ACTIVE.value == 'active'
         assert PremiumSubscription.Status.EXPIRED.value == 'expired'
 
+
 @pytest.mark.unit
 @pytest.mark.django_db
 class TestPremiumPayment:

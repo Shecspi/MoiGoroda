@@ -205,7 +205,8 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
             qty = self.qty_of_visited_cities if self.qty_of_visited_cities is not None else 0
             context['change__city'] = modification__city(qty)
             context['change__visited'] = modification__visited(qty)
-            context['collection_timeline_items'] = self.get_collection_timeline_items()
+            if self.list_or_map == 'list':
+                context['collection_timeline_items'] = self.get_collection_timeline_items()
             context['url_for_filter_visited'] = get_url_params(
                 'visited' if self.filter != 'visited' else ''
             )

@@ -543,6 +543,18 @@ class TestCollectionSelectedListView:
         assert response.status_code == 200
         assert 'collection/selected/map/page.html' in [t.name for t in response.templates]
 
+    def test_map_view_does_not_build_timeline_items(
+        self, client: Client, setup_data: dict[str, Any]
+    ) -> None:
+        """Проверяет, что для map-view не собирается collection_timeline_items."""
+        user = setup_data['user']
+        collection = setup_data['collection']
+        client.force_login(user)
+        response = client.get(reverse('collection-detail-map', kwargs={'pk': collection.pk}))
+
+        assert response.status_code == 200
+        assert 'collection_timeline_items' not in response.context
+
     @pytest.fixture(autouse=True)
     def use_local_storage_for_city_photos(self, tmp_path: Any) -> Any:
         storage = FileSystemStorage(location=tmp_path, base_url='/media/')

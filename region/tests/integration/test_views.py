@@ -18,6 +18,7 @@ Licensed under the Apache License, Version 2.0
 from typing import Any
 
 import pytest
+from datetime import date
 from django.db import connection
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
@@ -378,6 +379,74 @@ class TestCitiesByRegionListView:
         assert response.status_code == 200
         assert 'number_of_visited_cities' in response.context
         assert response.context['number_of_visited_cities'] >= 1
+
+    def test_authenticated_user_sees_region_timeline_with_expected_order(
+        self,
+        client: Client,
+        test_user: Any,
+        test_country: Any,
+        test_region: Region,
+    ) -> None:
+        """Хронология показывает непосещённые города, даты по возрастанию и даты без указания."""
+        visited_city = City.objects.create(
+            title='Посещённый город',
+            region=test_region,
+            country=test_country,
+            coordinate_width=55.0,
+            coordinate_longitude=37.0,
+        )
+        undated_city = City.objects.create(
+            title='Город без даты',
+            region=test_region,
+            country=test_country,
+            coordinate_width=56.0,
+            coordinate_longitude=38.0,
+        )
+        unvisited_city = City.objects.create(
+            title='Непосещённый город',
+            region=test_region,
+            country=test_country,
+            coordinate_width=57.0,
+            coordinate_longitude=39.0,
+        )
+
+        VisitedCity.objects.create(
+            user=test_user, city=visited_city, date_of_visit=date(2024, 5, 2), rating=5
+        )
+        VisitedCity.objects.create(
+            user=test_user, city=visited_city, date_of_visit=date(2024, 1, 1), rating=4
+        )
+        VisitedCity.objects.create(user=test_user, city=undated_city, date_of_visit=None, rating=3)
+
+        client.force_login(test_user)
+        response = client.get(reverse('region-selected-list', kwargs={'pk': test_region.pk}))
+
+        assert response.status_code == 200
+        timeline_items = response.context['region_timeline_items']
+        assert [item['city_title'] for item in timeline_items] == [
+            unvisited_city.title,
+            visited_city.title,
+            visited_city.title,
+            undated_city.title,
+        ]
+        assert [item['date_label'] for item in timeline_items] == [
+            'Не посещён',
+            '02.05.2024',
+            '01.01.2024',
+            'Без даты',
+        ]
+        assert [item['status'] for item in timeline_items] == [
+            'unvisited',
+            'visited',
+            'visited',
+            'visited',
+        ]
+
+        content = response.content.decode()
+        assert 'id="region-timeline-modal"' in content
+        assert 'dui-modal' in content
+        assert 'dui-timeline dui-timeline-vertical' in content
+        assert 'Хронология' in content
 
 
 @pytest.mark.integration

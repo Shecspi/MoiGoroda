@@ -206,7 +206,17 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
             context['change__city'] = modification__city(qty)
             context['change__visited'] = modification__visited(qty)
             if self.list_or_map == 'list':
-                context['collection_timeline_items'] = self.get_collection_timeline_items()
+                collection_timeline_items = self.get_collection_timeline_items()
+                collection_timeline_years: set[int] = set()
+                for timeline_item in collection_timeline_items:
+                    timeline_year = timeline_item.get('year')
+                    if isinstance(timeline_year, int):
+                        collection_timeline_years.add(timeline_year)
+
+                context['collection_timeline_items'] = collection_timeline_items
+                context['collection_timeline_years'] = sorted(
+                    collection_timeline_years, reverse=True
+                )
             context['url_for_filter_visited'] = get_url_params(
                 'visited' if self.filter != 'visited' else ''
             )
@@ -232,7 +242,7 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
 
         return context
 
-    def get_collection_timeline_items(self) -> list[dict[str, str]]:
+    def get_collection_timeline_items(self) -> list[dict[str, str | int | bool]]:
         """
         Возвращает элементы хронологии коллекции для текущего пользователя.
         """
@@ -271,24 +281,30 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
             .order_by('city__title', 'id')
         )
 
-        timeline_items = [
+        timeline_items: list[dict[str, str | int | bool]] = [
             {'city_title': city_title, 'date_label': 'Не посещён', 'status': 'unvisited'}
             for city_title in unvisited_cities
         ]
-        timeline_items.extend(
-            {
-                'city_title': visit.city.title,
-                'date_label': visit.date_of_visit.strftime('%d.%m.%Y')
-                if visit.date_of_visit
-                else '',
-                'status': 'visited',
-            }
-            for visit in dated_visits
-        )
+        for visit in dated_visits:
+            if visit.date_of_visit is None:
+                continue
+
+            timeline_items.append(
+                {
+                    'city_title': visit.city.title,
+                    'date_label': visit.date_of_visit.strftime('%d.%m.%Y'),
+                    'status': 'visited',
+                    'year': visit.date_of_visit.year,
+                }
+            )
         timeline_items.extend(
             {'city_title': visit.city.title, 'date_label': 'Без даты', 'status': 'visited'}
             for visit in undated_visits
         )
+        for timeline_item in timeline_items:
+            if timeline_item['status'] == 'visited':
+                timeline_item['is_first_visited'] = True
+                break
 
         return timeline_items
 

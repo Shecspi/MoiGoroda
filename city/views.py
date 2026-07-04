@@ -556,7 +556,15 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
         context['default_sort'] = (
             self.default_sort_settings.parameter_value if self.default_sort_settings else None
         )
-        context['city_timeline_items'] = self.get_city_timeline_items()
+        city_timeline_items = self.get_city_timeline_items()
+        city_timeline_years: set[int] = set()
+        for timeline_item in city_timeline_items:
+            timeline_year = timeline_item.get('year')
+            if isinstance(timeline_year, int):
+                city_timeline_years.add(timeline_year)
+
+        context['city_timeline_items'] = city_timeline_items
+        context['city_timeline_years'] = sorted(city_timeline_years, reverse=True)
 
         object_list = context.get('object_list')
         if object_list is not None:
@@ -564,7 +572,7 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
 
         return context
 
-    def get_city_timeline_items(self) -> list[dict[str, str]]:
+    def get_city_timeline_items(self) -> list[dict[str, str | int | bool]]:
         """
         Возвращает элементы хронологии посещённых городов без непосещённых городов.
         """
@@ -582,20 +590,25 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
             .order_by('city__title', 'id')
         )
 
-        timeline_items = [
-            {
-                'city_title': visit.city.title,
-                'date_label': visit.date_of_visit.strftime('%d.%m.%Y')
-                if visit.date_of_visit
-                else '',
-                'status': 'visited',
-            }
-            for visit in dated_visits
-        ]
+        timeline_items: list[dict[str, str | int | bool]] = []
+        for visit in dated_visits:
+            if visit.date_of_visit is None:
+                continue
+
+            timeline_items.append(
+                {
+                    'city_title': visit.city.title,
+                    'date_label': visit.date_of_visit.strftime('%d.%m.%Y'),
+                    'status': 'visited',
+                    'year': visit.date_of_visit.year,
+                }
+            )
         timeline_items.extend(
             {'city_title': visit.city.title, 'date_label': 'Без даты', 'status': 'visited'}
             for visit in undated_visits
         )
+        if timeline_items:
+            timeline_items[0]['is_first_visited'] = True
 
         return timeline_items
 

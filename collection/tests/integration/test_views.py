@@ -489,7 +489,15 @@ class TestCollectionSelectedListView:
             coordinate_width=56.0,
             coordinate_longitude=38.0,
         )
+        older_visited_city = City.objects.create(
+            title='Старый посещённый город',
+            region=visited_city.region,
+            country=country,
+            coordinate_width=56.5,
+            coordinate_longitude=38.5,
+        )
         collection.city.add(undated_city)
+        collection.city.add(older_visited_city)
 
         VisitedCity.objects.filter(user=user, city=visited_city).delete()
         VisitedCity.objects.create(
@@ -497,6 +505,9 @@ class TestCollectionSelectedListView:
         )
         VisitedCity.objects.create(
             user=user, city=visited_city, date_of_visit=date(2024, 1, 1), rating=4
+        )
+        VisitedCity.objects.create(
+            user=user, city=older_visited_city, date_of_visit=date(2023, 6, 3), rating=4
         )
         VisitedCity.objects.create(user=user, city=undated_city, date_of_visit=None, rating=3)
 
@@ -509,12 +520,14 @@ class TestCollectionSelectedListView:
             unvisited_city.title,
             visited_city.title,
             visited_city.title,
+            older_visited_city.title,
             undated_city.title,
         ]
         assert [item['date_label'] for item in timeline_items] == [
             'Не посещён',
             '02.05.2024',
             '01.01.2024',
+            '03.06.2023',
             'Без даты',
         ]
         assert [item['status'] for item in timeline_items] == [
@@ -522,7 +535,10 @@ class TestCollectionSelectedListView:
             'visited',
             'visited',
             'visited',
+            'visited',
         ]
+        assert [item.get('year') for item in timeline_items] == [None, 2024, 2024, 2023, None]
+        assert response.context['collection_timeline_years'] == [2024, 2023]
 
         content = response.content.decode()
         assert 'id="collection-timeline-modal"' in content
@@ -530,7 +546,13 @@ class TestCollectionSelectedListView:
         assert 'dui-timeline dui-timeline-vertical' in content
         assert 'data-timeline-modal-trigger="collection-timeline-modal"' in content
         assert 'data-timeline-scroll-container' in content
-        assert 'data-timeline-first-visited' in content
+        assert content.count('data-timeline-first-visited') == 1
+        assert 'data-timeline-year="2024"' in content
+        assert 'data-timeline-year="2023"' in content
+        assert 'dui-collapse' in content
+        assert 'dui-filter' in content
+        assert 'data-timeline-year-filter="2024"' in content
+        assert 'data-timeline-year-filter="2023"' in content
         assert 'Хронология' in content
 
     def test_map_template_used_for_map_view(

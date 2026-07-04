@@ -95,11 +95,26 @@ Licensed under the Apache License, Version 2.0
             <p class="mt-1 text-sm text-base-content/60">{{ region_name }}</p>
         </div>
 
+        {% if region_timeline_years %}
+            <div class="dui-collapse dui-collapse-arrow shrink-0 border-b border-base-300">
+                <input type="checkbox" aria-label="Показать фильтр по годам" />
+                <div class="dui-collapse-title text-sm font-semibold text-base-content">Фильтр по годам</div>
+                <div class="dui-collapse-content">
+                    <form class="dui-filter flex flex-wrap gap-2" data-timeline-year-filter-form>
+                        {% for timeline_year in region_timeline_years %}
+                            <input class="dui-btn dui-btn-sm" type="checkbox" name="region_timeline_years" value="{{ timeline_year }}" aria-label="{{ timeline_year }}" data-timeline-year-filter="{{ timeline_year }}" />
+                        {% endfor %}
+                        <input class="dui-btn dui-btn-sm dui-btn-square" type="reset" value="×" aria-label="Сбросить фильтр по годам" />
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+
         <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5" data-timeline-scroll-container>
             {% if region_timeline_items %}
                 <ul class="dui-timeline dui-timeline-vertical">
                     {% for timeline_item in region_timeline_items %}
-                        <li {% if timeline_item.status == 'visited' %}data-timeline-first-visited{% endif %}>
+                        <li data-timeline-item{% if timeline_item.year %} data-timeline-year="{{ timeline_item.year }}"{% endif %}{% if timeline_item.is_first_visited %} data-timeline-first-visited{% endif %}>
                             {% if not forloop.first %}<hr />{% endif %}
                             <div class="dui-timeline-start text-xs tabular-nums {% if timeline_item.date_label == 'Без даты' %}font-semibold text-base-content/60{% elif timeline_item.status == 'visited' %}font-semibold text-emerald-700 dark:text-emerald-300{% else %}text-base-content/50{% endif %}">
                                 {{ timeline_item.date_label }}

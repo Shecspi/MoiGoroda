@@ -412,11 +412,19 @@ class CitiesByRegionList(ListView):
                 attach_default_city_user_photo_presigned_urls(context.get('object_list') or [], uid)
 
             if self.list_or_map == 'list':
-                context['region_timeline_items'] = self.get_region_timeline_items()
+                region_timeline_items = self.get_region_timeline_items()
+                region_timeline_years: set[int] = set()
+                for timeline_item in region_timeline_items:
+                    timeline_year = timeline_item.get('year')
+                    if isinstance(timeline_year, int):
+                        region_timeline_years.add(timeline_year)
+
+                context['region_timeline_items'] = region_timeline_items
+                context['region_timeline_years'] = sorted(region_timeline_years, reverse=True)
 
         return context
 
-    def get_region_timeline_items(self) -> list[dict[str, str]]:
+    def get_region_timeline_items(self) -> list[dict[str, str | int | bool]]:
         """
         Возвращает элементы хронологии: непосещённые города, посещения с датой и посещения без даты.
         """
@@ -451,7 +459,7 @@ class CitiesByRegionList(ListView):
             .order_by('city__title', 'id')
         )
 
-        timeline_items = [
+        timeline_items: list[dict[str, str | int | bool]] = [
             {'city_title': city_title, 'date_label': 'Не посещён', 'status': 'unvisited'}
             for city_title in unvisited_cities
         ]
@@ -460,6 +468,7 @@ class CitiesByRegionList(ListView):
                 'city_title': visit.city.title,
                 'date_label': visit.date_of_visit.strftime('%d.%m.%Y'),
                 'status': 'visited',
+                'year': visit.date_of_visit.year,
             }
             for visit in dated_visits
         )
@@ -467,6 +476,10 @@ class CitiesByRegionList(ListView):
             {'city_title': visit.city.title, 'date_label': 'Без даты', 'status': 'visited'}
             for visit in undated_visits
         )
+        for timeline_item in timeline_items:
+            if timeline_item['status'] == 'visited':
+                timeline_item['is_first_visited'] = True
+                break
 
         return timeline_items
 

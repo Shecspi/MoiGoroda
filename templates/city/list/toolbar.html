@@ -1,3 +1,12 @@
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+
 {% load morphology %}
 {% load vite %}
 {% load static %}
@@ -64,6 +73,17 @@
                 <span>Посмотреть на карте</span>
             </a>
 
+            <button type="button"
+                    class="btn btn-soft-outline-success btn-default w-full cursor-pointer justify-center sm:min-w-0 sm:flex-1 lg:w-auto lg:flex-initial"
+                    data-timeline-modal-trigger="city-timeline-modal"
+                    title="Показать хронологию посещения городов">
+                <svg class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 8v4l3 3"></path>
+                    <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                <span>Хронология</span>
+            </button>
+
             {% comment %}Проверяем, отличается ли фильтр или сортировка от дефолтных значений{% endcomment %}
             <button type="button"
                     id="btnOpenFilterSortPanel"
@@ -86,8 +106,51 @@
 </div>
 <!-- ^^^ Панель инструментов -->
 
+<dialog id="city-timeline-modal" class="dui-modal">
+    <div class="dui-modal-box flex max-h-[calc(100dvh-3rem)] w-11/12 max-w-3xl flex-col overflow-hidden p-0 sm:max-h-[calc(100dvh-5rem)]">
+        <div class="relative shrink-0 border-b border-base-300 px-6 py-5">
+            <form method="dialog">
+                <button class="dui-btn dui-btn-sm dui-btn-circle dui-btn-ghost absolute right-2 top-2" aria-label="Закрыть">✕</button>
+            </form>
+            <h2 class="pr-8 text-lg font-bold text-base-content">Хронология посещения городов</h2>
+            <p class="mt-1 text-sm text-base-content/60">Все сохранённые посещения</p>
+        </div>
+
+        <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5" data-timeline-scroll-container>
+            {% if city_timeline_items %}
+                <ul class="dui-timeline dui-timeline-vertical">
+                    {% for timeline_item in city_timeline_items %}
+                        <li {% if forloop.first %}data-timeline-first-visited{% endif %}>
+                            {% if not forloop.first %}<hr />{% endif %}
+                            <div class="dui-timeline-start text-xs tabular-nums {% if timeline_item.date_label == 'Без даты' %}font-semibold text-base-content/60{% else %}font-semibold text-emerald-700 dark:text-emerald-300{% endif %}">
+                                {{ timeline_item.date_label }}
+                            </div>
+                            <div class="dui-timeline-middle text-emerald-700 dark:text-emerald-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="dui-timeline-end dui-timeline-box border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-100">
+                                {{ timeline_item.city_title }}
+                            </div>
+                            {% if not forloop.last %}<hr />{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div role="alert" class="dui-alert dui-alert-error dui-alert-outline dui-alert-dash">
+                    <span>У Вас пока нет посещённых городов в хронологии.</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <form method="dialog" class="dui-modal-backdrop">
+        <button aria-label="Закрыть">close</button>
+    </form>
+</dialog>
+
 {% include 'city/list/toolbar/filter_panel.html' %}
 
 {% vite_asset 'js/entries/city_search.js' %}
 {% vite_asset 'js/entries/filter_city.js' %}
-
+{% vite_asset 'js/entries/timeline_modal.js' %}

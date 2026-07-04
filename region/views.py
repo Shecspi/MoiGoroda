@@ -411,7 +411,60 @@ class CitiesByRegionList(ListView):
             if uid is not None:
                 attach_default_city_user_photo_presigned_urls(context.get('object_list') or [], uid)
 
+            if self.list_or_map == 'list':
+                context['region_timeline_items'] = self.get_region_timeline_items()
+
         return context
+
+    def get_region_timeline_items(self) -> list[dict[str, str]]:
+        """
+        Возвращает элементы хронологии: непосещённые города, посещения с датой и посещения без даты.
+        """
+        user = self.request.user
+        unvisited_cities = (
+            City.objects.filter(region_id=self.region_id)
+            .annotate(visited_by_user=Exists(VisitedCity.objects.filter(city_id=OuterRef('pk'), user=user)))
+            .filter(visited_by_user=False)
+            .order_by('title')
+            .values_list('title', flat=True)
+        )
+        dated_visits = (
+            VisitedCity.objects.filter(
+                user=user,
+                city__region_id=self.region_id,
+                date_of_visit__isnull=False,
+            )
+            .select_related('city')
+            .order_by('-date_of_visit', 'city__title', 'id')
+        )
+        undated_visits = (
+            VisitedCity.objects.filter(
+                user=user,
+                city__region_id=self.region_id,
+                date_of_visit__isnull=True,
+            )
+            .select_related('city')
+            .order_by('city__title', 'id')
+        )
+
+        timeline_items = [
+            {'city_title': city_title, 'date_label': 'Не посещён', 'status': 'unvisited'}
+            for city_title in unvisited_cities
+        ]
+        timeline_items.extend(
+            {
+                'city_title': visit.city.title,
+                'date_label': visit.date_of_visit.strftime('%d.%m.%Y'),
+                'status': 'visited',
+            }
+            for visit in dated_visits
+        )
+        timeline_items.extend(
+            {'city_title': visit.city.title, 'date_label': 'Без даты', 'status': 'visited'}
+            for visit in undated_visits
+        )
+
+        return timeline_items
 
     def get_template_names(self) -> list[str]:
         """

@@ -66,6 +66,8 @@
 
 - *(premium)* Добавлена страница управления подписками ([f8446d8](https://github.com/Shecspi/MoiGoroda/commit/f8446d820f09c906546cf2429fc63bd3ac627e76))
 
+- Добавлена хронология посещения городов ([9598a00](https://github.com/Shecspi/MoiGoroda/commit/9598a00149ee0e12ff6455e39be43898e7bbc655))
+
 
 #### 🐛 Исправление ошибок
 

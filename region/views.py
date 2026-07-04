@@ -423,7 +423,11 @@ class CitiesByRegionList(ListView):
         user = self.request.user
         unvisited_cities = (
             City.objects.filter(region_id=self.region_id)
-            .annotate(visited_by_user=Exists(VisitedCity.objects.filter(city_id=OuterRef('pk'), user=user)))
+            .annotate(
+                visited_by_user=Exists(
+                    VisitedCity.objects.filter(city_id=OuterRef('pk'), user=user)
+                )
+            )
             .filter(visited_by_user=False)
             .order_by('title')
             .values_list('title', flat=True)

@@ -59,6 +59,7 @@ export default defineConfig({
         subscribe_api: path.resolve(entriesDir, 'subscribe_api.js'),
         signup: path.resolve(entriesDir, 'signup.js'),
         travelpayouts_verify: path.resolve(entriesDir, 'travelpayouts_verify.js'),
+        timeline_modal: path.resolve(entriesDir, 'timeline_modal.js'),
         embedded_region_map: path.resolve(entriesDir, 'embedded_region_map.js'),
         profile: path.resolve(entriesDir, 'profile.js'),
         notification: path.resolve(entriesDir, 'notification.js'),

@@ -528,6 +528,9 @@ class TestCollectionSelectedListView:
         assert 'id="collection-timeline-modal"' in content
         assert 'dui-modal' in content
         assert 'dui-timeline dui-timeline-vertical' in content
+        assert 'data-timeline-modal-trigger="collection-timeline-modal"' in content
+        assert 'data-timeline-scroll-container' in content
+        assert 'data-timeline-first-visited' in content
         assert 'Хронология' in content
 
     def test_map_template_used_for_map_view(

@@ -55,8 +55,8 @@ Licensed under the Apache License, Version 2.0
             </a>
 
             <button type="button"
-                    class="btn btn-soft-outline-success btn-default w-full justify-center sm:min-w-0 sm:flex-1 lg:w-auto lg:flex-initial"
-                    onclick="document.getElementById('region-timeline-modal').showModal()"
+                    class="btn btn-soft-outline-success btn-default w-full cursor-pointer justify-center sm:min-w-0 sm:flex-1 lg:w-auto lg:flex-initial"
+                    data-timeline-modal-trigger="region-timeline-modal"
                     title="Показать хронологию посещения городов региона">
                 <svg class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M12 8v4l3 3"></path>
@@ -95,11 +95,11 @@ Licensed under the Apache License, Version 2.0
             <p class="mt-1 text-sm text-base-content/60">{{ region_name }}</p>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+        <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5" data-timeline-scroll-container>
             {% if region_timeline_items %}
                 <ul class="dui-timeline dui-timeline-vertical">
                     {% for timeline_item in region_timeline_items %}
-                        <li>
+                        <li {% if timeline_item.status == 'visited' %}data-timeline-first-visited{% endif %}>
                             {% if not forloop.first %}<hr />{% endif %}
                             <div class="dui-timeline-start text-xs tabular-nums {% if timeline_item.date_label == 'Без даты' %}font-semibold text-base-content/60{% elif timeline_item.status == 'visited' %}font-semibold text-emerald-700 dark:text-emerald-300{% else %}text-base-content/50{% endif %}">
                                 {{ timeline_item.date_label }}
@@ -319,4 +319,5 @@ Licensed under the Apache License, Version 2.0
 {% endwith %}
 
 {% vite_asset 'js/entries/filter_region.js' %}
+{% vite_asset 'js/entries/timeline_modal.js' %}
 {% endif %}

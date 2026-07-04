@@ -585,7 +585,9 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
         timeline_items = [
             {
                 'city_title': visit.city.title,
-                'date_label': visit.date_of_visit.strftime('%d.%m.%Y'),
+                'date_label': visit.date_of_visit.strftime('%d.%m.%Y')
+                if visit.date_of_visit
+                else '',
                 'status': 'visited',
             }
             for visit in dated_visits

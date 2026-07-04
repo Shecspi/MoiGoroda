@@ -1,66 +1,65 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 from __future__ import annotations
 
 from dataclasses import asdict
-from typing import Any, NoReturn, Callable
+from typing import Any, Callable, NoReturn
 
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.forms import BaseModelForm
-from django.http import Http404, HttpResponse, HttpRequest, HttpResponseBase
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy, reverse
-from django.db.models import QuerySet
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.db.models import QuerySet
+from django.forms import BaseModelForm
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
+from django.shortcuts import redirect, render
+from django.urls import reverse, reverse_lazy
 from django.views.generic import (
-    ListView,
     CreateView,
     DeleteView,
-    UpdateView,
     DetailView,
+    ListView,
     TemplateView,
+    UpdateView,
 )
 
+from analytics.models import VisitedCityAddSource
+from analytics.services import record_visited_city_add
 from blog.models import BlogArticle
 from city.forms import VisitedCity_Create_Form
 from city.models import (
     City,
+    CityDistrict,
     CityListDefaultSettings,
     CityUserPhoto,
     VisitedCity,
-    CityDistrict,
     VisitedCityDistrict,
 )
+from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
 from city.services.db import (
     annotate_visited_city_list_default_photo,
+    get_number_of_cities,
+    get_number_of_new_visited_cities,
+    get_number_of_visited_countries,
     get_unique_visited_cities,
     set_is_visit_first_for_all_visited_cities,
-    get_number_of_visited_countries,
 )
-from analytics.models import VisitedCityAddSource
-from analytics.services import record_visited_city_add
-from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
+from city.services.filter import apply_filter_to_queryset
 from city.services.interfaces import AbstractVisitedCityService
 from city.services.sort import apply_sort_to_queryset
-from city.services.filter import apply_filter_to_queryset
 from country.models import Country
+from premium.services.access import has_advanced_premium
 from services import logger
-from city.services.db import get_number_of_cities, get_number_of_new_visited_cities
 from services.db.visited_city_repo import (
     get_visited_city,
 )
 from services.morphology import to_prepositional
-from subscribe.repository import is_user_has_subscriptions, get_all_subscriptions
-from premium.services.access import has_advanced_premium
+from subscribe.repository import get_all_subscriptions, is_user_has_subscriptions
 
 
 class VisitedCity_Create(LoginRequiredMixin, CreateView):  # type: ignore[type-arg]
@@ -557,12 +556,46 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
         context['default_sort'] = (
             self.default_sort_settings.parameter_value if self.default_sort_settings else None
         )
+        context['city_timeline_items'] = self.get_city_timeline_items()
 
         object_list = context.get('object_list')
         if object_list is not None:
             attach_default_city_user_photo_presigned_urls(object_list, self.user_id)
 
         return context
+
+    def get_city_timeline_items(self) -> list[dict[str, str]]:
+        """
+        Возвращает элементы хронологии посещённых городов без непосещённых городов.
+        """
+        if self.user_id is None:
+            raise Http404('User must be authenticated')
+
+        dated_visits = (
+            VisitedCity.objects.filter(user_id=self.user_id, date_of_visit__isnull=False)
+            .select_related('city')
+            .order_by('-date_of_visit', 'city__title', 'id')
+        )
+        undated_visits = (
+            VisitedCity.objects.filter(user_id=self.user_id, date_of_visit__isnull=True)
+            .select_related('city')
+            .order_by('city__title', 'id')
+        )
+
+        timeline_items = [
+            {
+                'city_title': visit.city.title,
+                'date_label': visit.date_of_visit.strftime('%d.%m.%Y'),
+                'status': 'visited',
+            }
+            for visit in dated_visits
+        ]
+        timeline_items.extend(
+            {'city_title': visit.city.title, 'date_label': 'Без даты', 'status': 'visited'}
+            for visit in undated_visits
+        )
+
+        return timeline_items
 
 
 def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:

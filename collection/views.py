@@ -1,11 +1,9 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 import json
 import uuid
@@ -18,18 +16,18 @@ from django.http import Http404
 from django.utils.safestring import mark_safe
 from django.views.generic import ListView, TemplateView
 
-from city.models import VisitedCity
+from city.models import City, VisitedCity
 from city.services.city_user_photo_urls import attach_default_city_user_photo_presigned_urls
 from city.services.db import annotate_city_default_user_photo_for_list
 from collection.filter import apply_filter_to_queryset
 from collection.models import Collection, PersonalCollection
 from collection.repository import CollectionRepository
-from premium.services.access import has_advanced_premium
 from collection.services import (
     CollectionListService,
     PersonalCollectionService,
     get_all_cities_from_collection,
 )
+from premium.services.access import has_advanced_premium
 from services import logger
 from services.word_modifications.city import modification__city
 from services.word_modifications.visited import modification__visited
@@ -207,6 +205,7 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
             qty = self.qty_of_visited_cities if self.qty_of_visited_cities is not None else 0
             context['change__city'] = modification__city(qty)
             context['change__visited'] = modification__visited(qty)
+            context['collection_timeline_items'] = self.get_collection_timeline_items()
             context['url_for_filter_visited'] = get_url_params(
                 'visited' if self.filter != 'visited' else ''
             )
@@ -231,6 +230,64 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
             )
 
         return context
+
+    def get_collection_timeline_items(self) -> list[dict[str, str]]:
+        """
+        Возвращает элементы хронологии коллекции для текущего пользователя.
+        """
+        if self.pk is None or not self.request.user.is_authenticated:
+            return []
+
+        collection_city_ids = list(
+            Collection.objects.get(id=self.pk).city.values_list('id', flat=True)
+        )
+        visited_city_ids = VisitedCity.objects.filter(
+            user=self.request.user,
+            city_id__in=collection_city_ids,
+        ).values_list('city_id', flat=True)
+        unvisited_cities = (
+            City.objects.filter(id__in=collection_city_ids)
+            .exclude(id__in=visited_city_ids)
+            .order_by('title')
+            .values_list('title', flat=True)
+        )
+        dated_visits = (
+            VisitedCity.objects.filter(
+                user=self.request.user,
+                city_id__in=collection_city_ids,
+                date_of_visit__isnull=False,
+            )
+            .select_related('city')
+            .order_by('-date_of_visit', 'city__title', 'id')
+        )
+        undated_visits = (
+            VisitedCity.objects.filter(
+                user=self.request.user,
+                city_id__in=collection_city_ids,
+                date_of_visit__isnull=True,
+            )
+            .select_related('city')
+            .order_by('city__title', 'id')
+        )
+
+        timeline_items = [
+            {'city_title': city_title, 'date_label': 'Не посещён', 'status': 'unvisited'}
+            for city_title in unvisited_cities
+        ]
+        timeline_items.extend(
+            {
+                'city_title': visit.city.title,
+                'date_label': visit.date_of_visit.strftime('%d.%m.%Y'),
+                'status': 'visited',
+            }
+            for visit in dated_visits
+        )
+        timeline_items.extend(
+            {'city_title': visit.city.title, 'date_label': 'Без даты', 'status': 'visited'}
+            for visit in undated_visits
+        )
+
+        return timeline_items
 
     def get_template_names(self) -> list[str]:
         if self.list_or_map == 'list':

@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Интеграционные тесты для views приложения collection.
 """
@@ -5,7 +12,7 @@
 import time
 import logging
 from typing import Any
-from datetime import timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
@@ -465,6 +472,63 @@ class TestCollectionSelectedListView:
 
         assert response.status_code == 200
         assert response.context['filter'] == 'not_visited'
+
+    def test_authenticated_user_sees_collection_timeline_with_unvisited_cities(
+        self, client: Client, setup_data: dict[str, Any]
+    ) -> None:
+        """Хронология коллекции показывает непосещённые города и все посещения городов коллекции."""
+        user = setup_data['user']
+        collection = setup_data['collection']
+        visited_city = setup_data['city1']
+        unvisited_city = setup_data['city2']
+        country = visited_city.country
+        undated_city = City.objects.create(
+            title='Город без даты',
+            region=visited_city.region,
+            country=country,
+            coordinate_width=56.0,
+            coordinate_longitude=38.0,
+        )
+        collection.city.add(undated_city)
+
+        VisitedCity.objects.filter(user=user, city=visited_city).delete()
+        VisitedCity.objects.create(
+            user=user, city=visited_city, date_of_visit=date(2024, 5, 2), rating=5
+        )
+        VisitedCity.objects.create(
+            user=user, city=visited_city, date_of_visit=date(2024, 1, 1), rating=4
+        )
+        VisitedCity.objects.create(user=user, city=undated_city, date_of_visit=None, rating=3)
+
+        client.force_login(user)
+        response = client.get(reverse('collection-detail-list', kwargs={'pk': collection.pk}))
+
+        assert response.status_code == 200
+        timeline_items = response.context['collection_timeline_items']
+        assert [item['city_title'] for item in timeline_items] == [
+            unvisited_city.title,
+            visited_city.title,
+            visited_city.title,
+            undated_city.title,
+        ]
+        assert [item['date_label'] for item in timeline_items] == [
+            'Не посещён',
+            '02.05.2024',
+            '01.01.2024',
+            'Без даты',
+        ]
+        assert [item['status'] for item in timeline_items] == [
+            'unvisited',
+            'visited',
+            'visited',
+            'visited',
+        ]
+
+        content = response.content.decode()
+        assert 'id="collection-timeline-modal"' in content
+        assert 'dui-modal' in content
+        assert 'dui-timeline dui-timeline-vertical' in content
+        assert 'Хронология' in content
 
     def test_map_template_used_for_map_view(
         self, client: Client, setup_data: dict[str, Any]

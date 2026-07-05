@@ -10,6 +10,7 @@
  */
 
 import {showSuccessToast, showDangerToast} from '../components/toast.js';
+import {showDaisyToast} from '../components/daisyui_toast.js';
 import {getCookie} from '../components/get_cookie.js';
 
 const setTooltipText = (element, text) => {
@@ -86,15 +87,15 @@ window.addEventListener('load', () => {
                         );
                     }
 
-                    showSuccessToast(
-                        'Успешно',
+                    showDaisyToast(
+                        'success',
                         data.is_public
                             ? 'Коллекция теперь публичная. Любой пользователь может просматривать её.'
                             : 'Коллекция теперь приватная. Только вы можете просматривать её.'
                     );
                 } catch (error) {
                     console.error('Ошибка при изменении статуса коллекции:', error);
-                    showDangerToast('Ошибка', error.message || 'Не удалось изменить статус коллекции. Попробуйте ещё раз.');
+                    showDaisyToast('error', error.message || 'Не удалось изменить статус коллекции. Попробуйте ещё раз.');
 
                     // Возвращаем switch в исходное состояние
                     switchElement.checked = !isPublic;

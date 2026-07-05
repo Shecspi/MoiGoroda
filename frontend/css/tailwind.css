@@ -103,6 +103,41 @@ Licensed under the Apache License, Version 2.0
     prefix: dui-;
 }
 
+@plugin "daisyui/theme" {
+    name: "emerald";
+    default: true;
+    prefersdark: false;
+    color-scheme: "light";
+    --color-base-100: #ffffff;
+    --color-base-200: #f3f4f6;
+    --color-base-300: #e5e7eb;
+    --color-base-content: #111827;
+    --color-primary: #2563eb;
+    --color-primary-content: #ffffff;
+    --color-secondary: #e5e7eb;
+    --color-secondary-content: #1f2937;
+    --color-accent: #8b5cf6;
+    --color-accent-content: #ffffff;
+    --color-neutral: #111827;
+    --color-neutral-content: #ffffff;
+    --color-info: #0ea5e9;
+    --color-info-content: #ffffff;
+    --color-success: #10b981;
+    --color-success-content: #ffffff;
+    --color-warning: #f59e0b;
+    --color-warning-content: #ffffff;
+    --color-error: #ef4444;
+    --color-error-content: #ffffff;
+    --radius-selector: 1rem;
+    --radius-field: 0.5rem;
+    --radius-box: 0.5rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.3rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
 @layer base {
     /* Основной скролл окна: те же размер/цвета, что у #sidebar-nav (overflow-y) */
     html {
@@ -488,6 +523,11 @@ Licensed under the Apache License, Version 2.0
         background-position: right 0.75rem center;
         background-size: 1rem 1rem;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 16 16'%3e%3cpath fill='%239CA3AF' d='M4.646 10.854a.5.5 0 0 1 .708 0L8 13.5l2.646-2.646a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708Z'/%3e%3cpath fill='%239CA3AF' d='M4.646 5.146a.5.5 0 0 0 .708 0L8 2.5l2.646 2.646a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 0 0 0 .708Z'/%3e%3c/svg%3e");
+    }
+
+    /* Ограничиваем DaisyUI tooltip по viewport, чтобы не выходил за экран */
+    .dui-tooltip[data-tip]:before {
+        max-width: min(20rem, calc(100vw - 2rem));
     }
 
     /* Отрисовываем каждый вариант списка его реальным шрифтом */

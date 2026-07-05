@@ -12,6 +12,19 @@
 import {showSuccessToast, showDangerToast} from '../components/toast.js';
 import {getCookie} from '../components/get_cookie.js';
 
+const setTooltipText = (element, text) => {
+    const daisyTooltip = element?.closest('[data-tip]') || element?.parentElement;
+    if (daisyTooltip?.dataset) {
+        daisyTooltip.dataset.tip = text;
+    }
+
+    const prelineTooltip = element?.closest('.hs-tooltip')?.querySelector('.hs-tooltip-content')
+        || element?.parentElement?.querySelector('.hs-tooltip-content');
+    if (prelineTooltip) {
+        prelineTooltip.textContent = text;
+    }
+};
+
 window.addEventListener('load', () => {
     // Обработка изменения статуса публичности коллекции
     const switchElement = document.getElementById('collection-public-status-switch');
@@ -46,27 +59,31 @@ window.addEventListener('load', () => {
                     const data = await response.json();
 
                     // Обновляем tooltip для switch
-                    const switchTooltip = switchElement.closest('.hs-tooltip')?.querySelector('.hs-tooltip-content');
-                    if (switchTooltip) {
-                        if (data.is_public) {
-                            switchTooltip.textContent = 'Коллекция публичная. Любой пользователь может просматривать её.';
-                        } else {
-                            switchTooltip.textContent = 'Коллекция приватная. Только вы можете просматривать её.';
-                        }
-                    }
+                    setTooltipText(
+                        switchElement,
+                        data.is_public
+                            ? 'Коллекция публичная. Любой пользователь может просматривать её.'
+                            : 'Коллекция приватная. Только вы можете просматривать её.'
+                    );
 
                     // Обновляем состояние кнопки копирования ссылки
                     const copyButton = document.getElementById('copy-collection-link-button');
                     if (copyButton) {
                         copyButton.disabled = !data.is_public;
-                        const copyTooltip = copyButton.closest('.hs-tooltip')?.querySelector('.hs-tooltip-content');
-                        if (copyTooltip) {
-                            if (data.is_public) {
-                                copyTooltip.textContent = 'Скопировать ссылку на коллекцию';
-                            } else {
-                                copyTooltip.textContent = 'Сделайте коллекцию публичной, чтобы поделиться ссылкой';
-                            }
+                        
+                        // Обновляем border классы в зависимости от статуса публичности
+                        if (data.is_public) {
+                            copyButton.classList.add('border', 'border-accent/40');
+                        } else {
+                            copyButton.classList.remove('border', 'border-accent/40');
                         }
+                        
+                        setTooltipText(
+                            copyButton,
+                            data.is_public
+                                ? 'Скопировать ссылку на коллекцию'
+                                : 'Сделайте коллекцию публичной, чтобы поделиться ссылкой'
+                        );
                     }
 
                     showSuccessToast(
@@ -103,11 +120,10 @@ window.addEventListener('load', () => {
                 icon.removeAttribute('stroke');
             }
             // Обновляем tooltip
-            const tooltip = copyButton.parentElement?.querySelector('.hs-tooltip-content');
-            if (tooltip && copyButton.dataset.collectionUrl) {
+            if (copyButton.dataset.collectionUrl) {
                 const isPublic = !copyButton.disabled;
                 if (isPublic) {
-                    tooltip.textContent = 'Поделиться ссылкой на коллекцию';
+                    setTooltipText(copyButton, 'Поделиться ссылкой на коллекцию');
                 }
             }
         }
@@ -249,4 +265,3 @@ window.addEventListener('load', () => {
         });
     }
 });
-

@@ -184,18 +184,20 @@ window.addEventListener('load', () => {
     if (deleteButton && deleteModal && collectionTitleInput && collectionTitleDisplay && confirmDeleteButton) {
         const collectionTitle = deleteButton.dataset.collectionTitle || '';
 
-        // При открытии модального окна
-        deleteModal.addEventListener('open.hs.overlay', () => {
+        // Открытие модального окна
+        deleteButton.addEventListener('click', () => {
             // Устанавливаем название коллекции в модальном окне
             collectionTitleDisplay.textContent = collectionTitle;
             // Очищаем поле ввода
             collectionTitleInput.value = '';
             // Делаем кнопку неактивной
             confirmDeleteButton.disabled = true;
+            // Открываем модальное окно
+            deleteModal.showModal();
         });
 
         // При закрытии модального окна
-        deleteModal.addEventListener('close.hs.overlay', () => {
+        deleteModal.addEventListener('close', () => {
             // Очищаем поле ввода
             collectionTitleInput.value = '';
             // Делаем кнопку неактивной
@@ -245,6 +247,8 @@ window.addEventListener('load', () => {
 
                 if (response.ok) {
                     showSuccessToast('Успешно', 'Коллекция успешно удалена');
+                    // Закрываем модальное окно
+                    deleteModal.close();
                     // Перенаправляем на страницу списка коллекций с открытой вкладкой "Персональные"
                     window.location.href = '/collection/personal';
                 } else {

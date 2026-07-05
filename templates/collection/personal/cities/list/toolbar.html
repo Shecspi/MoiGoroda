@@ -6,14 +6,15 @@
     <!-- Статистика -->
     <div class="toolbar-stats flex flex-wrap items-center gap-3 self-center">
         <div class="dui-tooltip dui-tooltip-top dui-tooltip-start" data-tip="Количество посещённых городов из коллекции">
-            <span class="dui-badge dui-badge-outline dui-badge-success text-sm">
-                <span class="dui-badge-dot" aria-hidden="true"></span>
-                <span id="visited-word">{{ "Посещён,Посещено"|modify_by_num:qty_of_visited_cities }}</span>
-                <strong>{{ qty_of_visited_cities }}</strong>
-                <span id="visited-cities-word">{{ "город"|plural_by_num:qty_of_visited_cities }}</span>
-                <span>из</span>
-                <span>{{ qty_of_cities }}</span>
-            </span>
+            <div class="dui-badge dui-badge-success dui-badge-md text-sm font-semibold">
+                <div>
+                    <span id="visited-word">{{ "Посещён,Посещено"|modify_by_num:qty_of_visited_cities }}</span>
+                    {{ qty_of_visited_cities }}
+                    <span id="visited-cities-word">{{ "город"|plural_by_num:qty_of_visited_cities }}</span>
+                    <span>из</span>
+                    <span>{{ qty_of_cities }}</span>
+                </div>
+            </div>
         </div>
     </div>
     <!-- ^^^ Статистика -->

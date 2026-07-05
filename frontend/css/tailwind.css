@@ -528,6 +528,7 @@ Licensed under the Apache License, Version 2.0
     /* Ограничиваем DaisyUI tooltip по viewport, чтобы не выходил за экран */
     .dui-tooltip[data-tip]:before {
         max-width: min(20rem, calc(100vw - 2rem));
+        font-weight: 400;
     }
 
     /* Отрисовываем каждый вариант списка его реальным шрифтом */

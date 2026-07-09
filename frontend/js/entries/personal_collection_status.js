@@ -133,7 +133,7 @@ window.addEventListener('load', () => {
             const collectionUrl = copyButton.dataset.collectionUrl;
             const collectionTitle = copyButton.dataset.collectionTitle || 'Персональная коллекция городов';
             if (!collectionUrl) {
-                showDangerToast('Ошибка', 'Не удалось получить ссылку на коллекцию');
+                showDaisyToast('error', 'Не удалось получить ссылку на коллекцию');
                 return;
             }
 
@@ -155,10 +155,10 @@ window.addEventListener('load', () => {
                     if (error.name !== 'AbortError') {
                         try {
                             await navigator.clipboard.writeText(absoluteUrl);
-                            showSuccessToast('Скопировано', 'Ссылка на коллекцию успешно скопирована в буфер обмена.');
+                            showDaisyToast('success', 'Ссылка на коллекцию успешно скопирована в буфер обмена');
                         } catch (clipboardError) {
                             console.error('Ошибка при копировании ссылки:', clipboardError);
-                            showDangerToast('Ошибка', 'Не удалось поделиться ссылкой. Попробуйте ещё раз.');
+                            showDaisyToast('error', 'Не удалось поделиться ссылкой. Попробуйте ещё раз');
                         }
                     }
                 }
@@ -166,10 +166,10 @@ window.addEventListener('load', () => {
                 // Fallback для устройств без поддержки Web Share API
                 try {
                     await navigator.clipboard.writeText(absoluteUrl);
-                    showSuccessToast('Скопировано', 'Ссылка на коллекцию успешно скопирована в буфер обмена.');
+                    showDaisyToast('success', 'Ссылка на коллекцию успешно скопирована в буфер обмена');
                 } catch (error) {
                     console.error('Ошибка при копировании ссылки:', error);
-                    showDangerToast('Ошибка', 'Не удалось скопировать ссылку. Попробуйте ещё раз.');
+                    showDaisyToast('error', 'Не удалось скопировать ссылку. Попробуйте ещё раз');
                 }
             }
         });

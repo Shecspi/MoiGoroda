@@ -14,7 +14,7 @@ from typing import Any
 import pytest
 from django.test import Client
 
-from city.models import City
+from city.models import City, VisitedCity
 from collection.models import PersonalCollection
 from country.models import Country, Location, PartOfTheWorld
 from region.models import Area, Region, RegionType
@@ -192,6 +192,20 @@ class TestPersonalCollectionCityListView:
         response = client.get(f'/collection/personal/{collection.id}/list')
 
         assert response.status_code == 200
+
+    def test_city_list_view_marks_current_readonly_rating(
+        self, client: Client, setup_view_data: dict[str, Any]
+    ) -> None:
+        """Проверяет, что read-only рейтинг содержит текущую оценку для screen reader."""
+        user1 = setup_view_data['user1']
+        city = setup_view_data['cities'][0]
+        collection = setup_view_data['public_collection']
+        VisitedCity.objects.create(user=user1, city=city, rating=5)
+
+        response = client.get(f'/collection/personal/{collection.id}/list')
+
+        assert response.status_code == 200
+        assert response.content.decode().count('aria-current="true"') == 1
 
     def test_city_list_view_private_collection_no_access(
         self, client: Client, setup_view_data: dict[str, Any]

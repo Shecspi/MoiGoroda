@@ -12,7 +12,7 @@ Licensed under the Apache License, Version 2.0
 
 <div class="h-full {% if city.is_visited %}visited{% else %}not-visited{% endif %}" id="city_card_{{ forloop.counter }}">
     <!-- Карточка города -->
-    <div class="dui-card dui-card-border relative h-full overflow-hidden bg-base-100 shadow-sm transition-shadow hover:shadow-md"
+    <div class="dui-card dui-card-border relative h-full overflow-hidden border-base-300/70 bg-base-100 shadow-md shadow-base-content/10 transition-shadow hover:shadow-lg"
          id="section-city_{{ forloop.counter }}">
         <figure class="relative aspect-video w-full shrink-0 overflow-hidden bg-base-200 shadow-inner ring-1 ring-inset ring-base-300">
             {% if city.image %}

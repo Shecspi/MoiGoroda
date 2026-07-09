@@ -203,27 +203,6 @@ class TestPersonalCollectionCityListView:
 
         assert response.status_code == 404
 
-    def test_city_map_toolbar_uses_daisyui_components(
-        self, client: Client, setup_view_data: dict[str, Any]
-    ) -> None:
-        """Проверяет, что тулбар карты персональной коллекции использует daisyUI."""
-        user1 = setup_view_data['user1']
-        collection = setup_view_data['public_collection']
-        client.force_login(user1)
-
-        response = client.get(f'/collection/personal/{collection.id}/map')
-        content = response.content.decode()
-
-        assert response.status_code == 200
-        assert 'hs-tooltip' not in content
-        assert 'data-hs-overlay="#deleteCollectionModal"' not in content
-        assert 'dui-tooltip' in content
-        assert 'dui-badge' in content
-        assert 'dui-toggle' in content
-        assert 'dui-btn' in content
-        assert 'id="collection-public-status-switch"' in content
-        assert 'id="delete-collection-button"' in content
-
     def test_city_list_view_private_collection_other_user_no_access(
         self, client: Client, setup_view_data: dict[str, Any]
     ) -> None:

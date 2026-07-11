@@ -186,6 +186,8 @@
 
 - *(city)* Улучшение дизайна страницы города ([6d9299f](https://github.com/Shecspi/MoiGoroda/commit/6d9299fca43094532150e25a8ac4bc9c27c7725b))
 
+- Список и карта городов персональной коллекции переведена на daisyUI ([00ad74f](https://github.com/Shecspi/MoiGoroda/commit/00ad74f5d5912a9c1282cdd4bfe12f8b91c13d29))
+
 
 #### 🧪 Тестирование
 

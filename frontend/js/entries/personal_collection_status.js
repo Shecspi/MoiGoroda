@@ -10,7 +10,21 @@
  */
 
 import {showSuccessToast, showDangerToast} from '../components/toast.js';
+import {showDaisyToast} from '../components/daisyui_toast.js';
 import {getCookie} from '../components/get_cookie.js';
+
+const setTooltipText = (element, text) => {
+    const daisyTooltip = element?.closest('[data-tip]') || element?.parentElement;
+    if (daisyTooltip?.dataset) {
+        daisyTooltip.dataset.tip = text;
+    }
+
+    const prelineTooltip = element?.closest('.hs-tooltip')?.querySelector('.hs-tooltip-content')
+        || element?.parentElement?.querySelector('.hs-tooltip-content');
+    if (prelineTooltip) {
+        prelineTooltip.textContent = text;
+    }
+};
 
 window.addEventListener('load', () => {
     // Обработка изменения статуса публичности коллекции
@@ -46,38 +60,42 @@ window.addEventListener('load', () => {
                     const data = await response.json();
 
                     // Обновляем tooltip для switch
-                    const switchTooltip = switchElement.closest('.hs-tooltip')?.querySelector('.hs-tooltip-content');
-                    if (switchTooltip) {
-                        if (data.is_public) {
-                            switchTooltip.textContent = 'Коллекция публичная. Любой пользователь может просматривать её.';
-                        } else {
-                            switchTooltip.textContent = 'Коллекция приватная. Только вы можете просматривать её.';
-                        }
-                    }
+                    setTooltipText(
+                        switchElement,
+                        data.is_public
+                            ? 'Коллекция публичная. Любой пользователь может просматривать её.'
+                            : 'Коллекция приватная. Только вы можете просматривать её.'
+                    );
 
                     // Обновляем состояние кнопки копирования ссылки
                     const copyButton = document.getElementById('copy-collection-link-button');
                     if (copyButton) {
                         copyButton.disabled = !data.is_public;
-                        const copyTooltip = copyButton.closest('.hs-tooltip')?.querySelector('.hs-tooltip-content');
-                        if (copyTooltip) {
-                            if (data.is_public) {
-                                copyTooltip.textContent = 'Скопировать ссылку на коллекцию';
-                            } else {
-                                copyTooltip.textContent = 'Сделайте коллекцию публичной, чтобы поделиться ссылкой';
-                            }
+                        
+                        // Обновляем border классы в зависимости от статуса публичности
+                        if (data.is_public) {
+                            copyButton.classList.add('border', 'border-accent/40');
+                        } else {
+                            copyButton.classList.remove('border', 'border-accent/40');
                         }
+                        
+                        setTooltipText(
+                            copyButton,
+                            data.is_public
+                                ? 'Скопировать ссылку на коллекцию'
+                                : 'Сделайте коллекцию публичной, чтобы поделиться ссылкой'
+                        );
                     }
 
-                    showSuccessToast(
-                        'Успешно',
+                    showDaisyToast(
+                        'success',
                         data.is_public
                             ? 'Коллекция теперь публичная. Любой пользователь может просматривать её.'
                             : 'Коллекция теперь приватная. Только вы можете просматривать её.'
                     );
                 } catch (error) {
                     console.error('Ошибка при изменении статуса коллекции:', error);
-                    showDangerToast('Ошибка', error.message || 'Не удалось изменить статус коллекции. Попробуйте ещё раз.');
+                    showDaisyToast('error', error.message || 'Не удалось изменить статус коллекции. Попробуйте ещё раз.');
 
                     // Возвращаем switch в исходное состояние
                     switchElement.checked = !isPublic;
@@ -103,11 +121,10 @@ window.addEventListener('load', () => {
                 icon.removeAttribute('stroke');
             }
             // Обновляем tooltip
-            const tooltip = copyButton.parentElement?.querySelector('.hs-tooltip-content');
-            if (tooltip && copyButton.dataset.collectionUrl) {
+            if (copyButton.dataset.collectionUrl) {
                 const isPublic = !copyButton.disabled;
                 if (isPublic) {
-                    tooltip.textContent = 'Поделиться ссылкой на коллекцию';
+                    setTooltipText(copyButton, 'Поделиться ссылкой на коллекцию');
                 }
             }
         }
@@ -116,7 +133,7 @@ window.addEventListener('load', () => {
             const collectionUrl = copyButton.dataset.collectionUrl;
             const collectionTitle = copyButton.dataset.collectionTitle || 'Персональная коллекция городов';
             if (!collectionUrl) {
-                showDangerToast('Ошибка', 'Не удалось получить ссылку на коллекцию');
+                showDaisyToast('error', 'Не удалось получить ссылку на коллекцию');
                 return;
             }
 
@@ -138,10 +155,10 @@ window.addEventListener('load', () => {
                     if (error.name !== 'AbortError') {
                         try {
                             await navigator.clipboard.writeText(absoluteUrl);
-                            showSuccessToast('Скопировано', 'Ссылка на коллекцию успешно скопирована в буфер обмена.');
+                            showDaisyToast('success', 'Ссылка на коллекцию успешно скопирована в буфер обмена');
                         } catch (clipboardError) {
                             console.error('Ошибка при копировании ссылки:', clipboardError);
-                            showDangerToast('Ошибка', 'Не удалось поделиться ссылкой. Попробуйте ещё раз.');
+                            showDaisyToast('error', 'Не удалось поделиться ссылкой. Попробуйте ещё раз');
                         }
                     }
                 }
@@ -149,10 +166,10 @@ window.addEventListener('load', () => {
                 // Fallback для устройств без поддержки Web Share API
                 try {
                     await navigator.clipboard.writeText(absoluteUrl);
-                    showSuccessToast('Скопировано', 'Ссылка на коллекцию успешно скопирована в буфер обмена.');
+                    showDaisyToast('success', 'Ссылка на коллекцию успешно скопирована в буфер обмена');
                 } catch (error) {
                     console.error('Ошибка при копировании ссылки:', error);
-                    showDangerToast('Ошибка', 'Не удалось скопировать ссылку. Попробуйте ещё раз.');
+                    showDaisyToast('error', 'Не удалось скопировать ссылку. Попробуйте ещё раз');
                 }
             }
         });
@@ -168,18 +185,20 @@ window.addEventListener('load', () => {
     if (deleteButton && deleteModal && collectionTitleInput && collectionTitleDisplay && confirmDeleteButton) {
         const collectionTitle = deleteButton.dataset.collectionTitle || '';
 
-        // При открытии модального окна
-        deleteModal.addEventListener('open.hs.overlay', () => {
+        // Открытие модального окна
+        deleteButton.addEventListener('click', () => {
             // Устанавливаем название коллекции в модальном окне
             collectionTitleDisplay.textContent = collectionTitle;
             // Очищаем поле ввода
             collectionTitleInput.value = '';
             // Делаем кнопку неактивной
             confirmDeleteButton.disabled = true;
+            // Открываем модальное окно
+            deleteModal.showModal();
         });
 
         // При закрытии модального окна
-        deleteModal.addEventListener('close.hs.overlay', () => {
+        deleteModal.addEventListener('close', () => {
             // Очищаем поле ввода
             collectionTitleInput.value = '';
             // Делаем кнопку неактивной
@@ -229,6 +248,8 @@ window.addEventListener('load', () => {
 
                 if (response.ok) {
                     showSuccessToast('Успешно', 'Коллекция успешно удалена');
+                    // Закрываем модальное окно
+                    deleteModal.close();
                     // Перенаправляем на страницу списка коллекций с открытой вкладкой "Персональные"
                     window.location.href = '/collection/personal';
                 } else {
@@ -249,4 +270,3 @@ window.addEventListener('load', () => {
         });
     }
 });
-

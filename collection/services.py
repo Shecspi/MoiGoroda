@@ -1,11 +1,9 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 import json
 import uuid
@@ -297,6 +295,10 @@ class PersonalCollectionService:
             # Fallback: подсчитываем из пагинированного списка (неправильно, но лучше чем ошибка)
             qty_of_cities = len(cities)
             qty_of_visited_cities = sum(1 for city in cities if getattr(city, 'is_visited', False))
+
+        for city in cities:
+            average_rating = getattr(city, 'average_rating', None)
+            city.current_rating_value = f'{float(average_rating):.1f}' if average_rating else ''
 
         # Для списка передаём упрощённые данные
         cities_data = [

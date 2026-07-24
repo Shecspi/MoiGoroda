@@ -1,4 +1,12 @@
 {% extends 'base.html' %}
+{% comment %}
+---------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
 {% load vite %}
 
 {% block extra_css %}
@@ -51,6 +59,10 @@
             </div>
         </div>
     </div>
+
+    {% if not DEBUG %}
+        {% include 'advertisement/rtb_feed.html' %}
+    {% endif %}
 
     {% vite_asset 'js/entries/city_create.js' %}
 {% endblock %}

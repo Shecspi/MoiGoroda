@@ -275,9 +275,22 @@ export const buildPopupContent = (cityData, options = {}) => {
  * @param {L.Layer} layer - Слой Leaflet
  * @param {Object} cityData - Данные о городе
  * @param {Object} options - Опции для popup (см. buildPopupContent)
+ * @param {boolean} [options.lazyPopup=false] - Строить содержимое при первом открытии popup
  */
 export const bindPopupToLayer = (layer, cityData, options = {}) => {
-    layer.bindPopup(buildPopupContent(cityData, options), {maxWidth: 400, minWidth: 280});
+    const {lazyPopup = false, ...popupOptions} = options;
+    let cachedPopupContent;
+    const getPopupContent = () => {
+        if (cachedPopupContent === undefined) {
+            cachedPopupContent = buildPopupContent(cityData, popupOptions);
+        }
+        return cachedPopupContent;
+    };
+
+    layer.bindPopup(
+        lazyPopup ? getPopupContent : getPopupContent(),
+        {maxWidth: 400, minWidth: 280}
+    );
     layer.on('popupopen', () => {
         if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
             window.HSStaticMethods.autoInit();
@@ -317,4 +330,3 @@ export const bindPopupToLayer = (layer, cityData, options = {}) => {
 export const bindPopupToMarker = (marker, cityData, options = {}) => {
     bindPopupToLayer(marker, cityData, options);
 };
-

@@ -74,16 +74,8 @@ window.onload = async () => {
             // Передаём данные добавленного города для локального обновления без запроса к серверу
             updateVisitedCitiesData(city);
             
-            // Удаляем маркер непосещённого города, если он был отображён
-            // Это необходимо, чтобы старый маркер не оставался на карте
-            if (city && city.id && actions && actions.stateNotVisitedCities) {
-                const notVisitedMarker = actions.stateNotVisitedCities.get(city.id);
-                if (notVisitedMarker) {
-                    actions.stateNotVisitedCities.delete(city.id);
-                    if (map.hasLayer(notVisitedMarker)) {
-                        map.removeLayer(notVisitedMarker);
-                    }
-                }
+            if (city?.id && actions) {
+                actions.removeNotVisitedMarker(city.id);
             }
             
             // Используем date_of_visit, так как это дата именно добавленного посещения

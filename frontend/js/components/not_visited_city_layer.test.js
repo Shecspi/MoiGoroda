@@ -550,6 +550,20 @@ describe('NotVisitedCityLayer', () => {
         expect(layer.remove(999)).toBeNull();
     });
 
+    it('не добавляет город после remove, вызванного до запуска queued add', async () => {
+        const layer = new NotVisitedCityLayer(map);
+        const marker = { id: 'pending' };
+
+        const adding = layer.add([{ cityId: 1, marker }]);
+        expect(layer.remove(1)).toBeNull();
+
+        await adding;
+
+        expect(layer.markers.has(1)).toBe(false);
+        expect(clusterGroup.addLayers).not.toHaveBeenCalled();
+        expect(directGroup.addLayer).not.toHaveBeenCalled();
+    });
+
     it('повторяет удаление незавершённого маркера до внешнего completion callback', async () => {
         const order = [];
         let layer;

@@ -19,6 +19,7 @@ export class NotVisitedCityLayer {
         this.visible = false;
         this.batchWaiters = [];
         this.mountedBatchActive = false;
+        this.pendingAddOperations = new Map();
         this.lifecycleTail = Promise.resolve();
         this.clusterGroup = L.markerClusterGroup({
             chunkedLoading: true,
@@ -44,7 +45,23 @@ export class NotVisitedCityLayer {
     }
 
     add(entries) {
-        return this.enqueueLifecycle(() => this.performAdd(entries));
+        const operation = { entries, cancelledCityIds: new Set() };
+        entries.forEach(({ cityId }) => {
+            if (!this.pendingAddOperations.has(cityId)) {
+                this.pendingAddOperations.set(cityId, new Set());
+            }
+            this.pendingAddOperations.get(cityId).add(operation);
+        });
+        return this.enqueueLifecycle(() => {
+            entries.forEach(({ cityId }) => {
+                const operations = this.pendingAddOperations.get(cityId);
+                operations?.delete(operation);
+                if (operations?.size === 0) {
+                    this.pendingAddOperations.delete(cityId);
+                }
+            });
+            return this.performAdd(entries, operation.cancelledCityIds);
+        });
     }
 
     enqueueLifecycle(operation) {
@@ -53,14 +70,14 @@ export class NotVisitedCityLayer {
         return result;
     }
 
-    async performAdd(entries) {
+    async performAdd(entries, cancelledCityIds = new Set()) {
         const markersToAdd = [];
         const introducedEntries = [];
         const hadPendingBatch = this.isBatchProcessing;
 
         try {
             entries.forEach(({ cityId, marker }) => {
-                if (this.markers.has(cityId)) {
+                if (cancelledCityIds.has(cityId) || this.markers.has(cityId)) {
                     return;
                 }
                 this.markers.set(cityId, marker);
@@ -249,6 +266,9 @@ export class NotVisitedCityLayer {
     }
 
     remove(cityId) {
+        this.pendingAddOperations.get(cityId)?.forEach((operation) => {
+            operation.cancelledCityIds.add(cityId);
+        });
         const marker = this.markers.get(cityId);
         if (!marker) {
             return null;

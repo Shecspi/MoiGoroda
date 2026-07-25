@@ -68,6 +68,8 @@
 
 - Добавлена хронология посещения городов ([9598a00](https://github.com/Shecspi/MoiGoroda/commit/9598a00149ee0e12ff6455e39be43898e7bbc655))
 
+- *(city)* Маркеры непосещённых городов объединяются в кластеры ([cba472c](https://github.com/Shecspi/MoiGoroda/commit/cba472c6ca20a4f9b831361593b4979fcdf2ccf8))
+
 
 #### 🐛 Исправление ошибок
 

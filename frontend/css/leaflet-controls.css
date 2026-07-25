@@ -597,6 +597,12 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
     fill: currentColor;
 }
 
+/* Solid-глифы переключателя по размеру совпадают с соседними outline-иконками. */
+#map .leaflet-control-not-visited-clustering svg.control-icon.control-icon--solid {
+    width: 1rem;
+    height: 1rem;
+}
+
 /* Скрываем Font Awesome иконки если они остались */
 #map .custom-control-for-map i {
     display: none !important;

@@ -14,17 +14,27 @@ export class NotVisitedCityLayer {
         this.markers = new Map();
         this.isBatchProcessing = false;
         this.pendingRemovals = new Set();
+        this.directGroup = L.layerGroup();
+        this.clusteringEnabled = true;
+        this.visible = false;
+        this.batchWaiters = [];
+        this.mountedBatchActive = false;
+        this.lifecycleTail = Promise.resolve();
         this.clusterGroup = L.markerClusterGroup({
             chunkedLoading: true,
             disableClusteringAtZoom: 8,
             chunkProgress: (processed, total, elapsed) => {
-                if (processed === total && this.isBatchProcessing) {
-                    const pendingRemovals = [...this.pendingRemovals];
-                    this.pendingRemovals.clear();
-                    this.isBatchProcessing = false;
-                    pendingRemovals.forEach((marker) => {
-                        this.clusterGroup.removeLayer(marker);
-                    });
+                if (processed === total && this.mountedBatchActive) {
+                    try {
+                        this.pendingRemovals.forEach((marker) => {
+                            this.clusterGroup.removeLayer(marker);
+                        });
+                    } finally {
+                        this.pendingRemovals.clear();
+                        this.mountedBatchActive = false;
+                        this.isBatchProcessing = false;
+                        this.resolveBatchWaiters();
+                    }
                 }
                 onChunkProgress?.(processed, total, elapsed);
             },
@@ -34,43 +44,207 @@ export class NotVisitedCityLayer {
     }
 
     add(entries) {
-        const markersToAdd = [];
+        return this.enqueueLifecycle(() => this.performAdd(entries));
+    }
 
-        entries.forEach(({ cityId, marker }) => {
-            if (this.markers.has(cityId)) {
+    enqueueLifecycle(operation) {
+        const result = this.lifecycleTail.then(operation);
+        this.lifecycleTail = result.then(() => undefined, () => undefined);
+        return result;
+    }
+
+    async performAdd(entries) {
+        const markersToAdd = [];
+        const introducedEntries = [];
+        const hadPendingBatch = this.isBatchProcessing;
+
+        try {
+            entries.forEach(({ cityId, marker }) => {
+                if (this.markers.has(cityId)) {
+                    return;
+                }
+                this.markers.set(cityId, marker);
+                introducedEntries.push({ cityId, marker });
+                markersToAdd.push(marker);
+            });
+
+            if (markersToAdd.length === 0) {
                 return;
             }
-            this.markers.set(cityId, marker);
-            markersToAdd.push(marker);
-        });
-
-        if (markersToAdd.length > 0) {
+            introducedEntries.forEach(({ marker }) => this.directGroup.addLayer(marker));
             this.isBatchProcessing = true;
-            try {
+            if (this.map.hasLayer(this.clusterGroup)) {
+                this.startMountedBatch(markersToAdd);
+                await this.waitForActiveBatch();
+            } else {
                 this.clusterGroup.addLayers(markersToAdd);
-            } catch (error) {
-                try {
-                    this.clear();
-                } catch (cleanupError) {
-                    console.error(
-                        'Ошибка при очистке кластера после сбоя добавления:',
-                        cleanupError,
-                    );
-                }
-                throw error;
             }
+        } catch (error) {
+            this.rollbackAddedEntries(introducedEntries);
+            this.mountedBatchActive = false;
+            this.isBatchProcessing = hadPendingBatch;
+            if (!hadPendingBatch) {
+                this.resolveBatchWaiters();
+            }
+            throw error;
         }
     }
 
+    rollbackAddedEntries(entries) {
+        entries.forEach(({ cityId, marker }) => {
+            if (this.markers.get(cityId) === marker) {
+                this.markers.delete(cityId);
+            }
+            try {
+                this.clusterGroup.removeLayer(marker);
+            } catch (cleanupError) {
+                console.error('Ошибка при откате маркера из кластера:', cleanupError);
+            }
+            try {
+                this.directGroup.removeLayer(marker);
+            } catch (cleanupError) {
+                console.error('Ошибка при откате маркера из обычного слоя:', cleanupError);
+            }
+        });
+    }
+
+    startMountedBatch(markers) {
+        this.mountedBatchActive = true;
+        this.clusterGroup.addLayers(markers);
+    }
+
+    resolveBatchWaiters() {
+        const waiters = this.batchWaiters.splice(0);
+        waiters.forEach((resolve) => resolve());
+    }
+
+    waitForBatch() {
+        const lifecycle = this.lifecycleTail;
+        return lifecycle.then(() => this.waitForActiveBatch());
+    }
+
+    waitForActiveBatch() {
+        if (!this.isBatchProcessing) {
+            return Promise.resolve();
+        }
+        return new Promise((resolve) => this.batchWaiters.push(resolve));
+    }
+
+    getActiveGroup() {
+        return this.clusteringEnabled ? this.clusterGroup : this.directGroup;
+    }
+
     show() {
-        if (!this.map.hasLayer(this.clusterGroup)) {
-            this.map.addLayer(this.clusterGroup);
+        return this.enqueueLifecycle(() => this.performShow());
+    }
+
+    async performShow() {
+        const previousVisible = this.visible;
+        this.visible = true;
+        const activeGroup = this.getActiveGroup();
+        const wasMounted = this.map.hasLayer(activeGroup);
+        try {
+            if (!wasMounted) {
+                if (activeGroup === this.clusterGroup && this.isBatchProcessing) {
+                    this.mountedBatchActive = true;
+                }
+                this.map.addLayer(activeGroup);
+            }
+            if (this.clusteringEnabled) {
+                await this.waitForActiveBatch();
+            }
+        } catch (error) {
+            this.visible = previousVisible;
+            if (activeGroup === this.clusterGroup) {
+                this.mountedBatchActive = false;
+                this.resolveBatchWaiters();
+            }
+            if (!wasMounted) {
+                try {
+                    if (this.map.hasLayer(activeGroup)) {
+                        this.map.removeLayer(activeGroup);
+                    }
+                } catch (cleanupError) {
+                    console.error('Ошибка при откате показа слоя городов:', cleanupError);
+                }
+            }
+            throw error;
         }
     }
 
     hide() {
-        if (this.map.hasLayer(this.clusterGroup)) {
-            this.map.removeLayer(this.clusterGroup);
+        return this.enqueueLifecycle(() => this.performHide());
+    }
+
+    performHide() {
+        const activeGroup = this.getActiveGroup();
+        if (this.map.hasLayer(activeGroup)) {
+            try {
+                this.map.removeLayer(activeGroup);
+            } catch (error) {
+                try {
+                    if (!this.map.hasLayer(activeGroup)) {
+                        this.map.addLayer(activeGroup);
+                    }
+                } catch (cleanupError) {
+                    console.error('Ошибка при восстановлении слоя городов:', cleanupError);
+                }
+                this.visible = this.map.hasLayer(activeGroup);
+                throw error;
+            }
+        }
+        this.visible = false;
+    }
+
+    setClusteringEnabled(enabled) {
+        return this.enqueueLifecycle(() => this.performSetClusteringEnabled(enabled));
+    }
+
+    async performSetClusteringEnabled(enabled) {
+        if (enabled === this.clusteringEnabled) {
+            return this.clusteringEnabled;
+        }
+        const previousEnabled = this.clusteringEnabled;
+        const previousGroup = this.getActiveGroup();
+        if (!this.visible) {
+            this.clusteringEnabled = enabled;
+            return this.clusteringEnabled;
+        }
+        const nextGroup = enabled ? this.clusterGroup : this.directGroup;
+        try {
+            if (this.map.hasLayer(previousGroup)) {
+                this.map.removeLayer(previousGroup);
+            }
+            this.clusteringEnabled = enabled;
+            if (nextGroup === this.clusterGroup && this.isBatchProcessing) {
+                this.mountedBatchActive = true;
+            }
+            this.map.addLayer(nextGroup);
+            if (enabled) {
+                await this.waitForActiveBatch();
+            }
+            return this.clusteringEnabled;
+        } catch (error) {
+            try {
+                if (this.map.hasLayer(nextGroup)) {
+                    this.map.removeLayer(nextGroup);
+                }
+            } catch (cleanupError) {
+                console.error('Ошибка при откате слоя кластеризации:', cleanupError);
+            }
+            this.clusteringEnabled = previousEnabled;
+            if (nextGroup === this.clusterGroup) {
+                this.mountedBatchActive = false;
+                this.resolveBatchWaiters();
+            }
+            try {
+                if (!this.map.hasLayer(previousGroup)) {
+                    this.map.addLayer(previousGroup);
+                }
+            } catch (cleanupError) {
+                console.error('Ошибка при восстановлении слоя кластеризации:', cleanupError);
+            }
+            throw error;
         }
     }
 
@@ -81,20 +255,61 @@ export class NotVisitedCityLayer {
         }
 
         this.markers.delete(cityId);
-        if (this.isBatchProcessing) {
+        if (this.isBatchProcessing && this.map.hasLayer(this.clusterGroup)) {
             this.pendingRemovals.add(marker);
         }
         this.clusterGroup.removeLayer(marker);
+        this.directGroup.removeLayer(marker);
         return marker;
     }
 
     clear() {
+        return this.enqueueLifecycle(() => this.performClear());
+    }
+
+    performClear() {
+        let operationError;
+        [this.clusterGroup, this.directGroup].forEach((group) => {
+            try {
+                if (this.map.hasLayer(group)) {
+                    this.map.removeLayer(group);
+                }
+            } catch (error) {
+                operationError ??= error;
+            }
+        });
+        try {
+            this.clearLayersNow();
+        } catch (error) {
+            operationError ??= error;
+        }
+        this.visible = [this.clusterGroup, this.directGroup]
+            .some((group) => this.map.hasLayer(group));
+        if (operationError) {
+            throw operationError;
+        }
+    }
+
+    clearLayersNow() {
+        let clearError;
         try {
             this.clusterGroup.clearLayers();
+        } catch (error) {
+            clearError = error;
+        }
+        try {
+            this.directGroup.clearLayers();
+        } catch (error) {
+            clearError ??= error;
         } finally {
             this.markers.clear();
             this.pendingRemovals.clear();
             this.isBatchProcessing = false;
+            this.mountedBatchActive = false;
+            this.resolveBatchWaiters();
+        }
+        if (clearError) {
+            throw clearError;
         }
     }
 }

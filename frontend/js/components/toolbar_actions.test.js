@@ -48,11 +48,23 @@ import { ToolbarActions } from './toolbar_actions.js';
 function createLayer(markers = new Map()) {
     return {
         markers,
-        add: vi.fn(),
-        show: vi.fn(),
-        hide: vi.fn(),
+        visible: false,
+        clusteringEnabled: true,
+        add: vi.fn().mockResolvedValue(),
+        show: vi.fn(async function () {
+            this.visible = true;
+        }),
+        hide: vi.fn(async function () {
+            this.visible = false;
+        }),
         remove: vi.fn(),
-        clear: vi.fn(),
+        clear: vi.fn(async function () {
+            this.visible = false;
+        }),
+        setClusteringEnabled: vi.fn(async function (enabled) {
+            this.clusteringEnabled = enabled;
+            return enabled;
+        }),
     };
 }
 
@@ -92,8 +104,9 @@ function createActions() {
     actions.notVisitedCitiesBuilt = false;
     actions.notVisitedShowPromise = null;
     actions.notVisitedTogglePromise = null;
+    actions.notVisitedClusteringTogglePromise = null;
+    actions.notVisitedVisibilityListeners = new Set();
     actions.notVisitedLoadControl = null;
-    actions.notVisitedChunkResolve = null;
     actions.stateOwnCities = new Map();
     actions.stateSubscriptionCities = new Map();
     actions.stateNotVisitedCities = new Map();
@@ -117,18 +130,13 @@ function createConstructedActions() {
         <button id="btn_open_modal_with_subscriptions"></button>
     `;
     const layer = createLayer();
-    let options;
-    NotVisitedCityLayer.mockImplementationOnce((map, layerOptions) => {
-        options = layerOptions;
-        return layer;
-    });
+    NotVisitedCityLayer.mockImplementationOnce(() => layer);
     const map = createMap();
 
     return {
         actions: new ToolbarActions(map, []),
         layer,
         map,
-        getOptions: () => options,
     };
 }
 
@@ -149,10 +157,10 @@ describe('ToolbarActions: непосещённые города', () => {
         vi.restoreAllMocks();
     });
 
-    it('создаёт лёгкие маркеры и передаёт их кластерному слою пакетом', () => {
+    it('создаёт лёгкие маркеры и передаёт их кластерному слою пакетом', async () => {
         const actions = createActions();
 
-        actions.addNotVisitedCitiesOnMap();
+        await actions.addNotVisitedCitiesOnMap();
 
         expect(actions.notVisitedCityLayer.add).toHaveBeenCalledOnce();
         expect(actions.notVisitedCityLayer.show).toHaveBeenCalledOnce();
@@ -168,13 +176,13 @@ describe('ToolbarActions: непосещённые города', () => {
         );
     });
 
-    it('переиспользует построенный пустой слой без пересборки', () => {
+    it('переиспользует построенный пустой слой без пересборки', async () => {
         const actions = createActions();
         actions.notVisitedCities = [];
         actions.notVisitedCitiesBuilt = true;
         const finishSpy = vi.spyOn(actions, 'finishNotVisitedLoading');
 
-        actions.addNotVisitedCitiesOnMap();
+        await actions.addNotVisitedCitiesOnMap();
 
         expect(mocks.marker).not.toHaveBeenCalled();
         expect(actions.notVisitedCityLayer.add).not.toHaveBeenCalled();
@@ -203,19 +211,121 @@ describe('ToolbarActions: непосещённые города', () => {
         expect(actions.notVisitedCitiesBuilt).toBe(false);
     });
 
-    it('снимает индикатор только после завершения chunk processing', () => {
-        const { actions, map, getOptions } = createConstructedActions();
-        const loadControl = { id: 'load-control' };
-        const resolveChunk = vi.fn();
-        actions.notVisitedLoadControl = loadControl;
-        actions.notVisitedChunkResolve = resolveChunk;
+    it('сразу сообщает видимость и уведомляет после show, hide и clear', async () => {
+        const actions = createActions();
+        const listener = vi.fn();
 
-        getOptions().onChunkProgress(1, 2);
+        actions.subscribeNotVisitedVisibility(listener);
+        expect(listener).toHaveBeenLastCalledWith(false);
+
+        await actions.addNotVisitedCitiesOnMap();
+        expect(listener).toHaveBeenLastCalledWith(true);
+
+        await actions.hideNotVisitedCities();
+        expect(listener).toHaveBeenLastCalledWith(false);
+
+        actions.notVisitedCityLayer.visible = true;
+        await actions.removeNotVisitedMarkers();
+        expect(listener).toHaveBeenLastCalledWith(false);
+        expect(listener).toHaveBeenCalledTimes(4);
+    });
+
+    it('уведомляет о фактической видимости после ошибки show', async () => {
+        const actions = createActions();
+        const listener = vi.fn();
+        actions.notVisitedCityLayer.show.mockImplementationOnce(function () {
+            this.visible = true;
+            throw new Error('cluster show failed');
+        });
+
+        actions.subscribeNotVisitedVisibility(listener);
+        await expect(actions.showNotVisitedCities()).resolves.toBe(false);
+
+        expect(actions.notVisitedCityLayer.visible).toBe(false);
+        expect(listener).toHaveBeenLastCalledWith(false);
+        expect(listener).toHaveBeenCalledTimes(2);
+    });
+
+    it('прекращает уведомления после удаления подписки', async () => {
+        const actions = createActions();
+        const listener = vi.fn();
+        const unsubscribe = actions.subscribeNotVisitedVisibility(listener);
+
+        unsubscribe();
+        await actions.addNotVisitedCitiesOnMap();
+
+        expect(listener).toHaveBeenCalledOnce();
+        expect(listener).toHaveBeenLastCalledWith(false);
+    });
+
+    it('удаляет подписчика, если начальное уведомление завершилось ошибкой', () => {
+        const actions = createActions();
+        const listenerError = new Error('initial listener failed');
+        const listener = vi.fn(() => {
+            throw listenerError;
+        });
+
+        expect(() => actions.subscribeNotVisitedVisibility(listener)).toThrow(listenerError);
+
+        expect(actions.notVisitedVisibilityListeners.has(listener)).toBe(false);
+        expect(listener).toHaveBeenCalledOnce();
+    });
+
+    it('не прерывает успешную операцию и уведомляет следующих подписчиков', async () => {
+        const actions = createActions();
+        const listenerError = new Error('listener failed');
+        const throwingListener = vi.fn()
+            .mockImplementationOnce(() => {})
+            .mockImplementationOnce(() => {
+                throw listenerError;
+            });
+        const laterListener = vi.fn();
+        actions.subscribeNotVisitedVisibility(throwingListener);
+        actions.subscribeNotVisitedVisibility(laterListener);
+
+        await expect(actions.addNotVisitedCitiesOnMap()).resolves.toBeUndefined();
+
+        expect(laterListener).toHaveBeenLastCalledWith(true);
+        expect(console.error).toHaveBeenCalledWith(
+            'Ошибка подписчика видимости непосещённых городов:',
+            listenerError,
+        );
+    });
+
+    it('сохраняет исходную ошибку слоя при ошибке подписчика', async () => {
+        const actions = createActions();
+        const layerError = new Error('cluster show failed');
+        const listenerError = new Error('listener failed');
+        const listener = vi.fn()
+            .mockImplementationOnce(() => {})
+            .mockImplementationOnce(() => {
+                throw listenerError;
+            });
+        actions.notVisitedCityLayer.show.mockRejectedValueOnce(layerError);
+        actions.subscribeNotVisitedVisibility(listener);
+
+        await expect(actions.addNotVisitedCitiesOnMap()).rejects.toBe(layerError);
+
+        expect(console.error).toHaveBeenCalledWith(
+            'Ошибка подписчика видимости непосещённых городов:',
+            listenerError,
+        );
+    });
+
+    it('снимает индикатор только после завершения показа слоя', async () => {
+        const { actions, layer, map } = createConstructedActions();
+        const loadControl = { id: 'load-control' };
+        const showing = deferred();
+        actions.notVisitedLoadControl = loadControl;
+        actions.notVisitedCitiesBuilt = true;
+        layer.show.mockReturnValueOnce(showing.promise);
+
+        const operation = actions.addNotVisitedCitiesOnMap();
         expect(map.removeControl).not.toHaveBeenCalled();
 
-        getOptions().onChunkProgress(2, 2);
+        showing.resolve();
+        await operation;
         expect(map.removeControl).toHaveBeenCalledWith(loadControl);
-        expect(resolveChunk).toHaveBeenCalledOnce();
     });
 
     it('объединяет конкурентные show в один fetch и один load control', async () => {
@@ -257,6 +367,54 @@ describe('ToolbarActions: непосещённые города', () => {
         await expect(Promise.all([firstToggle, secondToggle])).resolves.toEqual([true, true]);
         expect(actions.elementShowNotVisitedCities.dataset.type).toBe('hide');
         expect(actions.setToggleButtonVariant).toHaveBeenCalledOnce();
+    });
+
+    it('переключает кластеризацию только после активного показа', async () => {
+        const actions = createActions();
+        const activeShow = deferred();
+        actions.notVisitedShowPromise = activeShow.promise;
+
+        const toggle = actions.toggleNotVisitedClustering();
+
+        expect(actions.notVisitedCityLayer.setClusteringEnabled).not.toHaveBeenCalled();
+        activeShow.resolve(true);
+        await expect(toggle).resolves.toBe(false);
+        expect(actions.notVisitedCityLayer.setClusteringEnabled).toHaveBeenCalledWith(false);
+    });
+
+    it('дедуплицирует параллельные переключения кластеризации', () => {
+        const actions = createActions();
+        actions.notVisitedCityLayer.setClusteringEnabled.mockImplementation(
+            () => new Promise(() => {}),
+        );
+
+        expect(actions.toggleNotVisitedClustering()).toBe(
+            actions.toggleNotVisitedClustering(),
+        );
+    });
+
+    it('после ошибки переключения сохраняет режим и разрешает повторную попытку', async () => {
+        const actions = createActions();
+        const error = new Error('toggle failed');
+        actions.notVisitedCityLayer.setClusteringEnabled
+            .mockRejectedValueOnce(error)
+            .mockImplementationOnce(async (enabled) => {
+                actions.notVisitedCityLayer.clusteringEnabled = enabled;
+                return enabled;
+            });
+
+        await expect(actions.toggleNotVisitedClustering()).resolves.toBe(true);
+        await expect(actions.toggleNotVisitedClustering()).resolves.toBe(false);
+
+        expect(actions.notVisitedCityLayer.setClusteringEnabled).toHaveBeenCalledTimes(2);
+        expect(mocks.addErrorControl).toHaveBeenCalledWith(
+            actions.myMap,
+            'Произошла ошибка при переключении кластеризации',
+        );
+        expect(console.error).toHaveBeenCalledWith(
+            'Ошибка при переключении кластеризации:',
+            error,
+        );
     });
 
     it('скрывает слой целиком, сохраняя маркеры для повторного показа', () => {
@@ -340,7 +498,7 @@ describe('ToolbarActions: непосещённые города', () => {
     });
 
     it('пропускает все недопустимые записи и добавляет валидную со строковыми числами', async () => {
-        const { actions, layer, getOptions } = createConstructedActions();
+        const { actions, layer } = createConstructedActions();
         actions.notVisitedCitiesLoaded = true;
         actions.notVisitedCities = [
             null,
@@ -366,7 +524,6 @@ describe('ToolbarActions: непосещённые города', () => {
         ];
 
         const showPromise = actions.showNotVisitedCities();
-        getOptions().onChunkProgress(1, 1);
 
         await expect(showPromise).resolves.toBe(true);
         expect(layer.add).toHaveBeenCalledWith([
@@ -390,7 +547,7 @@ describe('ToolbarActions: непосещённые города', () => {
     });
 
     it('после ошибки add очищает слой и успешно строит его повторно', async () => {
-        const { actions, layer, getOptions } = createConstructedActions();
+        const { actions, layer } = createConstructedActions();
         const addError = new Error('cluster add failed');
         actions.notVisitedCitiesLoaded = true;
         actions.notVisitedCities = [{ id: 1, title: 'Город', lat: 55, lon: 37 }];
@@ -406,14 +563,12 @@ describe('ToolbarActions: непосещённые города', () => {
 
         await expect(actions.showNotVisitedCities()).resolves.toBe(false);
         expect(actions.notVisitedCitiesBuilt).toBe(false);
-        expect(actions.notVisitedChunkResolve).toBeNull();
         expect(layer.hide).toHaveBeenCalledOnce();
         expect(layer.clear).toHaveBeenCalledOnce();
         expect(layer.markers.size).toBe(0);
         expect(console.error).toHaveBeenCalledWith('Ошибка при выполнении запроса:', addError);
 
         const retryPromise = actions.showNotVisitedCities();
-        getOptions().onChunkProgress(1, 1);
 
         await expect(retryPromise).resolves.toBe(true);
         expect(layer.add).toHaveBeenCalledTimes(2);
@@ -423,7 +578,7 @@ describe('ToolbarActions: непосещённые города', () => {
     });
 
     it('после частичной регистрации и ошибки show очищает слой и успешно строит его повторно', async () => {
-        const { actions, layer, map, getOptions } = createConstructedActions();
+        const { actions, layer, map } = createConstructedActions();
         const showError = new Error('cluster show failed');
         actions.notVisitedCitiesLoaded = true;
         actions.notVisitedCities = [{ id: 1, title: 'Город', lat: 55, lon: 37 }];
@@ -452,7 +607,6 @@ describe('ToolbarActions: непосещённые города', () => {
         expect(actions.notVisitedCitiesBuilt).toBe(false);
 
         const retryPromise = actions.showNotVisitedCities();
-        getOptions().onChunkProgress(1, 1);
 
         await expect(retryPromise).resolves.toBe(true);
         expect(layer.add).toHaveBeenCalledTimes(2);
@@ -462,7 +616,7 @@ describe('ToolbarActions: непосещённые города', () => {
     });
 
     it('после ошибки повторного show сбрасывает cached built-state и перестраивает слой', async () => {
-        const { actions, layer, getOptions } = createConstructedActions();
+        const { actions, layer } = createConstructedActions();
         const showError = new Error('cached cluster show failed');
         actions.notVisitedCitiesLoaded = true;
         actions.notVisitedCitiesBuilt = true;
@@ -477,7 +631,6 @@ describe('ToolbarActions: непосещённые города', () => {
         expect(layer.clear).toHaveBeenCalledOnce();
 
         const retryPromise = actions.showNotVisitedCities();
-        getOptions().onChunkProgress(1, 1);
 
         await expect(retryPromise).resolves.toBe(true);
         expect(layer.add).toHaveBeenCalledOnce();
@@ -536,7 +689,7 @@ describe('ToolbarActions: непосещённые города', () => {
         actions.notVisitedCitiesBuilt = true;
 
         await actions.removeNotVisitedMarkers();
-        actions.addNotVisitedCitiesOnMap();
+        await actions.addNotVisitedCitiesOnMap();
 
         expect(actions.notVisitedCityLayer.clear).toHaveBeenCalledOnce();
         expect(actions.notVisitedCityLayer.add).toHaveBeenCalledOnce();
@@ -562,16 +715,38 @@ describe('ToolbarActions: непосещённые города', () => {
         expect(actions.notVisitedCitiesBuilt).toBe(false);
     });
 
-    it('не начинает повторную сборку до финального callback старого chunk loop', async () => {
-        const { actions, layer, map, getOptions } = createConstructedActions();
+    it('сбрасывает built-state при ошибке полной очистки', async () => {
+        const actions = createActions();
+        const clearError = new Error('clear failed');
+        actions.notVisitedCitiesBuilt = true;
+        actions.stateNotVisitedCities.set(1, { id: 'stale' });
+        actions.notVisitedCityLayer.clear.mockImplementationOnce(async () => {
+            actions.stateNotVisitedCities.clear();
+            throw clearError;
+        });
+
+        await expect(actions.removeNotVisitedMarkers()).rejects.toBe(clearError);
+
+        expect(actions.notVisitedCitiesBuilt).toBe(false);
+        await actions.addNotVisitedCitiesOnMap();
+        expect(actions.notVisitedCityLayer.add).toHaveBeenCalledOnce();
+        expect(actions.notVisitedCityLayer.show).toHaveBeenCalledOnce();
+        expect(actions.notVisitedCitiesBuilt).toBe(true);
+    });
+
+    it('не начинает повторную сборку до завершения старого show', async () => {
+        const { actions, layer, map } = createConstructedActions();
         const order = [];
+        const showing = deferred();
         actions.notVisitedCitiesLoaded = true;
         actions.notVisitedCities = [{ id: 1, title: 'Город', lat: 55, lon: 37 }];
-        layer.add.mockImplementation(() => order.push('add'));
-        layer.clear.mockImplementation(() => order.push('clear'));
+        layer.add.mockImplementation(async () => order.push('add'));
+        layer.show
+            .mockImplementationOnce(() => showing.promise)
+            .mockResolvedValueOnce();
+        layer.clear.mockImplementation(async () => order.push('clear'));
 
         const oldShowPromise = actions.showNotVisitedCities();
-        const oldChunkResolve = actions.notVisitedChunkResolve;
         let resyncSettled = false;
         const resyncPromise = Promise.resolve(actions.removeNotVisitedMarkers())
             .then(() => actions.addNotVisitedCitiesOnMap())
@@ -579,21 +754,17 @@ describe('ToolbarActions: непосещённые города', () => {
                 resyncSettled = true;
             });
 
-        expect(order).toEqual(['add']);
+        await vi.waitFor(() => expect(order).toEqual(['add']));
         expect(layer.clear).not.toHaveBeenCalled();
 
-        getOptions().onChunkProgress(1, 1);
+        showing.resolve();
         await oldShowPromise;
         await vi.waitFor(() => expect(layer.add).toHaveBeenCalledTimes(2));
 
         expect(order).toEqual(['add', 'clear', 'add']);
-        expect(actions.notVisitedChunkResolve).not.toBe(oldChunkResolve);
-        expect(resyncSettled).toBe(false);
-        expect(map.removeControl).toHaveBeenCalledTimes(1);
-
-        getOptions().onChunkProgress(1, 1);
-        await resyncPromise;
         expect(resyncSettled).toBe(true);
+        expect(map.removeControl).toHaveBeenCalledTimes(1);
+        await resyncPromise;
         expect(map.removeControl).toHaveBeenCalledTimes(1);
     });
 
@@ -741,5 +912,19 @@ describe('ToolbarActions: непосещённые города', () => {
 
         expect(source).toMatch(/if \(city\?\.id && actions\) \{\s*actions\.removeNotVisitedMarker\(city\.id\);\s*\}/);
         expect(source).not.toContain('stateNotVisitedCities.delete');
+    });
+
+    it('map_city подключает контрол кластеризации к ToolbarActions', () => {
+        const source = readFileSync(
+            resolve(process.cwd(), 'js/entries/map_city.js'),
+            'utf8',
+        );
+
+        expect(source).toMatch(
+            /import \{\s*addNotVisitedClusteringControl,\s*syncNotVisitedClusteringControl,\s*\} from '\.\.\/components\/not_visited_clustering_control\.js';/,
+        );
+        expect(source).toMatch(
+            /actions = new ToolbarActions\(map, own_cities\);\s*const clusteringControl = addNotVisitedClusteringControl\(map, \{\s*getEnabled: \(\) => actions\.isNotVisitedClusteringEnabled\(\),\s*getVisible: \(\) => actions\.isNotVisitedCitiesVisible\(\),\s*onToggle: \(\) => actions\.toggleNotVisitedClustering\(\),\s*\}\);\s*actions\.subscribeNotVisitedVisibility\(\(\) => \{\s*syncNotVisitedClusteringControl\(clusteringControl\);\s*\}\);/,
+        );
     });
 });

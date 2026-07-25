@@ -17,6 +17,10 @@ import {initCountrySelect} from "../components/initCountrySelect";
 import {initAddCityForm} from "../components/add_city_modal.js";
 import {City, MarkerStyle} from "../components/schemas.js";
 import {showDangerToast} from "../components/toast.js";
+import {
+    addNotVisitedClusteringControl,
+    syncNotVisitedClusteringControl,
+} from '../components/not_visited_clustering_control.js';
 
 let actions;
 let map;
@@ -33,6 +37,14 @@ window.onload = async () => {
     try {
         const own_cities = await getVisitedCities();
         actions = new ToolbarActions(map, own_cities);
+        const clusteringControl = addNotVisitedClusteringControl(map, {
+            getEnabled: () => actions.isNotVisitedClusteringEnabled(),
+            getVisible: () => actions.isNotVisitedCitiesVisible(),
+            onToggle: () => actions.toggleNotVisitedClustering(),
+        });
+        actions.subscribeNotVisitedVisibility(() => {
+            syncNotVisitedClusteringControl(clusteringControl);
+        });
 
         if (own_cities.length === 0) {
             map.setView([55.7522, 37.6156], 6);

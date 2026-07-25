@@ -56,6 +56,7 @@ export class ToolbarActions {
         this.notVisitedShowPromise = null;
         this.notVisitedTogglePromise = null;
         this.notVisitedClusteringTogglePromise = null;
+        this.subscriptionUpdatePromise = null;
         this.notVisitedCityLayer = new NotVisitedCityLayer(this.myMap);
         this.stateNotVisitedCities = this.notVisitedCityLayer.markers;
         this.notVisitedVisibilityListeners = new Set();
@@ -221,7 +222,22 @@ export class ToolbarActions {
         }
     }
 
-    async showSubscriptionCities() {
+    showSubscriptionCities() {
+        if (this.subscriptionUpdatePromise) {
+            return this.subscriptionUpdatePromise;
+        }
+
+        const operation = this.performShowSubscriptionCities();
+        const trackedOperation = operation.finally(() => {
+            if (this.subscriptionUpdatePromise === trackedOperation) {
+                this.subscriptionUpdatePromise = null;
+            }
+        });
+        this.subscriptionUpdatePromise = trackedOperation;
+        return trackedOperation;
+    }
+
+    async performShowSubscriptionCities() {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedCountryCode = urlParams.get('country');
 
@@ -249,6 +265,8 @@ export class ToolbarActions {
             });
 
             if (response.ok) {
+                const subscriptionCities = await response.json();
+
                 // Закрываем модальное окно (Preline UI)
                 const modalElement = document.getElementById('subscriptionsModal');
                 if (modalElement) {
@@ -270,7 +288,7 @@ export class ToolbarActions {
                 this.stateOwnCities.clear();
                 this.stateSubscriptionCities.clear();
 
-                this.subscriptionCities = await response.json();
+                this.subscriptionCities = subscriptionCities;
 
                 this.addOwnCitiesOnMap();
                 this.addSubscriptionsCitiesOnMap();
@@ -328,6 +346,11 @@ export class ToolbarActions {
 
     async performShowNotVisitedCities() {
         try {
+            const subscriptionUpdate = this.subscriptionUpdatePromise;
+            if (subscriptionUpdate) {
+                await subscriptionUpdate;
+            }
+
             this.notVisitedLoadControl = addLoadControl(
                 this.myMap,
                 'Загружаю непосещённые города...',

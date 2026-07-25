@@ -812,6 +812,45 @@ describe('ToolbarActions: непосещённые города', () => {
         expect(applyButton.innerText).toBe('Применить');
     });
 
+    it('не строит непосещённые города до завершения обновления подписок', async () => {
+        const actions = createActions();
+        const subscriptions = deferred();
+        const parseSubscriptions = vi.fn(() => subscriptions.promise);
+        document.body.insertAdjacentHTML(
+            'beforeend',
+            '<button id="btn_show-subscriptions-cities" data-url="/api/subscriptions"></button>',
+        );
+        actions.elementShowSubscriptionCities = document.getElementById('btn_show-subscriptions-cities');
+        actions.elementOpenSubscriptionsModal = document.createElement('button');
+        actions.ownCities = [];
+        actions.subscriptionCities = [];
+        actions.removeOwnMarkers = vi.fn();
+        actions.removeSubscriptionMarkers = vi.fn();
+        actions.removeNotVisitedMarkers = vi.fn().mockResolvedValue();
+        actions.addOwnCitiesOnMap = vi.fn();
+        actions.addSubscriptionsCitiesOnMap = vi.fn(() => {
+            actions.stateSubscriptionCities.set(1, { id: 'subscription' });
+        });
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+            ok: true,
+            json: parseSubscriptions,
+        }));
+
+        const updatingSubscriptions = actions.showSubscriptionCities();
+        await vi.waitFor(() => expect(parseSubscriptions).toHaveBeenCalledOnce());
+        const showingNotVisited = actions.showNotVisitedCities();
+        await Promise.resolve();
+
+        expect(actions.notVisitedCityLayer.add).not.toHaveBeenCalled();
+
+        subscriptions.resolve([{ id: 1, username: 'new-user' }]);
+        await Promise.all([updatingSubscriptions, showingNotVisited]);
+
+        expect(actions.notVisitedCityLayer.add).toHaveBeenCalledOnce();
+        expect(actions.notVisitedCityLayer.add).toHaveBeenCalledWith([]);
+        expect(mocks.marker).not.toHaveBeenCalled();
+    });
+
     it.each([
         ['очистки', (actions, error) => {
             actions.removeNotVisitedMarkers = vi.fn().mockRejectedValue(error);

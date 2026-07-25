@@ -597,6 +597,12 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
     fill: currentColor;
 }
 
+/* Solid-глифы переключателя по размеру совпадают с соседними outline-иконками. */
+#map .leaflet-control-not-visited-clustering svg.control-icon.control-icon--solid {
+    width: 1rem;
+    height: 1rem;
+}
+
 /* Скрываем Font Awesome иконки если они остались */
 #map .custom-control-for-map i {
     display: none !important;
@@ -899,4 +905,31 @@ body.leaflet-fullscreen-on #map .leaflet-control-fullscreen a::before,
 /* Убирает баг leaflet.js, когда при клике на полигон появляется рамка вокруг него */
 .leaflet-container path.leaflet-interactive:focus:not(:focus-visible) {
     outline: 0;
+}
+
+/* Кластеры непосещённых городов */
+#map .marker-cluster-small,
+#map .marker-cluster-medium,
+#map .marker-cluster-large {
+    background-color: rgb(210 90 90 / 28%);
+}
+
+#map .marker-cluster-small div,
+#map .marker-cluster-medium div,
+#map .marker-cluster-large div {
+    background-color: rgb(210 90 90 / 88%);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.dark #map .marker-cluster-small,
+.dark #map .marker-cluster-medium,
+.dark #map .marker-cluster-large {
+    background-color: rgb(248 113 113 / 30%);
+}
+
+.dark #map .marker-cluster-small div,
+.dark #map .marker-cluster-medium div,
+.dark #map .marker-cluster-large div {
+    background-color: rgb(185 28 28 / 90%);
 }

@@ -1,3 +1,11 @@
+// ---------------------------------------------
+//
+// Copyright © Egor Vavilov (Shecspi)
+// Licensed under the Apache License, Version 2.0
+//
+// ----------------------------------------------
+
+import L from 'leaflet';
 import {
     icon_blue_pin,
     icon_not_visited_pin,
@@ -10,6 +18,7 @@ import {open_modal_for_add_city, close_modal_for_add_city} from './services.js';
 import {getCookie} from './get_cookie.js';
 import {addErrorControl, addLoadControl} from "./map";
 import {bindPopupToMarker} from './city_popup.js';
+import {NotVisitedCityLayer} from './not_visited_city_layer.js';
 
 // Это нужно для того, чтобы open_modal_for_add_city можно было использовать в onclick.
 // Иначе из-за специфичной области видимости доступа к этой функции нет.
@@ -41,7 +50,16 @@ export class ToolbarActions {
         this.stateSubscriptionCities = new Map();
 
         // Словарь, хранящий в себе все маркеры с непосещёнными городами пользователей, отображаемые в данный момент на карте
-        this.stateNotVisitedCities = new Map();
+        this.notVisitedLoadControl = null;
+        this.notVisitedCitiesLoaded = false;
+        this.notVisitedCitiesBuilt = false;
+        this.notVisitedShowPromise = null;
+        this.notVisitedTogglePromise = null;
+        this.notVisitedClusteringTogglePromise = null;
+        this.subscriptionUpdatePromise = null;
+        this.notVisitedCityLayer = new NotVisitedCityLayer(this.myMap);
+        this.stateNotVisitedCities = this.notVisitedCityLayer.markers;
+        this.notVisitedVisibilityListeners = new Set();
 
         // Массив, хранящий в себе все маркеры посещённых мест
         this.allPlaceMarkers = [];
@@ -72,16 +90,107 @@ export class ToolbarActions {
         });
 
         this.elementShowNotVisitedCities.addEventListener('click', () => {
-            if (this.elementShowNotVisitedCities.dataset.type === 'show') {
-                this.showNotVisitedCities();
-                this.setButtonState(this.elementShowNotVisitedCities, true);
-                this.setToggleButtonVariant(this.elementShowNotVisitedCities, 'danger', true);
-            } else {
-                this.hideNotVisitedCities();
-                this.setButtonState(this.elementShowNotVisitedCities, false);
-                this.setToggleButtonVariant(this.elementShowNotVisitedCities, 'danger', false);
+            void this.toggleNotVisitedCities();
+        });
+    }
+
+    toggleNotVisitedCities() {
+        if (this.notVisitedTogglePromise) {
+            return this.notVisitedTogglePromise;
+        }
+
+        const operation = this.performToggleNotVisitedCities();
+        const trackedOperation = operation.finally(() => {
+            if (this.notVisitedTogglePromise === trackedOperation) {
+                this.notVisitedTogglePromise = null;
             }
         });
+        this.notVisitedTogglePromise = trackedOperation;
+        return trackedOperation;
+    }
+
+    async performToggleNotVisitedCities() {
+        if (this.elementShowNotVisitedCities.dataset.type === 'show') {
+            const isVisible = await this.showNotVisitedCities();
+            this.setButtonState(this.elementShowNotVisitedCities, isVisible);
+            this.setToggleButtonVariant(
+                this.elementShowNotVisitedCities,
+                'danger',
+                isVisible,
+            );
+            return isVisible;
+        }
+
+        await this.hideNotVisitedCities();
+        this.setButtonState(this.elementShowNotVisitedCities, false);
+        this.setToggleButtonVariant(this.elementShowNotVisitedCities, 'danger', false);
+        return false;
+    }
+
+    isNotVisitedClusteringEnabled() {
+        return this.notVisitedCityLayer.clusteringEnabled;
+    }
+
+    isNotVisitedCitiesVisible() {
+        return this.notVisitedCityLayer.visible;
+    }
+
+    subscribeNotVisitedVisibility(listener) {
+        this.notVisitedVisibilityListeners.add(listener);
+        try {
+            listener(this.isNotVisitedCitiesVisible());
+        } catch (error) {
+            this.notVisitedVisibilityListeners.delete(listener);
+            throw error;
+        }
+        return () => this.notVisitedVisibilityListeners.delete(listener);
+    }
+
+    notifyNotVisitedVisibility() {
+        const visible = this.isNotVisitedCitiesVisible();
+        this.notVisitedVisibilityListeners.forEach((listener) => {
+            try {
+                listener(visible);
+            } catch (error) {
+                console.error(
+                    'Ошибка подписчика видимости непосещённых городов:',
+                    error,
+                );
+            }
+        });
+    }
+
+    toggleNotVisitedClustering() {
+        if (this.notVisitedClusteringTogglePromise) {
+            return this.notVisitedClusteringTogglePromise;
+        }
+
+        const operation = this.performToggleNotVisitedClustering();
+        const trackedOperation = operation.finally(() => {
+            if (this.notVisitedClusteringTogglePromise === trackedOperation) {
+                this.notVisitedClusteringTogglePromise = null;
+            }
+        });
+        this.notVisitedClusteringTogglePromise = trackedOperation;
+        return trackedOperation;
+    }
+
+    async performToggleNotVisitedClustering() {
+        if (this.notVisitedShowPromise) {
+            await this.notVisitedShowPromise;
+        }
+
+        const nextEnabled = !this.notVisitedCityLayer.clusteringEnabled;
+        try {
+            return await this.notVisitedCityLayer.setClusteringEnabled(nextEnabled);
+        } catch (error) {
+            console.error('Ошибка при переключении кластеризации:', error);
+            addErrorControl(
+                this.myMap,
+                'Произошла ошибка при переключении кластеризации',
+            );
+            return this.notVisitedCityLayer.clusteringEnabled;
+        }
     }
 
     setButtonState(element, isActive) {
@@ -113,7 +222,22 @@ export class ToolbarActions {
         }
     }
 
-    async showSubscriptionCities() {
+    showSubscriptionCities() {
+        if (this.subscriptionUpdatePromise) {
+            return this.subscriptionUpdatePromise;
+        }
+
+        const operation = this.performShowSubscriptionCities();
+        const trackedOperation = operation.finally(() => {
+            if (this.subscriptionUpdatePromise === trackedOperation) {
+                this.subscriptionUpdatePromise = null;
+            }
+        });
+        this.subscriptionUpdatePromise = trackedOperation;
+        return trackedOperation;
+    }
+
+    async performShowSubscriptionCities() {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedCountryCode = urlParams.get('country');
 
@@ -131,107 +255,137 @@ export class ToolbarActions {
         button.disabled = true;
         button.innerHTML = '<span class="animate-spin inline-block size-4 border-[3px] border-current border-t-transparent text-white rounded-full" role="status" aria-label="loading"></span><span>Загрузка...</span>';
 
-        let response = await fetch(url.toString(), {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie("csrftoken")
-            }
-        });
-
-        if (response.ok) {
-            // Закрываем модальное окно (Preline UI)
-            const modalElement = document.getElementById('subscriptionsModal');
-            if (modalElement) {
-                // Ищем кнопку закрытия и программно кликаем на неё
-                const closeButton = modalElement.querySelector('[data-hs-overlay="#subscriptionsModal"]');
-                if (closeButton) {
-                    closeButton.click();
-                } else {
-                    // Если кнопка не найдена, просто скрываем модальное окно
-                    modalElement.classList.add('hidden');
-                    modalElement.classList.remove('open');
+        try {
+            const response = await fetch(url.toString(), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie("csrftoken")
                 }
+            });
+
+            if (response.ok) {
+                const subscriptionCities = await response.json();
+
+                // Закрываем модальное окно (Preline UI)
+                const modalElement = document.getElementById('subscriptionsModal');
+                if (modalElement) {
+                    // Ищем кнопку закрытия и программно кликаем на неё
+                    const closeButton = modalElement.querySelector('[data-hs-overlay="#subscriptionsModal"]');
+                    if (closeButton) {
+                        closeButton.click();
+                    } else {
+                        // Если кнопка не найдена, просто скрываем модальное окно
+                        modalElement.classList.add('hidden');
+                        modalElement.classList.remove('open');
+                    }
+                }
+
+                // Удаляем все отметки с карты и из stateMap
+                this.removeOwnMarkers();
+                this.removeSubscriptionMarkers();
+                await this.removeNotVisitedMarkers();
+                this.stateOwnCities.clear();
+                this.stateSubscriptionCities.clear();
+
+                this.subscriptionCities = subscriptionCities;
+
+                this.addOwnCitiesOnMap();
+                this.addSubscriptionsCitiesOnMap();
+                if (this.elementShowNotVisitedCities.dataset.type === 'hide') {
+                    await this.addNotVisitedCitiesOnMap();
+                }
+
+                // Применяем фильтр по годам, если он выбран
+                const yearSelect = document.getElementById('id_year_filter');
+                if (yearSelect && typeof window.filterCitiesByYear === 'function') {
+                    const selectedYear = yearSelect.value || '';
+                    const filterValue = selectedYear === 'all' ? '' : selectedYear;
+                    window.filterCitiesByYear(filterValue);
+                }
+
+                // Обновляем состояние кнопки "Показать непосещённые города"
+                if (typeof window.updateNotVisitedCitiesButtonState === 'function') {
+                    window.updateNotVisitedCitiesButtonState();
+                }
+
+                const hasSubscriptionsVisible =
+                    this.stateSubscriptionCities.size > 0 &&
+                    Array.from(this.stateSubscriptionCities.values()).some(marker => this.myMap.hasLayer(marker));
+                this.setToggleButtonVariant(this.elementOpenSubscriptionsModal, 'warning', hasSubscriptionsVisible);
+            } else {
+                const element = document.getElementById('toast_validation_error');
+                const toast = new bootstrap.Toast(element);
+                toast.show()
             }
-
-            // Удаляем все отметки с карты и из stateMap
-            this.removeOwnMarkers();
-            this.removeSubscriptionMarkers();
-            this.removeNotVisitedMarkers();
-            this.stateOwnCities.clear();
-            this.stateSubscriptionCities.clear();
-            this.stateNotVisitedCities.clear();
-
-            this.subscriptionCities = await response.json();
-
-            this.addOwnCitiesOnMap();
-            this.addSubscriptionsCitiesOnMap();
-            if (this.elementShowNotVisitedCities.dataset.type === 'hide') {
-                this.addNotVisitedCitiesOnMap();
-            }
-
-            // Применяем фильтр по годам, если он выбран
-            const yearSelect = document.getElementById('id_year_filter');
-            if (yearSelect && typeof window.filterCitiesByYear === 'function') {
-                const selectedYear = yearSelect.value || '';
-                const filterValue = selectedYear === 'all' ? '' : selectedYear;
-                window.filterCitiesByYear(filterValue);
-            }
-            
-            // Обновляем состояние кнопки "Показать непосещённые города"
-            if (typeof window.updateNotVisitedCitiesButtonState === 'function') {
-                window.updateNotVisitedCitiesButtonState();
-            }
-
-            const hasSubscriptionsVisible =
-                this.stateSubscriptionCities.size > 0 &&
-                Array.from(this.stateSubscriptionCities.values()).some(marker => this.myMap.hasLayer(marker));
-            this.setToggleButtonVariant(this.elementOpenSubscriptionsModal, 'warning', hasSubscriptionsVisible);
-        } else {
-            const element = document.getElementById('toast_validation_error');
-            const toast = new bootstrap.Toast(element);
-            toast.show()
+        } catch (error) {
+            console.error('Ошибка при загрузке городов подписок:', error);
+            addErrorControl(this.myMap, 'Произошла ошибка при загрузке городов подписок');
+        } finally {
+            button.disabled = false;
+            button.innerText = 'Применить';
         }
-
-        button.disabled = false;
-        button.innerText = 'Применить';
 
         return false;
     }
 
-    async showNotVisitedCities() {
-        const load = addLoadControl(this.myMap, 'Загружаю непосещённые города...');
+    showNotVisitedCities() {
+        if (this.notVisitedShowPromise) {
+            return this.notVisitedShowPromise;
+        }
 
-        const url = this.elementShowNotVisitedCities.dataset.url;
+        const operation = this.performShowNotVisitedCities();
+        const trackedOperation = operation.finally(() => {
+            if (this.notVisitedShowPromise === trackedOperation) {
+                this.notVisitedShowPromise = null;
+            }
+        });
+        this.notVisitedShowPromise = trackedOperation;
+        return trackedOperation;
+    }
 
-        if (this.notVisitedCities.length === 0) {
-            try {
-                let response = await fetch(url, {
+    async performShowNotVisitedCities() {
+        try {
+            const subscriptionUpdate = this.subscriptionUpdatePromise;
+            if (subscriptionUpdate) {
+                await subscriptionUpdate;
+            }
+
+            this.notVisitedLoadControl = addLoadControl(
+                this.myMap,
+                'Загружаю непосещённые города...',
+            );
+
+            if (!this.notVisitedCitiesLoaded) {
+                const response = await fetch(this.elementShowNotVisitedCities.dataset.url, {
                     method: 'GET',
                     headers: {
                         'X-CSRFToken': getCookie("csrftoken")
                     }
                 });
-
-                if (response.ok) {
-                    this.notVisitedCities = await response.json();
-                    this.addNotVisitedCitiesOnMap();
-                    this.myMap.removeControl(load);
-                } else {
-                    this.myMap.removeControl(load);
-                    addErrorControl(this.myMap, 'Произошла ошибка при загрузке непосещённых городов');
-                    return false;
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
                 }
-            } catch (error) {
-                console.error("Ошибка при выполнении запроса:", error);
-                this.myMap.removeControl(load);
-                addErrorControl(this.myMap, 'Произошла ошибка при загрузке непосещённых городов');
-                return false;
+                this.notVisitedCities = await response.json();
+                this.notVisitedCitiesLoaded = true;
             }
-        } else {
-            this.addNotVisitedCitiesOnMap();
-            this.myMap.removeControl(load);
+
+            const isVisible = await this.addNotVisitedCitiesOnMap();
+            return isVisible !== false && this.notVisitedCitiesBuilt;
+        } catch (error) {
+            console.error("Ошибка при выполнении запроса:", error);
+            this.finishNotVisitedLoading();
+            addErrorControl(this.myMap, 'Произошла ошибка при загрузке непосещённых городов');
+            return false;
         }
+    }
+
+    finishNotVisitedLoading() {
+        if (!this.notVisitedLoadControl) {
+            return;
+        }
+        this.myMap.removeControl(this.notVisitedLoadControl);
+        this.notVisitedLoadControl = null;
     }
 
     showPlaces() {
@@ -269,9 +423,12 @@ export class ToolbarActions {
         });
     }
 
-    hideNotVisitedCities() {
-        this.removeNotVisitedMarkers();
-        this.stateNotVisitedCities.clear();
+    async hideNotVisitedCities() {
+        try {
+            return await this.notVisitedCityLayer.hide();
+        } finally {
+            this.notifyNotVisitedVisibility();
+        }
     }
 
     addSubscriptionsCitiesOnMap(year) {
@@ -387,28 +544,135 @@ export class ToolbarActions {
     /**
      * Помещает на карту города, которые не были посещены ни пользователем, ни адресантом подписки.
      */
-    addNotVisitedCitiesOnMap() {
-        for (let i = 0; i < (this.notVisitedCities.length); i++) {
-            const city = new City();
-            city.id = this.notVisitedCities[i].id;
-            city.name = this.notVisitedCities[i].title;
-            city.region = this.notVisitedCities[i].region;
-            city.region_id = this.notVisitedCities[i].region_id;
-            city.country = this.notVisitedCities[i].country;
-            city.country_code = this.notVisitedCities[i].country_code;
-            city.lat = this.notVisitedCities[i].lat;
-            city.lon = this.notVisitedCities[i].lon;
-
-            // Добавляем не посещённый город только в том случае, если его не посетил ни сам пользователь,
-            // ни те, на кого он подписан. То есть этого города не должно быть в stateOwnCities и stateSubscriptionCities.
-            if (!this.stateOwnCities.has(city.id) && !this.stateSubscriptionCities.has(city.id)) {
-                const marker = this.addMarkerToMap(city, MarkerStyle.NOT_VISITED);
-                this.stateNotVisitedCities.set(city.id, marker);
-            }
+    async addNotVisitedCitiesOnMap() {
+        try {
+            return await this.performAddNotVisitedCitiesOnMap();
+        } finally {
+            this.notifyNotVisitedVisibility();
         }
     }
 
-    addMarkerToMap(city, marker_style, users) {
+    async performAddNotVisitedCitiesOnMap() {
+        if (this.notVisitedCitiesBuilt) {
+            try {
+                await this.notVisitedCityLayer.show();
+                this.finishNotVisitedLoading();
+                return;
+            } catch (error) {
+                await this.cleanupNotVisitedCityLayerAfterError();
+                throw error;
+            }
+        }
+
+        const entries = [];
+        const normalizeNumber = (value, fieldName) => {
+            const isNumber = typeof value === 'number';
+            const isNumericString = typeof value === 'string' && value.trim() !== '';
+            if (!isNumber && !isNumericString) {
+                throw new TypeError(`${fieldName} должен быть числом`);
+            }
+            const normalized = Number(value);
+            if (!Number.isFinite(normalized)) {
+                throw new TypeError(`${fieldName} должен быть конечным числом`);
+            }
+            return normalized;
+        };
+
+        for (const cityData of this.notVisitedCities) {
+            try {
+                if (
+                    cityData === null ||
+                    typeof cityData !== 'object' ||
+                    Array.isArray(cityData)
+                ) {
+                    throw new TypeError('Запись города должна быть объектом');
+                }
+
+                const cityId = normalizeNumber(cityData.id, 'ID города');
+                const lat = normalizeNumber(cityData.lat, 'Широта');
+                const lon = normalizeNumber(cityData.lon, 'Долгота');
+                if (!Number.isInteger(cityId) || cityId <= 0) {
+                    throw new TypeError('ID города должен быть положительным целым числом');
+                }
+                if (lat < -90 || lat > 90) {
+                    throw new RangeError('Широта должна быть в диапазоне от -90 до 90');
+                }
+                if (lon < -180 || lon > 180) {
+                    throw new RangeError('Долгота должна быть в диапазоне от -180 до 180');
+                }
+                if (
+                    this.stateOwnCities.has(cityId) ||
+                    this.stateSubscriptionCities.has(cityId)
+                ) {
+                    continue;
+                }
+
+                const city = new City();
+                city.id = cityId;
+                city.name = cityData.title;
+                city.region = cityData.region;
+                city.region_id = cityData.region_id;
+                city.country = cityData.country;
+                city.country_code = cityData.country_code;
+                city.lat = lat;
+                city.lon = lon;
+
+                const marker = this.addMarkerToMap(
+                    city,
+                    MarkerStyle.NOT_VISITED,
+                    [],
+                    {addToMap: false, lazyPopup: true},
+                );
+                entries.push({cityId: city.id, marker});
+            } catch (error) {
+                console.error(
+                    'Ошибка при создании маркера непосещённого города:',
+                    cityData?.id,
+                    error,
+                );
+            }
+        }
+
+        try {
+            await this.notVisitedCityLayer.add(entries);
+            await this.notVisitedCityLayer.show();
+            this.notVisitedCitiesBuilt = true;
+            this.finishNotVisitedLoading();
+        } catch (error) {
+            await this.cleanupNotVisitedCityLayerAfterError();
+            throw error;
+        }
+    }
+
+    async cleanupNotVisitedCityLayerAfterError() {
+        this.notVisitedCitiesBuilt = false;
+        try {
+            await this.notVisitedCityLayer.hide();
+        } catch (cleanupError) {
+            console.error(
+                'Ошибка при очистке слоя непосещённых городов:',
+                cleanupError,
+            );
+        }
+        try {
+            await this.notVisitedCityLayer.clear();
+        } catch (cleanupError) {
+            console.error(
+                'Ошибка при очистке слоя непосещённых городов:',
+                cleanupError,
+            );
+        }
+        const isVisible = this.isNotVisitedCitiesVisible();
+        this.setButtonState(this.elementShowNotVisitedCities, isVisible);
+        this.setToggleButtonVariant(this.elementShowNotVisitedCities, 'danger', isVisible);
+    }
+
+    addMarkerToMap(
+        city,
+        marker_style,
+        users,
+        {addToMap = true, lazyPopup = false} = {},
+    ) {
         /**
          * Добавляет на карту this.myMap маркер города 'city.name' по координатам 'city.lat' и 'city.lon'.
          * Добавляет к маркеру окно, открывающееся по клику на него, в котором содержится
@@ -452,7 +716,10 @@ export class ToolbarActions {
                 zIndexOffset = 30000;
                 break;
         }
-        const marker = L.marker([city.lat, city.lon], {icon: icon}).addTo(this.myMap);
+        const marker = L.marker([city.lat, city.lon], {icon: icon});
+        if (addToMap) {
+            marker.addTo(this.myMap);
+        }
         marker.setZIndexOffset(zIndexOffset);
 
         const yearSelect = document.getElementById('id_year_filter');
@@ -496,7 +763,8 @@ export class ToolbarActions {
             markerStyle: marker_style,
             subscriptionUsers: users || [],
             selectedYear: selectedYear,
-            addButtonText: addButtonText
+            addButtonText: addButtonText,
+            lazyPopup,
         });
 
         return marker;
@@ -506,10 +774,7 @@ export class ToolbarActions {
         const id = city.id;
 
         if (this.stateNotVisitedCities.has(id)) {
-            // Удаляем метку непосещённого города на карте и в глобальном состоянии
-            let oldMarker = this.stateNotVisitedCities.get(id);
-            this.stateNotVisitedCities.delete(id);
-            this.myMap.removeLayer(oldMarker);
+            this.removeNotVisitedMarker(id);
 
             // Добавляем новый маркер посещённого города на карту
             // Не используем старый маркер, создаём новый с правильным стилем
@@ -576,10 +841,23 @@ export class ToolbarActions {
         }
     }
 
-    removeNotVisitedMarkers() {
-        for (let [id, marker] of this.stateNotVisitedCities.entries()) {
-            this.myMap.removeLayer(marker);
+    async removeNotVisitedMarkers() {
+        try {
+            const activeShow = this.notVisitedShowPromise;
+            const activeClusteringToggle = this.notVisitedClusteringTogglePromise;
+            await Promise.all([activeShow, activeClusteringToggle].filter(Boolean));
+            try {
+                await this.notVisitedCityLayer.clear();
+            } finally {
+                this.notVisitedCitiesBuilt = false;
+            }
+        } finally {
+            this.notifyNotVisitedVisibility();
         }
+    }
+
+    removeNotVisitedMarker(cityId) {
+        return this.notVisitedCityLayer.remove(cityId);
     }
 
     getUsersWhoVisitedCity(year) {

@@ -17,6 +17,10 @@ import {initCountrySelect} from "../components/initCountrySelect";
 import {initAddCityForm} from "../components/add_city_modal.js";
 import {City, MarkerStyle} from "../components/schemas.js";
 import {showDangerToast} from "../components/toast.js";
+import {
+    addNotVisitedClusteringControl,
+    syncNotVisitedClusteringControl,
+} from '../components/not_visited_clustering_control.js';
 
 let actions;
 let map;
@@ -33,6 +37,14 @@ window.onload = async () => {
     try {
         const own_cities = await getVisitedCities();
         actions = new ToolbarActions(map, own_cities);
+        const clusteringControl = addNotVisitedClusteringControl(map, {
+            getEnabled: () => actions.isNotVisitedClusteringEnabled(),
+            getVisible: () => actions.isNotVisitedCitiesVisible(),
+            onToggle: () => actions.toggleNotVisitedClustering(),
+        });
+        actions.subscribeNotVisitedVisibility(() => {
+            syncNotVisitedClusteringControl(clusteringControl);
+        });
 
         if (own_cities.length === 0) {
             map.setView([55.7522, 37.6156], 6);
@@ -74,16 +86,8 @@ window.onload = async () => {
             // Передаём данные добавленного города для локального обновления без запроса к серверу
             updateVisitedCitiesData(city);
             
-            // Удаляем маркер непосещённого города, если он был отображён
-            // Это необходимо, чтобы старый маркер не оставался на карте
-            if (city && city.id && actions && actions.stateNotVisitedCities) {
-                const notVisitedMarker = actions.stateNotVisitedCities.get(city.id);
-                if (notVisitedMarker) {
-                    actions.stateNotVisitedCities.delete(city.id);
-                    if (map.hasLayer(notVisitedMarker)) {
-                        map.removeLayer(notVisitedMarker);
-                    }
-                }
+            if (city?.id && actions) {
+                actions.removeNotVisitedMarker(city.id);
             }
             
             // Используем date_of_visit, так как это дата именно добавленного посещения

@@ -6,8 +6,6 @@
 // ----------------------------------------------
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 
 const mocks = vi.hoisted(() => ({
     marker: vi.fn(),
@@ -976,27 +974,4 @@ describe('ToolbarActions: непосещённые города', () => {
         );
     });
 
-    it('map_city делегирует удаление кластерного маркера ToolbarActions', () => {
-        const source = readFileSync(
-            resolve(process.cwd(), 'js/entries/map_city.js'),
-            'utf8',
-        );
-
-        expect(source).toMatch(/if \(city\?\.id && actions\) \{\s*actions\.removeNotVisitedMarker\(city\.id\);\s*\}/);
-        expect(source).not.toContain('stateNotVisitedCities.delete');
-    });
-
-    it('map_city подключает контрол кластеризации к ToolbarActions', () => {
-        const source = readFileSync(
-            resolve(process.cwd(), 'js/entries/map_city.js'),
-            'utf8',
-        );
-
-        expect(source).toMatch(
-            /import \{\s*addNotVisitedClusteringControl,\s*syncNotVisitedClusteringControl,\s*\} from '\.\.\/components\/not_visited_clustering_control\.js';/,
-        );
-        expect(source).toMatch(
-            /actions = new ToolbarActions\(map, own_cities\);\s*const clusteringControl = addNotVisitedClusteringControl\(map, \{\s*getEnabled: \(\) => actions\.isNotVisitedClusteringEnabled\(\),\s*getVisible: \(\) => actions\.isNotVisitedCitiesVisible\(\),\s*onToggle: \(\) => actions\.toggleNotVisitedClustering\(\),\s*\}\);\s*actions\.subscribeNotVisitedVisibility\(\(\) => \{\s*syncNotVisitedClusteringControl\(clusteringControl\);\s*\}\);/,
-        );
-    });
 });

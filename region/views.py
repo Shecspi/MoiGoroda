@@ -392,8 +392,6 @@ class CitiesByRegionList(ListView):
                 'iso3166_code': self.region_iso3166,
                 'number_of_cities': self.number_of_cities,
                 'number_of_visited_cities': self.number_of_visited_cities,
-                # TODO(2026-04-02): Удалить после завершения кампании анонса новой функции.
-                'show_share_feature_announcement': self.request.user.is_authenticated,
             }
         )
 

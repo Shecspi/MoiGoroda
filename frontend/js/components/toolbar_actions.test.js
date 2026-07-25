@@ -895,6 +895,39 @@ describe('ToolbarActions: непосещённые города', () => {
         );
     });
 
+    it('синхронизирует основную кнопку после ошибки перестроения слоя', async () => {
+        const actions = createActions();
+        const error = new Error('cluster add failed');
+        document.body.insertAdjacentHTML(
+            'beforeend',
+            '<button id="btn_show-subscriptions-cities" data-url="/api/subscriptions"></button>',
+        );
+        actions.elementShowSubscriptionCities = document.getElementById('btn_show-subscriptions-cities');
+        actions.elementOpenSubscriptionsModal = document.createElement('button');
+        actions.elementShowNotVisitedCities.dataset.type = 'hide';
+        actions.notVisitedCityLayer.visible = true;
+        actions.notVisitedCityLayer.add.mockRejectedValueOnce(error);
+        actions.ownCities = [];
+        actions.removeOwnMarkers = vi.fn();
+        actions.removeSubscriptionMarkers = vi.fn();
+        actions.addOwnCitiesOnMap = vi.fn();
+        actions.addSubscriptionsCitiesOnMap = vi.fn();
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue([]),
+        }));
+
+        await expect(actions.showSubscriptionCities()).resolves.toBe(false);
+
+        expect(actions.isNotVisitedCitiesVisible()).toBe(false);
+        expect(actions.elementShowNotVisitedCities.dataset.type).toBe('show');
+        expect(actions.setToggleButtonVariant).toHaveBeenCalledWith(
+            actions.elementShowNotVisitedCities,
+            'danger',
+            false,
+        );
+    });
+
     it('сохраняет validation toast и восстанавливает Apply для non-OK ответа', async () => {
         const actions = createActions();
         const showToast = vi.fn();

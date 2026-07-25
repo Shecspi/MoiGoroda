@@ -662,6 +662,9 @@ export class ToolbarActions {
                 cleanupError,
             );
         }
+        const isVisible = this.isNotVisitedCitiesVisible();
+        this.setButtonState(this.elementShowNotVisitedCities, isVisible);
+        this.setToggleButtonVariant(this.elementShowNotVisitedCities, 'danger', isVisible);
     }
 
     addMarkerToMap(

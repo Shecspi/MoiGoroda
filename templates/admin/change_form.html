@@ -56,65 +56,116 @@
     {% if opts.model_name == 'city' %}
         <input type="button" class="default" value="Получить координаты" id="getCoordinates" style="margin-bottom: 10px;">
 
-        <script src="https://api-maps.yandex.ru/2.1/?apikey={{ API_YANDEX_MAP }}&lang=ru_RU" type="text/javascript"></script>
         <script>
-            window.onload = function() {
-                let form = document.getElementById('city_form');
-                let coordinate_width = form.querySelector('#id_coordinate_width');
-                let coordinate_longitude = form.querySelector('#id_coordinate_longitude');
+            document.addEventListener('DOMContentLoaded', function() {
+                let btn = document.getElementById('getCoordinates');
+                if (!btn) return;
 
-                document.getElementById('getCoordinates').onclick = function () {
-                    let city = form.querySelector('#id_title').value;
-                    let region_tmp = form.querySelector('#id_region');
+                let coordinate_width = document.getElementById('id_coordinate_width');
+                let coordinate_longitude = document.getElementById('id_coordinate_longitude');
+                let titleField = document.getElementById('id_title');
+                let regionSelect = document.getElementById('id_region');
+                let countrySelect = document.getElementById('id_country');
 
-                    let region = region_tmp.options[region_tmp.selectedIndex].text;
-                    let final_city = city + ' ' + region;
+                btn.addEventListener('click', function() {
+                    let city = titleField ? titleField.value : '';
+                    let region = regionSelect && regionSelect.selectedIndex >= 0
+                        ? regionSelect.options[regionSelect.selectedIndex].text : '';
+                    let country = countrySelect && countrySelect.selectedIndex >= 0
+                        ? countrySelect.options[countrySelect.selectedIndex].text : '';
 
-                    ymaps.geocode(final_city, {
-                        results: 1
-                    }).then(function(res) {
-                        let firstObject = res.geoObjects.get(0);
-                        let coords = firstObject.geometry.getCoordinates();
+                    let filterEmpty = function(s) { return s && s !== '---------'; };
 
-                        coordinate_width.value = coords[0];
-                        coordinate_longitude.value = coords[1];
-                    });
-                };
+                    function transliterate(text) {
+                        let map = {
+                            'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo',
+                            'ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m',
+                            'н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
+                            'ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'sch',
+                            'ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya',
+                            ' ':' ','-':'-'
+                        };
+                        return text.toLowerCase().split('').map(function(c) {
+                            return map[c] !== undefined ? map[c] : c;
+                        }).join('');
+                    }
 
-                const countrySelect = document.getElementById('id_country');
-                const regionSelect = document.getElementById('id_region');
+                    function tryGeocode(queryParts, lang) {
+                        let params = new URLSearchParams({
+                            format: 'jsonv2',
+                            limit: '1',
+                            q: queryParts.join(', '),
+                            'accept-language': lang,
+                            email: 'shecspi@yandex.ru',
+                        });
+
+                        return fetch('https://nominatim.openstreetmap.org/search?' + params.toString())
+                            .then(function(response) { return response.json(); });
+                    }
+
+                    function setCoordinates(data) {
+                        if (data && data.length > 0) {
+                            if (coordinate_width) coordinate_width.value = data[0].lat;
+                            if (coordinate_longitude) coordinate_longitude.value = data[0].lon;
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    let allParts = [city, region, country].filter(filterEmpty);
+                    let cityOnly = [city].filter(filterEmpty);
+                    let cityTranslit = [transliterate(city)].filter(filterEmpty);
+                    let cityTranslitW = [transliterate(city).replace(/v/g, 'w')].filter(filterEmpty);
+
+                    let queries = [
+                        { parts: allParts, lang: 'ru' },
+                        { parts: cityOnly, lang: 'ru' },
+                        { parts: cityTranslit, lang: 'en' },
+                        { parts: cityTranslitW, lang: 'en' }
+                    ].filter(function(q) { return q.parts.length > 0; });
+
+                    function tryNext(index) {
+                        if (index >= queries.length) return Promise.resolve();
+
+                        return tryGeocode(queries[index].parts, queries[index].lang)
+                            .then(function(data) {
+                                if (!setCoordinates(data)) {
+                                    return tryNext(index + 1);
+                                }
+                            });
+                    }
+
+                    tryNext(0);
+                });
 
                 if (!countrySelect || !regionSelect) return;
 
                 countrySelect.addEventListener('change', function () {
-                const countryId = this.value;
+                    const countryId = this.value;
 
-                // Очищаем текущие опции региона
-                regionSelect.innerHTML = '<option value="">---------</option>';
+                    regionSelect.innerHTML = '<option value="">---------</option>';
 
-                if (!countryId) {
-                    // Если страна не выбрана — сбрасываем регион
-                    return;
-                }
+                    if (!countryId) {
+                        return;
+                    }
 
-                // Запрос на сервер для получения регионов по стране
-                fetch(`/api/region/list?country_id=${countryId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data && data.length) {
-                            data.forEach(region => {
-                                const option = document.createElement('option');
-                                option.value = region.id;
-                                option.textContent = region.title;
-                                regionSelect.appendChild(option);
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Ошибка при загрузке регионов:', error);
-                    });
+                    fetch(`/api/region/list?country_id=${countryId}`)
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            if (data && data.length) {
+                                data.forEach(function(region) {
+                                    const option = document.createElement('option');
+                                    option.value = region.id;
+                                    option.textContent = region.title;
+                                    regionSelect.appendChild(option);
+                                });
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error('Ошибка при загрузке регионов:', error);
+                        });
                 });
-            }
+            });
         </script>
     {% endif %}
 {% endblock %}

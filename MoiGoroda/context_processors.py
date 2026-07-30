@@ -78,7 +78,6 @@ def general_settings(request: HttpRequest) -> dict[str, Any]:
         'SITE_NAME': os.getenv('SITE_NAME'),
         'SITE_URL': os.getenv('SITE_URL'),
         'PROJECT_VERSION': os.getenv('PROJECT_VERSION'),
-        'API_YANDEX_MAP': os.getenv('API_YANDEX_MAP'),
         'YANDEX_METRIKA': os.getenv('YANDEX_METRIKA'),
         'SUPPORT_EMAIL': os.getenv('DEFAULT_FROM_EMAIL'),
         'has_unread_news': has_unread_news,

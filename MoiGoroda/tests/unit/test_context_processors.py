@@ -33,7 +33,6 @@ def mock_env_vars() -> dict[str, str]:
         'SITE_NAME': 'Test Site',
         'SITE_URL': 'https://test.com',
         'PROJECT_VERSION': '1.0.0',
-        'API_YANDEX_MAP': 'test-api-key',
         'YANDEX_METRIKA': 'test-metrika',
         'DEFAULT_FROM_EMAIL': 'test@test.com',
         'DONATE_LINK': 'https://donate.test.com',
@@ -68,7 +67,6 @@ def test_general_settings_contains_all_required_keys(request_factory: RequestFac
         'SITE_NAME',
         'SITE_URL',
         'PROJECT_VERSION',
-        'API_YANDEX_MAP',
         'YANDEX_METRIKA',
         'SUPPORT_EMAIL',
         'has_unread_news',
@@ -259,7 +257,6 @@ def test_general_settings_handles_none_env_vars(request_factory: RequestFactory)
         # Все переменные окружения должны быть None
         assert context['SITE_NAME'] is None
         assert context['SITE_URL'] is None
-        assert context['API_YANDEX_MAP'] is None
 
 
 @pytest.mark.unit

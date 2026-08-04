@@ -1,0 +1,155 @@
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (ShecSci)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+
+<template id="add-city-modal-template">
+    <dialog class="dui-modal" id="addCityModal">
+        <div class="dui-modal-box max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+            <h3 class="font-bold text-lg" id="addCityModalLabel">
+                Добавить посещённый город
+            </h3>
+
+            <div class="mb-4 p-3 rounded-lg border border-base-300 bg-base-200">
+                <h4 class="text-base font-semibold" id="city-title-in-modal"></h4>
+                <p class="text-sm text-base-content/70" id="region-title-in-modal"></p>
+            </div>
+
+            <form id="form-add-city" method="dialog">
+                {% csrf_token %}
+                <input type="hidden" id="city-id" name="city" value="">
+                <input type="hidden" name="from" value="visited_cities_map">
+
+                <div class="space-y-4">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold">Дата посещения</span>
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text"
+                                   id="date-of-visit"
+                                   name="date_of_visit"
+                                   class="dui-input dui-input-bordered w-full"
+                                   placeholder="дд.мм.гггг"
+                                   autocomplete="off">
+                            <button type="button"
+                                    id="today-button"
+                                    class="dui-btn dui-btn-sm dui-btn-outline">
+                                Сегодня
+                            </button>
+                            <button type="button"
+                                    id="yesterday-button"
+                                    class="dui-btn dui-btn-sm dui-btn-outline">
+                                Вчера
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-between">
+                            <div class="flex-1">
+                                <span class="label-text font-semibold">Наличие сувенира из города</span>
+                                <span class="block text-sm text-base-content/70 mt-1">
+                                    Отметьте этот пункт, если у Вас в коллекции есть сувенир из города.
+                                </span>
+                            </div>
+                            <input type="checkbox"
+                                   name="has_magnet"
+                                   id="magnet-checkbox"
+                                   class="dui-toggle dui-toggle-primary">
+                        </label>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold">
+                                Оценка города
+                                <span class="text-error">*</span>
+                            </span>
+                        </label>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-base-content/70">
+                                Поставьте оценку городу. 1 - плохо, 5 - отлично.
+                            </span>
+                            <div class="flex items-center gap-1" id="rating-container">
+                                <button type="button"
+                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
+                                        data-rating="1"
+                                        aria-label="Оценка 1">
+                                    ★
+                                </button>
+                                <button type="button"
+                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
+                                        data-rating="2"
+                                        aria-label="Оценка 2">
+                                    ★
+                                </button>
+                                <button type="button"
+                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
+                                        data-rating="3"
+                                        aria-label="Оценка 3">
+                                    ★
+                                </button>
+                                <button type="button"
+                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
+                                        data-rating="4"
+                                        aria-label="Оценка 4">
+                                    ★
+                                </button>
+                                <button type="button"
+                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
+                                        data-rating="5"
+                                        aria-label="Оценка 5">
+                                    ★
+                                </button>
+                            </div>
+                        </div>
+                        <input type="hidden"
+                               name="rating"
+                               id="id_rating"
+                               value=""
+                               required>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold">Впечатления о городе</span>
+                        </label>
+                        <textarea class="dui-textarea dui-textarea-bordered"
+                                  id="impression"
+                                  name="impression"
+                                  rows="4"
+                                  placeholder="Опишите свои впечатления о городе..."></textarea>
+                    </div>
+                </div>
+
+                <div class="dui-modal-action">
+                    <button type="button"
+                            class="dui-btn dui-btn-ghost"
+                            id="btn-close-modal">
+                        Закрыть
+                    </button>
+                    <button type="submit"
+                            class="dui-btn dui-btn-primary"
+                            id="btn_add-visited-city"
+                            disabled>
+                        Добавить
+                    </button>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="dui-modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+</template>

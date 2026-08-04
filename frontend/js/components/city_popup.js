@@ -257,12 +257,12 @@ export const buildPopupContent = (cityData, options = {}) => {
         } else {
             buttonText = !cityData.isVisited ? 'Отметить как посещённый' : 'Добавить ещё одно посещение';
         }
-            content += `<a href="#" 
+            content += `<button type="button" 
                 class="btn btn-sm btn-soft-outline-success btn-block"
-                data-hs-overlay="#addCityModal" 
+                data-action="add-city"
                 data-city-name="${cityData.name}" 
                 data-city-id="${cityData.id}" 
-            data-city-region="${regionName}">${buttonText}</a>`;
+            data-city-region="${regionName}">${buttonText}</button>`;
         content += '</div>';
     }
 

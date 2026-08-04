@@ -14,7 +14,6 @@ import L from 'leaflet';
 import {addExternalBorderControl, addInternalBorderControl, create_map} from "../components/map.js";
 import {ToolbarActions} from "../components/toolbar_actions.js";
 import {initCountrySelect} from "../components/initCountrySelect";
-import {initAddCityForm} from "../components/add_city_modal.js";
 import {City, MarkerStyle} from "../components/schemas.js";
 import {showDangerToast} from "../components/toast.js";
 import {
@@ -80,17 +79,14 @@ window.onload = async () => {
             map.fitBounds(group.getBounds());
         }
 
-        initAddCityForm(actions, async (city) => {
-            // После успешного добавления города обновляем данные о посещённых городах
-            // и список годов, если это первое посещение в этом году
-            // Передаём данные добавленного города для локального обновления без запроса к серверу
+        document.addEventListener('city-added', async (e) => {
+            const { city } = e.detail;
             updateVisitedCitiesData(city);
             
             if (city?.id && actions) {
                 actions.removeNotVisitedMarker(city.id);
             }
             
-            // Используем date_of_visit, так как это дата именно добавленного посещения
             if (city && city.date_of_visit) {
                 const visitDate = new Date(city.date_of_visit);
                 if (!isNaN(visitDate.getTime())) {
@@ -99,8 +95,6 @@ window.onload = async () => {
                 }
             }
             
-            // Всегда применяем текущий фильтр по годам после обновления данных
-            // Это необходимо для отображения нового города, если он соответствует фильтру
             const yearSelect = document.getElementById('id_year_filter');
             if (yearSelect) {
                 const selectedValue = yearSelect.value || '';

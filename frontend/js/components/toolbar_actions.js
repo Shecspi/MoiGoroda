@@ -14,16 +14,10 @@ import {
     icon_visited_pin
 } from "./icons.js";
 import {City, MarkerStyle} from "./schemas.js";
-import {open_modal_for_add_city, close_modal_for_add_city} from './services.js';
 import {getCookie} from './get_cookie.js';
 import {addErrorControl, addLoadControl} from "./map";
 import {bindPopupToMarker} from './city_popup.js';
 import {NotVisitedCityLayer} from './not_visited_city_layer.js';
-
-// Это нужно для того, чтобы open_modal_for_add_city можно было использовать в onclick.
-// Иначе из-за специфичной области видимости доступа к этой функции нет.
-window.open_modal_for_add_city = open_modal_for_add_city;
-window.close_modal_for_add_city = close_modal_for_add_city;
 
 export class ToolbarActions {
     constructor(map, own_cities) {

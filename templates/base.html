@@ -90,6 +90,12 @@
     {% endif %}
 
     {% include 'parts/confirm_modal.html' %}
+    
+    {% if user.is_authenticated %}
+        {% include 'components/add-city-modal.html' %}
+        <add-city-modal></add-city-modal>
+    {% endif %}
+    
     {% block modals %}{% endblock %}
 {% endblock %}
 
@@ -97,4 +103,7 @@
     {{ block.super }}
     {% vite_asset 'js/entries/preline.js' %}
     {% vite_asset 'js/entries/ui_core.js' %}
+    {% if user.is_authenticated %}
+        {% vite_asset 'js/entries/add_city_modal.js' %}
+    {% endif %}
 {% endblock %}

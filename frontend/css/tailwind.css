@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 @import "tailwindcss";
 @import "preline/variants.css";
-@import "./preline-datepicker-vc.css" layer(components);
 @import "../ui-lib/styles/index.css";
 
 @custom-variant dark (&:where(.dark, .dark *));

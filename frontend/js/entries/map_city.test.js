@@ -21,7 +21,6 @@ const mocks = vi.hoisted(() => ({
     addInternalBorderControl: vi.fn(),
     addNotVisitedClusteringControl: vi.fn(),
     createMap: vi.fn(),
-    initAddCityForm: vi.fn(),
     initCountrySelect: vi.fn(),
     map: {
         setView: vi.fn(),
@@ -50,10 +49,6 @@ vi.mock('../components/initCountrySelect', () => ({
     initCountrySelect: mocks.initCountrySelect,
 }));
 
-vi.mock('../components/add_city_modal.js', () => ({
-    initAddCityForm: mocks.initAddCityForm,
-}));
-
 vi.mock('../components/schemas.js', () => ({
     City: class {},
     MarkerStyle: {},
@@ -69,7 +64,18 @@ vi.mock('../components/not_visited_clustering_control.js', () => ({
 }));
 
 describe('map_city', () => {
+    let cityAddedListeners;
+
     beforeEach(() => {
+        cityAddedListeners = [];
+        const addDocumentEventListener = document.addEventListener.bind(document);
+        vi.spyOn(document, 'addEventListener').mockImplementation((...args) => {
+            if (args[0] === 'city-added') {
+                cityAddedListeners.push(args[1]);
+            }
+
+            return addDocumentEventListener(...args);
+        });
         vi.resetModules();
         vi.clearAllMocks();
         document.body.innerHTML = '';
@@ -87,6 +93,10 @@ describe('map_city', () => {
     });
 
     afterEach(() => {
+        cityAddedListeners.forEach((listener) => {
+            document.removeEventListener('city-added', listener);
+        });
+        document.addEventListener.mockRestore();
         window.onload = null;
         delete window.URL_GET_VISITED_CITIES;
         delete window.MG_MAIN_MAP;
@@ -123,9 +133,14 @@ describe('map_city', () => {
 
     it('удаляет непосещённый маркер через ToolbarActions после добавления города', async () => {
         await initializeMapCity();
-        const onCityAdded = mocks.initAddCityForm.mock.calls[0][1];
 
-        await onCityAdded({ id: 123, name: 'Город' });
+        await new Promise((resolve) => {
+            mocks.actions.removeNotVisitedMarker.mockImplementationOnce(resolve);
+
+            document.dispatchEvent(new CustomEvent('city-added', {
+                detail: {city: {id: 123, name: 'Город'}},
+            }));
+        });
 
         expect(mocks.actions.removeNotVisitedMarker).toHaveBeenCalledWith(123);
     });

@@ -1,3 +1,12 @@
+/*
+ * ---------------------------------------------
+ *
+ * Copyright © Egor Vavilov (Shecspi)
+ * Licensed under the Apache License, Version 2.0
+ *
+ * ----------------------------------------------
+ */
+
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
@@ -13,6 +22,6 @@ export default defineConfig({
   },
   test: {
     environment: 'happy-dom',
-    include: ['ui-lib/**/*.test.js', 'js/**/*.test.js'],
+    include: ['ui-lib/**/*.test.js', 'js/**/*.test.js', 'components/**/*.test.js'],
   },
 });

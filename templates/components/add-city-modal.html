@@ -1,7 +1,7 @@
 {% comment %}
 ----------------------------------------------
 
-Copyright © Egor Vavilov (ShecSci)
+Copyright © Egor Vavilov (Shecspi)
 Licensed under the Apache License, Version 2.0
 
 ----------------------------------------------
@@ -10,13 +10,15 @@ Licensed under the Apache License, Version 2.0
 <template id="add-city-modal-template">
     <dialog class="dui-modal" id="addCityModal">
         <div class="dui-modal-box max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-            <h3 class="font-bold text-lg" id="addCityModalLabel">
+            <h3 class="font-bold text-lg text-primary mb-4" id="addCityModalLabel">
                 Добавить посещённый город
             </h3>
 
-            <div class="mb-4 p-3 rounded-lg border border-base-300 bg-base-200">
-                <h4 class="text-base font-semibold" id="city-title-in-modal"></h4>
-                <p class="text-sm text-base-content/70" id="region-title-in-modal"></p>
+            <div class="dui-card bg-base-200 border border-base-300 mb-6">
+                <div class="dui-card-body p-4">
+                    <h4 class="dui-card-title text-base" id="city-title-in-modal"></h4>
+                    <p class="text-sm text-base-content/80" id="region-title-in-modal"></p>
+                </div>
             </div>
 
             <form id="form-add-city" method="dialog">
@@ -25,93 +27,71 @@ Licensed under the Apache License, Version 2.0
                 <input type="hidden" name="from" value="visited_cities_map">
 
                 <div class="space-y-4">
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text font-semibold">Дата посещения</span>
+                    <div class="dui-form-control">
+                        <label class="dui-label mb-2" for="date-of-visit">
+                            <span class="dui-label-text font-semibold text-base-content">Дата посещения</span>
                         </label>
-                        <div class="flex gap-2">
-                            <input type="text"
-                                   id="date-of-visit"
-                                   name="date_of_visit"
-                                   class="dui-input dui-input-bordered w-full"
-                                   placeholder="дд.мм.гггг"
-                                   autocomplete="off">
-                            <button type="button"
-                                    id="today-button"
-                                    class="dui-btn dui-btn-sm dui-btn-outline">
-                                Сегодня
-                            </button>
-                            <button type="button"
-                                    id="yesterday-button"
-                                    class="dui-btn dui-btn-sm dui-btn-outline">
-                                Вчера
-                            </button>
+                        <div class="relative">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                <input type="text"
+                                       id="date-of-visit"
+                                       name="date_of_visit"
+                                       class="dui-input dui-input-bordered dui-input-primary w-full sm:flex-1"
+                                       placeholder="Выберите дату"
+                                       autocomplete="off"
+                                       readonly>
+                                <button type="button"
+                                        id="today-button"
+                                         class="dui-btn dui-btn-sm dui-btn-primary dui-btn-outline w-full sm:w-auto">
+                                    Сегодня
+                                </button>
+                                <button type="button"
+                                        id="yesterday-button"
+                                         class="dui-btn dui-btn-sm dui-btn-accent dui-btn-outline w-full sm:w-auto">
+                                    Вчера
+                                </button>
+                            </div>
+                            <div id="add-city-visit-calendar" class="vc absolute top-full start-0 z-10 w-fit mt-2" data-vc-calendar-hidden></div>
                         </div>
                     </div>
 
-                    <div class="divider"></div>
+                    <div class="dui-divider"></div>
 
-                    <div class="form-control">
-                        <label class="label cursor-pointer justify-between">
-                            <div class="flex-1">
-                                <span class="label-text font-semibold">Наличие сувенира из города</span>
-                                <span class="block text-sm text-base-content/70 mt-1">
+                    <div class="dui-form-control">
+                        <label class="cursor-pointer flex w-full items-center gap-4">
+                            <div class="min-w-0 flex-1">
+                                <span class="dui-label-text font-semibold text-base-content">Наличие сувенира из города</span>
+                                <span class="block text-sm text-base-content/80 mt-1">
                                     Отметьте этот пункт, если у Вас в коллекции есть сувенир из города.
                                 </span>
                             </div>
                             <input type="checkbox"
                                    name="has_magnet"
                                    id="magnet-checkbox"
-                                   class="dui-toggle dui-toggle-primary">
+                                    class="dui-toggle dui-toggle-primary dui-toggle-lg shrink-0">
                         </label>
                     </div>
 
-                    <div class="divider"></div>
+                    <div class="dui-divider"></div>
 
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text font-semibold">
+                    <div class="dui-form-control">
+                        <label class="dui-label mb-2">
+                            <span class="dui-label-text font-semibold text-base-content">
                                 Оценка города
-                                <span class="text-error">*</span>
+                                <span class="dui-text-error">*</span>
                             </span>
                         </label>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-base-content/70">
+                        <div class="flex items-center justify-between gap-4">
+                            <span class="text-sm text-base-content/80">
                                 Поставьте оценку городу. 1 - плохо, 5 - отлично.
                             </span>
-                            <div class="flex items-center gap-1" id="rating-container">
-                                <button type="button"
-                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
-                                        data-rating="1"
-                                        aria-label="Оценка 1">
-                                    ★
-                                </button>
-                                <button type="button"
-                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
-                                        data-rating="2"
-                                        aria-label="Оценка 2">
-                                    ★
-                                </button>
-                                <button type="button"
-                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
-                                        data-rating="3"
-                                        aria-label="Оценка 3">
-                                    ★
-                                </button>
-                                <button type="button"
-                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
-                                        data-rating="4"
-                                        aria-label="Оценка 4">
-                                    ★
-                                </button>
-                                <button type="button"
-                                        class="rating-star dui-btn dui-btn-circle dui-btn-sm"
-                                        data-rating="5"
-                                        aria-label="Оценка 5">
-                                    ★
-                                </button>
-                            </div>
-                        </div>
+                            <div class="dui-rating" id="rating-container">
+                                <input type="radio" name="rating-radio" value="1" class="dui-mask dui-mask-star-2 bg-warning" aria-label="1 звезда" />
+                                <input type="radio" name="rating-radio" value="2" class="dui-mask dui-mask-star-2 bg-warning" aria-label="2 звезды" />
+                                <input type="radio" name="rating-radio" value="3" class="dui-mask dui-mask-star-2 bg-warning" aria-label="3 звезды" />
+                                <input type="radio" name="rating-radio" value="4" class="dui-mask dui-mask-star-2 bg-warning" aria-label="4 звезды" />
+                                <input type="radio" name="rating-radio" value="5" class="dui-mask dui-mask-star-2 bg-warning" aria-label="5 звезд" />
+                            </div>                        </div>
                         <input type="hidden"
                                name="rating"
                                id="id_rating"
@@ -119,13 +99,13 @@ Licensed under the Apache License, Version 2.0
                                required>
                     </div>
 
-                    <div class="divider"></div>
+                    <div class="dui-divider"></div>
 
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text font-semibold">Впечатления о городе</span>
+                    <div class="dui-form-control">
+                        <label class="dui-label mb-2">
+                            <span class="dui-label-text font-semibold text-base-content">Впечатления о городе</span>
                         </label>
-                        <textarea class="dui-textarea dui-textarea-bordered"
+                        <textarea class="dui-textarea dui-textarea-bordered dui-textarea-primary w-full"
                                   id="impression"
                                   name="impression"
                                   rows="4"

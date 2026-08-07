@@ -5,7 +5,7 @@
  *
  * ----------------------------------------------
  *
- * Copyright © Egor Vavilov (ShecSci)
+ * Copyright © Egor Vavilov (Shecspi)
  * Licensed under the Apache License, Version 2.0
  *
  * ----------------------------------------------
@@ -14,13 +14,9 @@
 import {City} from "../../js/components/schemas.js";
 import {showDangerToast, showSuccessToast} from "../../js/components/toast.js";
 import {getCookie} from "../../js/components/get_cookie.js";
-import {
-    clearVisitDateInput,
-    initVisitDatePickers,
-    isoFromParts,
-    setVisitDateInputValue,
-    valueFromInputToIso
-} from "../../js/components/visit_date_picker.js";
+import {Calendar} from 'vanilla-calendar-pro';
+import 'vanilla-calendar-pro/styles/index.css';
+import {isoFromParts, isoToRuDisplay} from '../../js/components/visit_date_picker.js';
 
 class AddCityModal extends HTMLElement {
     constructor() {
@@ -34,13 +30,37 @@ class AddCityModal extends HTMLElement {
         this.ratingInput = null;
         this.ratingStars = [];
         this.selectedRating = 0;
+        this.visitCalendar = null;
+        this.visitDateForReconnect = '';
+        this.globalClickHandler = null;
+        this.calendarOutsideClickHandler = null;
     }
 
     connectedCallback() {
+        if (this.dialog) {
+            this.initVisitCalendar();
+            this.initGlobalClickListener();
+            return;
+        }
+
         this.cloneTemplate();
         this.initElements();
         this.initEventListeners();
         this.initGlobalClickListener();
+    }
+
+    disconnectedCallback() {
+        if (this.globalClickHandler) {
+            document.removeEventListener('click', this.globalClickHandler);
+            this.globalClickHandler = null;
+        }
+        if (this.calendarOutsideClickHandler) {
+            document.removeEventListener('click', this.calendarOutsideClickHandler, true);
+            this.calendarOutsideClickHandler = null;
+        }
+        this.visitDateForReconnect = this.visitCalendar?.context.selectedDates[0] || '';
+        this.visitCalendar?.destroy();
+        this.visitCalendar = null;
     }
 
     cloneTemplate() {
@@ -58,90 +78,109 @@ class AddCityModal extends HTMLElement {
         this.form = this.querySelector('#form-add-city');
         this.submitButton = this.querySelector('#btn_add-visited-city');
         this.ratingInput = this.querySelector('#id_rating');
-        this.ratingStars = Array.from(this.querySelectorAll('.rating-star'));
+        this.ratingContainer = this.querySelector('#rating-container');
+        this.ratingRadios = Array.from(this.ratingContainer.querySelectorAll('input[type="radio"]'));
         
         this.initRating();
         this.initDatePicker();
     }
 
     initRating() {
-        this.ratingStars.forEach(star => {
-            star.addEventListener('click', () => {
-                const rating = parseInt(star.getAttribute('data-rating'));
+        this.ratingRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const rating = parseInt(radio.value);
                 this.ratingInput.value = rating;
                 this.selectedRating = rating;
-                this.updateRatingStars(rating);
                 this.updateSubmitButtonState();
             });
-            
-            star.addEventListener('mouseenter', () => {
-                const hoverRating = parseInt(star.getAttribute('data-rating'));
-                this.highlightStars(hoverRating);
-            });
-        });
-        
-        this.querySelector('#rating-container').addEventListener('mouseleave', () => {
-            if (this.selectedRating > 0) {
-                this.updateRatingStars(this.selectedRating);
-            } else {
-                this.updateRatingStars(0);
-            }
-        });
-    }
-
-    updateRatingStars(rating) {
-        this.ratingStars.forEach(star => {
-            const starRating = parseInt(star.getAttribute('data-rating'));
-            if (starRating <= rating && rating > 0) {
-                star.classList.add('dui-btn-warning');
-                star.classList.remove('dui-btn-ghost');
-            } else {
-                star.classList.remove('dui-btn-warning');
-                star.classList.add('dui-btn-ghost');
-            }
-        });
-    }
-
-    highlightStars(rating) {
-        this.ratingStars.forEach(star => {
-            const starRating = parseInt(star.getAttribute('data-rating'));
-            if (starRating <= rating) {
-                star.classList.add('dui-btn-warning');
-                star.classList.remove('dui-btn-ghost');
-            } else {
-                star.classList.remove('dui-btn-warning');
-                star.classList.add('dui-btn-ghost');
-            }
         });
     }
 
     initDatePicker() {
-        const dateInput = this.querySelector('#date-of-visit');
-        if (!dateInput) return;
-        
-        const syncEmptyAppearance = () => {
-            dateInput.classList.toggle('form-input-date-empty', !dateInput.value);
-        };
-        syncEmptyAppearance();
-        dateInput.addEventListener('input', syncEmptyAppearance);
-        dateInput.addEventListener('change', syncEmptyAppearance);
-        
-        initVisitDatePickers(this);
-        
+        this.initVisitCalendar();
+
         this.querySelector('#today-button')?.addEventListener('click', () => {
             const t = new Date();
-            setVisitDateInputValue('#date-of-visit', isoFromParts(t.getFullYear(), t.getMonth(), t.getDate()));
+            this.setVisitDate(isoFromParts(t.getFullYear(), t.getMonth(), t.getDate()));
+            this.hideVisitCalendar();
         });
-        
+
         this.querySelector('#yesterday-button')?.addEventListener('click', () => {
             const t = new Date();
             t.setDate(t.getDate() - 1);
-            setVisitDateInputValue('#date-of-visit', isoFromParts(t.getFullYear(), t.getMonth(), t.getDate()));
+            this.setVisitDate(isoFromParts(t.getFullYear(), t.getMonth(), t.getDate()));
+            this.hideVisitCalendar();
         });
+
+        this.querySelector('#date-of-visit')?.addEventListener('click', () => {
+            this.showVisitCalendar();
+        });
+        this.initCalendarOutsideClickListener();
+    }
+
+    initVisitCalendar() {
+        const calendarElement = this.querySelector('#add-city-visit-calendar');
+        if (!calendarElement) return;
+
+        this.visitCalendar = new Calendar(calendarElement, {
+            locale: 'ru-RU',
+            selectionDatesMode: 'single',
+            enableDateToggle: false,
+            selectedDates: this.visitDateForReconnect ? [this.visitDateForReconnect] : [],
+            styles: {
+                calendar: 'vc absolute top-full start-0 z-10 w-fit mt-2 bg-base-100 border border-base-300 shadow-lg rounded-xl',
+            },
+            onClickDate: (self) => {
+                this.setVisitDate(self.context.selectedDates[0] || '');
+                this.hideVisitCalendar();
+            },
+        });
+        this.visitDateForReconnect = '';
+        this.visitCalendar.init();
+        calendarElement.style.position = 'absolute';
+    }
+
+    showVisitCalendar() {
+        const calendarElement = this.querySelector('#add-city-visit-calendar');
+        if (!calendarElement) return;
+
+        calendarElement.style.position = 'absolute';
+        calendarElement.removeAttribute('data-vc-calendar-hidden');
+    }
+
+    hideVisitCalendar() {
+        this.querySelector('#add-city-visit-calendar')?.setAttribute('data-vc-calendar-hidden', '');
+    }
+
+    initCalendarOutsideClickListener() {
+        if (this.calendarOutsideClickHandler) {
+            return;
+        }
+
+        this.calendarOutsideClickHandler = (event) => {
+            const calendarElement = this.querySelector('#add-city-visit-calendar');
+            const dateInput = this.querySelector('#date-of-visit');
+            if (!calendarElement?.contains(event.target) && event.target !== dateInput) {
+                this.hideVisitCalendar();
+            }
+        };
+        document.addEventListener('click', this.calendarOutsideClickHandler, true);
+    }
+
+    setVisitDate(iso) {
+        const value = iso || '';
+        this.querySelector('#date-of-visit').value = value ? isoToRuDisplay(value) : '';
+        this.visitCalendar.set({selectedDates: value ? [value] : []}, {dates: true});
+    }
+
+    clearVisitDate() {
+        this.setVisitDate('');
+        this.hideVisitCalendar();
     }
 
     initEventListeners() {
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+        this.dialog.addEventListener('close', () => this.resetForm());
         this.querySelector('#btn-close-modal').addEventListener('click', () => this.close());
         
         this.ratingInput.addEventListener('input', () => this.updateSubmitButtonState());
@@ -154,7 +193,11 @@ class AddCityModal extends HTMLElement {
     }
 
     initGlobalClickListener() {
-        document.addEventListener('click', (e) => {
+        if (this.globalClickHandler) {
+            return;
+        }
+
+        this.globalClickHandler = (e) => {
             const button = e.target.closest('[data-action="add-city"]');
             if (button) {
                 e.preventDefault();
@@ -180,7 +223,8 @@ class AddCityModal extends HTMLElement {
                     });
                 }
             }
-        });
+        };
+        document.addEventListener('click', this.globalClickHandler);
     }
 
     open({cityId, cityName, regionName}) {
@@ -194,6 +238,7 @@ class AddCityModal extends HTMLElement {
         
         this.resetForm();
         this.dialog.showModal();
+        this.querySelector('#btn-close-modal').focus();
     }
 
     close() {
@@ -204,9 +249,9 @@ class AddCityModal extends HTMLElement {
         this.form.reset();
         this.ratingInput.value = '';
         this.selectedRating = 0;
-        this.updateRatingStars(0);
+        this.ratingRadios.forEach(radio => radio.checked = false);
         this.updateSubmitButtonState();
-        clearVisitDateInput('#date-of-visit');
+        this.clearVisitDate();
         
         const magnetCheckbox = this.querySelector('#magnet-checkbox');
         if (magnetCheckbox) {
@@ -220,16 +265,7 @@ class AddCityModal extends HTMLElement {
         const formData = new FormData(this.form);
         formData.set('has_magnet', formData.has('has_magnet') ? '1' : '0');
         const csrfToken = formData.get('csrfmiddlewaretoken') || getCookie('csrftoken');
-        const rawVisitDate = formData.get('date_of_visit');
-        
-        if (typeof rawVisitDate === 'string' && rawVisitDate.trim()) {
-            const normalizedVisitDate = valueFromInputToIso(rawVisitDate);
-            if (!normalizedVisitDate) {
-                showDangerToast('Ошибка', 'Укажите корректную дату посещения в формате дд.мм.гггг');
-                return;
-            }
-            formData.set('date_of_visit', normalizedVisitDate);
-        }
+        formData.set('date_of_visit', this.visitCalendar.context.selectedDates[0] || '');
         
         this.submitButton.disabled = true;
         this.submitButton.innerHTML = '<span class="dui-loading dui-loading-spinner dui-loading-sm"></span><span>Загрузка...</span>';

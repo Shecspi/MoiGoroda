@@ -47,7 +47,6 @@ from city.serializers import (
     AddVisitedCityDistrictSerializer,
     AddVisitedCitySerializer,
     CityDistrictSerializer,
-    CitySearchParamsSerializer,
     CitySerializer,
     VisitedCitySerializer,
 )
@@ -62,7 +61,6 @@ from city.services.db import (
     get_unique_visited_cities,
 )
 from city.services.filter import apply_filter_to_queryset
-from city.services.search import CitySearchService
 from services import logger
 from subscribe.repository import is_subscribed
 
@@ -613,41 +611,6 @@ def city_list_by_ids(request: Request) -> Response:
         cities_data.append(city_data)
 
     return Response(cities_data, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-def city_search(request: Request) -> Response:
-    """
-    Поиск городов по подстроке.
-
-    Принимает GET-параметры:
-      - query (обязательный): подстрока для поиска в названии города
-      - country (необязательный): код страны для дополнительной фильтрации
-      - limit (необязательный): максимальное количество результатов (по умолчанию 50, максимум 200)
-
-    Возвращает список городов с полями id, title, region и country.
-    Результаты отсортированы по приоритету (города, начинающиеся с запроса, идут первыми).
-
-    :param request: DRF Request с GET-параметрами
-    :return: Response со списком городов или ошибкой валидации
-    """
-    # Валидация входных данных
-    serializer = CitySearchParamsSerializer(data=request.GET)
-    serializer.is_valid(raise_exception=True)
-
-    validated_data = serializer.validated_data
-    query = validated_data['query']
-    country = validated_data.get('country')
-    limit = validated_data.get('limit', 50)
-
-    # Поиск городов через сервис
-    cities_queryset = CitySearchService.search_cities(query=query, country=country, limit=limit)
-    cities_list = list(cities_queryset)
-
-    # Использование сериализатора для формирования ответа
-    city_serializer = CitySerializer(cities_list, many=True, context={'request': request})
-
-    return Response(city_serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

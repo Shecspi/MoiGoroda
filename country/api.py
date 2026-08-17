@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 ----------------------------------------------
 
@@ -10,9 +17,11 @@ Licensed under the Apache License, Version 2.0
 from typing import Any, cast
 
 from django.db.models import Count, Q, QuerySet
+from http import HTTPStatus
+from dmr import Controller, modify
+from dmr.plugins.msgspec import MsgspecSerializer
 from rest_framework import generics, status
 import rest_framework.exceptions as drf_exc
-from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -23,7 +32,6 @@ from country.serializers import (
     VisitedCountrySerializer,
     PartOfTheWorldSerializer,
     LocationSerializer,
-    CountrySimpleSerializer,
 )
 from services import logger
 
@@ -149,31 +157,54 @@ class RecieveUnknownCountries(generics.GenericAPIView):  # type: ignore[type-arg
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-def country_list_with_visited_cities(request: Request) -> Response:
+class CountryListWithCitiesController(Controller[MsgspecSerializer]):
     """
     Возвращает список стран.
     Для авторизованного пользователя - все посещённые.
     Дл неавторизованного - все страны, у которых есть города.
     """
-    if request.user.is_authenticated:
-        queryset = (
-            Country.objects.filter(city__isnull=False)
-            .annotate(
-                number_of_visited_cities=Count(
-                    'city',
-                    filter=Q(city__visitedcity__user=request.user),
-                    distinct=True,
-                ),
-                number_of_cities=Count('city', distinct=True),
+
+    @modify(
+        status_code=HTTPStatus.OK,
+        tags=['Страны'],
+    )
+    def get(self) -> Any:
+        if self.request.user.is_authenticated:
+            visited_countries = (
+                Country.objects.filter(city__isnull=False)
+                .annotate(
+                    number_of_visited_cities=Count(
+                        'city',
+                        filter=Q(city__visitedcity__user=self.request.user),
+                        distinct=True,
+                    ),
+                    number_of_cities=Count('city', distinct=True),
+                )
+                .order_by(
+                    '-number_of_visited_cities',  # сначала страны с посещёнными городами
+                    'name',  # затем сортировка по имени страны
+                )
+                .distinct()
             )
-            .order_by(
-                '-number_of_visited_cities',  # сначала страны с посещёнными городами
-                'name',  # затем сортировка по имени страны
-            )
-            .distinct()
-        )
-    else:
-        queryset = Country.objects.filter(city__isnull=False).distinct().order_by('name')  # type: ignore[assignment]
-    serializer = CountrySimpleSerializer(queryset, many=True)
-    return Response(serializer.data)
+            data = [
+                {
+                    'id': country.id,
+                    'code': country.code,
+                    'name': country.name,
+                    'number_of_visited_cities': country.number_of_visited_cities,
+                    'number_of_cities': country.number_of_cities,
+                }
+                for country in visited_countries
+            ]
+            return self.to_response(raw_data=data, status_code=HTTPStatus.OK)
+
+        countries = Country.objects.filter(city__isnull=False).distinct().order_by('name')
+        data = [
+            {
+                'id': country.id,
+                'code': country.code,
+                'name': country.name,
+            }
+            for country in countries
+        ]
+        return self.to_response(raw_data=data, status_code=HTTPStatus.OK)

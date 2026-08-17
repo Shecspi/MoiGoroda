@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 ----------------------------------------------
 
@@ -8,6 +15,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 from django.urls import path
+from dmr.routing import path as dmr_path
 
 from country import api
 
@@ -31,9 +39,9 @@ urlpatterns = [
         name='api__get_parts_of_the_world',
     ),
     path('get_locations', api.GetLocations.as_view(), name='api__get_locations'),
-    path(
+    dmr_path(
         'list_by_cities',
-        api.country_list_with_visited_cities,
+        api.CountryListWithCitiesController.as_view(),
         name='api__country_list_with_visited_cities',
     ),
 ]

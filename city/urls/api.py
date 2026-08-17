@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 from django.urls import path, include
 from dmr.routing import path as dmr_path, Router
 from dmr.openapi import build_schema
@@ -38,17 +45,30 @@ urlpatterns = [
         name='api__get_visited_cities_from_subscriptions',
     ),
     path('not_visited', api.GetNotVisitedCities.as_view(), name='api__get_not_visited_cities'),
-    path('visited/add', api.AddVisitedCity.as_view(), name='api__add_visited_city'),
-    path('list_by_region', api.city_list_by_region, name='api__city_list_by_region'),
+    dmr_path('visited/add', api.AddVisitedCity.as_view(), name='api__add_visited_city'),
+    dmr_path(
+        'visited/<int:visit_id>/',
+        api.VisitedCityDetailController.as_view(),
+        name='api__visited_city_detail',
+    ),
+    dmr_path(
+        'list_by_region',
+        api.CityListByRegionController.as_view(),
+        name='api__city_list_by_region',
+    ),
     path('list_by_regions', api.city_list_by_regions, name='api__city_list_by_regions'),
     path('list_by_ids', api.city_list_by_ids, name='api__city_list_by_ids'),
-    path(
+    dmr_path(
         'list_by_country',
-        api.city_list_by_country,
+        api.CityListByCountryController.as_view(),
         name='api__city_list_by_country',
     ),
-    path('search', api.city_search, name='city_search'),
-    path('country/list_by_cities', api.country_list_by_cities, name='api__country_list_by_cities'),
+    dmr_path(
+        'country/list_by_cities',
+        api.CityCountryListController.as_view(),
+        name='api__country_list_by_cities',
+    ),
+    dmr_path('search', api.CitySearchController.as_view(), name='city_search'),
     path(
         'list/default_settings',
         api.save_city_list_default_settings,

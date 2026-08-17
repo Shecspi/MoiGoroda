@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0
                 Добавить посещённый город
             </h3>
 
-            <div class="dui-card bg-base-200 border border-base-300 mb-6">
+            <div class="dui-card bg-base-200 border border-base-300 mb-6" id="city-summary-card">
                 <div class="dui-card-body p-4">
                     <h4 class="dui-card-title text-base" id="city-title-in-modal"></h4>
                     <p class="text-sm text-base-content/80" id="region-title-in-modal"></p>
@@ -27,6 +27,58 @@ Licensed under the Apache License, Version 2.0
                 <input type="hidden" name="from" value="visited_cities_map">
 
                 <div class="space-y-4">
+                    <div class="space-y-4" id="city-selection-fields" hidden>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="dui-form-control">
+                                <label class="dui-label mb-2" for="add-city-country">
+                                    <span class="dui-label-text font-semibold text-base-content">Страна</span>
+                                </label>
+                                <select class="dui-select dui-select-bordered dui-select-primary w-full"
+                                        id="add-city-country"
+                                        data-city-country>
+                                    <option value="">Выберите страну</option>
+                                </select>
+                            </div>
+                            <div class="dui-form-control">
+                                <label class="dui-label mb-2" for="add-city-region">
+                                    <span class="dui-label-text font-semibold text-base-content">Регион</span>
+                                </label>
+                                <select class="dui-select dui-select-bordered dui-select-primary w-full"
+                                        id="add-city-region"
+                                        data-city-region
+                                        disabled>
+                                    <option value="">Выберите регион</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="dui-form-control">
+                            <label class="dui-label mb-2" for="add-city-city">
+                                <span class="dui-label-text font-semibold text-base-content">Город</span>
+                            </label>
+                            <div class="relative" data-city-autocomplete>
+                                <input class="dui-input dui-input-bordered dui-input-primary w-full pr-10"
+                                       id="add-city-city"
+                                       data-city-autocomplete-input
+                                       type="search"
+                                       placeholder="Начните вводить название города"
+                                       autocomplete="off"
+                                       role="combobox"
+                                       aria-autocomplete="list"
+                                       aria-controls="add-city-city-results"
+                                       aria-expanded="false">
+                                <span class="dui-loading dui-loading-spinner dui-loading-sm absolute end-3 top-1/2 -translate-y-1/2"
+                                      data-city-autocomplete-loading
+                                      aria-label="Загрузка подсказок"
+                                      hidden></span>
+                                <ul class="dui-menu bg-base-100 border border-base-300 rounded-box absolute z-20 mt-2 w-full shadow-lg"
+                                    id="add-city-city-results"
+                                    data-city-autocomplete-results
+                                    role="listbox"
+                                    hidden></ul>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="dui-form-control">
                         <label class="dui-label mb-2" for="date-of-visit">
                             <span class="dui-label-text font-semibold text-base-content">Дата посещения</span>
@@ -123,7 +175,7 @@ Licensed under the Apache License, Version 2.0
                             class="dui-btn dui-btn-primary"
                             id="btn_add-visited-city"
                             disabled>
-                        Добавить
+                        <span>Добавить</span>
                     </button>
                 </div>
             </form>

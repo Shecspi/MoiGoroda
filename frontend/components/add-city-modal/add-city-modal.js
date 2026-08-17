@@ -17,6 +17,8 @@ import {getCookie} from "../../js/components/get_cookie.js";
 import {Calendar} from 'vanilla-calendar-pro';
 import 'vanilla-calendar-pro/styles/index.css';
 import {isoFromParts, isoToRuDisplay} from '../../js/components/visit_date_picker.js';
+import {CityCascadeSelector} from '../../js/components/city_cascade_selector.js';
+import {CityAutocomplete} from '../../js/components/city_autocomplete.js';
 
 class AddCityModal extends HTMLElement {
     constructor() {
@@ -24,6 +26,11 @@ class AddCityModal extends HTMLElement {
         this.cityId = null;
         this.cityName = '';
         this.regionName = '';
+        this.mode = 'create';
+        this.visitedCityId = null;
+        this.surface = '';
+        this.cityCascadeSelector = null;
+        this.cityAutocomplete = null;
         this.form = null;
         this.dialog = null;
         this.submitButton = null;
@@ -39,6 +46,7 @@ class AddCityModal extends HTMLElement {
     connectedCallback() {
         if (this.dialog) {
             this.initVisitCalendar();
+            this.initCalendarOutsideClickListener();
             this.initGlobalClickListener();
             return;
         }
@@ -80,6 +88,8 @@ class AddCityModal extends HTMLElement {
         this.ratingInput = this.querySelector('#id_rating');
         this.ratingContainer = this.querySelector('#rating-container');
         this.ratingRadios = Array.from(this.ratingContainer.querySelectorAll('input[type="radio"]'));
+        this.citySelectionFields = this.querySelector('#city-selection-fields');
+        this.citySummaryCard = this.querySelector('#city-summary-card');
         
         this.initRating();
         this.initDatePicker();
@@ -189,7 +199,7 @@ class AddCityModal extends HTMLElement {
 
     updateSubmitButtonState() {
         const hasRating = this.ratingInput.value && parseInt(this.ratingInput.value) > 0;
-        this.submitButton.disabled = !hasRating;
+        this.submitButton.disabled = !hasRating || !this.cityId;
     }
 
     initGlobalClickListener() {
@@ -198,11 +208,17 @@ class AddCityModal extends HTMLElement {
         }
 
         this.globalClickHandler = (e) => {
-            const button = e.target.closest('[data-action="add-city"]');
+            const button = e.target.closest('[data-action="add-city"], [data-action="edit-visited-city"]');
             if (button) {
                 e.preventDefault();
                 e.stopPropagation();
                 
+                const editVisitId = button.getAttribute('data-visited-city-id');
+                if (button.getAttribute('data-action') === 'edit-visited-city' && editVisitId) {
+                    this.openEdit(parseInt(editVisitId, 10));
+                    return;
+                }
+
                 const cityName = button.getAttribute('data-city-name');
                 const cityId = button.getAttribute('data-city-id');
                 const cityRegion = button.getAttribute('data-city-region') || '';
@@ -216,29 +232,139 @@ class AddCityModal extends HTMLElement {
                         }
                     }
                     
-                    this.open({
+                    const openOptions = {
                         cityId: parseInt(cityId, 10),
                         cityName: cityName,
                         regionName: cityRegion
-                    });
+                    };
+                    const surface = button.getAttribute('data-surface');
+                    if (surface) {
+                        openOptions.surface = surface;
+                    }
+                    this.open(openOptions);
+                } else {
+                    const openOptions = {
+                        cityId: null,
+                        cityName: '',
+                        regionName: '',
+                    };
+                    const surface = button.getAttribute('data-surface');
+                    if (surface) {
+                        openOptions.surface = surface;
+                    }
+                    this.open(openOptions);
                 }
             }
         };
         document.addEventListener('click', this.globalClickHandler);
     }
 
-    open({cityId, cityName, regionName}) {
+    open({cityId = null, cityName = '', regionName = '', surface = ''}) {
+        this.resetForm();
+        this.mode = 'create';
+        this.visitedCityId = null;
         this.cityId = cityId;
         this.cityName = cityName;
         this.regionName = regionName || '';
-        
+        this.surface = surface;
+
         this.querySelector('#city-title-in-modal').textContent = cityName;
         this.querySelector('#region-title-in-modal').textContent = regionName || '';
-        this.querySelector('#city-id').value = cityId;
-        
-        this.resetForm();
+        this.querySelector('#city-id').value = cityId || '';
+        this.toggleCitySelection(!cityId);
+        this.setModeLabels();
         this.dialog.showModal();
         this.querySelector('#btn-close-modal').focus();
+
+        if (!cityId) {
+            this.initCityCascadeSelector();
+        }
+        this.updateSubmitButtonState();
+    }
+
+    async openEdit(visitedCityId) {
+        try {
+            const response = await fetch(`/api/city/visited/${visitedCityId}/`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            const visit = data.visit;
+
+            this.resetForm();
+            this.mode = 'edit';
+            this.visitedCityId = visitedCityId;
+            this.cityId = visit.city;
+            this.cityName = visit.city_title;
+            this.regionName = visit.region_title || '';
+            this.querySelector('#city-title-in-modal').textContent = this.cityName;
+            this.querySelector('#region-title-in-modal').textContent = this.regionName;
+            this.querySelector('#city-id').value = String(this.cityId);
+            this.querySelector('#magnet-checkbox').checked = Boolean(visit.has_magnet);
+            this.querySelector('#impression').value = visit.impression || '';
+            this.ratingInput.value = String(visit.rating);
+            this.ratingRadios.forEach((radio) => {
+                radio.checked = Number(radio.value) === Number(visit.rating);
+            });
+            this.setVisitDate(visit.date_of_visit || '');
+            this.toggleCitySelection(false);
+            this.setModeLabels();
+            this.dialog.showModal();
+            this.querySelector('#btn-close-modal').focus();
+            this.updateSubmitButtonState();
+        } catch (error) {
+            console.error('Ошибка при загрузке посещённого города:', error);
+            showDangerToast('Ошибка', 'Не удалось загрузить посещение. Попробуйте ещё раз.');
+        }
+    }
+
+    toggleCitySelection(show) {
+        if (this.citySelectionFields) {
+            this.citySelectionFields.hidden = !show;
+        }
+        if (this.citySummaryCard) {
+            this.citySummaryCard.hidden = show;
+        }
+    }
+
+    setModeLabels() {
+        const label = this.querySelector('#addCityModalLabel');
+        if (label) {
+            label.textContent = this.mode === 'edit' ? 'Редактировать посещение города' : 'Добавить посещённый город';
+        }
+        const submitText = this.submitButton?.querySelector('span');
+        if (submitText) {
+            submitText.textContent = this.mode === 'edit' ? 'Сохранить' : 'Добавить';
+        }
+    }
+
+    initCityCascadeSelector() {
+        this.cityCascadeSelector?.destroy();
+        this.cityAutocomplete?.destroy();
+        this.cityAutocomplete = new CityAutocomplete(this, {
+            onSelect: (city) => {
+                this.cityId = city ? Number(city.id) : null;
+                this.querySelector('#city-id').value = city ? String(city.id) : '';
+                this.updateSubmitButtonState();
+            },
+            onError: () => {
+                showDangerToast('Ошибка', 'Не удалось найти город. Попробуйте ещё раз.');
+            },
+        });
+        this.cityAutocomplete.init();
+        this.cityCascadeSelector = new CityCascadeSelector(this, {
+            locationValueMode: 'code',
+            onChange: ({countryCode, regionCode}) => {
+                this.cityAutocomplete.setFilters({
+                    country: countryCode,
+                    region: regionCode,
+                });
+            },
+            onError: () => {
+                showDangerToast('Ошибка', 'Не удалось загрузить список городов. Попробуйте ещё раз.');
+            },
+        });
+        this.cityCascadeSelector.init();
     }
 
     close() {
@@ -247,6 +373,13 @@ class AddCityModal extends HTMLElement {
 
     resetForm() {
         this.form.reset();
+        this.cityCascadeSelector?.destroy();
+        this.cityCascadeSelector = null;
+        this.cityAutocomplete?.destroy();
+        this.cityAutocomplete = null;
+        this.cityId = null;
+        this.visitedCityId = null;
+        this.surface = '';
         this.ratingInput.value = '';
         this.selectedRating = 0;
         this.ratingRadios.forEach(radio => radio.checked = false);
@@ -263,21 +396,36 @@ class AddCityModal extends HTMLElement {
         e.preventDefault();
         
         const formData = new FormData(this.form);
-        formData.set('has_magnet', formData.has('has_magnet') ? '1' : '0');
         const csrfToken = formData.get('csrfmiddlewaretoken') || getCookie('csrftoken');
-        formData.set('date_of_visit', this.visitCalendar.context.selectedDates[0] || '');
+        const payload = Object.fromEntries(formData.entries());
+        delete payload.csrfmiddlewaretoken;
+        payload.has_magnet = formData.has('has_magnet');
+        payload.date_of_visit = this.visitCalendar.context.selectedDates[0] || null;
+        if (this.surface) {
+            payload.from = this.surface;
+        }
+
+        const isEdit = this.mode === 'edit';
+        if (isEdit) {
+            delete payload.city;
+            delete payload.from;
+        }
         
         this.submitButton.disabled = true;
         this.submitButton.innerHTML = '<span class="dui-loading dui-loading-spinner dui-loading-sm"></span><span>Загрузка...</span>';
         
         try {
-            const response = await fetch('/api/city/visited/add', {
-                method: 'POST',
+            const response = await fetch(
+                isEdit ? `/api/city/visited/${this.visitedCityId}/` : '/api/city/visited/add',
+                {
+                method: isEdit ? 'PATCH' : 'POST',
                 headers: {
-                    'X-CSRFToken': csrfToken
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
                 },
-                body: formData
-            });
+                body: JSON.stringify(payload),
+                }
+            );
             
             if (!response.ok) {
                 const error = new Error(`HTTP error! status: ${response.status}`);
@@ -287,9 +435,21 @@ class AddCityModal extends HTMLElement {
             
             const data = await response.json();
             
+            if (isEdit) {
+                this.close();
+                showSuccessToast('Успешно', 'Посещение города успешно обновлено');
+                const updatedCity = data.city && data.visit
+                    ? {...data.city, date_of_visit: data.visit.date_of_visit}
+                    : data.city;
+                this.dispatchEvent(new CustomEvent('visited-city-updated', {
+                    detail: {...data, city: updatedCity},
+                    bubbles: true,
+                    composed: true,
+                }));
+                return;
+            }
+
             this.close();
-            this.resetForm();
-            
             showSuccessToast('Успешно', `Город ${data.city.city_title} успешно добавлен как посещённый`);
             
             const city = new City();
@@ -316,6 +476,16 @@ class AddCityModal extends HTMLElement {
                 bubbles: true,
                 composed: true
             }));
+
+            this.dispatchEvent(new CustomEvent('visited-city-created', {
+                detail: {
+                    city,
+                    visit: data.visit || null,
+                    isNewCity: isAddedNewCity,
+                },
+                bubbles: true,
+                composed: true,
+            }));
             
             this.updateToolbarCounts(isAddedNewCity);
             
@@ -329,7 +499,7 @@ class AddCityModal extends HTMLElement {
             }
         } finally {
             this.submitButton.disabled = false;
-            this.submitButton.innerHTML = '<span>Добавить</span>';
+            this.submitButton.innerHTML = `<span>${isEdit ? 'Сохранить' : 'Добавить'}</span>`;
             this.updateSubmitButtonState();
         }
     }

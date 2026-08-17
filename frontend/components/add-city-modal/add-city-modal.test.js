@@ -41,14 +41,26 @@ const modalTemplate = `
             <form id="form-add-city">
                 <h4 id="city-title-in-modal"></h4>
                 <p id="region-title-in-modal"></p>
+                <div id="city-summary-card"></div>
+                <div id="city-selection-fields" hidden>
+                    <select data-city-country></select>
+                    <select data-city-region></select>
+                    <div data-city-autocomplete>
+                        <input id="add-city-city" data-city-autocomplete-input>
+                        <span data-city-autocomplete-loading hidden></span>
+                        <ul data-city-autocomplete-results hidden></ul>
+                    </div>
+                </div>
                 <input id="date-of-visit" name="date_of_visit" readonly>
                 <div id="add-city-visit-calendar" class="vc absolute top-full start-0 z-10 w-fit mt-2" data-vc-calendar-hidden></div>
                 <button type="button" id="today-button"></button>
                 <button type="button" id="yesterday-button"></button>
                 <button type="button" id="btn-close-modal"></button>
-                <button id="btn_add-visited-city"></button>
+                <button id="btn_add-visited-city"><span>Добавить</span></button>
                 <input type="hidden" id="city-id" name="city" value="42">
                 <input id="id_rating" name="rating">
+                <input type="checkbox" id="magnet-checkbox" name="has_magnet">
+                <textarea id="impression" name="impression"></textarea>
                 <div id="rating-container"><input type="radio" value="1"></div>
             </form>
         </dialog>
@@ -89,6 +101,186 @@ describe('AddCityModal visit calendar', () => {
             cityName: 'Тверь',
             regionName: '',
         });
+    });
+
+    it('opens the city-selection create mode when an add trigger has no city data', () => {
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        const open = vi.spyOn(modal, 'open').mockImplementation(() => {});
+        const trigger = document.createElement('button');
+        trigger.dataset.action = 'add-city';
+        trigger.dataset.surface = 'sidebar';
+        document.body.appendChild(trigger);
+
+        trigger.click();
+
+        expect(open).toHaveBeenCalledWith({
+            cityId: null,
+            cityName: '',
+            regionName: '',
+            surface: 'sidebar',
+        });
+    });
+
+    it('selects a city suggestion filtered by the selected country and region', async () => {
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([{id: 7, code: 'RU', name: 'Россия'}]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([
+                    {id: 11, iso3166: 'RU-MOW', title: 'Москва', country_code: 'RU'},
+                ]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([
+                    {id: 42, title: 'Москва', region: 'Москва', country: 'Россия'},
+                ]),
+            });
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        modal.querySelector('dialog').showModal = vi.fn();
+
+        modal.open({cityId: null});
+        expect(modal.querySelector('#city-selection-fields').hidden).toBe(false);
+        expect(modal.querySelector('#city-summary-card').hidden).toBe(true);
+        await vi.waitFor(() => {
+            expect(modal.querySelector('[data-city-country] option[value="RU"]')).not.toBeNull();
+        });
+        const country = modal.querySelector('[data-city-country]');
+        country.value = 'RU';
+        country.dispatchEvent(new Event('change'));
+        await vi.waitFor(() => {
+            expect(modal.querySelector('[data-city-region] option[value="RU-MOW"]')).not.toBeNull();
+        });
+        const region = modal.querySelector('[data-city-region]');
+        region.value = 'RU-MOW';
+        region.dispatchEvent(new Event('change'));
+
+        const input = modal.querySelector('[data-city-autocomplete-input]');
+        input.value = 'Моск';
+        input.dispatchEvent(new Event('input'));
+        await vi.waitFor(() => {
+            expect(modal.querySelector('[role="option"]')).not.toBeNull();
+        });
+        modal.querySelector('[role="option"]').click();
+
+        expect(fetch.mock.calls[2][0]).toBe(
+            '/api/city/search?query=%D0%9C%D0%BE%D1%81%D0%BA&region=RU-MOW',
+        );
+        expect(modal.querySelector('#city-id').value).toBe('42');
+        expect(modal.cityId).toBe(42);
+    });
+
+    it('clears a selected city immediately when country changes while regions are pending', async () => {
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([
+                    {id: 7, code: 'RU', name: 'Россия'},
+                    {id: 8, code: 'KZ', name: 'Казахстан'},
+                ]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([
+                    {id: 11, iso3166: 'RU-MOW', title: 'Москва', country_code: 'RU'},
+                ]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([
+                    {id: 42, title: 'Москва', region: 'Москва', country: 'Россия'},
+                ]),
+            });
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        modal.querySelector('dialog').showModal = vi.fn();
+        modal.open({cityId: null});
+        await vi.waitFor(() => {
+            expect(modal.querySelector('[data-city-country] option[value="RU"]')).not.toBeNull();
+        });
+
+        const country = modal.querySelector('[data-city-country]');
+        country.value = 'RU';
+        country.dispatchEvent(new Event('change'));
+        await vi.waitFor(() => {
+            expect(modal.querySelector('[data-city-region] option[value="RU-MOW"]')).not.toBeNull();
+        });
+        const input = modal.querySelector('[data-city-autocomplete-input]');
+        input.value = 'Моск';
+        input.dispatchEvent(new Event('input'));
+        await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
+        modal.querySelector('[role="option"]').click();
+        modal.querySelector('#id_rating').value = '5';
+        modal.querySelector('#id_rating').dispatchEvent(new Event('input'));
+        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(false);
+
+        let resolvePendingRegions;
+        fetch.mockImplementationOnce(() => new Promise((resolve) => {
+            resolvePendingRegions = resolve;
+        }));
+        country.value = 'KZ';
+        country.dispatchEvent(new Event('change'));
+
+        expect(modal.cityId).toBeNull();
+        expect(modal.querySelector('#city-id').value).toBe('');
+        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(true);
+
+        resolvePendingRegions({
+            ok: false,
+        });
+    });
+
+    it('loads an existing visit into read-only-city edit mode', async () => {
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        const dialog = modal.querySelector('dialog');
+        dialog.showModal = vi.fn();
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+                visit: {
+                    id: 17,
+                    city: 42,
+                    city_title: 'Тверь',
+                    region_title: 'Тверская область',
+                    date_of_visit: '2026-08-05',
+                    has_magnet: true,
+                    rating: 4,
+                    impression: 'Набережная',
+                },
+            }),
+        });
+
+        await modal.openEdit(17);
+
+        expect(fetch).toHaveBeenCalledWith('/api/city/visited/17/');
+        expect(modal.querySelector('#city-title-in-modal').textContent).toBe('Тверь');
+        expect(modal.querySelector('#city-id').value).toBe('42');
+        expect(modal.querySelector('#date-of-visit').value).toBe('05.08.2026');
+        expect(modal.querySelector('#magnet-checkbox').checked).toBe(true);
+        expect(modal.querySelector('#id_rating').value).toBe('4');
+        expect(modal.querySelector('#impression').value).toBe('Набережная');
+        expect(modal.querySelector('#city-selection-fields').hidden).toBe(true);
+        expect(modal.querySelector('#btn_add-visited-city span').textContent).toBe('Сохранить');
+    });
+
+    it('opens edit mode from a delegated visit trigger', () => {
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        const openEdit = vi.spyOn(modal, 'openEdit').mockResolvedValue();
+        const trigger = document.createElement('button');
+        trigger.dataset.action = 'edit-visited-city';
+        trigger.dataset.visitedCityId = '17';
+        document.body.appendChild(trigger);
+
+        trigger.click();
+
+        expect(openEdit).toHaveBeenCalledWith(17);
     });
 
     it('syncs a clicked calendar date to the readonly input and redraws it', () => {
@@ -261,7 +453,7 @@ describe('AddCityModal visit calendar', () => {
         expect(calendar.context.selectedDates).toEqual([]);
     });
 
-    it('submits the calendar ISO date rather than the localized display value', async () => {
+    it('submits the calendar ISO date as a JSON DMR request', async () => {
         const modal = new AddCityModal();
         document.body.appendChild(modal);
         modal.close = vi.fn();
@@ -279,7 +471,15 @@ describe('AddCityModal visit calendar', () => {
 
         await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
         const request = fetch.mock.calls[0][1];
-        expect(request.body.get('date_of_visit')).toBe('2026-08-05');
+        expect(request.headers).toMatchObject({
+            'Content-Type': 'application/json',
+            'X-CSRFToken': 'csrf-token',
+        });
+        expect(JSON.parse(request.body)).toMatchObject({
+            city: '42',
+            date_of_visit: '2026-08-05',
+            has_magnet: false,
+        });
     });
 
     it('preserves the selected ISO date through reconnect for calendar state and submission', async () => {
@@ -312,7 +512,7 @@ describe('AddCityModal visit calendar', () => {
         }));
 
         await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
-        expect(fetch.mock.calls[0][1].body.get('date_of_visit')).toBe('2026-08-05');
+        expect(JSON.parse(fetch.mock.calls[0][1].body).date_of_visit).toBe('2026-08-05');
     });
 
 });

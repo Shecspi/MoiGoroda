@@ -65,13 +65,18 @@ vi.mock('../components/not_visited_clustering_control.js', () => ({
 
 describe('map_city', () => {
     let cityAddedListeners;
+    let visitedCityUpdatedListeners;
 
     beforeEach(() => {
         cityAddedListeners = [];
+        visitedCityUpdatedListeners = [];
         const addDocumentEventListener = document.addEventListener.bind(document);
         vi.spyOn(document, 'addEventListener').mockImplementation((...args) => {
             if (args[0] === 'city-added') {
                 cityAddedListeners.push(args[1]);
+            }
+            if (args[0] === 'visited-city-updated') {
+                visitedCityUpdatedListeners.push(args[1]);
             }
 
             return addDocumentEventListener(...args);
@@ -95,6 +100,9 @@ describe('map_city', () => {
     afterEach(() => {
         cityAddedListeners.forEach((listener) => {
             document.removeEventListener('city-added', listener);
+        });
+        visitedCityUpdatedListeners.forEach((listener) => {
+            document.removeEventListener('visited-city-updated', listener);
         });
         document.addEventListener.mockRestore();
         window.onload = null;
@@ -143,5 +151,21 @@ describe('map_city', () => {
         });
 
         expect(mocks.actions.removeNotVisitedMarker).toHaveBeenCalledWith(123);
+    });
+
+    it('синхронизирует маркер после обновления посещения', async () => {
+        mocks.actions.ownCities = [{id: 123, visit_years: [2025, 2026]}];
+        await initializeMapCity();
+
+        await new Promise((resolve) => {
+            mocks.actions.removeNotVisitedMarker.mockImplementationOnce(resolve);
+
+            document.dispatchEvent(new CustomEvent('visited-city-updated', {
+                detail: {city: {id: 123, name: 'Город', visit_years: [2026]}},
+            }));
+        });
+
+        expect(mocks.actions.removeNotVisitedMarker).toHaveBeenCalledWith(123);
+        expect(mocks.actions.ownCities[0].visit_years).toEqual([2026]);
     });
 });

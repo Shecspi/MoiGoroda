@@ -1,4 +1,12 @@
 {% extends 'base.html' %}
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
 {% load morphology %}
 {% load vite %}
 {% load static %}
@@ -64,6 +72,8 @@
                         <p class="mt-3 text-base font-semibold text-red-800 dark:text-red-200">
                             Нажмите
                             <a href="{% url 'city-create' %}?surface=city_list"
+                               data-action="add-city"
+                               data-surface="city_list"
                                class="text-red-600 underline underline-offset-4 hover:text-red-500 dark:text-red-300 dark:hover:text-red-200">
                                 «Добавить город»
                             </a>
@@ -83,4 +93,3 @@
     {% vite_asset 'js/entries/choices_css.js' %}
     {% vite_asset 'js/entries/city_all.js' %}
 {% endblock %}
-

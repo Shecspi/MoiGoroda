@@ -314,7 +314,10 @@ function applyVisitedCityUpdate(updatedCity) {
     }
 }
 
-document.addEventListener('city-added', (e) => {
+const synchronizeVisitedCity = (e) => {
     const { city } = e.detail;
     applyVisitedCityUpdate(city);
-});
+};
+
+document.addEventListener('city-added', synchronizeVisitedCity);
+document.addEventListener('visited-city-updated', synchronizeVisitedCity);

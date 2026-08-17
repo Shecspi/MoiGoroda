@@ -106,7 +106,7 @@ const updateVisitedCitiesBadge = () => {
     }
 };
 
-document.addEventListener('city-added', (e) => {
+const synchronizeVisitedCity = (e) => {
     const { city: updatedCity } = e.detail;
     const stored = markersByCityId.get(updatedCity.id);
     if (!stored) {
@@ -155,4 +155,7 @@ document.addEventListener('city-added', (e) => {
     if (isFirstVisit) {
         updateVisitedCitiesBadge();
     }
-});
+};
+
+document.addEventListener('city-added', synchronizeVisitedCity);
+document.addEventListener('visited-city-updated', synchronizeVisitedCity);

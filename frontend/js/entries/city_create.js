@@ -1,5 +1,13 @@
+/* ---------------------------------------------
+ *
+ * Copyright © Egor Vavilov (Shecspi)
+ * Licensed under the Apache License, Version 2.0
+ *
+ * ---------------------------------------------- */
+
 import {showDangerToast} from "../components/toast";
 import {initVisitDatePickers, setVisitDateInputValue} from "../components/visit_date_picker.js";
+import {CityCascadeSelector} from '../components/city_cascade_selector.js';
 
 /**
  * Переинициализация Preline HSSelect после изменения опций в нативном select.
@@ -7,9 +15,9 @@ import {initVisitDatePickers, setVisitDateInputValue} from "../components/visit_
  */
 function destroyHsSelect(selectId) {
     try {
-        const inst = window.HSSelect?.getInstance?.(`#${selectId}`);
-        if (inst && typeof inst.destroy === 'function') {
-            inst.destroy();
+        const instance = window.HSSelect?.getInstance?.(`#${selectId}`, true);
+        if (instance?.element && typeof instance.element.destroy === 'function') {
+            instance.element.destroy();
         }
     } catch (e) {
         // На части окружений getInstance может падать до полной инициализации реестра Preline.
@@ -47,65 +55,6 @@ function bindDateInputEmptyAppearance(input) {
     input.addEventListener('input', sync);
     input.addEventListener('change', sync);
     return sync;
-}
-
-/** Пока ждём API регионов — одна опция, поле неактивно (не показываем список прошлой страны). */
-function setRegionSelectLoading() {
-    const sel = document.getElementById('id_region');
-    if (!sel) {
-        return;
-    }
-    destroyHsSelect('id_region');
-    sel.innerHTML = '';
-    const opt = document.createElement('option');
-    opt.value = '';
-    opt.textContent = 'Загрузка...';
-    sel.appendChild(opt);
-    sel.value = '';
-    sel.disabled = true;
-    reinitHsSelectSync('id_region');
-}
-
-/**
- * @param {Array<{ id: number|string, title: string }>} regions
- * @param {{ disabled: boolean, emptyLabel?: string }} options
- */
-function setRegionSelectOptions(regions, { disabled, emptyLabel = 'Выберите регион' }) {
-    const sel = document.getElementById('id_region');
-    if (!sel) {
-        return;
-    }
-    destroyHsSelect('id_region');
-    sel.innerHTML = '';
-    const empty = document.createElement('option');
-    empty.value = '';
-    empty.textContent = emptyLabel;
-    sel.appendChild(empty);
-    regions.forEach((r) => {
-        const o = document.createElement('option');
-        o.value = String(r.id);
-        o.textContent = r.title;
-        sel.appendChild(o);
-    });
-    sel.value = '';
-    sel.disabled = disabled;
-    reinitHsSelectSync('id_region');
-}
-
-function setCitySelectLoading() {
-    const sel = document.getElementById('id_city');
-    if (!sel) {
-        return;
-    }
-    destroyHsSelect('id_city');
-    sel.innerHTML = '';
-    const opt = document.createElement('option');
-    opt.value = '';
-    opt.textContent = 'Загрузка...';
-    sel.appendChild(opt);
-    sel.value = '';
-    sel.disabled = true;
-    reinitHsSelectSync('id_city');
 }
 
 /**
@@ -177,145 +126,38 @@ function initCityCreateForm() {
         citySelect.setAttribute('required', 'required');
     }
 
-    let countryFetchController = null;
-    let regionFetchController = null;
-
-    // При изменении страны делаем запрос и обновляем регионы
-    countrySelect.addEventListener('change', async (event) => {
-        const countryId = event.target.value;
-
-        if (countryFetchController) {
-            countryFetchController.abort();
-        }
-        countryFetchController = null;
-
-        if (regionFetchController) {
-            regionFetchController.abort();
-        }
-        regionFetchController = null;
-
-        if (!countryId) {
-            setRegionSelectOptions([], { disabled: true });
-            setCitySelectOptions([], { disabled: true });
-            citySelect.removeAttribute('required');
+    countrySelect.dataset.cityCountry = '';
+    regionSelect.dataset.cityRegion = '';
+    citySelect.dataset.city = '';
+    const cascadeSelector = new CityCascadeSelector(document, {
+        onChange: validateForm,
+        onError: (error) => {
+            console.error('Ошибка при загрузке списков городов:', error);
+            showDangerToast('Ошибка', 'Не удалось загрузить список городов. Попробуйте ещё раз.');
             validateForm();
-            return;
-        }
-
-        countryFetchController = new AbortController();
-        const { signal } = countryFetchController;
-
-        setRegionSelectLoading();
-
-        try {
-            const response = await fetch(`/api/region/list?country_id=${countryId}`, { signal });
-            if (countrySelect.value !== countryId) {
-                return;
+        },
+        updateOptions: (select, items, placeholder, disabled, selectFirst) => {
+            destroyHsSelect(select.id);
+            select.replaceChildren();
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = placeholder;
+            select.appendChild(emptyOption);
+            items.forEach((item) => {
+                const option = document.createElement('option');
+                option.value = String(item.id);
+                option.textContent = item.name || item.title;
+                select.appendChild(option);
+            });
+            select.disabled = disabled;
+            select.value = selectFirst && items.length ? String(items[0].id) : '';
+            if (select === citySelect) {
+                citySelect.toggleAttribute('required', !disabled);
             }
-            if (!response.ok) throw new Error('Ошибка загрузки регионов');
-
-            const regions = await response.json();
-            if (countrySelect.value !== countryId) {
-                return;
-            }
-
-            if (regions.length === 0) {
-                setRegionSelectOptions([], { disabled: true });
-                setCitySelectLoading();
-                const cityResponse = await fetch(`/api/city/list_by_country?country_id=${countryId}`, { signal });
-                if (countrySelect.value !== countryId) {
-                    return;
-                }
-                if (!cityResponse.ok) throw new Error('Ошибка загрузки городов');
-
-                const cities = await cityResponse.json();
-                if (countrySelect.value !== countryId) {
-                    return;
-                }
-
-                if (cities.length === 0) {
-                    setCitySelectOptions([], { disabled: true });
-                    citySelect.removeAttribute('required');
-                    showDangerToast('Ошибка', 'Для выбранной страны нет городов');
-                    validateForm();
-                    return;
-                }
-
-                setCitySelectOptions(cities, { disabled: false, selectFirst: true });
-                citySelect.setAttribute('required', 'required');
-                validateForm();
-            } else {
-                setRegionSelectOptions(regions, { disabled: false });
-                setCitySelectOptions([], { disabled: true });
-                citySelect.removeAttribute('required');
-                validateForm();
-            }
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                return;
-            }
-            console.error('Ошибка при загрузке регионов:', error);
-            setRegionSelectOptions([], { disabled: true });
-            setCitySelectOptions([], { disabled: true });
-            showDangerToast('Ошибка', 'Произошла ошибка при загрузке списка регионов. Пожалуйста, перезагрузите страницу и попробуйте ещё раз.');
-            validateForm();
-        }
+            reinitHsSelectSync(select.id);
+        },
     });
-
-    regionSelect.addEventListener('change', async (event) => {
-        const regionId = event.target.value;
-
-        if (regionFetchController) {
-            regionFetchController.abort();
-        }
-        regionFetchController = null;
-
-        if (!regionId) {
-            setCitySelectOptions([], { disabled: true });
-            citySelect.removeAttribute('required');
-            validateForm();
-            return;
-        }
-
-        regionFetchController = new AbortController();
-        const { signal } = regionFetchController;
-
-        setCitySelectLoading();
-        citySelect.setAttribute('required', 'required');
-
-        try {
-            const cityResponse = await fetch(`/api/city/list_by_region?region_id=${regionId}`, { signal });
-            if (regionSelect.value !== regionId) {
-                return;
-            }
-            if (!cityResponse.ok) throw new Error('Ошибка загрузки городов');
-
-            const cities = await cityResponse.json();
-            if (regionSelect.value !== regionId) {
-                return;
-            }
-
-            if (cities.length === 0) {
-                setCitySelectOptions([], { disabled: true });
-                citySelect.removeAttribute('required');
-                showDangerToast('Ошибка', 'Для выбранного региона нет городов');
-                validateForm();
-                return;
-            }
-
-            setCitySelectOptions(cities, { disabled: false, selectFirst: true });
-            validateForm();
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                return;
-            }
-            console.error('Ошибка при загрузке городов:', error);
-            setCitySelectOptions([], { disabled: true });
-            citySelect.removeAttribute('required');
-            showDangerToast('Ошибка', 'Произошла ошибка при загрузке списка городов. Пожалуйста, попробуйте ещё раз.');
-            validateForm();
-        }
-    });
+    cascadeSelector.init({loadCountries: false, reset: false});
 
     function setTodayDate() {
         const today = new Date();
@@ -367,11 +209,18 @@ function initCityCreateForm() {
         // Проверяем количество опций в регионе (больше 1, т.к. есть пустая опция)
         const regionOptions = regionSelect?.querySelectorAll('option');
         const countryHasRegions = !isRegionDisabled && regionOptions && regionOptions.length > 1;
+        const locationIsLoading = [regionSelect, citySelect].some(
+            (select) => select?.options[0]?.textContent === 'Загрузка...',
+        );
         
         let isFormValid = true;
         
         // Страна обязательна всегда
         if (!countryValue) {
+            isFormValid = false;
+        }
+
+        if (locationIsLoading) {
             isFormValid = false;
         }
         

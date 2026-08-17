@@ -43,6 +43,20 @@
 
 - Не создавать тесты, которые проверяют только внешний вид, тексты, CSS-классы или структуру HTML интерфейса, без отдельной прямой просьбы. Для UI-задач проверять шаблон статически, сборкой frontend-ассетов и существующими функциональными тестами.
 
+## Agent skills
+
+### Issue tracker
+
+Задачи и спецификации ведутся в GitHub Issues репозитория. См. `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Используется стандартный словарь из пяти triage labels. См. `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Репозиторий использует single-context layout. См. `docs/agents/domain.md`.
+
 ## Контекст ошибок
 
 - [2026-06-21] Проблема: тесты логирования `services.cache` проверяли `caplog.text`, но логгер настроен с `propagate=False` и сообщения не попадали в `caplog` → Решение: проверять вызовы `services.cache.logger.debug` через мок вместо `caplog`.

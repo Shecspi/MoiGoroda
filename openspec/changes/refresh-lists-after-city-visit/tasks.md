@@ -37,10 +37,10 @@
 
 ## 5. Personal Collections
 
-- [ ] 5.1 Add `django-modern-rest` fragment rendering and refresh-container support for the owner's personal collection catalog at `/collection/personal`.
-- [ ] 5.2 Add `django-modern-rest` fragment rendering and refresh-container support for `/collection/personal/<uuid>/list`, including collection membership, filters, progress, empty states, and pagination.
-- [ ] 5.3 Add Django integration tests for both personal-collection fragments and verify that the public personal-collection catalog remains outside the refresh contract.
-- [ ] 5.4 Run targeted tests and present the personal-collection diff for approval before committing it.
+- [x] 5.1 Add `django-modern-rest` fragment rendering and refresh-container support for the owner's personal collection catalog at `/collection/personal`.
+- [x] 5.2 Add `django-modern-rest` fragment rendering and refresh-container support for `/collection/personal/<uuid>/list`, including collection membership, filters, progress, empty states, and pagination.
+- [x] 5.3 Add Django integration tests for both personal-collection fragments and verify that the public personal-collection catalog remains outside the refresh contract.
+- [x] 5.4 Run targeted tests and present the personal-collection diff for approval before committing it.
 
 ## 6. End-to-End Regression Verification
 

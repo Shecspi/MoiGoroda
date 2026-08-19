@@ -44,6 +44,7 @@ describe('personal_collection_status', () => {
 
   async function loadPersonalCollectionStatus() {
     await import('./personal_collection_status.js');
+    document.dispatchEvent(new Event('DOMContentLoaded'));
     window.dispatchEvent(new Event('load'));
   }
 
@@ -71,5 +72,37 @@ describe('personal_collection_status', () => {
       'Ссылка на коллекцию успешно скопирована в буфер обмена',
     );
     expect(showSuccessToast).not.toHaveBeenCalled();
+  });
+
+  it('повторно инициализирует owner controls после обновления списка без дублирования обработчика', async () => {
+    document.body.innerHTML = `
+      <section data-visited-city-refresh>
+        <input id="collection-public-status-switch" data-collection-id="collection-id" type="checkbox">
+      </section>
+    `;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({is_public: true}),
+    });
+
+    await loadPersonalCollectionStatus();
+    document.body.innerHTML = `
+      <section data-visited-city-refresh>
+        <input id="collection-public-status-switch" data-collection-id="collection-id" type="checkbox">
+      </section>
+    `;
+    const root = document.querySelector('[data-visited-city-refresh]');
+    document.dispatchEvent(new CustomEvent('visited-city-list-refreshed', {detail: {root}}));
+    document.dispatchEvent(new CustomEvent('visited-city-list-refreshed', {detail: {root}}));
+
+    const switchElement = document.getElementById('collection-public-status-switch');
+    switchElement.checked = true;
+    switchElement.dispatchEvent(new Event('change'));
+
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/collection/personal/collection-id/update-public-status',
+      expect.objectContaining({method: 'PATCH'}),
+    );
   });
 });

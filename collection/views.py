@@ -472,6 +472,12 @@ class PersonalCollectionListView(LoginRequiredMixin, ListView):  # type: ignore[
         return context
 
 
+class PersonalCollectionListFragment(PersonalCollectionListView):
+    """Возвращает обновляемые блоки каталога персональных коллекций владельца."""
+
+    template_name = 'collection/personal/collections/fragment.html'
+
+
 class PublicPersonalCollectionListView(ListView):  # type: ignore[type-arg]
     """
     View для отображения списка публичных персональных коллекций всех пользователей.
@@ -581,6 +587,15 @@ class PersonalCollectionCityListView(ListView):  # type: ignore[type-arg]
         return [
             'collection/personal/cities/list/page.html',
         ]
+
+
+class PersonalCollectionCityListFragment(PersonalCollectionCityListView):
+    """Возвращает обновляемые блоки списка городов персональной коллекции."""
+
+    template_name = 'collection/personal/cities/list/fragment.html'
+
+    def get_template_names(self) -> list[str]:
+        return [self.template_name]
 
 
 class PersonalCollectionMap(ListView):  # type: ignore[type-arg]

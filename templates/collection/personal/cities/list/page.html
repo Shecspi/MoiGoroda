@@ -45,106 +45,7 @@ Licensed under the Apache License, Version 2.0
         {% endif %}
     {% endif %}
 
-    {% include 'collection/personal/cities/list/toolbar.html' %}
-
-    <!-- Карточки с городами -->
-    {% if object_list %}
-        <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
-            {% for city in object_list %}
-                {% include 'collection/personal/cities/list/card.html' %}
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="mx-3 mb-8 flex items-center justify-center">
-            <div class="w-full max-w-2xl">
-                <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" role="alert" id="section-info_box">
-                    <p class="text-sm text-gray-600 dark:text-neutral-300">
-                        На данный момент в этой коллекции нет ни одного города
-                    </p>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-    <!-- ^^^ Карточки с городами -->
-
-    <!-- Пагинация -->
-    {% if page_obj.has_other_pages %}
-        <nav class="mx-3 mt-15 flex justify-center" aria-label="Пагинация">
-            <div class="dui-join">
-                {% if page_obj.has_previous %}
-                    <a href="?{% update_query page=1 %}"
-                       class="dui-btn dui-join-item dui-btn-sm sm:dui-btn-md"
-                       aria-label="В начало">
-                        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 19 13 12l6-7M11 19 5 12l6-7" />
-                        </svg>
-                        <span class="hidden sm:inline">В начало</span>
-                    </a>
-                    <a href="?{% update_query page=page_obj.previous_page_number %}"
-                       class="dui-btn dui-join-item dui-btn-sm sm:dui-btn-md"
-                       aria-label="Назад">
-                        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19 9 12l6-7" />
-                        </svg>
-                        <span class="hidden sm:inline">Назад</span>
-                    </a>
-                {% else %}
-                    <span class="dui-btn dui-join-item dui-btn-sm sm:dui-btn-md dui-btn-disabled" aria-disabled="true">
-                        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 19 13 12l6-7M11 19 5 12l6-7" />
-                        </svg>
-                        <span class="hidden sm:inline">В начало</span>
-                    </span>
-                    <span class="dui-btn dui-join-item dui-btn-sm sm:dui-btn-md dui-btn-disabled" aria-disabled="true">
-                        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19 9 12l6-7" />
-                        </svg>
-                        <span class="hidden sm:inline">Назад</span>
-                    </span>
-                {% endif %}
-
-                <span class="dui-btn dui-join-item dui-btn-sm sm:dui-btn-md dui-btn-active" aria-current="page">
-                    <span>
-                        <span>{{ page_obj.number }}</span>
-                        <span class="hidden sm:inline">из {{ page_obj.paginator.num_pages }}</span>
-                    </span>
-                </span>
-
-                {% if page_obj.has_next %}
-                    <a href="?{% update_query page=page_obj.next_page_number %}"
-                       class="dui-btn dui-join-item dui-btn-sm sm:dui-btn-md"
-                       aria-label="Вперёд">
-                        <span class="hidden sm:inline">Вперёд</span>
-                        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 6 7-6 7" />
-                        </svg>
-                    </a>
-                    <a href="?{% update_query page=page_obj.paginator.num_pages %}"
-                       class="dui-btn dui-join-item dui-btn-sm sm:dui-btn-md"
-                       aria-label="В конец">
-                        <span class="hidden sm:inline">В конец</span>
-                        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m5 5 6 7-6 7m8-14 6 7-6 7" />
-                        </svg>
-                    </a>
-                {% else %}
-                    <span class="dui-btn dui-join-item dui-btn-sm sm:dui-btn-md dui-btn-disabled" aria-disabled="true">
-                        <span class="hidden sm:inline">Вперёд</span>
-                        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 6 7-6 7" />
-                        </svg>
-                    </span>
-                    <span class="dui-btn dui-join-item dui-btn-sm sm:dui-btn-md dui-btn-disabled" aria-disabled="true">
-                        <span class="hidden sm:inline">В конец</span>
-                        <svg class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m5 5 6 7-6 7m8-14 6 7-6 7" />
-                        </svg>
-                    </span>
-                {% endif %}
-            </div>
-        </nav>
-    {% endif %}
-    <!-- ^^^ Пагинация -->
+    {% include 'collection/personal/cities/list/refresh.html' %}
 
     {% if not DEBUG %}
         {% if not user.is_authenticated %}
@@ -157,4 +58,5 @@ Licensed under the Apache License, Version 2.0
         {% include 'collection/personal/cities/list/modals/delete.html' %}
         {% vite_asset 'js/entries/personal_collection_status.js' %}
     {% endif %}
+    {% vite_asset 'js/entries/visited_city_list_refresh.js' %}
 {% endblock %}

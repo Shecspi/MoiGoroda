@@ -11,6 +11,8 @@ from collection import views
 from collection.fragment_api import (
     CollectionListFragmentController,
     CollectionSelectedListFragmentController,
+    PersonalCollectionCityListFragmentController,
+    PersonalCollectionListFragmentController,
 )
 
 urlpatterns = [
@@ -24,6 +26,11 @@ urlpatterns = [
         'personal',
         views.PersonalCollectionListView.as_view(),
         name='collection-personal-list-view',
+    ),
+    dmr_path(
+        'personal/fragment',
+        PersonalCollectionListFragmentController.as_view(),
+        name='collection-personal-list-fragment',
     ),
     path(
         'personal/public',
@@ -44,6 +51,11 @@ urlpatterns = [
         'personal/<uuid:pk>/list',
         views.PersonalCollectionCityListView.as_view(),
         name='collection-personal-list',
+    ),
+    dmr_path(
+        'personal/<uuid:pk>/list/fragment',
+        PersonalCollectionCityListFragmentController.as_view(),
+        name='collection-personal-city-list-fragment',
     ),
     path(
         'personal/<uuid:pk>/map',

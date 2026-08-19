@@ -26,10 +26,11 @@ const setTooltipText = (element, text) => {
     }
 };
 
-window.addEventListener('load', () => {
+export function initializePersonalCollectionStatus(root = document) {
     // Обработка изменения статуса публичности коллекции
-    const switchElement = document.getElementById('collection-public-status-switch');
-    if (switchElement) {
+    const switchElement = root.querySelector('#collection-public-status-switch');
+    if (switchElement && !switchElement.dataset.mgPersonalStatusBound) {
+        switchElement.dataset.mgPersonalStatusBound = '1';
         const collectionId = switchElement.dataset.collectionId;
         if (!collectionId) {
             console.error('Collection ID not found');
@@ -108,8 +109,9 @@ window.addEventListener('load', () => {
     }
 
     // Обработка копирования/поделиться ссылкой на коллекцию
-    const copyButton = document.getElementById('copy-collection-link-button');
-    if (copyButton) {
+    const copyButton = root.querySelector('#copy-collection-link-button');
+    if (copyButton && !copyButton.dataset.mgPersonalCopyBound) {
+        copyButton.dataset.mgPersonalCopyBound = '1';
         // Изменяем иконку и tooltip в зависимости от поддержки Web Share API
         if (navigator.share) {
             // Заменяем иконку на иконку "Поделиться"
@@ -176,13 +178,21 @@ window.addEventListener('load', () => {
     }
 
     // Обработка модального окна удаления коллекции
-    const deleteButton = document.getElementById('delete-collection-button');
+    const deleteButton = root.querySelector('#delete-collection-button');
     const deleteModal = document.getElementById('deleteCollectionModal');
     const collectionTitleInput = document.getElementById('collection-title-confirm');
     const collectionTitleDisplay = document.getElementById('collection-title-text');
     const confirmDeleteButton = document.getElementById('confirm-delete-collection-button');
 
-    if (deleteButton && deleteModal && collectionTitleInput && collectionTitleDisplay && confirmDeleteButton) {
+    if (
+        deleteButton
+        && deleteModal
+        && collectionTitleInput
+        && collectionTitleDisplay
+        && confirmDeleteButton
+        && !deleteButton.dataset.mgPersonalDeleteBound
+    ) {
+        deleteButton.dataset.mgPersonalDeleteBound = '1';
         const collectionTitle = deleteButton.dataset.collectionTitle || '';
 
         // Открытие модального окна
@@ -198,75 +208,94 @@ window.addEventListener('load', () => {
         });
 
         // При закрытии модального окна
-        deleteModal.addEventListener('close', () => {
-            // Очищаем поле ввода
-            collectionTitleInput.value = '';
-            // Делаем кнопку неактивной
-            confirmDeleteButton.disabled = true;
-        });
+        if (!deleteModal.dataset.mgPersonalDeleteCloseBound) {
+            deleteModal.dataset.mgPersonalDeleteCloseBound = '1';
+            deleteModal.addEventListener('close', () => {
+                // Очищаем поле ввода
+                collectionTitleInput.value = '';
+                // Делаем кнопку неактивной
+                confirmDeleteButton.disabled = true;
+            });
+        }
 
         // Проверка введенного названия при вводе
-        collectionTitleInput.addEventListener('input', () => {
-            const inputValue = collectionTitleInput.value.trim();
-            if (inputValue === collectionTitle) {
-                confirmDeleteButton.disabled = false;
-            } else {
-                confirmDeleteButton.disabled = true;
-            }
-        });
+        if (!collectionTitleInput.dataset.mgPersonalDeleteInputBound) {
+            collectionTitleInput.dataset.mgPersonalDeleteInputBound = '1';
+            collectionTitleInput.addEventListener('input', () => {
+                const inputValue = collectionTitleInput.value.trim();
+                if (inputValue === collectionTitle) {
+                    confirmDeleteButton.disabled = false;
+                } else {
+                    confirmDeleteButton.disabled = true;
+                }
+            });
+        }
 
         // Обработка подтверждения удаления
-        confirmDeleteButton.addEventListener('click', async () => {
-            const inputValue = collectionTitleInput.value.trim();
-            if (inputValue !== collectionTitle) {
-                return;
-            }
+        if (!confirmDeleteButton.dataset.mgPersonalDeleteConfirmBound) {
+            confirmDeleteButton.dataset.mgPersonalDeleteConfirmBound = '1';
+            confirmDeleteButton.addEventListener('click', async () => {
+                const inputValue = collectionTitleInput.value.trim();
+                if (inputValue !== collectionTitle) {
+                    return;
+                }
 
-            // Получаем ID коллекции из URL текущей страницы
-            const currentUrl = window.location.pathname;
-            const urlMatch = currentUrl.match(/\/collection\/personal\/([^\/]+)\//);
-            if (!urlMatch) {
-                showDangerToast('Ошибка', 'Не удалось определить ID коллекции');
-                return;
-            }
+                // Получаем ID коллекции из URL текущей страницы
+                const currentUrl = window.location.pathname;
+                const urlMatch = currentUrl.match(/\/collection\/personal\/([^\/]+)\//);
+                if (!urlMatch) {
+                    showDangerToast('Ошибка', 'Не удалось определить ID коллекции');
+                    return;
+                }
 
-            const collectionId = urlMatch[1];
+                const collectionId = urlMatch[1];
 
-            // Делаем кнопку неактивной во время запроса
-            confirmDeleteButton.disabled = true;
-            confirmDeleteButton.textContent = 'Удаление...';
+                // Делаем кнопку неактивной во время запроса
+                confirmDeleteButton.disabled = true;
+                confirmDeleteButton.textContent = 'Удаление...';
 
-            try {
-                const csrftoken = getCookie('csrftoken');
-                const response = await fetch(`/api/collection/personal/${collectionId}/delete`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRFToken': csrftoken,
-                        'Content-Type': 'application/json',
-                    },
-                });
+                try {
+                    const csrftoken = getCookie('csrftoken');
+                    const response = await fetch(`/api/collection/personal/${collectionId}/delete`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                            'Content-Type': 'application/json',
+                        },
+                    });
 
-                if (response.ok) {
-                    showSuccessToast('Успешно', 'Коллекция успешно удалена');
-                    // Закрываем модальное окно
-                    deleteModal.close();
-                    // Перенаправляем на страницу списка коллекций с открытой вкладкой "Персональные"
-                    window.location.href = '/collection/personal';
-                } else {
-                    const data = await response.json().catch(() => ({}));
-                    const errorMessage = data.detail || 'Не удалось удалить коллекцию';
-                    showDangerToast('Ошибка', errorMessage);
+                    if (response.ok) {
+                        showSuccessToast('Успешно', 'Коллекция успешно удалена');
+                        // Закрываем модальное окно
+                        deleteModal.close();
+                        // Перенаправляем на страницу списка коллекций с открытой вкладкой "Персональные"
+                        window.location.href = '/collection/personal';
+                    } else {
+                        const data = await response.json().catch(() => ({}));
+                        const errorMessage = data.detail || 'Не удалось удалить коллекцию';
+                        showDangerToast('Ошибка', errorMessage);
+                        // Восстанавливаем кнопку
+                        confirmDeleteButton.disabled = false;
+                        confirmDeleteButton.textContent = 'Подтвердить удаление';
+                    }
+                } catch (error) {
+                    console.error('Ошибка при удалении коллекции:', error);
+                    showDangerToast('Ошибка', 'Произошла ошибка при удалении коллекции');
                     // Восстанавливаем кнопку
                     confirmDeleteButton.disabled = false;
                     confirmDeleteButton.textContent = 'Подтвердить удаление';
                 }
-            } catch (error) {
-                console.error('Ошибка при удалении коллекции:', error);
-                showDangerToast('Ошибка', 'Произошла ошибка при удалении коллекции');
-                // Восстанавливаем кнопку
-                confirmDeleteButton.disabled = false;
-                confirmDeleteButton.textContent = 'Подтвердить удаление';
-            }
-        });
+            });
+        }
     }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initializePersonalCollectionStatus(), {once: true});
+} else {
+    initializePersonalCollectionStatus();
+}
+
+document.addEventListener('visited-city-list-refreshed', (event) => {
+    initializePersonalCollectionStatus(event.detail?.root);
 });

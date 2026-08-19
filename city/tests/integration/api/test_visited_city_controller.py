@@ -71,6 +71,7 @@ class TestVisitedCityController:
                 'impression': 'Отличная поездка',
                 'from': 'city-page',
             },
+            content_type='application/json',
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -96,6 +97,7 @@ class TestVisitedCityController:
         response = client.post(
             reverse('api__add_visited_city'),
             {'city': city.id, 'date_of_visit': '2024-01-15', 'rating': 5},
+            content_type='application/json',
         )
 
         assert response.status_code == status.HTTP_409_CONFLICT

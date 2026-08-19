@@ -44,7 +44,7 @@
 
 ## 6. End-to-End Regression Verification
 
-- [ ] 6.1 Verify new and repeat visit creation across every supported list surface, including an active filter and an empty-state transition.
-- [ ] 6.2 Verify fragment error handling retains existing DOM and directs the user to manually refresh the page.
-- [ ] 6.3 Verify maps and city-detail visit history retain their existing local synchronization behavior.
-- [ ] 6.4 Run the full relevant backend/frontend test suites and required frontend build or static checks; present any resulting fixes for approval before committing them.
+- [x] 6.1 Verify new and repeat visit creation across every supported list surface, including an active filter and an empty-state transition.
+- [x] 6.2 Verify fragment error handling retains existing DOM and directs the user to manually refresh the page.
+- [x] 6.3 Verify maps and city-detail visit history retain their existing local synchronization behavior.
+- [x] 6.4 Run the full relevant backend/frontend test suites and required frontend build or static checks; present any resulting fixes for approval before committing them.

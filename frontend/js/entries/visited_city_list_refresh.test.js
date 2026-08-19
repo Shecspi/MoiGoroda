@@ -93,23 +93,81 @@ describe('visited_city_list_refresh', () => {
         );
     });
 
-    it('refreshes after a repeat visit', async () => {
-        document.body.innerHTML = '<section data-visited-city-refresh data-fragment-url="/collection/1/list/fragment">Старый список</section>';
-        fetch.mockResolvedValue({
-            ok: true,
-            text: vi.fn().mockResolvedValue(
-                '<section data-visited-city-refresh data-fragment-url="/collection/1/list/fragment">Новый список</section>',
-            ),
+    it.each([
+        '/city/all/list/fragment',
+        '/region/1/list/fragment',
+        '/region/all/list/fragment',
+        '/collection/fragment',
+        '/collection/1/list/fragment',
+        '/collection/personal/fragment',
+        '/collection/personal/00000000-0000-0000-0000-000000000001/list/fragment',
+    ])('refreshes %s after new and repeat visits', async (fragmentUrl) => {
+        window.history.replaceState({}, '', '/city/all/list?filter=not_visited');
+        document.body.innerHTML = `<section data-visited-city-refresh data-fragment-url="${fragmentUrl}">Старый список</section>`;
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                text: vi.fn().mockResolvedValue(
+                    `<section data-visited-city-refresh data-fragment-url="${fragmentUrl}">После нового посещения</section>`,
+                ),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                text: vi.fn().mockResolvedValue(
+                    `<section data-visited-city-refresh data-fragment-url="${fragmentUrl}">После повторного посещения</section>`,
+                ),
+            });
+
+        document.dispatchEvent(new CustomEvent('city-added', {
+            cancelable: true,
+            detail: {city: {name: 'Новый город'}},
+        }));
+        await vi.waitFor(() => {
+            expect(document.querySelector('[data-visited-city-refresh]').textContent).toContain('После нового посещения');
         });
 
         document.dispatchEvent(new CustomEvent('city-added', {
             cancelable: true,
-            detail: {city: {name: 'Повторный город', number_of_visits: 2}},
+            detail: {city: {name: 'Новый город', number_of_visits: 2}},
+        }));
+        await vi.waitFor(() => {
+            expect(document.querySelector('[data-visited-city-refresh]').textContent).toContain('После повторного посещения');
+        });
+
+        expect(fetch).toHaveBeenNthCalledWith(
+            1,
+            `${window.location.origin}${fragmentUrl}?filter=not_visited`,
+        );
+        expect(fetch).toHaveBeenNthCalledWith(
+            2,
+            `${window.location.origin}${fragmentUrl}?filter=not_visited`,
+        );
+    });
+
+    it('replaces the empty state with refreshed results', async () => {
+        document.body.innerHTML = `
+            <section data-visited-city-refresh data-fragment-url="/collection/personal/1/list/fragment">
+                <p>В этой коллекции пока нет городов</p>
+            </section>
+        `;
+        fetch.mockResolvedValue({
+            ok: true,
+            text: vi.fn().mockResolvedValue(`
+                <section data-visited-city-refresh data-fragment-url="/collection/personal/1/list/fragment">
+                    <article>Посещённый город</article>
+                </section>
+            `),
+        });
+
+        document.dispatchEvent(new CustomEvent('city-added', {
+            cancelable: true,
+            detail: {city: {name: 'Новый город'}},
         }));
 
         await vi.waitFor(() => {
-            expect(document.querySelector('[data-visited-city-refresh]').textContent).toContain('Новый список');
+            expect(document.querySelector('[data-visited-city-refresh]').textContent).toContain('Посещённый город');
         });
+        expect(document.body.textContent).not.toContain('В этой коллекции пока нет городов');
     });
 
     it('reinitializes controls after replacing the refresh container', async () => {

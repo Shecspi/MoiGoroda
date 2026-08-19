@@ -320,6 +320,21 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
         return []
 
 
+class CollectionListFragment(CollectionList):
+    """Возвращает обновляемые блоки каталога тематических коллекций."""
+
+    template_name = 'collection/list/fragment.html'
+
+
+class CollectionSelectedListFragment(CollectionSelected_List):
+    """Возвращает обновляемые блоки списка городов тематической коллекции."""
+
+    template_name = 'collection/selected/list/fragment.html'
+
+    def get_template_names(self) -> list[str]:
+        return [self.template_name]
+
+
 def get_url_params(filter_value: str | None) -> str:
     """
     Возвращает строку, пригодную для использования в URL-адресе после знака '?' с параметрами 'filter' и 'sort'

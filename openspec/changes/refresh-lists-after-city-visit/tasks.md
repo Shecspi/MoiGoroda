@@ -26,14 +26,14 @@
 - [x] 3.1 Add `django-modern-rest` fragment rendering and refresh-container support for `/region/<id>/list`, including status, progress, filters, pagination, and timeline data.
 - [x] 3.2 Add `django-modern-rest` fragment rendering and refresh-container support for `/region/all/list`, including country-specific regional progress.
 - [x] 3.3 Add Django integration tests for both region fragments and their query parameters.
-- [ ] 3.4 Run targeted tests and present the region-list diff for approval before committing it.
+- [x] 3.4 Run targeted tests and present the region-list diff for approval before committing it.
 
 ## 4. Thematic Collections
 
-- [ ] 4.1 Add `django-modern-rest` fragment rendering and refresh-container support for the thematic collection catalog at `/collection/`, including collection-card progress and previews.
-- [ ] 4.2 Add `django-modern-rest` fragment rendering and refresh-container support for `/collection/<id>/list`, including city status, filters, progress, pagination, and timeline data.
-- [ ] 4.3 Add Django integration tests for both thematic-collection fragments.
-- [ ] 4.4 Run targeted tests and present the thematic-collection diff for approval before committing it.
+- [x] 4.1 Add `django-modern-rest` fragment rendering and refresh-container support for the thematic collection catalog at `/collection/`, including collection-card progress and previews.
+- [x] 4.2 Add `django-modern-rest` fragment rendering and refresh-container support for `/collection/<id>/list`, including city status, filters, progress, pagination, and timeline data.
+- [x] 4.3 Add Django integration tests for both thematic-collection fragments.
+- [x] 4.4 Run targeted tests and present the thematic-collection diff for approval before committing it.
 
 ## 5. Personal Collections
 

@@ -1,0 +1,38 @@
+{% comment %}
+    ---------------------------------------------
+
+    Copyright © Egor Vavilov (Shecspi)
+    Licensed under the Apache License, Version 2.0
+
+    ----------------------------------------------
+{% endcomment %}
+
+<section data-visited-city-refresh data-fragment-url="{% url 'collection-list-fragment' %}">
+    {% if object_list %}
+        <div class="mx-3 mb-6 flex justify-center relative z-40" id="toolbar">
+            <div class="w-full max-w-xl">
+                {% include "components/ui/combobox_remote.html" with combobox_id="collection-search-combobox" input_id="collection-search" hidden_name="collection_search_id" placeholder="Начните вводить название коллекции..." show_leading_icon=True input_class="mg-input mg-input-default" source_url="/api/collection/search" value_key="id" label_key="title" min_chars="1" max_items="20" debounce="300" loading_text="Загрузка..." empty_text="Ничего не найдено" listbox_class="!z-50" %}
+            </div>
+        </div>
+
+        <div id="search-overlay" class="fixed inset-0 z-30 bg-gray-900/40 opacity-0 pointer-events-none transition-opacity duration-200"></div>
+
+        <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="collection-list-results">
+            {% for collection in object_list %}
+                {% include 'collection/list/card.html' %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="mx-3 mb-8 flex items-center justify-center" id="collection-list-results">
+            <div class="w-full max-w-2xl">
+                <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" role="alert">
+                    <p class="text-sm text-gray-600 dark:text-neutral-300">
+                        На данный момент в сервисе нет ни одной коллекции городов.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% include 'parts/pagination.html' %}
+</section>

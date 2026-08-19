@@ -1,17 +1,25 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 from django.urls import path
+from dmr.routing import path as dmr_path
 from collection import views
+from collection.fragment_api import (
+    CollectionListFragmentController,
+    CollectionSelectedListFragmentController,
+)
 
 urlpatterns = [
     path('', views.CollectionList.as_view(), name='collection-list'),
+    dmr_path(
+        'fragment',
+        CollectionListFragmentController.as_view(),
+        name='collection-list-fragment',
+    ),
     path(
         'personal',
         views.PersonalCollectionListView.as_view(),
@@ -46,6 +54,11 @@ urlpatterns = [
         '<int:pk>/list',
         views.CollectionSelected_List.as_view(list_or_map='list'),
         name='collection-detail-list',
+    ),
+    dmr_path(
+        '<int:pk>/list/fragment',
+        CollectionSelectedListFragmentController.as_view(),
+        name='collection-detail-list-fragment',
     ),
     path(
         '<int:pk>/map',

@@ -1,0 +1,34 @@
+{% comment %}
+    ---------------------------------------------
+
+    Copyright © Egor Vavilov (Shecspi)
+    Licensed under the Apache License, Version 2.0
+
+    ----------------------------------------------
+{% endcomment %}
+
+<section data-visited-city-refresh data-fragment-url="{% url 'collection-detail-list-fragment' pk %}">
+    {% include 'collection/selected/list/toolbar.html' %}
+
+    <div id="collection-selected-list-results">
+        {% if object_list %}
+            <div class="mx-3 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="list-content">
+                {% for city in object_list %}
+                    {% include 'collection/selected/card.html' %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="mx-3 mb-8 flex items-center justify-center">
+                <div class="w-full max-w-2xl">
+                    <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center shadow-sm dark:border-neutral-700 dark:bg-neutral-900" role="alert" id="section-info_box">
+                        <p class="text-sm text-gray-600 dark:text-neutral-300">
+                            На данный момент в этой коллекции нет ни одного города
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {% include 'parts/pagination.html' %}
+</section>

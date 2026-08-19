@@ -1,0 +1,15 @@
+{% comment %}
+    ---------------------------------------------
+
+    Copyright © Egor Vavilov (Shecspi)
+    Licensed under the Apache License, Version 2.0
+
+    ----------------------------------------------
+{% endcomment %}
+
+{% load morphology %}
+
+<section data-visited-city-refresh data-fragment-url="{% url 'region-all-list-fragment' %}">
+    {% include 'region/all/list/toolbar.html' %}
+    {% include 'region/all/list/results.html' %}
+</section>

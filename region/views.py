@@ -203,6 +203,7 @@ class CitiesByRegionList(ListView):
     """
 
     model = VisitedCity
+    paginate_by = 16
 
     sort: str = ''
     filter: str | None = None
@@ -491,6 +492,24 @@ class CitiesByRegionList(ListView):
             else 'region/selected/list/page.html'
         )
         return [template_name]
+
+
+class RegionListFragment(RegionList):
+    """Возвращает обновляемые блоки списка регионов страны."""
+
+    template_name = 'region/all/list/fragment.html'
+
+    def get_template_names(self) -> list[str]:
+        return [self.template_name]
+
+
+class CitiesByRegionListFragment(CitiesByRegionList):
+    """Возвращает обновляемые блоки списка городов выбранного региона."""
+
+    template_name = 'region/selected/list/fragment.html'
+
+    def get_template_names(self) -> list[str]:
+        return [self.template_name]
 
 
 class RegionShareView(LoginRequiredMixin, View):

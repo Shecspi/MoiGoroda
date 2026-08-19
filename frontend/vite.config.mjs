@@ -79,6 +79,7 @@ export default defineConfig({
         ui_core: path.resolve(entriesDir, 'ui_core.js'),
         premium_promo_modal: path.resolve(entriesDir, 'premium_promo_modal.js'),
         add_city_modal: path.resolve(entriesDir, 'add_city_modal.js'),
+        visited_city_list_refresh: path.resolve(entriesDir, 'visited_city_list_refresh.js'),
         geo_polygons: path.resolve(entriesDir, 'geo_polygons.js'),
         
         // CSS entries

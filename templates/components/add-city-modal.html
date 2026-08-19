@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0
 <template id="add-city-modal-template">
     <dialog class="dui-modal" id="addCityModal">
         <div class="dui-modal-box max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-            <h3 class="font-bold text-lg text-primary mb-4" id="addCityModalLabel">
+            <h3 class="font-bold text-lg text-base-content mb-4" id="addCityModalLabel">
                 Добавить посещённый город
             </h3>
 
@@ -33,7 +33,7 @@ Licensed under the Apache License, Version 2.0
                                 <label class="dui-label mb-2" for="add-city-country">
                                     <span class="dui-label-text font-semibold text-base-content">Страна</span>
                                 </label>
-                                <select class="dui-select dui-select-bordered dui-select-primary w-full"
+                                <select class="dui-select dui-select-bordered w-full"
                                         id="add-city-country"
                                         data-city-country>
                                     <option value="">Выберите страну</option>
@@ -43,7 +43,7 @@ Licensed under the Apache License, Version 2.0
                                 <label class="dui-label mb-2" for="add-city-region">
                                     <span class="dui-label-text font-semibold text-base-content">Регион</span>
                                 </label>
-                                <select class="dui-select dui-select-bordered dui-select-primary w-full"
+                                <select class="dui-select dui-select-bordered w-full"
                                         id="add-city-region"
                                         data-city-region
                                         disabled>
@@ -56,7 +56,7 @@ Licensed under the Apache License, Version 2.0
                                 <span class="dui-label-text font-semibold text-base-content">Город</span>
                             </label>
                             <div class="relative" data-city-autocomplete>
-                                <input class="dui-input dui-input-bordered dui-input-primary w-full pr-10"
+                                <input class="dui-input dui-input-bordered w-full pr-10"
                                        id="add-city-city"
                                        data-city-autocomplete-input
                                        type="search"
@@ -84,22 +84,22 @@ Licensed under the Apache License, Version 2.0
                             <span class="dui-label-text font-semibold text-base-content">Дата посещения</span>
                         </label>
                         <div class="relative">
-                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <div class="dui-join w-full">
                                 <input type="text"
                                        id="date-of-visit"
                                        name="date_of_visit"
-                                       class="dui-input dui-input-bordered dui-input-primary w-full sm:flex-1"
+                                       class="dui-input dui-input-bordered dui-join-item min-w-0 flex-1"
                                        placeholder="Выберите дату"
                                        autocomplete="off"
                                        readonly>
                                 <button type="button"
                                         id="today-button"
-                                         class="dui-btn dui-btn-sm dui-btn-primary dui-btn-outline w-full sm:w-auto">
+                                        class="dui-btn dui-join-item">
                                     Сегодня
                                 </button>
                                 <button type="button"
                                         id="yesterday-button"
-                                         class="dui-btn dui-btn-sm dui-btn-accent dui-btn-outline w-full sm:w-auto">
+                                        class="dui-btn dui-join-item">
                                     Вчера
                                 </button>
                             </div>
@@ -157,7 +157,7 @@ Licensed under the Apache License, Version 2.0
                         <label class="dui-label mb-2">
                             <span class="dui-label-text font-semibold text-base-content">Впечатления о городе</span>
                         </label>
-                        <textarea class="dui-textarea dui-textarea-bordered dui-textarea-primary w-full"
+                        <textarea class="dui-textarea dui-textarea-bordered w-full"
                                   id="impression"
                                   name="impression"
                                   rows="4"

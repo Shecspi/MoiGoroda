@@ -77,24 +77,43 @@ def test_add_city_modal_field_titles_have_space_before_content() -> None:
 
 
 @pytest.mark.unit
-def test_add_city_modal_quick_date_buttons_are_colorful_and_distinct() -> None:
+def test_add_city_modal_uses_neutral_controls_and_joined_date_shortcuts() -> None:
     html = render_to_string('components/add-city-modal.html')
     soup = BeautifulSoup(html, 'html.parser')
 
+    modal_title = soup.find('h3', {'id': 'addCityModalLabel'})
+    assert isinstance(modal_title, Tag)
+    assert 'text-base-content' in class_names(modal_title)
+    assert 'text-primary' not in class_names(modal_title)
+
+    form_controls = soup.select(
+        '#form-add-city select, #form-add-city #add-city-city, '
+        '#form-add-city #date-of-visit, #form-add-city #impression'
+    )
+    assert form_controls
+    for control in form_controls:
+        assert 'dui-select-primary' not in class_names(control)
+        assert 'dui-input-primary' not in class_names(control)
+        assert 'dui-textarea-primary' not in class_names(control)
+
+    date_input = soup.find('input', {'id': 'date-of-visit'})
     today_button = soup.find('button', {'id': 'today-button'})
     yesterday_button = soup.find('button', {'id': 'yesterday-button'})
 
+    assert isinstance(date_input, Tag)
     assert isinstance(today_button, Tag)
     assert isinstance(yesterday_button, Tag)
 
-    today_classes = class_names(today_button)
-    yesterday_classes = class_names(yesterday_button)
+    date_join = date_input.find_parent(class_='dui-join')
+    assert isinstance(date_join, Tag)
+    assert date_join is today_button.find_parent(class_='dui-join')
+    assert date_join is yesterday_button.find_parent(class_='dui-join')
 
-    assert 'dui-btn-neutral' not in today_classes
-    assert 'dui-btn-neutral' not in yesterday_classes
-    assert 'dui-btn-primary' in today_classes
-    assert 'dui-btn-accent' in yesterday_classes
-    assert today_classes != yesterday_classes
+    for control in (date_input, today_button, yesterday_button):
+        classes = class_names(control)
+        assert 'dui-join-item' in classes
+        assert 'dui-btn-primary' not in classes
+        assert 'dui-btn-accent' not in classes
 
 
 @pytest.mark.unit

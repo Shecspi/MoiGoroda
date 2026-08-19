@@ -5,7 +5,7 @@
 //
 // ----------------------------------------------
 
-document.addEventListener('DOMContentLoaded', () => {
+export function initTimelineModals(root = document) {
     function scrollToFirstVisibleVisitedItem(modal) {
         const scrollContainer = modal.querySelector('[data-timeline-scroll-container]');
         const firstVisitedItem = modal.querySelector(
@@ -36,7 +36,11 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(() => scrollToFirstVisibleVisitedItem(modal));
     }
 
-    document.querySelectorAll('[data-timeline-year-filter-form]').forEach((filterForm) => {
+    root.querySelectorAll('[data-timeline-year-filter-form]').forEach((filterForm) => {
+        if (filterForm.dataset.mgTimelineBound) {
+            return;
+        }
+        filterForm.dataset.mgTimelineBound = '1';
         filterForm.addEventListener('change', () => {
             const modal = filterForm.closest('dialog');
 
@@ -54,7 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.querySelectorAll('[data-timeline-modal-trigger]').forEach((trigger) => {
+    root.querySelectorAll('[data-timeline-modal-trigger]').forEach((trigger) => {
+        if (trigger.dataset.mgTimelineBound) {
+            return;
+        }
+        trigger.dataset.mgTimelineBound = '1';
         trigger.addEventListener('click', () => {
             const modalId = trigger.dataset.timelineModalTrigger;
             const modal = document.getElementById(modalId);
@@ -70,4 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initTimelineModals());
+} else {
+    initTimelineModals();
+}
+
+document.addEventListener('visited-city-list-refreshed', (event) => {
+    initTimelineModals(event.detail?.root);
 });

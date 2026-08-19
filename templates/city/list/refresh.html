@@ -7,4 +7,9 @@ Licensed under the Apache License, Version 2.0
 ----------------------------------------------
 {% endcomment %}
 
-{% include 'city/list/refresh.html' %}
+{% load morphology %}
+
+<section data-visited-city-refresh data-fragment-url="{% url 'city-all-list-fragment' %}">
+    {% include 'city/list/toolbar.html' %}
+    {% include 'city/list/results.html' %}
+</section>

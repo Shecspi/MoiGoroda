@@ -11,6 +11,7 @@ from datetime import date
 from typing import Any
 
 import pytest
+from bs4 import BeautifulSoup
 from django.test import Client
 from django.urls import reverse
 
@@ -55,22 +56,25 @@ class TestVisitedCityListFragment:
         )
 
         content = response.content.decode()
+        document = BeautifulSoup(content, 'html.parser')
+        results = document.select_one('#city-list-results')
         assert response.status_code == 200
-        assert 'Город 00' in content
-        assert 'Город 24' not in content
-        assert 'Старый город' not in content
+        assert results is not None
+        assert 'Город 00' in results.get_text()
+        assert 'Город 24' not in results.get_text()
+        assert 'Старый город' not in results.get_text()
+        assert 'data-visited-city-refresh' in content
         assert 'city-list-results' in content
-        assert 'toolbar-stats' in content
+        assert 'id="toolbar"' in content
         assert 'городов' in content
         assert '<html' not in content
-        assert 'id="toolbar"' not in content
+        assert content.count('data-visited-city-refresh') == 1
 
-    def test_guest_is_redirected_to_login(self, client: Client) -> None:
+    def test_guest_gets_forbidden_response(self, client: Client) -> None:
         """Фрагмент недоступен неаутентифицированному пользователю."""
         response = client.get(reverse('city-all-list-fragment'))
 
-        assert response.status_code == 302
-        assert response.url.startswith('/account/signin')  # type: ignore[attr-defined]
+        assert response.status_code == 403
 
     def test_empty_selected_country_results_render_morphology_filters(
         self, client: Client, django_user_model: Any

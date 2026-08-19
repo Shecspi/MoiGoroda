@@ -6,7 +6,9 @@
 # ----------------------------------------------
 
 from django.urls import path
+from dmr.routing import path as dmr_path
 from city import views
+from city.api.fragments import VisitedCityListFragmentController
 from city.repository.city_repository import CityRepository
 from city.repository.visited_city_repository import VisitedCityRepository
 from city.services.visited_city_service import VisitedCityService
@@ -14,9 +16,9 @@ from city.services.visited_city_service import VisitedCityService
 urlpatterns = [
     # Списки с городами
     path('all/list', views.VisitedCity_List.as_view(), name='city-all-list'),
-    path(
+    dmr_path(
         'all/list/fragment',
-        views.VisitedCityListFragment.as_view(),
+        VisitedCityListFragmentController.as_view(),
         name='city-all-list-fragment',
     ),
     path('all/map', views.VisitedCity_Map.as_view(), name='city-all-map'),

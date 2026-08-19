@@ -46,6 +46,7 @@ describe('visited_city_list_refresh', () => {
         document.addEventListener.mockRestore();
         vi.restoreAllMocks();
         vi.unstubAllGlobals();
+        delete window.MGUi;
     });
 
     it('does nothing when the page has no refresh container', () => {
@@ -109,6 +110,35 @@ describe('visited_city_list_refresh', () => {
         await vi.waitFor(() => {
             expect(document.querySelector('[data-visited-city-refresh]').textContent).toContain('Новый список');
         });
+    });
+
+    it('reinitializes controls after replacing the refresh container', async () => {
+        document.body.innerHTML = '<section data-visited-city-refresh data-fragment-url="/city/all/list/fragment">Старый список</section>';
+        window.MGUi = {
+            destroyAll: vi.fn(),
+            initAll: vi.fn(),
+        };
+        const refreshed = vi.fn();
+        document.addEventListener('visited-city-list-refreshed', refreshed);
+        fetch.mockResolvedValue({
+            ok: true,
+            text: vi.fn().mockResolvedValue(
+                '<section data-visited-city-refresh data-fragment-url="/city/all/list/fragment">Новый список</section>',
+            ),
+        });
+
+        const previousContainer = document.querySelector('[data-visited-city-refresh]');
+        document.dispatchEvent(new CustomEvent('city-added', {cancelable: true}));
+
+        await vi.waitFor(() => expect(refreshed).toHaveBeenCalledOnce());
+
+        const updatedContainer = document.querySelector('[data-visited-city-refresh]');
+        expect(window.MGUi.destroyAll).toHaveBeenCalledWith(previousContainer);
+        expect(window.MGUi.initAll).toHaveBeenCalledWith(updatedContainer);
+        expect(refreshed).toHaveBeenCalledWith(expect.objectContaining({
+            detail: {root: updatedContainer},
+        }));
+        document.removeEventListener('visited-city-list-refreshed', refreshed);
     });
 
     it('keeps the current container when the fragment request fails', async () => {

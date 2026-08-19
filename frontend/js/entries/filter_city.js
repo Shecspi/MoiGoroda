@@ -1,5 +1,22 @@
+// ---------------------------------------------
+//
+// Copyright © Egor Vavilov (Shecspi)
+// Licensed under the Apache License, Version 2.0
+//
+// ----------------------------------------------
+
 // Управление панелью фильтрации
-document.addEventListener('DOMContentLoaded', function () {
+function onCityListReady(init) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, {once: true});
+    } else {
+        init();
+    }
+
+    document.addEventListener('visited-city-list-refreshed', init);
+}
+
+onCityListReady(function () {
     const openBtn = document.getElementById('btnOpenFilterSortPanel');
     const offcanvas = document.getElementById('offcanvasRight');
     const backdrop = document.querySelector('[data-hs-overlay-backdrop="#offcanvasRight"]');
@@ -45,16 +62,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Закрытие по Escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && offcanvas?.classList.contains('translate-x-0')) {
-            closeOffcanvas();
-        }
-    });
+});
+
+document.addEventListener('keydown', function(e) {
+    const offcanvas = document.getElementById('offcanvasRight');
+    const backdrop = document.querySelector('[data-hs-overlay-backdrop="#offcanvasRight"]');
+    if (e.key !== 'Escape' || !offcanvas?.classList.contains('translate-x-0') || !backdrop) {
+        return;
+    }
+
+    offcanvas.classList.remove('translate-x-0');
+    offcanvas.classList.add('translate-x-full');
+    backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+    backdrop.classList.add('opacity-0', 'pointer-events-none');
+    document.body.style.overflow = '';
 });
 
 // Управление переключателями фильтров
-document.addEventListener('DOMContentLoaded', function () {
+onCityListReady(function () {
     const filterSwitches = document.querySelectorAll('.filter-switch');
     const offcanvas = document.getElementById('offcanvasRight');
     let defaultFilter = offcanvas?.dataset.defaultFilter || '';
@@ -208,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Управление выбором типа и направления сортировки
-document.addEventListener('DOMContentLoaded', function () {
+onCityListReady(function () {
     const sortTypeSwitches = document.querySelectorAll('.sort-type-switch');
     const sortDirectionSwitch = document.querySelector('.sort-direction-switch');
     const offcanvas = document.getElementById('offcanvasRight');
@@ -402,7 +427,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Нажатие кнопки "Сбросить фильтры и сортировку"
-document.addEventListener('DOMContentLoaded', function () {
+onCityListReady(function () {
     const resetBtn = document.getElementById('resetFilters');
 
     if (resetBtn) {
@@ -459,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Нажатие кнопки "Применить фильтры и сортировку"
-document.addEventListener('DOMContentLoaded', function () {
+onCityListReady(function () {
     const applyBtn = document.getElementById('applyFilters');
     
     if (applyBtn) {
@@ -511,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Обработка переключения switch'а "Сохранить фильтр по умолчанию"
-document.addEventListener('DOMContentLoaded', function () {
+onCityListReady(function () {
     const saveFilterDefaultSwitch = document.getElementById('saveFilterDefault');
     
     if (saveFilterDefaultSwitch) {
@@ -605,7 +630,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Обработка переключения switch'а "Сохранить сортировку по умолчанию"
-document.addEventListener('DOMContentLoaded', function () {
+onCityListReady(function () {
     const saveSortDefaultSwitch = document.getElementById('saveSortDefault');
     const sortTypeSwitches = document.querySelectorAll('.sort-type-switch');
     const sortDirectionSwitch = document.querySelector('.sort-direction-switch');
@@ -749,7 +774,7 @@ window.updateFilterSortButtonState = function() {
 }
 
 // Инициализация состояния кнопки при загрузке страницы
-document.addEventListener('DOMContentLoaded', function () {
+onCityListReady(function () {
     if (window.updateFilterSortButtonState) {
         window.updateFilterSortButtonState();
     }

@@ -1,3 +1,10 @@
+// ---------------------------------------------
+//
+// Copyright © Egor Vavilov (Shecspi)
+// Licensed under the Apache License, Version 2.0
+//
+// ----------------------------------------------
+
 export async function searchCities(query, country = null) {
     if (!query) return [];
 
@@ -27,10 +34,12 @@ export async function searchCities(query, country = null) {
     }
 }
 
-export function initializeCitySearchCombobox() {
-    const comboboxRoot = document.getElementById('city-search-combobox');
+export function initializeCitySearchCombobox(root = document) {
+    const comboboxRoot = root.querySelector?.('#city-search-combobox');
     if (!comboboxRoot) return;
+    if (comboboxRoot.dataset.mgCitySearchBound) return;
 
+    comboboxRoot.dataset.mgCitySearchBound = '1';
     comboboxRoot.addEventListener('mg:combobox:select', (event) => {
         const cityId = event?.detail?.value;
         if (!cityId) return;
@@ -43,3 +52,7 @@ if (document.readyState === 'loading') {
 } else {
     initializeCitySearchCombobox();
 }
+
+document.addEventListener('visited-city-list-refreshed', (event) => {
+    initializeCitySearchCombobox(event.detail?.root);
+});

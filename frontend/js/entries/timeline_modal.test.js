@@ -98,4 +98,23 @@ describe('timeline_modal', () => {
 
         expect(scrollContainer.scrollTop).toBeGreaterThan(0);
     });
+
+    it('открывает modal, созданный после refresh lifecycle event', async () => {
+        await loadTimelineModal();
+        const root = document.createElement('section');
+        document.body.append(root);
+        root.innerHTML = `
+            <button data-timeline-modal-trigger="region-timeline-modal">Открыть</button>
+            <dialog id="region-timeline-modal"><div data-timeline-scroll-container></div></dialog>
+        `;
+        const modal = root.querySelector('#region-timeline-modal');
+        modal.showModal = vi.fn();
+
+        document.dispatchEvent(new CustomEvent('visited-city-list-refreshed', {
+            detail: {root},
+        }));
+        root.querySelector('[data-timeline-modal-trigger]').click();
+
+        expect(modal.showModal).toHaveBeenCalledOnce();
+    });
 });

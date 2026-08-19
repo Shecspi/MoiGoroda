@@ -16,10 +16,10 @@
 
 ## 2. Visited City List
 
-- [ ] 2.1 Apply the refresh-container contract to `/city/all/list` and retain its independently renderable fragment endpoint through `django-modern-rest` without introducing `django-rest-framework`.
-- [ ] 2.2 Migrate `/city/all/list` from page-specific refresh wiring to the shared entrypoint.
-- [ ] 2.3 Add or update Django integration tests for the city-list fragment, including filters, sorting, country, pagination, and template filters.
-- [ ] 2.4 Run targeted frontend and backend tests and present the city-list diff for approval before committing it.
+- [x] 2.1 Apply the refresh-container contract to `/city/all/list` and retain its independently renderable fragment endpoint through `django-modern-rest` without introducing `django-rest-framework`.
+- [x] 2.2 Migrate `/city/all/list` from page-specific refresh wiring to the shared entrypoint.
+- [x] 2.3 Add or update Django integration tests for the city-list fragment, including filters, sorting, country, pagination, and template filters.
+- [x] 2.4 Run targeted frontend and backend tests and present the city-list diff for approval before committing it.
 
 ## 3. Region Lists
 

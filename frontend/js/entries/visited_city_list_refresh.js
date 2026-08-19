@@ -30,7 +30,12 @@ async function refreshList(container) {
         throw new Error('List refresh fragment is incomplete');
     }
 
+    window.MGUi?.destroyAll(container);
     container.replaceWith(updatedContainer);
+    window.MGUi?.initAll(updatedContainer);
+    document.dispatchEvent(new CustomEvent('visited-city-list-refreshed', {
+        detail: {root: updatedContainer},
+    }));
 }
 
 document.addEventListener('city-added', async (event) => {

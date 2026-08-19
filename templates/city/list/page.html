@@ -31,10 +31,9 @@ Licensed under the Apache License, Version 2.0
     {% include 'advertisement/rtb_banner.html' %}
     {% endif %}
 
-    {% include 'city/list/toolbar.html' %}
-
-    {% include 'city/list/results.html' %}
+    {% include 'city/list/refresh.html' %}
 
     {% vite_asset 'js/entries/choices_css.js' %}
     {% vite_asset 'js/entries/city_all.js' %}
+    {% vite_asset 'js/entries/visited_city_list_refresh.js' %}
 {% endblock %}

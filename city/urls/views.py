@@ -1,11 +1,9 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 from django.urls import path
 from city import views
@@ -16,6 +14,11 @@ from city.services.visited_city_service import VisitedCityService
 urlpatterns = [
     # Списки с городами
     path('all/list', views.VisitedCity_List.as_view(), name='city-all-list'),
+    path(
+        'all/list/fragment',
+        views.VisitedCityListFragment.as_view(),
+        name='city-all-list-fragment',
+    ),
     path('all/map', views.VisitedCity_Map.as_view(), name='city-all-map'),
     path(
         '<int:pk>',

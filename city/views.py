@@ -613,6 +613,12 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
         return timeline_items
 
 
+class VisitedCityListFragment(VisitedCity_List):
+    """Возвращает обновляемые блоки списка посещённых городов."""
+
+    template_name = 'city/list/fragment.html'
+
+
 def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:
     """
     Возвращает список городов, связанных с указанным region_id,

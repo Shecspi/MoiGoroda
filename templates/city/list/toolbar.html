@@ -17,36 +17,7 @@ Licensed under the Apache License, Version 2.0
 <!-- Панель инструментов -->
 <div class="mx-3 my-3 flex flex-col items-stretch gap-3 2xl:flex-row 2xl:flex-nowrap 2xl:items-center" id="toolbar">
     <!-- Статистика -->
-    <div class="toolbar-stats flex w-full min-w-0 flex-wrap items-center gap-3 2xl:w-auto 2xl:shrink-0">
-        <span class="badge badge-soft-outline-success"
-              title="Общее количество городов, которые Вы посетили">
-            <span class="badge-dot" aria-hidden="true"></span>
-            <span>
-                Всего посещено
-                <strong>{{ qty_of_visited_cities }}</strong>
-                {{ "города"|plural_by_num:qty_of_visited_cities }}
-            </span>
-        </span>
-
-        {% if country_code %}
-            <span class="badge badge-soft-outline-info"
-                  title="Количество посещённых городов в выбранной стране">
-                <span>
-                    В {{ country_name|prepositional }}:
-                    <strong>{{ number_of_visited_cities_in_country }}</strong>
-                    из {{ number_of_cities_in_country }}
-                </span>
-            </span>
-        {% else %}
-            <span class="badge badge-soft-outline-info"
-                  title="Количество стран, в которых Вы посещали города">
-                  <span>
-                    Стран:
-                    <strong>{{ number_of_visited_countries }}</strong>
-                </span>
-            </span>
-        {% endif %}
-    </div>
+    {% include 'city/list/toolbar_stats.html' %}
 
     <!-- До 2xl: бейджи — отдельная строка; с lg: поиск+селект+кнопки в одной строке под ними. 2xl:contents — в один ряд с бейджами. -->
     <div class="toolbar-controls flex w-full min-w-0 flex-col gap-3 lg:flex-row lg:items-stretch lg:min-w-0 lg:gap-3 2xl:contents">

@@ -1,0 +1,41 @@
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+
+{% load morphology %}
+
+<div class="toolbar-stats flex w-full min-w-0 flex-wrap items-center gap-3 2xl:w-auto 2xl:shrink-0">
+    <span class="badge badge-soft-outline-success"
+          title="Общее количество городов, которые Вы посетили">
+        <span class="badge-dot" aria-hidden="true"></span>
+        <span>
+            Всего посещено
+            <strong>{{ qty_of_visited_cities }}</strong>
+            {{ "города"|plural_by_num:qty_of_visited_cities }}
+        </span>
+    </span>
+
+    {% if country_code %}
+        <span class="badge badge-soft-outline-info"
+              title="Количество посещённых городов в выбранной стране">
+            <span>
+                В {{ country_name|prepositional }}:
+                <strong>{{ number_of_visited_cities_in_country }}</strong>
+                из {{ number_of_cities_in_country }}
+            </span>
+        </span>
+    {% else %}
+        <span class="badge badge-soft-outline-info"
+              title="Количество стран, в которых Вы посещали города">
+              <span>
+                Стран:
+                <strong>{{ number_of_visited_countries }}</strong>
+              </span>
+        </span>
+    {% endif %}
+</div>

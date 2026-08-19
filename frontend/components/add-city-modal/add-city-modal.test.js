@@ -1,11 +1,9 @@
-/**
- * ---------------------------------------------
- *
- * Copyright © Egor Vavilov (Shecspi)
- * Licensed under the Apache License, Version 2.0
- *
- * ----------------------------------------------
- */
+// ---------------------------------------------
+//
+// Copyright © Egor Vavilov (Shecspi)
+// Licensed under the Apache License, Version 2.0
+//
+// ----------------------------------------------
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -33,6 +31,7 @@ vi.mock('../../js/components/toast.js', () => ({
 }));
 
 import { Calendar } from 'vanilla-calendar-pro';
+import { showSuccessToast } from '../../js/components/toast.js';
 import AddCityModal from './add-city-modal.js';
 
 const modalTemplate = `
@@ -70,6 +69,7 @@ describe('AddCityModal visit calendar', () => {
     beforeEach(() => {
         document.body.innerHTML = modalTemplate;
         Calendar.mockClear();
+        showSuccessToast.mockClear();
         vi.stubGlobal('fetch', vi.fn());
     });
 
@@ -480,6 +480,26 @@ describe('AddCityModal visit calendar', () => {
             date_of_visit: '2026-08-05',
             has_magnet: false,
         });
+    });
+
+    it('does not show a modal toast when city-added is handled by the list', async () => {
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        modal.close = vi.fn();
+        modal.addEventListener('city-added', (event) => event.preventDefault());
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue({city: {city_title: 'Тверь'}}),
+        });
+
+        modal.querySelector('#form-add-city').dispatchEvent(new Event('submit', {
+            bubbles: true,
+            cancelable: true,
+        }));
+
+        await vi.waitFor(() => expect(modal.close).toHaveBeenCalledOnce());
+
+        expect(showSuccessToast).not.toHaveBeenCalled();
     });
 
     it('preserves the selected ISO date through reconnect for calendar state and submission', async () => {

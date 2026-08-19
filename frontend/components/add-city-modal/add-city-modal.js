@@ -1,14 +1,14 @@
+// ---------------------------------------------
+//
+// Copyright © Egor Vavilov (Shecspi)
+// Licensed under the Apache License, Version 2.0
+//
+// ----------------------------------------------
+
 /**
  * Web Component для модального окна добавления посещённого города.
  * Использует Light DOM и daisyUI для стилизации.
  * HTML размещён в <template> в Django-шаблоне для подсветки синтаксиса и валидации.
- *
- * ----------------------------------------------
- *
- * Copyright © Egor Vavilov (Shecspi)
- * Licensed under the Apache License, Version 2.0
- *
- * ----------------------------------------------
  */
 
 import {City} from "../../js/components/schemas.js";
@@ -450,7 +450,6 @@ class AddCityModal extends HTMLElement {
             }
 
             this.close();
-            showSuccessToast('Успешно', `Город ${data.city.city_title} успешно добавлен как посещённый`);
             
             const city = new City();
             city.id = data.city.city;
@@ -468,14 +467,19 @@ class AddCityModal extends HTMLElement {
             
             const isAddedNewCity = city.number_of_visits === 1;
             
-            this.dispatchEvent(new CustomEvent('city-added', {
+            const cityAddedEvent = new CustomEvent('city-added', {
                 detail: {
                     city,
                     isNewCity: isAddedNewCity
                 },
                 bubbles: true,
-                composed: true
-            }));
+                cancelable: true,
+                composed: true,
+            });
+            this.dispatchEvent(cityAddedEvent);
+            if (!cityAddedEvent.defaultPrevented) {
+                showSuccessToast('Успешно', `Город ${data.city.city_title} успешно добавлен как посещённый`);
+            }
 
             this.dispatchEvent(new CustomEvent('visited-city-created', {
                 detail: {

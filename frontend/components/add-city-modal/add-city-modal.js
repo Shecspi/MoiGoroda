@@ -18,7 +18,7 @@ import {Calendar} from 'vanilla-calendar-pro';
 import 'vanilla-calendar-pro/styles/index.css';
 import {isoFromParts, isoToRuDisplay} from '../../js/components/visit_date_picker.js';
 import {CityCascadeSelector} from '../../js/components/city_cascade_selector.js';
-import {CityAutocomplete} from '../../js/components/city_autocomplete.js';
+import {CityCombobox} from './city-combobox.js';
 
 class AddCityModal extends HTMLElement {
     constructor() {
@@ -30,7 +30,7 @@ class AddCityModal extends HTMLElement {
         this.visitedCityId = null;
         this.surface = '';
         this.cityCascadeSelector = null;
-        this.cityAutocomplete = null;
+        this.cityCombobox = null;
         this.form = null;
         this.dialog = null;
         this.submitButton = null;
@@ -69,6 +69,8 @@ class AddCityModal extends HTMLElement {
         this.visitDateForReconnect = this.visitCalendar?.context.selectedDates[0] || '';
         this.visitCalendar?.destroy();
         this.visitCalendar = null;
+        this.cityCombobox?.destroy();
+        this.cityCombobox = null;
     }
 
     cloneTemplate() {
@@ -340,8 +342,8 @@ class AddCityModal extends HTMLElement {
 
     initCityCascadeSelector() {
         this.cityCascadeSelector?.destroy();
-        this.cityAutocomplete?.destroy();
-        this.cityAutocomplete = new CityAutocomplete(this, {
+        this.cityCombobox?.destroy();
+        this.cityCombobox = new CityCombobox(this, {
             onSelect: (city) => {
                 this.cityId = city ? Number(city.id) : null;
                 this.querySelector('#city-id').value = city ? String(city.id) : '';
@@ -351,15 +353,16 @@ class AddCityModal extends HTMLElement {
                 showDangerToast('Ошибка', 'Не удалось найти город. Попробуйте ещё раз.');
             },
         });
-        this.cityAutocomplete.init();
+        this.cityCombobox.init();
         this.cityCascadeSelector = new CityCascadeSelector(this, {
             locationValueMode: 'code',
             onChange: ({countryCode, regionCode}) => {
-                this.cityAutocomplete.setFilters({
+                this.cityCombobox.setFilters({
                     country: countryCode,
                     region: regionCode,
                 });
             },
+            onCitiesChange: (cities) => this.cityCombobox.setCities(cities),
             onError: () => {
                 showDangerToast('Ошибка', 'Не удалось загрузить список городов. Попробуйте ещё раз.');
             },
@@ -375,8 +378,8 @@ class AddCityModal extends HTMLElement {
         this.form.reset();
         this.cityCascadeSelector?.destroy();
         this.cityCascadeSelector = null;
-        this.cityAutocomplete?.destroy();
-        this.cityAutocomplete = null;
+        this.cityCombobox?.destroy();
+        this.cityCombobox = null;
         this.cityId = null;
         this.visitedCityId = null;
         this.surface = '';

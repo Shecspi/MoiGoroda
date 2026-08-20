@@ -55,26 +55,23 @@ Licensed under the Apache License, Version 2.0
                             <label class="dui-label mb-2" for="add-city-city">
                                 <span class="dui-label-text font-semibold text-base-content">Город</span>
                             </label>
-                            <div class="relative" data-city-autocomplete>
-                                <input class="dui-input dui-input-bordered w-full pr-10"
+                            <div class="relative" data-city-combobox>
+                                <div data-city-combobox-control>
+                                    <input class="dui-input dui-input-bordered w-full pr-10"
                                        id="add-city-city"
-                                       data-city-autocomplete-input
+                                       data-city-combobox-input
                                        type="search"
                                        placeholder="Начните вводить название города"
-                                       autocomplete="off"
-                                       role="combobox"
-                                       aria-autocomplete="list"
-                                       aria-controls="add-city-city-results"
-                                       aria-expanded="false">
+                                       autocomplete="off">
                                 <span class="dui-loading dui-loading-spinner dui-loading-sm absolute end-3 top-1/2 -translate-y-1/2"
-                                      data-city-autocomplete-loading
-                                      aria-label="Загрузка подсказок"
-                                      hidden></span>
-                                <ul class="dui-menu bg-base-100 border border-base-300 rounded-box absolute z-20 mt-2 w-full shadow-lg"
-                                    id="add-city-city-results"
-                                    data-city-autocomplete-results
-                                    role="listbox"
-                                    hidden></ul>
+                                       data-city-combobox-loading
+                                       aria-label="Загрузка подсказок"
+                                       hidden></span>
+                                </div>
+                                <div class="absolute top-full start-0 z-30 mt-2 w-full" data-city-combobox-positioner>
+                                <ul class="flex max-h-64 w-full flex-col overflow-y-auto bg-base-100 border border-base-300 rounded-box shadow-lg"
+                                    data-city-combobox-content></ul>
+                                </div>
                             </div>
                         </div>
                     </div>

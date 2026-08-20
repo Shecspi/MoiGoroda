@@ -44,10 +44,14 @@ const modalTemplate = `
                 <div id="city-selection-fields" hidden>
                     <select data-city-country></select>
                     <select data-city-region></select>
-                    <div data-city-autocomplete>
-                        <input id="add-city-city" data-city-autocomplete-input>
-                        <span data-city-autocomplete-loading hidden></span>
-                        <ul data-city-autocomplete-results hidden></ul>
+                    <div data-city-combobox>
+                        <div data-city-combobox-control>
+                            <input id="add-city-city" data-city-combobox-input>
+                            <span data-city-combobox-loading hidden></span>
+                        </div>
+                        <div data-city-combobox-positioner>
+                            <ul data-city-combobox-content></ul>
+                        </div>
                     </div>
                 </div>
                 <input id="date-of-visit" name="date_of_visit" readonly>
@@ -159,18 +163,25 @@ describe('AddCityModal visit calendar', () => {
         const region = modal.querySelector('[data-city-region]');
         region.value = 'RU-MOW';
         region.dispatchEvent(new Event('change'));
+        await vi.waitFor(() => {
+            expect(modal.querySelector('[role="option"]')).not.toBeNull();
+        });
 
-        const input = modal.querySelector('[data-city-autocomplete-input]');
+        const input = modal.querySelector('[data-city-combobox-input]');
         input.value = 'Моск';
         input.dispatchEvent(new Event('input'));
         await vi.waitFor(() => {
             expect(modal.querySelector('[role="option"]')).not.toBeNull();
         });
+        expect(input.value).toBe('Моск');
+        await vi.waitFor(() => {
+            expect(modal.querySelector('[data-city-combobox-content]').hidden).toBe(false);
+        });
         modal.querySelector('[role="option"]').click();
 
-        expect(fetch.mock.calls[2][0]).toBe(
-            '/api/city/search?query=%D0%9C%D0%BE%D1%81%D0%BA&region=RU-MOW',
-        );
+        await vi.waitFor(() => expect(modal.cityId).toBe(42));
+
+        expect(fetch.mock.calls[2][0]).toBe('/api/city/list_by_region?region_id=11');
         expect(modal.querySelector('#city-id').value).toBe('42');
         expect(modal.cityId).toBe(42);
     });
@@ -210,11 +221,12 @@ describe('AddCityModal visit calendar', () => {
         await vi.waitFor(() => {
             expect(modal.querySelector('[data-city-region] option[value="RU-MOW"]')).not.toBeNull();
         });
-        const input = modal.querySelector('[data-city-autocomplete-input]');
+        const input = modal.querySelector('[data-city-combobox-input]');
         input.value = 'Моск';
         input.dispatchEvent(new Event('input'));
         await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
         modal.querySelector('[role="option"]').click();
+        await vi.waitFor(() => expect(modal.cityId).toBe(42));
         modal.querySelector('#id_rating').value = '5';
         modal.querySelector('#id_rating').dispatchEvent(new Event('input'));
         expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(false);

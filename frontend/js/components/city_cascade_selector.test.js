@@ -222,6 +222,74 @@ describe('CityCascadeSelector', () => {
         });
     });
 
+    it('loads cities for a region into an external consumer without a city select', async () => {
+        document.querySelector('[data-city]').remove();
+        const cities = [{id: 100, title: 'Тверь', region: 'Тверская область', country: 'Россия'}];
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([{id: 1, code: 'RU', name: 'Россия'}]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([{id: 10, iso3166: 'RU-TVE', title: 'Тверская область'}]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue(cities),
+            });
+        const onCitiesChange = vi.fn();
+        const selector = new CityCascadeSelector(document.body, {
+            locationValueMode: 'code',
+            onCitiesChange,
+        });
+
+        await selector.init();
+        const country = document.querySelector('[data-city-country]');
+        country.value = 'RU';
+        country.dispatchEvent(new Event('change'));
+        await vi.waitFor(() => {
+            expect(document.querySelector('[data-city-region] option[value="RU-TVE"]')).not.toBeNull();
+        });
+        const region = document.querySelector('[data-city-region]');
+        region.value = 'RU-TVE';
+        region.dispatchEvent(new Event('change'));
+
+        await vi.waitFor(() => expect(onCitiesChange).toHaveBeenLastCalledWith(cities));
+        expect(fetch.mock.calls[2][0]).toBe('/api/city/list_by_region?region_id=10');
+    });
+
+    it('loads country cities into an external consumer when the country has no regions', async () => {
+        document.querySelector('[data-city]').remove();
+        const cities = [{id: 100, title: 'Никосия', region: null, country: 'Кипр'}];
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([{id: 1, code: 'CY', name: 'Кипр'}]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue(cities),
+            });
+        const onCitiesChange = vi.fn();
+        const selector = new CityCascadeSelector(document.body, {
+            locationValueMode: 'code',
+            onCitiesChange,
+        });
+
+        await selector.init();
+        const country = document.querySelector('[data-city-country]');
+        country.value = 'CY';
+        country.dispatchEvent(new Event('change'));
+
+        await vi.waitFor(() => expect(onCitiesChange).toHaveBeenLastCalledWith(cities));
+        expect(fetch.mock.calls[2][0]).toBe('/api/city/list_by_country?country_id=1');
+    });
+
     it('uses a country numeric ID to load cities in code mode', async () => {
         fetch
             .mockResolvedValueOnce({

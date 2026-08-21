@@ -19,6 +19,7 @@ export class CityCombobox {
         this.control = this.root?.querySelector('[data-city-combobox-control]');
         this.positioner = this.root?.querySelector('[data-city-combobox-positioner]');
         this.results = this.root?.querySelector('[data-city-combobox-content]');
+        this.clearButton = this.root?.querySelector('[data-city-combobox-clear]');
         this.loading = this.root?.querySelector('[data-city-combobox-loading]');
         this.country = '';
         this.region = '';
@@ -35,6 +36,7 @@ export class CityCombobox {
         this.propCleanups = [];
         this.boundInput = (event) => this.handleInput(event);
         this.boundInputClick = () => this.handleInputClick();
+        this.boundClear = () => this.clearInput();
     }
 
     init() {
@@ -65,6 +67,7 @@ export class CityCombobox {
         this.render();
         this.input.addEventListener('input', this.boundInput);
         this.input.addEventListener('click', this.boundInputClick);
+        this.clearButton?.addEventListener('click', this.boundClear);
     }
 
     destroy() {
@@ -75,6 +78,7 @@ export class CityCombobox {
         this.unsubscribe = null;
         this.input?.removeEventListener('input', this.boundInput);
         this.input?.removeEventListener('click', this.boundInputClick);
+        this.clearButton?.removeEventListener('click', this.boundClear);
         this.clearProps();
         this.machine?.stop();
         this.machine = null;
@@ -139,6 +143,22 @@ export class CityCombobox {
         this.items = this.filterLocalItems(this.inputValue);
         this.setCollection();
         this.getApi().setOpen(this.items.length > 0);
+    }
+
+    clearInput() {
+        this.controller?.abort();
+        this.controller = null;
+        this.requestVersion += 1;
+        this.items = [];
+        this.inputValue = '';
+        this.input.value = '';
+        this.setCollection();
+        const api = this.getApi();
+        api.clearValue();
+        api.setOpen(false);
+        this.setLoading(false);
+        this.onSelect(null);
+        this.input.focus();
     }
 
     setCities(cities) {
@@ -250,6 +270,7 @@ export class CityCombobox {
 
         this.clearProps();
         const api = this.getApi();
+        this.clearButton && (this.clearButton.hidden = !this.inputValue);
         this.propCleanups = [
             spreadProps(this.root, api.getRootProps(), this.input.id),
             spreadProps(this.control, api.getControlProps(), this.input.id),

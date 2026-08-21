@@ -57,13 +57,22 @@ Licensed under the Apache License, Version 2.0
                             </label>
                             <div class="relative" data-city-combobox>
                                 <div data-city-combobox-control>
-                                    <input class="dui-input dui-input-bordered w-full pr-10"
-                                       id="add-city-city"
-                                       data-city-combobox-input
-                                       type="search"
-                                       placeholder="Начните вводить название города"
-                                       autocomplete="off">
-                                <span class="dui-loading dui-loading-spinner dui-loading-sm absolute end-3 top-1/2 -translate-y-1/2"
+                                    <input class="dui-input dui-input-bordered w-full pr-18"
+                                        id="add-city-city"
+                                        data-city-combobox-input
+                                        type="search"
+                                        placeholder="Начните вводить название города"
+                                        autocomplete="off">
+                                    <button class="dui-btn dui-btn-ghost dui-btn-circle dui-btn-sm absolute end-2 top-1/2 -translate-y-1/2"
+                                            type="button"
+                                            data-city-combobox-clear
+                                            aria-label="Очистить название города"
+                                            hidden>
+                                        <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="m6 6 12 12M18 6 6 18" />
+                                        </svg>
+                                    </button>
+                                <span class="dui-loading dui-loading-spinner dui-loading-sm absolute end-10 top-1/2 -translate-y-1/2"
                                        data-city-combobox-loading
                                        aria-label="Загрузка подсказок"
                                        hidden></span>

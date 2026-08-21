@@ -16,6 +16,7 @@ function renderCombobox() {
         <div data-city-combobox>
             <div data-city-combobox-control>
                 <input id="add-city-city" data-city-combobox-input>
+                <button type="button" data-city-combobox-clear hidden></button>
                 <span data-city-combobox-loading hidden></span>
             </div>
             <div data-city-combobox-positioner>
@@ -59,6 +60,32 @@ describe('CityCombobox', () => {
         await vi.waitFor(() => expect(onSelect).toHaveBeenLastCalledWith(city));
         expect(input.value).toBe('Москва');
         expect(document.querySelector('[data-city-combobox-content]').hidden).toBe(true);
+    });
+
+    it('clears an open city query and keeps focus in the input', async () => {
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue([city]),
+        });
+        const cityCombobox = new CityCombobox(document);
+        cityCombobox.init();
+        const input = document.querySelector('[data-city-combobox-input]');
+        const clearButton = document.querySelector('[data-city-combobox-clear]');
+
+        input.focus();
+        input.value = 'Моск';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.waitFor(() => expect(document.querySelector('[data-city-combobox-content]').hidden).toBe(false));
+        expect(clearButton.hidden).toBe(false);
+
+        clearButton.click();
+
+        expect(input.value).toBe('');
+        await vi.waitFor(() => {
+            expect(document.querySelector('[data-city-combobox-content]').hidden).toBe(true);
+            expect(clearButton.hidden).toBe(true);
+        });
+        expect(document.activeElement).toBe(input);
     });
 
     it('selects the highlighted city with the keyboard and dismisses with Escape', async () => {

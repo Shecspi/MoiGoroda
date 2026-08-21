@@ -62,6 +62,31 @@ describe('CityCombobox', () => {
         expect(document.querySelector('[data-city-combobox-content]').hidden).toBe(true);
     });
 
+    it('shows a disabled message when a remote city search has no matches', async () => {
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue([]),
+        });
+        const onSelect = vi.fn();
+        const cityCombobox = new CityCombobox(document, {onSelect});
+        cityCombobox.init();
+        const input = document.querySelector('[data-city-combobox-input]');
+
+        input.value = 'Тула';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+
+        const emptyState = await vi.waitFor(() => {
+            const node = document.querySelector('[data-city-combobox-empty]');
+            expect(node).not.toBeNull();
+            return node;
+        });
+        expect(document.querySelector('[data-city-combobox-content]').hidden).toBe(false);
+        expect(emptyState.textContent).toContain('Города не найдены');
+        expect(emptyState.getAttribute('aria-disabled')).toBe('true');
+        expect(document.querySelector('[role="option"]')).toBeNull();
+        expect(onSelect).toHaveBeenLastCalledWith(null);
+    });
+
     it('clears an open city query and keeps focus in the input', async () => {
         fetch.mockResolvedValue({
             ok: true,

@@ -28,6 +28,7 @@ export class CityCombobox {
         this.items = [];
         this.localItems = [];
         this.hasLocalCollection = false;
+        this.hasEmptySearchResult = false;
         this.isClearingForFilters = false;
         this.inputValue = '';
         this.collection = combobox.collection({items: []});
@@ -95,6 +96,7 @@ export class CityCombobox {
         this.items = [];
         this.localItems = [];
         this.hasLocalCollection = false;
+        this.hasEmptySearchResult = false;
         if (!preserveInput) {
             this.inputValue = '';
         }
@@ -150,6 +152,7 @@ export class CityCombobox {
         this.controller = null;
         this.requestVersion += 1;
         this.items = [];
+        this.hasEmptySearchResult = false;
         this.inputValue = '';
         this.input.value = '';
         this.setCollection();
@@ -168,6 +171,7 @@ export class CityCombobox {
         this.localItems = cities.filter((city) => city?.id && city?.title);
         this.hasLocalCollection = true;
         this.items = this.filterLocalItems(this.inputValue);
+        this.hasEmptySearchResult = false;
         this.setCollection();
         this.getApi().setOpen(false);
     }
@@ -196,6 +200,7 @@ export class CityCombobox {
         this.requestVersion += 1;
         const requestVersion = this.requestVersion;
         this.items = [];
+        this.hasEmptySearchResult = false;
         this.setCollection();
 
         if (query.length < MINIMUM_QUERY_LENGTH) {
@@ -225,11 +230,13 @@ export class CityCombobox {
                 return;
             }
             this.items = cities.filter((city) => city?.id && city?.title);
+            this.hasEmptySearchResult = this.items.length === 0;
             this.setCollection();
             this.openAndHighlightResults();
         } catch (error) {
             if (error.name !== 'AbortError' && requestVersion === this.requestVersion) {
                 this.items = [];
+                this.hasEmptySearchResult = false;
                 this.setCollection();
                 this.getApi().setOpen(false);
                 this.onError(error);
@@ -254,7 +261,7 @@ export class CityCombobox {
     }
 
     openAndHighlightResults(api = this.getApi()) {
-        api.setOpen(this.items.length > 0);
+        api.setOpen(this.items.length > 0 || this.hasEmptySearchResult);
         if (this.items.length > 0) {
             this.machine.send({
                 type: 'HIGHLIGHTED_VALUE.SET',
@@ -292,6 +299,15 @@ export class CityCombobox {
 
     renderItems(api) {
         this.results.replaceChildren();
+        if (this.hasEmptySearchResult) {
+            const emptyState = document.createElement('li');
+            emptyState.className = 'cursor-default rounded-field px-3 py-2 text-sm text-base-content/70';
+            emptyState.dataset.cityComboboxEmpty = '';
+            emptyState.setAttribute('aria-disabled', 'true');
+            emptyState.textContent = 'Города не найдены';
+            this.results.append(emptyState);
+            return [];
+        }
         return this.items.map((city) => {
             const item = document.createElement('li');
             const state = api.getItemState({item: city});

@@ -88,7 +88,7 @@ describe('CityCombobox', () => {
         expect(document.activeElement).toBe(input);
     });
 
-    it('selects the highlighted city with the keyboard and dismisses with Escape', async () => {
+    it('selects the first matching city with Enter and dismisses with Escape', async () => {
         fetch.mockResolvedValue({
             ok: true,
             json: vi.fn().mockResolvedValue([city]),
@@ -102,7 +102,6 @@ describe('CityCombobox', () => {
         input.dispatchEvent(new Event('input', {bubbles: true}));
         await vi.waitFor(() => expect(document.querySelector('[role="option"]')).not.toBeNull());
 
-        input.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown', bubbles: true}));
         await vi.waitFor(() => expect(input.getAttribute('aria-activedescendant')).not.toBeNull());
         input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
         await vi.waitFor(() => expect(onSelect).toHaveBeenLastCalledWith(city));

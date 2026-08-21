@@ -55,6 +55,10 @@ When the add-city modal is opened without a predetermined city, the system SHALL
 - **WHEN** a user has not selected a region or country without regions, enters at least three non-whitespace characters in the city field, and matching cities are returned
 - **THEN** the suggestion list opens automatically and presents each matching city's title with available region and country metadata
 
+#### Scenario: Remote search returns no matching cities
+- **WHEN** a user has not selected a region or country without regions, enters at least three non-whitespace characters in the city field, and the completed remote search returns no matching cities
+- **THEN** the open suggestion list displays a message that no cities were found as a non-selectable item
+
 #### Scenario: A selected location preloads cities
 - **WHEN** a user selects a region or a country that has no regions
 - **THEN** the system loads that location's cities into the city combobox without requiring a text query
@@ -80,10 +84,22 @@ When the add-city modal is opened without a predetermined city, the system SHALL
 - **THEN** the suggestion list closes without selecting a city
 
 ### Requirement: City suggestions honour location filters
-The city combobox SHALL use the cities preloaded for a selected region or country without regions. When no such local collection is available, it SHALL query remote suggestions using the currently selected region when one is selected; otherwise it SHALL use the currently selected country. A change to either location filter SHALL invalidate the selected city.
+The city combobox SHALL use the cities preloaded for a selected region or country without regions. When no such local collection is available, it SHALL query remote suggestions using the currently selected region when one is selected; otherwise it SHALL use the currently selected country. A manual change to either location filter SHALL invalidate the selected city. Selecting a city suggestion SHALL synchronize the country and, when the selected city belongs to a region, the region filters with that city's location.
+
+#### Scenario: User selects a city without a selected location
+- **WHEN** a user selects a city suggestion while no country or region is selected
+- **THEN** the modal selects the city's country and region before retaining the city as the selected form value
+
+#### Scenario: Location synchronization keeps the selected city visible
+- **WHEN** the modal is loading the country or region required by a selected city suggestion
+- **THEN** the city field continuously displays the selected city's title without an intermediate empty value
+
+#### Scenario: User selects a city in a country without regions
+- **WHEN** a user selects a city suggestion whose country has no regions
+- **THEN** the modal selects that country, leaves the disabled region field indicating that no regions exist, and retains the selected city
 
 #### Scenario: User changes the country or region after selecting a city
-- **WHEN** a user changes the country or region after selecting a city
+- **WHEN** a user manually changes the country or region after selecting a city
 - **THEN** the city field, its selected city identifier, and its visible suggestions are cleared before new suggestions can be selected
 
 #### Scenario: A stale search completes after filters change

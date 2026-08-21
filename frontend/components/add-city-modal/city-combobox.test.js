@@ -82,8 +82,9 @@ describe('CityCombobox', () => {
         });
         expect(document.querySelector('[data-city-combobox-content]').hidden).toBe(false);
         expect(emptyState.textContent).toContain('Города не найдены');
+        expect(emptyState.getAttribute('role')).toBe('option');
         expect(emptyState.getAttribute('aria-disabled')).toBe('true');
-        expect(document.querySelector('[role="option"]')).toBeNull();
+        emptyState.click();
         expect(onSelect).toHaveBeenLastCalledWith(null);
     });
 

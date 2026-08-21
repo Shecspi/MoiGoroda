@@ -303,6 +303,7 @@ export class CityCombobox {
             const emptyState = document.createElement('li');
             emptyState.className = 'cursor-default rounded-field px-3 py-2 text-sm text-base-content/70';
             emptyState.dataset.cityComboboxEmpty = '';
+            emptyState.setAttribute('role', 'option');
             emptyState.setAttribute('aria-disabled', 'true');
             emptyState.textContent = 'Города не найдены';
             this.results.append(emptyState);

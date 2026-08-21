@@ -118,6 +118,18 @@ describe('map_city', () => {
         await window.onload();
     }
 
+    function renderVisitedCitiesCounters(total, country) {
+        document.body.innerHTML = `
+            <span>
+                Всего посещено <strong id="number_of_visited_cities">${total}</strong> ${total === 1 ? 'город' : 'города'}
+            </span>
+            <span>
+                В России <strong id="number_of_visited_cities_in_country">${country}</strong> из 100
+            </span>
+            <button id="btn_show-not-visited-cities"></button>
+        `;
+    }
+
     it('связывает контрол кластеризации с ToolbarActions', async () => {
         const control = { id: 'clustering-control' };
         const toggleResult = Promise.resolve(true);
@@ -167,5 +179,59 @@ describe('map_city', () => {
 
         expect(mocks.actions.removeNotVisitedMarker).toHaveBeenCalledWith(123);
         expect(mocks.actions.ownCities[0].visit_years).toEqual([2026]);
+    });
+
+    it('увеличивает общий и страновой счётчики для первого города выбранной страны', async () => {
+        window.history.replaceState({}, '', '/?country=RU');
+        renderVisitedCitiesCounters(0, 0);
+        await initializeMapCity();
+
+        document.dispatchEvent(new CustomEvent('city-added', {
+            detail: {
+                city: {id: 123, name: 'Москва', country_code: 'RU'},
+                isNewCity: true,
+            },
+        }));
+
+        expect(document.getElementById('number_of_visited_cities').textContent).toBe('1');
+        expect(document.getElementById('number_of_visited_cities_in_country').textContent).toBe('1');
+        expect(document.getElementById('number_of_visited_cities').parentElement.textContent.trim())
+            .toBe('Всего посещено 1 город');
+    });
+
+    it('увеличивает только общий счётчик для первого города другой страны', async () => {
+        window.history.replaceState({}, '', '/?country=RU');
+        renderVisitedCitiesCounters(1, 1);
+        await initializeMapCity();
+
+        document.dispatchEvent(new CustomEvent('city-added', {
+            detail: {
+                city: {id: 124, name: 'Минск', country_code: 'BY'},
+                isNewCity: true,
+            },
+        }));
+
+        expect(document.getElementById('number_of_visited_cities').textContent).toBe('2');
+        expect(document.getElementById('number_of_visited_cities_in_country').textContent).toBe('1');
+        expect(document.getElementById('number_of_visited_cities').parentElement.textContent.trim())
+            .toBe('Всего посещено 2 города');
+    });
+
+    it('не меняет счётчики и словоформу для повторного посещения города', async () => {
+        window.history.replaceState({}, '', '/?country=RU');
+        renderVisitedCitiesCounters(2, 1);
+        await initializeMapCity();
+
+        document.dispatchEvent(new CustomEvent('city-added', {
+            detail: {
+                city: {id: 123, name: 'Москва', country_code: 'RU'},
+                isNewCity: false,
+            },
+        }));
+
+        expect(document.getElementById('number_of_visited_cities').textContent).toBe('2');
+        expect(document.getElementById('number_of_visited_cities_in_country').textContent).toBe('1');
+        expect(document.getElementById('number_of_visited_cities').parentElement.textContent.trim())
+            .toBe('Всего посещено 2 города');
     });
 });

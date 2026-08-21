@@ -7,88 +7,47 @@
  * ----------------------------------------------
  */
 
-function formatDate(isoDate) {
-    if (!isoDate) {
-        return 'Не указана';
-    }
-    const [year, month, day] = isoDate.split('-');
-    return `${day}.${month}.${year}`;
-}
+import {showDaisyToast} from '../components/daisyui_toast.js';
 
-function createVisitCard(visit) {
-    const card = document.createElement('article');
-    card.className = 'dui-card border border-base-300 bg-base-100 shadow-sm';
-    card.dataset.visitId = String(visit.id);
-    card.innerHTML = `
-        <div class="dui-card-body gap-3 p-4">
-            <div class="flex flex-wrap items-start justify-between gap-3">
-                <div class="space-y-1">
-                    <p class="text-sm text-base-content/70">Дата посещения</p>
-                    <p class="font-medium">${formatDate(visit.date_of_visit)}</p>
-                </div>
-                <div class="dui-rating dui-rating-sm" aria-label="Оценка: ${visit.rating} из 5">
-                    ${Array.from({length: 5}, (_, index) => `<span class="dui-mask dui-mask-star-2 ${index < visit.rating ? 'bg-warning' : 'bg-base-300'}"></span>`).join('')}
-                </div>
-            </div>
-            <div class="prose prose-sm max-w-none dark:prose-invert" data-visit-impression></div>
-            <div class="dui-card-actions justify-end">
-                <button type="button" class="btn btn-ghost-danger btn-sm delete_city"
-                        data-delete_url="/city/delete/${visit.id}"
-                        data-city_title="${visit.city_title || ''}"
-                        data-hs-overlay="#deleteModal">
-                    Удалить
-                </button>
-                <button type="button" class="dui-btn dui-btn-ghost dui-btn-sm"
-                        data-action="edit-visited-city" data-visited-city-id="${visit.id}">
-                    Редактировать
-                </button>
-            </div>
-        </div>`;
-    const impression = card.querySelector('[data-visit-impression]');
-    if (visit.impression_html) {
-        impression.innerHTML = visit.impression_html;
-    } else {
-        impression.textContent = `Вы не добавили описание поездки в город ${visit.city_title || ''}`;
-    }
-    return card;
-}
+const VISITS_SELECTOR = '#user-visits';
 
-function updateVisit(visit, {incrementCount = false} = {}) {
+async function refreshVisits(visit) {
     const root = document.querySelector('#user-visits');
-    if (!root || String(visit.city) !== root.dataset.cityId) {
+    if (!root || String(visit.city) !== root.dataset.cityId || !root.dataset.fragmentUrl) {
         return;
     }
-    const list = root.querySelector('#user-visits-list');
-    if (!list) {
-        return;
-    }
-    const card = createVisitCard(visit);
-    const existing = list.querySelector(`[data-visit-id="${visit.id}"]`);
-    if (existing) {
-        const deleteButton = existing.querySelector('.delete_city');
-        if (deleteButton) {
-            card.querySelector('.dui-card-actions')?.prepend(deleteButton);
+
+    try {
+        const fragmentUrl = new URL(root.dataset.fragmentUrl, window.location.origin);
+        const response = await fetch(fragmentUrl.toString());
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        existing.replaceWith(card);
-        return;
-    }
-    list.prepend(card);
-    if (incrementCount) {
-        const count = root.querySelector('#user-visits-count');
-        count.textContent = String(Number(count.textContent || 0) + 1);
-        root.querySelector('#user-visits-empty-state')?.remove();
-        root.querySelector('#user-visits-heading')?.classList.remove('hidden');
+
+        const updatedRoot = new DOMParser()
+            .parseFromString(await response.text(), 'text/html')
+            .querySelector(VISITS_SELECTOR);
+        if (!updatedRoot || updatedRoot.dataset.cityId !== root.dataset.cityId) {
+            throw new Error('Visits refresh fragment is incomplete');
+        }
+
+        window.MGUi?.destroyAll(root);
+        root.replaceWith(updatedRoot);
+        window.MGUi?.initAll(updatedRoot);
+    } catch (error) {
+        console.error('Ошибка при обновлении посещений:', error);
+        showDaisyToast('error', 'Не удалось обновить посещения. Обновите страницу вручную.');
     }
 }
 
 document.addEventListener('visited-city-created', (event) => {
     if (event.detail.visit) {
-        updateVisit(event.detail.visit, {incrementCount: true});
+        refreshVisits(event.detail.visit);
     }
 });
 
 document.addEventListener('visited-city-updated', (event) => {
     if (event.detail.visit) {
-        updateVisit(event.detail.visit);
+        refreshVisits(event.detail.visit);
     }
 });

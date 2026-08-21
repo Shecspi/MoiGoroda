@@ -15,6 +15,7 @@ import {addExternalBorderControl, addInternalBorderControl, create_map} from "..
 import {ToolbarActions} from "../components/toolbar_actions.js";
 import {initCountrySelect} from "../components/initCountrySelect";
 import {City, MarkerStyle} from "../components/schemas.js";
+import {pluralize} from '../components/search_services.js';
 import {showDangerToast} from "../components/toast.js";
 import {
     addNotVisitedClusteringControl,
@@ -81,8 +82,11 @@ window.onload = async () => {
         }
 
         const synchronizeVisitedCity = async (e) => {
-            const { city } = e.detail;
+            const { city, isNewCity } = e.detail;
             updateVisitedCitiesData(city);
+            if (e.type === 'city-added' && isNewCity) {
+                updateVisitedCitiesProgress(city);
+            }
             
             if (city?.id && actions) {
                 actions.removeNotVisitedMarker(city.id);
@@ -311,6 +315,35 @@ function updateVisitedCitiesData(addedCity) {
         };
 
         actions.ownCities.push(newCity);
+    }
+}
+
+function updateVisitedCitiesProgress(city) {
+    const totalCounter = document.getElementById('number_of_visited_cities');
+    if (totalCounter) {
+        const total = Number.parseInt(totalCounter.textContent, 10);
+        if (!Number.isNaN(total)) {
+            const newTotal = total + 1;
+            totalCounter.textContent = String(newTotal);
+            const wordNode = totalCounter.nextSibling;
+            if (wordNode?.nodeType === Node.TEXT_NODE) {
+                wordNode.textContent = ` ${pluralize(newTotal, 'город', 'города', 'городов')}`;
+            }
+        }
+    }
+
+    if (city?.country_code !== selectedCountryCode) {
+        return;
+    }
+
+    const countryCounter = document.getElementById('number_of_visited_cities_in_country');
+    if (!countryCounter) {
+        return;
+    }
+
+    const countryTotal = Number.parseInt(countryCounter.textContent, 10);
+    if (!Number.isNaN(countryTotal)) {
+        countryCounter.textContent = String(countryTotal + 1);
     }
 }
 

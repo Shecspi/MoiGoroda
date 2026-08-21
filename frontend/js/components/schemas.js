@@ -3,6 +3,7 @@ export class City {
     name;
     region;
     country;
+    country_code;
     lat;
     lon;
     first_visit_date;

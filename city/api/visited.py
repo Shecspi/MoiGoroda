@@ -120,6 +120,7 @@ def _city_summary(city: City, user_id: int) -> dict[str, Any]:
         'title': city.title,
         'region': str(city.region) if city.region_id else None,
         'country': city.country.name,
+        'country_code': city.country.code,
         'lat': str(city.coordinate_width),
         'lon': str(city.coordinate_longitude),
         'number_of_visits': get_number_of_visits_by_city(city_id=city.id, user_id=user_id),

@@ -7,69 +7,119 @@
  * ----------------------------------------------
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+
+const mocks = vi.hoisted(() => ({
+    showDaisyToast: vi.fn(),
+}));
+
+vi.mock('../components/daisyui_toast.js', () => ({
+    showDaisyToast: mocks.showDaisyToast,
+}));
 
 describe('city_visits', () => {
-    beforeEach(() => {
+    let visitListeners;
+
+    beforeEach(async () => {
+        visitListeners = [];
+        const addDocumentEventListener = document.addEventListener.bind(document);
+        vi.spyOn(document, 'addEventListener').mockImplementation((...args) => {
+            if (['visited-city-created', 'visited-city-updated'].includes(args[0])) {
+                visitListeners.push([args[0], args[1]]);
+            }
+
+            return addDocumentEventListener(...args);
+        });
         vi.resetModules();
+        vi.clearAllMocks();
+        vi.stubGlobal('fetch', vi.fn());
+        vi.spyOn(console, 'error').mockImplementation(() => {});
         document.body.innerHTML = `
-            <section id="user-visits" data-city-id="42">
+            <section id="user-visits" data-city-id="42" data-fragment-url="/city/42/visits/fragment">
                 <strong id="user-visits-count">1</strong>
                 <div id="user-visits-list">
                     <article data-visit-id="17">Старая запись</article>
                 </div>
             </section>`;
+        await import('./city_visits.js');
     });
 
     afterEach(() => {
+        visitListeners.forEach(([type, listener]) => {
+            document.removeEventListener(type, listener);
+        });
+        document.addEventListener.mockRestore();
+        console.error.mockRestore();
+        vi.unstubAllGlobals();
+        delete window.MGUi;
         document.body.innerHTML = '';
     });
 
-    it('replaces the matching visit card after an update event', async () => {
-        await import('./city_visits.js');
+    it.each(['visited-city-created', 'visited-city-updated'])('replaces visits with the server fragment after %s for the current city', async (eventName) => {
+        window.MGUi = {
+            destroyAll: vi.fn(),
+            initAll: vi.fn(),
+        };
+        fetch.mockResolvedValue({
+            ok: true,
+            text: vi.fn().mockResolvedValue(`
+                <section id="user-visits" data-city-id="42" data-fragment-url="/city/42/visits/fragment">
+                    <strong id="user-visits-count">2</strong>
+                    <div id="user-visits-list"><article data-visit-id="18">Новая серверная запись</article></div>
+                </section>`),
+        });
+        const previousRoot = document.querySelector('#user-visits');
 
-        document.dispatchEvent(new CustomEvent('visited-city-updated', {
+        document.dispatchEvent(new CustomEvent(eventName, {
             detail: {
                 visit: {
-                    id: 17,
                     city: 42,
-                    city_title: 'Тверь',
-                    date_of_visit: '2026-08-05',
-                    rating: 4,
-                    has_magnet: true,
-                    impression_html: '<p>Набережная</p>',
                 },
             },
         }));
 
-        expect(document.querySelector('[data-visit-id="17"]').textContent).toContain('Набережная');
-        expect(document.querySelector('#user-visits-count').textContent).toBe('1');
+        await vi.waitFor(() => {
+            expect(document.querySelector('#user-visits-list').textContent).toContain('Новая серверная запись');
+        });
+
+        const updatedRoot = document.querySelector('#user-visits');
+        expect(fetch).toHaveBeenCalledWith(`${window.location.origin}/city/42/visits/fragment`);
+        expect(window.MGUi.destroyAll).toHaveBeenCalledWith(previousRoot);
+        expect(window.MGUi.initAll).toHaveBeenCalledWith(updatedRoot);
     });
 
-    it('replaces the empty state after the first created visit', async () => {
-        document.body.innerHTML = `
-            <section id="user-visits" data-city-id="42">
-                <h2 id="user-visits-heading" class="hidden"><span id="user-visits-count">0</span></h2>
-                <p id="user-visits-empty-state">Вы ещё не посетили город</p>
-                <div id="user-visits-list"></div>
-            </section>`;
-        await import('./city_visits.js');
-
+    it('does not request a fragment for another city', () => {
         document.dispatchEvent(new CustomEvent('visited-city-created', {
-            detail: {
-                visit: {
-                    id: 18,
-                    city: 42,
-                    city_title: 'Тверь',
-                    date_of_visit: '2026-08-05',
-                    rating: 4,
-                },
-            },
+            detail: {visit: {city: 7}},
         }));
 
-        expect(document.querySelector('#user-visits-empty-state')).toBeNull();
-        expect(document.querySelector('#user-visits-heading').classList.contains('hidden')).toBe(false);
-        expect(document.querySelector('#user-visits-count').textContent).toBe('1');
-        expect(document.querySelector('.delete_city')).not.toBeNull();
+        expect(fetch).not.toHaveBeenCalled();
+        expect(document.querySelector('#user-visits-list').textContent).toContain('Старая запись');
+    });
+
+    it.each([
+        {error: new Error('Network error')},
+        {response: {ok: false, status: 500}},
+        {response: {ok: true, text: vi.fn().mockResolvedValue('<main>Неполный ответ</main>')}},
+    ])('keeps the previous visits and shows an error toast when the fragment response is invalid', async ({error, response}) => {
+        const previousRoot = document.querySelector('#user-visits');
+        if (error) {
+            fetch.mockRejectedValue(error);
+        } else {
+            fetch.mockResolvedValue(response);
+        }
+
+        document.dispatchEvent(new CustomEvent('visited-city-created', {
+            detail: {visit: {city: 42}},
+        }));
+
+        await vi.waitFor(() => expect(mocks.showDaisyToast).toHaveBeenCalledOnce());
+
+        expect(document.querySelector('#user-visits')).toBe(previousRoot);
+        expect(document.querySelector('#user-visits-list').textContent).toContain('Старая запись');
+        expect(mocks.showDaisyToast).toHaveBeenCalledWith(
+            'error',
+            'Не удалось обновить посещения. Обновите страницу вручную.',
+        );
     });
 });

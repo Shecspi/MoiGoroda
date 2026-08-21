@@ -10,7 +10,9 @@ Licensed under the Apache License, Version 2.0
 
 <!-- Посещения пользователя -->
 {% if user.is_authenticated %}
-    <section id="user-visits" data-city-id="{{ city.id }}">
+    <section id="user-visits"
+             data-city-id="{{ city.id }}"
+             data-fragment-url="{% url 'city-selected-visits-fragment' city.id %}">
     {% if number_of_visits > 0 %}
         <div class="mt-8 pt-6 border-t border-layer-line dark:border-neutral-700">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">

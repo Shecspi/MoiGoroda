@@ -114,6 +114,7 @@ Licensed under the Apache License, Version 2.0
 
 <script>
     window.CITY_TITLE = "{{ city.title|escapejs }}";
+    window.CITY_ID = {{ city.id }};
     window.LAT = "{{ city.coordinate_width }}";
     window.LON = "{{ city.coordinate_longitude }}";
     window.ISO3166 = {% if city.region %}"{{ city.region.iso3166 }}"{% else %}""{% endif %}

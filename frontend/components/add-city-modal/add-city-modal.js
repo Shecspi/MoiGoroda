@@ -525,6 +525,7 @@ class AddCityModal extends HTMLElement {
             city.name = data.city.city_title;
             city.region = data.city.region_title;
             city.country = data.city.country;
+            city.country_code = data.city.country_code;
             city.lat = data.city.lat;
             city.lon = data.city.lon;
             city.number_of_visits = data.city.number_of_visits;
@@ -560,8 +561,6 @@ class AddCityModal extends HTMLElement {
                 composed: true,
             }));
             
-            this.updateToolbarCounts(isAddedNewCity);
-            
         } catch (error) {
             console.error('Ошибка при добавлении города:', error);
             
@@ -577,22 +576,6 @@ class AddCityModal extends HTMLElement {
         }
     }
 
-    updateToolbarCounts(isAddedNewCity) {
-        const numberOfVisitedCities = document.getElementById('number_of_visited_cities');
-        if (numberOfVisitedCities) {
-            const oldQty = numberOfVisitedCities.textContent;
-            const newQty = isAddedNewCity ? Number(oldQty) + 1 : oldQty;
-            numberOfVisitedCities.textContent = newQty.toString();
-        }
-        
-        if (isAddedNewCity) {
-            const numberOfVisitedCitiesInCountry = document.getElementById('number_of_visited_cities_in_country');
-            if (numberOfVisitedCitiesInCountry) {
-                const oldQty = numberOfVisitedCitiesInCountry.textContent;
-                numberOfVisitedCitiesInCountry.textContent = (Number(oldQty) + 1).toString();
-            }
-        }
-    }
 }
 
 customElements.define('add-city-modal', AddCityModal);

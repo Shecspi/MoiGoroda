@@ -1,3 +1,10 @@
+// ---------------------------------------------
+//
+// Copyright © Egor Vavilov (Shecspi)
+// Licensed under the Apache License, Version 2.0
+//
+// ----------------------------------------------
+
 import {create_map} from "../components/map";
 import {icon_blue_pin, icon_not_visited_pin, icon_visited_pin} from "../components/icons";
 import {
@@ -9,6 +16,9 @@ import {
 import L from "leaflet";
 
 let map;
+let marker;
+let cityPolygon;
+let isVisited = window.IS_VISITED;
 
 /** Стиль полигона города на странице деталей (без зелёного/красного для гостей). */
 function getCityDetailPolygonStyle() {
@@ -21,14 +31,14 @@ function getCityDetailPolygonStyle() {
             opacity: 0.8,
         };
     }
-    return getCityPolygonStyle({isVisited: window.IS_VISITED});
+    return getCityPolygonStyle({isVisited});
 }
 
 function getCityDetailMarkerIcon() {
     if (!window.IS_AUTHENTICATED) {
         return icon_blue_pin;
     }
-    return window.IS_VISITED ? icon_visited_pin : icon_not_visited_pin;
+    return isVisited ? icon_visited_pin : icon_not_visited_pin;
 }
 
 function setupDeleteModal(url, cityTitle) {
@@ -42,7 +52,7 @@ function initMap() {
 
     map = create_map();
 
-    const marker = L.marker([lat, lon], {icon: getCityDetailMarkerIcon()});
+    marker = L.marker([lat, lon], {icon: getCityDetailMarkerIcon()});
     marker.bindTooltip(window.CITY_TITLE, {
         direction: 'top',
         permanent: true,
@@ -95,7 +105,8 @@ function initMap() {
             })
             .then(geoJson => {
                 const style = getCityDetailPolygonStyle();
-                return L.geoJSON(geoJson, {style: style}).addTo(map);
+                cityPolygon = L.geoJSON(geoJson, {style: style}).addTo(map);
+                return cityPolygon;
             })
             .catch(error => {
                 console.log('Произошла ошибка при загрузке границ города:\n' + error);
@@ -120,6 +131,24 @@ function initMap() {
             map.fitBounds(L.featureGroup(fitLayers).getBounds());
         });
 }
+
+function synchronizeVisitedCity(event) {
+    const city = event.detail?.city;
+    if (!window.IS_AUTHENTICATED || city?.id !== window.CITY_ID) {
+        return;
+    }
+
+    isVisited = true;
+    if (marker) {
+        marker.setIcon(getCityDetailMarkerIcon());
+    }
+    if (cityPolygon) {
+        cityPolygon.setStyle(getCityDetailPolygonStyle());
+    }
+}
+
+document.addEventListener('city-added', synchronizeVisitedCity);
+document.addEventListener('visited-city-updated', synchronizeVisitedCity);
 
 // Перерисовываем карту при показе модального окна Preline UI
 document.addEventListener('DOMContentLoaded', () => {
@@ -151,14 +180,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Обработка клика на кнопку удаления - устанавливаем данные перед открытием модального окна
-document.querySelectorAll('.delete_city').forEach(item => {
-    item.addEventListener('click', (event) => {
-        event.preventDefault();
-        const deleteUrl = item.dataset.delete_url;
-        const cityTitle = item.dataset.city_title || window.CITY_TITLE;
-        setupDeleteModal(deleteUrl, cityTitle);
-    });
+// Делегирование сохраняет обработку кнопок в подменённом server fragment.
+document.addEventListener('click', (event) => {
+    const deleteButton = event.target.closest('.delete_city');
+    if (!deleteButton) {
+        return;
+    }
+
+    event.preventDefault();
+    const deleteUrl = deleteButton.dataset.delete_url;
+    const cityTitle = deleteButton.dataset.city_title || window.CITY_TITLE;
+    setupDeleteModal(deleteUrl, cityTitle);
 });
 
 // Также обрабатываем событие открытия модального окна Preline UI на случай, если данные не были установлены

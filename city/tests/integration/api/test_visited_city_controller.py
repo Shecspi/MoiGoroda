@@ -84,6 +84,7 @@ class TestVisitedCityController:
         assert data['city']['rating'] == 5
         assert data['city']['has_magnet'] is True
         assert data['city']['number_of_visits'] == 1
+        assert data['city']['country_code'] == 'RU'
 
     def test_post_returns_conflict_for_duplicate_visit_date(
         self, client: Client, visit_api_data: dict[str, Any]
@@ -275,6 +276,7 @@ class TestVisitedCityController:
         )
 
         assert response.status_code == status.HTTP_200_OK
+        assert response.json()['city']['country_code'] == 'RU'
         visit.refresh_from_db()
         assert visit.date_of_visit == date(2024, 2, 15)
         assert visit.rating == 5

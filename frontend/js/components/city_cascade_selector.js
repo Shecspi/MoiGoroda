@@ -245,6 +245,7 @@ export class CityCascadeSelector {
         const controller = new AbortController();
         this.regionController = controller;
         this.setOptions(this.citySelect, [], 'Загрузка...', true);
+        this.notifyChange();
         const regionId = this.getSelectedItemId(this.regionSelect);
 
         try {

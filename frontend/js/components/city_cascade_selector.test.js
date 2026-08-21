@@ -619,4 +619,23 @@ describe('CityCascadeSelector', () => {
 
         await expect(selection).resolves.toBe(false);
     });
+
+    it('notifies consumers before loading cities for a manually changed region', async () => {
+        const pendingCities = new Promise(() => {});
+        fetch.mockReturnValueOnce(pendingCities);
+        const onChange = vi.fn();
+        const selector = new CityCascadeSelector(document.body, {onChange});
+        await selector.init({loadCountries: false});
+        const region = document.querySelector('[data-city-region]');
+        region.innerHTML = '<option value="10">Москва</option>';
+        region.value = '10';
+
+        region.dispatchEvent(new Event('change'));
+
+        expect(onChange).toHaveBeenLastCalledWith({
+            countryId: '',
+            regionId: '10',
+            cityId: '',
+        });
+    });
 });

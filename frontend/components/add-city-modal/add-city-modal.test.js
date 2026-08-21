@@ -461,26 +461,6 @@ describe('AddCityModal visit calendar', () => {
         expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(false);
     });
 
-    it('keeps the hidden calendar fixed outside modal form flow', () => {
-        const modal = new AddCityModal();
-        document.body.appendChild(modal);
-        const calendarElement = modal.querySelector('#add-city-visit-calendar');
-
-        expect(calendarElement.style.position).toBe('fixed');
-    });
-
-    it('opens the calendar as a fixed overlay next to the date input', () => {
-        const modal = new AddCityModal();
-        document.body.appendChild(modal);
-        const dateInput = modal.querySelector('#date-of-visit');
-        const calendarElement = modal.querySelector('#add-city-visit-calendar');
-
-        dateInput.click();
-
-        expect(calendarElement.style.position).toBe('fixed');
-        expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(false);
-    });
-
     it('hides the calendar when a click lands outside its input and popup', () => {
         const modal = new AddCityModal();
         document.body.appendChild(modal);

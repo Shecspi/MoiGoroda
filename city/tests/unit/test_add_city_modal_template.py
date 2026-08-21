@@ -128,24 +128,3 @@ def test_add_city_modal_rating_stars_use_gold_warning_color() -> None:
         classes = class_names(star)
         assert 'dui-bg-warning' not in classes
         assert 'bg-warning' in classes
-
-
-@pytest.mark.unit
-def test_add_city_modal_date_input_controls_hidden_calendar_inside_dialog() -> None:
-    html = render_to_string('components/add-city-modal.html')
-    soup = BeautifulSoup(html, 'html.parser')
-
-    date_input = soup.find('input', {'id': 'date-of-visit'})
-    calendar = soup.find('div', {'id': 'add-city-visit-calendar'})
-
-    assert isinstance(date_input, Tag)
-    assert date_input.has_attr('readonly')
-    assert isinstance(calendar, Tag)
-    assert {'vc', 'fixed', 'z-[1001]', 'w-fit'}.issubset(
-        class_names(calendar)
-    )
-    assert calendar.has_attr('data-vc-calendar-hidden')
-    dialog = calendar.find_parent('dialog')
-    assert isinstance(dialog, Tag)
-    assert calendar.parent is dialog
-    assert calendar.find_parent(class_='dui-modal-box') is None

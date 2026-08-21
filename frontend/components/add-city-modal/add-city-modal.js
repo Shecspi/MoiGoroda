@@ -41,12 +41,14 @@ class AddCityModal extends HTMLElement {
         this.visitDateForReconnect = '';
         this.globalClickHandler = null;
         this.calendarOutsideClickHandler = null;
+        this.calendarPositionHandler = null;
     }
 
     connectedCallback() {
         if (this.dialog) {
             this.initVisitCalendar();
             this.initCalendarOutsideClickListener();
+            this.initCalendarPositionListeners();
             this.initGlobalClickListener();
             return;
         }
@@ -65,6 +67,11 @@ class AddCityModal extends HTMLElement {
         if (this.calendarOutsideClickHandler) {
             document.removeEventListener('click', this.calendarOutsideClickHandler, true);
             this.calendarOutsideClickHandler = null;
+        }
+        if (this.calendarPositionHandler) {
+            this.querySelector('.dui-modal-box')?.removeEventListener('scroll', this.calendarPositionHandler);
+            window.removeEventListener('resize', this.calendarPositionHandler);
+            this.calendarPositionHandler = null;
         }
         this.visitDateForReconnect = this.visitCalendar?.context.selectedDates[0] || '';
         this.visitCalendar?.destroy();
@@ -132,6 +139,7 @@ class AddCityModal extends HTMLElement {
             this.showVisitCalendar();
         });
         this.initCalendarOutsideClickListener();
+        this.initCalendarPositionListeners();
     }
 
     initVisitCalendar() {
@@ -160,13 +168,37 @@ class AddCityModal extends HTMLElement {
         const calendarElement = this.querySelector('#add-city-visit-calendar');
         if (!calendarElement) return;
 
-        const inputBounds = this.querySelector('#date-of-visit')?.getBoundingClientRect();
-        if (inputBounds) {
-            calendarElement.style.top = `${inputBounds.bottom + 8}px`;
-            calendarElement.style.left = `${inputBounds.left}px`;
-        }
         calendarElement.style.position = 'fixed';
         calendarElement.removeAttribute('data-vc-calendar-hidden');
+        this.positionVisitCalendar();
+    }
+
+    positionVisitCalendar() {
+        const calendarElement = this.querySelector('#add-city-visit-calendar');
+        if (!calendarElement || calendarElement.hasAttribute('data-vc-calendar-hidden')) return;
+
+        const inputBounds = this.querySelector('#date-of-visit')?.getBoundingClientRect();
+        if (!inputBounds) return;
+
+        const calendarBounds = calendarElement.getBoundingClientRect();
+        const viewportPadding = 8;
+        const top = inputBounds.bottom + calendarBounds.height + viewportPadding > window.innerHeight
+            ? Math.max(viewportPadding, inputBounds.top - calendarBounds.height - viewportPadding)
+            : inputBounds.bottom + viewportPadding;
+        const left = Math.max(
+            viewportPadding,
+            Math.min(inputBounds.left, window.innerWidth - calendarBounds.width - viewportPadding),
+        );
+        calendarElement.style.top = `${top}px`;
+        calendarElement.style.left = `${left}px`;
+    }
+
+    initCalendarPositionListeners() {
+        if (this.calendarPositionHandler) return;
+
+        this.calendarPositionHandler = () => this.positionVisitCalendar();
+        this.querySelector('.dui-modal-box')?.addEventListener('scroll', this.calendarPositionHandler);
+        window.addEventListener('resize', this.calendarPositionHandler);
     }
 
     hideVisitCalendar() {

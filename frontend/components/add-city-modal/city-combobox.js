@@ -130,7 +130,7 @@ export class CityCombobox {
         if (this.hasLocalCollection) {
             this.items = this.filterLocalItems(this.inputValue);
             this.setCollection();
-            this.openResults(api);
+            this.openAndHighlightResults(api);
             return;
         }
         this.search(this.inputValue);
@@ -142,7 +142,7 @@ export class CityCombobox {
         }
         this.items = this.filterLocalItems(this.inputValue);
         this.setCollection();
-        this.openResults();
+        this.getApi().setOpen(this.items.length > 0);
     }
 
     clearInput() {
@@ -226,7 +226,7 @@ export class CityCombobox {
             }
             this.items = cities.filter((city) => city?.id && city?.title);
             this.setCollection();
-            this.openResults();
+            this.openAndHighlightResults();
         } catch (error) {
             if (error.name !== 'AbortError' && requestVersion === this.requestVersion) {
                 this.items = [];
@@ -253,7 +253,7 @@ export class CityCombobox {
         });
     }
 
-    openResults(api = this.getApi()) {
+    openAndHighlightResults(api = this.getApi()) {
         api.setOpen(this.items.length > 0);
         if (this.items.length > 0) {
             this.machine.send({

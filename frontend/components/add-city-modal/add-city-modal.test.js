@@ -446,26 +446,30 @@ describe('AddCityModal visit calendar', () => {
         expect(calendarOptions.dateMax).toBeUndefined();
     });
 
-    it('shows the calendar only when the date input is clicked', () => {
+    it('shows the calendar when the date input is clicked or focused', () => {
         const modal = new AddCityModal();
         document.body.appendChild(modal);
         const dateInput = modal.querySelector('#date-of-visit');
         const calendarElement = modal.querySelector('#add-city-visit-calendar');
 
         expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(true);
+        dateInput.focus();
+        expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(false);
+
+        modal.hideVisitCalendar();
         dateInput.click();
         expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(false);
     });
 
-    it('removes the hidden calendar from modal flow before it is opened', () => {
+    it('keeps the hidden calendar fixed outside modal form flow', () => {
         const modal = new AddCityModal();
         document.body.appendChild(modal);
         const calendarElement = modal.querySelector('#add-city-visit-calendar');
 
-        expect(calendarElement.style.position).toBe('absolute');
+        expect(calendarElement.style.position).toBe('fixed');
     });
 
-    it('opens the calendar as an absolute overlay below the date input', () => {
+    it('opens the calendar as a fixed overlay next to the date input', () => {
         const modal = new AddCityModal();
         document.body.appendChild(modal);
         const dateInput = modal.querySelector('#date-of-visit');
@@ -473,7 +477,7 @@ describe('AddCityModal visit calendar', () => {
 
         dateInput.click();
 
-        expect(calendarElement.style.position).toBe('absolute');
+        expect(calendarElement.style.position).toBe('fixed');
         expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(false);
     });
 
@@ -506,17 +510,30 @@ describe('AddCityModal visit calendar', () => {
         expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(false);
     });
 
-    it('moves focus to the close button when the dialog opens', () => {
+    it('moves focus to the visit date when a preselected city dialog opens', () => {
         const modal = new AddCityModal();
         document.body.appendChild(modal);
         const dialog = modal.querySelector('dialog');
-        const closeButton = modal.querySelector('#btn-close-modal');
+        const dateInput = modal.querySelector('#date-of-visit');
         dialog.showModal = vi.fn();
 
         modal.open({cityId: 42, cityName: 'Тверь', regionName: 'Тверская область'});
 
         expect(dialog.showModal).toHaveBeenCalledOnce();
-        expect(document.activeElement).toBe(closeButton);
+        expect(document.activeElement).toBe(dateInput);
+    });
+
+    it('moves focus to the city search when city selection dialog opens', () => {
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        const dialog = modal.querySelector('dialog');
+        const cityInput = modal.querySelector('#add-city-city');
+        dialog.showModal = vi.fn();
+
+        modal.open({cityId: null});
+
+        expect(dialog.showModal).toHaveBeenCalledOnce();
+        expect(document.activeElement).toBe(cityInput);
     });
 
     it('sets today and yesterday through the quick-date button handlers', () => {

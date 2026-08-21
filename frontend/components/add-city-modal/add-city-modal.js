@@ -124,7 +124,11 @@ class AddCityModal extends HTMLElement {
             this.hideVisitCalendar();
         });
 
-        this.querySelector('#date-of-visit')?.addEventListener('click', () => {
+        const dateInput = this.querySelector('#date-of-visit');
+        dateInput?.addEventListener('click', () => {
+            this.showVisitCalendar();
+        });
+        dateInput?.addEventListener('focus', () => {
             this.showVisitCalendar();
         });
         this.initCalendarOutsideClickListener();
@@ -140,7 +144,7 @@ class AddCityModal extends HTMLElement {
             enableDateToggle: false,
             selectedDates: this.visitDateForReconnect ? [this.visitDateForReconnect] : [],
             styles: {
-                calendar: 'vc absolute top-full start-0 z-10 w-fit mt-2 bg-base-100 border border-base-300 shadow-lg rounded-xl',
+                calendar: 'vc fixed z-[1001] w-fit bg-base-100 border border-base-300 shadow-lg rounded-xl',
             },
             onClickDate: (self) => {
                 this.setVisitDate(self.context.selectedDates[0] || '');
@@ -149,14 +153,19 @@ class AddCityModal extends HTMLElement {
         });
         this.visitDateForReconnect = '';
         this.visitCalendar.init();
-        calendarElement.style.position = 'absolute';
+        calendarElement.style.position = 'fixed';
     }
 
     showVisitCalendar() {
         const calendarElement = this.querySelector('#add-city-visit-calendar');
         if (!calendarElement) return;
 
-        calendarElement.style.position = 'absolute';
+        const inputBounds = this.querySelector('#date-of-visit')?.getBoundingClientRect();
+        if (inputBounds) {
+            calendarElement.style.top = `${inputBounds.bottom + 8}px`;
+            calendarElement.style.left = `${inputBounds.left}px`;
+        }
+        calendarElement.style.position = 'fixed';
         calendarElement.removeAttribute('data-vc-calendar-hidden');
     }
 
@@ -275,12 +284,12 @@ class AddCityModal extends HTMLElement {
         this.querySelector('#city-id').value = cityId || '';
         this.toggleCitySelection(!cityId);
         this.setModeLabels();
-        this.dialog.showModal();
-        this.querySelector('#btn-close-modal').focus();
 
         if (!cityId) {
             this.initCityCascadeSelector();
         }
+        this.dialog.showModal();
+        this.querySelector(cityId ? '#date-of-visit' : '[data-city-combobox-input]')?.focus();
         this.updateSubmitButtonState();
     }
 
@@ -312,7 +321,7 @@ class AddCityModal extends HTMLElement {
             this.toggleCitySelection(false);
             this.setModeLabels();
             this.dialog.showModal();
-            this.querySelector('#btn-close-modal').focus();
+            this.querySelector('#date-of-visit')?.focus();
             this.updateSubmitButtonState();
         } catch (error) {
             console.error('Ошибка при загрузке посещённого города:', error);

@@ -141,9 +141,11 @@ def test_add_city_modal_date_input_controls_hidden_calendar_inside_dialog() -> N
     assert isinstance(date_input, Tag)
     assert date_input.has_attr('readonly')
     assert isinstance(calendar, Tag)
-    assert {'vc', 'absolute', 'top-full', 'start-0', 'z-10', 'w-fit'}.issubset(
+    assert {'vc', 'fixed', 'z-[1001]', 'w-fit'}.issubset(
         class_names(calendar)
     )
     assert calendar.has_attr('data-vc-calendar-hidden')
-    assert calendar.find_parent('dialog') is not None
-    assert isinstance(calendar.find_parent(class_='relative'), Tag)
+    dialog = calendar.find_parent('dialog')
+    assert isinstance(dialog, Tag)
+    assert calendar.parent is dialog
+    assert calendar.find_parent(class_='dui-modal-box') is None

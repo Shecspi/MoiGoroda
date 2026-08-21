@@ -66,6 +66,7 @@ describe('city_visits', () => {
                 <section id="user-visits" data-city-id="42" data-fragment-url="/city/42/visits/fragment">
                     <strong id="user-visits-count">2</strong>
                     <div id="user-visits-list"><article data-visit-id="18">Новая серверная запись</article></div>
+                    <button data-action="add-city"></button>
                 </section>`),
         });
         const previousRoot = document.querySelector('#user-visits');
@@ -101,6 +102,7 @@ describe('city_visits', () => {
         {error: new Error('Network error')},
         {response: {ok: false, status: 500}},
         {response: {ok: true, text: vi.fn().mockResolvedValue('<main>Неполный ответ</main>')}},
+        {response: {ok: true, text: vi.fn().mockResolvedValue('<section id="user-visits" data-city-id="42"></section>')}},
     ])('keeps the previous visits and shows an error toast when the fragment response is invalid', async ({error, response}) => {
         const previousRoot = document.querySelector('#user-visits');
         if (error) {

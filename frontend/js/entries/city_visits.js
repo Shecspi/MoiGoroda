@@ -27,7 +27,13 @@ async function refreshVisits(visit) {
         const updatedRoot = new DOMParser()
             .parseFromString(await response.text(), 'text/html')
             .querySelector(VISITS_SELECTOR);
-        if (!updatedRoot || updatedRoot.dataset.cityId !== root.dataset.cityId) {
+        if (
+            !updatedRoot
+            || updatedRoot.dataset.cityId !== root.dataset.cityId
+            || !updatedRoot.querySelector('#user-visits-count')
+            || !updatedRoot.querySelector('#user-visits-list')
+            || !updatedRoot.querySelector('[data-action="add-city"]')
+        ) {
             throw new Error('Visits refresh fragment is incomplete');
         }
 

@@ -84,8 +84,9 @@ describe('CityCombobox', () => {
         expect(emptyState.textContent).toContain('Города не найдены');
         expect(emptyState.getAttribute('role')).toBe('option');
         expect(emptyState.getAttribute('aria-disabled')).toBe('true');
+        onSelect.mockClear();
         emptyState.click();
-        expect(onSelect).toHaveBeenLastCalledWith(null);
+        expect(onSelect).not.toHaveBeenCalled();
     });
 
     it('clears an open city query and keeps focus in the input', async () => {

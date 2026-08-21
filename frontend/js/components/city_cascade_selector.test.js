@@ -542,4 +542,50 @@ describe('CityCascadeSelector', () => {
         expect(document.querySelector('[data-city-country]').value).toBe('KZ');
         expect(document.querySelector('[data-city-region]').options[0].textContent).toBe('Нет регионов');
     });
+
+    it('reports a failed country synchronization', async () => {
+        document.querySelector('[data-city]').remove();
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([{id: 8, code: 'CY', name: 'Кипр'}]),
+            })
+            .mockResolvedValueOnce({ok: false});
+        const selector = new CityCascadeSelector(document.body, {
+            locationValueMode: 'code',
+            onCitiesChange: vi.fn(),
+        });
+
+        await selector.init();
+
+        await expect(selector.selectLocation({countryCode: 'CY'})).resolves.toBe(false);
+    });
+
+    it('cancels a pending location selection', async () => {
+        document.querySelector('[data-city]').remove();
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: vi.fn().mockResolvedValue([{id: 1, code: 'RU', name: 'Россия'}]),
+        });
+        const selector = new CityCascadeSelector(document.body, {
+            locationValueMode: 'code',
+            onCitiesChange: vi.fn(),
+        });
+        await selector.init();
+
+        let resolveRegions;
+        fetch.mockImplementationOnce(() => new Promise((resolve) => {
+            resolveRegions = resolve;
+        }));
+        const selection = selector.selectLocation({countryCode: 'RU'});
+        await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+
+        selector.cancelLocationSelection();
+        resolveRegions({
+            ok: true,
+            json: vi.fn().mockResolvedValue([{id: 10, iso3166: 'RU-MOW', title: 'Москва'}]),
+        });
+
+        await expect(selection).resolves.toBe(false);
+    });
 });

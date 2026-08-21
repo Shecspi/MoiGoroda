@@ -30,13 +30,11 @@ export class CityCascadeSelector {
         this.countryItems = [];
         this.regionItems = [];
         this.boundCountryChange = () => {
-            this.locationSelectionVersion += 1;
-            this.preservedSelectionVersion = null;
+            this.cancelLocationSelection();
             this.loadForCountry();
         };
         this.boundRegionChange = () => {
-            this.locationSelectionVersion += 1;
-            this.preservedSelectionVersion = null;
+            this.cancelLocationSelection();
             this.loadForRegion();
         };
     }
@@ -118,8 +116,8 @@ export class CityCascadeSelector {
                 return false;
             }
 
-            await this.loadForCountry();
-            if (selectionVersion !== this.locationSelectionVersion) {
+            const countryLoaded = await this.loadForCountry();
+            if (!countryLoaded || selectionVersion !== this.locationSelectionVersion) {
                 return false;
             }
 
@@ -132,13 +130,20 @@ export class CityCascadeSelector {
                 return false;
             }
 
-            await this.loadForRegion();
-            return selectionVersion === this.locationSelectionVersion;
+            const regionLoaded = await this.loadForRegion();
+            return regionLoaded && selectionVersion === this.locationSelectionVersion;
         } finally {
             if (this.preservedSelectionVersion === selectionVersion) {
                 this.preservedSelectionVersion = null;
             }
         }
+    }
+
+    cancelLocationSelection() {
+        this.locationSelectionVersion += 1;
+        this.preservedSelectionVersion = null;
+        this.countryController?.abort();
+        this.regionController?.abort();
     }
 
     async loadForCountry() {
@@ -153,7 +158,7 @@ export class CityCascadeSelector {
 
         if (!countryValue) {
             this.notifyChange();
-            return;
+            return true;
         }
 
         const controller = new AbortController();
@@ -175,12 +180,12 @@ export class CityCascadeSelector {
 
             if (regions.length > 0) {
                 this.setOptions(this.regionSelect, regions, 'Выберите регион');
-                return;
+                return true;
             }
 
             if (!this.citySelect && !this.onCitiesChange) {
                 this.setOptions(this.regionSelect, [], 'Нет регионов', true);
-                return;
+                return true;
             }
 
             const countryId = this.getSelectedItemId(this.countrySelect);
@@ -199,11 +204,12 @@ export class CityCascadeSelector {
                 this.setOptions(this.citySelect, [], 'Нет городов', true);
                 this.notifyChange();
                 this.onCitiesChange?.([]);
-                return;
+                return true;
             }
             this.setOptions(this.citySelect, cities, 'Выберите город', false, true);
             this.notifyChange();
             this.onCitiesChange?.(cities);
+            return true;
         } catch (error) {
             if (error.name !== 'AbortError') {
                 this.setOptions(this.regionSelect, [], 'Выберите регион', true);
@@ -211,6 +217,7 @@ export class CityCascadeSelector {
                 this.onCitiesChange?.([]);
                 this.onError(error);
             }
+            return false;
         }
     }
 
@@ -223,12 +230,12 @@ export class CityCascadeSelector {
 
         if (!regionValue) {
             this.notifyChange();
-            return;
+            return true;
         }
 
         if (!this.citySelect && !this.onCitiesChange) {
             this.notifyChange();
-            return;
+            return true;
         }
 
         const controller = new AbortController();
@@ -251,17 +258,19 @@ export class CityCascadeSelector {
                 this.setOptions(this.citySelect, [], 'Нет городов', true);
                 this.notifyChange();
                 this.onCitiesChange?.([]);
-                return;
+                return true;
             }
             this.setOptions(this.citySelect, cities, 'Выберите город', false, true);
             this.notifyChange();
             this.onCitiesChange?.(cities);
+            return true;
         } catch (error) {
             if (error.name !== 'AbortError') {
                 this.setOptions(this.citySelect, [], 'Выберите город', true);
                 this.onCitiesChange?.([]);
                 this.onError(error);
             }
+            return false;
         }
     }
 

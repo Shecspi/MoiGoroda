@@ -346,6 +346,7 @@ class AddCityModal extends HTMLElement {
         this.cityCombobox = new CityCombobox(this, {
             onSelect: async (city) => {
                 if (!city) {
+                    this.cityCascadeSelector?.cancelLocationSelection();
                     this.cityId = null;
                     this.querySelector('#city-id').value = '';
                     this.updateSubmitButtonState();
@@ -375,6 +376,11 @@ class AddCityModal extends HTMLElement {
         this.cityCascadeSelector = new CityCascadeSelector(this, {
             locationValueMode: 'code',
             onChange: ({countryCode, regionCode, preserveCity}) => {
+                if (!preserveCity) {
+                    this.cityId = null;
+                    this.querySelector('#city-id').value = '';
+                    this.updateSubmitButtonState();
+                }
                 this.cityCombobox.setFilters({
                     country: countryCode,
                     region: regionCode,

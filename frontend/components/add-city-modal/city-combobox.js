@@ -27,6 +27,7 @@ export class CityCombobox {
         this.items = [];
         this.localItems = [];
         this.hasLocalCollection = false;
+        this.isClearingForFilters = false;
         this.inputValue = '';
         this.collection = combobox.collection({items: []});
         this.machine = null;
@@ -54,7 +55,9 @@ export class CityCombobox {
                     this.inputValue = city.title;
                     this.machine.updateProps({inputValue: this.inputValue});
                 }
-                this.onSelect(city);
+                if (!this.isClearingForFilters) {
+                    this.onSelect(city);
+                }
             },
         });
         this.unsubscribe = this.machine.subscribe(() => this.render());
@@ -92,9 +95,6 @@ export class CityCombobox {
             this.inputValue = '';
         }
         this.setCollection();
-        if (!preserveInput) {
-            this.onSelect(null);
-        }
         if (this.input && !preserveInput) {
             this.input.value = '';
         }
@@ -102,7 +102,12 @@ export class CityCombobox {
         if (this.machine) {
             const api = this.getApi();
             if (!preserveInput) {
-                api.clearValue();
+                this.isClearingForFilters = true;
+                try {
+                    api.clearValue();
+                } finally {
+                    this.isClearingForFilters = false;
+                }
             }
             api.setOpen(false);
         } else if (this.input && !preserveInput) {

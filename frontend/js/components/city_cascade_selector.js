@@ -107,11 +107,15 @@ export class CityCascadeSelector {
     }
 
     async selectLocation({countryCode, regionCode = ''}) {
-        await this.ensureCountries();
         const selectionVersion = ++this.locationSelectionVersion;
         this.preservedSelectionVersion = selectionVersion;
-        this.countrySelect.value = countryCode;
         try {
+            await this.ensureCountries();
+            if (selectionVersion !== this.locationSelectionVersion) {
+                return false;
+            }
+
+            this.countrySelect.value = countryCode;
             if (this.countrySelect.value !== countryCode) {
                 return false;
             }

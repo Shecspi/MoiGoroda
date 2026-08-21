@@ -588,4 +588,35 @@ describe('CityCascadeSelector', () => {
 
         await expect(selection).resolves.toBe(false);
     });
+
+    it('cancels a location selection while countries are loading', async () => {
+        let resolveCountries;
+        fetch.mockImplementationOnce(() => new Promise((resolve) => {
+            resolveCountries = resolve;
+        }));
+        const selector = new CityCascadeSelector(document.body, {
+            locationValueMode: 'code',
+            onCitiesChange: vi.fn(),
+        });
+
+        const selection = selector.selectLocation({countryCode: 'CY'});
+        await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
+
+        selector.cancelLocationSelection();
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([{id: 43, title: 'Никосия'}]),
+            });
+        resolveCountries({
+            ok: true,
+            json: vi.fn().mockResolvedValue([{id: 8, code: 'CY', name: 'Кипр'}]),
+        });
+
+        await expect(selection).resolves.toBe(false);
+    });
 });

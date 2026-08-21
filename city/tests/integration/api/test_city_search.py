@@ -98,8 +98,10 @@ class TestCitySearch:
         mock_city.title = 'Moscow'
         mock_city.region = MagicMock()
         mock_city.region.full_name = 'Московская область'
+        mock_city.region.iso3166 = 'RU-MOS'
         mock_city.country = MagicMock()
         mock_city.country.name = 'Russia'
+        mock_city.country.code = 'RU'
 
         mock_queryset = MagicMock()
         mock_queryset.__iter__ = MagicMock(return_value=iter([mock_city]))
@@ -119,6 +121,8 @@ class TestCitySearch:
         assert response_data[0]['title'] == mock_city.title
         assert response_data[0]['region'] == mock_city.region.full_name
         assert response_data[0]['country'] == mock_city.country.name
+        assert response_data[0]['country_code'] == 'RU'
+        assert response_data[0]['region_code'] == 'RU-MOS'
 
     @patch('city.services.search.CitySearchService.search_cities')
     def test_search_cities_with_country_filter(
@@ -130,8 +134,10 @@ class TestCitySearch:
         mock_city.title = 'Moscow'
         mock_city.region = MagicMock()
         mock_city.region.full_name = 'Московская область'
+        mock_city.region.iso3166 = 'RU-MOS'
         mock_city.country = MagicMock()
         mock_city.country.name = 'Russia'
+        mock_city.country.code = 'RU'
 
         mock_queryset = MagicMock()
         mock_queryset.__iter__ = MagicMock(return_value=iter([mock_city]))
@@ -164,7 +170,9 @@ class TestCitySearch:
         mock_city.id = 1
         mock_city.title = 'Москва'
         mock_city.region.full_name = 'Москва'
+        mock_city.region.iso3166 = 'RU-MOW'
         mock_city.country.name = 'Россия'
+        mock_city.country.code = 'RU'
         mock_search.return_value = [mock_city]
 
         response = api_client.get(self.url, {'query': 'Моск', 'region': 'RU-MOW'})
@@ -288,8 +296,10 @@ class TestCitySearch:
         mock_city.title = 'Moscow'
         mock_city.region = MagicMock()
         mock_city.region.full_name = 'Московская область'
+        mock_city.region.iso3166 = 'RU-MOS'
         mock_city.country = MagicMock()
         mock_city.country.name = 'Russia'
+        mock_city.country.code = 'RU'
 
         mock_queryset = MagicMock()
         mock_queryset.__iter__ = MagicMock(return_value=iter([mock_city]))
@@ -335,6 +345,7 @@ class TestCitySearch:
         mock_city.region = None
         mock_city.country = MagicMock()
         mock_city.country.name = 'Germany'
+        mock_city.country.code = 'DE'
 
         mock_queryset = MagicMock()
         mock_queryset.__iter__ = MagicMock(return_value=iter([mock_city]))
@@ -350,6 +361,8 @@ class TestCitySearch:
         assert response_data[0]['title'] == mock_city.title
         assert response_data[0]['region'] is None
         assert response_data[0]['country'] == mock_city.country.name
+        assert response_data[0]['country_code'] == 'DE'
+        assert response_data[0]['region_code'] is None
 
     @patch('city.services.search.CitySearchService.search_cities')
     def test_search_cities_hide_country_when_country_in_url(
@@ -361,8 +374,10 @@ class TestCitySearch:
         mock_city.title = 'Paris'
         mock_city.region = MagicMock()
         mock_city.region.full_name = 'Регион Иль-де-Франс'
+        mock_city.region.iso3166 = 'FR-IDF'
         mock_city.country = MagicMock()
         mock_city.country.name = 'France'
+        mock_city.country.code = 'FR'
 
         mock_queryset = MagicMock()
         mock_queryset.__iter__ = MagicMock(return_value=iter([mock_city]))

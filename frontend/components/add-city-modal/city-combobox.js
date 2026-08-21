@@ -79,7 +79,7 @@ export class CityCombobox {
         this.loading && (this.loading.hidden = true);
     }
 
-    setFilters({country = '', region = ''}) {
+    setFilters({country = '', region = '', preserveInput = false}) {
         this.country = country;
         this.region = region;
         this.controller?.abort();
@@ -88,18 +88,24 @@ export class CityCombobox {
         this.items = [];
         this.localItems = [];
         this.hasLocalCollection = false;
-        this.inputValue = '';
+        if (!preserveInput) {
+            this.inputValue = '';
+        }
         this.setCollection();
-        this.onSelect(null);
-        if (this.input) {
+        if (!preserveInput) {
+            this.onSelect(null);
+        }
+        if (this.input && !preserveInput) {
             this.input.value = '';
         }
 
         if (this.machine) {
             const api = this.getApi();
-            api.clearValue();
+            if (!preserveInput) {
+                api.clearValue();
+            }
             api.setOpen(false);
-        } else if (this.input) {
+        } else if (this.input && !preserveInput) {
             this.input.value = '';
         }
     }
@@ -138,6 +144,15 @@ export class CityCombobox {
         this.hasLocalCollection = true;
         this.items = this.filterLocalItems(this.inputValue);
         this.setCollection();
+        this.getApi().setOpen(false);
+    }
+
+    restoreSelection(city) {
+        this.inputValue = city.title;
+        if (this.input) {
+            this.input.value = city.title;
+        }
+        this.machine?.updateProps({inputValue: this.inputValue});
         this.getApi().setOpen(false);
     }
 

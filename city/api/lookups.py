@@ -38,6 +38,8 @@ class CitySearchItem(msgspec.Struct):
     title: str
     region: str | None
     country: str | None
+    country_code: str | None
+    region_code: str | None
 
 
 def _city_data(city: City, *, include_country: bool) -> dict[str, Any]:
@@ -181,6 +183,8 @@ class CitySearchController(
                         if city.country is not None
                         else None
                     ),
+                    country_code=city.country.code if city.country is not None else None,
+                    region_code=city.region.iso3166 if city.region is not None else None,
                 )
                 for city in cities
             ],

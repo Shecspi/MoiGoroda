@@ -468,4 +468,78 @@ describe('CityCascadeSelector', () => {
         expect(Array.from(document.querySelector('[data-city-country]').options, (option) => option.value))
             .toEqual(['', 'KZ']);
     });
+
+    it('selects a city location by codes after loading its regions', async () => {
+        document.querySelector('[data-city]').remove();
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([{id: 1, code: 'RU', name: 'Россия'}]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([
+                    {id: 10, iso3166: 'RU-MOW', title: 'Москва'},
+                ]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([{id: 100, title: 'Москва'}]),
+            });
+        const selector = new CityCascadeSelector(document.body, {
+            locationValueMode: 'code',
+            onCitiesChange: vi.fn(),
+        });
+
+        await selector.init();
+        await selector.selectLocation({countryCode: 'RU', regionCode: 'RU-MOW'});
+
+        expect(document.querySelector('[data-city-country]').value).toBe('RU');
+        expect(document.querySelector('[data-city-region]').value).toBe('RU-MOW');
+        expect(fetch.mock.calls[1][0]).toBe('/api/region/list/RU/');
+        expect(fetch.mock.calls[2][0]).toBe('/api/city/list_by_region?region_id=10');
+    });
+
+    it('does not let a superseded location selection overwrite the newest location', async () => {
+        document.querySelector('[data-city]').remove();
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: vi.fn().mockResolvedValue([
+                {id: 1, code: 'RU', name: 'Россия'},
+                {id: 2, code: 'KZ', name: 'Казахстан'},
+            ]),
+        });
+        const selector = new CityCascadeSelector(document.body, {
+            locationValueMode: 'code',
+            onCitiesChange: vi.fn(),
+        });
+        await selector.init();
+
+        let resolveRussianRegions;
+        fetch.mockImplementationOnce(() => new Promise((resolve) => {
+            resolveRussianRegions = resolve;
+        }));
+        const staleSelection = selector.selectLocation({countryCode: 'RU'});
+        await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([{id: 200, title: 'Астана'}]),
+            });
+        const currentSelection = selector.selectLocation({countryCode: 'KZ'});
+        resolveRussianRegions({
+            ok: true,
+            json: vi.fn().mockResolvedValue([{id: 10, iso3166: 'RU-MOW', title: 'Москва'}]),
+        });
+
+        await expect(staleSelection).resolves.toBe(false);
+        await expect(currentSelection).resolves.toBe(true);
+        expect(document.querySelector('[data-city-country]').value).toBe('KZ');
+        expect(document.querySelector('[data-city-region]').options[0].textContent).toBe('Нет регионов');
+    });
 });

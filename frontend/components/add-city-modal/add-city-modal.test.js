@@ -401,6 +401,40 @@ describe('AddCityModal visit calendar', () => {
         expect(modal.querySelector('#btn_add-visited-city span').textContent).toBe('Сохранить');
     });
 
+    it('focuses the dialog instead of the visit date when edit mode opens', async () => {
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        const dialog = modal.querySelector('dialog');
+        const dateInput = modal.querySelector('#date-of-visit');
+        const calendarElement = modal.querySelector('#add-city-visit-calendar');
+        dialog.showModal = vi.fn(() => {
+            dialog.open = true;
+            (dialog.hasAttribute('autofocus') ? dialog : dateInput).focus();
+        });
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+                visit: {
+                    id: 17,
+                    city: 42,
+                    city_title: 'Тверь',
+                    region_title: 'Тверская область',
+                    date_of_visit: '2026-08-05',
+                    has_magnet: false,
+                    rating: 4,
+                    impression: '',
+                },
+            }),
+        });
+
+        await modal.openEdit(17);
+
+        expect(dialog.hasAttribute('autofocus')).toBe(true);
+        expect(document.activeElement).toBe(dialog);
+        expect(modal.querySelector('form').contains(document.activeElement)).toBe(false);
+        expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(true);
+    });
+
     it('opens edit mode from a delegated visit trigger', () => {
         const modal = new AddCityModal();
         document.body.appendChild(modal);

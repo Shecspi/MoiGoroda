@@ -355,8 +355,8 @@ class AddCityModal extends HTMLElement {
             this.setVisitDate(visit.date_of_visit || '');
             this.toggleCitySelection(false);
             this.setModeLabels();
+            this.dialog.setAttribute('autofocus', '');
             this.dialog.showModal();
-            this.querySelector('#date-of-visit')?.focus();
             this.updateSubmitButtonState();
         } catch (error) {
             console.error('Ошибка при загрузке посещённого города:', error);

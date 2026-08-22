@@ -65,7 +65,10 @@ describe('city_visits', () => {
             text: vi.fn().mockResolvedValue(`
                 <section id="user-visits" data-city-id="42" data-fragment-url="/city/42/visits/fragment">
                     <strong id="user-visits-count">2</strong>
-                    <div id="user-visits-list"><article data-visit-id="18">Новая серверная запись</article></div>
+                    <div id="user-visits-list">
+                        <article data-visit-id="18">Новая серверная запись <button class="delete_city"></button><button data-action="edit-visited-city"></button></article>
+                        <article data-visit-id="17"><button class="delete_city"></button><button data-action="edit-visited-city"></button></article>
+                    </div>
                     <button data-action="add-city"></button>
                 </section>`),
         });
@@ -103,6 +106,12 @@ describe('city_visits', () => {
         {response: {ok: false, status: 500}},
         {response: {ok: true, text: vi.fn().mockResolvedValue('<main>Неполный ответ</main>')}},
         {response: {ok: true, text: vi.fn().mockResolvedValue('<section id="user-visits" data-city-id="42"></section>')}},
+        {response: {ok: true, text: vi.fn().mockResolvedValue(`
+            <section id="user-visits" data-city-id="42">
+                <strong id="user-visits-count">1</strong>
+                <div id="user-visits-list"><article data-visit-id="18"></article></div>
+                <button data-action="add-city"></button>
+            </section>`)}},
     ])('keeps the previous visits and shows an error toast when the fragment response is invalid', async ({error, response}) => {
         const previousRoot = document.querySelector('#user-visits');
         if (error) {

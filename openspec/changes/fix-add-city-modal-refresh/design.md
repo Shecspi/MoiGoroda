@@ -28,6 +28,8 @@ whether the displayed country progress should change.
 - Redesign the modal, visit card, map visual language, or the global dashboard.
 - Replace the existing public API or reload the whole browser page.
 - Refactor unrelated city-list filters and pagination.
+- Создать источник city polygon для города без региона; это выделено в GitHub
+  issue #303.
 
 ## Decisions
 

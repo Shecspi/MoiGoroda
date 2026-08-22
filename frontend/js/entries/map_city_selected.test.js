@@ -127,4 +127,17 @@ describe('map_city_selected', () => {
         expect(mocks.marker.setIcon).toHaveBeenCalledWith(icon_visited_pin);
         expect(mocks.cityPolygon.setStyle).toHaveBeenCalledWith(visitedStyle);
     });
+
+    it('updates the marker without a city polygon for a city outside a region', async () => {
+        window.ISO3166 = '';
+        document.dispatchEvent(new CustomEvent('city-added', {
+            detail: {city: {id: 42, name: 'Тверь'}},
+        }));
+
+        await openMap();
+
+        const L = (await import('leaflet')).default;
+        const {icon_visited_pin} = await import('../components/icons');
+        expect(L.marker).toHaveBeenCalledWith([56.8596, 35.9119], {icon: icon_visited_pin});
+    });
 });

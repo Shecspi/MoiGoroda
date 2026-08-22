@@ -1,4 +1,4 @@
-/**
+/*
  * Реализует отображение карты и меток на ней, запрос посещённых
  * и не посещённых городов с сервера и обновление меток на карте.
  *
@@ -251,6 +251,9 @@ function updateVisitedCitiesData(addedCity) {
     // В объекте city из callback поле id содержит ID города (data.city.city)
     const cityId = addedCity.id;
     if (!cityId) {
+        return;
+    }
+    if (selectedCountryCode && addedCity.country_code !== selectedCountryCode) {
         return;
     }
 

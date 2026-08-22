@@ -215,6 +215,7 @@ describe('map_city', () => {
         expect(document.getElementById('number_of_visited_cities_in_country').textContent).toBe('1');
         expect(document.getElementById('number_of_visited_cities').parentElement.textContent.trim())
             .toBe('Всего посещено 2 города');
+        expect(mocks.actions.ownCities).toEqual([]);
     });
 
     it('не меняет счётчики и словоформу для повторного посещения города', async () => {

@@ -490,17 +490,24 @@ describe('AddCityModal visit calendar', () => {
         expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(false);
     });
 
-    it('moves focus to the visit date when a preselected city dialog opens', () => {
+    it('does not focus a form field or open the calendar when a preselected city dialog opens', () => {
         const modal = new AddCityModal();
         document.body.appendChild(modal);
         const dialog = modal.querySelector('dialog');
         const dateInput = modal.querySelector('#date-of-visit');
-        dialog.showModal = vi.fn();
+        const calendarElement = modal.querySelector('#add-city-visit-calendar');
+        dialog.showModal = vi.fn(() => {
+            dialog.open = true;
+            (dialog.hasAttribute('autofocus') ? dialog : dateInput).focus();
+        });
 
         modal.open({cityId: 42, cityName: 'Тверь', regionName: 'Тверская область'});
 
         expect(dialog.showModal).toHaveBeenCalledOnce();
-        expect(document.activeElement).toBe(dateInput);
+        expect(dialog.hasAttribute('autofocus')).toBe(true);
+        expect(document.activeElement).toBe(dialog);
+        expect(modal.querySelector('form').contains(document.activeElement)).toBe(false);
+        expect(calendarElement.hasAttribute('data-vc-calendar-hidden')).toBe(true);
     });
 
     it('moves focus to the city search when city selection dialog opens', () => {

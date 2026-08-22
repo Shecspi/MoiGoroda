@@ -320,8 +320,11 @@ class AddCityModal extends HTMLElement {
         if (!cityId) {
             this.initCityCascadeSelector();
         }
+        this.dialog.toggleAttribute('autofocus', Boolean(cityId));
         this.dialog.showModal();
-        this.querySelector(cityId ? '#date-of-visit' : '[data-city-combobox-input]')?.focus();
+        if (!cityId) {
+            this.querySelector('[data-city-combobox-input]')?.focus();
+        }
         this.updateSubmitButtonState();
     }
 

@@ -9,24 +9,24 @@ Licensed under the Apache License, Version 2.0
 
 <template id="add-city-modal-template">
     <dialog class="dui-modal" id="addCityModal">
-        <div class="dui-modal-box max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-            <h3 class="font-bold text-lg text-base-content mb-4" id="addCityModalLabel">
+        <div class="dui-modal-box flex max-h-[calc(100dvh-3.5rem)] flex-col overflow-hidden p-0">
+            <h3 class="shrink-0 border-b border-base-300 px-6 pt-6 pb-4 font-bold text-lg text-base-content" id="addCityModalLabel">
                 Добавить посещённый город
             </h3>
 
-            <div class="dui-card bg-base-200 border border-base-300 mb-6" id="city-summary-card">
-                <div class="dui-card-body p-4">
-                    <h4 class="dui-card-title text-base" id="city-title-in-modal"></h4>
-                    <p class="text-sm text-base-content/80" id="region-title-in-modal"></p>
-                </div>
-            </div>
-
-            <form id="form-add-city" method="dialog">
+            <form class="flex min-h-0 flex-1 flex-col" id="form-add-city" method="dialog">
                 {% csrf_token %}
                 <input type="hidden" id="city-id" name="city" value="">
                 <input type="hidden" name="from" value="visited_cities_map">
 
-                <div class="space-y-4">
+                <div class="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
+                    <div class="dui-card bg-base-200 border border-base-300 mb-6" id="city-summary-card">
+                        <div class="dui-card-body p-4">
+                            <h4 class="dui-card-title text-base" id="city-title-in-modal"></h4>
+                            <p class="text-sm text-base-content/80" id="region-title-in-modal"></p>
+                        </div>
+                    </div>
+
                     <div class="space-y-4" id="city-selection-fields" hidden>
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div class="dui-form-control">
@@ -170,7 +170,7 @@ Licensed under the Apache License, Version 2.0
                     </div>
                 </div>
 
-                <div class="dui-modal-action">
+                <div class="dui-modal-action mt-0 shrink-0 border-t border-base-300 px-6 py-4">
                     <button type="button"
                             class="dui-btn dui-btn-ghost"
                             id="btn-close-modal">

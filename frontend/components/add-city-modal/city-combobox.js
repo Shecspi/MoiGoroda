@@ -313,7 +313,7 @@ export class CityCombobox {
             const item = document.createElement('li');
             const state = api.getItemState({item: city});
             item.className = 'cursor-pointer rounded-field px-3 py-2 text-sm text-base-content';
-            item.classList.toggle('bg-base-200', state.highlighted);
+            item.classList.toggle('bg-base-300', state.highlighted);
             const cleanup = spreadProps(item, api.getItemProps({item: city}), this.input.id);
 
             const title = document.createElement('span');

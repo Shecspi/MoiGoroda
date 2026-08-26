@@ -70,6 +70,8 @@
 
 - *(city)* Маркеры непосещённых городов объединяются в кластеры ([cba472c](https://github.com/Shecspi/MoiGoroda/commit/cba472c6ca20a4f9b831361593b4979fcdf2ccf8))
 
+- *(city)* Переработано добавление посещённых городов ([fb04b9c](https://github.com/Shecspi/MoiGoroda/commit/fb04b9c46d4da9a4d5217a3f6475ef891335c7eb))
+
 
 #### 🐛 Исправление ошибок
 

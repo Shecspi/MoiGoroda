@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Тесты для эндпоинта /api/city/list_by_country (city_list_by_country).
 
@@ -23,7 +30,7 @@ from django.urls import reverse
 
 @pytest.mark.integration
 class TestCityListByCountry:
-    """Тесты для эндпоинта /api/city/list_by_country (city_list_by_country)."""
+    """Тесты DMR эндпоинта /api/city/list_by_country."""
 
     url: str = reverse('api__city_list_by_country')
 
@@ -41,7 +48,7 @@ class TestCityListByCountry:
         response_data = response.json()
         assert 'country_id является обязательным' in response_data['detail']
 
-    @patch('city.api.City.objects.filter')
+    @patch('city.api.lookups.City.objects.filter')
     def test_get_cities_by_country_success(
         self, mock_filter: MagicMock, api_client: APIClient, mock_city: MagicMock
     ) -> None:
@@ -55,14 +62,15 @@ class TestCityListByCountry:
         mock_city.country.name = 'Россия'
 
         mock_queryset = MagicMock()
-        mock_queryset.order_by.return_value = [mock_city]
+        mock_queryset.select_related.return_value.order_by.return_value = [mock_city]
         mock_filter.return_value = mock_queryset
 
         response = api_client.get(f'{self.url}?country_id=1')
 
         assert response.status_code == status.HTTP_200_OK
         mock_filter.assert_called_once_with(country_id='1')
-        mock_queryset.order_by.assert_called_once_with('title')
+        mock_queryset.select_related.assert_called_once_with('region', 'country')
+        mock_queryset.select_related.return_value.order_by.assert_called_once_with('title')
 
         response_data = response.json()
         assert isinstance(response_data, list)
@@ -74,13 +82,13 @@ class TestCityListByCountry:
             response_data[0]['country'] is None
         )  # Страна должна быть скрыта, так как country_id указан в URL
 
-    @patch('city.api.City.objects.filter')
+    @patch('city.api.lookups.City.objects.filter')
     def test_empty_cities_list_by_country(
         self, mock_filter: MagicMock, api_client: APIClient
     ) -> None:
         """Тест обработки пустого списка городов по стране."""
         mock_queryset = MagicMock()
-        mock_queryset.order_by.return_value = []
+        mock_queryset.select_related.return_value.order_by.return_value = []
         mock_filter.return_value = mock_queryset
 
         response = api_client.get(f'{self.url}?country_id=999')

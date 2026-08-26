@@ -1,4 +1,4 @@
-/**
+/*
  * Реализует отображение карты и меток на ней, запрос посещённых
  * и не посещённых городов с сервера и обновление меток на карте.
  *
@@ -14,8 +14,8 @@ import L from 'leaflet';
 import {addExternalBorderControl, addInternalBorderControl, create_map} from "../components/map.js";
 import {ToolbarActions} from "../components/toolbar_actions.js";
 import {initCountrySelect} from "../components/initCountrySelect";
-import {initAddCityForm} from "../components/add_city_modal.js";
 import {City, MarkerStyle} from "../components/schemas.js";
+import {pluralize} from '../components/search_services.js';
 import {showDangerToast} from "../components/toast.js";
 import {
     addNotVisitedClusteringControl,
@@ -24,6 +24,7 @@ import {
 
 let actions;
 let map;
+let yearFilterChangeHandler;
 
 const urlParams = new URLSearchParams(window.location.search);
 const selectedCountryCode = urlParams.get('country');
@@ -80,18 +81,20 @@ window.onload = async () => {
             map.fitBounds(group.getBounds());
         }
 
-        initAddCityForm(actions, async (city) => {
-            // После успешного добавления города обновляем данные о посещённых городах
-            // и список годов, если это первое посещение в этом году
-            // Передаём данные добавленного города для локального обновления без запроса к серверу
+        const synchronizeVisitedCity = async (e) => {
+            const { city, isNewCity } = e.detail;
             updateVisitedCitiesData(city);
+            if (e.type === 'city-added' && isNewCity) {
+                updateVisitedCitiesProgress(city);
+            }
             
             if (city?.id && actions) {
                 actions.removeNotVisitedMarker(city.id);
             }
             
-            // Используем date_of_visit, так как это дата именно добавленного посещения
-            if (city && city.date_of_visit) {
+            if (e.type === 'visited-city-updated') {
+                await initYearFilter(document.getElementById('id_year_filter')?.value || 'all');
+            } else if (city && city.date_of_visit) {
                 const visitDate = new Date(city.date_of_visit);
                 if (!isNaN(visitDate.getTime())) {
                     const visitYear = visitDate.getFullYear();
@@ -99,15 +102,15 @@ window.onload = async () => {
                 }
             }
             
-            // Всегда применяем текущий фильтр по годам после обновления данных
-            // Это необходимо для отображения нового города, если он соответствует фильтру
             const yearSelect = document.getElementById('id_year_filter');
             if (yearSelect) {
                 const selectedValue = yearSelect.value || '';
                 const filterValue = selectedValue === 'all' ? '' : selectedValue;
                 filterCitiesByYear(filterValue);
             }
-        });
+        };
+        document.addEventListener('city-added', synchronizeVisitedCity);
+        document.addEventListener('visited-city-updated', synchronizeVisitedCity);
     } catch (error) {
         console.error('Ошибка при загрузке посещённых городов:', error);
     }
@@ -147,7 +150,7 @@ async function getVisitedCities() {
  * Инициализирует выпадающий список годов и загружает годы через API.
  * UI-lib компонент mg-select инициализируется через auto-init.js.
  */
-async function initYearFilter() {
+async function initYearFilter(selectedYear = 'all') {
     const yearSelect = document.getElementById('id_year_filter');
 
     if (!yearSelect) {
@@ -205,22 +208,25 @@ async function initYearFilter() {
             option.textContent = year;
             yearSelect.appendChild(option);
         });
+        yearSelect.value = years.map(String).includes(String(selectedYear)) ? selectedYear : 'all';
 
         // Убираем disabled после загрузки опций
         yearSelect.removeAttribute('disabled');
 
+        if (yearFilterChangeHandler) {
+            yearSelect.removeEventListener('change', yearFilterChangeHandler);
+        }
+
         // Обработчик изменений значения
-        const handleChange = () => {
+        yearFilterChangeHandler = () => {
             const selectedValue = yearSelect.value || '';
             // Если выбрано "all", передаем пустую строку для сброса фильтра
             const filterValue = selectedValue === 'all' ? '' : selectedValue;
             filterCitiesByYear(filterValue);
         };
 
-        // Удаляем старый обработчик, если он был добавлен ранее
-        yearSelect.removeEventListener('change', handleChange);
         // Слушаем изменения напрямую на select элементе
-        yearSelect.addEventListener('change', handleChange);
+        yearSelect.addEventListener('change', yearFilterChangeHandler);
     } catch (error) {
         console.error('Ошибка при загрузке списка годов:', error);
         
@@ -247,6 +253,9 @@ function updateVisitedCitiesData(addedCity) {
     if (!cityId) {
         return;
     }
+    if (selectedCountryCode && addedCity.country_code !== selectedCountryCode) {
+        return;
+    }
 
     const existingCityIndex = actions.ownCities.findIndex(c => c.id === cityId);
 
@@ -260,15 +269,16 @@ function updateVisitedCitiesData(addedCity) {
         }
         
         // Обновляем даты посещений
-        if (addedCity.first_visit_date) {
+        if ('first_visit_date' in addedCity) {
             existingCity.first_visit_date = addedCity.first_visit_date;
         }
-        if (addedCity.last_visit_date) {
+        if ('last_visit_date' in addedCity) {
             existingCity.last_visit_date = addedCity.last_visit_date;
         }
         
-        // Добавляем новый год в visit_years, если его там ещё нет
-        if (addedCity.date_of_visit) {
+        if (Array.isArray(addedCity.visit_years)) {
+            existingCity.visit_years = addedCity.visit_years;
+        } else if (addedCity.date_of_visit) {
             const visitDate = new Date(addedCity.date_of_visit);
             if (!isNaN(visitDate.getTime())) {
                 const visitYear = visitDate.getFullYear();
@@ -303,11 +313,40 @@ function updateVisitedCitiesData(addedCity) {
             number_of_visits: addedCity.number_of_visits || 1,
             first_visit_date: addedCity.first_visit_date,
             last_visit_date: addedCity.last_visit_date,
-            visit_years: visit_years,
+            visit_years: addedCity.visit_years || visit_years,
             average_rating: null, // В объекте city из callback нет поля rating напрямую
         };
 
         actions.ownCities.push(newCity);
+    }
+}
+
+function updateVisitedCitiesProgress(city) {
+    const totalCounter = document.getElementById('number_of_visited_cities');
+    if (totalCounter) {
+        const total = Number.parseInt(totalCounter.textContent, 10);
+        if (!Number.isNaN(total)) {
+            const newTotal = total + 1;
+            totalCounter.textContent = String(newTotal);
+            const wordNode = totalCounter.nextSibling;
+            if (wordNode?.nodeType === Node.TEXT_NODE) {
+                wordNode.textContent = ` ${pluralize(newTotal, 'город', 'города', 'городов')}`;
+            }
+        }
+    }
+
+    if (city?.country_code !== selectedCountryCode) {
+        return;
+    }
+
+    const countryCounter = document.getElementById('number_of_visited_cities_in_country');
+    if (!countryCounter) {
+        return;
+    }
+
+    const countryTotal = Number.parseInt(countryCounter.textContent, 10);
+    if (!Number.isNaN(countryTotal)) {
+        countryCounter.textContent = String(countryTotal + 1);
     }
 }
 

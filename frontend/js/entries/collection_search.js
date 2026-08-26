@@ -1,45 +1,49 @@
-function initializeCollectionSearchCombobox() {
-    const comboboxRoot = document.getElementById("collection-search-combobox");
-    const inputEl = document.getElementById("collection-search");
-    const overlay = document.getElementById("search-overlay");
+// ---------------------------------------------
+//
+// Copyright © Egor Vavilov (Shecspi)
+// Licensed under the Apache License, Version 2.0
+//
+// ----------------------------------------------
 
-    if (!comboboxRoot || !inputEl || !overlay) {
+export function initializeCollectionSearchCombobox(root = document) {
+    const comboboxRoot = root.querySelector('#collection-search-combobox');
+    const inputEl = root.querySelector('#collection-search');
+    const overlay = root.querySelector('#search-overlay');
+
+    if (!comboboxRoot || !inputEl || !overlay || comboboxRoot.dataset.mgCollectionSearchBound) {
         return;
     }
 
-    comboboxRoot.addEventListener("mg:combobox:select", (event) => {
+    comboboxRoot.dataset.mgCollectionSearchBound = '1';
+    comboboxRoot.addEventListener('mg:combobox:select', (event) => {
         const collectionId = event?.detail?.value;
-        if (!collectionId) {
-            return;
+        if (collectionId) {
+            window.location.href = `/collection/${collectionId}/list`;
         }
-        window.location.href = `/collection/${collectionId}/list`;
     });
 
-    inputEl.addEventListener("focus", () => {
-        overlay.classList.add("active");
+    inputEl.addEventListener('focus', () => overlay.classList.add('active'));
+    inputEl.addEventListener('blur', () => {
+        setTimeout(() => overlay.classList.remove('active'), 150);
     });
-
-    inputEl.addEventListener("blur", () => {
-        setTimeout(() => {
-            overlay.classList.remove("active");
-        }, 150);
-    });
-
-    overlay.addEventListener("click", () => {
+    overlay.addEventListener('click', () => {
         inputEl.blur();
-        overlay.classList.remove("active");
+        overlay.classList.remove('active');
     });
-
-    inputEl.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
+    inputEl.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
             inputEl.blur();
-            overlay.classList.remove("active");
+            overlay.classList.remove('active');
         }
     });
 }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializeCollectionSearchCombobox);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initializeCollectionSearchCombobox());
 } else {
     initializeCollectionSearchCombobox();
 }
+
+document.addEventListener('visited-city-list-refreshed', (event) => {
+    initializeCollectionSearchCombobox(event.detail?.root);
+});

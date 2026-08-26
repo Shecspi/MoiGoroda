@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 ----------------------------------------------
 
@@ -42,7 +49,7 @@ def response_json(response: object) -> list[dict[str, Any]] | dict[str, Any]:
 @pytest.mark.integration
 @pytest.mark.django_db
 class TestRegionListByCountryAPI:
-    """Тесты для API endpoint region_list_by_country"""
+    """Тесты DMR endpoint /api/region/list."""
 
     def test_returns_regions_for_valid_country(
         self, test_country: Any, test_region_type: Any
@@ -60,7 +67,9 @@ class TestRegionListByCountryAPI:
         response = client.get(reverse('region-list-by-country'), {'country_id': test_country.id})
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) >= 1
+        data = response_json(response)
+        assert isinstance(data, list)
+        assert len(data) >= 1
 
     def test_returns_400_without_country_id(self) -> None:
         """Тест возврата 400 без обязательного параметра country_id"""
@@ -68,7 +77,9 @@ class TestRegionListByCountryAPI:
         response = client.get(reverse('region-list-by-country'))
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert 'country_id' in response.data['detail']
+        data = response_json(response)
+        assert isinstance(data, dict)
+        assert 'country_id' in data['detail']
 
     def test_returns_empty_list_for_country_without_regions(self) -> None:
         """Тест возврата пустого списка для страны без регионов"""
@@ -80,7 +91,7 @@ class TestRegionListByCountryAPI:
         response = client.get(reverse('region-list-by-country'), {'country_id': empty_country.id})
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 0
+        assert response_json(response) == []
 
     def test_returns_regions_sorted_by_title(
         self, test_country: Any, test_region_type: Any
@@ -105,7 +116,9 @@ class TestRegionListByCountryAPI:
         response = client.get(reverse('region-list-by-country'), {'country_id': test_country.id})
 
         assert response.status_code == status.HTTP_200_OK
-        titles = [region['title'] for region in response.data]
+        data = response_json(response)
+        assert isinstance(data, list)
+        titles = [region['title'] for region in data]
         assert titles[0] == 'А регион'
 
 

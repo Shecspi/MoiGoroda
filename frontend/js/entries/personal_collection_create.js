@@ -1,3 +1,10 @@
+/* ---------------------------------------------
+ *
+ * Copyright © Egor Vavilov (Shecspi)
+ * Licensed under the Apache License, Version 2.0
+ *
+ * ---------------------------------------------- */
+
 import L from 'leaflet';
 import autoComplete from '@tarekraafat/autocomplete.js';
 import {create_map} from '../components/map.js';
@@ -85,7 +92,7 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         // Загружаем страны и добавляем опции через метод addOption
         (async () => {
             try {
-                const response = await fetch('/api/city/country/list_by_cities');
+                const response = await fetch('/api/country/list_by_cities');
                 if (response.ok) {
                     const countries = await response.json();
                     
@@ -1006,4 +1013,3 @@ window.addEventListener('load', () => requestAnimationFrame(async () => {
         }
     })();
 }));
-

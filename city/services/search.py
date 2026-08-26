@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Сервис для поиска городов.
 
@@ -14,16 +21,23 @@ from django.db.models import QuerySet, Case, When, IntegerField
 from city.models import City
 
 
+# TODO: Вынести ORM-запросы в repository-слой, чтобы сервис не зависел от моделей Django.
 class CitySearchService:
     """Сервис для поиска городов."""
 
     @staticmethod
-    def search_cities(query: str, country: str | None = None, limit: int = 50) -> QuerySet[City]:
+    def search_cities(
+        query: str,
+        country: str | None = None,
+        region: str | None = None,
+        limit: int = 50,
+    ) -> QuerySet[City]:
         """
         Поиск городов по подстроке с дополнительными фильтрами.
 
         :param query: Подстрока для поиска в названии города
         :param country: Код страны для дополнительной фильтрации
+        :param region: ISO 3166 код региона для дополнительной фильтрации
         :param limit: Максимальное количество результатов (по умолчанию 50)
         :return: QuerySet с найденными городами
         """
@@ -45,6 +59,9 @@ class CitySearchService:
         # Дополнительная фильтрация по коду страны
         if country:
             cities_queryset = cities_queryset.filter(country__code=country)
+
+        if region:
+            cities_queryset = cities_queryset.filter(region__iso3166=region)
 
         # Ограничиваем количество результатов для производительности
         return cities_queryset[:limit]

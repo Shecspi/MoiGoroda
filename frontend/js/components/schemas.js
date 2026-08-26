@@ -1,8 +1,16 @@
+// ---------------------------------------------
+//
+// Copyright © Egor Vavilov (Shecspi)
+// Licensed under the Apache License, Version 2.0
+//
+// ----------------------------------------------
+
 export class City {
     id;
     name;
     region;
     country;
+    country_code;
     lat;
     lon;
     first_visit_date;

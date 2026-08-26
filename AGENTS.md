@@ -43,6 +43,30 @@
 
 - Не создавать тесты, которые проверяют только внешний вид, тексты, CSS-классы или структуру HTML интерфейса, без отдельной прямой просьбы. Для UI-задач проверять шаблон статически, сборкой frontend-ассетов и существующими функциональными тестами.
 
+## OpenSpec: TDD и review
+
+- При выполнении OpenSpec change через `/opsx-apply` считать его artifacts источником требований: перед кодом назвать критерии успеха и проверки, которые подтвердят результат.
+- При сообщении о баге сначала применять skill `diagnosing-bugs`, чтобы воспроизвести проблему и подтвердить её причину; затем планировать и исправлять её через OpenSpec.
+- Для изменения наблюдаемого поведения, исправления регрессии, API, прав доступа, доменного инварианта, persistence или integration contract применять skill `tdd`: до первого теста согласовать публичный seam, затем работать вертикальными циклами `red -> green`.
+- Если публичный seam или границы модуля для TDD неясны, до первого теста применять skill `codebase-design` и согласовывать интерфейс.
+- Для механических изменений, текстов и визуальных стилей TDD не обязателен; следовать правилам тестирования интерфейса выше и выполнять релевантные проверки.
+- До начала реализации зафиксировать текущий `HEAD` как baseline для review. После явного commit от пользователя, но до объявления change готовым или предложения архивировать его, применять skill `code-review` к diff от baseline и OpenSpec artifacts. Нерешённые findings исправлять, повторно проверять и review повторять от того же baseline.
+- Если пользователь не просил commit, сообщать, что commit-based review pending; не создавать commit самостоятельно.
+
+## Agent skills
+
+### Issue tracker
+
+Задачи и спецификации ведутся в GitHub Issues репозитория. См. `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Используется стандартный словарь из пяти triage labels. См. `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Репозиторий использует single-context layout. См. `docs/agents/domain.md`.
+
 ## Контекст ошибок
 
 - [2026-06-21] Проблема: тесты логирования `services.cache` проверяли `caplog.text`, но логгер настроен с `propagate=False` и сообщения не попадали в `caplog` → Решение: проверять вызовы `services.cache.logger.debug` через мок вместо `caplog`.
@@ -53,6 +77,7 @@
 - [2026-06-22] Проблема: параллельный запуск нескольких `pytest` процессов с Django DB в одном workspace может одновременно создавать одну test DB и падать с `ProgrammingError: relation ... already exists` → Решение: запускать Django DB тесты последовательно либо использовать корректную изоляцию/разные test DB для параллельных процессов.
 - [2026-06-29] Проблема: после миграции на Tailwind 4 Preline variant `hs-overlay-backdrop-open:*` генерировался так, что классы на элементе `.hs-overlay-backdrop` срабатывали сразу, и backdrop фильтров на `/city/all/list` и `/region/*/list` отображался поверх страницы → Решение: для вручную управляемого offcanvas backdrop убрать `hs-overlay-backdrop-open:*` классы из шаблонов и оставлять только базовые `opacity-0 pointer-events-none`; открытие/закрытие уже делает `filter_city.js`/`filter_region.js` через `opacity-100 pointer-events-auto`.
 - [2026-06-29] Проблема: в Django templates с наследованием `{% comment %}`-блок лицензии перед `{% extends %}` вызывает `TemplateSyntaxError: {% extends ... %} must be the first tag` → Решение: в наследуемых шаблонах оставлять `{% extends %}` первым tag, а лицензионный `{% comment %}` размещать сразу после него.
+- [2026-08-19] Проблема: вынесенные Django include-шаблоны `city/list/toolbar_stats.html` и `city/list/results.html` использовали фильтры `morphology`, полагаясь на `{% load morphology %}` родительского шаблона, и при самостоятельном рендеринге фрагмента падали с `TemplateSyntaxError` → Решение: каждый include-шаблон явно загружает библиотеки template tags, фильтры которых он использует.
 - [2026-06-29] Проблема: Vite 4 CSS minifier выдавал production build warning `A nested style rule cannot start with "button"` на nested CSS `button&` из Swiper 12 pagination CSS → Решение: обновить Vite до 5.4.x, использовать ESM-конфиг `vite.config.mjs` и явно задать `build.manifest: 'manifest.json'`, потому что в Vite 5 `manifest: true` по умолчанию пишет файл в `.vite/manifest.json`, а Django templatetag loader ожидает `static/js/manifest.json`.
 - [2026-06-29] Проблема: после обновления Vite до 5 dev server стал обслуживать проект под configured base `/static/js/`, а Django `vite_asset`/`vite_css` в DEBUG продолжали генерировать URL без base (`http://localhost:5173/css/tailwind.css`, `http://localhost:5173/js/entries/...`) и браузер получал 404 → Решение: в dev-mode генерировать asset URL с префиксом `http://localhost:5173/static/js/` и покрыть это unit-тестами templatetag.
 - [2026-06-30] Проблема: запуск `pytest` напрямую использовал системный Python 3.14 без зависимостей проекта и падал на импорте `django` → Решение: запускать backend tests через `poetry run pytest`, чтобы использовать Poetry-окружение проекта на Python 3.12 с установленными test dependencies.
@@ -73,3 +98,24 @@
 - [2026-07-24] Проблема: в изолированном worktree отсутствует игнорируемый `MoiGoroda/.env`, а подмена PostgreSQL на SQLite ломает миграции с `AddIndexConcurrently`; загрузка `.env` через `source` также ненадёжна из-за shell-метасимволов в значениях → Решение: загружать исходный `.env` через Python API `dotenv.load_dotenv`, задавать уникальный `DATABASE_NAME` для изоляции test DB и запускать `pytest` через `os.execv`.
 - [2026-07-25] Проблема: integration-тест настоящего Leaflet.markercluster падал с `Map has no maxZoom specified`, а отрицательный `chunkInterval` создавал бесконечную очередь пустых chunk и таймаут → Решение: для карты без tile layer явно задавать `maxZoom`, а для принудительного chunked batch использовать минимальный неотрицательный `chunkInterval: 0`.
 - [2026-07-25] Проблема: попытка передать текстовый вывод `git log --oneline` в `git log --stdin` привела к интерпретации строки коммита как revision и ошибке `bad revision` → Решение: при просмотре истории выбранных путей передавать пути напрямую в одной команде `git log --oneline -- <paths>`.
+- [2026-08-05] Проблема: DB-тесты Django падали до выполнения тестов при создании `test_moi_goroda`, потому что PostgreSQL `template1`/`postgres` были созданы со старой версией collation, а ОС предоставляет новую → Решение: считать это инфраструктурным блокером DB-тестов; обновить collation в PostgreSQL (`ALTER DATABASE template1 REFRESH COLLATION VERSION`, аналогично для `postgres`) или запускать DB-тесты на исправленном экземпляре PostgreSQL.
+- [2026-08-05] Проблема: popup Vanilla Calendar Pro v3 в `inputMode` отображался под daisyUI modal, потому что legacy CSS адресовал `.vc`, а библиотека создаёт элемент `[data-vc="calendar"][data-vc-input]` в `body` → Решение: задавать `z-[1070]` непосредственно v3 selector, выше backdrop/modal.
+- [2026-08-05] Проблема: popup Vanilla Calendar Pro v3 в `inputMode` всё равно оставался под открытым нативным `<dialog>`, потому что modal находится в browser top layer, над которым элемент из `body` нельзя поднять через `z-index` → Решение: инициализировать календарь в wrapper внутри `<dialog>` без `inputMode`, скрывать его `hidden!` и открывать только click-обработчиком readonly input.
+- [2026-08-06] Проблема: inline-календарь Vanilla Calendar Pro v3 получал `position: relative` от `[data-vc="calendar"]`, из-за чего попадал в поток модального окна; попытка заменить это на `fixed` не работала, поскольку `scale` у daisyUI `.dui-modal-box` создаёт containing block для fixed-потомка → Решение: при открытии задавать календарю inline `position: absolute`, оставляя `top-full`, `start-0` и `z-10` из шаблона.
+- [2026-08-06] Проблема: legacy CSS календаря с глобальными селекторами `.vc-date` накладывался на разметку daisyUI `dui-vc`, и у дней отображались две рамки; scope под `.vc` не помогал, поскольку Vanilla Calendar также добавляет этот класс новому корню → Решение: scope legacy-селекторы под `.vc[data-vc-input]`, который есть только у старого picker.
+- [2026-08-06] Проблема: после изоляции legacy-стилей inline-календарь в add-city modal потерял фон, рамку и тень корня → Решение: явно задать card-оболочку календарю через `bg-base-100 border border-base-300 shadow-lg rounded-xl` в шаблоне.
+- [2026-08-06] Проблема: классы оболочки и позиционирования из шаблона пропадали после инициализации Vanilla Calendar Pro, потому что библиотека заменяет `mainElement.className` на `styles.calendar` → Решение: передавать все классы root-календаря через `styles.calendar` при создании экземпляра.
+- [2026-08-06] Проблема: generic CSS Vanilla Calendar переопределял `transform` daisyUI-псевдоэлементов стрелок, из-за чего chevron выглядел как незавершённая рамка → Решение: задать daisyUI transforms для `[data-vc-arrow="prev"]` и `[data-vc-arrow="next"]` с `!important`.
+- [2026-08-06] Проблема: после восстановления transform у стрелок одновременно отображались SVG-фон Vanilla Calendar и border-chevron daisyUI → Решение: отключить `background-image` у daisyUI-псевдоэлементов стрелок.
+- [2026-08-06] Проблема: Vite игнорировал compatibility CSS, поскольку `@import` был добавлен после других правил в `tailwind.css` → Решение: размещать CSS-imports только в верхней import-секции до `@custom-variant` и любых style rules.
+- [2026-08-06] Проблема: стили daisyUI `dui-vc` конфликтовали с нативными стилями Vanilla Calendar Pro, из-за чего стрелки требовали каскадных compatibility-переопределений → Решение: для календаря использовать только нативный класс `vc` Vanilla Calendar Pro; оставить Tailwind-классы только для позиционирования popup.
+- [2026-08-06] Проблема: после переключения года Vanilla Calendar Pro повторно задавал `mainElement.className` из `styles.calendar`; `hidden!` в этом значении снова скрывал открытый inline-календарь → Решение: не включать `hidden!` в `styles.calendar`, а управлять видимостью через сохраняемый библиотекой `data-vc-calendar-hidden`.
+- [2026-08-19] Проблема: команда `openspec validate --change <name>` не поддерживается установленной версией CLI и завершается ошибкой unknown option → Решение: передавать имя change как позиционный аргумент: `openspec validate <name> --strict`.
+- [2026-08-19] Проблема: запуск Vitest из `frontend/` с путём `frontend/components/...` не находит тестовый файл → Решение: указывать путь относительно `frontend/`, например `components/add-city-modal/add-city-modal.test.js`.
+- [2026-08-20] Проблема: проверка Zag combobox объединяла повторное открытие списка после keyboard selection и dismiss по outside pointer, из-за чего полный параллельный Vitest набор мог захватить промежуточное обновление списка → Решение: проверять outside dismissal отдельным свежим экземпляром combobox.
+- [2026-08-20] Проблема: обновление Zag collection в native `input` handler происходило до обработки машиной `INPUT.CHANGE`, и последующий render возвращал полю прежнее пустое значение; после смены региона это также скрывало список → Решение: контроллер хранит актуальный `inputValue` и передаёт его в Zag до обновления collection.
+- [2026-08-20] Проблема: Zag positioner задавал inline `z-index: var(--z-index)` без значения, поэтому список оказывался под следующими полями модального окна; неограниченная выдача также растягивала его на всю высоту → Решение: назначать `--z-index: 30` после применения props и ограничивать listbox через `max-h-64 overflow-y-auto`.
+- [2026-08-20] Проблема: daisyUI `dui-menu` использует `flex-flow: column wrap`, из-за чего listbox с ограниченной высотой переносил результаты во вторую колонку → Решение: для прокручиваемой выдачи combobox использовать обычный `flex flex-col` container с daisyUI semantic surface classes.
+- [2026-08-20] Проблема: Zag Floating UI пересчитывал viewport-координаты positioner внутри `.dui-modal-box`, чей `scale` создаёт containing block, поэтому список после interaction прыгал поверх input → Решение: не назначать Zag positioner id для вложенного listbox и позиционировать его CSS-якорем `absolute top-full start-0`.
+- [2026-08-20] Проблема: cascade передавал загруженные города до `onChange`, а обработчик location filters очищал уже установленную локальную collection combobox → Решение: вызывать `onChange` перед `onCitiesChange`, чтобы preload становился последним актуальным состоянием.
+- [2026-08-22] Проблема: нативный `dialog.showModal()` мог автоматически сфокусировать первое поле формы и открыть календарь при selected-city flow → Решение: перед открытием назначать `autofocus` самому `<dialog>`, а при city-selection flow удалять этот атрибут и явно фокусировать поле города.

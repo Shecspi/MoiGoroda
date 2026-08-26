@@ -74,9 +74,12 @@ export default defineConfig({
         city_search: path.resolve(entriesDir, 'city_search.js'),
         region_search: path.resolve(entriesDir, 'region_search.js'),
         city_photos: path.resolve(entriesDir, 'city_photos.js'),
+        city_visits: path.resolve(entriesDir, 'city_visits.js'),
         preline: path.resolve(entriesDir, 'preline.js'),
         ui_core: path.resolve(entriesDir, 'ui_core.js'),
         premium_promo_modal: path.resolve(entriesDir, 'premium_promo_modal.js'),
+        add_city_modal: path.resolve(entriesDir, 'add_city_modal.js'),
+        visited_city_list_refresh: path.resolve(entriesDir, 'visited_city_list_refresh.js'),
         geo_polygons: path.resolve(entriesDir, 'geo_polygons.js'),
         
         // CSS entries

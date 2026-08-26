@@ -1,12 +1,19 @@
-from django.urls import include, path
-from dmr.routing import Router
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
-from region.api import region_list_by_country, search_region, GetRegionsByCountryController
+from django.urls import include, path
+from dmr.routing import path as dmr_path, Router
+
+from region.api import RegionListByCountryController, search_region, GetRegionsByCountryController
 
 router = Router(
     'api/region',
     [
-        path('list', region_list_by_country, name='region-list-by-country'),
+        dmr_path('list', RegionListByCountryController.as_view(), name='region-list-by-country'),
         path(
             'list/<str:country_code>/',
             GetRegionsByCountryController.as_view(),

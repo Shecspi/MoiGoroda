@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """Проверка записи analytics.VisitedCityAddSource при добавлении посещения."""
 
 from datetime import date
@@ -8,7 +15,6 @@ from django.contrib.auth.models import User
 from django.test import Client
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from analytics.models import VisitedCityAddSource
 from city.models import City, VisitedCity
@@ -17,17 +23,17 @@ from region.models import Area, Region, RegionType
 
 
 @pytest.fixture
-def api_client() -> APIClient:
-    return APIClient()
+def api_client() -> Client:
+    return Client()
 
 
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_api_add_visit_writes_region_map_surface(
-    api_client: APIClient, django_user_model: type[User]
+    api_client: Client, django_user_model: type[User]
 ) -> None:
     user = django_user_model.objects.create_user(username='u1', password='pw')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
     country = Country.objects.create(name='ATL', code='AA')
     city = City.objects.create(
         title='T',
@@ -45,6 +51,7 @@ def test_api_add_visit_writes_region_map_surface(
             'rating': 5,
             'from': 'region_map',
         },
+        content_type='application/json',
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -57,10 +64,10 @@ def test_api_add_visit_writes_region_map_surface(
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_api_add_visit_unknown_from_records_api_unknown_with_raw_hint(
-    api_client: APIClient, django_user_model: type[User]
+    api_client: Client, django_user_model: type[User]
 ) -> None:
     user = django_user_model.objects.create_user(username='u2', password='pw')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
     country = Country.objects.create(name='AT2', code='BB')
     city = City.objects.create(
         title='Y',
@@ -78,6 +85,7 @@ def test_api_add_visit_unknown_from_records_api_unknown_with_raw_hint(
             'rating': 5,
             'from': 'random client string',
         },
+        content_type='application/json',
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -90,11 +98,11 @@ def test_api_add_visit_unknown_from_records_api_unknown_with_raw_hint(
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_api_country_map_string_is_api_unknown_with_hint(
-    api_client: APIClient, django_user_model: type[User]
+    api_client: Client, django_user_model: type[User]
 ) -> None:
     """Строка с карты стран относится к другому API; для города — api_unknown + raw_hint."""
     user = django_user_model.objects.create_user(username='u4', password='pw')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
     country = Country.objects.create(name='AT4', code='DD')
     city = City.objects.create(
         title='W',
@@ -112,6 +120,7 @@ def test_api_country_map_string_is_api_unknown_with_hint(
             'rating': 5,
             'from': 'country map',
         },
+        content_type='application/json',
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -124,10 +133,10 @@ def test_api_country_map_string_is_api_unknown_with_hint(
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_api_general_map_alias_maps_to_visited_cities_map(
-    api_client: APIClient, django_user_model: type[User]
+    api_client: Client, django_user_model: type[User]
 ) -> None:
     user = django_user_model.objects.create_user(username='u3', password='pw')
-    api_client.force_authenticate(user=user)
+    api_client.force_login(user)
     country = Country.objects.create(name='AT3', code='CC')
     city = City.objects.create(
         title='Z',
@@ -145,6 +154,7 @@ def test_api_general_map_alias_maps_to_visited_cities_map(
             'rating': 5,
             'from': 'general map',
         },
+        content_type='application/json',
     )
 
     assert response.status_code == status.HTTP_200_OK

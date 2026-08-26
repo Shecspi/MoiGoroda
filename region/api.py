@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 from __future__ import annotations
 
 from http import HTTPStatus
@@ -76,6 +83,80 @@ def region_list_by_country(request: Request) -> Response:
     serializer = RegionSerializer(regions, many=True)
 
     return Response(serializer.data)
+
+
+class RegionListItem(msgspec.Struct):
+    """Совместимый элемент списка регионов для каскадного выбора города."""
+
+    id: int
+    title: str
+    country_name: str
+    country_id: int
+    iso3166: str
+    country_code: str
+
+
+class RegionListByCountryController(Controller[MsgspecSerializer]):
+    """DMR версия ``/api/region/list`` с поддержкой country_id и country_ids."""
+
+    @modify(
+        status_code=HTTPStatus.OK,
+        extra_responses=[ResponseSpec(dict[str, str], status_code=HTTPStatus.BAD_REQUEST)],
+        tags=['Регионы'],
+    )
+    def get(self) -> Any:
+        country_ids_param = self.request.GET.get('country_ids')
+        country_id_param = self.request.GET.get('country_id')
+
+        if not country_ids_param and not country_id_param:
+            return self.to_response(
+                raw_data={'detail': 'Параметр country_id или country_ids является обязательным'},
+                status_code=HTTPStatus.BAD_REQUEST,
+            )
+
+        if country_ids_param:
+            try:
+                country_ids = [int(value.strip()) for value in country_ids_param.split(',') if value.strip()]
+            except ValueError:
+                return self.to_response(
+                    raw_data={
+                        'detail': 'Параметр country_ids должен содержать список числовых ID через запятую'
+                    },
+                    status_code=HTTPStatus.BAD_REQUEST,
+                )
+        else:
+            assert country_id_param is not None
+            try:
+                country_ids = [int(country_id_param)]
+            except ValueError:
+                return self.to_response(
+                    raw_data={'detail': 'Параметр country_id должен быть числом'},
+                    status_code=HTTPStatus.BAD_REQUEST,
+                )
+
+        if not country_ids:
+            return self.to_response(
+                raw_data={'detail': 'Не указаны валидные ID стран'},
+                status_code=HTTPStatus.BAD_REQUEST,
+            )
+
+        regions = (
+            Region.objects.filter(country_id__in=country_ids)
+            .select_related('country')
+            .order_by('full_name')
+        )
+        data = [
+            RegionListItem(
+                id=region.id,
+                title=region.full_name,
+                country_name=region.country.name,
+                country_id=region.country_id,
+                iso3166=region.iso3166,
+                country_code=region.country.code,
+            )
+            for region in regions
+        ]
+        return self.to_response(raw_data=data, status_code=HTTPStatus.OK)
 
 
 class RegionDMR(msgspec.Struct):

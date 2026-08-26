@@ -1,3 +1,10 @@
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
 """
 Unit тесты для CitySearchService (city/services/search.py).
 
@@ -8,7 +15,7 @@ Unit тесты для CitySearchService (city/services/search.py).
 - Ограничение количества результатов
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
@@ -38,25 +45,6 @@ class TestCitySearchServiceBasic:
         mock_queryset.filter.assert_called_once_with(title__icontains='Москва')
 
     @patch('city.services.search.City.objects')
-    def test_search_cities_with_country_filter(self, mock_city_objects: MagicMock) -> None:
-        """Поиск с фильтрацией по стране."""
-        mock_queryset = MagicMock()
-        mock_city_objects.select_related.return_value = mock_queryset
-        mock_queryset.filter.return_value = mock_queryset
-        mock_queryset.annotate.return_value = mock_queryset
-        mock_queryset.order_by.return_value = mock_queryset
-        mock_queryset.__getitem__ = MagicMock(return_value=mock_queryset)
-
-        CitySearchService.search_cities(query='Москва', country='RU')
-
-        # Должно быть два вызова filter: по title и по country
-        assert mock_queryset.filter.call_count == 2
-
-        # Второй вызов - фильтр по стране
-        second_call = mock_queryset.filter.call_args_list[1]
-        assert 'country__code' in str(second_call)
-
-    @patch('city.services.search.City.objects')
     def test_search_cities_without_country_filter(self, mock_city_objects: MagicMock) -> None:
         """Поиск без фильтрации по стране."""
         mock_queryset = MagicMock()
@@ -70,6 +58,48 @@ class TestCitySearchServiceBasic:
 
         # Должен быть только один вызов filter (по title)
         assert mock_queryset.filter.call_count == 1
+
+    @patch('city.services.search.City.objects')
+    def test_search_cities_filters_by_country_code(
+        self,
+        mock_city_objects: MagicMock,
+    ) -> None:
+        """Автодополнение ограничивает подсказки кодом страны."""
+        mock_queryset = MagicMock()
+        mock_city_objects.select_related.return_value = mock_queryset
+        mock_queryset.filter.return_value = mock_queryset
+        mock_queryset.annotate.return_value = mock_queryset
+        mock_queryset.order_by.return_value = mock_queryset
+        mock_queryset.__getitem__ = MagicMock(return_value=mock_queryset)
+
+        CitySearchService.search_cities(query='Моск', country='RU')
+
+        mock_queryset.filter.assert_has_calls([
+            call(title__icontains='Моск'),
+            call(country__code='RU'),
+        ])
+        assert mock_queryset.filter.call_count == 2
+
+    @patch('city.services.search.City.objects')
+    def test_search_cities_filters_by_region_iso3166(
+        self,
+        mock_city_objects: MagicMock,
+    ) -> None:
+        """Автодополнение ограничивает подсказки ISO 3166 кодом региона."""
+        mock_queryset = MagicMock()
+        mock_city_objects.select_related.return_value = mock_queryset
+        mock_queryset.filter.return_value = mock_queryset
+        mock_queryset.annotate.return_value = mock_queryset
+        mock_queryset.order_by.return_value = mock_queryset
+        mock_queryset.__getitem__ = MagicMock(return_value=mock_queryset)
+
+        CitySearchService.search_cities(query='Моск', region='RU-MOW')
+
+        mock_queryset.filter.assert_has_calls([
+            call(title__icontains='Моск'),
+            call(region__iso3166='RU-MOW'),
+        ])
+        assert mock_queryset.filter.call_count == 2
 
     @patch('city.services.search.City.objects')
     def test_search_cities_applies_limit(self, mock_city_objects: MagicMock) -> None:

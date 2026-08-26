@@ -1,0 +1,170 @@
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+{% endcomment %}
+
+<template id="add-city-modal-template">
+    <dialog class="dui-modal" id="addCityModal">
+        <div class="dui-modal-box flex max-h-[calc(100dvh-3.5rem)] flex-col overflow-hidden p-0">
+            <h3 class="shrink-0 border-b border-base-300 px-6 pt-6 pb-4 font-bold text-lg text-base-content" id="addCityModalLabel">
+                Добавить посещённый город
+            </h3>
+
+            <form class="flex min-h-0 flex-1 flex-col" id="form-add-city" method="dialog">
+                {% csrf_token %}
+                <input type="hidden" id="city-id" name="city" value="">
+                <input type="hidden" name="from" value="visited_cities_map">
+
+                <div class="min-h-0 flex-1 overflow-y-auto px-6 pt-4 pb-6">
+                    <div class="dui-card bg-base-200 border border-base-300 mb-6" id="city-summary-card">
+                        <div class="dui-card-body p-4">
+                            <h4 class="dui-card-title text-base" id="city-title-in-modal"></h4>
+                            <p class="text-sm text-base-content/80" id="region-title-in-modal"></p>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 space-y-4" id="city-selection-fields" hidden>
+                        <div class="dui-form-control">
+                            <label class="dui-label mb-2" for="add-city-city">
+                                <span class="dui-label-text font-semibold text-base-content">Город</span>
+                            </label>
+                            <div class="relative" data-city-combobox>
+                                <div data-city-combobox-control>
+                                    <input class="dui-input dui-input-bordered w-full pr-18"
+                                        id="add-city-city"
+                                        data-city-combobox-input
+                                        type="search"
+                                        placeholder="Начните вводить название города"
+                                        autocomplete="off">
+                                    <button class="dui-btn dui-btn-ghost dui-btn-circle dui-btn-sm absolute end-2 top-1/2 -translate-y-1/2"
+                                            type="button"
+                                            data-city-combobox-clear
+                                            aria-label="Очистить название города"
+                                            hidden>
+                                        <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="m6 6 12 12M18 6 6 18" />
+                                        </svg>
+                                    </button>
+                                <span class="dui-loading dui-loading-spinner dui-loading-sm absolute end-10 top-1/2 -translate-y-1/2"
+                                       data-city-combobox-loading
+                                       aria-label="Загрузка подсказок"
+                                       hidden></span>
+                                </div>
+                                <div class="absolute top-full start-0 z-30 mt-2 w-full" data-city-combobox-positioner>
+                                <ul class="flex max-h-64 w-full flex-col overflow-y-auto bg-base-100 border border-base-content/30 rounded-box shadow-lg shadow-base-content/20"
+                                    data-city-combobox-content></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dui-form-control">
+                        <label class="dui-label mb-2" for="date-of-visit">
+                            <span class="dui-label-text font-semibold text-base-content">Дата посещения</span>
+                        </label>
+                        <div class="relative">
+                            <div class="dui-join w-full">
+                                <input type="text"
+                                       id="date-of-visit"
+                                       name="date_of_visit"
+                                       class="dui-input dui-input-bordered dui-join-item min-w-0 flex-1"
+                                       placeholder="Выберите дату"
+                                       autocomplete="off"
+                                       readonly>
+                                <button type="button"
+                                        id="today-button"
+                                        class="dui-btn dui-join-item">
+                                    Сегодня
+                                </button>
+                                <button type="button"
+                                        id="yesterday-button"
+                                        class="dui-btn dui-join-item">
+                                    Вчера
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dui-divider"></div>
+
+                    <div class="dui-form-control">
+                        <label class="cursor-pointer flex w-full items-center gap-4">
+                            <div class="min-w-0 flex-1">
+                                <span class="dui-label-text font-semibold text-base-content">Наличие сувенира из города</span>
+                                <span class="block text-sm text-base-content/80 mt-1">
+                                    Отметьте этот пункт, если у Вас в коллекции есть сувенир из города.
+                                </span>
+                            </div>
+                            <input type="checkbox"
+                                   name="has_magnet"
+                                   id="magnet-checkbox"
+                                    class="dui-toggle dui-toggle-primary dui-toggle-lg shrink-0">
+                        </label>
+                    </div>
+
+                    <div class="dui-divider"></div>
+
+                    <div class="dui-form-control">
+                        <label class="dui-label mb-2">
+                            <span class="dui-label-text font-semibold text-base-content">
+                                Оценка города
+                                <span class="dui-text-error">*</span>
+                            </span>
+                        </label>
+                        <div class="flex items-center justify-between gap-4">
+                            <span class="text-sm text-base-content/80">
+                                Поставьте оценку городу. 1 - плохо, 5 - отлично.
+                            </span>
+                            <div class="dui-rating" id="rating-container">
+                                <input type="radio" name="rating-radio" value="1" class="dui-mask dui-mask-star-2 bg-warning" aria-label="1 звезда" />
+                                <input type="radio" name="rating-radio" value="2" class="dui-mask dui-mask-star-2 bg-warning" aria-label="2 звезды" />
+                                <input type="radio" name="rating-radio" value="3" class="dui-mask dui-mask-star-2 bg-warning" aria-label="3 звезды" />
+                                <input type="radio" name="rating-radio" value="4" class="dui-mask dui-mask-star-2 bg-warning" aria-label="4 звезды" />
+                                <input type="radio" name="rating-radio" value="5" class="dui-mask dui-mask-star-2 bg-warning" aria-label="5 звезд" />
+                            </div>                        </div>
+                        <input type="hidden"
+                               name="rating"
+                               id="id_rating"
+                               value=""
+                               required>
+                    </div>
+
+                    <div class="dui-divider"></div>
+
+                    <div class="dui-form-control">
+                        <label class="dui-label mb-2">
+                            <span class="dui-label-text font-semibold text-base-content">Впечатления о городе</span>
+                        </label>
+                        <textarea class="dui-textarea dui-textarea-bordered w-full"
+                                  id="impression"
+                                  name="impression"
+                                  rows="4"
+                                  placeholder="Опишите свои впечатления о городе..."></textarea>
+                    </div>
+                </div>
+
+                <div class="dui-modal-action mt-0 shrink-0 border-t border-base-300 px-6 py-4">
+                    <button type="button"
+                            class="dui-btn dui-btn-ghost"
+                            id="btn-close-modal">
+                        Закрыть
+                    </button>
+                    <button type="submit"
+                            class="dui-btn dui-btn-primary"
+                            id="btn_add-visited-city"
+                            disabled>
+                        <span>Добавить</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div id="add-city-visit-calendar" class="vc fixed z-[1001] w-fit" data-vc-calendar-hidden></div>
+        <form method="dialog" class="dui-modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+</template>

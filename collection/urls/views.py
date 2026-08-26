@@ -1,21 +1,36 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 from django.urls import path
+from dmr.routing import path as dmr_path
 from collection import views
+from collection.fragment_api import (
+    CollectionListFragmentController,
+    CollectionSelectedListFragmentController,
+    PersonalCollectionCityListFragmentController,
+    PersonalCollectionListFragmentController,
+)
 
 urlpatterns = [
     path('', views.CollectionList.as_view(), name='collection-list'),
+    dmr_path(
+        'fragment',
+        CollectionListFragmentController.as_view(),
+        name='collection-list-fragment',
+    ),
     path(
         'personal',
         views.PersonalCollectionListView.as_view(),
         name='collection-personal-list-view',
+    ),
+    dmr_path(
+        'personal/fragment',
+        PersonalCollectionListFragmentController.as_view(),
+        name='collection-personal-list-fragment',
     ),
     path(
         'personal/public',
@@ -37,6 +52,11 @@ urlpatterns = [
         views.PersonalCollectionCityListView.as_view(),
         name='collection-personal-list',
     ),
+    dmr_path(
+        'personal/<uuid:pk>/list/fragment',
+        PersonalCollectionCityListFragmentController.as_view(),
+        name='collection-personal-city-list-fragment',
+    ),
     path(
         'personal/<uuid:pk>/map',
         views.PersonalCollectionMap.as_view(),
@@ -46,6 +66,11 @@ urlpatterns = [
         '<int:pk>/list',
         views.CollectionSelected_List.as_view(list_or_map='list'),
         name='collection-detail-list',
+    ),
+    dmr_path(
+        '<int:pk>/list/fragment',
+        CollectionSelectedListFragmentController.as_view(),
+        name='collection-detail-list-fragment',
     ),
     path(
         '<int:pk>/map',

@@ -11,7 +11,6 @@
 
 import L from 'leaflet';
 import {create_map} from '../components/map.js';
-import {initAddCityForm} from "../components/add_city_modal.js";
 import {icon_visited_pin, icon_not_visited_pin} from '../components/icons.js';
 import {bindPopupToMarker} from '../components/city_popup.js';
 import {pluralize} from '../components/search_services.js';
@@ -107,62 +106,56 @@ const updateVisitedCitiesBadge = () => {
     }
 };
 
-// Инициализируем форму добавления города, если она есть на странице
-if (document.getElementById('form-add-city')) {
-    initAddCityForm(null, (updatedCity) => {
-        const stored = markersByCityId.get(updatedCity.id);
-        if (!stored) {
-            return;
-        }
+const synchronizeVisitedCity = (e) => {
+    const { city: updatedCity } = e.detail;
+    const stored = markersByCityId.get(updatedCity.id);
+    if (!stored) {
+        return;
+    }
 
-        const {marker, cityData} = stored;
+    const {marker, cityData} = stored;
 
-        // Обновляем данные о городе из ответа сервера
-        // Сохраняем данные о регионе и стране из исходных данных, так как API их не возвращает
-        const newCityData = {
-            ...cityData,
-            isVisited: true,
-            numberOfVisits: updatedCity.number_of_visits,
-            firstVisitDate: updatedCity.first_visit_date,
-            lastVisitDate: updatedCity.last_visit_date,
-            numberOfUsersWhoVisitCity: updatedCity.number_of_users_who_visit_city ?? null,
-            numberOfVisitsAllUsers: updatedCity.number_of_visits_all_users ?? null,
-            // Сохраняем данные о регионе и стране из исходных данных
-            regionName: cityData.regionName,
-            regionId: cityData.regionId,
-            countryName: cityData.countryName,
-            countryCode: cityData.countryCode
-        };
+    const newCityData = {
+        ...cityData,
+        isVisited: true,
+        numberOfVisits: updatedCity.number_of_visits,
+        firstVisitDate: updatedCity.first_visit_date,
+        lastVisitDate: updatedCity.last_visit_date,
+        numberOfUsersWhoVisitCity: updatedCity.number_of_users_who_visit_city ?? null,
+        numberOfVisitsAllUsers: updatedCity.number_of_visits_all_users ?? null,
+        regionName: cityData.regionName,
+        regionId: cityData.regionId,
+        countryName: cityData.countryName,
+        countryCode: cityData.countryCode
+    };
 
-        // Обновляем маркер и popup
-        marker.setIcon(icon_visited_pin);
-        marker.unbindPopup();
-        marker.unbindTooltip();
-        marker.off();
-        
-        // Формируем ссылки на регион и страну
-        const regionLink = newCityData.regionId ? `/region/${newCityData.regionId}/list` : null;
-        const countryLink = newCityData.countryCode ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(newCityData.countryCode)}` : null;
-        
-        const popupOptions = {
-            regionName: newCityData.regionName || null,
-            countryName: newCityData.countryName || null,
-            regionLink: regionLink,
-            countryLink: countryLink,
-            isAuthenticated: isAuthenticated,
-            canMarkVisited: canMarkVisited,
-            isCollectionOwner: isCollectionOwner,
-            collectionOwnerUsername: collectionOwnerUsername
-        };
-        bindPopupToMarker(marker, newCityData, popupOptions);
+    marker.setIcon(icon_visited_pin);
+    marker.unbindPopup();
+    marker.unbindTooltip();
+    marker.off();
+    
+    const regionLink = newCityData.regionId ? `/region/${newCityData.regionId}/list` : null;
+    const countryLink = newCityData.countryCode ? `${countryCitiesBaseUrl}?country=${encodeURIComponent(newCityData.countryCode)}` : null;
+    
+    const popupOptions = {
+        regionName: newCityData.regionName || null,
+        countryName: newCityData.countryName || null,
+        regionLink: regionLink,
+        countryLink: countryLink,
+        isAuthenticated: isAuthenticated,
+        canMarkVisited: canMarkVisited,
+        isCollectionOwner: isCollectionOwner,
+        collectionOwnerUsername: collectionOwnerUsername
+    };
+    bindPopupToMarker(marker, newCityData, popupOptions);
 
-        // Сохраняем обновлённые данные
-        markersByCityId.set(updatedCity.id, {marker, cityData: newCityData});
+    markersByCityId.set(updatedCity.id, {marker, cityData: newCityData});
 
-        // Обновляем бейджик в тулбаре только если это первое посещение города
-        const isFirstVisit = !cityData.isVisited;
-        if (isFirstVisit) {
-            updateVisitedCitiesBadge();
-        }
-    });
-}
+    const isFirstVisit = !cityData.isVisited;
+    if (isFirstVisit) {
+        updateVisitedCitiesBadge();
+    }
+};
+
+document.addEventListener('city-added', synchronizeVisitedCity);
+document.addEventListener('visited-city-updated', synchronizeVisitedCity);

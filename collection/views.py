@@ -320,6 +320,21 @@ class CollectionSelected_List(ListView):  # type: ignore[type-arg]
         return []
 
 
+class CollectionListFragment(CollectionList):
+    """Возвращает обновляемые блоки каталога тематических коллекций."""
+
+    template_name = 'collection/list/fragment.html'
+
+
+class CollectionSelectedListFragment(CollectionSelected_List):
+    """Возвращает обновляемые блоки списка городов тематической коллекции."""
+
+    template_name = 'collection/selected/list/fragment.html'
+
+    def get_template_names(self) -> list[str]:
+        return [self.template_name]
+
+
 def get_url_params(filter_value: str | None) -> str:
     """
     Возвращает строку, пригодную для использования в URL-адресе после знака '?' с параметрами 'filter' и 'sort'
@@ -457,6 +472,12 @@ class PersonalCollectionListView(LoginRequiredMixin, ListView):  # type: ignore[
         return context
 
 
+class PersonalCollectionListFragment(PersonalCollectionListView):
+    """Возвращает обновляемые блоки каталога персональных коллекций владельца."""
+
+    template_name = 'collection/personal/collections/fragment.html'
+
+
 class PublicPersonalCollectionListView(ListView):  # type: ignore[type-arg]
     """
     View для отображения списка публичных персональных коллекций всех пользователей.
@@ -566,6 +587,15 @@ class PersonalCollectionCityListView(ListView):  # type: ignore[type-arg]
         return [
             'collection/personal/cities/list/page.html',
         ]
+
+
+class PersonalCollectionCityListFragment(PersonalCollectionCityListView):
+    """Возвращает обновляемые блоки списка городов персональной коллекции."""
+
+    template_name = 'collection/personal/cities/list/fragment.html'
+
+    def get_template_names(self) -> list[str]:
+        return [self.template_name]
 
 
 class PersonalCollectionMap(ListView):  # type: ignore[type-arg]

@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 @import "tailwindcss";
 @import "preline/variants.css";
-@import "./preline-datepicker-vc.css" layer(components);
 @import "../ui-lib/styles/index.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -101,41 +100,6 @@ Licensed under the Apache License, Version 2.0
 @source "../node_modules/preline/dist";
 @plugin "daisyui" {
     prefix: dui-;
-}
-
-@plugin "daisyui/theme" {
-    name: "emerald";
-    default: true;
-    prefersdark: false;
-    color-scheme: "light";
-    --color-base-100: #ffffff;
-    --color-base-200: #f3f4f6;
-    --color-base-300: #e5e7eb;
-    --color-base-content: #111827;
-    --color-primary: #2563eb;
-    --color-primary-content: #ffffff;
-    --color-secondary: #e5e7eb;
-    --color-secondary-content: #1f2937;
-    --color-accent: #8b5cf6;
-    --color-accent-content: #ffffff;
-    --color-neutral: #111827;
-    --color-neutral-content: #ffffff;
-    --color-info: #0ea5e9;
-    --color-info-content: #ffffff;
-    --color-success: #10b981;
-    --color-success-content: #ffffff;
-    --color-warning: #f59e0b;
-    --color-warning-content: #ffffff;
-    --color-error: #ef4444;
-    --color-error-content: #ffffff;
-    --radius-selector: 1rem;
-    --radius-field: 0.5rem;
-    --radius-box: 0.5rem;
-    --size-selector: 0.25rem;
-    --size-field: 0.27rem;
-    --border: 1px;
-    --depth: 0;
-    --noise: 0;
 }
 
 @layer base {

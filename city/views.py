@@ -17,7 +17,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.db.models import QuerySet
 from django.forms import BaseModelForm
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -51,6 +51,7 @@ from city.services.db import (
 )
 from city.services.filter import apply_filter_to_queryset
 from city.services.interfaces import AbstractVisitedCityService
+from city.repository.visited_city_repository import VisitedCityRepository
 from city.services.sort import apply_sort_to_queryset
 from country.models import Country
 from premium.services.access import has_advanced_premium
@@ -329,6 +330,23 @@ class VisitedCityDetail(DetailView):  # type: ignore[type-arg]
             )
 
         return context
+
+
+class VisitedCityVisitsFragment(LoginRequiredMixin, TemplateView):
+    """Рендерит обновляемую область посещений одного города."""
+
+    template_name = 'city/detail/sections/user_visits.html'
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        city = get_object_or_404(City, pk=self.kwargs['pk'])
+        repository = VisitedCityRepository()
+        return {
+            **context,
+            'city': city,
+            'visits': repository.get_user_visits(city.id, self.request.user),
+            'number_of_visits': repository.count_user_visits(city.id, self.request.user),
+        }
 
 
 class VisitedCity_Map(LoginRequiredMixin, TemplateView):
@@ -611,6 +629,12 @@ class VisitedCity_List(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
             timeline_items[0]['is_first_visited'] = True
 
         return timeline_items
+
+
+class VisitedCityListFragment(VisitedCity_List):
+    """Возвращает обновляемые блоки списка посещённых городов."""
+
+    template_name = 'city/list/fragment.html'
 
 
 def get_cities_based_on_region(request: HttpRequest) -> HttpResponse:

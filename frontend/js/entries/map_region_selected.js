@@ -15,7 +15,6 @@ import {
     addLoadControl,
     addErrorControl,
 } from "../components/map.js";
-import { initAddCityForm } from "../components/add_city_modal.js";
 import { icon_visited_pin, icon_not_visited_pin } from "../components/icons.js";
 import { bindPopupToMarker } from "../components/city_popup.js";
 import { pluralize } from "../components/search_services.js";
@@ -315,6 +314,10 @@ function applyVisitedCityUpdate(updatedCity) {
     }
 }
 
-if (document.getElementById("form-add-city")) {
-    initAddCityForm(null, applyVisitedCityUpdate);
-}
+const synchronizeVisitedCity = (e) => {
+    const { city } = e.detail;
+    applyVisitedCityUpdate(city);
+};
+
+document.addEventListener('city-added', synchronizeVisitedCity);
+document.addEventListener('visited-city-updated', synchronizeVisitedCity);

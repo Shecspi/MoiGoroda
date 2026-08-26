@@ -1,14 +1,14 @@
-"""
-----------------------------------------------
-
-Copyright © Egor Vavilov (Shecspi)
-Licensed under the Apache License, Version 2.0
-
-----------------------------------------------
-"""
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
 
 from django.urls import path
+from dmr.routing import path as dmr_path
 from city import views
+from city.api.fragments import VisitedCityListFragmentController, VisitedCityVisitsFragmentController
 from city.repository.city_repository import CityRepository
 from city.repository.visited_city_repository import VisitedCityRepository
 from city.services.visited_city_service import VisitedCityService
@@ -16,6 +16,16 @@ from city.services.visited_city_service import VisitedCityService
 urlpatterns = [
     # Списки с городами
     path('all/list', views.VisitedCity_List.as_view(), name='city-all-list'),
+    dmr_path(
+        'all/list/fragment',
+        VisitedCityListFragmentController.as_view(),
+        name='city-all-list-fragment',
+    ),
+    dmr_path(
+        '<int:pk>/visits/fragment',
+        VisitedCityVisitsFragmentController.as_view(),
+        name='city-selected-visits-fragment',
+    ),
     path('all/map', views.VisitedCity_Map.as_view(), name='city-all-map'),
     path(
         '<int:pk>',

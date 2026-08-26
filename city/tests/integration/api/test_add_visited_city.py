@@ -54,9 +54,7 @@ class TestAddVisitedCityValidation:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_session_post_requires_csrf_token(
-        self, django_user_model: Type[User]
-    ) -> None:
+    def test_session_post_requires_csrf_token(self, django_user_model: Type[User]) -> None:
         """Ломается, если DMR create controller обходит CSRF session-auth защиты."""
         user = django_user_model.objects.create_user(username='csrf-user', password='password')
         client = Client(enforce_csrf_checks=True)

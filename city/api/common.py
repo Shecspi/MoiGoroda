@@ -240,7 +240,7 @@ class GetNotVisitedCities(Controller[MsgspecSerializer]):
         return self.to_response(raw_data=data, status_code=HTTPStatus.OK)
 
 
-class AddVisitedCity(generics.CreateAPIView):  # type: ignore[type-arg]
+class _LegacyAddVisitedCity(generics.CreateAPIView):  # type: ignore[type-arg]
     serializer_class = AddVisitedCitySerializer
     permission_classes = (IsAuthenticated,)
 

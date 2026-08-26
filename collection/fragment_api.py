@@ -9,7 +9,7 @@
 
 from http import HTTPStatus
 
-from django.http import HttpResponse
+from django.http import HttpResponseBase
 from dmr import Controller, ResponseSpec, validate
 from dmr.plugins.msgspec import MsgspecSerializer
 
@@ -32,7 +32,7 @@ class CollectionListFragmentController(Controller[MsgspecSerializer]):
         validate_responses=False,
         tags=['Коллекции'],
     )
-    def get(self) -> HttpResponse:
+    def get(self) -> HttpResponseBase:
         return CollectionListFragment.as_view()(self.request)
 
 
@@ -46,7 +46,7 @@ class CollectionSelectedListFragmentController(Controller[MsgspecSerializer]):
         validate_responses=False,
         tags=['Коллекции'],
     )
-    def get(self) -> HttpResponse:
+    def get(self) -> HttpResponseBase:
         return CollectionSelectedListFragment.as_view(list_or_map='list')(
             self.request, pk=self.kwargs['pk']
         )
@@ -62,7 +62,7 @@ class PersonalCollectionListFragmentController(Controller[MsgspecSerializer]):
         validate_responses=False,
         tags=['Коллекции'],
     )
-    def get(self) -> HttpResponse:
+    def get(self) -> HttpResponseBase:
         return PersonalCollectionListFragment.as_view()(self.request)
 
 
@@ -76,7 +76,5 @@ class PersonalCollectionCityListFragmentController(Controller[MsgspecSerializer]
         validate_responses=False,
         tags=['Коллекции'],
     )
-    def get(self) -> HttpResponse:
-        return PersonalCollectionCityListFragment.as_view()(
-            self.request, pk=self.kwargs['pk']
-        )
+    def get(self) -> HttpResponseBase:
+        return PersonalCollectionCityListFragment.as_view()(self.request, pk=self.kwargs['pk'])

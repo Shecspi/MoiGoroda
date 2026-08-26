@@ -110,9 +110,7 @@ class TestCitySearch:
         response = api_client.get(f'{self.url}?query=Moscow')
 
         assert response.status_code == status.HTTP_200_OK
-        mock_search.assert_called_once_with(
-            query='Moscow', country=None, region=None, limit=50
-        )
+        mock_search.assert_called_once_with(query='Moscow', country=None, region=None, limit=50)
 
         response_data = response.json()
         assert isinstance(response_data, list)
@@ -146,9 +144,7 @@ class TestCitySearch:
         response = api_client.get(f'{self.url}?query=Moscow&country=RU')
 
         assert response.status_code == status.HTTP_200_OK
-        mock_search.assert_called_once_with(
-            query='Moscow', country='RU', region=None, limit=50
-        )
+        mock_search.assert_called_once_with(query='Moscow', country='RU', region=None, limit=50)
 
         response_data = response.json()
         assert isinstance(response_data, list)
@@ -280,9 +276,7 @@ class TestCitySearch:
         )
 
         assert unfiltered_response.status_code == 200
-        assert [item['title'] for item in unfiltered_response.json()] == [
-            'Совпадающий город'
-        ]
+        assert [item['title'] for item in unfiltered_response.json()] == ['Совпадающий город']
         assert response.status_code == 200
         assert response.json() == []
 
@@ -308,9 +302,7 @@ class TestCitySearch:
         response = api_client.get(f'{self.url}?query=Moscow&limit=20')
 
         assert response.status_code == status.HTTP_200_OK
-        mock_search.assert_called_once_with(
-            query='Moscow', country=None, region=None, limit=20
-        )
+        mock_search.assert_called_once_with(query='Moscow', country=None, region=None, limit=20)
 
         response_data = response.json()
         assert isinstance(response_data, list)

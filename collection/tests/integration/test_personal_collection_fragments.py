@@ -62,7 +62,9 @@ class TestPersonalCollectionFragments:
         """Каталог владельца сохраняет membership, прогресс и страницу."""
         owner, reader, country, region = personal_fragment_data
         for number in range(17):
-            collection = PersonalCollection.objects.create(user=owner, title=f'Коллекция {number:02d}')
+            collection = PersonalCollection.objects.create(
+                user=owner, title=f'Коллекция {number:02d}'
+            )
             city = create_personal_collection_city(number, country, region, collection)
             VisitedCity.objects.create(user=owner, city=city, rating=5)
         foreign_collection = PersonalCollection.objects.create(user=reader, title='Чужая коллекция')
@@ -83,7 +85,9 @@ class TestPersonalCollectionFragments:
         assert response.context['page_obj'].number == 2
         assert '<html' not in content
 
-    def test_catalog_fragment_returns_empty_state(self, client: Client, django_user_model: type[User]) -> None:
+    def test_catalog_fragment_returns_empty_state(
+        self, client: Client, django_user_model: type[User]
+    ) -> None:
         """Пустой каталог владельца остаётся самостоятельным фрагментом."""
         owner = django_user_model.objects.create_user(username='empty-owner', password='pass123')
         client.force_login(owner)
@@ -105,11 +109,13 @@ class TestPersonalCollectionFragments:
         collection = PersonalCollection.objects.create(user=owner, title='Маршрут владельца')
         for number in range(17):
             city = create_personal_collection_city(number, country, region, collection)
-            VisitedCity.objects.create(user=owner, city=city, rating=5, date_of_visit=date(2024, 1, 1))
+            VisitedCity.objects.create(
+                user=owner, city=city, rating=5, date_of_visit=date(2024, 1, 1)
+            )
         client.force_login(owner)
         url = reverse('collection-personal-city-list-fragment', kwargs={'pk': collection.pk})
 
-        response = client.get(url, data={'filter': 'visited', 'page': 2})
+        response = client.get(url, data={'filter': 'visited', 'page': '2'})
 
         content = response.content.decode()
         container = BeautifulSoup(content, 'html.parser').select_one('[data-visited-city-refresh]')
@@ -177,7 +183,10 @@ class TestPersonalCollectionFragments:
         ('url_name', 'kwargs'),
         [
             ('collection-personal-list-fragment', {}),
-            ('collection-personal-city-list-fragment', {'pk': '00000000-0000-0000-0000-000000000001'}),
+            (
+                'collection-personal-city-list-fragment',
+                {'pk': '00000000-0000-0000-0000-000000000001'},
+            ),
         ],
     )
     def test_guest_gets_forbidden_response(

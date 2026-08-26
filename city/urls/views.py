@@ -8,7 +8,10 @@
 from django.urls import path
 from dmr.routing import path as dmr_path
 from city import views
-from city.api.fragments import VisitedCityListFragmentController, VisitedCityVisitsFragmentController
+from city.api.fragments import (
+    VisitedCityListFragmentController,
+    VisitedCityVisitsFragmentController,
+)
 from city.repository.city_repository import CityRepository
 from city.repository.visited_city_repository import VisitedCityRepository
 from city.services.visited_city_service import VisitedCityService

@@ -61,7 +61,7 @@ class TestCollectionListFragments:
 
         response = client.get(
             reverse('collection-list-fragment'),
-            data={'filter': 'finished', 'sort': 'progress_down', 'page': 2},
+            data={'filter': 'finished', 'sort': 'progress_down', 'page': '2'},
         )
 
         content = response.content.decode()
@@ -108,7 +108,7 @@ class TestCollectionListFragments:
 
         response = client.get(
             reverse('collection-detail-list-fragment', kwargs={'pk': collection.pk}),
-            data={'filter': 'visited', 'page': 2},
+            data={'filter': 'visited', 'page': '2'},
         )
 
         content = response.content.decode()

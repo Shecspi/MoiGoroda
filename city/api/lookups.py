@@ -159,7 +159,9 @@ class CitySearchController(
         region = params.region.strip() if params.region is not None else None
         if params.region is not None and (not region or len(region) > 10):
             return self.to_response(
-                raw_data={'detail': [{'msg': 'Параметр region должен содержать от 1 до 10 символов'}]},
+                raw_data={
+                    'detail': [{'msg': 'Параметр region должен содержать от 1 до 10 символов'}]
+                },
                 status_code=HTTPStatus.BAD_REQUEST,
             )
 

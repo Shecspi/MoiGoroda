@@ -116,7 +116,9 @@ class RegionListByCountryController(Controller[MsgspecSerializer]):
 
         if country_ids_param:
             try:
-                country_ids = [int(value.strip()) for value in country_ids_param.split(',') if value.strip()]
+                country_ids = [
+                    int(value.strip()) for value in country_ids_param.split(',') if value.strip()
+                ]
             except ValueError:
                 return self.to_response(
                     raw_data={

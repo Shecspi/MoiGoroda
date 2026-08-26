@@ -26,17 +26,15 @@ class TestVisitedCityVisitsFragment:
         self, client: Client, django_user_model: Any
     ) -> None:
         user = django_user_model.objects.create_user(username='fragment-owner', password='pass123')
-        other_user = django_user_model.objects.create_user(username='fragment-other', password='pass123')
+        other_user = django_user_model.objects.create_user(
+            username='fragment-other', password='pass123'
+        )
         country = Country.objects.create(name='Россия', code='RU')
         city = City.objects.create(
             title='Тверь', country=country, coordinate_width=56.8, coordinate_longitude=36.0
         )
-        VisitedCity.objects.create(
-            user=user, city=city, date_of_visit=date(2026, 8, 5), rating=5
-        )
-        VisitedCity.objects.create(
-            user=user, city=city, date_of_visit=date(2025, 8, 5), rating=4
-        )
+        VisitedCity.objects.create(user=user, city=city, date_of_visit=date(2026, 8, 5), rating=5)
+        VisitedCity.objects.create(user=user, city=city, date_of_visit=date(2025, 8, 5), rating=4)
         VisitedCity.objects.create(
             user=other_user, city=city, date_of_visit=date(2024, 8, 5), rating=3
         )
@@ -49,7 +47,9 @@ class TestVisitedCityVisitsFragment:
         assert response.status_code == 200
         assert root is not None
         assert root['data-city-id'] == str(city.pk)
-        assert root.select_one('#user-visits-count').get_text(strip=True) == '2'
+        visits_count = root.select_one('#user-visits-count')
+        assert visits_count is not None
+        assert visits_count.get_text(strip=True) == '2'
         assert len(root.select('[data-visit-id]')) == 2
         assert root.select_one('[data-action="edit-visited-city"]') is not None
         assert root.select_one('.delete_city') is not None

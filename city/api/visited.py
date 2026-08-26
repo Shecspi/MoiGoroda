@@ -124,8 +124,12 @@ def _city_summary(city: City, user_id: int) -> dict[str, Any]:
         'lat': str(city.coordinate_width),
         'lon': str(city.coordinate_longitude),
         'number_of_visits': get_number_of_visits_by_city(city_id=city.id, user_id=user_id),
-        'first_visit_date': _format_date(get_first_visit_date_by_city(city_id=city.id, user_id=user_id)),
-        'last_visit_date': _format_date(get_last_visit_date_by_city(city_id=city.id, user_id=user_id)),
+        'first_visit_date': _format_date(
+            get_first_visit_date_by_city(city_id=city.id, user_id=user_id)
+        ),
+        'last_visit_date': _format_date(
+            get_last_visit_date_by_city(city_id=city.id, user_id=user_id)
+        ),
         'visit_years': visit_years,
         'number_of_users_who_visit_city': get_number_of_users_who_visit_city(city_id=city.id),
         'number_of_visits_all_users': VisitedCity.objects.filter(city=city).count(),
@@ -299,7 +303,9 @@ class UpdateVisitedCityBlueprint(Body[UpdateVisitedCityBody], Blueprint[MsgspecS
         visit.rating = visit.rating if data.rating is msgspec.UNSET else data.rating
         visit.has_magnet = visit.has_magnet if data.has_magnet is msgspec.UNSET else data.has_magnet
         visit.impression = visit.impression if data.impression is msgspec.UNSET else data.impression
-        visit.save(update_fields=['date_of_visit', 'rating', 'has_magnet', 'impression', 'updated_at'])
+        visit.save(
+            update_fields=['date_of_visit', 'rating', 'has_magnet', 'impression', 'updated_at']
+        )
 
         assert isinstance(self.request.user, User)
         return self.to_response(

@@ -47,7 +47,9 @@ class TestVisitedCityListFragment:
             VisitedCity.objects.create(
                 user=user, city=matching_city, date_of_visit=date.today(), rating=5
             )
-        VisitedCity.objects.create(user=user, city=old_city, date_of_visit=date(2020, 1, 1), rating=4)
+        VisitedCity.objects.create(
+            user=user, city=old_city, date_of_visit=date(2020, 1, 1), rating=4
+        )
         client.force_login(user)
 
         response = client.get(

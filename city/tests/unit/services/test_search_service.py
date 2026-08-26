@@ -74,10 +74,12 @@ class TestCitySearchServiceBasic:
 
         CitySearchService.search_cities(query='Моск', country='RU')
 
-        mock_queryset.filter.assert_has_calls([
-            call(title__icontains='Моск'),
-            call(country__code='RU'),
-        ])
+        mock_queryset.filter.assert_has_calls(
+            [
+                call(title__icontains='Моск'),
+                call(country__code='RU'),
+            ]
+        )
         assert mock_queryset.filter.call_count == 2
 
     @patch('city.services.search.City.objects')
@@ -95,10 +97,12 @@ class TestCitySearchServiceBasic:
 
         CitySearchService.search_cities(query='Моск', region='RU-MOW')
 
-        mock_queryset.filter.assert_has_calls([
-            call(title__icontains='Моск'),
-            call(region__iso3166='RU-MOW'),
-        ])
+        mock_queryset.filter.assert_has_calls(
+            [
+                call(title__icontains='Моск'),
+                call(region__iso3166='RU-MOW'),
+            ]
+        )
         assert mock_queryset.filter.call_count == 2
 
     @patch('city.services.search.City.objects')

@@ -341,11 +341,13 @@ class VisitedCityVisitsFragment(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         city = get_object_or_404(City, pk=self.kwargs['pk'])
         repository = VisitedCityRepository()
+        user = self.request.user
+        assert isinstance(user, AbstractBaseUser)
         return {
             **context,
             'city': city,
-            'visits': repository.get_user_visits(city.id, self.request.user),
-            'number_of_visits': repository.count_user_visits(city.id, self.request.user),
+            'visits': repository.get_user_visits(city.id, user),
+            'number_of_visits': repository.count_user_visits(city.id, user),
         }
 
 

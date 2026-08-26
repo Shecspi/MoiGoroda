@@ -9,7 +9,7 @@
 
 from http import HTTPStatus
 
-from django.http import HttpResponse
+from django.http import HttpResponseBase
 from dmr import Controller, ResponseSpec, validate
 from dmr.plugins.msgspec import MsgspecSerializer
 
@@ -27,7 +27,7 @@ class RegionListFragmentController(Controller[MsgspecSerializer]):
         validate_responses=False,
         tags=['Регионы'],
     )
-    def get(self) -> HttpResponse:
+    def get(self) -> HttpResponseBase:
         return RegionListFragment.as_view(list_or_map='list')(self.request)
 
 
@@ -41,7 +41,7 @@ class CitiesByRegionListFragmentController(Controller[MsgspecSerializer]):
         validate_responses=False,
         tags=['Регионы'],
     )
-    def get(self) -> HttpResponse:
+    def get(self) -> HttpResponseBase:
         return CitiesByRegionListFragment.as_view(list_or_map='list')(
             self.request, pk=self.kwargs['pk']
         )

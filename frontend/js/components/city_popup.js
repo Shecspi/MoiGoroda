@@ -262,7 +262,8 @@ export const buildPopupContent = (cityData, options = {}) => {
                 data-action="add-city"
                 data-city-name="${cityData.name}" 
                 data-city-id="${cityData.id}" 
-            data-city-region="${regionName}">${buttonText}</button>`;
+                data-city-region="${regionName}"
+                data-city-country-name="${countryName}">${buttonText}</button>`;
         content += '</div>';
     }
 

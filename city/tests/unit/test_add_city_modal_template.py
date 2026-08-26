@@ -117,6 +117,23 @@ def test_add_city_modal_uses_neutral_controls_and_joined_date_shortcuts() -> Non
 
 
 @pytest.mark.unit
+def test_add_city_modal_uses_one_city_field_and_a_location_summary() -> None:
+    html = render_to_string('components/add-city-modal.html')
+    soup = BeautifulSoup(html, 'html.parser')
+
+    selection_fields = soup.find('div', {'id': 'city-selection-fields'})
+    summary = soup.find('div', {'id': 'city-summary-card'})
+
+    assert isinstance(selection_fields, Tag)
+    assert len(selection_fields.select('[data-city-combobox-input]')) == 1
+    assert selection_fields.select_one('[data-city-country]') is None
+    assert selection_fields.select_one('[data-city-region]') is None
+    assert isinstance(summary, Tag)
+    assert isinstance(summary.find('h4', {'id': 'city-title-in-modal'}), Tag)
+    assert isinstance(summary.find('p', {'id': 'region-title-in-modal'}), Tag)
+
+
+@pytest.mark.unit
 def test_add_city_modal_rating_stars_use_gold_warning_color() -> None:
     html = render_to_string('components/add-city-modal.html')
     soup = BeautifulSoup(html, 'html.parser')

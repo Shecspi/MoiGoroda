@@ -34,6 +34,47 @@ describe('CityCombobox', () => {
     afterEach(() => {
         document.body.innerHTML = '';
         vi.unstubAllGlobals();
+        vi.useRealTimers();
+    });
+
+    it('debounces one-character searches and cleans up superseded requests', async () => {
+        vi.useFakeTimers();
+        fetch.mockImplementation(() => new Promise(() => {}));
+        const cityCombobox = new CityCombobox(document);
+        cityCombobox.init();
+        const input = document.querySelector('[data-city-combobox-input]');
+        const loading = document.querySelector('[data-city-combobox-loading]');
+
+        input.value = 'Ю';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.advanceTimersByTimeAsync(299);
+        expect(fetch).not.toHaveBeenCalled();
+        expect(loading.hidden).toBe(true);
+
+        input.value = 'Юж';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.advanceTimersByTimeAsync(299);
+        expect(fetch).not.toHaveBeenCalled();
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(fetch).toHaveBeenCalledOnce();
+        expect(fetch.mock.calls[0][0]).toBe('/api/city/search?query=%D0%AE%D0%B6');
+        expect(loading.hidden).toBe(false);
+        const firstSignal = fetch.mock.calls[0][1].signal;
+
+        input.value = 'Южн';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        expect(firstSignal.aborted).toBe(true);
+        expect(loading.hidden).toBe(true);
+        await vi.advanceTimersByTimeAsync(300);
+        expect(fetch).toHaveBeenCalledTimes(2);
+
+        input.value = '   ';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        expect(fetch.mock.calls[1][1].signal.aborted).toBe(true);
+        expect(loading.hidden).toBe(true);
+        await vi.advanceTimersByTimeAsync(300);
+        expect(fetch).toHaveBeenCalledTimes(2);
     });
 
     it('opens matching results automatically and selects a city with a pointer', async () => {
@@ -158,47 +199,18 @@ describe('CityCombobox', () => {
         await vi.waitFor(() => expect(document.querySelector('[data-city-combobox-content]').hidden).toBe(true));
     });
 
-    it('uses location filters and ignores an aborted stale response', async () => {
-        let resolveSearch;
-        fetch.mockImplementationOnce(() => new Promise((resolve) => {
-            resolveSearch = resolve;
-        }));
-        const cityCombobox = new CityCombobox(document);
-        cityCombobox.init();
-        const input = document.querySelector('[data-city-combobox-input]');
-
-        cityCombobox.setFilters({country: 'RU'});
-        await Promise.resolve();
-        input.value = 'Моск';
-        input.dispatchEvent(new Event('input', {bubbles: true}));
-        await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
-        const firstSignal = fetch.mock.calls[0][1].signal;
-        expect(fetch.mock.calls[0][0]).toBe('/api/city/search?query=%D0%9C%D0%BE%D1%81%D0%BA&country=RU');
-
-        cityCombobox.setFilters({country: 'RU', region: 'RU-MOW'});
-        resolveSearch({
-            ok: true,
-            json: vi.fn().mockResolvedValue([city]),
-        });
-
-        expect(firstSignal.aborted).toBe(true);
-        await Promise.resolve();
-        expect(document.querySelector('[role="option"]')).toBeNull();
-        expect(input.value).toBe('');
-    });
-
-    it('does not search below three trimmed characters and aborts when destroyed', async () => {
+    it('does not search whitespace and aborts when destroyed', async () => {
         fetch.mockImplementation(() => new Promise(() => {}));
         const cityCombobox = new CityCombobox(document);
         cityCombobox.init();
         const input = document.querySelector('[data-city-combobox-input]');
 
-        input.value = ' Мо ';
+        input.value = '   ';
         input.dispatchEvent(new Event('input', {bubbles: true}));
         await Promise.resolve();
         expect(fetch).not.toHaveBeenCalled();
 
-        input.value = 'Моск';
+        input.value = 'М';
         input.dispatchEvent(new Event('input', {bubbles: true}));
         await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
         const signal = fetch.mock.calls[0][1].signal;
@@ -209,24 +221,4 @@ describe('CityCombobox', () => {
         expect(cityCombobox.machine).toBeNull();
     });
 
-    it('opens and filters preloaded location cities without remote search', async () => {
-        const localCities = [
-            city,
-            {id: 43, title: 'Можайск', region: 'Московская область', country: 'Россия'},
-        ];
-        const cityCombobox = new CityCombobox(document);
-        cityCombobox.init();
-        cityCombobox.setCities(localCities);
-        const input = document.querySelector('[data-city-combobox-input]');
-
-        input.click();
-
-        await vi.waitFor(() => expect(document.querySelectorAll('[role="option"]')).toHaveLength(2));
-        input.value = 'жай';
-        input.dispatchEvent(new Event('input', {bubbles: true}));
-
-        await vi.waitFor(() => expect(document.querySelectorAll('[role="option"]')).toHaveLength(1));
-        expect(document.querySelector('[role="option"]').textContent).toContain('Можайск');
-        expect(fetch).not.toHaveBeenCalled();
-    });
 });

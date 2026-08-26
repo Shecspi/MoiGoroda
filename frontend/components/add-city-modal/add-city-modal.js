@@ -17,7 +17,6 @@ import {getCookie} from "../../js/components/get_cookie.js";
 import {Calendar} from 'vanilla-calendar-pro';
 import 'vanilla-calendar-pro/styles/index.css';
 import {isoFromParts, isoToRuDisplay} from '../../js/components/visit_date_picker.js';
-import {CityCascadeSelector} from '../../js/components/city_cascade_selector.js';
 import {CityCombobox} from './city-combobox.js';
 
 class AddCityModal extends HTMLElement {
@@ -26,10 +25,10 @@ class AddCityModal extends HTMLElement {
         this.cityId = null;
         this.cityName = '';
         this.regionName = '';
+        this.countryName = '';
         this.mode = 'create';
         this.visitedCityId = null;
         this.surface = '';
-        this.cityCascadeSelector = null;
         this.cityCombobox = null;
         this.form = null;
         this.dialog = null;
@@ -265,6 +264,7 @@ class AddCityModal extends HTMLElement {
                 const cityName = button.getAttribute('data-city-name');
                 const cityId = button.getAttribute('data-city-id');
                 const cityRegion = button.getAttribute('data-city-region') || '';
+                const cityCountry = button.getAttribute('data-city-country-name') || '';
                 
                 if (cityName && cityId) {
                     if (window.MG_MAIN_MAP && typeof window.MG_MAIN_MAP.closePopup === 'function') {
@@ -278,7 +278,8 @@ class AddCityModal extends HTMLElement {
                     const openOptions = {
                         cityId: parseInt(cityId, 10),
                         cityName: cityName,
-                        regionName: cityRegion
+                        regionName: cityRegion,
+                        countryName: cityCountry,
                     };
                     const surface = button.getAttribute('data-surface');
                     if (surface) {
@@ -290,6 +291,7 @@ class AddCityModal extends HTMLElement {
                         cityId: null,
                         cityName: '',
                         regionName: '',
+                        countryName: '',
                     };
                     const surface = button.getAttribute('data-surface');
                     if (surface) {
@@ -302,23 +304,24 @@ class AddCityModal extends HTMLElement {
         document.addEventListener('click', this.globalClickHandler);
     }
 
-    open({cityId = null, cityName = '', regionName = '', surface = ''}) {
+    open({cityId = null, cityName = '', regionName = '', countryName = '', surface = ''}) {
         this.resetForm();
         this.mode = 'create';
         this.visitedCityId = null;
         this.cityId = cityId;
         this.cityName = cityName;
         this.regionName = regionName || '';
+        this.countryName = countryName || '';
         this.surface = surface;
 
         this.querySelector('#city-title-in-modal').textContent = cityName;
-        this.querySelector('#region-title-in-modal').textContent = regionName || '';
+        this.setCityLocationSummary();
         this.querySelector('#city-id').value = cityId || '';
         this.toggleCitySelection(!cityId);
         this.setModeLabels();
 
         if (!cityId) {
-            this.initCityCascadeSelector();
+            this.initCityCombobox();
         }
         this.dialog.toggleAttribute('autofocus', Boolean(cityId));
         this.dialog.showModal();
@@ -343,8 +346,9 @@ class AddCityModal extends HTMLElement {
             this.cityId = visit.city;
             this.cityName = visit.city_title;
             this.regionName = visit.region_title || '';
+            this.countryName = visit.country || '';
             this.querySelector('#city-title-in-modal').textContent = this.cityName;
-            this.querySelector('#region-title-in-modal').textContent = this.regionName;
+            this.setCityLocationSummary();
             this.querySelector('#city-id').value = String(this.cityId);
             this.querySelector('#magnet-checkbox').checked = Boolean(visit.has_magnet);
             this.querySelector('#impression').value = visit.impression || '';
@@ -373,6 +377,13 @@ class AddCityModal extends HTMLElement {
         }
     }
 
+    setCityLocationSummary() {
+        const location = this.querySelector('#region-title-in-modal');
+        const text = [this.regionName, this.countryName].filter(Boolean).join(', ');
+        location.textContent = text;
+        location.hidden = !text;
+    }
+
     setModeLabels() {
         const label = this.querySelector('#addCityModalLabel');
         if (label) {
@@ -384,28 +395,15 @@ class AddCityModal extends HTMLElement {
         }
     }
 
-    initCityCascadeSelector() {
-        this.cityCascadeSelector?.destroy();
+    initCityCombobox() {
         this.cityCombobox?.destroy();
         this.cityCombobox = new CityCombobox(this, {
-            onSelect: async (city) => {
+            onSelect: (city) => {
                 if (!city) {
-                    this.cityCascadeSelector?.cancelLocationSelection();
                     this.cityId = null;
                     this.querySelector('#city-id').value = '';
                     this.updateSubmitButtonState();
                     return;
-                }
-
-                if (city.country_code) {
-                    const synchronized = await this.cityCascadeSelector.selectLocation({
-                        countryCode: city.country_code,
-                        regionCode: city.region_code || '',
-                    });
-                    if (!synchronized) {
-                        return;
-                    }
-                    this.cityCombobox.restoreSelection(city);
                 }
 
                 this.cityId = Number(city.id);
@@ -417,26 +415,6 @@ class AddCityModal extends HTMLElement {
             },
         });
         this.cityCombobox.init();
-        this.cityCascadeSelector = new CityCascadeSelector(this, {
-            locationValueMode: 'code',
-            onChange: ({countryCode, regionCode, preserveCity}) => {
-                if (!preserveCity) {
-                    this.cityId = null;
-                    this.querySelector('#city-id').value = '';
-                    this.updateSubmitButtonState();
-                }
-                this.cityCombobox.setFilters({
-                    country: countryCode,
-                    region: regionCode,
-                    preserveInput: preserveCity,
-                });
-            },
-            onCitiesChange: (cities) => this.cityCombobox.setCities(cities),
-            onError: () => {
-                showDangerToast('Ошибка', 'Не удалось загрузить список городов. Попробуйте ещё раз.');
-            },
-        });
-        this.cityCascadeSelector.init();
     }
 
     close() {
@@ -445,8 +423,6 @@ class AddCityModal extends HTMLElement {
 
     resetForm() {
         this.form.reset();
-        this.cityCascadeSelector?.destroy();
-        this.cityCascadeSelector = null;
         this.cityCombobox?.destroy();
         this.cityCombobox = null;
         this.cityId = null;

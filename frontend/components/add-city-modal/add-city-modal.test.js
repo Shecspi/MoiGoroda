@@ -42,8 +42,6 @@ const modalTemplate = `
                 <p id="region-title-in-modal"></p>
                 <div id="city-summary-card"></div>
                 <div id="city-selection-fields" hidden>
-                    <select data-city-country></select>
-                    <select data-city-region></select>
                     <div data-city-combobox>
                         <div data-city-combobox-control>
                             <input id="add-city-city" data-city-combobox-input>
@@ -91,6 +89,7 @@ describe('AddCityModal visit calendar', () => {
         trigger.dataset.action = 'add-city';
         trigger.dataset.cityId = '42';
         trigger.dataset.cityName = 'Тверь';
+        trigger.dataset.cityCountryName = 'Россия';
         document.body.appendChild(trigger);
 
         modal.remove();
@@ -104,6 +103,7 @@ describe('AddCityModal visit calendar', () => {
             cityId: 42,
             cityName: 'Тверь',
             regionName: '',
+            countryName: 'Россия',
         });
     });
 
@@ -122,249 +122,95 @@ describe('AddCityModal visit calendar', () => {
             cityId: null,
             cityName: '',
             regionName: '',
+            countryName: '',
             surface: 'sidebar',
         });
     });
 
-    it('selects a city suggestion filtered by the selected country and region', async () => {
-        fetch
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([{id: 7, code: 'RU', name: 'Россия'}]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {id: 11, iso3166: 'RU-MOW', title: 'Москва', country_code: 'RU'},
-                ]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {id: 42, title: 'Москва', region: 'Москва', country: 'Россия'},
-                ]),
-            });
+    it('uses only global city search and invalidates a changed selection', async () => {
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue([
+                {id: 42, title: 'Ю', region: 'Штат Юта', country: 'США'},
+            ]),
+        });
         const modal = new AddCityModal();
         document.body.appendChild(modal);
         modal.querySelector('dialog').showModal = vi.fn();
 
         modal.open({cityId: null});
-        expect(modal.querySelector('#city-selection-fields').hidden).toBe(false);
-        expect(modal.querySelector('#city-summary-card').hidden).toBe(true);
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[data-city-country] option[value="RU"]')).not.toBeNull();
-        });
-        const country = modal.querySelector('[data-city-country]');
-        country.value = 'RU';
-        country.dispatchEvent(new Event('change'));
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[data-city-region] option[value="RU-MOW"]')).not.toBeNull();
-        });
-        const region = modal.querySelector('[data-city-region]');
-        region.value = 'RU-MOW';
-        region.dispatchEvent(new Event('change'));
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[role="option"]')).not.toBeNull();
-        });
 
+        expect(modal.querySelector('[data-city-country]')).toBeNull();
+        expect(modal.querySelector('[data-city-region]')).toBeNull();
         const input = modal.querySelector('[data-city-combobox-input]');
-        input.value = 'Моск';
-        input.dispatchEvent(new Event('input'));
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[role="option"]')).not.toBeNull();
-        });
-        expect(input.value).toBe('Моск');
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[data-city-combobox-content]').hidden).toBe(false);
-        });
-        modal.querySelector('[role="option"]').click();
-
-        await vi.waitFor(() => expect(modal.cityId).toBe(42));
-
-        expect(fetch.mock.calls[2][0]).toBe('/api/city/list_by_region?region_id=11');
-        expect(modal.querySelector('#city-id').value).toBe('42');
-        expect(modal.cityId).toBe(42);
-    });
-
-    it('clears a selected city immediately when country changes while regions are pending', async () => {
-        fetch
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {id: 7, code: 'RU', name: 'Россия'},
-                    {id: 8, code: 'KZ', name: 'Казахстан'},
-                ]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {id: 11, iso3166: 'RU-MOW', title: 'Москва', country_code: 'RU'},
-                ]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {id: 42, title: 'Москва', region: 'Москва', country: 'Россия'},
-                ]),
-            });
-        const modal = new AddCityModal();
-        document.body.appendChild(modal);
-        modal.querySelector('dialog').showModal = vi.fn();
-        modal.open({cityId: null});
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[data-city-country] option[value="RU"]')).not.toBeNull();
-        });
-
-        const country = modal.querySelector('[data-city-country]');
-        country.value = 'RU';
-        country.dispatchEvent(new Event('change'));
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[data-city-region] option[value="RU-MOW"]')).not.toBeNull();
-        });
-        const input = modal.querySelector('[data-city-combobox-input]');
-        input.value = 'Моск';
-        input.dispatchEvent(new Event('input'));
+        input.value = 'Ю';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
         await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
+        expect(fetch).toHaveBeenCalledOnce();
+        expect(fetch.mock.calls[0][0]).toBe('/api/city/search?query=%D0%AE');
+
         modal.querySelector('[role="option"]').click();
         await vi.waitFor(() => expect(modal.cityId).toBe(42));
-        modal.querySelector('#id_rating').value = '5';
-        modal.querySelector('#id_rating').dispatchEvent(new Event('input'));
-        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(false);
+        expect(modal.querySelector('#city-id').value).toBe('42');
 
-        let resolvePendingRegions;
-        fetch.mockImplementationOnce(() => new Promise((resolve) => {
-            resolvePendingRegions = resolve;
-        }));
-        country.value = 'KZ';
-        country.dispatchEvent(new Event('change'));
-
+        input.value = 'Юг';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
         expect(modal.cityId).toBeNull();
         expect(modal.querySelector('#city-id').value).toBe('');
-        expect(input.value).toBe('');
-        expect(modal.querySelector('[data-city-combobox-content]').hidden).toBe(true);
-        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(true);
-
-        resolvePendingRegions({
-            ok: false,
-        });
     });
 
-    it('fills the city location before retaining a selected remote suggestion', async () => {
-        fetch
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([{id: 7, code: 'RU', name: 'Россия'}]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {
-                        id: 42,
-                        title: 'Москва',
-                        region: 'Москва',
-                        country: 'Россия',
-                        country_code: 'RU',
-                        region_code: 'RU-MOW',
-                    },
-                ]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {id: 11, iso3166: 'RU-MOW', title: 'Москва', country_code: 'RU'},
-                ]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {id: 42, title: 'Москва', region: 'Москва', country: 'Россия'},
-                ]),
-            });
+    it.each([
+        ['region and country', 'Тверская область', 'Россия', 'Тверская область, Россия', false],
+        ['country only', '', 'Россия', 'Россия', false],
+        ['no location metadata', '', '', '', true],
+    ])('renders a predetermined create summary with %s', (
+        _caseName, regionName, countryName, expectedLocation, locationHidden,
+    ) => {
         const modal = new AddCityModal();
         document.body.appendChild(modal);
         modal.querySelector('dialog').showModal = vi.fn();
-        modal.open({cityId: null});
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[data-city-country] option[value="RU"]')).not.toBeNull();
-        });
 
-        const input = modal.querySelector('[data-city-combobox-input]');
-        input.value = 'Моск';
-        input.dispatchEvent(new Event('input'));
-        await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
+        modal.open({cityId: 42, cityName: 'Тверь', regionName, countryName});
 
-        const valueDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
-        const assignedValues = [];
-        Object.defineProperty(input, 'value', {
-            configurable: true,
-            get: () => valueDescriptor.get.call(input),
-            set: (value) => {
-                assignedValues.push(value);
-                valueDescriptor.set.call(input, value);
-            },
-        });
-        modal.querySelector('[role="option"]').click();
-
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[data-city-country]').value).toBe('RU');
-            expect(modal.querySelector('[data-city-region]').value).toBe('RU-MOW');
-            expect(modal.cityId).toBe(42);
-        });
-        expect(modal.querySelector('#city-id').value).toBe('42');
-        expect(input.value).toBe('Москва');
-        expect(assignedValues).not.toContain('');
+        expect(modal.querySelector('#city-title-in-modal').textContent).toBe('Тверь');
+        const location = modal.querySelector('#region-title-in-modal');
+        expect(location.textContent).toBe(expectedLocation);
+        expect(location.hidden).toBe(locationHidden);
     });
 
-    it('retains a selected city when its country has no regions', async () => {
-        fetch
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([{id: 8, code: 'CY', name: 'Кипр'}]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {
-                        id: 43,
-                        title: 'Никосия',
-                        region: null,
-                        country: 'Кипр',
-                        country_code: 'CY',
-                        region_code: null,
-                    },
-                ]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([]),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: vi.fn().mockResolvedValue([
-                    {id: 43, title: 'Никосия', region: null, country: 'Кипр'},
-                ]),
-            });
+    it.each([
+        ['region and country', 'Тверская область', 'Россия', 'Тверская область, Россия', false],
+        ['country only', null, 'Россия', 'Россия', false],
+        ['no location metadata', null, null, '', true],
+    ])('renders an edit summary with %s', async (
+        _caseName, regionTitle, country, expectedLocation, locationHidden,
+    ) => {
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+                visit: {
+                    id: 17,
+                    city: 42,
+                    city_title: 'Тверь',
+                    region_title: regionTitle,
+                    country,
+                    date_of_visit: null,
+                    has_magnet: false,
+                    rating: 4,
+                    impression: '',
+                },
+            }),
+        });
         const modal = new AddCityModal();
         document.body.appendChild(modal);
         modal.querySelector('dialog').showModal = vi.fn();
-        modal.open({cityId: null});
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[data-city-country] option[value="CY"]')).not.toBeNull();
-        });
 
-        const input = modal.querySelector('[data-city-combobox-input]');
-        input.value = 'Нико';
-        input.dispatchEvent(new Event('input'));
-        await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
-        modal.querySelector('[role="option"]').click();
+        await modal.openEdit(17);
 
-        await vi.waitFor(() => {
-            expect(modal.querySelector('[data-city-country]').value).toBe('CY');
-            expect(modal.querySelector('[data-city-region]').disabled).toBe(true);
-            expect(modal.cityId).toBe(43);
-        });
-        expect(modal.querySelector('#city-id').value).toBe('43');
-        expect(input.value).toBe('Никосия');
+        expect(modal.querySelector('#city-title-in-modal').textContent).toBe('Тверь');
+        const location = modal.querySelector('#region-title-in-modal');
+        expect(location.textContent).toBe(expectedLocation);
+        expect(location.hidden).toBe(locationHidden);
     });
 
     it('loads an existing visit into read-only-city edit mode', async () => {

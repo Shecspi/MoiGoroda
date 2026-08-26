@@ -8,7 +8,8 @@
 import * as combobox from '@zag-js/combobox';
 import {normalizeProps, spreadProps, VanillaMachine} from '@zag-js/vanilla';
 
-const MINIMUM_QUERY_LENGTH = 3;
+const MINIMUM_QUERY_LENGTH = 1;
+const SEARCH_DEBOUNCE_MS = 300;
 
 export class CityCombobox {
     constructor(root, {onSelect = () => {}, onError = () => {}} = {}) {
@@ -21,22 +22,17 @@ export class CityCombobox {
         this.results = this.root?.querySelector('[data-city-combobox-content]');
         this.clearButton = this.root?.querySelector('[data-city-combobox-clear]');
         this.loading = this.root?.querySelector('[data-city-combobox-loading]');
-        this.country = '';
-        this.region = '';
         this.controller = null;
+        this.searchTimer = null;
         this.requestVersion = 0;
         this.items = [];
-        this.localItems = [];
-        this.hasLocalCollection = false;
         this.hasEmptySearchResult = false;
-        this.isClearingForFilters = false;
         this.inputValue = '';
         this.collection = combobox.collection({items: []});
         this.machine = null;
         this.unsubscribe = null;
         this.propCleanups = [];
         this.boundInput = (event) => this.handleInput(event);
-        this.boundInputClick = () => this.handleInputClick();
         this.boundClear = () => this.clearInput();
     }
 
@@ -58,67 +54,27 @@ export class CityCombobox {
                     this.inputValue = city.title;
                     this.machine.updateProps({inputValue: this.inputValue});
                 }
-                if (!this.isClearingForFilters) {
-                    this.onSelect(city);
-                }
+                this.onSelect(city);
             },
         });
         this.unsubscribe = this.machine.subscribe(() => this.render());
         this.machine.start();
         this.render();
         this.input.addEventListener('input', this.boundInput);
-        this.input.addEventListener('click', this.boundInputClick);
         this.clearButton?.addEventListener('click', this.boundClear);
     }
 
     destroy() {
-        this.controller?.abort();
-        this.controller = null;
-        this.requestVersion += 1;
+        this.cancelSearch();
         this.unsubscribe?.();
         this.unsubscribe = null;
         this.input?.removeEventListener('input', this.boundInput);
-        this.input?.removeEventListener('click', this.boundInputClick);
         this.clearButton?.removeEventListener('click', this.boundClear);
         this.clearProps();
         this.machine?.stop();
         this.machine = null;
         this.items = [];
         this.loading && (this.loading.hidden = true);
-    }
-
-    setFilters({country = '', region = '', preserveInput = false}) {
-        this.country = country;
-        this.region = region;
-        this.controller?.abort();
-        this.controller = null;
-        this.requestVersion += 1;
-        this.items = [];
-        this.localItems = [];
-        this.hasLocalCollection = false;
-        this.hasEmptySearchResult = false;
-        if (!preserveInput) {
-            this.inputValue = '';
-        }
-        this.setCollection();
-        if (this.input && !preserveInput) {
-            this.input.value = '';
-        }
-
-        if (this.machine) {
-            const api = this.getApi();
-            if (!preserveInput) {
-                this.isClearingForFilters = true;
-                try {
-                    api.clearValue();
-                } finally {
-                    this.isClearingForFilters = false;
-                }
-            }
-            api.setOpen(false);
-        } else if (this.input && !preserveInput) {
-            this.input.value = '';
-        }
     }
 
     handleInput(event) {
@@ -129,28 +85,11 @@ export class CityCombobox {
             api.clearValue();
         }
         this.onSelect(null);
-        if (this.hasLocalCollection) {
-            this.items = this.filterLocalItems(this.inputValue);
-            this.setCollection();
-            this.openAndHighlightResults(api);
-            return;
-        }
         this.search(this.inputValue);
     }
 
-    handleInputClick() {
-        if (!this.hasLocalCollection) {
-            return;
-        }
-        this.items = this.filterLocalItems(this.inputValue);
-        this.setCollection();
-        this.getApi().setOpen(this.items.length > 0);
-    }
-
     clearInput() {
-        this.controller?.abort();
-        this.controller = null;
-        this.requestVersion += 1;
+        this.cancelSearch();
         this.items = [];
         this.hasEmptySearchResult = false;
         this.inputValue = '';
@@ -164,40 +103,18 @@ export class CityCombobox {
         this.input.focus();
     }
 
-    setCities(cities) {
+    cancelSearch() {
+        clearTimeout(this.searchTimer);
+        this.searchTimer = null;
         this.controller?.abort();
         this.controller = null;
         this.requestVersion += 1;
-        this.localItems = cities.filter((city) => city?.id && city?.title);
-        this.hasLocalCollection = true;
-        this.items = this.filterLocalItems(this.inputValue);
-        this.hasEmptySearchResult = false;
-        this.setCollection();
-        this.getApi().setOpen(false);
+        this.setLoading(false);
     }
 
-    restoreSelection(city) {
-        this.inputValue = city.title;
-        if (this.input) {
-            this.input.value = city.title;
-        }
-        this.machine?.updateProps({inputValue: this.inputValue});
-        this.getApi().setOpen(false);
-    }
-
-    filterLocalItems(query) {
-        const normalizedQuery = query.trim().toLocaleLowerCase();
-        if (!normalizedQuery) {
-            return this.localItems;
-        }
-        return this.localItems.filter((city) => city.title.toLocaleLowerCase().includes(normalizedQuery));
-    }
-
-    async search(value) {
+    search(value) {
         const query = value.trim();
-        this.controller?.abort();
-        this.controller = null;
-        this.requestVersion += 1;
+        this.cancelSearch();
         const requestVersion = this.requestVersion;
         this.items = [];
         this.hasEmptySearchResult = false;
@@ -208,15 +125,20 @@ export class CityCombobox {
             return;
         }
 
+        this.searchTimer = setTimeout(() => {
+            this.searchTimer = null;
+            this.performSearch(query, requestVersion);
+        }, SEARCH_DEBOUNCE_MS);
+    }
+
+    async performSearch(query, requestVersion) {
+        if (requestVersion !== this.requestVersion) {
+            return;
+        }
         const controller = new AbortController();
         this.controller = controller;
         this.setLoading(true);
         const params = new URLSearchParams({query});
-        if (this.region) {
-            params.set('region', this.region);
-        } else if (this.country) {
-            params.set('country', this.country);
-        }
 
         try {
             const response = await fetch(`/api/city/search?${params.toString()}`, {

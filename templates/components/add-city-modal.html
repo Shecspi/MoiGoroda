@@ -68,17 +68,19 @@ Licensed under the Apache License, Version 2.0
 
                     <div class="min-h-0 flex-1 overflow-y-auto md:overflow-visible" id="visit-details">
                         <div class="dui-card bg-base-200 border border-base-300 mb-6" id="city-summary-card">
-                            <div class="dui-card-body p-4">
+                            <div class="dui-card-body relative p-4 pe-14">
                                 <h4 class="dui-card-title text-base" id="city-title-in-modal"></h4>
                                 <p class="text-sm text-base-content/80" id="region-title-in-modal"></p>
-                                <div class="dui-card-actions justify-end">
-                                    <button type="button"
-                                            class="dui-btn dui-btn-ghost dui-btn-sm"
-                                            data-change-city
-                                            hidden>
-                                        Изменить
-                                    </button>
-                                </div>
+                                <button type="button"
+                                        class="dui-btn dui-btn-ghost dui-btn-circle dui-btn-sm absolute end-2 top-2"
+                                        data-change-city
+                                        aria-label="Изменить город"
+                                        title="Изменить город"
+                                        hidden>
+                                    <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 

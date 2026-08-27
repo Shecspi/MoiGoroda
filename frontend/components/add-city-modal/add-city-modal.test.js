@@ -432,7 +432,6 @@ describe('AddCityModal visit calendar', () => {
         expect(modal.querySelector('[data-city-search-instruction]').hidden).toBe(false);
         expect(modal.querySelector('#visit-details').hidden).toBe(true);
         expect(modal.querySelector('#add-city-modal-actions').hidden).toBe(true);
-        expect(modal.querySelector('.dui-modal-box').hasAttribute('data-city-search-active')).toBe(true);
         expect(document.activeElement).toBe(cityInput);
     });
 
@@ -459,7 +458,6 @@ describe('AddCityModal visit calendar', () => {
         expect(modal.querySelector('#addCityModalLabel').textContent).toBe('Добавить посещённый город');
         expect(modal.querySelector('#visit-details').hidden).toBe(false);
         expect(modal.querySelector('#add-city-modal-actions').hidden).toBe(false);
-        expect(modal.querySelector('.dui-modal-box').hasAttribute('data-city-search-active')).toBe(false);
     });
 
     it('moves from mobile city search to visit details after a result is selected', async () => {

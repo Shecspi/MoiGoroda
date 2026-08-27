@@ -113,7 +113,6 @@ class AddCityModal extends HTMLElement {
         this.cityInput = this.querySelector('[data-city-combobox-input]');
         this.changeCityButton = this.querySelector('[data-change-city]');
         this.citySearchBackButton = this.querySelector('[data-city-search-back]');
-        this.modalBox = this.querySelector('.dui-modal-box');
         
         this.initRating();
         this.initDatePicker();
@@ -409,7 +408,6 @@ class AddCityModal extends HTMLElement {
 
     showMobileCitySearch() {
         this.mobileCitySearchActive = true;
-        this.modalBox.setAttribute('data-city-search-active', '');
         this.citySelectionFields.hidden = false;
         this.visitDetails.hidden = true;
         this.modalActions.hidden = true;
@@ -441,7 +439,6 @@ class AddCityModal extends HTMLElement {
 
     showVisitDetails(showCitySelection = false) {
         this.mobileCitySearchActive = false;
-        this.modalBox.removeAttribute('data-city-search-active');
         this.toggleCitySelection(showCitySelection);
         this.visitDetails.hidden = false;
         this.modalActions.hidden = false;
@@ -552,7 +549,6 @@ class AddCityModal extends HTMLElement {
         this.cityCombobox?.destroy();
         this.cityCombobox = null;
         this.mobileCitySearchActive = false;
-        this.modalBox.removeAttribute('data-city-search-active');
         this.previousCitySelection = null;
         this.visitDetails.hidden = false;
         this.modalActions.hidden = false;

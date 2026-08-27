@@ -123,11 +123,11 @@ export class CityCombobox {
         const query = value.trim();
         this.cancelSearch();
         const requestVersion = this.requestVersion;
-        this.items = [];
-        this.hasEmptySearchResult = false;
-        this.setCollection();
 
         if (query.length < MINIMUM_QUERY_LENGTH) {
+            this.items = [];
+            this.hasEmptySearchResult = false;
+            this.setCollection();
             this.getApi().setOpen(false);
             return;
         }

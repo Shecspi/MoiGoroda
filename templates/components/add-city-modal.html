@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0
 {% endcomment %}
 
 <template id="add-city-modal-template">
-    <dialog class="dui-modal" id="addCityModal">
-        <div class="dui-modal-box flex max-h-[calc(100dvh-3.5rem)] flex-col overflow-hidden p-0 data-[city-search-active]:h-[calc(100dvh-3.5rem)] md:h-auto">
+    <dialog class="dui-modal items-start pt-7 md:items-center md:pt-0" id="addCityModal">
+        <div class="dui-modal-box flex max-h-[calc(100dvh-3.5rem)] origin-top flex-col overflow-hidden p-0 md:origin-center">
             <h3 class="shrink-0 border-b border-base-300 px-6 pt-6 pb-4 font-bold text-lg text-base-content" id="addCityModalLabel">
                 Добавить посещённый город
             </h3>
@@ -57,9 +57,9 @@ Licensed under the Apache License, Version 2.0
                                 <p class="mt-3 text-sm text-base-content/80 md:hidden" data-city-search-instruction>
                                     Начните вводить название города
                                 </p>
-                                <div class="mt-2 min-h-0 flex-1 md:absolute md:top-full md:start-0 md:z-30 md:w-full"
+                                <div class="mt-2 min-h-0 max-h-[calc(100dvh-15rem)] overflow-y-auto rounded-box border border-base-content/30 bg-base-100 shadow-lg shadow-base-content/20 has-[[hidden]]:hidden md:absolute md:top-full md:start-0 md:z-30 md:max-h-64 md:w-full"
                                      data-city-combobox-positioner>
-                                    <ul class="flex h-full w-full flex-col overflow-y-auto bg-base-100 border border-base-content/30 rounded-box shadow-lg shadow-base-content/20 md:max-h-64"
+                                    <ul class="flex w-full flex-col"
                                         data-city-combobox-content></ul>
                                 </div>
                             </div>

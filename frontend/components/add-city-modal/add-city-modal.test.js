@@ -493,6 +493,42 @@ describe('AddCityModal visit calendar', () => {
         expect(modal.querySelector('form').contains(document.activeElement)).toBe(false);
     });
 
+    it('keeps mobile city search open when the keyboard resizes the viewport', async () => {
+        vi.stubGlobal('innerWidth', 767);
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue([
+                {id: 42, title: 'Тверь', region: 'Тверская область', country: 'Россия'},
+            ]),
+        });
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        const dialog = modal.querySelector('dialog');
+        dialog.showModal = vi.fn(() => {
+            dialog.open = true;
+        });
+
+        modal.open({cityId: null});
+        const input = modal.querySelector('[data-city-combobox-input]');
+        input.value = 'Тверь';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
+
+        modal.querySelector('[role="option"]').click();
+        await vi.waitFor(() => expect(modal.querySelector('#city-summary-card').hidden).toBe(false));
+
+        const changeButton = modal.querySelector('[data-change-city]');
+        changeButton.click();
+
+        expect(modal.querySelector('#city-selection-fields').hidden).toBe(false);
+        expect(modal.querySelector('#visit-details').hidden).toBe(true);
+        window.dispatchEvent(new Event('resize'));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(modal.querySelector('#city-selection-fields').hidden).toBe(false);
+        expect(modal.querySelector('#visit-details').hidden).toBe(true);
+        expect(document.activeElement).toBe(input);
+    });
+
     it('returns to the previous mobile city after cancelling a replacement search', async () => {
         vi.stubGlobal('innerWidth', 767);
         const modal = new AddCityModal();

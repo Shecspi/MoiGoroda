@@ -422,7 +422,7 @@ class AddCityModal extends HTMLElement {
         this.viewportChangeHandler = () => {
             if (this.mode !== 'create' || !this.dialog.open) return;
 
-            if (this.isMobileViewport() && !this.cityId) {
+            if (this.isMobileViewport() && (!this.cityId || this.mobileCitySearchActive)) {
                 this.showMobileCitySearch();
                 return;
             }

@@ -103,6 +103,13 @@ export class CityCombobox {
         this.input.focus();
     }
 
+    setInputValue(value) {
+        this.inputValue = value;
+        this.input.value = value;
+        this.machine?.updateProps({inputValue: value});
+        this.render();
+    }
+
     cancelSearch() {
         clearTimeout(this.searchTimer);
         this.searchTimer = null;

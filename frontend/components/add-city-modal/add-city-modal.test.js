@@ -570,6 +570,30 @@ describe('AddCityModal visit calendar', () => {
         expect(modal.querySelector('form').contains(document.activeElement)).toBe(false);
     });
 
+    it('does not submit the previous city while a mobile replacement search is active', () => {
+        vi.stubGlobal('innerWidth', 767);
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        modal.querySelector('dialog').showModal = vi.fn();
+        modal.open({cityId: 42, cityName: 'Тверь'});
+
+        const rating = modal.querySelector('#rating-container input');
+        rating.checked = true;
+        rating.dispatchEvent(new Event('change', {bubbles: true}));
+        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(false);
+
+        modal.querySelector('[data-change-city]').click();
+        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(true);
+
+        modal.querySelector('form').requestSubmit();
+
+        expect(fetch).not.toHaveBeenCalled();
+        expect(modal.cityId).toBe(42);
+
+        modal.querySelector('[data-city-search-back]').click();
+        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(false);
+    });
+
     it('commits a replacement selected from the mobile city search', async () => {
         vi.stubGlobal('innerWidth', 767);
         fetch.mockResolvedValue({

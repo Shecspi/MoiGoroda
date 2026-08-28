@@ -261,7 +261,7 @@ class AddCityModal extends HTMLElement {
 
     updateSubmitButtonState() {
         const hasRating = this.ratingInput.value && parseInt(this.ratingInput.value) > 0;
-        this.submitButton.disabled = !hasRating || !this.cityId;
+        this.submitButton.disabled = !hasRating || !this.cityId || this.mobileCitySearchActive;
     }
 
     initGlobalClickListener() {
@@ -414,6 +414,7 @@ class AddCityModal extends HTMLElement {
         this.citySearchInstruction.hidden = this.cityInput.value.trim().length > 0;
         this.citySearchBackButton.hidden = !this.previousCitySelection;
         this.querySelector('#addCityModalLabel').textContent = 'Выберите город';
+        this.updateSubmitButtonState();
     }
 
     initViewportListener() {
@@ -445,6 +446,7 @@ class AddCityModal extends HTMLElement {
         this.citySearchBackButton.hidden = true;
         this.setModeLabels();
         this.updateChangeCityAction();
+        this.updateSubmitButtonState();
     }
 
     updateChangeCityAction() {
@@ -572,6 +574,7 @@ class AddCityModal extends HTMLElement {
 
     async handleSubmit(e) {
         e.preventDefault();
+        if (this.mobileCitySearchActive) return;
         
         const formData = new FormData(this.form);
         const csrfToken = formData.get('csrfmiddlewaretoken') || getCookie('csrftoken');

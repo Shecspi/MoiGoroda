@@ -37,33 +37,46 @@ import AddCityModal from './add-city-modal.js';
 const modalTemplate = `
     <template id="add-city-modal-template">
         <dialog>
-            <form id="form-add-city">
-                <h4 id="city-title-in-modal"></h4>
-                <p id="region-title-in-modal"></p>
-                <div id="city-summary-card"></div>
-                <div id="city-selection-fields" hidden>
-                    <div data-city-combobox>
-                        <div data-city-combobox-control>
-                            <input id="add-city-city" data-city-combobox-input>
-                            <span data-city-combobox-loading hidden></span>
-                        </div>
-                        <div data-city-combobox-positioner>
-                            <ul data-city-combobox-content></ul>
+            <div class="dui-modal-box">
+                <h3 id="addCityModalLabel">Добавить посещённый город</h3>
+                <form id="form-add-city">
+                <div id="add-city-modal-content">
+                    <div id="city-selection-fields" hidden>
+                        <button type="button" data-city-search-back hidden>Назад</button>
+                        <div data-city-combobox>
+                            <div data-city-combobox-control>
+                                <input id="add-city-city" data-city-combobox-input>
+                                <span data-city-combobox-loading hidden></span>
+                            </div>
+                            <p data-city-search-instruction>Начните вводить название города</p>
+                            <div data-city-combobox-positioner>
+                                <ul data-city-combobox-content></ul>
+                            </div>
                         </div>
                     </div>
+                    <div id="visit-details">
+                        <div id="city-summary-card">
+                            <h4 id="city-title-in-modal"></h4>
+                            <p id="region-title-in-modal"></p>
+                            <button type="button" data-change-city hidden>Изменить</button>
+                        </div>
+                        <input id="date-of-visit" name="date_of_visit" readonly>
+                        <div id="add-city-visit-calendar" class="vc absolute top-full start-0 z-10 w-fit mt-2" data-vc-calendar-hidden></div>
+                        <button type="button" id="today-button"></button>
+                        <button type="button" id="yesterday-button"></button>
+                        <input id="id_rating" name="rating">
+                        <input type="checkbox" id="magnet-checkbox" name="has_magnet">
+                        <textarea id="impression" name="impression"></textarea>
+                        <div id="rating-container"><input type="radio" value="1"></div>
+                    </div>
                 </div>
-                <input id="date-of-visit" name="date_of_visit" readonly>
-                <div id="add-city-visit-calendar" class="vc absolute top-full start-0 z-10 w-fit mt-2" data-vc-calendar-hidden></div>
-                <button type="button" id="today-button"></button>
-                <button type="button" id="yesterday-button"></button>
-                <button type="button" id="btn-close-modal"></button>
-                <button id="btn_add-visited-city"><span>Добавить</span></button>
+                <div id="add-city-modal-actions">
+                    <button type="button" id="btn-close-modal"></button>
+                    <button id="btn_add-visited-city"><span>Добавить</span></button>
+                </div>
                 <input type="hidden" id="city-id" name="city" value="42">
-                <input id="id_rating" name="rating">
-                <input type="checkbox" id="magnet-checkbox" name="has_magnet">
-                <textarea id="impression" name="impression"></textarea>
-                <div id="rating-container"><input type="radio" value="1"></div>
-            </form>
+                </form>
+            </div>
         </dialog>
     </template>`;
 
@@ -73,6 +86,7 @@ describe('AddCityModal visit calendar', () => {
         Calendar.mockClear();
         showSuccessToast.mockClear();
         vi.stubGlobal('fetch', vi.fn());
+        vi.stubGlobal('innerWidth', 1024);
     });
 
     afterEach(() => {
@@ -401,6 +415,216 @@ describe('AddCityModal visit calendar', () => {
 
         expect(dialog.showModal).toHaveBeenCalledOnce();
         expect(document.activeElement).toBe(cityInput);
+    });
+
+    it('opens a dedicated city search before the mobile keyboard appears', () => {
+        vi.stubGlobal('innerWidth', 767);
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        const dialog = modal.querySelector('dialog');
+        const cityInput = modal.querySelector('#add-city-city');
+        dialog.showModal = vi.fn();
+
+        modal.open({cityId: null});
+
+        expect(modal.querySelector('#addCityModalLabel').textContent).toBe('Выберите город');
+        expect(modal.querySelector('#city-selection-fields').hidden).toBe(false);
+        expect(modal.querySelector('[data-city-search-instruction]').hidden).toBe(false);
+        expect(modal.querySelector('#visit-details').hidden).toBe(true);
+        expect(modal.querySelector('#add-city-modal-actions').hidden).toBe(true);
+        expect(document.activeElement).toBe(cityInput);
+    });
+
+    it('switches the create flow when the viewport crosses the mobile boundary', () => {
+        vi.stubGlobal('innerWidth', 768);
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        const dialog = modal.querySelector('dialog');
+        dialog.showModal = vi.fn(() => {
+            dialog.open = true;
+        });
+
+        modal.open({cityId: null});
+        expect(modal.querySelector('#addCityModalLabel').textContent).toBe('Добавить посещённый город');
+        expect(modal.querySelector('#visit-details').hidden).toBe(false);
+
+        vi.stubGlobal('innerWidth', 767);
+        window.dispatchEvent(new Event('resize'));
+        expect(modal.querySelector('#addCityModalLabel').textContent).toBe('Выберите город');
+        expect(modal.querySelector('#visit-details').hidden).toBe(true);
+
+        vi.stubGlobal('innerWidth', 768);
+        window.dispatchEvent(new Event('resize'));
+        expect(modal.querySelector('#addCityModalLabel').textContent).toBe('Добавить посещённый город');
+        expect(modal.querySelector('#visit-details').hidden).toBe(false);
+        expect(modal.querySelector('#add-city-modal-actions').hidden).toBe(false);
+    });
+
+    it('moves from mobile city search to visit details after a result is selected', async () => {
+        vi.stubGlobal('innerWidth', 767);
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue([
+                {id: 42, title: 'Тверь', region: 'Тверская область', country: 'Россия'},
+            ]),
+        });
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        modal.querySelector('dialog').showModal = vi.fn();
+
+        modal.open({cityId: null});
+        const input = modal.querySelector('[data-city-combobox-input]');
+        input.value = 'Тверь';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+
+        expect(modal.querySelector('[data-city-search-instruction]').hidden).toBe(true);
+        await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
+        modal.querySelector('[role="option"]').click();
+
+        await vi.waitFor(() => expect(modal.cityId).toBe(42));
+        expect(modal.querySelector('#city-id').value).toBe('42');
+        expect(modal.querySelector('#city-title-in-modal').textContent).toBe('Тверь');
+        expect(modal.querySelector('#region-title-in-modal').textContent).toBe('Тверская область, Россия');
+        expect(modal.querySelector('#addCityModalLabel').textContent).toBe('Добавить посещённый город');
+        expect(modal.querySelector('#city-selection-fields').hidden).toBe(true);
+        expect(modal.querySelector('#visit-details').hidden).toBe(false);
+        expect(modal.querySelector('#add-city-modal-actions').hidden).toBe(false);
+        await vi.waitFor(() => expect(document.activeElement).not.toBe(input));
+        expect(modal.querySelector('form').contains(document.activeElement)).toBe(false);
+    });
+
+    it('keeps mobile city search open when the keyboard resizes the viewport', async () => {
+        vi.stubGlobal('innerWidth', 767);
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue([
+                {id: 42, title: 'Тверь', region: 'Тверская область', country: 'Россия'},
+            ]),
+        });
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        const dialog = modal.querySelector('dialog');
+        dialog.showModal = vi.fn(() => {
+            dialog.open = true;
+        });
+
+        modal.open({cityId: null});
+        const input = modal.querySelector('[data-city-combobox-input]');
+        input.value = 'Тверь';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
+
+        modal.querySelector('[role="option"]').click();
+        await vi.waitFor(() => expect(modal.querySelector('#city-summary-card').hidden).toBe(false));
+
+        const changeButton = modal.querySelector('[data-change-city]');
+        changeButton.click();
+
+        expect(modal.querySelector('#city-selection-fields').hidden).toBe(false);
+        expect(modal.querySelector('#visit-details').hidden).toBe(true);
+        window.dispatchEvent(new Event('resize'));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(modal.querySelector('#city-selection-fields').hidden).toBe(false);
+        expect(modal.querySelector('#visit-details').hidden).toBe(true);
+        expect(document.activeElement).toBe(input);
+    });
+
+    it('returns to the previous mobile city after cancelling a replacement search', async () => {
+        vi.stubGlobal('innerWidth', 767);
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        modal.querySelector('dialog').showModal = vi.fn();
+
+        modal.open({
+            cityId: 42,
+            cityName: 'Тверь',
+            regionName: 'Тверская область',
+            countryName: 'Россия',
+        });
+        const changeButton = modal.querySelector('[data-change-city]');
+        expect(changeButton.hidden).toBe(false);
+
+        changeButton.click();
+        const input = modal.querySelector('[data-city-combobox-input]');
+        expect(modal.querySelector('#addCityModalLabel').textContent).toBe('Выберите город');
+        expect(modal.querySelector('[data-city-search-back]').hidden).toBe(false);
+        expect(modal.querySelector('#visit-details').hidden).toBe(true);
+        expect(input.value).toBe('Тверь');
+        expect(modal.querySelector('[data-city-search-instruction]').hidden).toBe(true);
+        expect(document.activeElement).toBe(input);
+        expect(input.selectionStart).toBe(0);
+        expect(input.selectionEnd).toBe('Тверь'.length);
+
+        input.value = 'Твер';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        expect(modal.cityId).toBe(42);
+        modal.querySelector('[data-city-search-back]').click();
+
+        expect(modal.cityId).toBe(42);
+        expect(modal.querySelector('#city-id').value).toBe('42');
+        expect(modal.querySelector('#city-title-in-modal').textContent).toBe('Тверь');
+        expect(modal.querySelector('#region-title-in-modal').textContent).toBe('Тверская область, Россия');
+        expect(modal.querySelector('#visit-details').hidden).toBe(false);
+        expect(modal.querySelector('#city-selection-fields').hidden).toBe(true);
+        await vi.waitFor(() => expect(document.activeElement).not.toBe(input));
+        expect(modal.querySelector('form').contains(document.activeElement)).toBe(false);
+    });
+
+    it('does not submit the previous city while a mobile replacement search is active', () => {
+        vi.stubGlobal('innerWidth', 767);
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        modal.querySelector('dialog').showModal = vi.fn();
+        modal.open({cityId: 42, cityName: 'Тверь'});
+
+        const rating = modal.querySelector('#rating-container input');
+        rating.checked = true;
+        rating.dispatchEvent(new Event('change', {bubbles: true}));
+        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(false);
+
+        modal.querySelector('[data-change-city]').click();
+        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(true);
+
+        modal.querySelector('form').requestSubmit();
+
+        expect(fetch).not.toHaveBeenCalled();
+        expect(modal.cityId).toBe(42);
+
+        modal.querySelector('[data-city-search-back]').click();
+        expect(modal.querySelector('#btn_add-visited-city').disabled).toBe(false);
+    });
+
+    it('commits a replacement selected from the mobile city search', async () => {
+        vi.stubGlobal('innerWidth', 767);
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue([
+                {id: 77, title: 'Ржев', region: 'Тверская область', country: 'Россия'},
+            ]),
+        });
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        modal.querySelector('dialog').showModal = vi.fn();
+        modal.open({cityId: 42, cityName: 'Тверь', regionName: 'Тверская область', countryName: 'Россия'});
+
+        modal.querySelector('[data-change-city]').click();
+        const input = modal.querySelector('[data-city-combobox-input]');
+        input.value = 'Ржев';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        expect(modal.cityId).toBe(42);
+        await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
+        modal.querySelector('[role="option"]').click();
+
+        await vi.waitFor(() => expect(modal.cityId).toBe(77));
+        expect(modal.querySelector('#city-id').value).toBe('77');
+        expect(modal.querySelector('#city-title-in-modal').textContent).toBe('Ржев');
+        expect(modal.querySelector('#region-title-in-modal').textContent).toBe('Тверская область, Россия');
+        expect(modal.querySelector('#visit-details').hidden).toBe(false);
+        expect(modal.querySelector('[data-change-city]').hidden).toBe(false);
+        expect(modal.querySelector('[data-city-search-back]').hidden).toBe(true);
+        expect(modal.previousCitySelection).toBeNull();
+        await vi.waitFor(() => expect(document.activeElement).not.toBe(input));
+        expect(modal.querySelector('form').contains(document.activeElement)).toBe(false);
     });
 
     it('sets today and yesterday through the quick-date button handlers', () => {

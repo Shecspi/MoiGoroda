@@ -103,6 +103,86 @@ describe('CityCombobox', () => {
         expect(document.querySelector('[data-city-combobox-content]').hidden).toBe(true);
     });
 
+    it('keeps current results unselectable until a refined search finishes', async () => {
+        const refinedCity = {id: 77, title: 'Мосальск', region: 'Калужская область', country: 'Россия'};
+        let resolveRefinedSearch;
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: vi.fn().mockResolvedValue([city]),
+            })
+            .mockImplementationOnce(() => new Promise((resolve) => {
+                resolveRefinedSearch = resolve;
+            }));
+        const onSelect = vi.fn();
+        const cityCombobox = new CityCombobox(document, {onSelect});
+        cityCombobox.init();
+        const input = document.querySelector('[data-city-combobox-input]');
+        const loading = document.querySelector('[data-city-combobox-loading]');
+
+        input.value = 'Мос';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.waitFor(() => expect(document.querySelector('[role="option"]')?.textContent).toContain('Москва'));
+
+        input.value = 'Моса';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+
+        const currentOption = document.querySelector('[role="option"]');
+        expect(currentOption).not.toBeNull();
+        expect(currentOption.textContent).toContain('Москва');
+        onSelect.mockClear();
+        currentOption.click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(onSelect).not.toHaveBeenCalled();
+        input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(onSelect).not.toHaveBeenCalled();
+        expect(input.value).toBe('Моса');
+        expect(currentOption.getAttribute('aria-disabled')).toBe('true');
+        await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+        expect(loading.hidden).toBe(false);
+        expect(document.querySelector('[role="option"]')?.textContent).toContain('Москва');
+
+        resolveRefinedSearch({
+            ok: true,
+            json: vi.fn().mockResolvedValue([refinedCity]),
+        });
+
+        await vi.waitFor(() => expect(document.querySelector('[role="option"]')?.textContent).toContain('Мосальск'));
+        const refinedOption = document.querySelector('[role="option"]');
+        expect(refinedOption.textContent).not.toContain('Москва');
+        expect(refinedOption.getAttribute('aria-disabled')).toBeNull();
+        refinedOption.click();
+        await vi.waitFor(() => expect(onSelect).toHaveBeenLastCalledWith(refinedCity));
+    });
+
+    it('discards current results when the refined query is blank', async () => {
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue([city]),
+        });
+        const cityCombobox = new CityCombobox(document);
+        cityCombobox.init();
+        const input = document.querySelector('[data-city-combobox-input]');
+        const results = document.querySelector('[data-city-combobox-content]');
+
+        input.value = 'Мос';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.waitFor(() => expect(document.querySelector('[role="option"]')).not.toBeNull());
+
+        input.value = '   ';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.waitFor(() => {
+            expect(results.hidden).toBe(true);
+            expect(document.querySelector('[role="option"]')).toBeNull();
+        });
+
+        input.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown', bubbles: true}));
+
+        expect(document.querySelector('[role="option"]')).toBeNull();
+        expect(fetch).toHaveBeenCalledOnce();
+    });
+
     it('shows a disabled message when a remote city search has no matches', async () => {
         fetch.mockResolvedValue({
             ok: true,

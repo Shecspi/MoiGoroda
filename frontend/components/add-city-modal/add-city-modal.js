@@ -30,6 +30,8 @@ class AddCityModal extends HTMLElement {
         this.visitedCityId = null;
         this.surface = '';
         this.cityCombobox = null;
+        this.mobileCitySearchActive = false;
+        this.previousCitySelection = null;
         this.form = null;
         this.dialog = null;
         this.submitButton = null;
@@ -41,6 +43,7 @@ class AddCityModal extends HTMLElement {
         this.globalClickHandler = null;
         this.calendarOutsideClickHandler = null;
         this.calendarPositionHandler = null;
+        this.viewportChangeHandler = null;
     }
 
     connectedCallback() {
@@ -49,6 +52,7 @@ class AddCityModal extends HTMLElement {
             this.initCalendarOutsideClickListener();
             this.initCalendarPositionListeners();
             this.initGlobalClickListener();
+            this.initViewportListener();
             return;
         }
 
@@ -56,6 +60,7 @@ class AddCityModal extends HTMLElement {
         this.initElements();
         this.initEventListeners();
         this.initGlobalClickListener();
+        this.initViewportListener();
     }
 
     disconnectedCallback() {
@@ -71,6 +76,10 @@ class AddCityModal extends HTMLElement {
             this.querySelector('.dui-modal-box')?.removeEventListener('scroll', this.calendarPositionHandler);
             window.removeEventListener('resize', this.calendarPositionHandler);
             this.calendarPositionHandler = null;
+        }
+        if (this.viewportChangeHandler) {
+            window.removeEventListener('resize', this.viewportChangeHandler);
+            this.viewportChangeHandler = null;
         }
         this.visitDateForReconnect = this.visitCalendar?.context.selectedDates[0] || '';
         this.visitCalendar?.destroy();
@@ -98,6 +107,12 @@ class AddCityModal extends HTMLElement {
         this.ratingRadios = Array.from(this.ratingContainer.querySelectorAll('input[type="radio"]'));
         this.citySelectionFields = this.querySelector('#city-selection-fields');
         this.citySummaryCard = this.querySelector('#city-summary-card');
+        this.visitDetails = this.querySelector('#visit-details');
+        this.modalActions = this.querySelector('#add-city-modal-actions');
+        this.citySearchInstruction = this.querySelector('[data-city-search-instruction]');
+        this.cityInput = this.querySelector('[data-city-combobox-input]');
+        this.changeCityButton = this.querySelector('[data-change-city]');
+        this.citySearchBackButton = this.querySelector('[data-city-search-back]');
         
         this.initRating();
         this.initDatePicker();
@@ -234,6 +249,11 @@ class AddCityModal extends HTMLElement {
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         this.dialog.addEventListener('close', () => this.resetForm());
         this.querySelector('#btn-close-modal').addEventListener('click', () => this.close());
+        this.changeCityButton.addEventListener('click', () => this.startCityReselection());
+        this.citySearchBackButton.addEventListener('click', () => this.cancelCityReselection());
+        this.cityInput.addEventListener('input', () => {
+            this.citySearchInstruction.hidden = this.cityInput.value.trim().length > 0;
+        });
         
         this.ratingInput.addEventListener('input', () => this.updateSubmitButtonState());
         this.ratingInput.addEventListener('change', () => this.updateSubmitButtonState());
@@ -241,7 +261,7 @@ class AddCityModal extends HTMLElement {
 
     updateSubmitButtonState() {
         const hasRating = this.ratingInput.value && parseInt(this.ratingInput.value) > 0;
-        this.submitButton.disabled = !hasRating || !this.cityId;
+        this.submitButton.disabled = !hasRating || !this.cityId || this.mobileCitySearchActive;
     }
 
     initGlobalClickListener() {
@@ -323,6 +343,10 @@ class AddCityModal extends HTMLElement {
         if (!cityId) {
             this.initCityCombobox();
         }
+        if (!cityId && this.isMobileViewport()) {
+            this.showMobileCitySearch();
+        }
+        this.updateChangeCityAction();
         this.dialog.toggleAttribute('autofocus', Boolean(cityId));
         this.dialog.showModal();
         if (!cityId) {
@@ -359,6 +383,7 @@ class AddCityModal extends HTMLElement {
             this.setVisitDate(visit.date_of_visit || '');
             this.toggleCitySelection(false);
             this.setModeLabels();
+            this.updateChangeCityAction();
             this.dialog.setAttribute('autofocus', '');
             this.dialog.showModal();
             this.updateSubmitButtonState();
@@ -375,6 +400,99 @@ class AddCityModal extends HTMLElement {
         if (this.citySummaryCard) {
             this.citySummaryCard.hidden = show;
         }
+    }
+
+    isMobileViewport() {
+        return window.innerWidth < 768;
+    }
+
+    showMobileCitySearch() {
+        this.mobileCitySearchActive = true;
+        this.citySelectionFields.hidden = false;
+        this.visitDetails.hidden = true;
+        this.modalActions.hidden = true;
+        this.citySearchInstruction.hidden = this.cityInput.value.trim().length > 0;
+        this.citySearchBackButton.hidden = !this.previousCitySelection;
+        this.querySelector('#addCityModalLabel').textContent = 'Выберите город';
+        this.updateSubmitButtonState();
+    }
+
+    initViewportListener() {
+        if (this.viewportChangeHandler) return;
+
+        this.viewportChangeHandler = () => {
+            if (this.mode !== 'create' || !this.dialog.open) return;
+
+            if (this.isMobileViewport() && (!this.cityId || this.mobileCitySearchActive)) {
+                this.showMobileCitySearch();
+                return;
+            }
+
+            if (!this.isMobileViewport() && this.previousCitySelection) {
+                this.cancelCityReselection();
+                return;
+            }
+
+            this.showVisitDetails(!this.cityId);
+        };
+        window.addEventListener('resize', this.viewportChangeHandler);
+    }
+
+    showVisitDetails(showCitySelection = false) {
+        this.mobileCitySearchActive = false;
+        this.toggleCitySelection(showCitySelection);
+        this.visitDetails.hidden = false;
+        this.modalActions.hidden = false;
+        this.citySearchBackButton.hidden = true;
+        this.setModeLabels();
+        this.updateChangeCityAction();
+        this.updateSubmitButtonState();
+    }
+
+    updateChangeCityAction() {
+        this.changeCityButton.hidden = !(
+            this.mode === 'create'
+            && this.isMobileViewport()
+            && this.cityId
+            && !this.mobileCitySearchActive
+        );
+    }
+
+    setSelectedCity({id, title, region = '', country = ''}) {
+        this.cityId = Number(id);
+        this.cityName = title;
+        this.regionName = region;
+        this.countryName = country;
+        this.querySelector('#city-id').value = String(id);
+        this.querySelector('#city-title-in-modal').textContent = title;
+        this.setCityLocationSummary();
+    }
+
+    startCityReselection() {
+        if (!this.isMobileViewport() || !this.cityId) return;
+
+        this.previousCitySelection = {
+            id: this.cityId,
+            title: this.cityName,
+            region: this.regionName,
+            country: this.countryName,
+        };
+        this.initCityCombobox();
+        this.cityCombobox.setInputValue(this.cityName);
+        this.showMobileCitySearch();
+        this.cityInput.focus();
+        this.cityInput.select();
+    }
+
+    cancelCityReselection() {
+        if (!this.previousCitySelection) return;
+
+        this.setSelectedCity(this.previousCitySelection);
+        this.previousCitySelection = null;
+        this.cityCombobox?.destroy();
+        this.cityCombobox = null;
+        setTimeout(() => this.cityInput.blur(), 0);
+        this.showVisitDetails();
     }
 
     setCityLocationSummary() {
@@ -400,14 +518,21 @@ class AddCityModal extends HTMLElement {
         this.cityCombobox = new CityCombobox(this, {
             onSelect: (city) => {
                 if (!city) {
+                    if (this.previousCitySelection) {
+                        return;
+                    }
                     this.cityId = null;
                     this.querySelector('#city-id').value = '';
                     this.updateSubmitButtonState();
                     return;
                 }
 
-                this.cityId = Number(city.id);
-                this.querySelector('#city-id').value = String(city.id);
+                this.setSelectedCity(city);
+                if (this.mobileCitySearchActive) {
+                    this.previousCitySelection = null;
+                    setTimeout(() => this.cityInput.blur(), 0);
+                    this.showVisitDetails();
+                }
                 this.updateSubmitButtonState();
             },
             onError: () => {
@@ -425,6 +550,13 @@ class AddCityModal extends HTMLElement {
         this.form.reset();
         this.cityCombobox?.destroy();
         this.cityCombobox = null;
+        this.mobileCitySearchActive = false;
+        this.previousCitySelection = null;
+        this.visitDetails.hidden = false;
+        this.modalActions.hidden = false;
+        this.citySearchInstruction.hidden = false;
+        this.citySearchBackButton.hidden = true;
+        this.changeCityButton.hidden = true;
         this.cityId = null;
         this.visitedCityId = null;
         this.surface = '';
@@ -442,6 +574,7 @@ class AddCityModal extends HTMLElement {
 
     async handleSubmit(e) {
         e.preventDefault();
+        if (this.mobileCitySearchActive) return;
         
         const formData = new FormData(this.form);
         const csrfToken = formData.get('csrfmiddlewaretoken') || getCookie('csrftoken');

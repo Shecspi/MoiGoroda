@@ -27,6 +27,7 @@ export class CityCombobox {
         this.requestVersion = 0;
         this.items = [];
         this.hasEmptySearchResult = false;
+        this.hasPendingSearch = false;
         this.inputValue = '';
         this.collection = combobox.collection({items: []});
         this.machine = null;
@@ -74,6 +75,7 @@ export class CityCombobox {
         this.machine?.stop();
         this.machine = null;
         this.items = [];
+        this.hasPendingSearch = false;
         this.loading && (this.loading.hidden = true);
     }
 
@@ -92,6 +94,7 @@ export class CityCombobox {
         this.cancelSearch();
         this.items = [];
         this.hasEmptySearchResult = false;
+        this.hasPendingSearch = false;
         this.inputValue = '';
         this.input.value = '';
         this.setCollection();
@@ -101,6 +104,13 @@ export class CityCombobox {
         this.setLoading(false);
         this.onSelect(null);
         this.input.focus();
+    }
+
+    setInputValue(value) {
+        this.inputValue = value;
+        this.input.value = value;
+        this.machine?.updateProps({inputValue: value});
+        this.render();
     }
 
     cancelSearch() {
@@ -116,15 +126,18 @@ export class CityCombobox {
         const query = value.trim();
         this.cancelSearch();
         const requestVersion = this.requestVersion;
-        this.items = [];
-        this.hasEmptySearchResult = false;
-        this.setCollection();
 
         if (query.length < MINIMUM_QUERY_LENGTH) {
+            this.items = [];
+            this.hasEmptySearchResult = false;
+            this.hasPendingSearch = false;
+            this.setCollection();
             this.getApi().setOpen(false);
             return;
         }
 
+        this.hasPendingSearch = true;
+        this.render();
         this.searchTimer = setTimeout(() => {
             this.searchTimer = null;
             this.performSearch(query, requestVersion);
@@ -153,12 +166,14 @@ export class CityCombobox {
             }
             this.items = cities.filter((city) => city?.id && city?.title);
             this.hasEmptySearchResult = this.items.length === 0;
+            this.hasPendingSearch = false;
             this.setCollection();
             this.openAndHighlightResults();
         } catch (error) {
             if (error.name !== 'AbortError' && requestVersion === this.requestVersion) {
                 this.items = [];
                 this.hasEmptySearchResult = false;
+                this.hasPendingSearch = false;
                 this.setCollection();
                 this.getApi().setOpen(false);
                 this.onError(error);
@@ -175,6 +190,7 @@ export class CityCombobox {
             items: this.items,
             itemToString: (city) => city.title,
             itemToValue: (city) => String(city.id),
+            isItemDisabled: () => this.hasPendingSearch,
         });
         this.machine?.updateProps({
             collection: this.collection,
@@ -234,7 +250,8 @@ export class CityCombobox {
         return this.items.map((city) => {
             const item = document.createElement('li');
             const state = api.getItemState({item: city});
-            item.className = 'cursor-pointer rounded-field px-3 py-2 text-sm text-base-content';
+            item.className = 'rounded-field px-3 py-2 text-sm text-base-content';
+            item.classList.add(this.hasPendingSearch ? 'cursor-default' : 'cursor-pointer');
             item.classList.toggle('bg-base-300', state.highlighted);
             const cleanup = spreadProps(item, api.getItemProps({item: city}), this.input.id);
 

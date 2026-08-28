@@ -72,6 +72,8 @@
 
 - *(city)* Переработано добавление посещённых городов ([fb04b9c](https://github.com/Shecspi/MoiGoroda/commit/fb04b9c46d4da9a4d5217a3f6475ef891335c7eb))
 
+- *(city)* Добавлен отдельный мобильный поиск города (#308) ([70da5b7](https://github.com/Shecspi/MoiGoroda/commit/70da5b7388cdbe2745dc8137ffc73ba5eb2e0233))
+
 
 #### 🐛 Исправление ошибок
 

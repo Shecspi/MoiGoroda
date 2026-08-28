@@ -103,7 +103,7 @@ describe('CityCombobox', () => {
         expect(document.querySelector('[data-city-combobox-content]').hidden).toBe(true);
     });
 
-    it('keeps current results visible until a refined search finishes', async () => {
+    it('keeps current results unselectable until a refined search finishes', async () => {
         const refinedCity = {id: 77, title: 'Мосальск', region: 'Калужская область', country: 'Россия'};
         let resolveRefinedSearch;
         fetch
@@ -114,7 +114,8 @@ describe('CityCombobox', () => {
             .mockImplementationOnce(() => new Promise((resolve) => {
                 resolveRefinedSearch = resolve;
             }));
-        const cityCombobox = new CityCombobox(document);
+        const onSelect = vi.fn();
+        const cityCombobox = new CityCombobox(document, {onSelect});
         cityCombobox.init();
         const input = document.querySelector('[data-city-combobox-input]');
         const loading = document.querySelector('[data-city-combobox-loading]');
@@ -129,6 +130,15 @@ describe('CityCombobox', () => {
         const currentOption = document.querySelector('[role="option"]');
         expect(currentOption).not.toBeNull();
         expect(currentOption.textContent).toContain('Москва');
+        onSelect.mockClear();
+        currentOption.click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(onSelect).not.toHaveBeenCalled();
+        input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(onSelect).not.toHaveBeenCalled();
+        expect(input.value).toBe('Моса');
+        expect(currentOption.getAttribute('aria-disabled')).toBe('true');
         await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
         expect(loading.hidden).toBe(false);
         expect(document.querySelector('[role="option"]')?.textContent).toContain('Москва');
@@ -139,7 +149,11 @@ describe('CityCombobox', () => {
         });
 
         await vi.waitFor(() => expect(document.querySelector('[role="option"]')?.textContent).toContain('Мосальск'));
-        expect(document.querySelector('[role="option"]')?.textContent).not.toContain('Москва');
+        const refinedOption = document.querySelector('[role="option"]');
+        expect(refinedOption.textContent).not.toContain('Москва');
+        expect(refinedOption.getAttribute('aria-disabled')).toBeNull();
+        refinedOption.click();
+        await vi.waitFor(() => expect(onSelect).toHaveBeenLastCalledWith(refinedCity));
     });
 
     it('discards current results when the refined query is blank', async () => {

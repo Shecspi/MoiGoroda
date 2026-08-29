@@ -24,6 +24,7 @@ from django.db.models import (
     QuerySet,
     Subquery,
     Value,
+    Window,
 )
 from django.db.models.functions import Round
 from django.http import Http404
@@ -44,21 +45,18 @@ AUTH_ONLY_COLLECTION_SORTS = frozenset({'progress_down', 'progress_up', 'default
 def get_city_collection_context(city: City) -> dict[str, Any]:
     """Возвращает canonical DTO общих коллекций города одним согласованным чтением."""
     summary = (
-        City.objects.filter(pk=city.pk)
-        .annotate(
-            common_count=Count('collections_list'),
-            single_collection_id=Min('collections_list__id'),
-            single_collection_title=Min('collections_list__title'),
-        )
-        .values('common_count', 'single_collection_id', 'single_collection_title')
-        .get()
+        Collection.objects.filter(city=city)
+        .annotate(common_count=Window(expression=Count('*')))
+        .values('id', 'title', 'common_count')
+        .first()
     )
 
     single = None
-    if summary['common_count'] == 1:
+    common_count = summary['common_count'] if summary else 0
+    if common_count == 1 and summary:
         collection = Collection(
-            pk=summary['single_collection_id'],
-            title=summary['single_collection_title'],
+            pk=summary['id'],
+            title=summary['title'],
         )
         single = {
             'id': collection.pk,
@@ -73,7 +71,7 @@ def get_city_collection_context(city: City) -> dict[str, Any]:
             'url': city.get_absolute_url(),
         },
         'common_collections': {
-            'count': summary['common_count'],
+            'count': common_count,
             'single': single,
             'catalog_url': reverse('collection-list'),
         },

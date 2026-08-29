@@ -66,7 +66,10 @@ describe('showVisitedCityCreatedToast', () => {
             textContent: '<b>Очень длинная коллекция</b>',
             pathname: '/collection/7/list',
             title: '<b>Очень длинная коллекция</b>',
+            tabIndex: 0,
         });
+        expect(links[1].getAttribute('href')).toBe('/collection/7/list');
+        expect(links[1].classList).toContain('line-clamp-2');
         expect(content.querySelector('b')).toBeNull();
     });
 

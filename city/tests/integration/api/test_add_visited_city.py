@@ -18,6 +18,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from city.models import City, VisitedCity
+from collection.models import Collection
 from country.models import Country
 from region.models import Region, RegionType
 
@@ -115,6 +116,8 @@ class TestAddVisitedCityCollectionContext:
     ) -> None:
         user = django_user_model.objects.create_user(username='testuser', password='password')
         client.force_login(user)
+        collection = Collection.objects.create(title='<Верхневолжье>')
+        collection.city.add(city)
 
         first_response = post_visit(client, city, '2026-08-01')
         repeat_response = post_visit(client, city, '2026-08-02')
@@ -122,8 +125,12 @@ class TestAddVisitedCityCollectionContext:
         expected_context = {
             'city': {'id': city.id, 'title': 'Тверь', 'url': f'/city/{city.id}'},
             'common_collections': {
-                'count': 0,
-                'single': None,
+                'count': 1,
+                'single': {
+                    'id': collection.id,
+                    'title': '<Верхневолжье>',
+                    'url': f'/collection/{collection.id}/list',
+                },
                 'catalog_url': '/collection/',
             },
         }

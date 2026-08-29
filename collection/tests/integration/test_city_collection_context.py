@@ -55,6 +55,8 @@ def test_city_collection_context_has_constant_query_count_and_expected_dto(
         context = get_city_collection_context(city)
 
     assert len(queries) == 1
+    assert 'OVER ()' in queries[0]['sql']
+    assert 'ORDER BY 2 ASC' in queries[0]['sql']
     assert context == {
         'city': {
             'id': city.id,
@@ -82,6 +84,8 @@ def test_city_collection_context_has_constant_query_count_and_expected_dto(
 def test_city_collection_context_excludes_private_and_public_personal_collections(
     city: City,
 ) -> None:
+    common = Collection.objects.create(title='<Общая>')
+    common.city.add(city)
     user = User.objects.create_user(username='owner')
     private = PersonalCollection.objects.create(title='Личная', user=user, is_public=False)
     public = PersonalCollection.objects.create(title='Публичная личная', user=user, is_public=True)
@@ -90,5 +94,9 @@ def test_city_collection_context_excludes_private_and_public_personal_collection
 
     context = get_city_collection_context(city)
 
-    assert context['common_collections']['count'] == 0
-    assert context['common_collections']['single'] is None
+    assert context['common_collections']['count'] == 1
+    assert context['common_collections']['single'] == {
+        'id': common.id,
+        'title': '<Общая>',
+        'url': f'/collection/{common.id}/list',
+    }

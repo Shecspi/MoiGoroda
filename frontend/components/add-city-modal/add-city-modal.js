@@ -18,6 +18,7 @@ import {Calendar} from 'vanilla-calendar-pro';
 import 'vanilla-calendar-pro/styles/index.css';
 import {isoFromParts, isoToRuDisplay} from '../../js/components/visit_date_picker.js';
 import {CityCombobox} from './city-combobox.js';
+import {showVisitedCityCreatedToast} from '../../js/components/visited_city_created_toast.js';
 
 class AddCityModal extends HTMLElement {
     constructor() {
@@ -652,7 +653,8 @@ class AddCityModal extends HTMLElement {
             const cityAddedEvent = new CustomEvent('city-added', {
                 detail: {
                     city,
-                    isNewCity: isAddedNewCity
+                    isNewCity: isAddedNewCity,
+                    collectionContext: data.collection_context,
                 },
                 bubbles: true,
                 cancelable: true,
@@ -660,7 +662,7 @@ class AddCityModal extends HTMLElement {
             });
             this.dispatchEvent(cityAddedEvent);
             if (!cityAddedEvent.defaultPrevented) {
-                showSuccessToast('Успешно', `Город ${data.city.city_title} успешно добавлен как посещённый`);
+                showVisitedCityCreatedToast(data.collection_context);
             }
 
             this.dispatchEvent(new CustomEvent('visited-city-created', {

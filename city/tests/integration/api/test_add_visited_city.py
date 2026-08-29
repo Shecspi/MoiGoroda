@@ -7,12 +7,47 @@
 
 """Регрессии совместимого DMR endpoint ``/api/city/visited/add``."""
 
+import json
+from datetime import date
+from typing import Any, Type
+
 import pytest
 from django.contrib.auth.models import User
 from django.test import Client
 from django.urls import reverse
 from rest_framework import status
-from typing import Type
+
+from city.models import City, VisitedCity
+from country.models import Country
+from region.models import Region, RegionType
+
+
+@pytest.fixture
+def city() -> City:
+    country = Country.objects.create(name='Россия', code='RU')
+    region_type = RegionType.objects.create(title='область')
+    region = Region.objects.create(
+        title='Тверская область',
+        country=country,
+        type=region_type,
+        iso3166='RU-TVE',
+        full_name='Тверская область',
+    )
+    return City.objects.create(
+        title='Тверь',
+        region=region,
+        country=country,
+        coordinate_width=56.8587,
+        coordinate_longitude=35.9176,
+    )
+
+
+def post_visit(client: Client, city: City, visit_date: str) -> Any:
+    return client.post(
+        reverse('api__add_visited_city'),
+        data=json.dumps({'city': city.id, 'date_of_visit': visit_date, 'rating': 5}),
+        content_type='application/json',
+    )
 
 
 @pytest.mark.integration
@@ -21,10 +56,14 @@ class TestAddVisitedCityAccess:
 
     url = reverse('api__add_visited_city')
 
-    def test_guest_cannot_access(self, client: Client) -> None:
+    def test_guest_cannot_access(self, client: Client, mocker: Any) -> None:
         """Ломается, если DMR миграция открывает создание гостю."""
+        context_reader = mocker.patch('city.api.visited.get_city_collection_context')
+
         response = client.post(self.url, {})
+
         assert response.status_code == status.HTTP_403_FORBIDDEN
+        context_reader.assert_not_called()
 
     @pytest.mark.parametrize('method', ['get', 'put', 'patch', 'delete'])
     def test_prohibited_methods(self, client: Client, method: str) -> None:
@@ -63,3 +102,92 @@ class TestAddVisitedCityValidation:
         response = client.post(self.url, {'city': 1, 'date_of_visit': '2024-01-15', 'rating': 5})
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+class TestAddVisitedCityCollectionContext:
+    def test_first_and_repeat_visits_return_additive_collection_context(
+        self,
+        client: Client,
+        django_user_model: Type[User],
+        city: City,
+    ) -> None:
+        user = django_user_model.objects.create_user(username='testuser', password='password')
+        client.force_login(user)
+
+        first_response = post_visit(client, city, '2026-08-01')
+        repeat_response = post_visit(client, city, '2026-08-02')
+
+        expected_context = {
+            'city': {'id': city.id, 'title': 'Тверь', 'url': f'/city/{city.id}'},
+            'common_collections': {
+                'count': 0,
+                'single': None,
+                'catalog_url': '/collection/',
+            },
+        }
+        for response in (first_response, repeat_response):
+            assert response.status_code == status.HTTP_200_OK
+            payload = response.json()
+            assert payload['status'] == 'success'
+            assert payload['city']['city'] == city.id
+            assert payload['city']['city_title'] == 'Тверь'
+            assert payload['visit']['city'] == city.id
+            assert payload['collection_context'] == expected_context
+
+    def test_context_error_returns_500_without_creating_visit(
+        self,
+        client: Client,
+        django_user_model: Type[User],
+        city: City,
+        mocker: Any,
+    ) -> None:
+        user = django_user_model.objects.create_user(username='testuser', password='password')
+        client.force_login(user)
+        client.raise_request_exception = False
+        mocker.patch(
+            'city.api.visited.get_city_collection_context',
+            side_effect=RuntimeError('collection read failed'),
+        )
+
+        response = post_visit(client, city, '2026-08-01')
+
+        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+        assert not VisitedCity.objects.filter(user=user, city=city).exists()
+
+    @pytest.mark.parametrize('case', ['invalid', 'unknown', 'duplicate'])
+    def test_rejected_requests_do_not_read_collection_context(
+        self,
+        case: str,
+        client: Client,
+        django_user_model: Type[User],
+        city: City,
+        mocker: Any,
+    ) -> None:
+        user = django_user_model.objects.create_user(username='testuser', password='password')
+        client.force_login(user)
+        context_reader = mocker.patch('city.api.visited.get_city_collection_context')
+
+        if case == 'invalid':
+            response = post_visit(client, city, 'not-a-date')
+        elif case == 'unknown':
+            response = client.post(
+                reverse('api__add_visited_city'),
+                data=json.dumps({'city': city.id + 999, 'rating': 5}),
+                content_type='application/json',
+            )
+        else:
+            VisitedCity.objects.create(
+                user=user,
+                city=city,
+                date_of_visit=date(2026, 8, 1),
+                rating=5,
+            )
+            response = post_visit(client, city, '2026-08-01')
+
+        assert response.status_code in {
+            status.HTTP_400_BAD_REQUEST,
+            status.HTTP_409_CONFLICT,
+        }
+        context_reader.assert_not_called()

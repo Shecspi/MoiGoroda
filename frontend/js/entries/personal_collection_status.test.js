@@ -67,10 +67,13 @@ describe('personal_collection_status', () => {
       );
     });
 
-    expect(showDaisyToast).toHaveBeenCalledWith(
-      'success',
-      'Ссылка на коллекцию успешно скопирована в буфер обмена',
-    );
+    expect(showDaisyToast).toHaveBeenCalledWith({
+      type: 'success',
+      content: 'Ссылка на коллекцию успешно скопирована в буфер обмена',
+      duration: 5000,
+      dismissible: true,
+      pauseOnInteraction: true,
+    });
     expect(showSuccessToast).not.toHaveBeenCalled();
   });
 

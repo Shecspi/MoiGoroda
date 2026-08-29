@@ -60,7 +60,13 @@ async function refreshVisits(visit) {
         window.MGUi?.initAll(updatedRoot);
     } catch (error) {
         console.error('Ошибка при обновлении посещений:', error);
-        showDaisyToast('error', 'Не удалось обновить посещения. Обновите страницу вручную.');
+        showDaisyToast({
+            type: 'error',
+            content: 'Не удалось обновить посещения. Обновите страницу вручную.',
+            duration: 5000,
+            dismissible: true,
+            pauseOnInteraction: true,
+        });
     }
 }
 

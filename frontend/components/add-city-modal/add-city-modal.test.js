@@ -470,6 +470,7 @@ describe('AddCityModal visit calendar', () => {
     });
 
     it('moves from mobile city search to visit details after a result is selected', async () => {
+        vi.useFakeTimers();
         vi.stubGlobal('innerWidth', 767);
         fetch.mockResolvedValue({
             ok: true,
@@ -485,12 +486,15 @@ describe('AddCityModal visit calendar', () => {
         const input = modal.querySelector('[data-city-combobox-input]');
         input.value = 'Тверь';
         input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.advanceTimersByTimeAsync(300);
 
         expect(modal.querySelector('[data-city-search-instruction]').hidden).toBe(true);
         await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
         modal.querySelector('[role="option"]').click();
+        await Promise.resolve();
+        await vi.runAllTimersAsync();
 
-        await vi.waitFor(() => expect(modal.cityId).toBe(42));
+        expect(modal.cityId).toBe(42);
         expect(modal.querySelector('#city-id').value).toBe('42');
         expect(modal.querySelector('#city-title-in-modal').textContent).toBe('Тверь');
         expect(modal.querySelector('#region-title-in-modal').textContent).toBe('Тверская область, Россия');
@@ -498,11 +502,12 @@ describe('AddCityModal visit calendar', () => {
         expect(modal.querySelector('#city-selection-fields').hidden).toBe(true);
         expect(modal.querySelector('#visit-details').hidden).toBe(false);
         expect(modal.querySelector('#add-city-modal-actions').hidden).toBe(false);
-        await vi.waitFor(() => expect(document.activeElement).not.toBe(input));
+        expect(document.activeElement).not.toBe(input);
         expect(modal.querySelector('form').contains(document.activeElement)).toBe(false);
     });
 
     it('keeps mobile city search open when the keyboard resizes the viewport', async () => {
+        vi.useFakeTimers();
         vi.stubGlobal('innerWidth', 767);
         fetch.mockResolvedValue({
             ok: true,
@@ -521,10 +526,12 @@ describe('AddCityModal visit calendar', () => {
         const input = modal.querySelector('[data-city-combobox-input]');
         input.value = 'Тверь';
         input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.advanceTimersByTimeAsync(300);
         await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
 
         modal.querySelector('[role="option"]').click();
-        await vi.waitFor(() => expect(modal.querySelector('#city-summary-card').hidden).toBe(false));
+        await Promise.resolve();
+        expect(modal.querySelector('#city-summary-card').hidden).toBe(false);
 
         const changeButton = modal.querySelector('[data-change-city]');
         changeButton.click();
@@ -532,7 +539,7 @@ describe('AddCityModal visit calendar', () => {
         expect(modal.querySelector('#city-selection-fields').hidden).toBe(false);
         expect(modal.querySelector('#visit-details').hidden).toBe(true);
         window.dispatchEvent(new Event('resize'));
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await vi.runAllTimersAsync();
         expect(modal.querySelector('#city-selection-fields').hidden).toBe(false);
         expect(modal.querySelector('#visit-details').hidden).toBe(true);
         expect(document.activeElement).toBe(input);
@@ -604,6 +611,7 @@ describe('AddCityModal visit calendar', () => {
     });
 
     it('commits a replacement selected from the mobile city search', async () => {
+        vi.useFakeTimers();
         vi.stubGlobal('innerWidth', 767);
         fetch.mockResolvedValue({
             ok: true,
@@ -620,11 +628,14 @@ describe('AddCityModal visit calendar', () => {
         const input = modal.querySelector('[data-city-combobox-input]');
         input.value = 'Ржев';
         input.dispatchEvent(new Event('input', {bubbles: true}));
+        await vi.advanceTimersByTimeAsync(300);
         expect(modal.cityId).toBe(42);
         await vi.waitFor(() => expect(modal.querySelector('[role="option"]')).not.toBeNull());
         modal.querySelector('[role="option"]').click();
+        await Promise.resolve();
+        await vi.runAllTimersAsync();
 
-        await vi.waitFor(() => expect(modal.cityId).toBe(77));
+        expect(modal.cityId).toBe(77);
         expect(modal.querySelector('#city-id').value).toBe('77');
         expect(modal.querySelector('#city-title-in-modal').textContent).toBe('Ржев');
         expect(modal.querySelector('#region-title-in-modal').textContent).toBe('Тверская область, Россия');
@@ -632,7 +643,7 @@ describe('AddCityModal visit calendar', () => {
         expect(modal.querySelector('[data-change-city]').hidden).toBe(false);
         expect(modal.querySelector('[data-city-search-back]').hidden).toBe(true);
         expect(modal.previousCitySelection).toBeNull();
-        await vi.waitFor(() => expect(document.activeElement).not.toBe(input));
+        expect(document.activeElement).not.toBe(input);
         expect(modal.querySelector('form').contains(document.activeElement)).toBe(false);
     });
 

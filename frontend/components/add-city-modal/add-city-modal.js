@@ -492,7 +492,9 @@ class AddCityModal extends HTMLElement {
         this.previousCitySelection = null;
         this.cityCombobox?.destroy();
         this.cityCombobox = null;
-        setTimeout(() => this.cityInput.blur(), 0);
+        setTimeout(() => {
+            if (!this.mobileCitySearchActive) this.cityInput.blur();
+        }, 0);
         this.showVisitDetails();
     }
 
@@ -531,7 +533,9 @@ class AddCityModal extends HTMLElement {
                 this.setSelectedCity(city);
                 if (this.mobileCitySearchActive) {
                     this.previousCitySelection = null;
-                    setTimeout(() => this.cityInput.blur(), 0);
+                    setTimeout(() => {
+                        if (!this.mobileCitySearchActive) this.cityInput.blur();
+                    }, 0);
                     this.showVisitDetails();
                 }
                 this.updateSubmitButtonState();

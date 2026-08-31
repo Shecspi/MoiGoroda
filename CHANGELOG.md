@@ -74,6 +74,8 @@
 
 - *(city)* Добавлен отдельный мобильный поиск города (#308) ([70da5b7](https://github.com/Shecspi/MoiGoroda/commit/70da5b7388cdbe2745dc8137ffc73ba5eb2e0233))
 
+- *(collection)* Добавлено уведомление о коллекциях после посещения города (#320) ([519be90](https://github.com/Shecspi/MoiGoroda/commit/519be903db2f40c2e4f5d653aa18427b27334d53))
+
 
 #### 🐛 Исправление ошибок
 

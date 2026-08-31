@@ -13,6 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.views.generic import ListView, TemplateView
 
@@ -46,14 +47,22 @@ class CollectionList(ListView):  # type: ignore[type-arg]
         self.qty_of_collections: int = 0
         self.qty_of_started_collections: int = 0
         self.qty_of_finished_collections: int = 0
+        self.selected_city: City | None = None
 
     def get_queryset(self) -> Any:
         user = self.request.user if self.request.user.is_authenticated else None
+        if 'city' in self.request.GET:
+            try:
+                city_id = int(self.request.GET['city'])
+                self.selected_city = City.objects.get(pk=city_id)
+            except (TypeError, ValueError, City.DoesNotExist) as error:
+                raise Http404 from error
 
         queryset, statistics = self.list_service.get_collections(
             user=user,
             filter_value=self.request.GET.get('filter'),
             sort_value=self.request.GET.get('sort'),
+            city=self.selected_city,
             request=self.request,
         )
 
@@ -83,6 +92,19 @@ class CollectionList(ListView):  # type: ignore[type-arg]
                 qty_of_finished_collections=self.qty_of_finished_collections,
             )
         )
+        context['selected_city'] = self.selected_city
+        if self.selected_city is not None:
+            if not context.get('object_list'):
+                context['selected_city_has_common_collections'] = Collection.objects.filter(
+                    city=self.selected_city
+                ).exists()
+            reset_params = self.request.GET.copy()
+            reset_params.pop('city', None)
+            reset_params.pop('page', None)
+            reset_query = reset_params.urlencode()
+            context['city_filter_reset_url'] = reverse('collection-list')
+            if reset_query:
+                context['city_filter_reset_url'] += f'?{reset_query}'
 
         return context
 

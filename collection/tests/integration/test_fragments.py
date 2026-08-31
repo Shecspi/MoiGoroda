@@ -81,6 +81,81 @@ class TestCollectionListFragments:
         assert response.context['page_obj'].number == 2
         assert '<html' not in content
 
+    def test_catalog_fragment_filters_by_city_and_preserves_it_in_pagination(
+        self, client: Client
+    ) -> None:
+        """Фрагмент сохраняет городской фильтр при переходе между страницами."""
+        user = User.objects.create_user(username='city-fragment-user', password='pass123')
+        country = Country.objects.create(name='Городской фильтр', code='CF')
+        region_type = RegionType.objects.create(title='округ')
+        region = Region.objects.create(
+            title='Фильтрованный',
+            full_name='Фильтрованный округ',
+            country=country,
+            type=region_type,
+            iso3166='CF-CF',
+        )
+        city = City.objects.create(
+            title='Город для фильтра',
+            country=country,
+            region=region,
+            coordinate_width=55.0,
+            coordinate_longitude=37.0,
+        )
+        for number in range(17):
+            collection = Collection.objects.create(title=f'Связанная коллекция {number:02d}')
+            collection.city.add(city)
+        unvisited_city = City.objects.create(
+            title='Непосещённый город',
+            country=country,
+            region=region,
+            coordinate_width=56.0,
+            coordinate_longitude=38.0,
+        )
+        unfinished_collection = Collection.objects.create(title='Связанная незавершённая')
+        unfinished_collection.city.add(city, unvisited_city)
+        Collection.objects.create(title='Несвязанная коллекция')
+        VisitedCity.objects.create(user=user, city=city, rating=5)
+        client.force_login(user)
+
+        response = client.get(
+            reverse('collection-list-fragment'),
+            data={
+                'city': str(city.id),
+                'filter': 'finished',
+                'sort': 'name_up',
+                'page': '2',
+            },
+        )
+
+        document = BeautifulSoup(response.content, 'html.parser')
+        pagination_links = document.select('[aria-label="Пагинация"] a')
+        assert response.status_code == 200
+        assert len(response.context['object_list']) == 1
+        assert response.context['object_list'][0].title == 'Связанная коллекция 00'
+        assert 'Несвязанная коллекция' not in document.get_text(' ', strip=True)
+        assert 'Связанная незавершённая' not in document.get_text(' ', strip=True)
+        assert 'Город: Город для фильтра' in document.get_text(' ', strip=True)
+        assert pagination_links
+        assert all(
+            f'city={city.id}' in link['href']
+            and 'filter=finished' in link['href']
+            and 'sort=name_up' in link['href']
+            for link in pagination_links
+        )
+
+    @pytest.mark.parametrize('city_value', ['', 'not-a-number', '999999'])
+    def test_catalog_fragment_returns_not_found_for_invalid_city(
+        self, client: Client, city_value: str
+    ) -> None:
+        """Фрагмент не подменяет ошибочный городской фильтр полным каталогом."""
+        user = User.objects.create_user(username=f'fragment-{city_value}', password='pass123')
+        client.force_login(user)
+
+        response = client.get(reverse('collection-list-fragment'), data={'city': city_value})
+
+        assert response.status_code == 404
+
     def test_selected_list_fragment_preserves_filter_page_status_progress_and_timeline(
         self, client: Client
     ) -> None:

@@ -16,6 +16,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
+from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -26,7 +27,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from city.models import City, CityUserPhoto, VisitedCity
-from collection.models import Collection
+from collection.models import Collection, PersonalCollection
 from collection.repository import COLLECTION_LIST_PREVIEW_CITIES_LIMIT
 from collection.views import get_url_params
 from country.models import Country
@@ -136,6 +137,130 @@ class TestCollectionListView:
 
         assert 'object_list' in response.context
         assert response.context['object_list'].count() == 2
+
+    def test_city_filter_returns_only_related_common_collections(
+        self, client: Client, setup_data: dict[str, Any]
+    ) -> None:
+        """Фильтр города ограничивает каталог связанными общими коллекциями."""
+        city = setup_data['city1']
+        unrelated = Collection.objects.create(title='Несвязанная общая коллекция')
+        personal = PersonalCollection.objects.create(
+            title='Персональная коллекция',
+            user=setup_data['user'],
+        )
+        personal.city.add(city)
+
+        response = client.get(reverse('collection-list'), {'city': city.id})
+
+        assert response.status_code == 200
+        assert {collection.id for collection in response.context['object_list']} == {
+            setup_data['collection1'].id,
+            setup_data['collection2'].id,
+        }
+        assert unrelated.title not in response.content.decode()
+        assert personal.title not in response.content.decode()
+        assert response.context['selected_city'] == city
+
+    def test_city_filter_badge_resets_city_and_page_but_keeps_other_parameters(
+        self, client: Client, setup_data: dict[str, Any]
+    ) -> None:
+        """Ссылка бейджа снимает только контекст города и пагинации."""
+        city = setup_data['city1']
+        city.title = '<Москва>'
+        city.save(update_fields=['title'])
+        client.force_login(setup_data['user'])
+
+        response = client.get(
+            reverse('collection-list'),
+            {
+                'city': city.id,
+                'page': 1,
+                'sort': 'name_up',
+                'filter': 'finished',
+                'source': 'toast',
+            },
+        )
+
+        content = response.content.decode()
+        document = BeautifulSoup(content, 'html.parser')
+        reset_link = document.select_one('[aria-label="Сбросить фильтр по городу"]')
+        assert response.status_code == 200
+        assert 'Город: <Москва>' in document.get_text(' ', strip=True)
+        assert 'Город: <Москва>' not in content
+        assert reset_link is not None
+        assert reset_link['href'] == '/collection/?sort=name_up&filter=finished&source=toast'
+        assert {collection.id for collection in response.context['object_list']} == {
+            setup_data['collection1'].id,
+            setup_data['collection2'].id,
+        }
+
+    def test_city_without_common_collections_has_filtered_empty_state(
+        self, client: Client, setup_data: dict[str, Any]
+    ) -> None:
+        """Пустой результат объясняет отсутствие общих коллекций у выбранного города."""
+        city = City.objects.create(
+            title='Тула',
+            region=setup_data['city1'].region,
+            country=setup_data['city1'].country,
+            coordinate_width=54.193,
+            coordinate_longitude=37.617,
+        )
+
+        response = client.get(reverse('collection-list'), {'city': city.id})
+
+        document = BeautifulSoup(response.content, 'html.parser')
+        reset_link = document.select_one('[aria-label="Сбросить фильтр по городу"]')
+        assert response.status_code == 200
+        assert not response.context['object_list']
+        assert response.context['selected_city'] == city
+        assert 'Город «Тула» не входит ни в одну общую коллекцию' in document.get_text(
+            ' ', strip=True
+        )
+        assert reset_link is not None
+        assert reset_link['href'] == '/collection/'
+
+    def test_other_filter_does_not_claim_city_has_no_common_collections(
+        self, client: Client, setup_data: dict[str, Any], region_type: Any
+    ) -> None:
+        """Пустой progress-фильтр не подменяет факт связи города с коллекциями."""
+        city = setup_data['city1']
+        country = Country.objects.create(name='Беларусь', code='BY')
+        region = Region.objects.create(
+            title='Минская',
+            country=country,
+            type=region_type,
+            iso3166='BY-MI',
+            full_name='Минская область',
+        )
+        unvisited_city = City.objects.create(
+            title='Минск',
+            region=region,
+            country=country,
+            coordinate_width=53.9,
+            coordinate_longitude=27.5667,
+        )
+        for collection in (setup_data['collection1'], setup_data['collection2']):
+            collection.city.add(unvisited_city)
+        client.force_login(setup_data['user'])
+
+        response = client.get(
+            reverse('collection-list'),
+            {'city': city.id, 'filter': 'finished'},
+        )
+
+        content = BeautifulSoup(response.content, 'html.parser').get_text(' ', strip=True)
+        assert response.status_code == 200
+        assert not response.context['object_list']
+        assert response.context['selected_city_has_common_collections'] is True
+        assert 'Город «Москва» не входит ни в одну общую коллекцию' not in content
+        assert 'Нет общих коллекций, соответствующих выбранным фильтрам.' in content
+
+    @pytest.mark.parametrize('city_value', ['', 'not-a-number', '-1', '999999'])
+    def test_invalid_city_filter_returns_not_found(self, client: Client, city_value: str) -> None:
+        """Некорректный или неизвестный идентификатор города не игнорируется."""
+        response = client.get(reverse('collection-list'), {'city': city_value})
+
+        assert response.status_code == 404
 
     def test_context_for_authenticated_user(
         self, client: Client, setup_data: dict[str, Any]

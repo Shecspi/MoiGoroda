@@ -5,15 +5,10 @@
 //
 // ----------------------------------------------
 
-import {showDangerToast, showSuccessToast} from '../components/toast.js';
+import {showDangerToast} from '../components/toast.js';
+import {showVisitedCityCreatedToast} from '../components/visited_city_created_toast.js';
 
 const REFRESH_SELECTOR = '[data-visited-city-refresh]';
-
-function getSuccessMessage(cityName) {
-    return cityName
-        ? `Город ${cityName} успешно добавлен как посещённый`
-        : 'Город успешно добавлен как посещённый';
-}
 
 async function refreshList(container) {
     const fragmentUrl = new URL(container.dataset.fragmentUrl, window.location.origin);
@@ -32,7 +27,13 @@ async function refreshList(container) {
 
     window.MGUi?.destroyAll(container);
     container.replaceWith(updatedContainer);
-    window.MGUi?.initAll(updatedContainer);
+    try {
+        window.MGUi?.initAll(updatedContainer);
+    } catch (error) {
+        updatedContainer.replaceWith(container);
+        window.MGUi?.initAll(container);
+        throw error;
+    }
     document.dispatchEvent(new CustomEvent('visited-city-list-refreshed', {
         detail: {root: updatedContainer},
     }));
@@ -45,7 +46,7 @@ document.addEventListener('city-added', async (event) => {
     }
 
     event.preventDefault();
-    showSuccessToast('Успешно', getSuccessMessage(event.detail?.city?.name));
+    showVisitedCityCreatedToast(event.detail?.collectionContext);
 
     try {
         await refreshList(container);

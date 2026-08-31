@@ -1,6 +1,4 @@
-/**
- * Компонент для отображения toast-уведомлений на основе daisyUI.
- *
+/*
  * ----------------------------------------------
  *
  * Copyright © Egor Vavilov (Shecspi)
@@ -9,7 +7,15 @@
  * ----------------------------------------------
  */
 
-export const showDaisyToast = (type, message) => {
+/**
+ * Компонент для отображения toast-уведомлений на основе daisyUI.
+ */
+export const showDaisyToast = (options) => {
+    if (!options || typeof options !== 'object') {
+        throw new TypeError('showDaisyToast expects an options object');
+    }
+    const {type, content, duration, dismissible, pauseOnInteraction} = options;
+
     let container = document.getElementById('daisy-toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -40,18 +46,76 @@ export const showDaisyToast = (type, message) => {
     );
     iconSvg.appendChild(iconPath);
 
-    const messageSpan = document.createElement('span');
-    messageSpan.className = 'font-normal';
-    messageSpan.textContent = String(message);
+    const contentContainer = document.createElement('span');
+    contentContainer.className = 'font-normal';
+    if (typeof content === 'string') {
+        contentContainer.textContent = content;
+    } else {
+        contentContainer.append(content);
+    }
 
-    alertDiv.append(iconSvg, messageSpan);
+    alertDiv.append(iconSvg, contentContainer);
 
-    container.appendChild(alertDiv);
-
-    setTimeout(() => {
+    let timeoutId;
+    let timerStartedAt;
+    let remainingTime = duration;
+    let isHovered = false;
+    let hasFocusWithin = false;
+    const removeToast = () => {
+        clearTimeout(timeoutId);
         alertDiv.remove();
         if (!container.hasChildNodes()) {
             container.remove();
         }
-    }, 5000);
+    };
+    const startTimer = () => {
+        timerStartedAt = Date.now();
+        timeoutId = setTimeout(removeToast, remainingTime);
+    };
+    const pauseTimer = () => {
+        if (timeoutId === undefined) {
+            return;
+        }
+        clearTimeout(timeoutId);
+        timeoutId = undefined;
+        remainingTime = Math.max(0, remainingTime - (Date.now() - timerStartedAt));
+    };
+    const resumeTimer = () => {
+        if (timeoutId === undefined && !isHovered && !hasFocusWithin) {
+            startTimer();
+        }
+    };
+
+    if (dismissible) {
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'dui-btn dui-btn-ghost dui-btn-sm dui-btn-circle shrink-0';
+        closeButton.setAttribute('aria-label', 'Закрыть уведомление');
+        closeButton.textContent = '×';
+        closeButton.addEventListener('click', removeToast);
+        alertDiv.append(closeButton);
+    }
+
+    container.appendChild(alertDiv);
+
+    if (pauseOnInteraction) {
+        alertDiv.addEventListener('mouseenter', () => {
+            isHovered = true;
+            pauseTimer();
+        });
+        alertDiv.addEventListener('mouseleave', () => {
+            isHovered = false;
+            resumeTimer();
+        });
+        alertDiv.addEventListener('focusin', () => {
+            hasFocusWithin = true;
+            pauseTimer();
+        });
+        alertDiv.addEventListener('focusout', (event) => {
+            hasFocusWithin = alertDiv.contains(event.relatedTarget);
+            resumeTimer();
+        });
+    }
+
+    startTimer();
 };

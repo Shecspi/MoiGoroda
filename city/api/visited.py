@@ -29,6 +29,7 @@ from city.services.db import (
     get_number_of_users_who_visit_city,
     get_number_of_visits_by_city,
 )
+from collection.services import get_city_collection_context
 from services import logger
 
 
@@ -191,6 +192,7 @@ class AddVisitedCity(Body[AddVisitedCityBody], Controller[MsgspecSerializer]):
                 status_code=HTTPStatus.CONFLICT,
             )
 
+        collection_context = get_city_collection_context(city)
         is_first_visit = not VisitedCity.objects.filter(user=user, city=city).exists()
         visit = VisitedCity.objects.create(
             user=user,
@@ -214,7 +216,12 @@ class AddVisitedCity(Body[AddVisitedCityBody], Controller[MsgspecSerializer]):
         city_summary.pop('id')  # ``id`` в legacy create response является ID посещения.
         visit_data.update(city_summary)
         return self.to_response(
-            raw_data={'status': 'success', 'city': visit_data, 'visit': _visit_payload(visit)},
+            raw_data={
+                'status': 'success',
+                'city': visit_data,
+                'visit': _visit_payload(visit),
+                'collection_context': collection_context,
+            },
             status_code=HTTPStatus.OK,
         )
 

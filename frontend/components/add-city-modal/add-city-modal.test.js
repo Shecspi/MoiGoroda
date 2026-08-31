@@ -30,6 +30,14 @@ vi.mock('../../js/components/toast.js', () => ({
     showSuccessToast: vi.fn(),
 }));
 
+const {showVisitedCityCreatedToast} = vi.hoisted(() => ({
+    showVisitedCityCreatedToast: vi.fn(),
+}));
+
+vi.mock('../../js/components/visited_city_created_toast.js', () => ({
+    showVisitedCityCreatedToast,
+}));
+
 import { Calendar } from 'vanilla-calendar-pro';
 import { showSuccessToast } from '../../js/components/toast.js';
 import AddCityModal from './add-city-modal.js';
@@ -85,6 +93,7 @@ describe('AddCityModal visit calendar', () => {
         document.body.innerHTML = modalTemplate;
         Calendar.mockClear();
         showSuccessToast.mockClear();
+        showVisitedCityCreatedToast.mockClear();
         vi.stubGlobal('fetch', vi.fn());
         vi.stubGlobal('innerWidth', 1024);
     });
@@ -739,6 +748,45 @@ describe('AddCityModal visit calendar', () => {
 
         await vi.waitFor(() => expect(modal.close).toHaveBeenCalledOnce());
 
+        expect(showSuccessToast).not.toHaveBeenCalled();
+        expect(showVisitedCityCreatedToast).not.toHaveBeenCalled();
+    });
+
+    it('passes the backend collection context unchanged and shows one domain toast', async () => {
+        const modal = new AddCityModal();
+        document.body.appendChild(modal);
+        modal.close = vi.fn();
+        const collectionContext = {
+            city: {id: 42, title: 'Тверь', url: '/city/42'},
+            common_collections: {count: 0, single: null, catalog_url: '/collection/'},
+        };
+        const cityAdded = vi.fn();
+        const visitedCityCreated = vi.fn();
+        modal.addEventListener('city-added', cityAdded);
+        modal.addEventListener('visited-city-created', visitedCityCreated);
+        fetch.mockResolvedValue({
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+                city: {city: 42, city_title: 'Тверь', number_of_visits: 1},
+                visit: {id: 7},
+                collection_context: collectionContext,
+            }),
+        });
+
+        modal.querySelector('#form-add-city').dispatchEvent(new Event('submit', {
+            bubbles: true,
+            cancelable: true,
+        }));
+
+        await vi.waitFor(() => expect(showVisitedCityCreatedToast).toHaveBeenCalledOnce());
+
+        expect(showVisitedCityCreatedToast).toHaveBeenCalledWith(collectionContext);
+        expect(cityAdded.mock.calls[0][0].detail.collectionContext).toBe(collectionContext);
+        expect(visitedCityCreated.mock.calls[0][0].detail).toMatchObject({
+            visit: {id: 7},
+            isNewCity: true,
+        });
+        expect(visitedCityCreated.mock.calls[0][0].detail).not.toHaveProperty('collectionContext');
         expect(showSuccessToast).not.toHaveBeenCalled();
     });
 

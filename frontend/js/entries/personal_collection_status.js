@@ -1,6 +1,4 @@
-/**
- * Обработка изменения статуса публичности персональной коллекции и копирования ссылки.
- *
+/*
  * ----------------------------------------------
  *
  * Copyright © Egor Vavilov (Shecspi)
@@ -9,9 +7,21 @@
  * ----------------------------------------------
  */
 
+/**
+ * Обработка изменения статуса публичности персональной коллекции и копирования ссылки.
+ */
+
 import {showSuccessToast, showDangerToast} from '../components/toast.js';
 import {showDaisyToast} from '../components/daisyui_toast.js';
 import {getCookie} from '../components/get_cookie.js';
+
+const showCollectionToast = (type, content) => showDaisyToast({
+    type,
+    content,
+    duration: 5000,
+    dismissible: true,
+    pauseOnInteraction: true,
+});
 
 const setTooltipText = (element, text) => {
     const daisyTooltip = element?.closest('[data-tip]') || element?.parentElement;
@@ -88,7 +98,7 @@ export function initializePersonalCollectionStatus(root = document) {
                         );
                     }
 
-                    showDaisyToast(
+                    showCollectionToast(
                         'success',
                         data.is_public
                             ? 'Коллекция теперь публичная. Любой пользователь может просматривать её.'
@@ -96,7 +106,7 @@ export function initializePersonalCollectionStatus(root = document) {
                     );
                 } catch (error) {
                     console.error('Ошибка при изменении статуса коллекции:', error);
-                    showDaisyToast('error', error.message || 'Не удалось изменить статус коллекции. Попробуйте ещё раз.');
+                    showCollectionToast('error', error.message || 'Не удалось изменить статус коллекции. Попробуйте ещё раз.');
 
                     // Возвращаем switch в исходное состояние
                     switchElement.checked = !isPublic;
@@ -135,7 +145,7 @@ export function initializePersonalCollectionStatus(root = document) {
             const collectionUrl = copyButton.dataset.collectionUrl;
             const collectionTitle = copyButton.dataset.collectionTitle || 'Персональная коллекция городов';
             if (!collectionUrl) {
-                showDaisyToast('error', 'Не удалось получить ссылку на коллекцию');
+                showCollectionToast('error', 'Не удалось получить ссылку на коллекцию');
                 return;
             }
 
@@ -157,10 +167,10 @@ export function initializePersonalCollectionStatus(root = document) {
                     if (error.name !== 'AbortError') {
                         try {
                             await navigator.clipboard.writeText(absoluteUrl);
-                            showDaisyToast('success', 'Ссылка на коллекцию успешно скопирована в буфер обмена');
+                            showCollectionToast('success', 'Ссылка на коллекцию успешно скопирована в буфер обмена');
                         } catch (clipboardError) {
                             console.error('Ошибка при копировании ссылки:', clipboardError);
-                            showDaisyToast('error', 'Не удалось поделиться ссылкой. Попробуйте ещё раз');
+                            showCollectionToast('error', 'Не удалось поделиться ссылкой. Попробуйте ещё раз');
                         }
                     }
                 }
@@ -168,10 +178,10 @@ export function initializePersonalCollectionStatus(root = document) {
                 // Fallback для устройств без поддержки Web Share API
                 try {
                     await navigator.clipboard.writeText(absoluteUrl);
-                    showDaisyToast('success', 'Ссылка на коллекцию успешно скопирована в буфер обмена');
+                    showCollectionToast('success', 'Ссылка на коллекцию успешно скопирована в буфер обмена');
                 } catch (error) {
                     console.error('Ошибка при копировании ссылки:', error);
-                    showDaisyToast('error', 'Не удалось скопировать ссылку. Попробуйте ещё раз');
+                    showCollectionToast('error', 'Не удалось скопировать ссылку. Попробуйте ещё раз');
                 }
             }
         });

@@ -9,12 +9,15 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 const mocks = vi.hoisted(() => ({
     showDangerToast: vi.fn(),
-    showSuccessToast: vi.fn(),
+    showVisitedCityCreatedToast: vi.fn(),
 }));
 
 vi.mock('../components/toast.js', () => ({
     showDangerToast: mocks.showDangerToast,
-    showSuccessToast: mocks.showSuccessToast,
+}));
+
+vi.mock('../components/visited_city_created_toast.js', () => ({
+    showVisitedCityCreatedToast: mocks.showVisitedCityCreatedToast,
 }));
 
 describe('visited_city_list_refresh', () => {
@@ -57,7 +60,7 @@ describe('visited_city_list_refresh', () => {
 
         expect(document.dispatchEvent(event)).toBe(true);
         expect(fetch).not.toHaveBeenCalled();
-        expect(mocks.showSuccessToast).not.toHaveBeenCalled();
+        expect(mocks.showVisitedCityCreatedToast).not.toHaveBeenCalled();
     });
 
     it('refreshes the full container and preserves query parameters', async () => {
@@ -76,9 +79,13 @@ describe('visited_city_list_refresh', () => {
             `),
         });
 
+        const collectionContext = {
+            city: {id: 1, title: 'Новый город', url: '/city/1'},
+            common_collections: {count: 0, single: null, catalog_url: '/collection/'},
+        };
         const event = new CustomEvent('city-added', {
             cancelable: true,
-            detail: {city: {name: 'Новый город'}},
+            detail: {city: {name: 'Новый город'}, collectionContext},
         });
 
         expect(document.dispatchEvent(event)).toBe(false);
@@ -87,10 +94,7 @@ describe('visited_city_list_refresh', () => {
         });
 
         expect(fetch).toHaveBeenCalledWith(`${window.location.origin}/region/1/list/fragment?filter=visited&page=2`);
-        expect(mocks.showSuccessToast).toHaveBeenCalledWith(
-            'Успешно',
-            'Город Новый город успешно добавлен как посещённый',
-        );
+        expect(mocks.showVisitedCityCreatedToast).toHaveBeenCalledWith(collectionContext);
     });
 
     it.each([
@@ -208,6 +212,7 @@ describe('visited_city_list_refresh', () => {
         await vi.waitFor(() => expect(mocks.showDangerToast).toHaveBeenCalledOnce());
 
         expect(document.querySelector('[data-visited-city-refresh]').textContent).toContain('Старый список');
+        expect(mocks.showVisitedCityCreatedToast).toHaveBeenCalledOnce();
         expect(mocks.showDangerToast).toHaveBeenCalledWith(
             'Ошибка',
             'Не удалось обновить список. Обновите страницу вручную.',
@@ -226,5 +231,47 @@ describe('visited_city_list_refresh', () => {
         await vi.waitFor(() => expect(mocks.showDangerToast).toHaveBeenCalledOnce());
 
         expect(document.querySelector('[data-visited-city-refresh]').textContent).toContain('Старый список');
+    });
+
+    it('restores the current container when refreshed controls fail to initialize', async () => {
+        document.body.innerHTML = '<section data-visited-city-refresh data-fragment-url="/city/all/list/fragment">Старый список</section>';
+        window.MGUi = {
+            destroyAll: vi.fn(),
+            initAll: vi.fn((root) => {
+                if (root.textContent.includes('Новый список')) {
+                    throw new Error('init failed');
+                }
+            }),
+        };
+        fetch.mockResolvedValue({
+            ok: true,
+            text: vi.fn().mockResolvedValue(
+                '<section data-visited-city-refresh data-fragment-url="/city/all/list/fragment">Новый список</section>',
+            ),
+        });
+
+        document.dispatchEvent(new CustomEvent('city-added', {cancelable: true}));
+
+        await vi.waitFor(() => expect(mocks.showDangerToast).toHaveBeenCalledOnce());
+
+        expect(document.querySelector('[data-visited-city-refresh]').textContent).toContain('Старый список');
+    });
+
+    it('shows success before the asynchronous refresh finishes', () => {
+        document.body.innerHTML = '<section data-visited-city-refresh data-fragment-url="/city/all/list/fragment">Старый список</section>';
+        fetch.mockReturnValue(new Promise(() => {}));
+        const collectionContext = {
+            city: {id: 1, title: 'Новый город', url: '/city/1'},
+            common_collections: {count: 0, single: null, catalog_url: '/collection/'},
+        };
+
+        const event = new CustomEvent('city-added', {
+            cancelable: true,
+            detail: {collectionContext},
+        });
+        const notCancelled = document.dispatchEvent(event);
+
+        expect(notCancelled).toBe(false);
+        expect(mocks.showVisitedCityCreatedToast).toHaveBeenCalledWith(collectionContext);
     });
 });

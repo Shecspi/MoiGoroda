@@ -128,9 +128,12 @@ describe('city_visits', () => {
 
         expect(document.querySelector('#user-visits')).toBe(previousRoot);
         expect(document.querySelector('#user-visits-list').textContent).toContain('Старая запись');
-        expect(mocks.showDaisyToast).toHaveBeenCalledWith(
-            'error',
-            'Не удалось обновить посещения. Обновите страницу вручную.',
-        );
+        expect(mocks.showDaisyToast).toHaveBeenCalledWith({
+            type: 'error',
+            content: 'Не удалось обновить посещения. Обновите страницу вручную.',
+            duration: 5000,
+            dismissible: true,
+            pauseOnInteraction: true,
+        });
     });
 });

@@ -24,9 +24,11 @@ from django.db.models import (
     QuerySet,
     Subquery,
     Value,
+    Window,
 )
 from django.db.models.functions import Round
 from django.http import Http404
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from city.models import City, VisitedCity
@@ -38,6 +40,42 @@ from utils.CollectionListMixin import CollectionListMixin
 
 # Сортировки, требующие qty_of_visited_cities / is_favorite — только для авторизованных.
 AUTH_ONLY_COLLECTION_SORTS = frozenset({'progress_down', 'progress_up', 'default_auth'})
+
+
+def get_city_collection_context(city: City) -> dict[str, Any]:
+    """Возвращает canonical DTO общих коллекций города одним согласованным чтением."""
+    summary = (
+        Collection.objects.filter(city=city)
+        .annotate(common_count=Window(expression=Count('*')))
+        .values('id', 'title', 'common_count')
+        .first()
+    )
+
+    single = None
+    common_count = summary['common_count'] if summary else 0
+    if common_count == 1 and summary:
+        collection = Collection(
+            pk=summary['id'],
+            title=summary['title'],
+        )
+        single = {
+            'id': collection.pk,
+            'title': collection.title,
+            'url': collection.get_absolute_url(),
+        }
+
+    return {
+        'city': {
+            'id': city.pk,
+            'title': city.title,
+            'url': city.get_absolute_url(),
+        },
+        'common_collections': {
+            'count': common_count,
+            'single': single,
+            'catalog_url': reverse('collection-list'),
+        },
+    }
 
 
 class CollectionListService:

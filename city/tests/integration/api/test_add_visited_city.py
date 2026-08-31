@@ -134,13 +134,30 @@ class TestAddVisitedCityCollectionContext:
                 'catalog_url': '/collection/',
             },
         }
-        for response in (first_response, repeat_response):
+        for response, visit_date in (
+            (first_response, date(2026, 8, 1)),
+            (repeat_response, date(2026, 8, 2)),
+        ):
             assert response.status_code == status.HTTP_200_OK
             payload = response.json()
             assert payload['status'] == 'success'
             assert payload['city']['city'] == city.id
             assert payload['city']['city_title'] == 'Тверь'
-            assert payload['visit']['city'] == city.id
+            visit = VisitedCity.objects.get(user=user, city=city, date_of_visit=visit_date)
+            assert payload['visit'] == {
+                'id': visit.id,
+                'city': city.id,
+                'city_title': 'Тверь',
+                'region_title': 'Тверская область',
+                'country': 'Россия',
+                'date_of_visit': visit_date.isoformat(),
+                'has_magnet': False,
+                'impression': None,
+                'impression_html': '',
+                'rating': 5,
+                'lat': '56.8587',
+                'lon': '35.9176',
+            }
             assert payload['collection_context'] == expected_context
 
     def test_context_error_returns_500_without_creating_visit(

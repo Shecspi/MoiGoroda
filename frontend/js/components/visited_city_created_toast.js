@@ -32,9 +32,9 @@ export const showVisitedCityCreatedToast = (collectionContext) => {
     const collections = collectionContext.common_collections;
     if (collections.count === 1) {
         const collectionLine = document.createElement('p');
+        collectionLine.className = 'line-clamp-2';
         collectionLine.append('Город входит в коллекцию «');
         const collectionLink = createLink(collections.single.title, collections.single.url);
-        collectionLink.classList.add('line-clamp-2', 'max-w-full');
         collectionLink.title = collections.single.title;
         collectionLine.append(collectionLink, '».');
         wrapper.append(collectionLine);

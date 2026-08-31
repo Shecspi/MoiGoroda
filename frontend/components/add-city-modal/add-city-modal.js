@@ -469,6 +469,12 @@ class AddCityModal extends HTMLElement {
         this.setCityLocationSummary();
     }
 
+    blurCityInputAfterSelection() {
+        setTimeout(() => {
+            if (!this.mobileCitySearchActive) this.cityInput.blur();
+        }, 0);
+    }
+
     startCityReselection() {
         if (!this.isMobileViewport() || !this.cityId) return;
 
@@ -492,9 +498,7 @@ class AddCityModal extends HTMLElement {
         this.previousCitySelection = null;
         this.cityCombobox?.destroy();
         this.cityCombobox = null;
-        setTimeout(() => {
-            if (!this.mobileCitySearchActive) this.cityInput.blur();
-        }, 0);
+        this.blurCityInputAfterSelection();
         this.showVisitDetails();
     }
 
@@ -533,9 +537,7 @@ class AddCityModal extends HTMLElement {
                 this.setSelectedCity(city);
                 if (this.mobileCitySearchActive) {
                     this.previousCitySelection = null;
-                    setTimeout(() => {
-                        if (!this.mobileCitySearchActive) this.cityInput.blur();
-                    }, 0);
+                    this.blurCityInputAfterSelection();
                     this.showVisitDetails();
                 }
                 this.updateSubmitButtonState();

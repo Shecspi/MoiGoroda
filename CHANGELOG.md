@@ -76,6 +76,8 @@
 
 - *(collection)* Добавлено уведомление о коллекциях после посещения города (#320) ([519be90](https://github.com/Shecspi/MoiGoroda/commit/519be903db2f40c2e4f5d653aa18427b27334d53))
 
+- *(collection)* Добавлен фильтр общих коллекций по городу (#321) ([ed535f1](https://github.com/Shecspi/MoiGoroda/commit/ed535f1c1c5c672f2c31a052bed6195527372dad))
+
 
 #### 🐛 Исправление ошибок
 

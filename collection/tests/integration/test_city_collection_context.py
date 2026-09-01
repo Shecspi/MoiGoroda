@@ -74,7 +74,7 @@ def test_city_collection_context_has_constant_query_count_and_expected_dto(
                 if common_count == 1
                 else None
             ),
-            'catalog_url': '/collection/',
+            'catalog_url': f'/collection/?city={city.id}',
         },
     }
 

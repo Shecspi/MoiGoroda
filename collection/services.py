@@ -8,6 +8,7 @@
 import json
 import uuid
 from typing import Any, Iterable
+from urllib.parse import urlencode
 
 from django.contrib.auth.models import User
 from django.contrib.postgres.aggregates import ArrayAgg
@@ -44,6 +45,7 @@ AUTH_ONLY_COLLECTION_SORTS = frozenset({'progress_down', 'progress_up', 'default
 
 def get_city_collection_context(city: City) -> dict[str, Any]:
     """Возвращает canonical DTO общих коллекций города одним согласованным чтением."""
+    catalog_query = urlencode({'city': city.pk})
     summary = (
         Collection.objects.filter(city=city)
         .annotate(common_count=Window(expression=Count('*')))
@@ -73,7 +75,7 @@ def get_city_collection_context(city: City) -> dict[str, Any]:
         'common_collections': {
             'count': common_count,
             'single': single,
-            'catalog_url': reverse('collection-list'),
+            'catalog_url': f'{reverse("collection-list")}?{catalog_query}',
         },
     }
 
@@ -92,6 +94,7 @@ class CollectionListService:
         user: User | None,
         filter_value: str | None = None,
         sort_value: str | None = None,
+        city: City | None = None,
         request: Any = None,
     ) -> tuple[QuerySet[Collection, Any], dict[str, Any]]:
         """
@@ -100,11 +103,14 @@ class CollectionListService:
         :param user: Пользователь, для которого нужно получить коллекции.
         :param filter_value: Значение фильтра (например, 'not_started', 'finished').
         :param sort_value: Значение сортировки (например, 'name_down', 'progress_up').
+        :param city: Город, общими коллекциями которого нужно ограничить выдачу.
         :param request: HTTP request для логирования (опционально).
         :return: Кортеж из QuerySet коллекций и словаря со статистикой.
         """
         # Получаем коллекции с аннотациями (без prefetch всех городов).
         queryset = self.repository.get_collections_with_annotations(user)
+        if city is not None:
+            queryset = queryset.filter(city=city)
 
         # Статистика по всем коллекциям — один агрегирующий SQL вместо count() + цикла.
         statistics: dict[str, Any] = {

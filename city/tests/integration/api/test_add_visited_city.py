@@ -131,7 +131,7 @@ class TestAddVisitedCityCollectionContext:
                     'title': '<Верхневолжье>',
                     'url': f'/collection/{collection.id}/list',
                 },
-                'catalog_url': '/collection/',
+                'catalog_url': f'/collection/?city={city.id}',
             },
         }
         for response, visit_date in (
@@ -159,6 +159,29 @@ class TestAddVisitedCityCollectionContext:
                 'lon': '35.9176',
             }
             assert payload['collection_context'] == expected_context
+
+    def test_multiple_common_collections_return_city_filtered_catalog_url(
+        self,
+        client: Client,
+        django_user_model: Type[User],
+        city: City,
+    ) -> None:
+        """Для toast двух коллекций API возвращает URL каталога выбранного города."""
+        user = django_user_model.objects.create_user(username='catalog-user', password='password')
+        client.force_login(user)
+        for title in ('Верхняя Волга', 'Древние города'):
+            collection = Collection.objects.create(title=title)
+            collection.city.add(city)
+
+        response = post_visit(client, city, '2026-08-01')
+
+        collections = response.json()['collection_context']['common_collections']
+        assert response.status_code == status.HTTP_200_OK
+        assert collections == {
+            'count': 2,
+            'single': None,
+            'catalog_url': f'/collection/?city={city.id}',
+        }
 
     def test_context_error_returns_500_without_creating_visit(
         self,

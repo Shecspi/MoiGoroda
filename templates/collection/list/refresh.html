@@ -10,7 +10,7 @@
 <section data-visited-city-refresh data-fragment-url="{% url 'collection-list-fragment' %}">
     {% if selected_city %}
         <div class="mx-3 mb-4 flex justify-center">
-            <span class="dui-badge dui-badge-outline dui-badge-lg gap-2">
+            <span class="dui-badge dui-badge-soft dui-badge-outline dui-badge-error dui-badge-lg gap-2">
                 Город: {{ selected_city.title }}
                 <a href="{{ city_filter_reset_url }}"
                    aria-label="Сбросить фильтр по городу"

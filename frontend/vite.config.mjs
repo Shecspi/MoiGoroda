@@ -81,6 +81,7 @@ export default defineConfig({
         add_city_modal: path.resolve(entriesDir, 'add_city_modal.js'),
         visited_city_list_refresh: path.resolve(entriesDir, 'visited_city_list_refresh.js'),
         geo_polygons: path.resolve(entriesDir, 'geo_polygons.js'),
+        travel_results_prototype: path.resolve(entriesDir, 'travel_results_prototype.js'),
         
         // CSS entries
         'css/tailwind': path.resolve(__dirname, 'css/tailwind.css'),

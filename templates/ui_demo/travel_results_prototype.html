@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load vite %}
+
+{% comment %}
+----------------------------------------------
+
+Copyright © Egor Vavilov (Shecspi)
+Licensed under the Apache License, Version 2.0
+
+----------------------------------------------
+
+THROWAWAY PROTOTYPE.
+Three variants of the «Итоги путешествий» section, switchable via ?variant=,
+on the DEBUG-only /ui-demo/travel-results-prototype/ route.
+{% endcomment %}
+
+{% block content %}
+<main id="travel-results-prototype" class="min-h-screen bg-base-200 pb-36 text-base-content">
+    <div class="mx-auto max-w-[1500px] px-3 pt-6 sm:px-6 sm:pt-10 lg:px-8">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <a href="{% url 'ui_demo:index' %}" class="dui-btn dui-btn-ghost dui-btn-sm">← UI kit</a>
+            <span class="dui-badge dui-badge-warning dui-badge-outline gap-2">PROTOTYPE · не production</span>
+        </div>
+
+        <section class="dui-alert dui-alert-warning dui-alert-soft mb-5 block" aria-labelledby="prototype-question">
+            <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <div class="max-w-4xl">
+                    <p class="text-xs font-bold uppercase tracking-[0.22em]">Вопрос прототипа</p>
+                    <h1 id="prototype-question" class="mt-1 text-lg font-bold sm:text-xl">Какая подача превращает историю посещений в понятные личные итоги, а не в ещё одну страницу статистики?</h1>
+                    <p class="mt-1 text-sm opacity-75">Сравните три структуры и прогоните обязательные состояния. Данные фиктивные и существуют только в памяти вкладки.</p>
+                </div>
+                <button type="button" class="dui-btn dui-btn-sm border-amber-400 bg-white/70 text-amber-950 hover:bg-white dark:bg-neutral-900/50 dark:text-amber-100" data-toggle-state>Скрыть состояние</button>
+            </div>
+            <div class="dui-stats dui-stats-vertical mt-4 w-full border border-warning/25 bg-base-100/60 text-base-content shadow-none sm:dui-stats-horizontal" data-state-panel>
+                <div class="dui-stat px-3 py-2"><span class="dui-stat-title text-xs">Вариант</span><strong class="dui-stat-value text-xs" data-state="variant"></strong></div>
+                <div class="dui-stat px-3 py-2"><span class="dui-stat-title text-xs">Сценарий</span><strong class="dui-stat-value text-xs" data-state="scenario"></strong></div>
+                <div class="dui-stat px-3 py-2"><span class="dui-stat-title text-xs">Период</span><strong class="dui-stat-value text-xs" data-state="period"></strong></div>
+                <div class="dui-stat px-3 py-2"><span class="dui-stat-title text-xs">Доступ</span><strong class="dui-stat-value text-xs" data-state="access"></strong></div>
+                <div class="dui-stat px-3 py-2"><span class="dui-stat-title text-xs">Представление</span><strong class="dui-stat-value text-xs" data-state="mode"></strong></div>
+                <div class="dui-stat px-3 py-2"><span class="dui-stat-title text-xs">Публикация</span><strong class="dui-stat-value text-xs" data-state="publication"></strong></div>
+            </div>
+        </section>
+
+        <nav class="mb-5 flex gap-2 overflow-x-auto pb-2" aria-label="Проверяемые состояния" data-scenario-nav></nav>
+
+        <section data-variant="A" aria-label="Вариант A — история по главам"></section>
+        <section data-variant="B" aria-label="Вариант B — журнальный разворот" hidden></section>
+        <section data-variant="C" aria-label="Вариант C — рабочая панель" hidden></section>
+    </div>
+
+    <div class="dui-join fixed inset-x-0 bottom-4 z-[1000] mx-auto flex w-[calc(100%-1.5rem)] max-w-xl items-center rounded-full bg-neutral p-2 text-neutral-content shadow-2xl ring-1 ring-white/20" data-variant-switcher>
+        <button type="button" class="dui-btn dui-btn-circle dui-btn-sm dui-join-item border-white/20 bg-white/10 text-white hover:bg-white/20" data-variant-previous aria-label="Предыдущий вариант">←</button>
+        <div class="min-w-0 flex-1 text-center">
+            <p class="truncate text-sm font-semibold" data-variant-label></p>
+            <p class="hidden text-[10px] opacity-60 sm:block">Клавиши ← → · URL можно отправить</p>
+        </div>
+        <button type="button" class="dui-btn dui-btn-circle dui-btn-sm dui-join-item border-white/20 bg-white/10 text-white hover:bg-white/20" data-variant-next aria-label="Следующий вариант">→</button>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    {% vite_asset 'js/entries/travel_results_prototype.js' %}
+{% endblock %}

@@ -1,4 +1,11 @@
-.PHONY: help run-dev run-frontend-dev run-prod build-prod check format lint test frontend-install frontend-test frontend-build lint-mypy lint-ruff
+# ---------------------------------------------
+#
+# Copyright © Egor Vavilov (Shecspi)
+# Licensed under the Apache License, Version 2.0
+#
+# ----------------------------------------------
+
+.PHONY: help run-dev run-frontend-dev run-travel-results-prototype run-prod build-prod check format lint test frontend-install frontend-test frontend-build lint-mypy lint-ruff
 
 help: ## Показать справку по командам
 	@printf "\033[0;32mДоступные команды:\033[0m\n"
@@ -14,6 +21,10 @@ run-frontend-dev: ## Запустить frontend dev server
 	@printf "\033[0;33mFrontend будет доступен по адресу: http://localhost:5173\033[0m\n"
 	@printf "\033[0;33mДля остановки нажмите Ctrl+C\033[0m\n\n"
 	cd frontend && npm run dev
+
+run-travel-results-prototype: ## Запустить прототип «Итоги путешествий»
+	@printf "\033[0;32mПрототип: http://localhost:8000/ui-demo/travel-results-prototype/?variant=B&scenario=rich\033[0m\n"
+	@cd frontend && npm run dev & frontend_pid=$$!; trap 'kill $$frontend_pid 2>/dev/null || true' EXIT INT TERM; poetry run python manage.py runserver 0.0.0.0:8000
 
 # Production
 build-prod: ## Подготовить проект к production (собрать frontend и статику)

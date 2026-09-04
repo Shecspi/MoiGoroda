@@ -117,3 +117,14 @@ def city_popup(request: HttpRequest) -> HttpResponse:
         'Popup города (демо)',
         'Временная страница для отладки внешнего вида popup окна города на карте.',
     )
+
+
+@login_required
+def travel_results_prototype(request: HttpRequest) -> HttpResponse:
+    return _render(
+        request,
+        'ui_demo/travel_results_prototype.html',
+        'Итоги путешествий (прототип)',
+        'Три варианта нового раздела на реалистичных фиктивных данных.',
+        extra_context={'active_page': 'travel_results_prototype'},
+    )

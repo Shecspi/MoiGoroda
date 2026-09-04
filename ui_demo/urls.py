@@ -20,4 +20,9 @@ urlpatterns = [
     path('daisyui/', views.daisyui, name='daisyui'),
     path('misc/', views.misc, name='misc'),
     path('city-popup/', views.city_popup, name='city_popup'),
+    path(
+        'travel-results-prototype/',
+        views.travel_results_prototype,
+        name='travel_results_prototype',
+    ),
 ]
